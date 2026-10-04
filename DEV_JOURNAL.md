@@ -378,3 +378,36 @@ the mockup):
 - One simple card-back design.
 - Playing alone: the second scorecard shows the best (fewest turns) for
   that grid size, reset on "New game".
+
+## 2026-10-04: Matching cards mockup v1
+
+**Mockup v1** (private Claude artifact, throwaway; nothing in the repo):
+[Matching Cards Mockup](https://claude.ai/artifact/HNSrgzfwREctAqTTJZ7t4A).
+Same look as the site; the drawn faces copied from `src/ui/faces.js`.
+- Setup: "Just me" / "Two players", face pickers (two players can't share
+  a face), **How many cards?** (3x4, 4x4 default, 4x5, 4x6, 5x6, 6x6;
+  sizes whose cards would be under 56 px on this screen are greyed, with
+  a note), who goes first (two players only).
+- Claude added **3x4 (6 pairs)** as an easier size: the kickoff plan had
+  6, 8 and 10 pairs.
+- Play: the grid is sized so it fits with the turn line and the "This
+  game" card; on small phones "Games won" and the buttons may need a
+  scroll. The grid turns sideways when that gives bigger cards.
+- One card back (a yellow star on teal-blue dots). A pair shows "A
+  match!" for 0.6 s, then stays face up, tinted the finder's colour; a
+  mismatch shows "Not a match" for 1.5 s, then turns back. The turn
+  passes either way.
+- Scorecard 1 "This game" (dark strip): pairs per player; the finder's
+  face shows its winner version and wiggles on each pair. Scorecard 2
+  "Games won" (light, smaller): wins and ties, reset on New game.
+  Just me: pairs found / total and turns; second card "Best for <size>"
+  (fewest turns).
+- End: "<face> wins!" with the winner face (both for a tie); playing
+  alone: "All found in N turns!".
+- Pictures: the 17 faces (robot included) less the players' picks; 6x6
+  repeats some (4 of a kind).
+- A mockup-only "Peek at all cards" button for reviewing.
+
+**Checked by Claude:** a syntax check of the mockup's script only. The
+built-in browser can't run a file outside the project folder, and the
+artifact needs a claude.ai sign-in there. The developer reviews it.
