@@ -69,3 +69,44 @@ on yet; that is the publish step, done with the developer's OK.
 The developer: GPL-3.0 is fine (Q2 resolved; `LICENSE` added, README and
 `DESIGN.md` say so), and parking play on separate devices is fine (Q1
 stays open as a later phase).
+
+## 2026-10-04: Tic-tac-toe: the developer's details; mockup v1
+
+**The developer's details** (2026-10-04), before any building:
+- **Avatars instead of X and O:** each player picks a cartoon-like face
+  (people or animals) from a list; the face fills each square they take.
+- **Win:** no line through the winning squares. The squares that didn't
+  win are blurred out (both players'), and the 3 winning squares are
+  highlighted.
+- **Against the computer:** its avatar is preselected, a little robot
+  face.
+- **Setup ("new game") screen:** choose "Player vs Computer" or "Two
+  players", or maybe just pick two avatars, where picking the robot means
+  a one-player game (the developer left this open).
+- **Who goes first** is chosen on the setup screen: take turns each
+  round, winner goes first, or loser goes first.
+- **Game screen controls:** "New game" (back to the setup screen) and
+  "Play again" (same avatars, the grid clears).
+- **Scorecard below the grid:** games won per avatar; starts at 0-0 on a
+  new game.
+- **The computer must be beatable:** "not too aggressive".
+- Review screen mockups before building.
+
+**Mockup v1** (private Claude artifact, throwaway; nothing in the repo),
+clickable on a phone-width page. It shows both setup ideas for the
+developer to compare: **A** "Who's playing?" first (Me and the robot / Two
+players; the robot is preselected), and **B** just two face pickers, the
+robot first in Player 2's list. Claude's proposals in it, for review:
+- 18 emoji faces (14 animals, girl, boy, grandma, grandpa); the robot
+  only for the computer. A face the other player has is greyed out.
+- Each player's squares are tinted their colour (orange / blue), so two
+  similar faces still read apart.
+- "<face>'s turn" above the grid; the scorecard also outlines whose turn
+  it is. A tie gets a "Ties" count between the two scores.
+- The robot waits 0.8 s ("is thinking..."), takes a win 75% of the time,
+  blocks 55%, likes the centre, otherwise plays at random. One level.
+- After a tie, the other player starts the next round (all three
+  first-player rules). The first round: player 1 (the child, against the
+  robot).
+- "Play again" mid-round restarts the round without scoring it; "New
+  game" keeps the last picks on the setup screen; scores reset on Play.
