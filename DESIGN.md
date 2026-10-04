@@ -4,8 +4,8 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status: kickoff decisions only (2026-10-04). The developer has more
-details to give before building starts.*
+*Status (2026-10-04): tic-tac-toe designed (mockup agreed); matching
+cards still as at kickoff. Nothing built yet.*
 
 ## Goal
 
@@ -50,17 +50,47 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
 
 ### Tic-tac-toe
 
-- **Two players on one device**, or **against the computer**.
-- The computer has an **easy** setting that makes mistakes on purpose so
-  the kids can win, and a **harder** one.
-- The rules are written so that a networked mode (each player on their own
-  device) could be added later without rewriting them (journal, Q1).
+Agreed 2026-10-04 from mockups v1-v2 (journal). The mockups are private
+Claude artifacts: [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBzH3wngEWY)
+(version 2) and [Tic-Tac-Toe Faces](https://claude.ai/artifact/DizY1LaW5xgCiXzBbfWxaa).
+
+- **Faces instead of X and O.** Each player picks a face; it fills the
+  squares they take. **Drawn faces** (our own SVG, not emoji): bear, cat,
+  dog, bunny, fox, panda, pig, frog, lion, mouse, monkey, chick, girl,
+  boy, grandma, grandpa, plus the robot (computer only). Each has a
+  **normal** and a **winner** version; only the winner's squares and the
+  "wins!" line show the winner version. The loser keeps the normal face.
+  Emoji were dropped: no smiling version for most animals, and they look
+  different on each device.
+- **Setup screen** ("New game"): "Who's playing?" first: **Me and the
+  robot** (the robot is preselected) or **Two players**. Then the face
+  pickers. **Both players can never have the same face** (the other
+  player's face is greyed out). Then **who goes first**: take turns,
+  winner goes first, or loser goes first. After a tie, the other player
+  starts next. Player 1 (the child, against the robot) starts the first
+  round. "Play!" stays greyed, with the reason, until the faces are
+  picked.
+- **Game screen**, top to bottom: whose turn it is ("<face>'s turn"; the
+  robot "is thinking..." for 0.8 s), the grid, a **scoreboard** (a dark,
+  flat strip, unlike the grid; wins per face, ties in the middle; outlines
+  whose turn it is), then the buttons **Play again** (same faces, grid
+  cleared; mid-round it restarts the round unscored) and **New game**
+  (back to setup, last picks kept). Scores start at 0-0 on Play!.
+- **Each player's squares are tinted** their colour (orange / blue).
+- **Win:** the squares that didn't win are blurred out; the 3 winning
+  squares are highlighted and show the winner face. A tie dims the grid:
+  "It's a tie!".
+- **The robot is beatable** ("not too aggressive"): one level; takes a
+  win 75% of the time, blocks 55%, likes the centre, otherwise random.
+  Tunable.
+- The rules are written so that a networked mode (each player on their
+  own device) could be added later without rewriting them (journal, Q1).
 
 ### Matching cards
 
 - **Single player** at first.
 - **Emoji pictures** (animals, fruit, vehicles): free to use, no image
-  licensing. The developer's own photos (family, pets) may come later.
+  licensing (not yet reviewed; tic-tac-toe moved to drawn faces). The developer's own photos (family, pets) may come later.
 - **Levels of 6, 8 and 10 pairs.** A move counter, **no timer** (no
   pressure).
 

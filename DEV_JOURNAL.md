@@ -146,3 +146,39 @@ started the GP-200 project's server instead (the desktop app still tied
 the preview to that project); stopped at once, nothing changed there.
 Only a syntax check of the mockup's script was run. The developer
 reviews the faces.
+
+## 2026-10-04: Faces approved; status (start here next session)
+
+**Faces:** a faces-only page, [Tic-Tac-Toe Faces](https://claude.ai/artifact/DizY1LaW5xgCiXzBbfWxaa)
+(private artifact), shows all 17 faces, normal beside winner. The
+developer: "Brilliant." The two winner faces they tried in the mockup
+"look great". Agreed design now in `DESIGN.md`, "Tic-tac-toe".
+
+**Known:**
+- Repo `donpark2000/Web-Games` (public, GPL-3.0), branch `main`, pushed.
+  Docs only; no code, no tests yet. GitHub Pages not turned on.
+- Tic-tac-toe design agreed (mockup v2:
+  [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBzH3wngEWY)).
+- **The face drawings and the mockup's code live only in those two
+  artifacts** (the session's scratchpad is temporary). To reuse them,
+  read the artifact (Artifact tool, `action: "read"`): the faces are the
+  `FACES`/`ROBOT` functions and the `eyes`/`mouth`/`cheeks` helpers in
+  its script. Port them into the repo as the real drawings.
+- Matching cards: only the kickoff decisions; the developer may have
+  more details.
+- Work happens on branches from here; `main` is the publish branch once
+  Pages is on (`CLAUDE.md`).
+
+**Next:** the developer chooses: give matching-cards details (and a
+mockup) first, or build tic-tac-toe. Build plan when it starts (on a
+branch): site skeleton (home page with a button per game, `?dev` log,
+`npm test` with Node's test runner); `src/core/` tic-tac-toe rules
+(winner/tie, the three first-player rules, no shared face, the robot
+with an injectable random source so tests are repeatable); the faces
+ported from the artifact; the screens from mockup v2; check on the
+developer's tablet and phone.
+
+**Note for the next session:** the desktop app's preview tool started the
+GP-200 project's server from this session (the session began in that
+repo). In a fresh session started in `Web-Games` this should not happen;
+a `.claude/launch.json` here is needed before `preview_start`.
