@@ -17,6 +17,9 @@ and what it does and doesn't prove.
   tic-tac-toe rules are to be written so it can be added without
   rewriting them. **Parking confirmed** (developer, 2026-10-04); stays
   open as a later phase.
+
+## Resolved
+
 - **Q4. Why the 🏠 button and the "aww" face didn't show on the
   developer's device.** *Raised 2026-10-04 (entry "Matching cards built;
   footer, 🏠, aww fixes").* The developer, on the live site: the 🏠 "did
@@ -26,11 +29,12 @@ and what it does and doesn't prove.
   published at 21:31 UTC and GitHub Pages lets browsers reuse files for
   10 minutes (`Cache-Control: max-age=600`, checked with curl); (2) the
   aww face lasted only 2.8 s (now kept until the next round). Not
-  confirmed: the device and the time of the test aren't known. **To
-  settle:** after the next publish, wait 10 minutes (or reload), then
-  check both on the device.
-
-## Resolved
+  confirmed: the device and the time of the test aren't known.
+  **Resolved 2026-10-04:** after the publish of `bad3c7a`, the developer
+  checked on their device: "Its all looking good" (the 🏠 size, the aww
+  face, the footer and matching cards). The first cause (an old saved
+  copy) can't be proven after the fact; the aww face now stays until the
+  next round either way.
 
 - **Q3. Copyright footer: exact wording.** *Raised 2026-10-04 (entry
   "Tic-tac-toe done").* The developer wants a small footer with their
@@ -685,5 +689,8 @@ and scripts all 200; in the built-in browser at 375x812 the live
 matching cards dealt 16 cards (79 px, 🏠 79 px), card backs drawn,
 footer link `target="_blank"`, no errors.
 
-**Next:** the developer tries matching cards and the fixes on their
-devices, after a reload or 10 minutes (Q4).
+**Checked by the developer** on their device: "Its all looking good"
+(Q4 resolved).
+
+**Next:** a new (third) game: the developer's choice; design it first
+(details, then a mockup), as with the first two.
