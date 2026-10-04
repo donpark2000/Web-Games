@@ -411,3 +411,10 @@ Same look as the site; the drawn faces copied from `src/ui/faces.js`.
 **Checked by Claude:** a syntax check of the mockup's script only. The
 built-in browser can't run a file outside the project folder, and the
 artifact needs a claude.ai sign-in there. The developer reviews it.
+
+**Mockup v1, update** (developer: "Almost perfect"): when a round ends,
+the winner's scorecard face grows (to 1.8x), smiles and wiggles for about
+2.8 s, then goes back to its normal size and normal face (a tie: both
+faces). Before, the winner face just stayed on. Claude did the same for
+"Just me" at the end. On each pair the finder's face still smiles and
+wiggles at normal size. Checked: syntax only (as before).
