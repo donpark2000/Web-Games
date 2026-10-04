@@ -6,6 +6,10 @@ and what it does and doesn't prove.
 
 ## Open questions
 
+(none)
+
+## Resolved
+
 - **Q1. Playing each other on separate devices.** *Raised 2026-10-04
   (entry "Kickoff decisions").* The developer: "it might be cool" for the
   kids to play each other in the same game on their own devices, but not
@@ -17,8 +21,9 @@ and what it does and doesn't prove.
   tic-tac-toe rules are to be written so it can be added without
   rewriting them. **Parking confirmed** (developer, 2026-10-04); stays
   open as a later phase.
-
-## Resolved
+  **Dropped 2026-10-04** (developer): "Since I can't do the 'playing
+  together on separate devices' with github hosting, I'm going to forget
+  that for now." No longer planned.
 
 - **Q4. Why the 🏠 button and the "aww" face didn't show on the
   developer's device.** *Raised 2026-10-04 (entry "Matching cards built;

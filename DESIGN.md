@@ -113,7 +113,9 @@ Claude artifacts: [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBz
   win 75% of the time, blocks 55%, likes the centre, otherwise random.
   Tunable.
 - The rules are written so that a networked mode (each player on their
-  own device) could be added later without rewriting them (journal, Q1).
+  own device) could be added later without rewriting them (journal, Q1;
+  that mode was dropped 2026-10-04: GitHub Pages can't pass moves
+  between devices).
 
 ### Matching cards
 
@@ -189,7 +191,6 @@ has heard them.
 
 ## Later
 
-- Playing each other on separate devices (journal, Q1).
 - Matching cards with the developer's own photos.
 - More games.
 
