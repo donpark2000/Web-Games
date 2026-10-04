@@ -32,6 +32,10 @@ page. The first two:
 - **No ads, no tracking, no sign-in, nothing loaded from other sites**
   (no web fonts, no outside scripts).
 
+## Licence
+
+GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
+
 ## Structure
 
 - **One home page** with a big picture button per game, so a third game

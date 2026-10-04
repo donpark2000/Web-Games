@@ -15,13 +15,14 @@ and what it does and doesn't prove.
   code" step for the kids. An outside service conflicts with "nothing
   loaded from other sites" (`DESIGN.md`). Parked as a later phase; the
   tic-tac-toe rules are to be written so it can be added without
-  rewriting them.
-- **Q2. Licence.** *Raised 2026-10-04.* The repo is public but has no
-  licence yet (GP-200 Patch Manager Web is GPL-3.0). Not decided.
-
+  rewriting them. **Parking confirmed** (developer, 2026-10-04); stays
+  open as a later phase.
 ## Resolved
 
-(none yet)
+- **Q2. Licence.** *Raised 2026-10-04.* The repo was public with no
+  licence. **Resolved 2026-10-04:** GPL-3.0, same as GP-200 Patch Manager
+  Web (developer: "gpl 3 is fine"). `LICENSE` copied from that repo
+  (the standard GPL-3.0 text, 674 lines).
 
 ## 2026-10-04: Kickoff decisions
 
@@ -61,3 +62,9 @@ repo `donpark2000/Web-Games` created and pushed. GitHub Pages not turned
 on yet; that is the publish step, done with the developer's OK.
 
 **Next:** the developer gives more details before building starts.
+
+## 2026-10-04: Licence; separate-device play stays parked
+
+The developer: GPL-3.0 is fine (Q2 resolved; `LICENSE` added, README and
+`DESIGN.md` say so), and parking play on separate devices is fine (Q1
+stays open as a later phase).
