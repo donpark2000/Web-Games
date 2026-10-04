@@ -530,12 +530,14 @@ Home page: footer present, link to the repo, no console errors.
 push, only with the developer's OK.
 
 **Known:**
-- Working branch `tic-tac-toe` (pushed). `main` (live) is at `fcf3fd6`:
-  tic-tac-toe as first approved, matching cards "Coming soon".
-- On the branch, not yet live: the big 🏠, the footer, tic-tac-toe's
-  end-of-round scorecard cheer, the "aww" faces (developer: "The new sad
-  faces are great"); the matching-cards rules (`src/core/matching.js`,
-  15 tests). `npm test`: 46 of 46 pass.
+- Working branch `tic-tac-toe` and `main` (live) are the same commit:
+  published at the developer's request before the new session ("I
+  prefer github is up to date - all changes committed and the new
+  website is published before I start a new session"). Live: tic-tac-toe
+  with the big 🏠, the footer, the end-of-round scorecard cheer and the
+  "aww" faces (developer: "The new sad faces are great"); matching cards
+  still "Coming soon". Also in: the matching-cards rules
+  (`src/core/matching.js`, 15 tests). `npm test`: 46 of 46 pass.
 - Shared pieces for matching cards to reuse: `src/core/players.js`,
   `src/ui/faces.js` (moods normal / winner / sad), `css/site.css`
   (`--home` 🏠 size, `.cheer-pair` / `.cheer-win` / `.cheer-lose`
