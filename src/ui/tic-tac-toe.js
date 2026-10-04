@@ -5,6 +5,7 @@
 import {
   FACE_NAMES, FIRST_RULES, checkFaces, createMatch, newRound, place, robotMove,
 } from '../core/tic-tac-toe.js';
+import { endMoods } from '../core/players.js';
 import { svg } from './faces.js';
 import { log, installDebugPanel, withDev } from './debuglog.js';
 
@@ -19,10 +20,12 @@ const setup = { vsRobot: true, p1: 'bear', p2: null, firstRule: 'alt' };
 let match = null;        // from createMatch, while on the play screen
 let robotTimer = null;   // the robot's pending move, so it can be cancelled
 let justPlaced = null;   // the square to "pop" in
-// The end-of-round scorecard cheer: { win: [players], lose: [players] }.
-// Winner: its winner face grows and wiggles; loser: its sad ("aww") face;
-// a tie: both cheer. Then both go back to normal.
-let cheer = null;
+// The end of a round on the scorecard. `moods` (from endMoods): the
+// winner's smiling face and the loser's "aww" face, kept until the next
+// round starts. `cheering`: for the first 2.8 s the winner's face (both
+// for a tie) also grows and wiggles, and the loser's droops a little.
+let moods = null;
+let cheering = false;
 let cheerTimer = null;
 
 const WHY = {
@@ -112,14 +115,16 @@ function cancelRobot() {
 
 function startCheer({ winner }) {
   stopCheer();
-  cheer = winner ? { win: [winner], lose: [3 - winner] } : { win: [1, 2], lose: [] };
-  L('scorecard cheer', { win: cheer.win.map(faceOf), lose: cheer.lose.map(faceOf) });
-  cheerTimer = setTimeout(() => { cheerTimer = null; cheer = null; if (match) renderPlay(); }, CHEER_MS);
+  moods = endMoods(winner);
+  cheering = true;
+  L('scorecard cheer', { moods: { [faceOf(1)]: moods[1], [faceOf(2)]: moods[2] } });
+  cheerTimer = setTimeout(() => { cheerTimer = null; cheering = false; if (match) renderPlay(); }, CHEER_MS);
 }
 function stopCheer() {
   if (cheerTimer !== null) clearTimeout(cheerTimer);
   cheerTimer = null;
-  cheer = null;
+  cheering = false;
+  moods = null;
 }
 
 function startRound() {
@@ -191,11 +196,12 @@ function renderPlay() {
   }));
 
   for (const p of [1, 2]) {
-    const win = !!cheer?.win.includes(p);
-    const lose = !!cheer?.lose.includes(p);
+    const mood = moods?.[p] ?? 'normal';
     const chip = $(`s${p}Chip`);
-    chip.className = 'chip' + (win ? ' cheer-win' : lose ? ' cheer-lose' : '');
-    chip.innerHTML = svg(faceOf(p), win ? 'winner' : lose ? 'sad' : 'normal');
+    chip.className = 'chip' + (cheering && mood === 'winner' ? ' cheer-win' : cheering && mood === 'sad' ? ' cheer-lose' : '');
+    // Only redrawn when the face changes, so a running wiggle isn't restarted.
+    const key = `${faceOf(p)}/${mood}`;
+    if (chip.dataset.face !== key) { chip.innerHTML = svg(faceOf(p), mood); chip.dataset.face = key; }
   }
   $('s1').textContent = match.scores[1];
   $('s2').textContent = match.scores[2];

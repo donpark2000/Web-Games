@@ -1,0 +1,61 @@
+/* Shared by the game screens (tic-tac-toe, matching cards): the setup
+   screen's panels and pickers, the turn line, the scorecard sides and the
+   Play again / New game buttons. Moved out of tic-tac-toe.css when matching
+   cards was built (2026-10-04); each game's own CSS has its grid and
+   sizes. */
+.app { width: 100%; max-width: 520px; margin: 0 auto; display: grid; gap: 16px; }
+h2 { font-size: 19px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+h2 .chip { width: 34px; height: 34px; }
+.panel { background: var(--card); border-radius: 22px; padding: 14px; box-shadow: 0 4px 0 var(--line); }
+
+/* who's playing */
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mode {
+  border: 3px solid var(--line); background: var(--card); border-radius: 18px; padding: 12px 6px; cursor: pointer;
+  display: grid; justify-items: center; gap: 6px; font-size: 17px; font-weight: 700;
+}
+.mode .pair { display: flex; gap: 4px; }
+.mode .pair .av { width: 40px; height: 40px; }
+.mode[aria-pressed="true"] { border-color: var(--sun); background: var(--sun-soft); }
+
+/* face pickers */
+.faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
+.face { aspect-ratio: 1; border-radius: 16px; border: 3px solid transparent; background: var(--sky); cursor: pointer; padding: 6px; }
+.p1 .face[aria-pressed="true"] { border-color: var(--p1); background: var(--p1-soft); }
+.p2 .face[aria-pressed="true"] { border-color: var(--p2); background: var(--p2-soft); }
+.face:disabled { opacity: .2; cursor: default; }
+
+/* who goes first */
+.firsts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.first {
+  border: 3px solid var(--line); background: var(--card); border-radius: 16px; padding: 10px 4px; cursor: pointer;
+  font-size: 15px; font-weight: 700; display: grid; gap: 4px; justify-items: center; text-align: center;
+}
+.first .ico { font-size: 24px; }
+.first[aria-pressed="true"] { border-color: var(--sun); background: var(--sun-soft); }
+
+.go { display: grid; gap: 6px; justify-items: center; }
+.big {
+  border: 0; border-radius: 999px; padding: 14px 40px; font-size: 24px; font-weight: 800; cursor: pointer;
+  background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 #C98F0A;
+}
+.big:disabled { background: #E3E8E7; color: #97A6A9; box-shadow: 0 4px 0 #CBD3D2; cursor: default; }
+.why { font-size: 14px; color: var(--muted); min-height: 1.2em; }
+
+/* play screen: the turn line (beside the 🏠 button) */
+.turn { display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; min-height: 56px; text-align: center; }
+.turn .chip { width: 52px; height: 52px; flex: none; }
+.turn.won { animation: bounce .6s ease; }
+
+/* a scorecard side: a face, a number, a small label; outlined on its turn */
+.side { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px; border-radius: 12px; border: 3px solid transparent; transition: border-color .3s; min-width: 0; }
+.side .n { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.side .who { font-size: 12px; opacity: .75; display: block; }
+.side.c1.now { border-color: var(--p1); }
+.side.c2.now { border-color: var(--p2); }
+
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pill { border-radius: 999px; padding: 13px 8px; font-size: 19px; font-weight: 800; cursor: pointer; border: 3px solid var(--ink); background: transparent; }
+.pill.primary { background: var(--ink); color: var(--card); }
+
+@keyframes bounce { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }

@@ -10,7 +10,11 @@
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; background: var(--sky); color: var(--ink); font-family: var(--font); }
+/* The page is at least the screen's height, so the footer (margin-top:
+   auto) sits at the bottom of the screen on short pages, and under the
+   content on long ones (developer, 2026-10-04). */
 body {
+  min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
   padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
   padding-block: max(12px, env(safe-area-inset-top)) max(40px, env(safe-area-inset-bottom));
   -webkit-text-size-adjust: 100%;
@@ -49,12 +53,13 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 @keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg) scale(1.1); } 75% { transform: rotate(12deg) scale(1.1); } }
 @keyframes droop { 0%, 100% { transform: none; } 20%, 80% { transform: translateY(3px) rotate(-6deg); } }
 
-/* The footer on every page: small, quiet. */
-.site-foot { margin: 32px auto 0; max-width: 560px; text-align: center; font-size: 12px; line-height: 1.5; color: var(--muted); }
+/* The footer on every page: small, quiet, at the bottom of the screen.
+   "Source code" opens in a new tab, so the game stays open. */
+.site-foot { margin: auto auto 0; padding-top: 32px; width: 100%; max-width: 560px; text-align: center; font-size: 12px; line-height: 1.5; color: var(--muted); }
 .site-foot a { color: inherit; }
 
 /* Home page: a big picture button per game. */
-.home { max-width: 560px; margin: 0 auto; display: grid; gap: 20px; }
+.home { width: 100%; max-width: 560px; margin: 0 auto; display: grid; gap: 20px; }
 .home h1 { font-size: 38px; margin-top: 12px; }
 .games { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .game {
@@ -68,6 +73,6 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 .game .pic span.o2 { background: var(--p2-soft); }
 .game.soon { opacity: .55; box-shadow: none; border: 3px dashed var(--line); background: transparent; }
 .game .note { font-size: 15px; font-weight: 600; color: var(--muted); }
-.cards-pic { font-size: 56px; line-height: 1; letter-spacing: 6px; }
+.game .pic span.cb { padding: 0; overflow: hidden; }   /* a matching card's back */
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

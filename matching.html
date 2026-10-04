@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tic-Tac-Toe</title>
+<title>Matching Cards</title>
 <link rel="stylesheet" href="css/site.css">
 <link rel="stylesheet" href="css/game.css">
-<link rel="stylesheet" href="css/tic-tac-toe.css">
+<link rel="stylesheet" href="css/matching.css">
 </head>
 <body>
 <main class="app">
@@ -14,29 +14,34 @@
   <section id="setup" class="app" aria-label="New game">
     <div class="top">
       <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
-      <h1>Tic-Tac-Toe</h1>
+      <h1>Matching Cards</h1>
     </div>
 
     <div class="panel">
       <h2>Who's playing?</h2>
       <div class="modes">
-        <button type="button" class="mode" id="modeRobot" aria-pressed="true"><span class="pair" id="pairRobot"></span>Me and the robot</button>
-        <button type="button" class="mode" id="modeTwo" aria-pressed="false"><span class="pair" id="pairTwo"></span>Two players</button>
+        <button type="button" class="mode" id="modeSolo" aria-pressed="false"><span class="pair" id="pairSolo"></span>Just me</button>
+        <button type="button" class="mode" id="modeTwo" aria-pressed="true"><span class="pair" id="pairTwo"></span>Two players</button>
       </div>
     </div>
 
     <div class="panel p1">
-      <h2><span id="p1Title">Pick your face</span> <span class="chip" id="p1Chip"></span></h2>
+      <h2><span id="p1Title">Player 1, pick a face</span> <span class="chip" id="p1Chip"></span></h2>
       <div class="faces" id="p1Faces"></div>
     </div>
 
-    <div class="panel p2">
-      <h2><span id="p2Title">Player 2, pick a face</span> <span class="chip" id="p2Chip"></span></h2>
-      <div class="robotfixed" id="robotFixed"><span class="face" id="robotFace"></span><span>The robot plays you.</span></div>
+    <div class="panel p2" id="p2Panel">
+      <h2><span>Player 2, pick a face</span> <span class="chip" id="p2Chip"></span></h2>
       <div class="faces" id="p2Faces"></div>
     </div>
 
     <div class="panel">
+      <h2>How many cards?</h2>
+      <div class="sizes" id="sizes"></div>
+      <p class="sizenote" id="sizeNote"></p>
+    </div>
+
+    <div class="panel" id="firstPanel">
       <h2>Who goes first?</h2>
       <div class="firsts">
         <button type="button" class="first" data-rule="alt" aria-pressed="true"><span class="ico">🔁</span>Take turns</button>
@@ -57,12 +62,13 @@
       <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
       <div class="turn" id="turn" aria-live="polite"></div>
     </div>
-    <div class="board" id="board"></div>
-    <div class="scoreboard" aria-label="Score">
-      <div class="side c1" id="side1"><span class="chip" id="s1Chip"></span><span><span class="n" id="s1">0</span><span class="who" id="s1Who"></span></span></div>
-      <div class="ties">Ties<span class="n" id="sT">0</span></div>
-      <div class="side c2" id="side2"><span class="chip" id="s2Chip"></span><span><span class="n" id="s2">0</span><span class="who" id="s2Who"></span></span></div>
+    <div class="grid" id="grid"></div>
+    <div class="sc" id="sc" aria-label="This game">
+      <div class="side c1" id="side1"><span class="chip" id="s1Chip"></span><span><span class="n" id="s1">0</span><span class="who" id="s1Who">pairs</span></span></div>
+      <div class="mid" id="mid">This<br>game</div>
+      <div class="side c2" id="side2"><span class="chip" id="s2Chip"></span><span><span class="n" id="s2">0</span><span class="who" id="s2Who">pairs</span></span></div>
     </div>
+    <div class="sc2" id="sc2" aria-label="Games won"></div>
     <div class="controls">
       <button type="button" class="pill primary" id="againBtn">Play again</button>
       <button type="button" class="pill" id="newBtn">New game</button>
@@ -70,6 +76,6 @@
   </section>
 </main>
 <footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a></footer>
-<script type="module" src="src/ui/tic-tac-toe.js"></script>
+<script type="module" src="src/ui/matching.js"></script>
 </body>
 </html>

@@ -4,8 +4,8 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-04): tic-tac-toe built and approved (branch
-`tic-tac-toe`); matching cards designed (mockup agreed), being built.*
+*Status (2026-10-04): tic-tac-toe built and approved; matching cards
+built (branch `tic-tac-toe`), waiting for the developer's OK to publish.*
 
 ## Goal
 
@@ -45,7 +45,11 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   squares** (developer, 2026-10-04).
 - **A small footer on every page:** "© 2026 Donald Parker · Free software
   under the GPL-3.0 · Source code" (link to the GitHub repo) (developer,
-  2026-10-04).
+  2026-10-04). **At the bottom of the screen** when the page is shorter
+  than the screen, under everything when it's longer; "Source code"
+  **opens in a new tab**, so the game stays open (developer, 2026-10-04).
+- **Shared styles**: `css/site.css` (every page), `css/game.css` (the
+  game screens' setup panels, turn line, buttons), then each game's own.
 - **Game rules kept apart from the screen code**: rules in `src/core/`
   (no DOM or UI code, unit-tested in Node), screens in `src/ui/`.
 - **A debug log** (standards §1), hidden unless the address has `?dev`:
@@ -88,8 +92,10 @@ Claude artifacts: [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBz
 - **Scorecard cheer at the end of a round** (from matching cards,
   developer 2026-10-04): the winner's scorecard face shows its winner
   version, grows (1.4x; the faces are already big) and wiggles; the
-  loser's shows its "aww" version; a tie: both cheer. About 2.8 s, then
-  both back to normal.
+  loser's shows its "aww" version; a tie: both cheer. The growing and
+  wiggling lasts about 2.8 s; the **smiling and "aww" faces stay until
+  the next round** (Play again or New game) (2026-10-04: the developer
+  didn't see the aww face when it lasted only 2.8 s).
 - **Win:** the squares that didn't win are blurred out; the 3 winning
   squares are highlighted and show the winner face. A tie dims the grid:
   "It's a tie!".
@@ -118,7 +124,8 @@ Agreed 2026-10-04 from mockup v1 (journal):
 - **Pictures: the drawn faces** (the 17, robot included) less the
   players' picks; when a grid needs more pairs than that, some faces
   appear 4 times. No timer.
-- **Play screen**: 🏠, the turn line, the grid (sized to fit the screen
+- **Play screen**: 🏠 (one card; on the setup screen, one 4x4 card),
+  the turn line, the grid (sized to fit the screen
   with the turn line and the first scorecard; turned sideways when that
   gives bigger cards), then **two scorecards**: **This game** (dark
   strip, pairs per player, outlines whose turn it is) and **Games won**
@@ -130,7 +137,8 @@ Agreed 2026-10-04 from mockup v1 (journal):
 - **Cheers on the scorecard**: on each pair, the finder's face shows its
   winner version, grows to 1.35x and wiggles; at the end the winner's
   (both for a tie) grows to 1.8x for about 3 s and the loser's shows its
-  "aww" version; then back to normal.
+  "aww" version; those smiling and "aww" faces stay until the next round,
+  as in tic-tac-toe.
   The turn line says "<face> wins!" / "It's a tie!".
 - The developer's own photos (family, pets) may come later.
 

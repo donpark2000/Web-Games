@@ -14,24 +14,30 @@
       <span class="pic" id="tttPic" aria-hidden="true"></span>
       Tic-Tac-Toe
     </a>
-    <div class="game soon" aria-disabled="true">
-      <span class="cards-pic" aria-hidden="true">🃏🃏</span>
+    <a class="game" id="cardsLink" href="matching.html">
+      <span class="pic" id="cardsPic" aria-hidden="true"></span>
       Matching Cards
-      <span class="note">Coming soon</span>
-    </div>
+    </a>
   </div>
 </main>
-<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games">Source code</a></footer>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a></footer>
 <script type="module">
   import { svg } from './src/ui/faces.js';
+  import { CARD_BACK } from './src/ui/cardback.js';
   import { installDebugPanel, withDev } from './src/ui/debuglog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
   const board = ['bear', 'robot', '', '', 'bear', 'robot', '', '', 'bear'];
   document.getElementById('tttPic').innerHTML = board.map(f =>
     `<span class="${f === 'bear' ? 'o1' : f ? 'o2' : ''}">${f ? svg(f, f === 'bear' ? 'winner' : 'normal') : ''}</span>`).join('');
-  const link = document.getElementById('tttLink');
-  link.href = withDev(link.getAttribute('href'));
+  // Matching cards: a pair of frogs found among face-down cards.
+  const cards = ['', 'frog', '', '', '', 'frog'];
+  document.getElementById('cardsPic').innerHTML = cards.map(f =>
+    f ? `<span class="o1">${svg(f)}</span>` : `<span class="cb">${CARD_BACK}</span>`).join('');
+  for (const id of ['tttLink', 'cardsLink']) {
+    const link = document.getElementById(id);
+    link.href = withDev(link.getAttribute('href'));
+  }
   installDebugPanel('home');
 </script>
 </body>

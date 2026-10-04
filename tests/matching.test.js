@@ -95,6 +95,14 @@ test('layout: upright on a phone, sideways when wide; card size fits both ways',
   assert.ok(fitLayout([3, 4], 2000, 2000).cs <= 130, 'cards have a maximum size');
 });
 
+test('layout: room for an extra row (the 🏠 button) shrinks tall layouts only', () => {
+  // Height-limited: 6 rows + 1 extra in 470 px -> (470 - 6*8) / 7 = 60.
+  assert.equal(fitLayout([4, 6], 343, 470, { extraRows: 1 }).cs, 60);
+  assert.ok(fitLayout([4, 6], 343, 470).cs > 60, 'without the extra row the cards are bigger');
+  // Width-limited: the extra row changes nothing.
+  assert.equal(fitLayout([4, 4], 343, 2000, { extraRows: 1 }).cs, fitLayout([4, 4], 343, 2000).cs);
+});
+
 test('layout: big grids are refused on a small screen, allowed on a big one', () => {
   assert.ok(sizeFits([4, 4], 343, 470));
   assert.ok(!sizeFits([6, 6], 343, 470), '6x6 cards would be under the minimum on a phone');

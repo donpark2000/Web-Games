@@ -17,6 +17,18 @@ and what it does and doesn't prove.
   tic-tac-toe rules are to be written so it can be added without
   rewriting them. **Parking confirmed** (developer, 2026-10-04); stays
   open as a later phase.
+- **Q4. Why the 🏠 button and the "aww" face didn't show on the
+  developer's device.** *Raised 2026-10-04 (entry "Matching cards built;
+  footer, 🏠, aww fixes").* The developer, on the live site: the 🏠 "did
+  not change size" and the loser's sad face "did not show up". Locally,
+  the same code measured 🏠 = 108 px = a grid square and the aww face
+  present. Likely causes: (1) the browser's saved copy: the site was
+  published at 21:31 UTC and GitHub Pages lets browsers reuse files for
+  10 minutes (`Cache-Control: max-age=600`, checked with curl); (2) the
+  aww face lasted only 2.8 s (now kept until the next round). Not
+  confirmed: the device and the time of the test aren't known. **To
+  settle:** after the next publish, wait 10 minutes (or reload), then
+  check both on the device.
 
 ## Resolved
 
@@ -561,3 +573,111 @@ push, only with the developer's OK.
 on, `?dev` log lines, 🏠 = one card, scorecard cheers (pair 1.35x, win
 1.8x, loser "aww"), footer. Check at phone and tablet size, then ask the
 developer's OK to publish.
+
+## 2026-10-04: Matching cards built; footer, 🏠, aww fixes
+
+**The developer** (new session, after trying the live site):
+1. Build matching cards.
+2. The footer should be at the bottom of the screen, not straight under
+   the content (on the home page it was mid-screen).
+3. Tic-tac-toe: the 🏠 "did not change size"; it should be "the same
+   size as the avatars in the game play grid".
+4. At the end of a game, the loser's sad face didn't show on the
+   scorecard.
+5. "Source code" in the footer should open a new tab, not replace the
+   game.
+
+**Findings before changing anything:**
+- The live files match the repo (the only difference is line endings:
+  GitHub serves LF, the Windows checkout has CRLF). Published 21:31 UTC;
+  `Cache-Control: max-age=600`, so a device that loaded the site before
+  could show the old files for up to 10 minutes. See Q4.
+- Locally at 375x812: 🏠 108x108, a square 108x108; the 🏠 was already
+  a grid square (the agreed size; "same as the avatars" taken to mean
+  the same: the faces fill the squares). Left as is.
+- The aww face was in the code, but only for the 2.8 s cheer.
+
+**Changes:**
+- Footer: `body` is a flex column at least the screen's height
+  (`100vh`, then `100dvh` where supported); the footer has
+  `margin-top: auto`. "Source code" has `target="_blank"
+  rel="noopener"`.
+- End-of-round faces: new `endMoods(winner, { solo })` in
+  `src/core/players.js` (winner smiles, loser aww, tie both smile, alone
+  smiles). Tic-tac-toe and matching cards keep those faces until the
+  next round; the grow/wiggle/droop still lasts 2.8 s. The chip is
+  redrawn only when its face changes, so a running wiggle isn't
+  restarted by a re-render. This changes the agreed design ("then both
+  back to normal"); `DESIGN.md` updated, with the reason.
+- `css/game.css`: the setup panels, pickers, turn line, scorecard sides
+  and buttons moved out of `tic-tac-toe.css`, unchanged, so matching
+  cards shares them.
+- Matching cards: `matching.html`, `src/ui/matching.js`,
+  `css/matching.css`, `src/ui/cardback.js` (the card back, drawn without
+  an SVG `<pattern>`: a pattern needs an id, and with many cards every
+  copy would point at the first). Home page button turned on, with a
+  picture (a found pair of frogs among face-down cards). Debug log area
+  `cards`: picks, sizes greyed, layout, round started (with the deck),
+  each flip, a match / not a match, pair found, round won / tied / all
+  found, scorecard faces.
+- 🏠 on the play screen = one card: `fitLayout` got `extraRows` so the
+  🏠 row (one card tall) is counted when fitting the grid to the
+  screen. On the setup screen: one 4x4 card (so it doesn't jump around
+  when another size is picked).
+- The play screen's column is 680 px (the mockup's), the setup's 520 px.
+  Found in testing: the page column (`main`) was 520 px, so a sideways
+  6-column grid hung over its edges; `main` is now 680 px on this page.
+
+**Tests:** 8 new (46 before): `tests/players.test.js` (3: endMoods: win, tie, alone, a
+bad winner), `fitLayout` with an extra row (1), and `tests/pages.test.js` (4:
+(every page has the footer and its link opens a new tab; every local
+file a page refers to exists; the home page links to every game; every
+game has 🏠 on both screens). `npm test`: **54 of 54 pass**.
+Proven to fail, each on a broken copy of the project in a temp folder:
+no `target="_blank"` (caught), a misspelt stylesheet (caught, "missing
+file: css/matchng.css"), no home button for matching cards (caught),
+winner and loser faces swapped (caught), `extraRows` ignored (caught).
+
+**Checked in the built-in browser** (`node tools/serve.js 8123`;
+`preview_start` again started the GP-200 server, see the previous
+status entry):
+- Home, 375x812: both game buttons, footer bottom at 772 = screen height
+  less the 40 px bottom padding.
+- Matching, 375x812: 6x6 greyed with the note, the rest offered; two
+  players 4x4: cards 79 px, 🏠 79 px, grid and "This game" on screen
+  (scorecard bottom 537). A miss: "Not a match", cards outlined, back
+  down after 1.5 s, turn passes. A match: "A match!", found cards tinted
+  the finder's colour, score 1, finder's chip `cheer-pair`, turn passes.
+  Played to the end (cat 7, bear 1): "wins!", cat `cheer-win` + winner
+  face, bear `cheer-lose` + aww face; 3.2 s later: no animation, **cat
+  still smiling, bear still aww**; Games won 0 / 0 / 1; next starter
+  cat (take turns). Play again: faces normal, all cards down, cat's turn.
+  Just me 3x4: cards 109 px, "Find the pairs!", "of 6 pairs" / "turns";
+  one miss then all pairs: "All found in 7 turns!", best "7 turns".
+- Matching, 1024x768 (a tablet sideways): no size greyed; 6x6: 84 px
+  cards, scorecard bottom 746 (on screen); 4x6 turned sideways: 6
+  columns of 106 px in the 680 px column, no overhang.
+- Tic-tac-toe, 375x812, two players, cat won: bear aww and cat smiling
+  during the cheer and 3 s after; Play again: both normal; 🏠 108 =
+  square 108; scorecard face 82 px (as before the CSS move).
+- No errors in the debug log on any page.
+- Not checked: real devices, Safari.
+
+## 2026-10-04: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ (GitHub Pages from
+`main`). Publishing = fast-forward `main` to the working branch and
+push, only with the developer's OK. After publishing, devices may show
+the old version for up to 10 minutes (reload, or wait).
+
+**Known:**
+- Branch `tic-tac-toe` has matching cards built, plus the footer,
+  "Source code" new-tab and end-of-round-faces fixes. `npm test`: 54 of
+  54 pass. Checked in the built-in browser at phone and tablet sizes
+  (entry above).
+- Q4 open: confirm on the device that the 🏠 is big and the aww face
+  shows (after the publish and the 10-minute cache).
+- Not checked: real iPad/iPhone/Android, Safari.
+
+**Next:** the developer's OK to publish; then the developer tries
+matching cards and the fixes on their devices (Q4).

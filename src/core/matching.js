@@ -52,9 +52,11 @@ export function makeDeck(pairs, exclude = [], rand = Math.random) {
 // How to lay a grid size out in a width x height area (pixels): upright
 // (short side across) or sideways, whichever gives bigger cards.
 // Returns { cols, rows, cs } where cs is the card size in whole pixels.
-export function fitLayout([a, b], width, height, { gap = 8, max = 130 } = {}) {
+// `extraRows`: rows of card height that must also fit in `height` (the
+// play screen's 🏠 button is one card, on the row above the grid).
+export function fitLayout([a, b], width, height, { gap = 8, max = 130, extraRows = 0 } = {}) {
   const fit = (cols, rows) => Math.floor(Math.min(
-    (width - gap * (cols - 1)) / cols, (height - gap * (rows - 1)) / rows, max));
+    (width - gap * (cols - 1)) / cols, (height - gap * (rows + extraRows - 1)) / (rows + extraRows), max));
   const upright = fit(a, b);
   const sideways = fit(b, a);
   return upright >= sideways ? { cols: a, rows: b, cs: upright } : { cols: b, rows: a, cs: sideways };

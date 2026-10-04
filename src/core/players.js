@@ -19,6 +19,19 @@ export function nextStarter(starter, winner, rule) {
   return rule === 'win' ? winner : 3 - winner;
 }
 
+// The scorecard faces at the end of a round, as moods per player: the
+// winner smiles (its 'winner' version), the loser shows the gentle "aww"
+// ('sad') version; a tie: both smile. Playing alone (`solo`): player 1
+// smiles. The screens keep these until the next round starts (developer,
+// 2026-10-04: the loser's aww face went unnoticed when it lasted only the
+// 2.8 s cheer).
+export function endMoods(winner, { solo = false } = {}) {
+  if (![0, 1, 2].includes(winner)) throw new Error(`endMoods: bad winner: ${winner}`);
+  if (solo) return { 1: 'winner' };
+  if (!winner) return { 1: 'winner', 2: 'winner' };
+  return { [winner]: 'winner', [3 - winner]: 'sad' };
+}
+
 // Checks the setup screen's picks. Returns '' when they're fine, otherwise
 // a reason code the screen turns into words:
 //   'p1-missing', 'p2-missing', 'unknown-face', 'same-face'.
