@@ -457,3 +457,22 @@ fixed. The screens are not built yet.
 version so I can try it on my phone?", 2026-10-04): branch merged into
 `main` and GitHub Pages turned on from `main`, root folder. Live: the
 home page and tic-tac-toe; matching cards still says "Coming soon".
+
+**Live:** https://donpark2000.github.io/Web-Games/ (Pages build of
+`e9cff16`: "built"). `.nojekyll` added so GitHub serves the files as
+they are. Checked: home page, `tic-tac-toe.html` and a module script all
+200 (scripts as `application/javascript`); in the built-in browser at
+375x812 the live tic-tac-toe shows all 16 faces, Play! enabled, 🏠 goes
+to `.../Web-Games/index.html`, no console errors.
+
+**Test weakness found and fixed:** the deliberately broken copies of
+`matching.js` were caught, except that one (a card with no partner) made
+the tests **loop forever** instead of failing; the stuck test processes
+had to be ended by hand. The tests' play-until-the-end loops now have a
+limit and throw "a card has no partner" / "round never ended". Run
+again with a 60 s cap per run: all 6 broken copies caught (a match keeps
+the turn, player faces on cards, a card with no partner, best keeps the
+worst, a third card allowed, an odd grid offered). 46 of 46 pass.
+
+**From here:** `main` is the live site. Matching-card screens are built
+on the branch and merged only when ready, with the developer's OK.

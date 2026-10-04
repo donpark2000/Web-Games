@@ -21,7 +21,24 @@ const groups = m => {
   m.deck.forEach((f, i) => { if (m.state[i] === 'down') g.set(f, [...(g.get(f) || []), i]); });
   return [...g.values()];
 };
-const play = (m, a, b) => { flip(m, a); flip(m, b); return settle(m); };
+const play = (m, a, b) => {
+  for (const i of [a, b]) {
+    const r = flip(m, i);
+    if (!r.ok) throw new Error(`flip(${i}) refused: ${r.why}`);
+  }
+  return settle(m);
+};
+// Plays until the round ends; `pick` chooses two cards. A limit stops a
+// broken deck (a card with no partner) from looping forever.
+function playOut(m, pick = g => g[0]) {
+  for (let n = 0; !m.result; n++) {
+    if (n > 200) throw new Error('round never ended');
+    const g = groups(m);
+    if (g[0].length < 2 && g.length < 2) throw new Error('a card has no partner');
+    const [x, y] = pick(g, m);
+    play(m, x, y);
+  }
+}
 
 test('sizes: every grid has an even number of cards; 4x4 is offered', () => {
   for (const [a, b] of SIZES) assert.equal((a * b) % 2, 0, `${a}x${b}`);
@@ -134,7 +151,7 @@ test('flip: refused while two cards show, on a face-up or found card, off the gr
   assert.deepEqual(settle(m).ok, true);
   assert.deepEqual(settle(m), { ok: false, why: 'nothing-pending' });
   for (const bad of [-1, 12, 1.5, '3']) assert.deepEqual(flip(m, bad), { ok: false, why: 'bad-card' });
-  while (!m.result) { const [x, y] = groups(m)[0]; play(m, x, y); }
+  playOut(m);
   assert.deepEqual(flip(m, 0), { ok: false, why: 'round-over' });
 });
 
@@ -142,7 +159,7 @@ test('two players: the winner has more pairs; wins, ties and the next starter ar
   const m = createMatch({ solo: false, p1: 'bear', p2: 'fox', size: '3x4', firstRule: 'lose' });
   newRound(m, seeded(5));
   // 6 pairs: players alternate finding them -> 3-3, a tie.
-  while (!m.result) { const [x, y] = groups(m)[0]; play(m, x, y); }
+  playOut(m);
   assert.deepEqual(m.pairs, { 1: 3, 2: 3 });
   assert.deepEqual(m.result, { winner: 0, turns: 6 });
   assert.deepEqual(m.wins, { 1: 0, 2: 0, ties: 1 });
@@ -150,11 +167,7 @@ test('two players: the winner has more pairs; wins, ties and the next starter ar
   // Round 2: player 2 starts; player 1 misses every turn, player 2 finds every pair.
   newRound(m, seeded(6));
   assert.equal(m.turn, 2);
-  while (!m.result) {
-    const g = groups(m);
-    if (m.turn === 1 && g.length > 1) play(m, g[0][0], g[1][0]);
-    else play(m, g[0][0], g[0][1]);
-  }
+  playOut(m, (g, mm) => (mm.turn === 1 && g.length > 1 ? [g[0][0], g[1][0]] : g[0]));
   assert.equal(m.result.winner, 2);
   assert.deepEqual(m.wins, { 1: 0, 2: 1, ties: 1 });
   assert.equal(m.starter, 1, 'loser goes first');
@@ -163,7 +176,7 @@ test('two players: the winner has more pairs; wins, ties and the next starter ar
 test('the last pair ends the round without passing the turn', () => {
   const m = createMatch({ solo: false, p1: 'bear', p2: 'fox', size: '3x4' });
   newRound(m, seeded(7));
-  while (groups(m).length > 1) { const [x, y] = groups(m)[0]; play(m, x, y); }
+  for (let n = 0; groups(m).length > 1; n++) { assert.ok(n < 50); const [x, y] = groups(m)[0]; play(m, x, y); }
   const turnBefore = m.turn;
   const [x, y] = groups(m)[0];
   const r = play(m, x, y);
@@ -176,16 +189,16 @@ test('alone: turns are counted; the best (fewest turns) is kept per grid size', 
   const m = createMatch({ solo: true, p1: 'bear', size: '3x4' });
   newRound(m, seeded(8));
   play(m, groups(m)[0][0], groups(m)[1][0]);   // one miss
-  while (!m.result) { const [x, y] = groups(m)[0]; play(m, x, y); }
+  playOut(m);
   assert.deepEqual(m.result, { winner: 1, turns: 7 });
   assert.equal(m.turn, 1, 'alone, the turn never passes');
   assert.deepEqual(m.best, { '3x4': 7 });
   newRound(m, seeded(9));
-  while (!m.result) { const [x, y] = groups(m)[0]; play(m, x, y); }
+  playOut(m);
   assert.deepEqual(m.best, { '3x4': 6 }, 'a better round replaces the best');
   newRound(m, seeded(10));
   for (let k = 0; k < 3; k++) play(m, groups(m)[0][0], groups(m)[1][0]);
-  while (!m.result) { const [x, y] = groups(m)[0]; play(m, x, y); }
+  playOut(m);
   assert.deepEqual(m.best, { '3x4': 6 }, 'a worse round does not');
   assert.equal(sizeKey(m.size), '3x4');
 });
