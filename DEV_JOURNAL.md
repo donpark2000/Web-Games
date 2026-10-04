@@ -522,3 +522,40 @@ redone. Growing face vs the score number: overlapped by 16 px, fixed
 with `transform-origin: 85% 50%` (face right 299, number left 300).
 Home page: footer present, link to the repo, no console errors.
 `npm test`: 46 of 46 pass.
+
+## 2026-10-04: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ (GitHub Pages from
+`main`). Publishing = fast-forward `main` to the working branch and
+push, only with the developer's OK.
+
+**Known:**
+- Working branch `tic-tac-toe` (pushed). `main` (live) is at `fcf3fd6`:
+  tic-tac-toe as first approved, matching cards "Coming soon".
+- On the branch, not yet live: the big 🏠, the footer, tic-tac-toe's
+  end-of-round scorecard cheer, the "aww" faces (developer: "The new sad
+  faces are great"); the matching-cards rules (`src/core/matching.js`,
+  15 tests). `npm test`: 46 of 46 pass.
+- Shared pieces for matching cards to reuse: `src/core/players.js`,
+  `src/ui/faces.js` (moods normal / winner / sad), `css/site.css`
+  (`--home` 🏠 size, `.cheer-pair` / `.cheer-win` / `.cheer-lose`
+  with `--cheer-scale` / `--cheer-pair-scale`, footer, `.top`).
+- Matching cards design: `DESIGN.md` "Matching cards"; the approved
+  mockup's code is in the artifact
+  [Matching Cards Mockup](https://claude.ai/artifact/HNSrgzfwREctAqTTJZ7t4A)
+  (version 3; read it with the Artifact tool, `action: "read"`). Its card
+  back SVG, layout code and scorecard markup port directly; its rules
+  are already in `src/core/matching.js`.
+- Not checked: real iPad/iPhone/Android, Safari (the developer has tried
+  tic-tac-toe on the live site; device not recorded).
+- Tooling in this session: `preview_start` started the GP-200 server
+  (session began in that repo) and the Terminal panel failed; running
+  `node tools/serve.js 8123` in the background and opening the URL
+  worked. For pages outside the repo (mockups), a helper served the
+  scratchpad on 8124.
+
+**Next:** build the matching-cards screens: `matching.html`,
+`src/ui/matching.js`, `css/matching.css`, the home page button turned
+on, `?dev` log lines, 🏠 = one card, scorecard cheers (pair 1.35x, win
+1.8x, loser "aww"), footer. Check at phone and tablet size, then ask the
+developer's OK to publish.
