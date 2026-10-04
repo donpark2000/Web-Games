@@ -858,3 +858,16 @@ wrong way, "fitted" when nothing fits); the 4th (rounding the middle up)
 is still a correct search, so passing it is right.
 
 **Not checked:** on the iPhone itself (the developer).
+
+**Published** (developer: "yes, publish it"): `main` fast-forwarded to
+`72233c6`; Pages build "built 72233c6"; the pages and new files all 200.
+Live site in the built-in browser at 393x659: tic-tac-toe square 75 px,
+Connect Four hole 43 px, matching 4x4 card 64 px, no scroll in any; no
+robot panel against the robot in either game; no console errors.
+
+**Status (start here next session):** live = `main` = branch
+`connect-four`; `npm test` 76 of 76. Waiting on the developer's check on
+the iPhone 16: no scrolling on the play screens, pieces not too small,
+the setup screens without the robot panel. Open choice: matching 4x6 and
+5x6 still scroll on a phone (smaller cards than 56 px would be needed to
+fit). Then the next game or changes, the developer's choice.
