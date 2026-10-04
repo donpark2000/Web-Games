@@ -1,17 +1,10 @@
 /* Tic-tac-toe screens, from the agreed mockup v2: one phone-width column,
    the grid is the hero; a dark, flat scoreboard strip under it (unlike the
    white raised squares), outlined pill buttons at the bottom. */
-.app { max-width: 520px; margin: 0 auto; display: grid; gap: 16px; }
+.app { width: 100%; max-width: 520px; margin: 0 auto; display: grid; gap: 16px; }
 h2 { font-size: 19px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
 h2 .chip { width: 34px; height: 34px; }
 .panel { background: var(--card); border-radius: 22px; padding: 14px; box-shadow: 0 4px 0 var(--line); }
-
-.top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; }
-.top .spacer { width: 44px; }
-.homebtn {
-  width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px; text-decoration: none;
-  background: var(--card); box-shadow: 0 3px 0 var(--line); font-size: 24px;
-}
 
 /* who's playing */
 .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

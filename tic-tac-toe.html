@@ -12,7 +12,7 @@
   <!-- SETUP ("New game") -->
   <section id="setup" class="app" aria-label="New game">
     <div class="top">
-      <a class="homebtn" id="homeLink" href="index.html" aria-label="All games">🏠</a>
+      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
       <h1>Tic-Tac-Toe</h1>
       <span class="spacer"></span>
     </div>
@@ -53,7 +53,11 @@
 
   <!-- PLAY -->
   <section id="play" class="app" aria-label="Game" hidden>
-    <div class="turn" id="turn" aria-live="polite"></div>
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
+      <div class="turn" id="turn" aria-live="polite"></div>
+      <span class="spacer"></span>
+    </div>
     <div class="board" id="board"></div>
     <div class="scoreboard" aria-label="Score">
       <div class="side c1" id="side1"><span class="chip" id="s1Chip"></span><span><span class="n" id="s1">0</span><span class="who" id="s1Who"></span></span></div>

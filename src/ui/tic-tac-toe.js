@@ -192,6 +192,6 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
-$('homeLink').href = withDev($('homeLink').getAttribute('href'));
+for (const a of document.querySelectorAll('.homebtn')) a.href = withDev(a.getAttribute('href'));
 installDebugPanel('tic-tac-toe');
 renderSetup();

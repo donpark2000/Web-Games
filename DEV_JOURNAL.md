@@ -249,3 +249,24 @@ server was run as a background process instead and opened by URL.
 http://localhost:8123/) and gives feedback; then a check on the tablet
 and phone, which needs either GitHub Pages turned on (publish: merge to
 `main`, developer's OK) or the server opened to the home network.
+
+## 2026-10-04: A way back to the home page from every game screen
+
+**The developer** tried the build on localhost ("Its working good"): they
+like picking a game on the home page, but once in a game "you can't get
+back". The 🏠 button was only on the setup screen.
+
+**Change:** the same 🏠 button now sits top-left on the play screen too,
+beside "<face>'s turn"; its style moved to `css/site.css` so every future
+game uses the same one. Decision added to `DESIGN.md` ("Structure").
+Leaving mid-game drops the scores (a new game starts from the home page).
+
+**Found and fixed while checking:** with the new top row, the play screen
+shrank to 280 px wide on a 375 px phone (a grid item with auto margins
+sizes to its content). `.app` now has `width: 100%`; measured again: the
+grid is full width.
+
+**Checked** in the built-in browser at 375x812: play screen full width;
+"is thinking…" fits on one line beside 🏠 (56 px high, no overflow);
+tapping 🏠 mid-game opens the home page; no console errors. No rules
+changed, so the tests weren't re-run.

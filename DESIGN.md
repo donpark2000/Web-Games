@@ -40,6 +40,8 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
 
 - **One home page** with a big picture button per game, so a third game
   is just another button.
+- **A 🏠 button top-left on every game screen** (setup and play), back to
+  the home page to change games (developer, 2026-10-04).
 - **Game rules kept apart from the screen code**: rules in `src/core/`
   (no DOM or UI code, unit-tested in Node), screens in `src/ui/`.
 - **A debug log** (standards §1), hidden unless the address has `?dev`:
