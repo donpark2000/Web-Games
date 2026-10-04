@@ -17,6 +17,11 @@ and what it does and doesn't prove.
   tic-tac-toe rules are to be written so it can be added without
   rewriting them. **Parking confirmed** (developer, 2026-10-04); stays
   open as a later phase.
+- **Q3. Copyright footer: exact wording.** *Raised 2026-10-04 (entry
+  "Tic-tac-toe done").* The developer wants a small footer with their
+  copyright notice on every screen ("no need to do it now"). To confirm:
+  the wording, e.g. "© 2026 Donald Parker" (the git author name), and
+  whether to add "Free software: GPL-3.0" with a link to the source.
 
 ## Resolved
 
@@ -297,3 +302,33 @@ No sideways scrolling (page 375 px wide on the phone).
 **Side effect to watch:** the play screen is taller now. On the 375x812
 phone the buttons end at about 730 px (read off the screenshot, not measured), so on a real phone (browser bars take
 some of the height) "Play again" / "New game" may need a scroll.
+
+## 2026-10-04: Tic-tac-toe done; status (start here next session)
+
+**The developer:** "Perfect." Next is the matching-cards game.
+
+**Known:**
+- Branch `tic-tac-toe` (pushed) holds the playable game: home page,
+  tic-tac-toe, `?dev` log, local server, 31 tests. Not merged; `main`
+  (the publish branch once Pages is on) still has docs only.
+- Try it: `node tools/serve.js`, then http://localhost:8123/.
+- Changes after the first build, all at the developer's request: a 🏠
+  button on every game screen; one grid square of space above the
+  scoreboard; scoreboard faces as big as on the grid.
+- **To do, not urgent** (developer): a small copyright footer on every
+  screen; wording to confirm (open question Q3).
+- Not checked: real iPad/iPhone/Android, Safari.
+- Tooling: in this session, `preview_start` with this repo's
+  `launch.json` started the GP-200 server, and the Terminal panel failed
+  (missing shell-integration file). Running `node tools/serve.js` as a
+  background process and opening the URL worked. A session started fresh
+  in `Web-Games` may not have the first problem.
+
+**Next:** matching cards. Kickoff decisions are in `DESIGN.md`
+("Matching cards"): single player, emoji pictures, 6/8/10 pairs, a move
+counter, no timer. The developer gives any more details; then a mockup
+to review before building (as for tic-tac-toe), on a new branch. Open
+question: whether matching cards should reuse the drawn faces instead of
+emoji (tic-tac-toe dropped emoji because they differ between devices).
+Then: the footer (Q3), a check on real devices, and publishing (merge to
+`main`, GitHub Pages) with the developer's OK.
