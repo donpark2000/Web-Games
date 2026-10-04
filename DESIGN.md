@@ -4,16 +4,18 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-04): tic-tac-toe built and approved; matching cards
-built (branch `tic-tac-toe`), waiting for the developer's OK to publish.*
+*Status (2026-10-04): tic-tac-toe and matching cards published; Connect
+Four built (branch `connect-four`), waiting for the developer's OK to
+publish.*
 
 ## Goal
 
 Simple web games for the developer's grandkids, all reached from one home
-page. The first two:
+page. So far:
 
 - **Tic-tac-toe**
 - **Matching cards** (turn cards over two at a time to find the pairs)
+- **Connect Four** (drop pieces into columns; 4 in a row wins)
 
 ## Players
 
@@ -141,6 +143,33 @@ Agreed 2026-10-04 from mockup v1 (journal):
   as in tic-tac-toe.
   The turn line says "<face> wins!" / "It's a tie!".
 - The developer's own photos (family, pets) may come later.
+
+### Connect Four
+
+Agreed 2026-10-04 (journal, "Connect Four built"): Claude's proposal,
+accepted as is ("Sounds good"); no mockup, since the setup, faces and
+scoreboard are tic-tac-toe's (the developer).
+
+- **Everything but the board is tic-tac-toe's**: the setup screen (Me and
+  the robot / Two players, face pickers, who goes first), the turn line,
+  the dark scoreboard with ties, the end-of-round scorecard cheer and
+  "aww" face, Play again / New game, the robot "is thinking..." 0.8 s.
+- **The board: 7 columns by 6 rows**, a yellow frame with round holes.
+  Each player's pieces are discs showing their face, tinted their colour
+  (orange / blue). **Tap anywhere in a column**: the piece falls to the
+  lowest empty hole (a short falling animation with a small bounce).
+  A full column can't be tapped.
+- **4 in a row wins**: across, down or diagonal. The winning pieces (all
+  of them, if one move makes two lines) are ringed, grow a little, show
+  the winner face and wiggle; the rest are blurred out, as in
+  tic-tac-toe. A full board with no 4 is a tie: the board dims.
+- **Sized to the screen**: the board is the page width (at most 520 px),
+  smaller on a tablet held sideways so the whole play screen fits. The
+  🏠 is one hole, but at least 56 px (a hole is about 43 px on a phone).
+- **The robot is beatable**, like tic-tac-toe's: takes a win 75% of the
+  time, blocks 55%, half the time avoids a column that would let the
+  other player win on top of it, otherwise plays at random, leaning
+  towards the middle columns. Tunable (`ROBOT_TUNING`).
 
 ## Sound
 

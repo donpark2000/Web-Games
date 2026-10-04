@@ -18,6 +18,10 @@
       <span class="pic" id="cardsPic" aria-hidden="true"></span>
       Matching Cards
     </a>
+    <a class="game" id="c4Link" href="connect-four.html">
+      <span class="pic c4" id="c4Pic" aria-hidden="true"></span>
+      Connect Four
+    </a>
   </div>
 </main>
 <footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a></footer>
@@ -34,7 +38,17 @@
   const cards = ['', 'frog', '', '', '', 'frog'];
   document.getElementById('cardsPic').innerHTML = cards.map(f =>
     f ? `<span class="o1">${svg(f)}</span>` : `<span class="cb">${CARD_BACK}</span>`).join('');
-  for (const id of ['tttLink', 'cardsLink']) {
+  // Connect Four: a small board (5 by 4) where the bear won a diagonal.
+  const c4 = [
+    '...b.',
+    '..br.',
+    '.brr.',
+    'brrb.',
+  ].join('');
+  const c4Win = [3, 7, 11, 15];
+  document.getElementById('c4Pic').innerHTML = [...c4].map((ch, i) => ch === '.' ? '<span></span>'
+    : `<span class="${ch === 'b' ? 'o1' : 'o2'}">${svg(ch === 'b' ? 'bear' : 'robot', c4Win.includes(i) ? 'winner' : 'normal')}</span>`).join('');
+  for (const id of ['tttLink', 'cardsLink', 'c4Link']) {
     const link = document.getElementById(id);
     link.href = withDev(link.getAttribute('href'));
   }

@@ -1,13 +1,12 @@
 # Web Games
 
 Simple games for young kids (ages 5-7), played in a web browser on a
-tablet or phone: tic-tac-toe and a matching-cards game, both reached from
-one home page.
+tablet or phone: tic-tac-toe, matching cards and Connect Four, all reached
+from one home page.
 
 **Play it:** https://donpark2000.github.io/Web-Games/
 
-*Being built: tic-tac-toe is playable; matching cards is next.* See
-[`DESIGN.md`](DESIGN.md).
+See [`DESIGN.md`](DESIGN.md) for how each game works.
 
 ## Try it on this computer
 

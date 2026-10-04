@@ -702,3 +702,57 @@ robot setup and the scorecard from tic-tac-toe.
 sessions in the GP-200 Patch Manager folder. If that happens, ask Claude
 to move the session to `C:\Users\dpark\Documents\Web-Games` (it can,
 with its change-directory tool), then "start".
+
+## 2026-10-04: Connect Four built (no mockup)
+
+**The developer:** accepted Claude's proposal as is ("Sounds good"): 7x6
+board, faces as the pieces tinted orange / blue, tap a column and the
+piece drops with a short animation, 4 in a row in any direction wins
+(winning pieces lit, the rest blurred), full board is a tie, a beatable
+robot, and who-goes-first / Play again / New game / scorecard cheer as in
+tic-tac-toe. Asked to skip the mockup and go straight to the live site,
+since starting and scoring are settled. Claude agreed to skip the mockup
+but kept the test suite and a browser check before asking to publish:
+the board's look, the dropping piece and the robot were new.
+
+**Built** (branch `connect-four`, from `tic-tac-toe` = `main`):
+- `src/core/connect-four.js`: the rules, same shape as tic-tac-toe's
+  (`createMatch`, `newRound`, `drop`, `outcome`, `robotMove`). One move
+  can finish two lines (or 5 in a row): `outcome` lights up every spot in
+  every winning line.
+- The robot: takes a win 75%, blocks 55%, avoids "gift" columns (where the
+  other player could then win on top) 50%, otherwise a random column
+  weighted 1-2-3-4-3-2-1 towards the middle.
+- `connect-four.html` (tic-tac-toe's page, with the board and names
+  changed), `css/connect-four.css`, `src/ui/connect-four.js`; a home-page
+  button whose picture is a 5x4 board where the bear won a diagonal.
+- The board is redrawn only when a piece drops or a round starts, so the
+  falling piece animates once (later redraws touch only the turn line,
+  scoreboard and column locks).
+
+**Tests:** `npm test` 71 of 71 (54 before + 17 in
+`tests/connect-four.test.js`; `pages.test.js` now requires all three
+games). Each check was shown to fail: in a scratch copy, six deliberate
+breaks (no up-right diagonals; pieces land at the top; the robot never
+sees a gift; never blocks; only the first winning line lit; the turn
+never passes) each turned 1-7 tests red. The first full tie board Claude
+wrote by hand had a hidden diagonal 4; the test caught it, and a search
+found a real one (`1112111` rows, flipped every two rows).
+
+**Browser check** (built-in browser, local server):
+- 375x812 (phone): home shows the third button. A round against the robot:
+  the robot won along the bottom row; 4 pieces lit, 6 blurred, "wins!"
+  line, the bear's scorecard face "aww", robot smiling; score 0-0-1.
+  Board 343 px, a hole 43 px, 🏠 56 px; the page is exactly 812 px tall
+  (no scrolling). No console errors.
+- The first screenshot caught a piece falling from a whole hole above the
+  board, across the turn line; changed to start half a hole above.
+- 1024x768 (tablet sideways), two players: with the first height
+  allowance (300 px) the buttons ended at 795 px, below the screen.
+  Raised to 360 px: board 476 px, 🏠 62 px, buttons end at 739 px.
+- Not checked: real devices, Safari.
+
+**Noticed in passing (tic-tac-toe, not changed):** from reading the code,
+after a tie the last-placed face "pops" in again when the 2.8 s cheer
+ends (the cheer's redraw re-adds the pop class). Small; to fix only if
+the developer wants.
