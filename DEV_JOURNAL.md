@@ -692,5 +692,13 @@ footer link `target="_blank"`, no errors.
 **Checked by the developer** on their device: "Its all looking good"
 (Q4 resolved).
 
-**Next:** a new (third) game: the developer's choice; design it first
-(details, then a mockup), as with the first two.
+**Next:** a third game: **Connect Four** (developer's choice, 2026-10-04,
+from Claude's suggestions: Connect Four, Simon, spot the odd one out, a
+sliding picture puzzle). Design it first (the developer's details, then
+a mockup), as with the first two; reuse the faces, the two-players /
+robot setup and the scorecard from tic-tac-toe.
+
+**Starting a session:** the Claude desktop app keeps opening new
+sessions in the GP-200 Patch Manager folder. If that happens, ask Claude
+to move the session to `C:\Users\dpark\Documents\Web-Games` (it can,
+with its change-directory tool), then "start".
