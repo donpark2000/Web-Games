@@ -9,6 +9,7 @@ import { svg } from './faces.js';
 import { log, installDebugPanel, withDev } from './debuglog.js';
 
 const ROBOT_THINK_MS = 800;
+const CHEER_MS = 2800;   // the end-of-round scorecard cheer (css: .cheer-win)
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('ttt', msg, data);
 
@@ -18,6 +19,11 @@ const setup = { vsRobot: true, p1: 'bear', p2: null, firstRule: 'alt' };
 let match = null;        // from createMatch, while on the play screen
 let robotTimer = null;   // the robot's pending move, so it can be cancelled
 let justPlaced = null;   // the square to "pop" in
+// The end-of-round scorecard cheer: { win: [players], lose: [players] }.
+// Winner: its winner face grows and wiggles; loser: its sad ("aww") face;
+// a tie: both cheer. Then both go back to normal.
+let cheer = null;
+let cheerTimer = null;
 
 const WHY = {
   'p1-missing': () => (setup.vsRobot ? 'Pick your face first.' : 'Player 1 needs a face.'),
@@ -104,8 +110,21 @@ function cancelRobot() {
   if (robotTimer !== null) { clearTimeout(robotTimer); robotTimer = null; L('robot move cancelled'); }
 }
 
+function startCheer({ winner }) {
+  stopCheer();
+  cheer = winner ? { win: [winner], lose: [3 - winner] } : { win: [1, 2], lose: [] };
+  L('scorecard cheer', { win: cheer.win.map(faceOf), lose: cheer.lose.map(faceOf) });
+  cheerTimer = setTimeout(() => { cheerTimer = null; cheer = null; if (match) renderPlay(); }, CHEER_MS);
+}
+function stopCheer() {
+  if (cheerTimer !== null) clearTimeout(cheerTimer);
+  cheerTimer = null;
+  cheer = null;
+}
+
 function startRound() {
   cancelRobot();
+  stopCheer();
   const midRound = match.board.some(Boolean) && !match.result;
   newRound(match);
   justPlaced = null;
@@ -125,6 +144,7 @@ function take(square, who) {
     L(winner ? 'round won' : 'round tied', {
       winner: winner ? faceOf(winner) : null, line, scores: match.scores, nextStarter: faceOf(match.starter),
     });
+    startCheer(match.result);
   }
   renderPlay();
   maybeRobot();
@@ -170,8 +190,13 @@ function renderPlay() {
     return c;
   }));
 
-  $('s1Chip').innerHTML = svg(faceOf(1));
-  $('s2Chip').innerHTML = svg(faceOf(2));
+  for (const p of [1, 2]) {
+    const win = !!cheer?.win.includes(p);
+    const lose = !!cheer?.lose.includes(p);
+    const chip = $(`s${p}Chip`);
+    chip.className = 'chip' + (win ? ' cheer-win' : lose ? ' cheer-lose' : '');
+    chip.innerHTML = svg(faceOf(p), win ? 'winner' : lose ? 'sad' : 'normal');
+  }
   $('s1').textContent = match.scores[1];
   $('s2').textContent = match.scores[2];
   $('sT').textContent = match.scores.ties;
@@ -184,6 +209,7 @@ function renderPlay() {
 $('againBtn').onclick = () => { L('play again'); startRound(); };
 $('newBtn').onclick = () => {
   cancelRobot();
+  stopCheer();
   L('new game');
   match = null;
   $('play').hidden = true;

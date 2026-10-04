@@ -17,14 +17,17 @@ and what it does and doesn't prove.
   tic-tac-toe rules are to be written so it can be added without
   rewriting them. **Parking confirmed** (developer, 2026-10-04); stays
   open as a later phase.
+
+## Resolved
+
 - **Q3. Copyright footer: exact wording.** *Raised 2026-10-04 (entry
   "Tic-tac-toe done").* The developer wants a small footer with their
   copyright notice on every screen ("no need to do it now"). To confirm:
   the wording, e.g. "© 2026 Donald Parker" (the git author name), and
   whether to add "Free software: GPL-3.0" with a link to the source.
-
-## Resolved
-
+  **Resolved 2026-10-04:** "© 2026 Donald Parker · Free software under
+  the GPL-3.0 · Source code", "Source code" linking to the GitHub repo
+  (the developer chose this option). On every page.
 - **Q2. Licence.** *Raised 2026-10-04.* The repo was public with no
   licence. **Resolved 2026-10-04:** GPL-3.0, same as GP-200 Patch Manager
   Web (developer: "gpl 3 is fine"). `LICENSE` copied from that repo
@@ -476,3 +479,46 @@ worst, a third card allowed, an odd grid offered). 46 of 46 pass.
 
 **From here:** `main` is the live site. Matching-card screens are built
 on the branch and merged only when ready, with the developer's OK.
+
+## 2026-10-04: Live-site feedback: big 🏠, footer, tic-tac-toe cheer, "aww" faces
+
+**The developer** (tic-tac-toe works on the live site; matching cards
+still "Coming soon", as expected: its screens aren't built):
+1. The 🏠 button should be bigger, "same size as grid tiles". Asked
+   (108 px on a phone pushes the grid down); answer: **same as a grid
+   square**.
+2. Add the matching-cards scorecard animation to tic-tac-toe.
+3. The footer was missing (it was parked, Q3). Wording chosen: "©
+   2026 Donald Parker · Free software under the GPL-3.0 · Source code".
+4. New idea: a **sad face** for the loser during the end-of-round
+   scorecard animation. Claude raised the design's "losing is gentle"
+   (ages 5-7); answer: a **gentle "aww" face** (worried eyebrows, small
+   frown, no tears).
+
+**Done** (CSS shared in `css/site.css` so matching cards reuses it):
+- 🏠 = `--home`, set by tic-tac-toe to one grid square
+  (`--cell`). The empty right-hand spacer was dropped so the title and
+  the turn line keep room: measured at 375x812, 🏠 108x108 (= a square),
+  title 227 px wide on one line.
+- Footer on both pages, 12 px, muted.
+- `src/ui/faces.js`: mood `sad` for all 17 faces (eyebrows with the
+  inner ends raised; a small frown; the robot gets its own). Faces test:
+  51 drawings, the three versions all differ. Review page updated:
+  [Tic-Tac-Toe Faces](https://claude.ai/artifact/DizY1LaW5xgCiXzBbfWxaa)
+  (version 2: normal / winner / aww); Claude looked at all 17 rendered.
+- Tic-tac-toe: at the end of a round the winner's scorecard face grows
+  to 1.4x (115 px) and wiggles; the loser's shows "aww" and droops a
+  little; a tie: both cheer; 2.8 s, then normal. Play again / New game
+  stop it. Logged as "scorecard cheer".
+
+**Checked** in the built-in browser at 375x812 (two players, `?dev`):
+bear won: winner chip `cheer-win`, 115 px, winner face; cat won the next
+round: bear `cheer-lose` with the aww face (eyebrows present), cat
+cheering; score 1-1. To get a still picture, the 2.8 s timer was
+stretched in that test page only and the animation frozen at 1.2 s.
+First attempt read the faces after the cheer had already ended (a timed
+2.8 s), and a quick "which face" check matched the cat's ears; both
+redone. Growing face vs the score number: overlapped by 16 px, fixed
+with `transform-origin: 85% 50%` (face right 299, number left 300).
+Home page: footer present, link to the repo, no console errors.
+`npm test`: 46 of 46 pass.

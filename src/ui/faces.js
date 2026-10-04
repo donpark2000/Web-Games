@@ -1,20 +1,29 @@
 // The drawn faces (DESIGN.md "Tic-tac-toe"): our own SVG, built from shared
-// parts (eyes, mouth, cheeks), so each face has a normal and a winner
-// version. Ported unchanged from the agreed "Tic-Tac-Toe Faces" artifact
-// (2026-10-04); only the mood name changed from 'happy' to 'winner'.
+// parts (eyes, mouth, cheeks), so each face has three versions cheaply.
+// Ported from the agreed "Tic-Tac-Toe Faces" artifact (2026-10-04); the
+// mood 'happy' was renamed 'winner', and 'sad' (a gentle "aww": worried
+// eyebrows and a small frown, no tears) added for the loser at the end of
+// a round (developer, 2026-10-04).
 //
-// svg(name, mood) returns an SVG string; mood is 'normal' or 'winner'.
+// svg(name, mood) returns an SVG string; mood is 'normal', 'winner' or
+// 'sad'.
 
 const D = '#2B2B33';
 function eyes(m, y, dx, col = D) {
-  return [50 - dx, 50 + dx].map(x => m === 'winner'
-    ? `<path d="M${x-6} ${y+2} Q${x} ${y-7} ${x+6} ${y+2}" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round"/>`
-    : `<circle cx="${x}" cy="${y}" r="5" fill="${col}"/><circle cx="${x+1.7}" cy="${y-1.8}" r="1.6" fill="#fff"/>`).join('');
+  return [50 - dx, 50 + dx].map(x => {
+    if (m === 'winner') return `<path d="M${x-6} ${y+2} Q${x} ${y-7} ${x+6} ${y+2}" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round"/>`;
+    const eye = `<circle cx="${x}" cy="${y}" r="5" fill="${col}"/><circle cx="${x+1.7}" cy="${y-1.8}" r="1.6" fill="#fff"/>`;
+    if (m !== 'sad') return eye;
+    // Worried eyebrows: the inner ends (towards the nose) raised.
+    const inner = x < 50 ? 1 : -1;
+    return eye + `<path d="M${x - 6 * inner} ${y-8} L${x + 5 * inner} ${y-12}" stroke="${col}" stroke-width="2.6" stroke-linecap="round"/>`;
+  }).join('');
 }
 function mouth(m, y, w = 7, col = D) {
-  return m === 'winner'
-    ? `<path d="M${50-w-4} ${y-2} Q50 ${y+17} ${50+w+4} ${y-2} Z" fill="${col}"/><ellipse cx="50" cy="${y+5}" rx="${w-1}" ry="2.8" fill="#F06B7E"/>`
-    : `<path d="M${50-w} ${y} Q50 ${y+5} ${50+w} ${y}" fill="none" stroke="${col}" stroke-width="3.2" stroke-linecap="round"/>`;
+  if (m === 'winner') return `<path d="M${50-w-4} ${y-2} Q50 ${y+17} ${50+w+4} ${y-2} Z" fill="${col}"/><ellipse cx="50" cy="${y+5}" rx="${w-1}" ry="2.8" fill="#F06B7E"/>`;
+  // A small frown, a little narrower than the smile.
+  if (m === 'sad') return `<path d="M${50-w+1} ${y+3} Q50 ${y-2} ${50+w-1} ${y+3}" fill="none" stroke="${col}" stroke-width="3.2" stroke-linecap="round"/>`;
+  return `<path d="M${50-w} ${y} Q50 ${y+5} ${50+w} ${y}" fill="none" stroke="${col}" stroke-width="3.2" stroke-linecap="round"/>`;
 }
 const cheeks = (m, y, dx) => m === 'winner'
   ? `<ellipse cx="${50-dx}" cy="${y}" rx="6" ry="3.5" fill="#FF8FA3" opacity=".6"/><ellipse cx="${50+dx}" cy="${y}" rx="6" ry="3.5" fill="#FF8FA3" opacity=".6"/>` : '';
@@ -74,11 +83,13 @@ const DRAWINGS = {
   <rect x="16" y="22" width="68" height="68" rx="16" fill="#A9BDD0"/><rect x="24" y="32" width="52" height="48" rx="10" fill="#24384D"/>
   ${m === 'winner'
     ? `<path d="M33 52 Q38 44 43 52 M57 52 Q62 44 67 52" fill="none" stroke="#7FE3F0" stroke-width="4" stroke-linecap="round"/><path d="M37 62 Q50 78 63 62 Z" fill="#7FE3F0"/>`
+    : m === 'sad'
+    ? `<rect x="34" y="47" width="9" height="9" rx="3" fill="#7FE3F0"/><rect x="57" y="47" width="9" height="9" rx="3" fill="#7FE3F0"/><path d="M33 43 L43 40 M67 43 L57 40" stroke="#7FE3F0" stroke-width="3" stroke-linecap="round"/><path d="M41 70 Q50 64 59 70" fill="none" stroke="#7FE3F0" stroke-width="3.5" stroke-linecap="round"/>`
     : `<rect x="34" y="44" width="9" height="11" rx="3" fill="#7FE3F0"/><rect x="57" y="44" width="9" height="11" rx="3" fill="#7FE3F0"/><path d="M40 67 L60 67" stroke="#7FE3F0" stroke-width="3.5" stroke-linecap="round"/>`}`,
 };
 
 export const DRAWN_FACES = Object.keys(DRAWINGS);
-export const MOODS = ['normal', 'winner'];
+export const MOODS = ['normal', 'winner', 'sad'];
 
 export function svg(name, mood = 'normal') {
   const draw = DRAWINGS[name];

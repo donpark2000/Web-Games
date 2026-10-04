@@ -21,15 +21,37 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--ink); outline-o
 .av { display: block; width: 100%; height: 100%; }
 h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-wrap: balance; }
 
-/* Every game screen: a 🏠 button top-left, back to the home page, and a
-   matching empty space on the right so the title stays centred. */
-.top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; }
-.top .spacer { width: 48px; }
+/* Every game screen: a 🏠 button top-left, back to the home page. Its
+   size is --home, which each game sets to one of its grid squares
+   (developer, 2026-10-04); 48px elsewhere. The title or turn line fills
+   the rest of the row. */
+.top { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; }
 .homebtn {
-  width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; text-decoration: none;
-  background: var(--card); box-shadow: 0 3px 0 var(--line); font-size: 26px;
+  width: var(--home, 48px); height: var(--home, 48px); display: grid; place-items: center;
+  border-radius: calc(var(--home, 48px) * .2); text-decoration: none;
+  background: var(--card); box-shadow: 0 4px 0 var(--line); font-size: calc(var(--home, 48px) * .5);
 }
 .homebtn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+
+/* Scorecard cheers, shared by the games: the face shows its winner
+   version, grows and wiggles, then goes back to normal. --cheer-scale is
+   how big it grows (each game sets it for its own face size). The loser
+   shows the sad ("aww") version, same size. Class names are deliberately
+   specific: a plain ".big" once clashed with the Play! button. */
+.cheer-pair, .cheer-win { position: relative; z-index: 2; transform-origin: 85% 50%; }  /* grow away from the score beside it */
+.cheer-pair { animation: cheer-grow-pair 1.9s ease-in-out; }
+.cheer-win { animation: cheer-grow-win 2.8s ease-in-out; }
+.cheer-pair .av { animation: wiggle .9s ease-in-out .15s 2; }
+.cheer-win .av { animation: wiggle .9s ease-in-out .3s 2; filter: drop-shadow(0 4px 6px #0006); }
+.cheer-lose .av { animation: droop 2.8s ease-in-out; }
+@keyframes cheer-grow-pair { 0% { transform: scale(1); } 15%, 80% { transform: scale(var(--cheer-pair-scale, 1.35)); } 100% { transform: scale(1); } }
+@keyframes cheer-grow-win { 0% { transform: scale(1); } 15%, 80% { transform: scale(var(--cheer-scale, 1.8)); } 100% { transform: scale(1); } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg) scale(1.1); } 75% { transform: rotate(12deg) scale(1.1); } }
+@keyframes droop { 0%, 100% { transform: none; } 20%, 80% { transform: translateY(3px) rotate(-6deg); } }
+
+/* The footer on every page: small, quiet. */
+.site-foot { margin: 32px auto 0; max-width: 560px; text-align: center; font-size: 12px; line-height: 1.5; color: var(--muted); }
+.site-foot a { color: inherit; }
 
 /* Home page: a big picture button per game. */
 .home { max-width: 560px; margin: 0 auto; display: grid; gap: 20px; }

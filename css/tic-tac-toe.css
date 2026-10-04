@@ -1,6 +1,15 @@
 /* Tic-tac-toe screens, from the agreed mockup v2: one phone-width column,
    the grid is the hero; a dark, flat scoreboard strip under it (unlike the
    white raised squares), outlined pill buttons at the bottom. */
+
+/* One grid square, worked out from the page width: the screen is the page
+   less its 16px side margins, the board is at most 420px, with two 10px
+   gaps. The 🏠 button is one square too (developer, 2026-10-04). */
+:root {
+  --cell: calc((min(100vw - 32px, 420px) - 20px) / 3);
+  --home: var(--cell);
+  --cheer-scale: 1.4;   /* the scorecard faces are already big */
+}
 .app { width: 100%; max-width: 520px; margin: 0 auto; display: grid; gap: 16px; }
 h2 { font-size: 19px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
 h2 .chip { width: 34px; height: 34px; }
@@ -80,7 +89,7 @@ h2 .chip { width: 34px; height: 34px; }
    board is min(100vw - 32px, 420px). Allowed to shrink a little on narrow
    phones so the score still fits beside it. */
 .side .chip {
-  width: calc((min(100vw - 32px, 420px) - 20px) / 3 * .76);
+  width: calc(var(--cell) * .76);
   flex: 0 1 auto; min-width: 44px; aspect-ratio: 1;
 }
 .side .chip .av { height: auto; }
@@ -95,5 +104,4 @@ h2 .chip { width: 34px; height: 34px; }
 .pill.primary { background: var(--ink); color: var(--card); }
 
 @keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg) scale(1.1); } 75% { transform: rotate(12deg) scale(1.1); } }
 @keyframes bounce { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }

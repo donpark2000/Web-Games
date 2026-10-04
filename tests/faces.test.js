@@ -20,11 +20,14 @@ test('faces: each drawing, in both moods, is one well-formed SVG with no missing
       drawings++;
     }
   }
-  assert.equal(drawings, 34);
+  assert.equal(drawings, 51);
 });
 
-test('faces: the winner version differs from the normal one for every face', () => {
-  for (const name of DRAWN_FACES) assert.notEqual(svg(name, 'winner'), svg(name, 'normal'), name);
+test('faces: the three versions (normal, winner, sad) all differ, for every face', () => {
+  for (const name of DRAWN_FACES) {
+    const [n, w, s] = MOODS.map(m => svg(name, m));
+    assert.equal(new Set([n, w, s]).size, 3, name);
+  }
 });
 
 test('faces: unknown face or mood is an error, not a blank picture', () => {

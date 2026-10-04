@@ -41,7 +41,11 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
 - **One home page** with a big picture button per game, so a third game
   is just another button.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
-  the home page to change games (developer, 2026-10-04).
+  the home page to change games, **as big as one of that game's grid
+  squares** (developer, 2026-10-04).
+- **A small footer on every page:** "© 2026 Donald Parker · Free software
+  under the GPL-3.0 · Source code" (link to the GitHub repo) (developer,
+  2026-10-04).
 - **Game rules kept apart from the screen code**: rules in `src/core/`
   (no DOM or UI code, unit-tested in Node), screens in `src/ui/`.
 - **A debug log** (standards §1), hidden unless the address has `?dev`:
@@ -60,8 +64,9 @@ Claude artifacts: [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBz
   squares they take. **Drawn faces** (our own SVG, not emoji): bear, cat,
   dog, bunny, fox, panda, pig, frog, lion, mouse, monkey, chick, girl,
   boy, grandma, grandpa, plus the robot (computer only). Each has a
-  **normal** and a **winner** version; only the winner's squares and the
-  "wins!" line show the winner version. The loser keeps the normal face.
+  **normal**, a **winner** and an **"aww"** version (worried eyebrows, a
+  small frown, no tears; added 2026-10-04, developer). The winner's
+  squares and the "wins!" line show the winner version.
   Emoji were dropped: no smiling version for most animals, and they look
   different on each device.
 - **Setup screen** ("New game"): "Who's playing?" first: **Me and the
@@ -80,6 +85,11 @@ Claude artifacts: [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBz
   cleared; mid-round it restarts the round unscored) and **New game**
   (back to setup, last picks kept). Scores start at 0-0 on Play!.
 - **Each player's squares are tinted** their colour (orange / blue).
+- **Scorecard cheer at the end of a round** (from matching cards,
+  developer 2026-10-04): the winner's scorecard face shows its winner
+  version, grows (1.4x; the faces are already big) and wiggles; the
+  loser's shows its "aww" version; a tie: both cheer. About 2.8 s, then
+  both back to normal.
 - **Win:** the squares that didn't win are blurred out; the 3 winning
   squares are highlighted and show the winner face. A tie dims the grid:
   "It's a tie!".
@@ -119,7 +129,8 @@ Agreed 2026-10-04 from mockup v1 (journal):
   turns) for that grid size; the end says "All found in N turns!".
 - **Cheers on the scorecard**: on each pair, the finder's face shows its
   winner version, grows to 1.35x and wiggles; at the end the winner's
-  (both for a tie) grows to 1.8x for about 3 s; then back to normal.
+  (both for a tie) grows to 1.8x for about 3 s and the loser's shows its
+  "aww" version; then back to normal.
   The turn line says "<face> wins!" / "It's a tie!".
 - The developer's own photos (family, pets) may come later.
 
