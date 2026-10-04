@@ -679,5 +679,11 @@ the old version for up to 10 minutes (reload, or wait).
   shows (after the publish and the 10-minute cache).
 - Not checked: real iPad/iPhone/Android, Safari.
 
-**Next:** the developer's OK to publish; then the developer tries
-matching cards and the fixes on their devices (Q4).
+**Published** (developer: "yes, publish it"): `main` fast-forwarded to
+`bad3c7a`; Pages build "built bad3c7a"; live `matching.html`, its CSS
+and scripts all 200; in the built-in browser at 375x812 the live
+matching cards dealt 16 cards (79 px, 🏠 79 px), card backs drawn,
+footer link `target="_blank"`, no errors.
+
+**Next:** the developer tries matching cards and the fixes on their
+devices, after a reload or 10 minutes (Q4).
