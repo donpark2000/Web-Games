@@ -332,3 +332,22 @@ question: whether matching cards should reuse the drawn faces instead of
 emoji (tic-tac-toe dropped emoji because they differ between devices).
 Then: the footer (Q3), a check on real devices, and publishing (merge to
 `main`, GitHub Pages) with the developer's OK.
+
+## 2026-10-04: Matching cards: the developer's details
+
+**The developer's details** (2026-10-04), before any mockup:
+- A grid of cards face down, all looking the same. Each turn a player
+  turns over two. A match stays face up and scores a point; a mismatch
+  turns back face down. **Either way, the next player takes a turn.**
+- Setup screen like tic-tac-toe's: 1 or 2 players, and faces.
+- **Grid size** control: 4x4 by default; also 4x5, 4x6, etc., as long as
+  it fits on the screen; maybe 5xN where the width allows. Every grid has
+  an even number of cards, so every card has a match.
+- More than one pair of the same picture is fine (2 or 4 of a kind).
+- **Pictures: our drawn faces**, except the ones the players picked.
+- The game ends when the last pair is turned over.
+- The "happy face" animation plays on the player's face in the
+  scoreboard.
+
+Claude's questions and suggestions went back to the developer (next
+entry records the answers).
