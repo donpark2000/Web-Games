@@ -418,3 +418,24 @@ the winner's scorecard face grows (to 1.8x), smiles and wiggles for about
 faces). Before, the winner face just stayed on. Claude did the same for
 "Just me" at the end. On each pair the finder's face still smiles and
 wiggles at normal size. Checked: syntax only (as before).
+
+**Mockup v1, second update.** The developer: at the end, the winner's
+scorecard face "did not look like their happy face - it was just a
+bigger orange oval"; and the face should be a bit bigger during every
+scorecard cheer.
+- **Cause** (reproduced in the built-in browser by serving the mockup
+  from Claude's scratchpad on port 8124 and freezing the animation
+  halfway): the growing face had the class `big`, which is also the
+  style of the yellow "Play!" button. The face picked up the button's
+  yellow background and 14 px x 40 px padding; the drawing was squeezed
+  to 0 px wide. Measured: background rgb(247,185,40), drawing 0 x 50 px.
+- **Fix:** classes renamed `cheer-pair` / `cheer-win`. Measured again,
+  frozen mid-animation: transparent background, the winner face drawn,
+  scaled 1.8x. On each pair the finder's face now grows to 1.35x (the
+  developer's second point). Both grow leftward (transform-origin
+  85% 50%) so the big face doesn't cover the score: face right edge 372,
+  score left edge 373.
+- Earlier, "checked: syntax only" missed this. A syntax check can't see
+  a style clash; only rendering the frame does.
+- The local copy also needed `[hidden]{display:none!important}` (the
+  published page gets it from the artifact wrapper); added to the mockup.
