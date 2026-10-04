@@ -1,0 +1,11 @@
+# Node (used only for running tests)
+node_modules/
+
+# Editors / OS cruft
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Claude Code per-user settings
+.claude/settings.local.json
