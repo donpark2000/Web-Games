@@ -22,12 +22,17 @@
       <span class="pic c4" id="c4Pic" aria-hidden="true"></span>
       Connect Four
     </a>
+    <a class="game" id="countLink" href="count-to-9.html">
+      <span class="pic" id="countPic" aria-hidden="true"></span>
+      Count to 9
+    </a>
   </div>
 </main>
 <footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a></footer>
 <script type="module">
   import { svg } from './src/ui/faces.js';
   import { CARD_BACK } from './src/ui/cardback.js';
+  import { numberSvg } from './src/ui/numbercard.js';
   import { installDebugPanel, withDev } from './src/ui/debuglog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
@@ -48,7 +53,11 @@
   const c4Win = [3, 7, 11, 15];
   document.getElementById('c4Pic').innerHTML = [...c4].map((ch, i) => ch === '.' ? '<span></span>'
     : `<span class="${ch === 'b' ? 'o1' : 'o2'}">${svg(ch === 'b' ? 'bear' : 'robot', c4Win.includes(i) ? 'winner' : 'normal')}</span>`).join('');
-  for (const id of ['tttLink', 'cardsLink', 'c4Link']) {
+  // Count to 9: 1, 2 and 3 found among face-down cards.
+  const nums = [0, 2, 0, 1, 0, 0, 0, 0, 3];
+  document.getElementById('countPic').innerHTML = nums.map(n =>
+    n ? `<span class="o1 num">${numberSvg(n)}</span>` : `<span class="cb">${CARD_BACK}</span>`).join('');
+  for (const id of ['tttLink', 'cardsLink', 'c4Link', 'countLink']) {
     const link = document.getElementById(id);
     link.href = withDev(link.getAttribute('href'));
   }

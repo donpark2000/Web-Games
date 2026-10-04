@@ -1,0 +1,21 @@
+/* Flipping cards, shared by matching cards and Count to 9 (moved out of
+   matching.css, 2026-10-04). A card is a button holding an inner box with
+   a back and a front; .up or .found turns it over; .f1/.f2 tint a card
+   its finder's colour. --cs is the card size, set by each game. */
+:root { --back-edge: #1C4A61; }
+
+/* a card: a button holding a flipping inner box with a back and a front */
+.cardb { width: var(--cs, 70px); height: var(--cs, 70px); perspective: 700px; border: 0; padding: 0; background: none; cursor: pointer; }
+.cardb:disabled { cursor: default; }
+.cardb .in { position: relative; display: block; width: 100%; height: 100%; transition: transform .35s ease; transform-style: preserve-3d; }
+.cardb.up .in, .cardb.found .in { transform: rotateY(180deg); }
+.cardb .back, .cardb .front {
+  position: absolute; inset: 0; border-radius: calc(var(--cs, 70px) * .16);
+  -webkit-backface-visibility: hidden; backface-visibility: hidden; display: grid; place-items: center;
+}
+.cardb .back { box-shadow: 0 4px 0 var(--back-edge); overflow: hidden; }
+.cardb .front { background: var(--card); transform: rotateY(180deg); padding: 9%; box-shadow: 0 4px 0 var(--line); }
+.cardb.found.f1 .front { background: var(--p1-soft); box-shadow: inset 0 0 0 3px var(--p1), 0 4px 0 var(--line); }
+.cardb.found.f2 .front { background: var(--p2-soft); box-shadow: inset 0 0 0 3px var(--p2), 0 4px 0 var(--line); }
+.cardb.miss .front { box-shadow: inset 0 0 0 3px #B9C6C9, 0 4px 0 var(--line); }
+.cardb.just .front .av { animation: wiggle .8s ease-in-out; }

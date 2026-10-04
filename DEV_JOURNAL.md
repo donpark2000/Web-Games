@@ -887,3 +887,98 @@ cards ("I don't really want to make the icons smaller").
 **The developer** tested Connect Four on the live site on their phone and
 desktop: "Connect four looks good." Nothing to change. Still not checked:
 Safari on an iPad, Android. Next: a fourth game (the last one today).
+
+## 2026-10-04: Count to 9: the developer's game
+
+**The developer** proposed the fourth game instead of Claude's list
+(pop-up faces, Simon, odd one out, sliding puzzle): a 3x3 grid of face-down
+cards numbered 1 to 9 in a random order; keep turning cards over while
+each is the next number; a wrong number flashes red for 1.5 s, the cards
+turn back and the next player's turn starts. Variation: the correct
+numbers stay up and only the wrong one turns back ("easy" / "hard", open
+to ideas). The robot must not use its knowledge of where the numbers are.
+
+**Claude's questions, the developer's answers:** (1) after a miss in easy
+mode, does the next player carry on from the next number? "players switch
+after a miss"; read as yes, the count is shared (with the counted cards
+face up, starting again at 1 would mean nothing). (2) who wins? "the
+player that uncovers 9 (in easy or hard mode)". (3) the robot remembers
+cards it has seen, 60% of the time; and suggestions 4-9 (star pictures on
+Easy / Hard, "<face> find 4" turn line, dots under the numbers, a Just me
+mode with a best score, the rest copied from the other games, a "How many
+cards?" choice later; no mockup): "Your suggestions are fine."
+
+## 2026-10-04: Count to 9 built (no mockup)
+
+**Built** on branch `count-to-9`: rules `src/core/count-to-9.js` (deck,
+flip / settle as in matching cards, easy / hard, solo turns and best per
+level, the robot), screens `count-to-9.html`, `src/ui/count-to-9.js`,
+`css/count-to-9.css`, number cards `src/ui/numbercard.js` (big number,
+die-style dots, in currentColor so a wrong card goes red), a home-page
+button (1, 2, 3 found among card backs). Debug log category `count`:
+every card turned over (number, who, how many cards the robot remembers),
+misses, settles, the robot's choice and reason, the fit, round ends.
+
+**Changed for sharing:** the flipping-card CSS moved from
+`css/matching.css` to a new `css/cards.css` (the rules unchanged, moved
+as is), loaded by matching cards and Count to 9. Matching cards checked
+after the move (393x659, Just me, 4x4): a turned card gets the flip
+(`matrix3d(-1, ...)`, read with the transition off: the pane was hidden,
+so transitions didn't run), card 67 px, no scroll, no console errors.
+
+**The robot never peeks:** `robotPick` reads a card's number only for
+cards in `match.seen`; each card turned over (by anyone) goes in with
+chance `ROBOT_TUNING.remember` = 0.6. A test gives it two different decks
+with the same random numbers and nothing remembered: it picks the same
+card in both (it would pick each deck's 1 if it looked).
+
+**How strong is it** (simulation, scratchpad, 2000 rounds each, the
+child modelled as remembering each card it sees with chance p, starts
+alternating; child's win rate):
+
+| robot remember | level | child p=0.3 | p=0.6 | p=0.9 |
+|---|---|---|---|---|
+| 0.6 | easy | 19% | 52% | 76% |
+| 0.6 | hard | 11% | 51% | 81% |
+| 0.4 | easy | 38% | 69% | 88% |
+| 0.4 | hard | 33% | 78% | 94% |
+| 0.3 | easy | 51% | 81% | 93% |
+| 0.3 | hard | 51% | 88% | 98% |
+
+At 0.6 the robot is an even match for a child who remembers 60% of the
+cards; a child who remembers nothing wins about 3% (easy) / 0% (hard).
+Kept at the agreed 0.6; 0.4 is the obvious next step if it's too strong.
+The model of a child is a guess, not a measurement.
+
+**Tests:** `npm test` 90 of 90 (14 new for Count to 9, the pages test now
+expects four games). Six deliberate breaks in a scratch copy were all
+caught: the robot peeking (2 tests failed), hard never resetting (1),
+easy resetting too (4), the turn passing when alone (1), guesses ignoring
+memory (1), always remembering (2).
+
+**Checked in the built-in browser** (local server, `node tools/serve.js
+8123`): against the robot at 393x659: easy, 1 and 2 counted (tinted
+orange), a wrong 7 flashed red with "Oops!", the robot guessed wrong (a
+4), the bear finished and won: smiling bear, robot "aww", 1-0. Just me,
+hard: a miss turned all 3 counted cards back, "Find 1", then "1 to 9 in 2
+turns!", best (hard) 2 with a 🏆. Two players: Play! greyed with "Player
+2 needs a face."; the turn passed on a miss; cards tinted by who counted
+them (orange / blue); "take turns" made player 2 start the next round;
+Play again mid-round restarted unscored. No console errors.
+
+Card size and page scroll, each after a reload at that size (the pane's
+size emulation sends no resize events, so the refit on resize wasn't
+exercised here; it's the same code as Connect Four's):
+
+| Screen | Card | Scroll |
+|---|---|---|
+| 393x659 (iPhone 16 in Safari, assumed) | 82 | 0 |
+| 375x812 | 107 | 0 |
+| 768x1024 | 140 (the cap) | 0 |
+| 1024x768 | 127 | 0 |
+
+The pane's screenshots came back garbled at times (parts drawn twice,
+one card missing in one shot while the page said it was face up); the
+page's own state was right each time, so taken as a capture problem.
+
+**Not checked:** on the developer's devices; Safari.

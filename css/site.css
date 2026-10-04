@@ -75,6 +75,9 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 .game.soon { opacity: .55; box-shadow: none; border: 3px dashed var(--line); background: transparent; }
 .game .note { font-size: 15px; font-weight: 600; color: var(--muted); }
 .game .pic span.cb { padding: 0; overflow: hidden; }   /* a matching card's back */
+/* Count to 9: numbered cards (the number uses the device's font). */
+.game .pic span.num { padding: 2px; color: var(--ink); }
+.game .pic .num text { font-family: var(--font); }
 /* Connect Four: round holes in a yellow frame. */
 .game .pic.c4 { grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; background: var(--sun); border-radius: 12px; }
 .game .pic.c4 span { border-radius: 50%; padding: 2px; }

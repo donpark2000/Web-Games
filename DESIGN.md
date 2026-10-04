@@ -4,9 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-04): tic-tac-toe and matching cards published; Connect
-Four built (branch `connect-four`), waiting for the developer's OK to
-publish.*
+*Status (2026-10-04): tic-tac-toe, matching cards and Connect Four
+published; Count to 9 built (branch `count-to-9`), waiting for the
+developer's OK to publish.*
 
 ## Goal
 
@@ -16,6 +16,7 @@ page. So far:
 - **Tic-tac-toe**
 - **Matching cards** (turn cards over two at a time to find the pairs)
 - **Connect Four** (drop pieces into columns; 4 in a row wins)
+- **Count to 9** (turn over numbered cards in order, 1 to 9)
 
 ## Players
 
@@ -48,7 +49,8 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
 - **Every play screen fits the screen with no scrolling**, footer
   included (developer, 2026-10-04, on an iPhone 16): the grid squares and
   the 🏠 shrink together as far as needed (tic-tac-toe down to 56 px,
-  Connect Four holes to 30 px, matching cards to 56 px; below that the
+  Connect Four holes to 30 px, matching cards and Count to 9 cards to
+  56 px; below that the
   page scrolls). Big screens keep big pieces. The setup screens scroll.
 - **A small footer on every page:** "© 2026 Donald Parker · Free software
   under the GPL-3.0 · Source code" (link to the GitHub repo) (developer,
@@ -58,7 +60,8 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   Little space around it (16 px above, 12 px below the page), so the play
   screens fit a phone.
 - **Shared styles**: `css/site.css` (every page), `css/game.css` (the
-  game screens' setup panels, turn line, buttons), then each game's own.
+  game screens' setup panels, turn line, buttons), `css/cards.css` (the
+  flipping cards of matching cards and Count to 9), then each game's own.
 - **Game rules kept apart from the screen code**: rules in `src/core/`
   (no DOM or UI code, unit-tested in Node), screens in `src/ui/`.
 - **A debug log** (standards §1), hidden unless the address has `?dev`:
@@ -183,6 +186,41 @@ scoreboard are tic-tac-toe's (the developer).
   time, blocks 55%, half the time avoids a column that would let the
   other player win on top of it, otherwise plays at random, leaning
   towards the middle columns. Tunable (`ROBOT_TUNING`).
+
+### Count to 9
+
+The developer's own game, agreed 2026-10-04 (journal, "Count to 9: the
+developer's game"); no mockup (the screens are matching cards' with
+numbered cards).
+
+- **9 cards face down in a 3x3 grid**, numbered 1 to 9 in a random order,
+  with matching cards' back. A player turns cards over one at a time: as
+  long as each is the next number, they keep going. A wrong number
+  **flashes red for 1.5 s** ("Oops!"), turns back, and the turn passes.
+- **Two levels** ("How hard?"): **⭐ Easy** ("Numbers stay up"): the
+  numbers already counted stay face up and the next player carries on
+  from the next number (the count is shared). **⭐⭐⭐ Hard** ("A miss: back
+  to 1"): a miss turns every card back and the next player starts at 1.
+  Easy is preselected.
+- **Whoever turns over the 9 wins**, in either level. No ties.
+- **Who's playing?**: **Just me**, **Me and the robot** (preselected) or
+  **Two players**; face pickers (player 2's only for two players), who
+  goes first (not alone), as in the other games.
+- **Cards**: a big number with that many dots under it, laid out like a
+  die (for a child not sure of 7 vs 8). Counted cards are tinted the
+  colour of whoever counted them.
+- **Turn line**: "<face> find <n>" (alone: "Find <n>"); the robot "is
+  thinking..." 0.8 s before each card it turns over.
+- **Scoreboard** (dark strip): games won per player. **Just me**: the
+  turns this round and the best (fewest turns) per level, with a 🏆;
+  the end says "1 to 9 in N turns!". The end-of-round scorecard cheer and
+  "aww" face, Play again / New game and the 🏠 (one card) as in the other
+  games; the page fits the screen with no scrolling.
+- **The robot never peeks**: it only knows cards it has seen turned over,
+  each remembered with a 60% chance (`ROBOT_TUNING.remember`, tunable).
+  It takes the next number when it remembers where it is, otherwise it
+  guesses among the face-down cards it doesn't remember.
+- Later, maybe: a "How many cards?" choice (count to 6, 9, 12 or 16).
 
 ## Sound
 

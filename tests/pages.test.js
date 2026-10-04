@@ -17,9 +17,9 @@ const html = Object.fromEntries(await Promise.all(pages.map(async p => [p, await
 const localRefs = s => [...s.matchAll(/(?:href|src)="([^"]+)"|from '(\.\/[^']+)'/g)]
   .map(m => m[1] ?? m[2]).filter(u => !/^(https?:|mailto:|#)/.test(u)).map(u => u.replace(/[?#].*$/, ''));
 
-test('pages: the home page and the three games exist', () => {
+test('pages: the home page and the four games exist', () => {
   assert.ok(pages.includes('index.html'));
-  for (const g of ['tic-tac-toe.html', 'matching.html', 'connect-four.html']) assert.ok(games.includes(g), `${g} missing: ${games.join()}`);
+  for (const g of ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html']) assert.ok(games.includes(g), `${g} missing: ${games.join()}`);
 });
 
 test('pages: every page has the footer, and "Source code" opens in a new tab', () => {
