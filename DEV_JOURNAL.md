@@ -871,3 +871,8 @@ the iPhone 16: no scrolling on the play screens, pieces not too small,
 the setup screens without the robot panel. Open choice: matching 4x6 and
 5x6 still scroll on a phone (smaller cards than 56 px would be needed to
 fit). Then the next game or changes, the developer's choice.
+
+**Checked by the developer** on the iPhone 16 (live site): "Spacing looks
+good on my phone." A 5x6 matching grid also works; its buttons need a
+scroll, "I think that is OK". The open choice is settled: no smaller
+cards ("I don't really want to make the icons smaller").
