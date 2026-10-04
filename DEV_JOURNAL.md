@@ -982,3 +982,35 @@ one card missing in one shot while the page said it was face up); the
 page's own state was right each time, so taken as a capture problem.
 
 **Not checked:** on the developer's devices; Safari.
+
+**Published** (developer: "yes, publish it"): `main` fast-forwarded to
+`2f050b5`; Pages build "built 2f050b5"; the new and changed files all
+200. Live site in the built-in browser at 393x659: Count to 9 starts
+against the robot, a card turned over is counted ("find 2"), cards 95 px
+(82 px locally: there the `?dev` debug panel takes room at the bottom),
+no scroll; the home page has the Count to 9 button; no console errors.
+
+## 2026-10-04: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with four games:
+tic-tac-toe, matching cards, Connect Four, Count to 9. Working branch
+`count-to-9`; `main` = `2f050b5` (the site); this journal entry is on the
+branch only (docs, nothing on the site changes). Publishing = fast-forward
+`main` to the working branch and push, only with the developer's OK.
+
+**Known:** `npm test` 90 of 90. Count to 9 checked in the built-in
+browser (phone and tablet sizes) and on the live site.
+
+**Not checked:** Count to 9 on the developer's devices (the robot's
+strength at `remember` 0.6, the red flash, the dots); Safari; Android.
+
+**Next:** the developer tries Count to 9. Possible changes: the robot's
+`remember` (0.4 if too strong), a "How many cards?" choice later. Other
+game ideas so far: pop-up faces, Simon, spot the odd one out, a sliding
+picture puzzle.
+
+**Starting a session:** if the desktop app opens the session in the
+GP-200 Patch Manager folder, ask Claude to move it to
+`C:\Users\dpark\Documents\Web-Games`, then "start". There,
+`preview_start` still started the GP-200 server (port 8000) even with the
+session moved; run `node tools/serve.js 8123` in the background instead.
