@@ -876,3 +876,9 @@ fit). Then the next game or changes, the developer's choice.
 good on my phone." A 5x6 matching grid also works; its buttons need a
 scroll, "I think that is OK". The open choice is settled: no smaller
 cards ("I don't really want to make the icons smaller").
+
+## 2026-10-04: Connect Four checked by the developer
+
+**The developer** tested Connect Four on the live site on their phone and
+desktop: "Connect four looks good." Nothing to change. Still not checked:
+Safari on an iPad, Android. Next: a fourth game (the last one today).
