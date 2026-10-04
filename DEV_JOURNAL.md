@@ -772,3 +772,35 @@ the cheer; no console errors. Connect Four doesn't have this problem
 (its board is only rebuilt when a piece drops or a round starts). The
 screens have no automated tests (the suite covers `src/core/`), so this
 browser check is the test.
+
+**Published** (developer: "yes, publish it"): `main` fast-forwarded to
+`f7eb083`; Pages build "built f7eb083"; live `/`, `connect-four.html`,
+its CSS and scripts and `src/ui/tic-tac-toe.js` all 200, the live
+tic-tac-toe script has the fix. In the built-in browser at 375x812 the
+live Connect Four played a move and the robot's reply (7 columns, 2
+pieces, 🏠 56 px), no console errors.
+
+## 2026-10-04: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with three games:
+tic-tac-toe, matching cards, Connect Four. `main` = branch
+`connect-four`. Publishing = fast-forward `main` to the working branch
+and push, only with the developer's OK; devices may show the old version
+for up to 10 minutes.
+
+**Known:** `npm test` 71 of 71. Connect Four checked in the built-in
+browser (phone 375x812, tablet sideways 1024x768) and on the live site.
+
+**Not checked:** Connect Four on the developer's devices; real iPad /
+iPhone / Android; Safari.
+
+**Next:** the developer tries Connect Four on their device (the robot's
+difficulty, the falling piece, the 🏠 at 56 px on a phone). Then the
+next game or changes, the developer's choice (other ideas so far: Simon,
+spot the odd one out, a sliding picture puzzle).
+
+**Starting a session:** if the desktop app opens the session in the
+GP-200 Patch Manager folder, ask Claude to move it to
+`C:\Users\dpark\Documents\Web-Games`, then "start". There, the built-in
+browser's `preview_start` started the GP-200 server (port 8000); run
+`node tools/serve.js 8123` instead.
