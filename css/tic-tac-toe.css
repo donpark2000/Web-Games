@@ -63,13 +63,27 @@ h2 .chip { width: 34px; height: 34px; }
 .cell.win { background: var(--sun-soft); box-shadow: 0 0 0 5px var(--sun), 0 5px 0 5px #C98F0A; transform: scale(1.04); }
 .cell.win .mark { animation: wiggle .9s ease-in-out .2s 2; }
 
-/* scoreboard: deliberately unlike the grid (dark, flat, one strip) */
+/* scoreboard: deliberately unlike the grid (dark, flat, one strip).
+   The space above it is one grid square tall (developer, 2026-10-04): a
+   square is (board width - 2 gaps) / 3, the board is min(100%, 420px) of
+   this screen, and a % margin is measured against the screen's width. The
+   screen's own 14px gap is already there, so it's taken off. */
 .scoreboard {
-  margin-top: 14px; background: var(--ink); color: var(--board-ink); border-radius: 18px; padding: 8px;
-  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px;
+  margin-top: calc((min(100%, 420px) - 20px) / 3 - 14px);
+  background: var(--ink); color: var(--board-ink); border-radius: 18px; padding: 6px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 4px;
 }
-.side { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 8px; border-radius: 12px; border: 3px solid transparent; transition: border-color .3s; }
-.side .chip { width: 42px; height: 42px; flex: none; }
+.side { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px; border-radius: 12px; border: 3px solid transparent; transition: border-color .3s; min-width: 0; }
+/* Faces as big as on the grid (developer, 2026-10-04): a square's face is
+   76% of the square (12% padding each side). The screen is the page width
+   less the 16px side margins, at most 520px, so in viewport units the
+   board is min(100vw - 32px, 420px). Allowed to shrink a little on narrow
+   phones so the score still fits beside it. */
+.side .chip {
+  width: calc((min(100vw - 32px, 420px) - 20px) / 3 * .76);
+  flex: 0 1 auto; min-width: 44px; aspect-ratio: 1;
+}
+.side .chip .av { height: auto; }
 .side .n { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
 .side .who { font-size: 12px; opacity: .75; display: block; }
 .side.c1.now { border-color: var(--p1); }

@@ -75,7 +75,8 @@ Claude artifacts: [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBz
 - **Game screen**, top to bottom: whose turn it is ("<face>'s turn"; the
   robot "is thinking..." for 0.8 s), the grid, a **scoreboard** (a dark,
   flat strip, unlike the grid; wins per face, ties in the middle; outlines
-  whose turn it is), then the buttons **Play again** (same faces, grid
+  whose turn it is; one grid square of space above it, and its faces as
+  big as on the grid, developer 2026-10-04), then the buttons **Play again** (same faces, grid
   cleared; mid-round it restarts the round unscored) and **New game**
   (back to setup, last picks kept). Scores start at 0-0 on Play!.
 - **Each player's squares are tinted** their colour (orange / blue).

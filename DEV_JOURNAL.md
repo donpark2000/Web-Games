@@ -270,3 +270,30 @@ grid is full width.
 "is thinking…" fits on one line beside 🏠 (56 px high, no overflow);
 tapping 🏠 mid-game opens the home page; no console errors. No rules
 changed, so the tests weren't re-run.
+
+## 2026-10-04: Scoreboard: more space above, bigger faces
+
+**The developer:** add space between the grid and the scoreboard, "maybe
+the same height as a grid cell", and make the scoreboard faces "the same
+size as for game play".
+
+**Change** (`css/tic-tac-toe.css`, CSS only): the scoreboard's top margin
+is worked out from the board's width (one square = (board - 2 gaps) / 3),
+and its faces from the page width (76% of a square, like a face on the
+grid). Tighter padding inside the scoreboard so the score still fits
+beside the bigger faces; on very narrow phones the faces may shrink a
+little (never below 44 px). `DESIGN.md` updated.
+
+**Measured** in the built-in browser, two-player mode ("Player 1" is the
+longest label):
+
+| Size | Square | Space above scoreboard | Face on grid | Face on scoreboard |
+|---|---|---|---|---|
+| Phone 375x812 | 108 px | 108 px | 82 px | 82 px |
+| Tablet 768x1024 | 133 px | 133 px | 101 px | 101 px |
+
+No sideways scrolling (page 375 px wide on the phone).
+
+**Side effect to watch:** the play screen is taller now. On the 375x812
+phone the buttons end at 742 px, so on a real phone (browser bars take
+some of the height) "Play again" / "New game" may need a scroll.
