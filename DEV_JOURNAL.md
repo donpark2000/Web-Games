@@ -17,6 +17,7 @@ and what it does and doesn't prove.
   tic-tac-toe rules are to be written so it can be added without
   rewriting them. **Parking confirmed** (developer, 2026-10-04); stays
   open as a later phase.
+
 ## Resolved
 
 - **Q2. Licence.** *Raised 2026-10-04.* The repo was public with no
