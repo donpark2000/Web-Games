@@ -1,0 +1,92 @@
+/* Tic-tac-toe screens, from the agreed mockup v2: one phone-width column,
+   the grid is the hero; a dark, flat scoreboard strip under it (unlike the
+   white raised squares), outlined pill buttons at the bottom. */
+.app { max-width: 520px; margin: 0 auto; display: grid; gap: 16px; }
+h2 { font-size: 19px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+h2 .chip { width: 34px; height: 34px; }
+.panel { background: var(--card); border-radius: 22px; padding: 14px; box-shadow: 0 4px 0 var(--line); }
+
+.top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; }
+.top .spacer { width: 44px; }
+.homebtn {
+  width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px; text-decoration: none;
+  background: var(--card); box-shadow: 0 3px 0 var(--line); font-size: 24px;
+}
+
+/* who's playing */
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mode {
+  border: 3px solid var(--line); background: var(--card); border-radius: 18px; padding: 12px 6px; cursor: pointer;
+  display: grid; justify-items: center; gap: 6px; font-size: 17px; font-weight: 700;
+}
+.mode .pair { display: flex; gap: 4px; }
+.mode .pair .av { width: 40px; height: 40px; }
+.mode[aria-pressed="true"] { border-color: var(--sun); background: var(--sun-soft); }
+
+/* face pickers */
+.faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
+.face { aspect-ratio: 1; border-radius: 16px; border: 3px solid transparent; background: var(--sky); cursor: pointer; padding: 6px; }
+.p1 .face[aria-pressed="true"] { border-color: var(--p1); background: var(--p1-soft); }
+.p2 .face[aria-pressed="true"] { border-color: var(--p2); background: var(--p2-soft); }
+.face:disabled { opacity: .2; cursor: default; }
+.robotfixed { display: flex; align-items: center; gap: 12px; font-size: 17px; }
+.robotfixed .face { width: 70px; border-color: var(--p2); background: var(--p2-soft); cursor: default; }
+
+/* who goes first */
+.firsts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.first {
+  border: 3px solid var(--line); background: var(--card); border-radius: 16px; padding: 10px 4px; cursor: pointer;
+  font-size: 15px; font-weight: 700; display: grid; gap: 4px; justify-items: center; text-align: center;
+}
+.first .ico { font-size: 24px; }
+.first[aria-pressed="true"] { border-color: var(--sun); background: var(--sun-soft); }
+
+.go { display: grid; gap: 6px; justify-items: center; }
+.big {
+  border: 0; border-radius: 999px; padding: 14px 40px; font-size: 24px; font-weight: 800; cursor: pointer;
+  background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 #C98F0A;
+}
+.big:disabled { background: #E3E8E7; color: #97A6A9; box-shadow: 0 4px 0 #CBD3D2; cursor: default; }
+.why { font-size: 14px; color: var(--muted); min-height: 1.2em; }
+
+/* play screen */
+#play { gap: 14px; }
+.turn { display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; min-height: 56px; text-align: center; }
+.turn .chip { width: 52px; height: 52px; }
+.turn.won { animation: bounce .6s ease; }
+.board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: min(100%, 420px); margin: 0 auto; }
+.cell {
+  aspect-ratio: 1; border: 0; border-radius: 20px; background: var(--card); box-shadow: 0 5px 0 var(--line);
+  display: grid; place-items: center; cursor: pointer; padding: 12%;
+  transition: filter .5s, opacity .5s, transform .4s, background .3s, box-shadow .3s;
+}
+.cell:disabled { cursor: default; }
+.cell.o1 { background: var(--p1-soft); }
+.cell.o2 { background: var(--p2-soft); }
+.cell .mark { width: 100%; height: 100%; }
+.cell .mark.new { animation: pop .28s ease-out; }
+.board.done .cell:not(.win) { filter: blur(4px) grayscale(.4); opacity: .35; transform: scale(.9); }
+.board.tie .cell { opacity: .55; filter: grayscale(.5); }
+.cell.win { background: var(--sun-soft); box-shadow: 0 0 0 5px var(--sun), 0 5px 0 5px #C98F0A; transform: scale(1.04); }
+.cell.win .mark { animation: wiggle .9s ease-in-out .2s 2; }
+
+/* scoreboard: deliberately unlike the grid (dark, flat, one strip) */
+.scoreboard {
+  margin-top: 14px; background: var(--ink); color: var(--board-ink); border-radius: 18px; padding: 8px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px;
+}
+.side { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 8px; border-radius: 12px; border: 3px solid transparent; transition: border-color .3s; }
+.side .chip { width: 42px; height: 42px; flex: none; }
+.side .n { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.side .who { font-size: 12px; opacity: .75; display: block; }
+.side.c1.now { border-color: var(--p1); }
+.side.c2.now { border-color: var(--p2); }
+.ties { display: grid; justify-items: center; font-size: 12px; opacity: .85; }
+.ties .n { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.controls { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pill { border-radius: 999px; padding: 13px 8px; font-size: 19px; font-weight: 800; cursor: pointer; border: 3px solid var(--ink); background: transparent; }
+.pill.primary { background: var(--ink); color: var(--card); }
+
+@keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg) scale(1.1); } 75% { transform: rotate(12deg) scale(1.1); } }
+@keyframes bounce { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }

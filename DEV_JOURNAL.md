@@ -182,3 +182,70 @@ developer's tablet and phone.
 GP-200 project's server from this session (the session began in that
 repo). In a fresh session started in `Web-Games` this should not happen;
 a `.claude/launch.json` here is needed before `preview_start`.
+
+## 2026-10-04: Tic-tac-toe built; status (start here next session)
+
+The developer asked to see the UI on localhost. Nothing in the repo could
+run yet (the UI was only the mockup artifact), so tic-tac-toe was built,
+on branch `tic-tac-toe`. The developer prefers finishing one game before
+starting the next, so matching cards waits.
+
+**What was built:**
+- `index.html`: home page, a big picture button per game (matching cards
+  shows "Coming soon").
+- `tic-tac-toe.html` + `src/ui/tic-tac-toe.js` + `css/`: the setup and
+  play screens from mockup v2, same look.
+- `src/core/tic-tac-toe.js`: the rules (win/tie, the three first-player
+  rules, no shared face, Play again unscored mid-round, the robot with an
+  injectable random source). No DOM code.
+- `src/ui/faces.js`: the 17 faces ported unchanged from the faces
+  artifact (mood renamed 'happy' -> 'winner').
+- `src/core/log.js` + `src/ui/debuglog.js`: the `?dev` panel (Save log,
+  Clear, Hide), with browser/device details in the saved file; uncaught
+  errors are logged. Links keep `?dev`.
+- `tools/serve.js`: a no-package local server, port 8123, localhost only,
+  refuses paths outside the repo, no caching.
+- `npm test`: Node's test runner over `tests/*.test.js`.
+
+**Claude's additions beyond the mockup** (for the developer to OK):
+- A 🏠 button on the setup screen, back to the home page (the mockup had
+  no way back).
+- The robot's pending move is cancelled by "Play again" / "New game". In
+  the mockup, pressing "Play again" while the robot was thinking let the
+  old move land on the new grid.
+
+**Evidence:**
+- `npm test`: 31 tests, 31 pass (faces 4, log 5, server 5, rules 17).
+- Each check can fail: 7 deliberately broken copies of the code (in a
+  temp folder) were each caught: tie not swapping the starter, a wrong
+  diagonal, same face allowed, an unbeatable robot (always wins/blocks),
+  the server's folder guard removed, winner faces lost, the log cap
+  removed.
+- Robot strength, 1000 seeded games against a careful player (always
+  wins, blocks, takes the centre), starts alternating: person 557, robot
+  80, ties 363. The test asks for person > 300 and robot > 20.
+- Clicked through in the built-in browser at phone size (375x812), with
+  `?dev`: home -> tic-tac-toe; against the robot to a tie (Ties 1, robot
+  starts next, as "Take turns" says); "Play again" pressed twice fast
+  while the robot was thinking: the log shows "robot move cancelled" and
+  exactly one robot move on the new grid; two players: "Play!" grey with
+  "Player 2 needs a face.", the bear greyed in player 2's list; player 1
+  won the top row: winner faces on the 3 squares, the rest blurred,
+  1-0, next starter the cat. No console errors.
+- **Found and fixed:** the floating debug panel covered the bottom of the
+  page; a tap meant for "Play!" hit "Save log". The panel now reserves
+  its height under the page. (The saved file did not land in Downloads;
+  the built-in browser kept it.)
+- **Not checked:** a real iPad, iPhone or Android; Safari. That needs the
+  developer's devices (and the site on GitHub Pages or the LAN).
+
+**Tooling notes:** `preview_start` with this repo's `launch.json` again
+started the GP-200 project's server (port 8000; the session began in that
+repo); stopped at once, it only showed the GP-200 start page. The
+Terminal panel failed too (its shell integration file is missing). The
+server was run as a background process instead and opened by URL.
+
+**Next:** the developer tries it (`node tools/serve.js`, then
+http://localhost:8123/) and gives feedback; then a check on the tablet
+and phone, which needs either GitHub Pages turned on (publish: merge to
+`main`, developer's OK) or the server opened to the home network.

@@ -4,8 +4,8 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-04): tic-tac-toe designed (mockup agreed); matching
-cards still as at kickoff. Nothing built yet.*
+*Status (2026-10-04): tic-tac-toe built (branch `tic-tac-toe`), awaiting
+the developer's check; matching cards still as at kickoff.*
 
 ## Goal
 
