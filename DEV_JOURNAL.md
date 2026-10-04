@@ -6,7 +6,14 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-(none)
+- **Q5. Is the Count to 9 robot too strong?** *Raised 2026-10-04 (entry
+  "Count to 9 built").* The developer, after playing it on the live site:
+  "The game play looks good. I think robot is a little too good. But
+  Maybe I'm just too bad." It remembers each card it sees with chance
+  `ROBOT_TUNING.remember` = 0.6 (`src/core/count-to-9.js`); the
+  simulation table in that entry puts 0.4 at a child win rate of 38%
+  (child remembering 30%) / 69% (60%) in easy mode, against 19% / 52% at
+  0.6. To settle: the grandkids' games, or the developer's choice of 0.4.
 
 ## Resolved
 
@@ -1014,3 +1021,7 @@ GP-200 Patch Manager folder, ask Claude to move it to
 `C:\Users\dpark\Documents\Web-Games`, then "start". There,
 `preview_start` still started the GP-200 server (port 8000) even with the
 session moved; run `node tools/serve.js 8123` in the background instead.
+
+**The developer** (2026-10-04, after playing on the live site): "The game
+play looks good. I think robot is a little too good. But Maybe I'm just
+too bad." Nothing changed; logged as Q5 (lower `remember` to 0.4?).
