@@ -4,8 +4,8 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-04): tic-tac-toe built (branch `tic-tac-toe`), awaiting
-the developer's check; matching cards still as at kickoff.*
+*Status (2026-10-04): tic-tac-toe built and approved (branch
+`tic-tac-toe`); matching cards designed (mockup agreed), being built.*
 
 ## Goal
 
@@ -91,11 +91,37 @@ Claude artifacts: [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBz
 
 ### Matching cards
 
-- **Single player** at first.
-- **Emoji pictures** (animals, fruit, vehicles): free to use, no image
-  licensing (not yet reviewed; tic-tac-toe moved to drawn faces). The developer's own photos (family, pets) may come later.
-- **Levels of 6, 8 and 10 pairs.** A move counter, **no timer** (no
-  pressure).
+Agreed 2026-10-04 from mockup v1 (journal):
+[Matching Cards Mockup](https://claude.ai/artifact/HNSrgzfwREctAqTTJZ7t4A)
+(private Claude artifact, version 3).
+
+- **Cards face down in a grid**, all with the same back (a yellow star on
+  teal-blue dots). Each turn a player turns over two. A match stays face
+  up, tinted the finder's colour, and scores a pair ("A match!", 0.6 s);
+  a mismatch shows "Not a match" for 1.5 s, then turns back. **The turn
+  passes either way.** The round ends when the last pair is found.
+- **Setup screen** like tic-tac-toe's: **Just me** or **Two players**
+  (no robot for now), face pickers (two players never share a face),
+  **How many cards?** (3x4, **4x4 default**, 4x5, 4x6, 5x6, 6x6; sizes
+  whose cards would be under 56 px on the screen are greyed, with a
+  note), who goes first (two players only; same three choices).
+- **Pictures: the drawn faces** (the 17, robot included) less the
+  players' picks; when a grid needs more pairs than that, some faces
+  appear 4 times. No timer.
+- **Play screen**: 🏠, the turn line, the grid (sized to fit the screen
+  with the turn line and the first scorecard; turned sideways when that
+  gives bigger cards), then **two scorecards**: **This game** (dark
+  strip, pairs per player, outlines whose turn it is) and **Games won**
+  (light, smaller; wins and ties; reset on New game). Then Play again /
+  New game, as in tic-tac-toe.
+- **Just me**: "Find the pairs!"; the first card shows pairs found of
+  the total and turns taken; the second shows the **best** (fewest
+  turns) for that grid size; the end says "All found in N turns!".
+- **Cheers on the scorecard**: on each pair, the finder's face shows its
+  winner version, grows to 1.35x and wiggles; at the end the winner's
+  (both for a tie) grows to 1.8x for about 3 s; then back to normal.
+  The turn line says "<face> wins!" / "It's a tie!".
+- The developer's own photos (family, pets) may come later.
 
 ## Sound
 

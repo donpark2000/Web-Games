@@ -439,3 +439,21 @@ scorecard cheer.
   a style clash; only rendering the frame does.
 - The local copy also needed `[hidden]{display:none!important}` (the
   published page gets it from the artifact wrapper); added to the mockup.
+
+## 2026-10-04: Matching cards: mockup approved; rules built; publishing
+
+**The developer:** "Perfect" (mockup v1, version 3). Agreed design now in
+`DESIGN.md`, "Matching cards".
+
+**Built so far** (branch `tic-tac-toe`): `src/core/players.js` (faces,
+who-goes-first rules, face check; moved out of `tic-tac-toe.js`, which
+re-exports them, so its 31 tests are unchanged and pass) and
+`src/core/matching.js` (sizes, deck, layout fit, flip/settle, scoring,
+best per size). 15 new tests; `npm test`: 46 of 46 pass. One of the new
+tests was wrong at first (it picked the matching card for a "miss");
+fixed. The screens are not built yet.
+
+**Publishing** (the developer asked: "can we fire up the github hosted
+version so I can try it on my phone?", 2026-10-04): branch merged into
+`main` and GitHub Pages turned on from `main`, root folder. Live: the
+home page and tic-tac-toe; matching cards still says "Coming soon".

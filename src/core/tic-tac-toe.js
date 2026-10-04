@@ -14,15 +14,11 @@ export const LINES = [
   [0, 4, 8], [2, 4, 6],
 ];
 
-// The faces a person can pick. The robot is only for the computer.
-export const FACE_NAMES = [
-  'bear', 'cat', 'dog', 'bunny', 'fox', 'panda', 'pig', 'frog',
-  'lion', 'mouse', 'monkey', 'chick', 'girl', 'boy', 'grandma', 'grandpa',
-];
-export const ROBOT = 'robot';
+import { FACE_NAMES, ROBOT, FIRST_RULES, nextStarter, checkFaces as checkPicks } from './players.js';
 
-// Who goes first in the next round: take turns, winner first, loser first.
-export const FIRST_RULES = ['alt', 'win', 'lose'];
+// Faces and the who-goes-first rules are shared with the other games
+// (players.js); re-exported here so callers of this module keep working.
+export { FACE_NAMES, ROBOT, FIRST_RULES, nextStarter };
 
 export const emptyBoard = () => Array(9).fill(0);
 
@@ -38,26 +34,9 @@ export function outcome(board) {
   return board.every(Boolean) ? { winner: 0, line: [] } : null;
 }
 
-// Who starts the next round. After a tie the other player starts, whatever
-// the rule.
-export function nextStarter(starter, winner, rule) {
-  if (!winner || rule === 'alt') return 3 - starter;
-  return rule === 'win' ? winner : 3 - winner;
-}
-
-// Checks the setup screen's picks. Returns '' when they're fine, otherwise
-// a reason code the screen turns into words:
-//   'p1-missing', 'p2-missing', 'unknown-face', 'same-face'.
-// Against the robot, player 2's pick is ignored (it's always the robot).
-export function checkFaces({ vsRobot, p1, p2 }) {
-  if (!p1) return 'p1-missing';
-  if (!FACE_NAMES.includes(p1)) return 'unknown-face';
-  if (vsRobot) return '';
-  if (!p2) return 'p2-missing';
-  if (!FACE_NAMES.includes(p2)) return 'unknown-face';
-  if (p1 === p2) return 'same-face';
-  return '';
-}
+// Checks the setup screen's picks (players.js checkFaces). Against the
+// robot, player 2's pick is ignored (it's always the robot).
+export const checkFaces = ({ vsRobot, p1, p2 }) => checkPicks({ onePlayer: vsRobot, p1, p2 });
 
 // A new match: scores 0-0, player 1 starts the first round.
 // Throws if the picks aren't valid (the screen keeps "Play!" greyed until
