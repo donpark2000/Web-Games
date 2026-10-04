@@ -118,7 +118,9 @@ function startCheer({ winner }) {
   moods = endMoods(winner);
   cheering = true;
   L('scorecard cheer', { moods: { [faceOf(1)]: moods[1], [faceOf(2)]: moods[2] } });
-  cheerTimer = setTimeout(() => { cheerTimer = null; cheering = false; if (match) renderPlay(); }, CHEER_MS);
+  // The redraw when the cheer ends rebuilds the grid; without clearing
+  // justPlaced, the last face would pop in again (seen after a tie).
+  cheerTimer = setTimeout(() => { cheerTimer = null; cheering = false; justPlaced = null; if (match) renderPlay(); }, CHEER_MS);
 }
 function stopCheer() {
   if (cheerTimer !== null) clearTimeout(cheerTimer);

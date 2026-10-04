@@ -756,3 +756,19 @@ found a real one (`1112111` rows, flipped every two rows).
 after a tie the last-placed face "pops" in again when the 2.8 s cheer
 ends (the cheer's redraw re-adds the pop class). Small; to fix only if
 the developer wants.
+
+## 2026-10-04: Tic-tac-toe tie glitch fixed; Connect Four published
+
+**The developer:** "yes, publish it and fix the tic-tac-toe glitch".
+
+**Glitch, confirmed before fixing** (built-in browser, two players, the
+tie 0,4,8,1,7,6,2,5,3): at the end, one `.mark.new` (the last face's
+pop); 3 s later, after the cheer's redraw, a *new* element with
+`.mark.new` again, so the pop replayed. **Fix:** the cheer-end timer
+clears `justPlaced` before redrawing (`src/ui/tic-tac-toe.js`).
+**After:** the same tie shows the pop once and 0 `.mark.new` after the
+cheer; the next round (a win) still lights 3 squares before and after
+the cheer; no console errors. Connect Four doesn't have this problem
+(its board is only rebuilt when a piece drops or a round starts). The
+screens have no automated tests (the suite covers `src/core/`), so this
+browser check is the test.
