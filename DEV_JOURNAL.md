@@ -351,3 +351,30 @@ Then: the footer (Q3), a check on real devices, and publishing (merge to
 
 Claude's questions and suggestions went back to the developer (next
 entry records the answers).
+
+## 2026-10-04: Matching cards: answers; mockup next
+
+**Claude's questions, the developer's answers** (2026-10-04):
+- 1 player means **playing alone** (turns counted), "OK for now": it
+  lets us confirm the look and the game play. A robot opponent may come
+  later.
+- **Happy face:** on the player's scoreboard face **with each point**,
+  and again for "<face> wins!" at the end.
+- **New from the developer: two scorecards.** One counts this round's
+  pairs (who wins this round); the other counts wins over several rounds
+  with the same players (like tic-tac-toe's score).
+
+**Claude's proposals, not objected to** (the developer reviews them in
+the mockup):
+- A match passes the turn too (the developer's rule; the usual rule gives
+  another turn).
+- A mismatch stays face up about 1.5 s, then turns back by itself.
+- Found pairs stay face up, tinted the finder's colour (orange / blue).
+- Grid sizes 4x4 (default), 4x5, 4x6, 5x6, 6x6; sizes that don't fit
+  the screen are greyed out; cards stay big enough for small fingers.
+  Pictures: the 17 drawn faces less the players' picks; 6x6 needs 18
+  pairs, so a few faces appear 4 times.
+- Who goes first: the same three choices as tic-tac-toe.
+- One simple card-back design.
+- Playing alone: the second scorecard shows the best (fewest turns) for
+  that grid size, reset on "New game".
