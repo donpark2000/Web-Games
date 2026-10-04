@@ -295,5 +295,5 @@ longest label):
 No sideways scrolling (page 375 px wide on the phone).
 
 **Side effect to watch:** the play screen is taller now. On the 375x812
-phone the buttons end at 742 px, so on a real phone (browser bars take
+phone the buttons end at about 730 px (read off the screenshot, not measured), so on a real phone (browser bars take
 some of the height) "Play again" / "New game" may need a scroll.
