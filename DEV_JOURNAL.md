@@ -804,3 +804,57 @@ GP-200 Patch Manager folder, ask Claude to move it to
 `C:\Users\dpark\Documents\Web-Games`, then "start". There, the built-in
 browser's `preview_start` started the GP-200 server (port 8000); run
 `node tools/serve.js 8123` instead.
+
+## 2026-10-04: No scrolling on the play screens; no "You play the robot" panel
+
+**The developer** (iPhone 16, live site): (1) tic-tac-toe, "Me and the
+robot": no need for the "You play the robot" section; (2) the play
+screen needs scrolling to see the scorecard; the grid pieces and the 🏠
+"probably" a bit smaller, goal: no vertical scrolling for the whole
+page; same for matching cards; (3) Connect Four's win showed "4 in a row
+at some random place". (3) was withdrawn while Claude worked: "4 in a row
+is working fine". Nothing changed for it.
+
+**Changed:**
+- (1) The player 2 panel is hidden against the robot, in tic-tac-toe and
+  Connect Four (it held only the fixed robot face).
+- (2) A shared fit: `src/core/fit.js` (`largestFitting`, a halving search
+  for the biggest size that fits; 5 tests) and `src/ui/fit.js`
+  (`fitPlayScreen`: measures body padding + `main` + footer against
+  `innerHeight`). Tic-tac-toe and Connect Four fit their square / hole
+  size on Play! and on resize; their board width, scoreboard space and
+  scorecard faces were already defined from one square, so they shrink
+  together (the developer's "one square" rules kept). Matching cards
+  tries both ways round, each fitted to the whole page, and keeps the
+  bigger cards; a grid that can't fit with cards of 56 px or more keeps
+  its old size and scrolls, so no size is lost. Footer spacing cut from
+  32 px above / 40 px below to 16 / 12 (no recorded reason for the old
+  values). Connect Four's 🏠 minimum lowered from 56 to 48 px (the
+  developer: the 🏠 a bit smaller).
+- **Assumed screen:** an iPhone 16 in Safari with its toolbars showing is
+  about 393x659 CSS px (its screen is 393x852). Not measured on the
+  phone; the fit uses the real `innerHeight`, so it adapts either way.
+
+**Evidence** (built-in browser, local server; scroll = page height less
+screen height):
+
+| Screen | Tic-tac-toe square | Connect Four hole | Matching 4x4 card | Scroll |
+|---|---|---|---|---|
+| 393x659 | 75 (was 113) | 43 (🏠 48) | 64 | 0 |
+| 375x812 | 101 | | | 0 |
+| 1024x768 | 97 | 60 (board 460) | 90 | 0 |
+| 768x1024 | 133 | 68 | | 0 |
+
+Matching at 393x659: 3x4 82 px (turned sideways, 4 columns), 4x4 64,
+4x5 64 (sideways, 5 columns), all no scroll; 4x6 68 and 5x6 65 still
+scroll (169 and 148 px), as before; 6x6 greyed, as before. The first
+try kept the old way-round choice: 3x4 then got 64 px cards and 4x5
+scrolled 171 px; trying both ways round fixed both. Two players in
+Connect Four still shows the player 2 panel. No console errors.
+
+**Tests:** `npm test` 76 of 76. The fit tests caught 3 of 4 deliberate
+breaks in a scratch copy (answer not left applied, search going the
+wrong way, "fitted" when nothing fits); the 4th (rounding the middle up)
+is still a correct search, so passing it is right.
+
+**Not checked:** on the iPhone itself (the developer).

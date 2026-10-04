@@ -16,7 +16,7 @@ html, body { margin: 0; background: var(--sky); color: var(--ink); font-family: 
 body {
   min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
   padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
-  padding-block: max(12px, env(safe-area-inset-top)) max(40px, env(safe-area-inset-bottom));
+  padding-block: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-bottom));
   -webkit-text-size-adjust: 100%;
 }
 [hidden] { display: none !important; }
@@ -54,8 +54,9 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 @keyframes droop { 0%, 100% { transform: none; } 20%, 80% { transform: translateY(3px) rotate(-6deg); } }
 
 /* The footer on every page: small, quiet, at the bottom of the screen.
-   "Source code" opens in a new tab, so the game stays open. */
-.site-foot { margin: auto auto 0; padding-top: 32px; width: 100%; max-width: 560px; text-align: center; font-size: 12px; line-height: 1.5; color: var(--muted); }
+   "Source code" opens in a new tab, so the game stays open. Little space
+   around it (16px above, 12px below), so the play screens fit a phone. */
+.site-foot { margin: auto auto 0; padding-top: 16px; width: 100%; max-width: 560px; text-align: center; font-size: 12px; line-height: 1.5; color: var(--muted); }
 .site-foot a { color: inherit; }
 
 /* Home page: a big picture button per game. */

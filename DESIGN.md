@@ -45,11 +45,18 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
   the home page to change games, **as big as one of that game's grid
   squares** (developer, 2026-10-04).
+- **Every play screen fits the screen with no scrolling**, footer
+  included (developer, 2026-10-04, on an iPhone 16): the grid squares and
+  the 🏠 shrink together as far as needed (tic-tac-toe down to 56 px,
+  Connect Four holes to 30 px, matching cards to 56 px; below that the
+  page scrolls). Big screens keep big pieces. The setup screens scroll.
 - **A small footer on every page:** "© 2026 Donald Parker · Free software
   under the GPL-3.0 · Source code" (link to the GitHub repo) (developer,
   2026-10-04). **At the bottom of the screen** when the page is shorter
   than the screen, under everything when it's longer; "Source code"
   **opens in a new tab**, so the game stays open (developer, 2026-10-04).
+  Little space around it (16 px above, 12 px below the page), so the play
+  screens fit a phone.
 - **Shared styles**: `css/site.css` (every page), `css/game.css` (the
   game screens' setup panels, turn line, buttons), then each game's own.
 - **Game rules kept apart from the screen code**: rules in `src/core/`
@@ -77,7 +84,8 @@ Claude artifacts: [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBz
   different on each device.
 - **Setup screen** ("New game"): "Who's playing?" first: **Me and the
   robot** (the robot is preselected) or **Two players**. Then the face
-  pickers. **Both players can never have the same face** (the other
+  pickers: against the robot only your own (no player 2 panel; developer,
+  2026-10-04). **Both players can never have the same face** (the other
   player's face is greyed out). Then **who goes first**: take turns,
   winner goes first, or loser goes first. After a tie, the other player
   starts next. Player 1 (the child, against the robot) starts the first
@@ -127,9 +135,10 @@ Agreed 2026-10-04 from mockup v1 (journal):
   players' picks; when a grid needs more pairs than that, some faces
   appear 4 times. No timer.
 - **Play screen**: 🏠 (one card; on the setup screen, one 4x4 card),
-  the turn line, the grid (sized to fit the screen
-  with the turn line and the first scorecard; turned sideways when that
-  gives bigger cards), then **two scorecards**: **This game** (dark
+  the turn line, the grid (sized so the whole page fits the screen,
+  turned sideways when that gives bigger cards; grids too big for that
+  with cards of at least 56 px keep bigger cards and the page scrolls),
+  then **two scorecards**: **This game** (dark
   strip, pairs per player, outlines whose turn it is) and **Games won**
   (light, smaller; wins and ties; reset on New game). Then Play again /
   New game, as in tic-tac-toe.
@@ -164,8 +173,10 @@ scoreboard are tic-tac-toe's (the developer).
   the winner face and wiggle; the rest are blurred out, as in
   tic-tac-toe. A full board with no 4 is a tie: the board dims.
 - **Sized to the screen**: the board is the page width (at most 520 px),
-  smaller on a tablet held sideways so the whole play screen fits. The
-  🏠 is one hole, but at least 56 px (a hole is about 43 px on a phone).
+  smaller when needed so the whole page fits the screen. The 🏠 is one
+  hole, but at least 48 px (a hole is about 43 px on a phone).
+- **Against the robot**, the setup screen has no player 2 panel, as in
+  tic-tac-toe.
 - **The robot is beatable**, like tic-tac-toe's: takes a win 75% of the
   time, blocks 55%, half the time avoids a column that would let the
   other player win on top of it, otherwise plays at random, leaning

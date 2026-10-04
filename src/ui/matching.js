@@ -10,6 +10,7 @@ import { FACE_NAMES, endMoods } from '../core/players.js';
 import { svg } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { log, installDebugPanel, withDev } from './debuglog.js';
+import { fitPlayScreen } from './fit.js';
 
 const SHOW_MATCH_MS = 600;    // "A match!" before the pair settles
 const SHOW_MISS_MS = 1500;    // "Not a match": the two cards stay up this long
@@ -47,7 +48,9 @@ const WHY = {
 // most PLAY_MAX_W), and the screen height less what must stay on screen
 // with the grid: the page's top padding, the gaps, the "This game"
 // scorecard and the 🏠 row above the grid, which is one card tall
-// (extraRows). "Games won" and the buttons may need a scroll on phones.
+// (extraRows). This decides which sizes are greyed and whether the grid
+// is turned sideways; layoutGrid() then shrinks the cards further so the
+// whole page fits, when it can.
 function playLayout(size) {
   const width = Math.min(innerWidth - 32, PLAY_MAX_W);
   const top = parseFloat(getComputedStyle(document.body).paddingTop) || 12;
@@ -57,19 +60,44 @@ function playLayout(size) {
 }
 const setHome = px => document.documentElement.style.setProperty('--home', `${px}px`);
 
+// The whole page should fit the screen with no scrolling: "Games won",
+// the buttons and the footer too (developer, 2026-10-04, iPhone 16). Both
+// ways round (upright, sideways) are tried, each with the biggest cards
+// (at least MIN_CARD) that let the page fit; the bigger cards win. A grid
+// with too many cards for that keeps the cards playLayout() gives, and
+// the page scrolls (as before), so no size is lost.
 let lastLayout = '';
 function layoutGrid() {
-  const lay = playLayout(match.size);
-  const cs = Math.max(lay.cs, 40);
   const g = $('grid');
-  g.style.setProperty('--cols', lay.cols);
-  g.style.setProperty('--cs', `${cs}px`);
   g.style.setProperty('--gap', `${GAP}px`);
-  setHome(cs);   // the 🏠 button is one card (DESIGN.md "Structure")
-  const key = `${lay.cols}x${lay.rows}@${cs}`;
+  const apply = (cols, px) => {
+    g.style.setProperty('--cols', cols);
+    g.style.setProperty('--cs', `${px}px`);
+    setHome(px);   // the 🏠 button is one card (DESIGN.md "Structure")
+  };
+  const width = Math.min(innerWidth - 32, PLAY_MAX_W);
+  const [a, b] = match.size;
+  let best = null, tries = 0;
+  for (const [cols, rows] of a === b ? [[a, b]] : [[a, b], [b, a]]) {
+    const widest = Math.min(Math.floor((width - GAP * (cols - 1)) / cols), 130);   // 130: fitLayout's max
+    if (widest < MIN_CARD) continue;
+    const fit = fitPlayScreen(px => apply(cols, px), MIN_CARD, widest);
+    tries += fit.tries;
+    if (fit.fitted && (!best || fit.size > best.cs)) best = { cols, rows, cs: fit.size };
+  }
+  let use = best;
+  if (!use) {
+    const lay = playLayout(match.size);
+    use = { cols: lay.cols, rows: lay.rows, cs: Math.max(lay.cs, 40) };
+  }
+  apply(use.cols, use.cs);
+  const key = `${use.cols}x${use.rows}@${use.cs}`;
   if (key !== lastLayout) {
     lastLayout = key;
-    L('layout', { size: sizeKey(match.size), cols: lay.cols, rows: lay.rows, card: cs, viewport: `${innerWidth}x${innerHeight}` });
+    L('layout', {
+      size: sizeKey(match.size), cols: use.cols, rows: use.rows, card: use.cs, wholePageFits: !!best, tries,
+      viewport: `${innerWidth}x${innerHeight}`,
+    });
   }
 }
 

@@ -4,26 +4,21 @@
    and each player's pieces are discs with their face, tinted their colour. */
 
 /* The board's width: the page less its 16px side margins, at most 520px
-   (the game column), and short enough on a tablet held sideways that the
-   whole play screen, buttons too, fits (the rest of the page is
-   about 360px; the board is 7 wide by 6 high). Never
-   under 300px.
-   One hole is (width - frame padding - 6 gaps) / 7. */
+   (the game column). One hole is (width - frame padding - 6 gaps) / 7.
+   On the play screen, src/ui/connect-four.js sets all three from a fitted
+   hole size so the whole page fits the screen with no scrolling
+   (developer, 2026-10-04, iPhone 16). */
 :root {
   --c4pad: 8px;
   --c4gap: 4px;
-  --c4w: min(100vw - 32px, 520px, max(300px, (100vh - 360px) * 7 / 6));
+  --c4w: min(100vw - 32px, 520px);
   --cell: calc((var(--c4w) - 2 * var(--c4pad) - 6 * var(--c4gap)) / 7);
   /* The 🏠 is one hole (developer, 2026-10-04: as big as a grid square),
-     but never under 56px: a hole is only about 43px on a phone. */
-  --home: max(56px, var(--cell));
+     but never under 48px (the size on the home page): a hole is only
+     about 43px on a phone. */
+  --home: max(48px, var(--cell));
   --cheer-scale: 1.4;
 }
-@supports (height: 100dvh) {
-  :root { --c4w: min(100vw - 32px, 520px, max(300px, (100dvh - 360px) * 7 / 6)); }
-}
-.robotfixed { display: flex; align-items: center; gap: 12px; font-size: 17px; }
-.robotfixed .face { width: 70px; border-color: var(--p2); background: var(--p2-soft); cursor: default; }
 
 /* play screen */
 #play { gap: 14px; }

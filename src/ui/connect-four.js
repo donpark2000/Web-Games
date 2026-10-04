@@ -8,8 +8,11 @@ import {
 import { endMoods } from '../core/players.js';
 import { svg } from './faces.js';
 import { log, installDebugPanel, withDev } from './debuglog.js';
+import { fitPlayScreen } from './fit.js';
 
 const ROBOT_THINK_MS = 800;
+const PAD = 8, GAP = 4;  // css: --c4pad, --c4gap
+const MIN_CELL = 30;     // smaller holes than this: the page scrolls instead
 const CHEER_MS = 2800;   // the end-of-round scorecard cheer (css: .cheer-win)
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('c4', msg, data);
@@ -47,9 +50,9 @@ function renderSetup() {
   $('pairRobot').innerHTML = svg(p1Pic) + svg('robot');
   $('pairTwo').innerHTML = svg(p1Pic) + svg(setup.p2 && setup.p2 !== setup.p1 ? setup.p2 : (setup.p1 === 'boy' ? 'girl' : 'boy'));
   $('p1Title').textContent = vs ? 'Pick your face' : 'Player 1, pick a face';
-  $('p2Title').textContent = vs ? 'You play the robot' : 'Player 2, pick a face';
-  $('robotFixed').hidden = !vs;
-  $('p2Faces').hidden = vs;
+  // Against the robot there's no player 2 to pick for (developer,
+  // 2026-10-04): the panel is hidden.
+  $('p2Panel').hidden = vs;
   fillPicker($('p1Faces'), setup.p1, vs ? null : setup.p2, f => pick('p1', f));
   fillPicker($('p2Faces'), setup.p2, setup.p1, f => pick('p2', f));
   $('p1Chip').innerHTML = setup.p1 ? svg(setup.p1) : '';
@@ -82,7 +85,6 @@ function pick(player, face) {
   renderSetup();
 }
 
-$('robotFace').innerHTML = svg('robot');
 $('modeRobot').onclick = () => { setup.vsRobot = true; L('mode', { vsRobot: true }); renderSetup(); };
 $('modeTwo').onclick = () => {
   setup.vsRobot = false;
@@ -101,7 +103,23 @@ $('playBtn').onclick = () => {
   $('play').hidden = false;
   scrollTo(0, 0);
   startRound();
+  fitBoard();
 };
+
+// The play screen's hole size: the biggest that lets the whole page fit
+// the screen, up to what the width allows (board at most 520px). Sets the
+// board width and the 🏠 from it (css/connect-four.css).
+function fitBoard() {
+  const play = $('play');
+  const maxCell = (Math.min(play.clientWidth, 520) - 2 * PAD - 6 * GAP) / 7;
+  const r = fitPlayScreen(px => {
+    play.style.setProperty('--cell', `${px}px`);
+    play.style.setProperty('--c4w', `${px * 7 + 6 * GAP + 2 * PAD}px`);
+    play.style.setProperty('--home', `${Math.max(48, px)}px`);
+  }, Math.min(MIN_CELL, maxCell), maxCell);
+  L('fit', r);
+}
+addEventListener('resize', () => { if (match && !$('play').hidden) fitBoard(); });
 
 /* ---------- play screen ---------- */
 

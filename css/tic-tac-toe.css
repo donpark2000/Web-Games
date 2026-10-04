@@ -5,18 +5,19 @@
 
 /* One grid square, worked out from the page width: the screen is the page
    less its 16px side margins, the board is at most 420px, with two 10px
-   gaps. The 🏠 button is one square too (developer, 2026-10-04). */
+   gaps. The 🏠 button is one square too (developer, 2026-10-04).
+   On the play screen, src/ui/tic-tac-toe.js makes the square smaller when
+   needed so the whole page fits the screen with no scrolling (developer,
+   2026-10-04, iPhone 16); everything below is sized from --cell. */
 :root {
   --cell: calc((min(100vw - 32px, 420px) - 20px) / 3);
   --home: var(--cell);
   --cheer-scale: 1.4;   /* the scorecard faces are already big */
 }
-.robotfixed { display: flex; align-items: center; gap: 12px; font-size: 17px; }
-.robotfixed .face { width: 70px; border-color: var(--p2); background: var(--p2-soft); cursor: default; }
 
 /* play screen */
 #play { gap: 14px; }
-.board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: min(100%, 420px); margin: 0 auto; }
+.board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: calc(var(--cell) * 3 + 20px); margin: 0 auto; }
 .cell {
   aspect-ratio: 1; border: 0; border-radius: 20px; background: var(--card); box-shadow: 0 5px 0 var(--line);
   display: grid; place-items: center; cursor: pointer; padding: 12%;
@@ -33,20 +34,16 @@
 .cell.win .mark { animation: wiggle .9s ease-in-out .2s 2; }
 
 /* scoreboard: deliberately unlike the grid (dark, flat, one strip).
-   The space above it is one grid square tall (developer, 2026-10-04): a
-   square is (board width - 2 gaps) / 3, the board is min(100%, 420px) of
-   this screen, and a % margin is measured against the screen's width. The
+   The space above it is one grid square tall (developer, 2026-10-04); the
    screen's own 14px gap is already there, so it's taken off. */
 .scoreboard {
-  margin-top: calc((min(100%, 420px) - 20px) / 3 - 14px);
+  margin-top: max(0px, var(--cell) - 14px);
   background: var(--ink); color: var(--board-ink); border-radius: 18px; padding: 6px;
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 4px;
 }
 /* Faces as big as on the grid (developer, 2026-10-04): a square's face is
-   76% of the square (12% padding each side). The screen is the page width
-   less the 16px side margins, at most 520px, so in viewport units the
-   board is min(100vw - 32px, 420px). Allowed to shrink a little on narrow
-   phones so the score still fits beside it. */
+   76% of the square (12% padding each side). Allowed to shrink a little on
+   narrow phones so the score still fits beside it. */
 .side .chip {
   width: calc(var(--cell) * .76);
   flex: 0 1 auto; min-width: 44px; aspect-ratio: 1;
