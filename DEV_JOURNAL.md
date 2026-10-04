@@ -110,3 +110,39 @@ robot first in Player 2's list. Claude's proposals in it, for review:
   robot).
 - "Play again" mid-round restarts the round without scoring it; "New
   game" keeps the last picks on the setup screen; scores reset on Play.
+
+## 2026-10-04: Tic-tac-toe mockup v2: setup A, drawn faces
+
+**Developer's review of v1** (2026-10-04):
+- **Setup A** ("Who's playing?" first) chosen over B.
+- Two players can never pick the same face. (v1 already greyed out the
+  other player's face; it becomes a rule in `src/core/` with a test.)
+- The score tiles looked too much like the grid; wants clear separation
+  between grid, scorecard and the buttons at the bottom.
+- "I really like everything else."
+- **New idea:** each face has a normal and a smiling version. Picking a
+  face and playing show the normal one; when someone wins, the winning
+  squares show that face's smiling version.
+
+**Why drawn faces, not emoji:** emoji have no smiling version of most
+animals (only cats have one: 😺 😸), and they look different on iPad,
+Android and Windows. So v2 draws its own faces as small SVG pictures,
+built from shared parts (eyes, mouth, cheeks) so each face gets a normal
+and a winner version cheaply: normal = round eyes, small smile; winner =
+closed happy eyes, open grin, rosy cheeks. The loser keeps the normal
+face (nobody looks sad). 16 faces (bear, cat, dog, bunny, fox, panda,
+pig, frog, lion, mouse, monkey, chick, girl, boy, grandma, grandpa) plus
+the robot.
+
+**Mockup v2** (same private artifact, version 2): setup A only; the drawn
+faces in the pickers, the grid and the "wins!" line; a dark, flat
+scoreboard strip under the grid (unlike the white raised squares), more
+space above it; outlined pill-shaped buttons at the bottom; a mockup-only
+"Show all faces" panel to review every face in both versions.
+
+**Not checked by Claude:** how the faces look. The built-in browser
+needs a claude.ai sign-in to open the artifact, and its local preview
+started the GP-200 project's server instead (the desktop app still tied
+the preview to that project); stopped at once, nothing changed there.
+Only a syntax check of the mockup's script was run. The developer
+reviews the faces.
