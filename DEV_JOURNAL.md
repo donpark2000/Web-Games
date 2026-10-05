@@ -1082,3 +1082,26 @@ matching cards' back.
 "Next round" button (the child sets the pace) rather than by itself; the
 robot's pick sits on a face-down card (a card back with the star) rather
 than a closed fist.
+
+## 2026-10-04: Rock paper scissors mockup v2
+
+**The developer** on v1: "It looks good but there is no tally board for
+'play again'. And there are 2 'play again' controls." The yellow button
+(Start / Next round / Play again) duplicated the Play again pill; the
+next round should start automatically, without a control.
+
+**Changed (v2, same link):** the yellow button is gone. A game starts by
+itself ("Ready?" 1 s, then 1, 2, 3); after a round the result shows 2.5 s
+(1.5 s after "Same!") and the next countdown starts by itself. At 3 stars
+the game stops on "<face> wins!" until **Play again** (a new game, games
+won kept; mid-game it restarts the game, not counted) or **New game**
+(setup; games won back to 0). A light **Games won** strip (as in matching
+cards) under the stars: your face and count, the robot's.
+
+**Checked** (mockup served on localhost, built-in browser, robot forced to
+scissors): Play again → "Ready?" → buttons on after 2.5 s (1 s + 3 x 0.7
+s); three rocks: stars 1-0, 2-0, then "wins!", games won 1-0, buttons on
+again 3.8 s after each round result (2.5 s + the count); 4 s after the
+win still waiting; Play again kept games won 1-0; a "Same!" round went on
+to the next countdown after 1.3 s (the 1.5 s pause, measured from 0.3 s
+after the tap).
