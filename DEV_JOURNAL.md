@@ -1045,3 +1045,11 @@ picture buttons 🪨 📄 ✂️ (or drawn), the winning pick acts it out (rock
 smashes scissors, paper covers rock, scissors cut paper); faces,
 scoreboard, cheers, 🏠 as in the other games; no "who goes first"; a
 mockup first. Not started.
+
+**Agreed** (developer, 2026-10-04): "I'm ok with a mockup step. There is
+no 'whose playing' option. There is only one option. Other suggestions
+sound good." So: no "Who's playing?" panel at all (always you against the
+robot; the setup is the face picker); 0.7 s per count, first to 3, "Same!"
+ties not counted, random robot, picture buttons, the winning pick acted
+out, the usual faces / scoreboard / cheers / 🏠, no "who goes first".
+Next: the mockup.
