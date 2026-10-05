@@ -1545,3 +1545,50 @@ during a move: the pending step cancelled, a new board, both pieces on 1,
 nothing moving 3.5 s later; New game: back to setup. No console errors.
 
 **Not checked:** on the developer's devices; Safari.
+
+**Published** (developer: "push the new game to github.io"): `main`
+fast-forwarded to `3b32e82`; Pages build "built 3b32e82"; the new and
+changed files all 200. Live site in the built-in browser at 393x659: the
+home page's two-player group ends with Snakes and Ladders; the game:
+squares 56 px, the page exactly the screen, a roll of 3 hopped the bear
+to 4; no console errors.
+
+## 2026-10-05: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with six games:
+two players (tic-tac-toe, matching cards, Connect Four, Count to 9,
+Snakes and Ladders), one player (rock paper scissors). Working branch
+`home-groups`; `main` = that branch (this entry included). Publishing =
+fast-forward `main` and push, only with the developer's OK.
+
+**Known:** `npm test` 113 of 113.
+
+**Open questions:** none. The developer is waiting for the grandkids'
+feedback before changing any games (2026-10-04).
+
+**Ideas for later** (`DESIGN.md`, "Later"; game ideas in "Game ideas;
+Snakes and Ladders mockup v1"): a difficulty setting for the rock paper
+scissors robot; Simon (one player, Claude's first pick); hide and seek,
+Pig, Dots and Boxes; whack-a-face, "what comes next?", a sliding puzzle;
+matching cards with the developer's photos.
+
+**Not checked:** Snakes and Ladders, rock paper scissors and the gentler
+Count to 9 robot on the developer's devices and with the grandkids;
+Safari; Android.
+
+**Caching** (the developer asked whether the grandkids see a new game by
+tapping 🏠): GitHub Pages sends `Cache-Control: max-age=600`, so a device
+may show its saved copy for up to 10 minutes after a publish; after that
+any page load (🏠 included) gets the new one.
+
+**Starting a session:** if the desktop app opens the session in the
+GP-200 Patch Manager folder, ask Claude to move it to
+`C:\Users\dpark\Documents\Web-Games`, then "start". Run `node
+tools/serve.js 8123` in the background, then `preview_start` with the url
+`http://localhost:8123/...`. The pane's size emulation sends no resize
+events: reload at each size to measure. It only draws when screenshotted
+or visible, so animations and timers can lag: check positions and state
+by script before trusting (or dismissing) a screenshot. Claude's mockups
+are built by a script in its scratchpad from the real faces; the pane
+can't open claude.ai artifacts (not signed in), so a mockup is served
+from the scratchpad on another port to check it.
