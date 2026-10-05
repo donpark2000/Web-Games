@@ -1462,3 +1462,40 @@ errors. (The pane only draws when screenshotted, so pieces sometimes
 show mid-move in screenshots; positions were checked by script.)
 
 **Still to choose:** 6x6 or 6x7.
+
+## 2026-10-05: Snakes and Ladders mockup v3
+
+**The developer** on v2: should ladder gains equal snake losses ("the
+snakes looked a lot longer")? And with the player's face on the die "it
+is not obvious it is actually a die": show a 3D cube with no face toward
+you until someone rolls, then one face until the turn is over.
+
+**Measured** (v2's board maker, 2000 boards, 6x6): ladders gave 35.2
+squares on average, snakes took 29.8; but on **614 of 2000 boards (31%)
+the snakes took more** than the ladders gave; snake loss / ladder gain:
+median 0.84, 10% of boards under 0.50, 10% over 1.36. (A first count was
+wrong: square numbers read as text were glued together, not added;
+caught by the absurd ratios, fixed, re-run.)
+
+**Changed (v3, same link):**
+- **The die:** a 3D cube seen corner-on (1, 2 and 3 dots on its three
+  faces, outlined in the colour of whose turn it is; the robot's wiggles
+  while it "thinks"). Tap: it tumbles, then shows one flat face with the
+  roll, losing a dot each hop, until the turn is over; then a cube again
+  for the next player. No faces on the die (the turn line keeps "<face>'s
+  turn. Tap the die!").
+- **Fairer boards:** the snakes together take away 60-90% of what the
+  ladders give (Claude's suggestion: never meaner than kind), and every
+  ladder and snake moves you at least 5 squares (v2 had a ladder gaining
+  only 3: one row up can be +1 on a winding board).
+
+**Checked in the built-in browser** (393x659): the cube reads as a die;
+a roll showed one flat face (4 dots one hop in), the robot's turn a blue
+cube, then the bear's an orange one. Board maker, 500 boards each for
+6x6 and 6x7, every rule checked (1 / goal, reuse, rows, at least 5
+squares, flat, no snake in the last row, crossing, 60-90% balance): none
+broken; under 0.5 ms a board. Game length on those boards (20 games
+each, exact roll): **6x6 median 10 turns each, 90% within 16**; 6x7 12
+and 19 (v2's unbalanced boards: 11 and 20 on 6x6). No console errors.
+
+**Still to choose:** 6x6 or 6x7.
