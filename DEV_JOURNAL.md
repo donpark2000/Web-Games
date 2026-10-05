@@ -1053,3 +1053,32 @@ robot; the setup is the face picker); 0.7 s per count, first to 3, "Same!"
 ties not counted, random robot, picture buttons, the winning pick acted
 out, the usual faces / scoreboard / cheers / 🏠, no "who goes first".
 Next: the mockup.
+
+## 2026-10-04: Rock paper scissors mockup v1
+
+[Rock Paper Scissors Mockup](https://claude.ai/artifact/KpNrFFah3PDgt3xhs8VgTX)
+(private Claude artifact, version 1). Built from the real faces (bear,
+robot; normal / winner / sad, exported from `src/ui/faces.js`) and the
+matching cards' back.
+
+- **Play screen:** 🏠 + turn line; your card (empty, dashed) "vs" the
+  robot's card; three drawn picture buttons (rock, paper, scissors; our
+  own SVG, not emoji, as with the faces); "Start" / "Next round"; the dark
+  scoreboard with 3 stars each ("First to 3"); Play again / New game.
+- **A round:** the robot picks at random and its card stays face down
+  ("🤖 has picked!", "Picked! (hidden)"); 1, 2, 3 at 0.7 s each, the
+  robot's card bobbing on each number; the buttons are greyed until "3"
+  ("Pick one!"); the moment you tap, your pick appears and the robot's
+  card turns over (0.25 s). The winning card lunges at the other, which
+  shakes and greys out; the turn line says "Rock smashes scissors!" /
+  "Paper covers rock!" / "Scissors cut paper!"; a star is added. Same
+  picks: "Same! Go again.", no star. At 3 stars: "<face> wins!", the
+  winner's scorecard face cheers, the other shows "aww".
+- **Setup screen:** the face picker, a "You play the robot. First to 3
+  wins!" line, Play!.
+- **Mockup only:** a "Robot's pick" menu to try each result.
+
+**Choices in it for the developer to check:** each round starts with a
+"Next round" button (the child sets the pace) rather than by itself; the
+robot's pick sits on a face-down card (a card back with the star) rather
+than a closed fist.
