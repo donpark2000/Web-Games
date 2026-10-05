@@ -4,9 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-04): tic-tac-toe, matching cards, Connect Four, Count
-to 9 and rock paper scissors published, the home page grouped by
-players.*
+*Status (2026-10-05): tic-tac-toe, matching cards, Connect Four, Count
+to 9, Snakes and Ladders and rock paper scissors published, the home
+page grouped by players.*
 
 ## Goal
 
@@ -17,6 +17,7 @@ page. So far:
 - **Matching cards** (turn cards over two at a time to find the pairs)
 - **Connect Four** (drop pieces into columns; 4 in a row wins)
 - **Count to 9** (turn over numbered cards in order, 1 to 9)
+- **Snakes and Ladders** (roll the die, climb ladders, slide down snakes)
 - **Rock paper scissors** (against the robot)
 
 ## Players
@@ -46,7 +47,7 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   is just another button. **Grouped by who can play** (developer,
   2026-10-04): **👥 Two players** first (a game with a two-player choice,
   the second player a person or the robot: tic-tac-toe, matching cards,
-  Connect Four, Count to 9), then **👤 One player** (no way to play
+  Connect Four, Count to 9, Snakes and Ladders), then **👤 One player** (no way to play
   another person: rock paper scissors). Each game in one group only; a
   group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
@@ -229,6 +230,44 @@ numbered cards).
   It takes the next number when it remembers where it is, otherwise it
   guesses among the face-down cards it doesn't remember.
 - Later, maybe: a "How many cards?" choice (count to 6, 9, 12 or 16).
+
+### Snakes and Ladders
+
+Agreed 2026-10-05 from mockup v3 (journal):
+[Snakes and Ladders Mockup](https://claude.ai/artifact/6zYeLSTePYJ2A295izWTM5)
+(private Claude artifact, version 4). Board size 6 x 6: Claude's
+recommendation, left to Claude ("Perfect. Please build the game").
+
+- **Everything but the board and die is Connect Four's**: the setup
+  screen (Me and the robot / Two players, face pickers, who goes first),
+  the dark scoreboard (games won; no ties), the end-of-round scorecard
+  cheer and "aww" face, Play again (a new board; mid-round not scored) /
+  New game, 🏠, footer, debug log.
+- **Board: 6 x 6, squares 1 to 36** winding back and forth from the
+  bottom left; 36 (top left) has a 🏆. Drawn wooden ladders and friendly
+  green snakes. Both pieces start on 1. Pieces are the players' faces,
+  ringed in their colour; two on one square sit side by side.
+- **A new board every game**, made by rules: 4 ladders and 4 snakes; never
+  on 1 or 36; each moves you at least 5 squares and spans 1 or 2 rows,
+  never more columns sideways than rows; no square used twice; no snake in
+  the last row; none crossing; the snakes together take away 60-90% of
+  what the ladders give (the developer: snakes looked longer than
+  ladders). `BOARD_RULES` in `src/core/snakes-ladders.js`.
+- **Top row: 🏠, the words, the die.** The die waits as a 3D cube (no face
+  toward you) outlined in the colour of whose turn it is; tap it to roll.
+  It tumbles, then shows one flat face, a dot going with each hop, until
+  the turn is over (the developer: a face on the die didn't look like a
+  die).
+- **A turn:** "<face> rolled 4", the piece hops one square per dot; on a
+  ladder's foot "Up the ladder!" and it climbs (happy face, normal at the
+  top); on a snake's head "Wheee! Down the snake." and it slides along the
+  snake ("aww" face until that player's next turn). The robot "is
+  thinking..." 0.8 s and rolls by itself.
+- **Exact roll to finish:** extra dots hop back from 36 ("Too many! Back
+  5"). Whoever lands on 36 wins.
+- **Sized to the screen:** the squares are the biggest that let the page
+  fit with no scrolling (56 px on an iPhone 16, at most 520 px of board);
+  the 🏠 and the die are one square, at least 48 px.
 
 ### Rock paper scissors
 

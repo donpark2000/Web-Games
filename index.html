@@ -31,6 +31,10 @@
         <span class="pic" id="countPic" aria-hidden="true"></span>
         Count to 9
       </a>
+      <a class="game" id="snlLink" href="snakes-ladders.html">
+        <span class="pic snl" id="snlPic" aria-hidden="true"></span>
+        Snakes and Ladders
+      </a>
     </div>
   </section>
   <section class="group" id="oneGroup" aria-labelledby="oneTitle">
@@ -49,6 +53,7 @@
   import { CARD_BACK } from './src/ui/cardback.js';
   import { numberSvg } from './src/ui/numbercard.js';
   import { PICTURES } from './src/ui/rpspics.js';
+  import { ladderSvg, snakeSvg } from './src/ui/snlart.js';
   import { log, installDebugPanel, withDev } from './src/ui/debuglog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
@@ -76,7 +81,16 @@
   // Rock paper scissors: the bear's rock against the robot's scissors.
   document.getElementById('rpsPic').innerHTML = `<span>${svg('bear', 'winner')}</span><span class="vs">vs</span><span>${svg('robot', 'sad')}</span>`
     + `<span class="o1">${PICTURES.rock}</span><span class="vs"></span><span class="o2">${PICTURES.scissors}</span>`;
-  for (const id of ['tttLink', 'cardsLink', 'c4Link', 'countLink', 'rpsLink']) {
+  // Snakes and Ladders: the bottom left corner of a board (4 by 4 squares),
+  // the bear at the top of a ladder, the robot at its foot.
+  let sq = '';
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    sq += `<rect x="${c * 100}" y="${(5 - r) * 100}" width="100" height="100" fill="${(r + c) % 2 ? '#FFF4D6' : '#FFFFFF'}"/>`;
+  }
+  document.getElementById('snlPic').innerHTML = `<svg class="snlmini" viewBox="0 200 400 400">${sq}${snakeSvg(15, 4)}${ladderSvg(2, 14)}</svg>`
+    + `<span class="tok o1" style="left: 37.5%; top: 37.5%">${svg('bear', 'winner')}</span>`
+    + `<span class="tok o2" style="left: 37.5%; top: 86%">${svg('robot')}</span>`;
+  for (const id of ['tttLink', 'cardsLink', 'c4Link', 'countLink', 'snlLink', 'rpsLink']) {
     const link = document.getElementById(id);
     link.href = withDev(link.getAttribute('href'));
   }

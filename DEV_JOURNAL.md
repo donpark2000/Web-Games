@@ -1499,3 +1499,49 @@ each, exact roll): **6x6 median 10 turns each, 90% within 16**; 6x7 12
 and 19 (v2's unbalanced boards: 11 and 20 on 6x6). No console errors.
 
 **Still to choose:** 6x6 or 6x7.
+
+## 2026-10-05: Snakes and Ladders built (from mockup v3)
+
+**The developer** on v3: "Perfect. Please build the game, commit
+everything to github and push the new game to github.io web site." Board
+size never picked: built at 6x6, Claude's recommendation (DESIGN.md).
+
+**Built** on branch `home-groups`: rules `src/core/snakes-ladders.js`
+(squares, the board maker and its `BOARD_RULES`, `checkBoard` listing any
+broken rule, `move` returning the hop path, bounce, ladder or snake jump
+and result; match / round as in Connect Four), drawings
+`src/ui/snlart.js` (ladders, snakes, the snake's path for the slide, the
+cube die, die faces; shared with the home page), screens
+`snakes-ladders.html`, `src/ui/snakes-ladders.js`,
+`css/snakes-ladders.css`, a home-page button in the two-player group (a
+board corner: the bear at the top of a ladder, the robot at its foot).
+The screen moves pieces through the path the rules worked out, so what's
+shown always matches the match state. Every pending step is a tracked
+timer (the snake slide too, not `requestAnimationFrame`), and Play again /
+New game cancel them. Debug log category `snl`: each board (ladders,
+snakes, gain, loss, tries), each roll (who, from, path, bounce, jump,
+where), refused die taps, cancelled steps, the fit, round ends.
+
+**Tests:** `npm test` 113 of 113 (13 new; the pages test now expects six
+games, Snakes and Ladders in the two-player group). The rule checker is
+fed a broken board for each rule (count, square 1, the goal, a square used
+twice, moves only 4, 5 rows, flat, snake head in the last row, too close,
+too mean, too kind): each caught. 500 seeded boards all pass every rule;
+400 whole games all finish (median and 90th percentile of turns within
+the agreed range). Seven deliberate breaks in a scratch copy, all caught:
+no bounce (1 test failed), snakes ignored (1), snakes allowed in the last
+row (2), balance not enforced (2), turn not passing (3), a die that never
+rolls 6 (1), the crossing check off (2).
+
+**Checked in the built-in browser** (local server): home page: the new
+button in the two-player group, no console errors. A whole game against
+the robot (a script tapping the die when it was the bear's turn): 30
+moves, a snake 9 → 4, a ladder 12 → 24, bounces off 36 ("from 35, rolled
+3: 36, 35, 34"), the robot won on an exact 2 from 34; the scorecard cheer
+(robot happy, bear "aww"). Fit: 393x659: squares 56 px, the page exactly
+the screen (659); 1024x768: 72 px, no scroll; with `?dev` (the panel takes
+room) 42 px. Two players: "Player 1" / "Player 2", the cat. Play again
+during a move: the pending step cancelled, a new board, both pieces on 1,
+nothing moving 3.5 s later; New game: back to setup. No console errors.
+
+**Not checked:** on the developer's devices; Safari.
