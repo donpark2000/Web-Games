@@ -1340,3 +1340,65 @@ tools/serve.js 8123` in the background for the local server, then
 size emulation sends no resize events: reload at each size to measure.
 Its screenshots are sometimes garbled or time out: measure with
 `javascript_tool` before trusting or dismissing what a screenshot shows.
+
+## 2026-10-05: Game ideas; Snakes and Ladders mockup v1
+
+**The developer** (after the publish): "It all looks great. I'll wait till
+I get feedback from my grandkids before changing any of the games. Any
+ideas for new games?" Claude's list: two players: Snakes and Ladders
+(suggested first: all luck, so the robot is never too strong or too
+weak; counting practice), hide and seek (a gentle Battleship), Pig
+(dice), Dots and Boxes; one player: Simon (suggested first), whack-a-face,
+"what comes next?", a sliding picture puzzle. The developer: "I'm
+curious to see how snakes and ladders would look."
+
+[Snakes and Ladders Mockup](https://claude.ai/artifact/6zYeLSTePYJ2A295izWTM5)
+(private Claude artifact, version 2). Built from the real faces (all 16
+on setup; bear, cat, robot in normal / winner / sad, exported from
+`src/ui/faces.js`) and Count to 9's die dots (`DOTS` 1-6), by a script in
+Claude's scratchpad.
+
+- **Board:** 6 across by 5 up, 1 to 30, snaking from the bottom left; 30
+  (top right) has a 🏆. Squares in white and pale yellow, numbers in a
+  corner, in a yellow frame like Connect Four's. Drawn ladders (wood,
+  rungs) and friendly snakes (green with yellow bands, smiling head).
+  **Ladders 3→15, 7→18, 13→25; snakes 17→5, 26→11, 29→21.**
+- **A turn:** "<face>'s turn", "Tap [die] to roll!"; the die (one, 1-6,
+  ringed in the player's colour, gently nudging while it waits) tumbles
+  0.65 s and lands; "<face> rolled 4"; the piece hops one square per dot
+  (0.3 s each, the count on the turn line); on a ladder "Up the ladder!"
+  (winner face) and it climbs (0.9 s); on a snake "Wheee! Down the
+  snake." ("aww" face) and it slides along the snake's body (1.3 s); the
+  square it goes to is outlined. The robot "is thinking..." 0.8 s and
+  rolls by itself.
+- **Pieces:** face discs ringed in the player's colour (orange / blue);
+  two on one square shrink and sit side by side.
+- **End:** reaching 30 wins, **even with dots to spare** (no exact roll
+  needed). "<face> wins!", the winner's piece and scorecard face cheer,
+  the other shows "aww". No ties.
+- **Below the board:** the dark scoreboard (games won), Play again / New
+  game, footer, as in the other games.
+- **Setup:** tic-tac-toe's (Me and the robot / Two players, face pickers,
+  who goes first).
+- **Mockup only:** a "Next roll" menu to try a ladder or a snake.
+
+**Choices in it for the developer to check:** both pieces start on
+square 1 (not off the board); no exact roll needed to finish; no extra
+turn for a 6; one die; 30 squares (a real board has 100: too long for
+5-7); 3 ladders and 3 snakes; the snake wording ("Wheee!", not "Oh
+no").
+
+**Checked in the built-in browser** (the mockup file served from the
+scratchpad on port 8124, 393x760): a 2 from square 1 → 3 → up the
+ladder to 15 (outlined); the robot rolled and climbed by itself; a 2
+from 15 → 17 → down the snake to 5; bear moved to 27 by script, a 6 →
+stops on 30, "wins!", games won 1-0, robot "aww". Fixed before version
+2: two pieces on square 1 were half off the board; pieces a bit big;
+snake bodies hid some numbers (now on top, with a white halo). No
+console errors.
+
+**For the real game:** the snake slide is drawn frame by frame
+(`requestAnimationFrame`), which stalls while the page is hidden (seen
+in the pane: the robot stuck mid-snake until a screenshot made it draw).
+The real game should finish the move on a timer as well, so a hidden tab
+can't stall a turn.
