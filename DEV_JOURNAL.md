@@ -1025,3 +1025,23 @@ session moved; run `node tools/serve.js 8123` in the background instead.
 **The developer** (2026-10-04, after playing on the live site): "The game
 play looks good. I think robot is a little too good. But Maybe I'm just
 too bad." Nothing changed; logged as Q5 (lower `remember` to 0.4?).
+
+## 2026-10-04: Next game candidate: rock paper scissors (developer's design)
+
+**The developer:** a rock-paper-scissors game; the point is two players
+deciding at the same time, and a player who stalls would always win, so
+"person against robot" only ("I don't see it as a two player game").
+Their design: the robot picks first, hidden; a countdown (1, 2, 3) during
+which the person can't pick; the picture buttons work only once "3"
+shows; the moment the person picks, the robot's earlier pick is shown.
+Claude agreed this removes the stalling problem (the robot's pick is fixed
+before the person's; waiting gains nothing) and keeps the "at the same
+time" feel.
+
+**Claude's suggested defaults, not yet agreed:** about 0.7 s per count;
+a game is first to 3 round wins, a tied round shows "Same!" and doesn't
+count; the robot picks at random (fair, but no difficulty to tune);
+picture buttons 🪨 📄 ✂️ (or drawn), the winning pick acts it out (rock
+smashes scissors, paper covers rock, scissors cut paper); faces,
+scoreboard, cheers, 🏠 as in the other games; no "who goes first"; a
+mockup first. Not started.
