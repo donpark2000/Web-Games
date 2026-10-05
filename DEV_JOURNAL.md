@@ -1402,3 +1402,63 @@ console errors.
 in the pane: the robot stuck mid-snake until a screenshot made it draw).
 The real game should finish the move on a timer as well, so a hidden tab
 can't stall a turn.
+
+## 2026-10-05: Snakes and Ladders mockup v2
+
+**The developer** on v1: "I like it." Suggestions: after a move the die
+should be blank or show whose turn is next; exact roll to reach the end,
+extra dots go backwards; sad face after a snake until their next turn,
+happy face while climbing; could the board be bigger than 6x5; new
+ladder and snake places each game. Then: move the die to the top, beside
+the 🏠, keeping the words ("There is plenty of room for both").
+
+**Game length** (simulation, scratchpad, 20,000 two-player games each;
+turns per player, median and 90th percentile):
+
+| Board | Reaching the goal is enough | Exact roll, bounce back |
+|---|---|---|
+| v1's fixed 6x5 | 6 (11) | 10 (23) |
+| random 6x5, 3+3 | 7 (10) | 9 (17) |
+| random 6x6, 4+4 | 8 (13) | 11 (20) |
+| random 6x7, 4+4 | 10 (14) | 13 (21) |
+
+v1's board drags at the end with the exact rule: snakes on 26 and 29 sit
+where a bounce lands. Hence "no snakes in the last row" (Claude's
+suggestion).
+
+**Changed (v2, same link):**
+- **Top row:** 🏠, the words, the die. The separate die row is gone.
+- **The die shows whose turn it is** (their face, on their colour; the
+  robot's face wiggles while it "thinks"), tumbles to the roll, and **loses
+  a dot with each hop** (blank at the end of the move). The winner's happy
+  face on it at the end.
+- **Exact roll:** extra dots hop back from the goal ("Too many! Back 4",
+  the count carrying on). No snakes in the last row, so a bounce only
+  lands on plain squares (and ladder tops).
+- **Faces:** happy while climbing, normal at the top; "aww" after a snake,
+  until that player's next turn.
+- **6x6 board** (36 squares, 4 ladders, 4 snakes); a mockup-only switch to
+  6x7 (42).
+- **A new board every game** (Play again, New game): never on 1 or the
+  goal; each spans 1 or 2 rows, no more columns sideways than rows (none
+  lie flat); no square used twice; no snakes in the last row; none within
+  0.45 of a square of another (none cross).
+- The snake slide now runs on a timer, not `requestAnimationFrame` (the
+  stall seen in v1's check).
+
+**Checked in the built-in browser** (scratchpad server, 393x659 = iPhone
+16 in Safari, assumed): 6x6: the play screen is 627 px tall, squares
+56 px: fits with no scrolling. 6x7: 683 px, 24 px too tall; the real game
+would shrink the squares to about 52 px (the other games' fit code).
+Bounce: from 33 a 5 went 34, 35, 36, back 35, 34; the die 5, 4, 3, 2, 1,
+blank. Snake: 15 + 2 → 17 → down to 7, sad through the robot's turn,
+normal at the bear's next turn; the robot climbed a ladder happy, normal
+at the top. Win: 33 + 3 → 36, "wins!", die and scorecard happy, robot
+"aww", games won 1-0. Board maker: 500 boards each for 6x6 and 6x7, every
+ladder and snake checked against every rule (8,000): no breaks, under 1 ms
+a board. Fixed on the way: the turn line put the face on its own line;
+some ladders lay nearly flat (2 columns over for 1 row up). No console
+errors. (The pane only draws when screenshotted, so pieces sometimes
+show mid-move in screenshots; positions were checked by script.)
+
+**Still to choose:** 6x6 or 6x7.
