@@ -1192,3 +1192,36 @@ games won 1-0, still waiting 3.5 s later); Play again: "Ready?", stars
 five buttons; no console errors.
 
 **Not checked:** on the developer's devices; Safari.
+
+**Published** (the developer wanted to see it on github.io before
+quitting): `main` fast-forwarded to `e9ef08c`; Pages build "built
+e9ef08c"; the new files all 200. Live site in the built-in browser at
+393x659: the home page lists five games; rock paper scissors: buttons on
+2.4 s after Play!, rock against scissors "Rock smashes scissors!", no
+scroll, no console errors.
+
+## 2026-10-04: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with five games:
+tic-tac-toe, matching cards, Connect Four, Count to 9, rock paper
+scissors. Working branch `rock-paper-scissors`; `main` = that branch
+(this entry included). Publishing = fast-forward `main` and push, only
+with the developer's OK.
+
+**Known:** `npm test` 98 of 98.
+
+**Open:** Q5 (Count to 9 robot maybe too strong), Q6 (separate one- and
+two-player games on the home page). Q6 is the plan for the next session
+(developer: "Tomorrow in a new session we can sort the 'one player' vs
+'two player' question").
+
+**Not checked:** rock paper scissors on the developer's devices; Safari;
+Android.
+
+**Starting a session:** if the desktop app opens the session in the
+GP-200 Patch Manager folder, ask Claude to move it to
+`C:\Users\dpark\Documents\Web-Games`, then "start". Run `node
+tools/serve.js 8123` in the background for the local server
+(`preview_start` by name started the GP-200 server); `preview_start` with
+the url `http://localhost:8123/...` then opens it. The pane's size
+emulation sends no resize events: reload at each size to measure.
