@@ -15,6 +15,18 @@ and what it does and doesn't prove.
   (child remembering 30%) / 69% (60%) in easy mode, against 19% / 52% at
   0.6. To settle: the grandkids' games, or the developer's choice of 0.4.
 
+- **Q6. Separate one-player and two-player games on the home page?**
+  *Raised 2026-10-04 (after "Status (start here next session)").* The
+  developer: "we have two types of games now. One player and 2 player
+  (even if one of the players is Robot). It is probably worth separating
+  them on the home page." An idea for the next session. To settle: some
+  games are both: matching cards and Count to 9 have "Just me" and two
+  players (Count to 9 also the robot); tic-tac-toe and Connect Four are
+  against the robot or two players; rock paper scissors will be against
+  the robot only. So: by what counts as one player (just me only, or the
+  robot too), and does a game that's both appear in both groups, or get
+  a small "1 or 2 players" note instead?
+
 ## Resolved
 
 - **Q1. Playing each other on separate devices.** *Raised 2026-10-04
@@ -1137,3 +1149,6 @@ GP-200 Patch Manager folder, ask Claude to move it to
 started the GP-200 server (port 8000) even after the move; run `node
 tools/serve.js 8123` in the background instead. The built-in browser's
 size emulation sends no resize events: reload at each size to measure.
+
+**Idea for the next session** (developer): separate one-player and
+two-player games on the home page; logged as Q6.
