@@ -1304,3 +1304,39 @@ lists both groups; Count to 9, me and the robot on hard: "match started
 
 **Not checked:** on the developer's devices; Safari. The new robot
 strength over real games with the grandkids.
+
+**Published** (developer: "yes, publish it"): `main` fast-forwarded to
+`1251913`; Pages build "built 1251913"; the changed files all 200, the
+live `count-to-9.js` has `{ easy: 0.4, hard: 0.3 }`. Live home page in
+the built-in browser at 1024x768: both groups, Connect Four picture
+5 x 24.4 px, matching cards 3 x 46 px, rock paper scissors 272 px; no
+console errors.
+
+## 2026-10-04: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with five games,
+grouped on the home page: two players (tic-tac-toe, matching cards,
+Connect Four, Count to 9), one player (rock paper scissors). Working
+branch `home-groups`; `main` = that branch (this entry included).
+Publishing = fast-forward `main` and push, only with the developer's OK.
+
+**Known:** `npm test` 100 of 100.
+
+**Open questions:** none.
+
+**Ideas for later** (`DESIGN.md`, "Later"): a difficulty setting for the
+rock paper scissors robot; matching cards with the developer's photos;
+more games.
+
+**Not checked:** the gentler Count to 9 robot with the grandkids;
+rock paper scissors and the new home page on the developer's devices;
+Safari; Android.
+
+**Starting a session:** if the desktop app opens the session in the
+GP-200 Patch Manager folder, ask Claude to move it to
+`C:\Users\dpark\Documents\Web-Games`, then "start". Run `node
+tools/serve.js 8123` in the background for the local server, then
+`preview_start` with the url `http://localhost:8123/...`. The pane's
+size emulation sends no resize events: reload at each size to measure.
+Its screenshots are sometimes garbled or time out: measure with
+`javascript_tool` before trusting or dismissing what a screenshot shows.

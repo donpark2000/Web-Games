@@ -5,8 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-04): tic-tac-toe, matching cards, Connect Four, Count
-to 9 and rock paper scissors published. The home page groups and the
-gentler Count to 9 robot are on branch `home-groups`, not yet published.*
+to 9 and rock paper scissors published, the home page grouped by
+players.*
 
 ## Goal
 
