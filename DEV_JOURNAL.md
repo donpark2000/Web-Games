@@ -6,6 +6,10 @@ and what it does and doesn't prove.
 
 ## Open questions
 
+(none)
+
+## Resolved
+
 - **Q5. Is the Count to 9 robot too strong?** *Raised 2026-10-04 (entry
   "Count to 9 built").* The developer, after playing it on the live site:
   "The game play looks good. I think robot is a little too good. But
@@ -14,6 +18,11 @@ and what it does and doesn't prove.
   simulation table in that entry puts 0.4 at a child win rate of 38%
   (child remembering 30%) / 69% (60%) in easy mode, against 19% / 52% at
   0.6. To settle: the grandkids' games, or the developer's choice of 0.4.
+  **Resolved 2026-10-04:** the developer: "computer is too strong.
+  especially in hard mode." Now 0.4 in easy and 0.3 in hard
+  (`ROBOT_TUNING.remember` per level), Claude's suggestion, agreed. Child
+  remembering 30%: 37% wins in easy, 50% in hard (entry "Home page
+  groups; a gentler Count to 9 robot").
 
 - **Q6. Separate one-player and two-player games on the home page?**
   *Raised 2026-10-04 (after "Status (start here next session)").* The
@@ -26,8 +35,13 @@ and what it does and doesn't prove.
   the robot only. So: by what counts as one player (just me only, or the
   robot too), and does a game that's both appear in both groups, or get
   a small "1 or 2 players" note instead?
-
-## Resolved
+  **Resolved 2026-10-04:** the developer: "any game with an option to
+  play 2 players or one vs robot is a two player game. If there is no
+  option to play with another person (like rock paper scissors) it is a
+  one person game." So each game is in one group: two players
+  (tic-tac-toe, matching cards, Connect Four, Count to 9), one player
+  (rock paper scissors). Two players first (Claude's default, not
+  objected to).
 
 - **Q1. Playing each other on separate devices.** *Raised 2026-10-04
   (entry "Kickoff decisions").* The developer: "it might be cool" for the
@@ -1225,3 +1239,68 @@ tools/serve.js 8123` in the background for the local server
 (`preview_start` by name started the GP-200 server); `preview_start` with
 the url `http://localhost:8123/...` then opens it. The pane's size
 emulation sends no resize events: reload at each size to measure.
+
+## 2026-10-04: Home page groups; a gentler Count to 9 robot
+
+On branch `home-groups` (from `main`).
+
+**Count to 9 robot (Q5):** `ROBOT_TUNING.remember` is now per level,
+`{ easy: 0.4, hard: 0.3 }` (was 0.6 for both). The "match started" debug
+line now includes `robotRemembers` against the robot. Simulation re-run
+(scratchpad script, 4000 rounds each, the child modelled like the robot:
+remembers each card turned over with chance p; who starts alternates;
+child's win rate). It reproduces the earlier table within 3 points (0.6
+easy: 20 / 49 / 76% now against 19 / 52 / 76%):
+
+| robot remember | level | child p=0 | p=0.3 | p=0.6 | p=0.9 |
+|---|---|---|---|---|---|
+| 0.6 | easy | 3% | 20% | 49% | 76% |
+| 0.6 | hard | 0% | 11% | 50% | 79% |
+| **0.4** | **easy** | 5% | **37%** | **71%** | 89% |
+| 0.4 | hard | 0% | 31% | 77% | 94% |
+| 0.3 | easy | 8% | 49% | 81% | 92% |
+| **0.3** | **hard** | 0% | **50%** | **90%** | 97% |
+| 0.25 | easy | 8% | 58% | 85% | 94% |
+| 0.25 | hard | 0% | 62% | 93% | 99% |
+
+A child who remembers nothing still almost never wins: at most 8% in easy
+and 0% in hard at every setting tried, down to 0.25. So lowering the
+robot's memory further won't help such a child; if that matters, the
+next lever is something other than memory (not looked into).
+
+**Home page groups (Q6):** two `<section class="group">`s, "👥 Two
+players" (tic-tac-toe, matching cards, Connect Four, Count to 9) then
+"👤 One player" (rock paper scissors). On a wide screen a group's only
+game is one column (272 px) wide and centred, not the whole row. Debug
+log: one "group" line per group listing its games.
+
+**Home picture fix (developer's screenshot, live site):** the Connect
+Four picture's 5th column was half outside the yellow board. Measured
+at 1024x768: the five columns were 28 px each in a 138 px space (156 px
+with the gaps). The Matching Cards picture was wrong too: columns 20,
+59, 59 px (two tiny card backs down the left). Cause: `repeat(n, 1fr)`
+columns are never narrower than what's in them, and the squares
+(aspect-ratio 1, a picture inside) count as wider than intended. Fix:
+`repeat(n, minmax(0, 1fr))`. After: Connect Four 5 x 24.4 px, all
+3-column pictures 3 x 46 px, nothing outside the frame, at 1024x768 and
+393x659. I'd seen this in my own screenshot earlier this session and
+wrongly put it down to the pane's screenshots (which were garbled in
+the Count to 9 session); the measurements show it was real.
+
+**Tests:** `npm test` 100 of 100 (2 new: the home page groups, the
+picture grids use `minmax(0, 1fr)`; the robot memory test now checks
+each level's own chance, e.g. a 0.35 draw is remembered in easy and
+forgotten in hard). Deliberate breaks, each caught (1 test failed each):
+hard using easy's chance, one chance for both levels (0.4), Count to 9
+in the one-player group, the groups' order swapped, the rock paper
+scissors button outside the groups, the Connect Four picture back to
+plain `1fr`.
+
+**Checked in the built-in browser** (local server): home page at
+393x659 (each button 361 px wide, no sideways scroll) and 1024x768 (two
+columns of 272 px; rock paper scissors centred at 272 px); the debug log
+lists both groups; Count to 9, me and the robot on hard: "match started
+... robotRemembers: 0.3". No console errors.
+
+**Not checked:** on the developer's devices; Safari. The new robot
+strength over real games with the grandkids.

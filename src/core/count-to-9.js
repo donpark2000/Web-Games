@@ -72,7 +72,7 @@ export function newRound(match, rand = Math.random) {
 // was the 9), or { ok: false, why } where why is 'round-over', 'wait' (a
 // wrong card is still showing), 'bad-card' or 'face-up'.
 // Against the robot, every card turned over may be remembered by it
-// (ROBOT_TUNING.remember); `rand` decides.
+// (ROBOT_TUNING.remember for the match's level); `rand` decides.
 export function flip(match, i, rand = Math.random, tuning = ROBOT_TUNING) {
   if (match.result) return { ok: false, why: 'round-over' };
   if (match.pending) return { ok: false, why: 'wait' };
@@ -80,7 +80,7 @@ export function flip(match, i, rand = Math.random, tuning = ROBOT_TUNING) {
   if (match.up[i]) return { ok: false, why: 'face-up' };
   const number = match.deck[i];
   match.up[i] = true;
-  if (match.mode === 'robot' && !match.seen[i] && rand() < tuning.remember) match.seen[i] = true;
+  if (match.mode === 'robot' && !match.seen[i] && rand() < tuning.remember[match.level]) match.seen[i] = true;
   if (number !== match.next) {
     match.wrong = i;
     match.pending = 'miss';
@@ -126,10 +126,12 @@ function finishRound(match) {
 
 // The robot never peeks: it only knows the cards it remembers seeing
 // (match.seen; each card turned over is remembered with chance
-// `remember`, so it can be beaten). If it remembers where the next number
-// is, it takes it; otherwise it guesses among the face-down cards it
-// doesn't remember (those it remembers are some other number). Tunable.
-export const ROBOT_TUNING = { remember: 0.6 };
+// `remember` for the level, so it can be beaten). If it remembers where
+// the next number is, it takes it; otherwise it guesses among the
+// face-down cards it doesn't remember (those it remembers are some other
+// number). Tunable. Was 0.6 for both levels; the developer found it too
+// strong, "especially in hard mode" (2026-10-04).
+export const ROBOT_TUNING = { remember: { easy: 0.4, hard: 0.3 } };
 
 // Picks the robot's card. Returns { card, reason } where reason is
 // 'remembered' or 'guess' (for the debug log). Reads match.deck only for

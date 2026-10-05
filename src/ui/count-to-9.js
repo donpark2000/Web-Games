@@ -4,7 +4,7 @@
 // draws, keeps time and handles taps.
 
 import {
-  MODES, LEVELS, FIRST_RULES, checkFaces, createMatch, newRound, flip, settle, robotPick,
+  MODES, LEVELS, FIRST_RULES, ROBOT_TUNING, checkFaces, createMatch, newRound, flip, settle, robotPick,
 } from '../core/count-to-9.js';
 import { FACE_NAMES, endMoods } from '../core/players.js';
 import { svg } from './faces.js';
@@ -107,7 +107,8 @@ for (const b of document.querySelectorAll('.first')) {
 $('playBtn').onclick = () => {
   if (checkFaces(setup) || !MODES.includes(setup.mode) || !LEVELS.includes(setup.level) || !FIRST_RULES.includes(setup.firstRule)) return;
   match = createMatch(setup);
-  L('match started', { mode: match.mode, faces: match.faces, level: match.level, firstRule: match.firstRule });
+  L('match started', { mode: match.mode, faces: match.faces, level: match.level, firstRule: match.firstRule,
+    ...(match.mode === 'robot' && { robotRemembers: ROBOT_TUNING.remember[match.level] }) });
   $('setup').hidden = true;
   $('play').hidden = false;
   scrollTo(0, 0);

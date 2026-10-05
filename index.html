@@ -9,28 +9,39 @@
 <body>
 <main class="home">
   <h1>Let's play!</h1>
-  <div class="games">
-    <a class="game" id="tttLink" href="tic-tac-toe.html">
-      <span class="pic" id="tttPic" aria-hidden="true"></span>
-      Tic-Tac-Toe
-    </a>
-    <a class="game" id="cardsLink" href="matching.html">
-      <span class="pic" id="cardsPic" aria-hidden="true"></span>
-      Matching Cards
-    </a>
-    <a class="game" id="c4Link" href="connect-four.html">
-      <span class="pic c4" id="c4Pic" aria-hidden="true"></span>
-      Connect Four
-    </a>
-    <a class="game" id="countLink" href="count-to-9.html">
-      <span class="pic" id="countPic" aria-hidden="true"></span>
-      Count to 9
-    </a>
-    <a class="game" id="rpsLink" href="rock-paper-scissors.html">
-      <span class="pic rps" id="rpsPic" aria-hidden="true"></span>
-      Rock Paper Scissors
-    </a>
-  </div>
+  <!-- Grouped by who can play (developer, 2026-10-04): a game with a
+       two-player choice (a person or the robot as player 2) is a two-player
+       game; one with no way to play another person is a one-player game. -->
+  <section class="group" id="twoGroup" aria-labelledby="twoTitle">
+    <h2 id="twoTitle"><span aria-hidden="true">👥</span> Two players</h2>
+    <div class="games">
+      <a class="game" id="tttLink" href="tic-tac-toe.html">
+        <span class="pic" id="tttPic" aria-hidden="true"></span>
+        Tic-Tac-Toe
+      </a>
+      <a class="game" id="cardsLink" href="matching.html">
+        <span class="pic" id="cardsPic" aria-hidden="true"></span>
+        Matching Cards
+      </a>
+      <a class="game" id="c4Link" href="connect-four.html">
+        <span class="pic c4" id="c4Pic" aria-hidden="true"></span>
+        Connect Four
+      </a>
+      <a class="game" id="countLink" href="count-to-9.html">
+        <span class="pic" id="countPic" aria-hidden="true"></span>
+        Count to 9
+      </a>
+    </div>
+  </section>
+  <section class="group" id="oneGroup" aria-labelledby="oneTitle">
+    <h2 id="oneTitle"><span aria-hidden="true">👤</span> One player</h2>
+    <div class="games">
+      <a class="game" id="rpsLink" href="rock-paper-scissors.html">
+        <span class="pic rps" id="rpsPic" aria-hidden="true"></span>
+        Rock Paper Scissors
+      </a>
+    </div>
+  </section>
 </main>
 <footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a></footer>
 <script type="module">
@@ -38,7 +49,7 @@
   import { CARD_BACK } from './src/ui/cardback.js';
   import { numberSvg } from './src/ui/numbercard.js';
   import { PICTURES } from './src/ui/rpspics.js';
-  import { installDebugPanel, withDev } from './src/ui/debuglog.js';
+  import { log, installDebugPanel, withDev } from './src/ui/debuglog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
   const board = ['bear', 'robot', '', '', 'bear', 'robot', '', '', 'bear'];
@@ -70,6 +81,9 @@
     link.href = withDev(link.getAttribute('href'));
   }
   installDebugPanel('home');
+  for (const g of document.querySelectorAll('.group')) {
+    log.add('home', 'group', { group: g.id, games: [...g.querySelectorAll('.game')].map(a => a.getAttribute('href').replace(/[?#].*$/, '')) });
+  }
 </script>
 </body>
 </html>

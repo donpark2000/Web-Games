@@ -52,3 +52,32 @@ test('pages: the home page links to every game; every game has a 🏠 back to it
     assert.ok((html[g].match(/<a class="homebtn" href="index.html"/g) || []).length >= 2, `${g}: 🏠 missing on setup or play`);
   }
 });
+
+// The home page's groups (developer, 2026-10-04): a game with a two-player
+// choice (a person or the robot as player 2) is a two-player game; one with
+// no way to play another person is a one-player game. Each game in exactly
+// one group.
+test('pages: the home page groups the games: two players, then one player', () => {
+  const groups = [...html['index.html'].matchAll(/<section class="group" id="(\w+)"[\s\S]*?<h2[^>]*>([\s\S]*?)<\/h2>([\s\S]*?)<\/section>/g)]
+    .map(([, id, title, body]) => ({ id, title: title.replace(/<[^>]+>/g, '').trim(), games: [...body.matchAll(/<a class="game"[^>]*href="([^"]+)"/g)].map(m => m[1]) }));
+  assert.deepEqual(groups.map(g => [g.id, g.title]), [['twoGroup', '👥 Two players'], ['oneGroup', '👤 One player']]);
+  assert.deepEqual(groups[0].games, ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html']);
+  assert.deepEqual(groups[1].games, ['rock-paper-scissors.html']);
+  const all = groups.flatMap(g => g.games);
+  assert.deepEqual([...all].sort(), [...games].sort(), 'every game in exactly one group');
+  assert.equal((html['index.html'].match(/<a class="game"/g) || []).length, all.length, 'a game button outside the groups');
+});
+
+// The home page pictures: their grid columns must be minmax(0, 1fr). A
+// plain 1fr column grows to fit what's in it: the matching-cards columns
+// came out 20, 59 and 59 px and the Connect Four board's 5th column stuck
+// out of the frame (developer's screenshot, 2026-10-04).
+test('pages: the home page pictures share their width equally (no plain 1fr)', async () => {
+  const css = await readFile(path.join(root, 'css/site.css'), 'utf8');
+  const rules = [...css.matchAll(/(\.game \.pic[^{]*)\{([^}]*grid-template-columns[^}]*)\}/g)];
+  assert.ok(rules.length >= 2, `only ${rules.length} picture grids found`);
+  for (const [, sel, body] of rules) {
+    const cols = body.match(/grid-template-columns:\s*([^;]+)/)[1];
+    assert.match(cols, /^repeat\(\d+, minmax\(0, 1fr\)\)$/, `${sel.trim()}: ${cols}`);
+  }
+});

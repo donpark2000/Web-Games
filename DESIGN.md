@@ -4,8 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-04): tic-tac-toe, matching cards and Connect Four
-Count to 9 and rock paper scissors published.*
+*Status (2026-10-04): tic-tac-toe, matching cards, Connect Four, Count
+to 9 and rock paper scissors published. The home page groups and the
+gentler Count to 9 robot are on branch `home-groups`, not yet published.*
 
 ## Goal
 
@@ -42,7 +43,12 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
 ## Structure
 
 - **One home page** with a big picture button per game, so a third game
-  is just another button.
+  is just another button. **Grouped by who can play** (developer,
+  2026-10-04): **👥 Two players** first (a game with a two-player choice,
+  the second player a person or the robot: tic-tac-toe, matching cards,
+  Connect Four, Count to 9), then **👤 One player** (no way to play
+  another person: rock paper scissors). Each game in one group only; a
+  group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
   the home page to change games, **as big as one of that game's grid
   squares** (developer, 2026-10-04).
@@ -217,7 +223,9 @@ numbered cards).
   "aww" face, Play again / New game and the 🏠 (one card) as in the other
   games; the page fits the screen with no scrolling.
 - **The robot never peeks**: it only knows cards it has seen turned over,
-  each remembered with a 60% chance (`ROBOT_TUNING.remember`, tunable).
+  each remembered with a **40% chance in easy, 30% in hard**
+  (`ROBOT_TUNING.remember`, tunable; was 60% in both, too strong,
+  "especially in hard mode", developer 2026-10-04).
   It takes the next number when it remembers where it is, otherwise it
   guesses among the face-down cards it doesn't remember.
 - Later, maybe: a "How many cards?" choice (count to 6, 9, 12 or 16).
@@ -260,6 +268,10 @@ has heard them.
 ## Later
 
 - Matching cards with the developer's own photos.
+- Rock paper scissors: a difficulty setting to make the robot better or
+  worse (developer, 2026-10-04). Its pick is made before yours, so it
+  can't cheat; a "better" robot would have to learn from your earlier
+  picks.
 - More games.
 
 ## Process

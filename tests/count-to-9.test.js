@@ -140,12 +140,24 @@ test('play again mid-round: a new deck, same starter, nothing scored', () => {
   assert.deepEqual(m.wins, { 1: 0, 2: 0 });
 });
 
-test('robot memory: only cards turned over, each with chance "remember"', () => {
-  assert.equal(ROBOT_TUNING.remember, 0.6);
-  const m = withDeck({ mode: 'robot' }, DECK);
-  flip(m, cardOf(m, 1), () => 0.59);   // remembered
-  flip(m, cardOf(m, 8), () => 0.6);    // forgotten (a miss)
-  assert.deepEqual(m.seen.map((s, i) => (s ? m.deck[i] : 0)).filter(Boolean), [1]);
+test('robot memory: only cards turned over, each with chance "remember" for the level', () => {
+  assert.deepEqual(ROBOT_TUNING.remember, { easy: 0.4, hard: 0.3 });
+  const remembered = m => m.seen.map((s, i) => (s ? m.deck[i] : 0)).filter(Boolean).sort();
+  const easy = withDeck({ mode: 'robot', level: 'easy' }, DECK);
+  flip(easy, cardOf(easy, 1), () => 0.39);   // remembered
+  flip(easy, cardOf(easy, 2), () => 0.35);   // remembered (hard would forget it)
+  flip(easy, cardOf(easy, 8), () => 0.4);    // forgotten (a miss)
+  assert.deepEqual(remembered(easy), [1, 2]);
+  const hard = withDeck({ mode: 'robot', level: 'hard' }, DECK);
+  flip(hard, cardOf(hard, 1), () => 0.29);   // remembered
+  flip(hard, cardOf(hard, 2), () => 0.35);   // forgotten
+  assert.deepEqual(remembered(hard), [1]);
+  // A level the tuning doesn't cover remembers nothing (undefined compares false).
+  const odd = withDeck({ mode: 'robot' }, DECK);
+  odd.level = 'medium';
+  flip(odd, cardOf(odd, 1), always);
+  assert.deepEqual(remembered(odd), []);
+  const m = withDeck({ mode: 'robot' }, DECK);   // easy
   const two = withDeck({ mode: 'two' }, DECK);
   flip(two, 0, () => { throw new Error('rand used without a robot'); });
   assert.ok(two.seen.every(s => !s));

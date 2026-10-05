@@ -59,16 +59,29 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 .site-foot { margin: auto auto 0; padding-top: 16px; width: 100%; max-width: 560px; text-align: center; font-size: 12px; line-height: 1.5; color: var(--muted); }
 .site-foot a { color: inherit; }
 
-/* Home page: a big picture button per game. */
+/* Home page: a big picture button per game, in groups. */
 .home { width: 100%; max-width: 560px; margin: 0 auto; display: grid; gap: 20px; }
 .home h1 { font-size: 38px; margin-top: 12px; }
+/* The games grouped by who can play: two players (a person or the robot),
+   then one player. */
+.group { display: grid; gap: 12px; }
+.group h2 { margin: 4px 0 0; font-size: 26px; text-align: center; color: var(--ink); }
+/* A group's only game: as wide as one of two columns, centred, not the
+   whole row. Two columns fit from a 488px screen (.home is at most 560px,
+   the body has 16px each side, a column at least 220px, a 16px gap). */
+@media (min-width: 488px) { .game:only-child { justify-self: center; width: calc(50% - 8px); } }
 .games { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .game {
   display: grid; justify-items: center; gap: 10px; padding: 18px 12px 16px; text-decoration: none; color: var(--ink);
   background: var(--card); border-radius: 24px; box-shadow: 0 5px 0 var(--line); font-size: 24px; font-weight: 800;
 }
 .game:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--line); }
-.game .pic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 150px; }
+/* Columns as minmax(0, 1fr), not 1fr: a plain 1fr column is never narrower
+   than what's in it, and the squares (aspect-ratio 1, a picture inside)
+   made the matching-cards columns uneven (20, 59, 59 px) and pushed the
+   Connect Four board's 5th column half outside the frame (developer,
+   2026-10-04). */
+.game .pic { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 150px; }
 .game .pic span { aspect-ratio: 1; border-radius: 10px; background: var(--sky); padding: 4px; }
 .game .pic span.o1 { background: var(--p1-soft); }
 .game .pic span.o2 { background: var(--p2-soft); }
@@ -81,7 +94,7 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 /* Rock paper scissors: the two faces over their picks. */
 .game .pic.rps span.vs { background: none; display: grid; place-items: center; font-size: 18px; font-weight: 800; color: var(--muted); }
 /* Connect Four: round holes in a yellow frame. */
-.game .pic.c4 { grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; background: var(--sun); border-radius: 12px; }
+.game .pic.c4 { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; padding: 6px; background: var(--sun); border-radius: 12px; }
 .game .pic.c4 span { border-radius: 50%; padding: 2px; }
 .game .pic.c4 span.o1 { box-shadow: inset 0 0 0 2px var(--p1); }
 .game .pic.c4 span.o2 { box-shadow: inset 0 0 0 2px var(--p2); }
