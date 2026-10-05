@@ -1105,3 +1105,35 @@ again 3.8 s after each round result (2.5 s + the count); 4 s after the
 win still waiting; Play again kept games won 1-0; a "Same!" round went on
 to the next countdown after 1.3 s (the 1.5 s pause, measured from 0.3 s
 after the tap).
+
+**Approved** (developer, 2026-10-04): "Approved." Mockup v2 is the agreed
+design; its decisions are in `DESIGN.md` ("Rock paper scissors").
+
+## 2026-10-04: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with four games:
+tic-tac-toe, matching cards, Connect Four, Count to 9. `main` = branch
+`count-to-9` (published with the developer's OK, this entry included).
+Publishing = fast-forward `main` to the working branch and push, only
+with the developer's OK.
+
+**Known:** `npm test` 90 of 90. Count to 9 played by the developer on the
+live site: "The game play looks good."
+
+**Open:** Q5, the Count to 9 robot maybe too strong (`remember` 0.6 →
+0.4?).
+
+**Next:** build rock paper scissors from mockup v2 (`DESIGN.md`, "Rock
+paper scissors"; mockup link there) on a new branch from `main`. Reuse:
+the faces (`src/ui/faces.js`), card back (`src/ui/cardback.js`), the
+flipping-card CSS (`css/cards.css`), setup / turn line / buttons
+(`css/game.css`), `endMoods` and the scoreboard cheers, `fitPlayScreen`.
+The mockup's drawn rock / paper / scissors SVG can be copied from the
+artifact (Artifact tool, action "read").
+
+**Starting a session:** if the desktop app opens the session in the
+GP-200 Patch Manager folder, ask Claude to move it to
+`C:\Users\dpark\Documents\Web-Games`, then "start". `preview_start`
+started the GP-200 server (port 8000) even after the move; run `node
+tools/serve.js 8123` in the background instead. The built-in browser's
+size emulation sends no resize events: reload at each size to measure.

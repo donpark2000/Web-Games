@@ -5,8 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-04): tic-tac-toe, matching cards and Connect Four
-published; Count to 9 built (branch `count-to-9`), waiting for the
-developer's OK to publish.*
+and Count to 9 published; rock paper scissors agreed from mockup v2, not
+built yet.*
 
 ## Goal
 
@@ -17,6 +17,7 @@ page. So far:
 - **Matching cards** (turn cards over two at a time to find the pairs)
 - **Connect Four** (drop pieces into columns; 4 in a row wins)
 - **Count to 9** (turn over numbered cards in order, 1 to 9)
+- **Rock paper scissors** (against the robot; agreed, not built yet)
 
 ## Players
 
@@ -221,6 +222,36 @@ numbered cards).
   It takes the next number when it remembers where it is, otherwise it
   guesses among the face-down cards it doesn't remember.
 - Later, maybe: a "How many cards?" choice (count to 6, 9, 12 or 16).
+
+### Rock paper scissors
+
+The developer's design, agreed 2026-10-04 from mockup v2 (journal):
+[Rock Paper Scissors Mockup](https://claude.ai/artifact/KpNrFFah3PDgt3xhs8VgTX)
+(private Claude artifact, version 2). Not built yet.
+
+- **You against the robot only**: no "Who's playing?" choice and no "who
+  goes first". The setup screen is the face picker, "You play the robot.
+  First to 3 wins!" and Play!.
+- **A round:** the robot picks first, at random, on a face-down card (the
+  matching cards' back): "🤖 has picked!". A countdown **1, 2, 3** (0.7 s
+  each; the robot's card bobs on each number); the three picture buttons
+  (drawn rock, paper, scissors, not emoji) are greyed until "3" ("Pick
+  one!"), then wait as long as needed. **The moment you tap**, your pick
+  shows and the robot's card turns over. Waiting gains nothing: the
+  robot's pick was fixed first.
+- **The result is acted out:** the winning card lunges at the other,
+  which shakes and greys; "Rock smashes scissors!" / "Paper covers rock!"
+  / "Scissors cut paper!". The same pick: "Same! Go again.", not counted.
+- **Rounds start by themselves**: "Ready?" 1 s before a game's first
+  round; the result shows 2.5 s (1.5 s after "Same!"), then the next
+  countdown. No button between rounds.
+- **First to 3 wins the game**: the dark scoreboard shows 3 stars each.
+  At 3 the game stops on "<face> wins!", with the scorecard cheer and
+  "aww" face, until **Play again** (a new game; mid-game it restarts the
+  game, not counted) or **New game** (back to setup).
+- **Games won**: a light second strip, as in matching cards; Play again
+  keeps it, New game resets it.
+- 🏠, footer, no scrolling, debug log as in the other games.
 
 ## Sound
 
