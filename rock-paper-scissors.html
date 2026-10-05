@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rock Paper Scissors</title>
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/rock-paper-scissors.css">
+</head>
+<body>
+<main class="app">
+  <!-- SETUP ("New game") -->
+  <section id="setup" class="app" aria-label="New game">
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
+      <h1>Rock Paper Scissors</h1>
+    </div>
+
+    <div class="panel p1">
+      <h2><span>Pick your face</span> <span class="chip" id="p1Chip"></span></h2>
+      <div class="faces" id="p1Faces"></div>
+    </div>
+
+    <div class="panel vsnote"><span class="chip" id="robotChip"></span>You play the robot. First to 3 wins!</div>
+
+    <div class="go">
+      <button type="button" class="big" id="playBtn">Play!</button>
+      <div class="why" id="why"></div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="app" aria-label="Game" hidden>
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
+      <div class="turn" id="turn" aria-live="polite"></div>
+    </div>
+
+    <div class="arena">
+      <div class="side">
+        <span class="who" id="meFace"></span>
+        <div class="slot mine empty" id="mySlot"><div class="in"><div class="face-b"></div><div class="face-f" id="myPic"></div></div></div>
+        <span class="lbl">You</span>
+      </div>
+      <div class="count" id="count">vs</div>
+      <div class="side">
+        <span class="who" id="botFace"></span>
+        <div class="slot robot" id="botSlot"><div class="in"><div class="face-b" id="botBack"></div><div class="face-f" id="botPic"></div></div></div>
+        <span class="lbl" id="botLbl">Robot</span>
+      </div>
+    </div>
+
+    <div class="picks" id="picks">
+      <button type="button" class="pick" data-pick="rock" disabled><span class="pic" data-pic="rock"></span>Rock</button>
+      <button type="button" class="pick" data-pick="paper" disabled><span class="pic" data-pic="paper"></span>Paper</button>
+      <button type="button" class="pick" data-pick="scissors" disabled><span class="pic" data-pic="scissors"></span>Scissors</button>
+    </div>
+
+    <div class="sc" aria-label="Score, first to 3">
+      <div class="s"><span class="chip" id="s1Chip"></span><span class="stars" id="st1"></span></div>
+      <div class="mid">First<br>to 3</div>
+      <div class="s r"><span class="chip" id="s2Chip"></span><span class="stars" id="st2"></span></div>
+    </div>
+    <div class="sc2" aria-label="Games won"><span class="lbl">Games won</span><span class="w" id="g1w"><span class="chip" id="g1c"></span><span id="g1">0</span></span><span class="w" id="g2w"><span class="chip" id="g2c"></span><span id="g2">0</span></span></div>
+    <div class="controls">
+      <button type="button" class="pill primary" id="againBtn">Play again</button>
+      <button type="button" class="pill" id="newBtn">New game</button>
+    </div>
+  </section>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a></footer>
+<script type="module" src="src/ui/rock-paper-scissors.js"></script>
+</body>
+</html>

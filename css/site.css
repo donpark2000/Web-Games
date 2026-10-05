@@ -78,6 +78,8 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 /* Count to 9: numbered cards (the number uses the device's font). */
 .game .pic span.num { padding: 2px; color: var(--ink); }
 .game .pic .num text { font-family: var(--font); }
+/* Rock paper scissors: the two faces over their picks. */
+.game .pic.rps span.vs { background: none; display: grid; place-items: center; font-size: 18px; font-weight: 800; color: var(--muted); }
 /* Connect Four: round holes in a yellow frame. */
 .game .pic.c4 { grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; background: var(--sun); border-radius: 12px; }
 .game .pic.c4 span { border-radius: 50%; padding: 2px; }

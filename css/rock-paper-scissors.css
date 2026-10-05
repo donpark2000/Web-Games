@@ -1,0 +1,82 @@
+/* Rock paper scissors screens, from the agreed mockup v2. The setup panel,
+   turn line and buttons are shared (game.css). The card size (--cs) is
+   set by src/ui/rock-paper-scissors.js so the whole page fits the screen
+   with no scrolling; the 🏠 (--home) follows it. */
+:root { --cs: 140px; --home: 64px; --back-edge: #1C4A61; --cheer-scale: 1.5; }
+
+/* setup */
+.vsnote { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: var(--muted); }
+.vsnote .chip { width: 44px; height: 44px; flex: none; }
+
+/* play */
+#play { gap: 12px; }
+.turn { font-size: 22px; text-wrap: balance; }
+.turn.pop { animation: bounce .5s ease; }
+
+/* the face-off: your card, the count, the robot's card */
+.arena { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+.arena .side { display: grid; justify-items: center; gap: 6px; border: 0; padding: 0; }
+.arena .who { width: calc(var(--cs) * .34); height: calc(var(--cs) * .34); }
+.arena .lbl { font-size: 13px; font-weight: 700; color: var(--muted); min-height: 1.2em; }
+.slot { width: var(--cs); height: var(--cs); perspective: 700px; }
+.slot .in { position: relative; width: 100%; height: 100%; transition: transform .25s ease; transform-style: preserve-3d; }
+.slot.shown .in { transform: rotateY(180deg); }
+.slot .face-b, .slot .face-f {
+  position: absolute; inset: 0; border-radius: calc(var(--cs) * .15);
+  -webkit-backface-visibility: hidden; backface-visibility: hidden; overflow: hidden; display: grid; place-items: center;
+}
+.slot .face-b { box-shadow: 0 5px 0 var(--back-edge); }
+.slot .face-f { transform: rotateY(180deg); background: var(--card); box-shadow: 0 5px 0 var(--line); padding: 10%; }
+.slot.mine .face-f { background: var(--p1-soft); box-shadow: inset 0 0 0 4px var(--p1), 0 5px 0 var(--line); }
+.slot.robot .face-f { background: var(--p2-soft); box-shadow: inset 0 0 0 4px var(--p2), 0 5px 0 var(--line); }
+.slot.empty .face-b { background: transparent; box-shadow: none; border: 4px dashed var(--line); }
+.slot.bob .in { animation: bob .7s ease-in-out; }
+.slot.hit .face-f { animation: hit-r .7s ease-in-out; }
+.slot.robot.hit .face-f { animation-name: hit-l; }
+.slot.hurt .face-f { animation: hurt .7s ease-in-out .25s; filter: grayscale(.85) opacity(.7); transition: filter .4s .5s; }
+.count { width: 56px; display: grid; place-items: center; font-size: 22px; font-weight: 800; color: var(--muted); }
+.count b { font-size: 60px; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.count b.tick { animation: tick .7s ease-out; }
+
+/* the three picture buttons */
+.picks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pick {
+  border: 0; border-radius: 20px; background: var(--card); box-shadow: 0 5px 0 var(--line); padding: 8px 6px 6px;
+  display: grid; justify-items: center; gap: 2px; cursor: pointer; font-size: 16px; font-weight: 800;
+  transition: opacity .2s, filter .2s, transform .1s;
+}
+.pick .pic { width: calc(var(--cs) * .5); height: calc(var(--cs) * .5); }
+.pick:disabled { opacity: .35; filter: grayscale(1); cursor: default; }
+.pick:not(:disabled) { animation: ready .5s ease; }
+.pick:not(:disabled):active { transform: translateY(3px); box-shadow: 0 2px 0 var(--line); }
+.pick.chosen, .pick.chosen:disabled { opacity: 1; filter: none; box-shadow: inset 0 0 0 4px var(--p1), 0 5px 0 var(--line); background: var(--p1-soft); }
+
+/* scoreboard: the dark strip of the other games; 3 stars each */
+.sc { background: var(--ink); color: var(--board-ink); border-radius: 18px; padding: 6px 10px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; }
+.sc .s { display: flex; align-items: center; gap: 8px; justify-content: center; }
+.sc .s.r { flex-direction: row-reverse; }
+.sc .chip { width: 52px; height: 52px; flex: none; }
+.stars { display: flex; gap: 2px; font-size: 22px; }
+.stars i { font-style: normal; color: #4A6275; }
+.stars i.on { color: var(--sun); }
+.stars i.new { animation: pop .5s ease; }
+.mid { font-size: 11px; opacity: .8; text-align: center; line-height: 1.2; }
+
+/* "Games won": light and smaller, as in matching cards */
+.sc2 {
+  background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 6px 10px;
+  display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 17px; font-weight: 800; flex-wrap: wrap; font-variant-numeric: tabular-nums;
+}
+.sc2 .lbl { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.sc2 .w { display: flex; align-items: center; gap: 6px; }
+.sc2 .chip { width: 30px; height: 30px; display: block; }
+.sc2 .w.up { animation: pop .5s ease; }
+.controls { margin-top: 2px; }
+
+@keyframes bob { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-14px); } }
+@keyframes tick { 0% { transform: scale(1.6); opacity: .2; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes ready { 0% { transform: scale(.9); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@keyframes hit-r { 0%, 100% { transform: rotateY(180deg) translateX(0); } 40% { transform: rotateY(180deg) translateX(-26%) scale(1.12); } }
+@keyframes hit-l { 0%, 100% { transform: rotateY(180deg) translateX(0); } 40% { transform: rotateY(180deg) translateX(26%) scale(1.12); } }
+@keyframes hurt { 0%, 100% { transform: rotateY(180deg); } 20% { transform: rotateY(180deg) translateX(-6px) rotate(-5deg); } 40% { transform: rotateY(180deg) translateX(6px) rotate(5deg); } 60% { transform: rotateY(180deg) translateX(-4px); } }
+@keyframes pop { 0% { transform: scale(.3); } 60% { transform: scale(1.4); } 100% { transform: scale(1); } }

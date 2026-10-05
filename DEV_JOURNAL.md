@@ -1152,3 +1152,43 @@ size emulation sends no resize events: reload at each size to measure.
 
 **Idea for the next session** (developer): separate one-player and
 two-player games on the home page; logged as Q6.
+
+## 2026-10-04: Rock paper scissors built (from mockup v2)
+
+**The developer**, after the publish: "I do not see the new game on
+github.io. I would like to before we quit." Rock paper scissors was only
+the mockup; built in this session after all, on branch
+`rock-paper-scissors` (from `main`).
+
+**Built:** rules `src/core/rock-paper-scissors.js` (judge, the robot's
+random pick made at `newRound` and fixed, `unlock` when the countdown
+shows 3, `choose` refusing 'not-yet' / 'already' / 'game-over', first to
+3, games won kept by `newGame`), pictures `src/ui/rpspics.js` (the
+mockup's SVG and sayings), screens `rock-paper-scissors.html`,
+`src/ui/rock-paper-scissors.js`, `css/rock-paper-scissors.css`, a
+home-page button (the bear's rock against the robot's scissors). Timings
+as agreed: "Ready?" 1 s, 0.7 s per count, result 2.5 s, "Same!" 1.5 s.
+The card size is fitted so the page doesn't scroll (80-150 px); the 🏠
+follows it (at least 56 px). Debug log category `rps`: each round's
+robot pick, "pick now", your pick and the result, refused taps, the fit,
+game ends.
+
+**Tests:** `npm test` 98 of 98 (8 new; the pages test now expects five
+games). Seven deliberate breaks in a scratch copy were all caught: judge
+reversed (5 failed), picking during the countdown (1), first to 2 (2),
+Play again resetting games won (1), changing your pick (1), a robot that
+never picks scissors (3), a robot that switches to the winning pick after
+yours (3).
+
+**Checked in the built-in browser** (local server, 393x659): 16 faces on
+setup; Play! → "Ready?" → "🤖 has picked!", count 2 with the buttons
+greyed and "Picked! (hidden)"; a tap during the count ignored; buttons on
+at "3" ("Pick one!", 2.4 s after Play!); paper against the robot's
+scissors: "Scissors cut paper!", the robot's card lunged, mine shook,
+stars 0-1. A full game won 3-1 ("wins!", bear smiling, robot "aww",
+games won 1-0, still waiting 3.5 s later); Play again: "Ready?", stars
+0-0, games won kept 1-0; a same pick: "Same! Go again." Cards 125 px at
+393x659 and 150 px (the cap) at 1024x768, no scroll; the home page has
+five buttons; no console errors.
+
+**Not checked:** on the developer's devices; Safari.

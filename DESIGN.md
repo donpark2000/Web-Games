@@ -5,8 +5,7 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-04): tic-tac-toe, matching cards and Connect Four
-and Count to 9 published; rock paper scissors agreed from mockup v2, not
-built yet.*
+Count to 9 and rock paper scissors published.*
 
 ## Goal
 
@@ -17,7 +16,7 @@ page. So far:
 - **Matching cards** (turn cards over two at a time to find the pairs)
 - **Connect Four** (drop pieces into columns; 4 in a row wins)
 - **Count to 9** (turn over numbered cards in order, 1 to 9)
-- **Rock paper scissors** (against the robot; agreed, not built yet)
+- **Rock paper scissors** (against the robot)
 
 ## Players
 
@@ -227,7 +226,7 @@ numbered cards).
 
 The developer's design, agreed 2026-10-04 from mockup v2 (journal):
 [Rock Paper Scissors Mockup](https://claude.ai/artifact/KpNrFFah3PDgt3xhs8VgTX)
-(private Claude artifact, version 2). Not built yet.
+(private Claude artifact, version 2). Built and published 2026-10-04.
 
 - **You against the robot only**: no "Who's playing?" choice and no "who
   goes first". The setup screen is the face picker, "You play the robot.

@@ -26,6 +26,10 @@
       <span class="pic" id="countPic" aria-hidden="true"></span>
       Count to 9
     </a>
+    <a class="game" id="rpsLink" href="rock-paper-scissors.html">
+      <span class="pic rps" id="rpsPic" aria-hidden="true"></span>
+      Rock Paper Scissors
+    </a>
   </div>
 </main>
 <footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a></footer>
@@ -33,6 +37,7 @@
   import { svg } from './src/ui/faces.js';
   import { CARD_BACK } from './src/ui/cardback.js';
   import { numberSvg } from './src/ui/numbercard.js';
+  import { PICTURES } from './src/ui/rpspics.js';
   import { installDebugPanel, withDev } from './src/ui/debuglog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
@@ -57,7 +62,10 @@
   const nums = [0, 2, 0, 1, 0, 0, 0, 0, 3];
   document.getElementById('countPic').innerHTML = nums.map(n =>
     n ? `<span class="o1 num">${numberSvg(n)}</span>` : `<span class="cb">${CARD_BACK}</span>`).join('');
-  for (const id of ['tttLink', 'cardsLink', 'c4Link', 'countLink']) {
+  // Rock paper scissors: the bear's rock against the robot's scissors.
+  document.getElementById('rpsPic').innerHTML = `<span>${svg('bear', 'winner')}</span><span class="vs">vs</span><span>${svg('robot', 'sad')}</span>`
+    + `<span class="o1">${PICTURES.rock}</span><span class="vs"></span><span class="o2">${PICTURES.scissors}</span>`;
+  for (const id of ['tttLink', 'cardsLink', 'c4Link', 'countLink', 'rpsLink']) {
     const link = document.getElementById(id);
     link.href = withDev(link.getAttribute('href'));
   }
