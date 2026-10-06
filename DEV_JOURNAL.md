@@ -2093,3 +2093,32 @@ right. Measured over 500 solo games each (scratch script):
 Robot strength stays at its best (developer: "Commit the changes and
 publish"). If the long game proves too hard, weaken it with close
 second-best choices only, never obvious ones.
+
+**Published** 2026-10-06 (developer's OK): `main` fast-forwarded to
+`c4eb5a9`. Live check (built-in browser, the live site with `?dev`): the
+new `five-dice.js` was served within a few seconds. `data/five-dice-long.bin`
+gives 200, 1048576 bytes, first value 24587. In a long game against the
+robot, `robot values loaded {"ms":184,"gameWorth":"245.87"}`; the robot
+kept 5 5 over two re-rolls and scored 5 6 5 5 1 as 15 in the 5s.
+
+## 2026-10-06: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with seven games.
+Five Dice's robot plays its best and its pop-up closes with the ✕ only
+(published 2026-10-06). Working branch `home-groups`, level with `main`
+but for this entry.
+
+**Known:** `npm test` 134 of 134. The best play is checked against
+Glenn's 245.87. Against a simple player the robot wins about 70% of
+short games and 93% of long ones (entry above).
+
+**Next:** the developer tests Five Dice again on the live site and brings
+the feedback. Watch for whether the long game is too hard for the
+grandkids. If it is, weaken the robot with close second-best choices
+only, never obvious ones (developer). If the developer reports an
+odd-looking robot move, ask for the `?dev` log: each `robot plan` line
+has the dice, open boxes and choice, so it can be checked against the
+best play.
+
+**Open questions:** none. (Why "tap anywhere to close" didn't work for
+the developer was never found; the feature is gone.)
