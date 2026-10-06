@@ -1613,3 +1613,61 @@ good fit". Claude's first thoughts, for the developer to decide:
   with no scrolling, so a mockup first.
 - "Yahtzee" is Hasbro's trademark; the site should use its own name
   (e.g. "Five Dice"), a free name for the same game.
+
+## 2026-10-06: Five Dice (Yahtzee-style) mockup v1
+
+**The developer:** a Yahtzee-style game; on Claude's three choices (full
+13 boxes, a short 7-box game, or both as a choice like Count to 9's "How
+hard?"): "If it fits, it is worth trying" (both).
+
+[Five Dice Mockup](https://claude.ai/artifact/JJKuS2fc4kpTo7YDdDDWKk)
+(private Claude artifact, version 1). Built from the real faces, the
+Snakes and Ladders cube die and the site's CSS (`site.css`, `game.css`)
+by a script in Claude's scratchpad.
+
+- **Setup:** Count to 9's (Just me / Me and the robot / Two players, face
+  pickers, who goes first), with **How long?**: 🎲 Short (7 boxes,
+  default) or 🎲🎲🎲 Long (13 boxes).
+- **Play screen**, top to bottom: 🏠 and the words; five dice and a
+  yellow **Roll** button (three dots: rolls left); the score sheet; the
+  dark scoreboard (points this game, games won); Play again / New game.
+- **A turn:** the dice wait as cubes in the player's colour; up to 3
+  rolls; tap a die to keep it (it lifts, tinted the player's colour).
+  After each roll, every empty box in that player's column shows what it
+  would score (faded, outlined); **tap once** to see "25 here? Tap
+  again", **tap again** to put it there. Five the same: the dice wiggle.
+- **The screen does all the adding**; no words on the sheet, pictures
+  only: a die for 1s-6s; 3 dice for 3 the same, 4 for 4 the same; 3 + 2
+  dice under a roof for a full house; dice as stairs for 4 and 5 in a
+  row; 5 dice and a star for 5 the same (50); a "?" die for anything.
+  Tapping a picture says what it is on the turn line.
+- **Short:** 1s-6s and 5 the same, in one panel. **Long:** two panels
+  side by side, 1s-6s plus a bonus row (a bar filling towards 63, then
+  ⭐35) on the left, the other 7 on the right.
+- **Just me:** points and the best per length (🏆), "101 points! Your
+  best!".
+- **The robot:** keeps its most common number (or a run, if a run box is
+  open), stops early for a big box, puts a roll where it scores most for
+  the least waste; 20% of the time keeps a random number or takes its
+  second choice, so it's beatable.
+- **Left out:** extra 5-the-same bonuses and "joker" rules.
+- **Mockup only:** a "Next roll" menu (five the same, runs, full house,
+  4 the same) and "Skip to the last box".
+
+**Checked in the built-in browser** (the scratchpad copy on port 8124):
+393x659 (iPhone 16 in Safari, assumed): short and long both fit with
+no scrolling (rows 40 px, dice 48 px, page bottom 644-647 of 659);
+1024x768: rows 53, dice 64, bottom 749 of 768. A whole short game against
+the robot (a script playing the bear): every box filled, 48-40, "wins!",
+the bear's scorecard cheering, the robot "aww", games won 1-0. Forced full
+house: kept dice 1 and 3, "25 here? Tap again", the second tap scored 25,
+then the robot's turn. Long, Just me, skipped to the last box, forced
+five the same: only "anything" open, 20 points, "101 points! Your best!",
+best 101; the bonus bar at 37 of 63. Fixed on the way: the page was too
+tall (the sizing ran before the sheet was drawn); dice drawn blank (a
+padding of 7% is of the tray's width, not the die's: 50 px of padding on
+a 48 px die); scores not centred in filled boxes. No console errors.
+
+**For the developer to check:** the two taps to score; pictures instead
+of words; the bonus row in the long game only; short as the default; the
+name ("Yahtzee" is Hasbro's trademark; "Five Dice" for now).
