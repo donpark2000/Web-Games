@@ -1760,3 +1760,32 @@ robot's turn 3.4 s later. A robot turn, timed by script (the pane hidden,
 so timers may run late): roll 2 at 0.2 s, "is thinking..." to 2.5 s,
 dice lifted at 2.5 s and 2.9 s, rolled at 3.9 s, thinking to 6.0 s, box
 shown "8 here", scored at 7.7 s. No console errors.
+
+## 2026-10-06: Five Dice mockup v4
+
+**The developer** on v3: "Short game is great. Long game, some of the
+symbols for scoring are confusing. Maybe make the icons themselves
+clickable and they pop up a short explanation of what they mean?" (v3
+already put a line of text on the turn line when a picture was tapped:
+easy to miss, and it replaced the turn's words.)
+
+**Changed (v4, same link):** tapping a picture opens a **pop-up** under
+its row (above it when there's no room below): the picture bigger, a
+title ("Full house"), the rule in a few words ("3 the same and 2 the
+same. Always 25."), an example roll in dice with its score ("= 25"), and,
+on your turn after a roll, **"Your dice now: 25"**. The bonus shows each
+player's 1s-6s total "of 63". While it's open, a tap anywhere only closes
+it (it can't also score a box or roll); a tap on another picture shows
+that one; a new turn closes it.
+
+**Checked in the built-in browser** (393x659, long game): full house
+after a forced full house: "Full house | 3 the same and 2 the same.
+Always 25. | = 25 | Your dice now: 25"; "5 in a row" (row 5) shown above
+its row, "anything" (row 7) above; with the pop-up open, a tap on a box
+closed it and scored nothing, a tap on Roll closed it and lifted no dice;
+bonus: "0 of 63" for each player. No console errors. Fixed on the way:
+the pop-up was centred with a CSS transform, which its pop-in animation
+replaced, shifting it right. (Measuring the pop-up by script gave 186 px
+wide, not 310: the pane doesn't run CSS animations while hidden, so it
+stayed at the animation's starting 60% size; the screenshot showed it at
+full size. A finding about the pane, not the page.)
