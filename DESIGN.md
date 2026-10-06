@@ -6,7 +6,8 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-10-05): tic-tac-toe, matching cards, Connect Four, Count
 to 9, Snakes and Ladders and rock paper scissors published, the home
-page grouped by players.*
+page grouped by players. Five Dice agreed from mockup v5, to be built
+(2026-10-06).*
 
 ## Goal
 
@@ -18,6 +19,7 @@ page. So far:
 - **Connect Four** (drop pieces into columns; 4 in a row wins)
 - **Count to 9** (turn over numbered cards in order, 1 to 9)
 - **Snakes and Ladders** (roll the die, climb ladders, slide down snakes)
+- **Five Dice** (Yahtzee-style: roll five dice up to 3 times, fill the boxes; to be built)
 - **Rock paper scissors** (against the robot)
 
 ## Players
@@ -47,7 +49,7 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   is just another button. **Grouped by who can play** (developer,
   2026-10-04): **👥 Two players** first (a game with a two-player choice,
   the second player a person or the robot: tic-tac-toe, matching cards,
-  Connect Four, Count to 9, Snakes and Ladders), then **👤 One player** (no way to play
+  Connect Four, Count to 9, Snakes and Ladders, Five Dice), then **👤 One player** (no way to play
   another person: rock paper scissors). Each game in one group only; a
   group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
@@ -268,6 +270,59 @@ recommendation, left to Claude ("Perfect. Please build the game").
 - **Sized to the screen:** the squares are the biggest that let the page
   fit with no scrolling (56 px on an iPhone 16, at most 520 px of board);
   the 🏠 and the die are one square, at least 48 px.
+
+### Five Dice
+
+Yahtzee-style, agreed 2026-10-06 from mockup v5 (journal):
+[Five Dice Mockup](https://claude.ai/artifact/JJKuS2fc4kpTo7YDdDDWKk)
+(private Claude artifact, version 5). Not called "Yahtzee" (Hasbro's
+trademark); "Five Dice" is a working name (journal, open questions).
+
+- **Setup:** Count to 9's **Who's playing?** (Just me / Me and the robot,
+  preselected / Two players) and face pickers, then **How long?**: 🎲
+  **Short** (7 boxes: 1s-6s and 5 the same; preselected) or 🎲🎲🎲
+  **Long** (all 13 boxes plus the bonus). **No "Who goes first?"**
+  (developer: not relevant to a dice game): players take turns starting
+  each game, player 1 the first.
+- **Play screen**, top to bottom: 🏠 and the words; five dice and a
+  yellow **Roll** button (three dots: rolls left); the score sheet; the
+  dark scoreboard (points this game, games won; "Short"/"Long"; Just me:
+  points and the best per length 🏆); Play again / New game. Sized so
+  the page fits the screen (rows and dice grow together; 40 px rows and
+  48 px dice on an iPhone 16).
+- **A turn, up to 3 rolls:** the dice wait as Snakes and Ladders' cube in
+  the player's colour; the first Roll rolls all five. After that, **tap a
+  die to pick it up and roll it again** (it lifts, tilts, turns the
+  player's colour; tap again to put it back); dice not tapped stay put
+  (developer: like real dice). **Roll with none picked up lifts all five**
+  and asks "Roll them all?"; a second Roll rolls them.
+- **Scoring: one tap on a box** (developer: two taps were tedious). After
+  a roll, each empty box in that player's column shows what it would
+  score, faded. After scoring, the Roll button is **↩ Undo for 3 s** (a
+  bar running out), then the turn passes. No undo for a roll (undoing
+  after seeing the new dice would be a free extra roll).
+- **The screen does all the adding.** Pictures, not words: a die for
+  1s-6s; 3 dice (3 the same), 4 dice (4 the same), 3 + 2 dice under a roof
+  (full house, 25), dice as stairs (4 in a row 30, 5 in a row 40), 5 dice
+  and a star (5 the same, 50), a "?" die (anything, the total). Long: two
+  panels side by side, the 1s-6s plus a **bonus** row (a bar filling to
+  63, then ⭐35) on the left, the other 7 on the right; short: one panel.
+  No extra 5-the-same bonuses or "joker" rules.
+- **Tap a picture: a pop-up** with the picture, its name, the rule in a
+  few words, an example roll and its score, and on your turn "Your dice
+  now: N" (the bonus: each player's 1s-6s "of 63"). A ✕, and **a touch
+  anywhere closes it**; that touch does nothing else.
+- **The robot** shows what it does at a person's pace: thinks before its
+  first roll, looks at each roll, **picks up the dice to roll again one at
+  a time**, shows its box pulsing before scoring (`ROBOT.wait`, mockup:
+  1.2 s, 1.6 s, 0.5 s per die, 0.9 s, 1.6 s, 1.5 s). It keeps its most
+  common number whose box is still open (or a run, when a run box is
+  open), stops early for a big box, scores where it gets most for the
+  least waste; **sloppy 20% (short) / 50% (long)** of the time it keeps a
+  random number or takes its second-best box: about even with a simple
+  player (journal, mockup v2).
+- 🏠, footer, end-of-game scorecard cheer and "aww" face, debug log as in
+  the other games. Ties possible ("It's a tie!").
 
 ### Rock paper scissors
 

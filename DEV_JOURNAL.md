@@ -6,7 +6,11 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-(none)
+- **Q7. The name of the Yahtzee-style game.** *Raised 2026-10-06 (entry
+  "All games checked; next game idea: Yahtzee").* Not "Yahtzee" (Hasbro's
+  trademark). "Five Dice" is Claude's working name, used in the mockups;
+  the developer hasn't said yes or no. To settle: the developer's pick
+  (it's the page title, the home-page button and `five-dice.html`).
 
 ## Resolved
 
@@ -1815,3 +1819,58 @@ tap on another picture switched to it ("4 in a row"); with it closed, a
 tap on a box scored. A real click on the empty bottom-right corner
 (BODY) closed it. Not checked: an iPhone or iPad (the pane is Chrome).
 No console errors.
+
+## 2026-10-06: Mockup agreed; v5's "likely cause" was wrong
+
+**The developer:** "I was just clicking your sim inside the Claude app
+on my computer. I was not even in a browser. Maybe best to push the game
+and I'll test in a browser on my computer and phone." So the pop-up that
+only closed from inside was in the Claude desktop app's artifact viewer
+(the page in a frame of the app's), **not iOS Safari**, as the v5 entry
+guessed. Why a click on the empty page didn't reach the page's handler
+there is unknown: in the built-in browser (Chrome) it did. v5 closes on
+`pointerdown` anyway; the real game is to be checked in the developer's
+browsers, computer and phone.
+
+**Agreed:** mockup v5 is the design (the developer: build it and publish
+it for testing on their computer and phone). Written up in `DESIGN.md`,
+"Five Dice".
+
+## 2026-10-06: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with six games,
+unchanged today. Working branch `home-groups`; `main` is at `6c6f602`
+(the last publish); this branch has only journal and `DESIGN.md` commits
+since.
+
+**Known:** `npm test` 113 of 113 (not re-run today: no code changed).
+The developer has played all six games: "All games tried and working".
+
+**Next: build Five Dice** from `DESIGN.md` "Five Dice" (mockup v5),
+then publish it: the developer asked for it to be pushed to the live
+site so they can test it in a browser on their computer and phone
+("Maybe best to push the game and I'll test"). As before: rules in
+`src/core/five-dice.js` (the boxes and their scores, the bonus, a turn's
+rolls and picked-up dice, the round and match, the robot's choice as a
+pure function, `ROBOT` tuning), screens `five-dice.html`,
+`src/ui/five-dice.js`, `css/five-dice.css` (dice drawn with
+`dotsSvg`/`cubeSvg` from `src/ui/snlart.js`), a home-page button in
+the two-player group, tests (scores per box with edge cases, the bonus at
+62/63, rolls left, the robot never picking a filled box, whole simulated
+games finishing, the robot's win rate against the simple player in its
+agreed range), debug log category, every pending step a tracked timer.
+
+**The mockup's code** is the best reference for the screen: its
+scratchpad builder is gone with this session, but the published page can
+be read with the Artifact tool (`action: "read"`,
+https://claude.ai/artifact/JJKuS2fc4kpTo7YDdDDWKk). It's a mockup:
+one file, no debug log, no tests; it has a "Mockup only" strip to leave
+out.
+
+**Open questions:** Q7, the game's name ("Five Dice" until the developer
+picks one).
+
+**Testing notes:** the built-in browser runs no CSS animations and slows
+timers while its pane is hidden: an element measured mid-animation (the
+pop-up at 60% of its size) or a robot turn taking longer is the pane,
+not the page; check by screenshot, or by state rather than timing.
