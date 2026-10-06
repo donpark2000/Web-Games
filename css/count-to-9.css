@@ -11,21 +11,6 @@
   --cheer-scale: 1.6;
 }
 
-/* who's playing: three choices */
-.modes.three { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.modes.three .mode { font-size: 15px; padding: 10px 4px; text-align: center; }
-.modes.three .mode .pair .av { width: 32px; height: 32px; }
-
-/* how hard */
-.levels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.level {
-  border: 3px solid var(--line); background: var(--card); border-radius: 16px; padding: 10px 4px; cursor: pointer;
-  font-size: 18px; font-weight: 800; display: grid; gap: 2px; justify-items: center; text-align: center;
-}
-.level .ico { font-size: 20px; letter-spacing: -2px; }
-.level small { font-size: 13px; font-weight: 600; color: var(--muted); }
-.level[aria-pressed="true"] { border-color: var(--sun); background: var(--sun-soft); }
-
 /* play screen */
 #play { gap: 14px; }
 .grid { display: grid; grid-template-columns: repeat(3, var(--cs)); gap: 10px; justify-content: center; }

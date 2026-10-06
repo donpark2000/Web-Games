@@ -35,6 +35,10 @@
         <span class="pic snl" id="snlPic" aria-hidden="true"></span>
         Snakes and Ladders
       </a>
+      <a class="game" id="diceLink" href="five-dice.html">
+        <span class="pic" id="dicePic" aria-hidden="true"></span>
+        Five Dice
+      </a>
     </div>
   </section>
   <section class="group" id="oneGroup" aria-labelledby="oneTitle">
@@ -53,7 +57,7 @@
   import { CARD_BACK } from './src/ui/cardback.js';
   import { numberSvg } from './src/ui/numbercard.js';
   import { PICTURES } from './src/ui/rpspics.js';
-  import { ladderSvg, snakeSvg } from './src/ui/snlart.js';
+  import { ladderSvg, snakeSvg, dotsSvg } from './src/ui/snlart.js';
   import { log, installDebugPanel, withDev } from './src/ui/debuglog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
@@ -90,7 +94,10 @@
   document.getElementById('snlPic').innerHTML = `<svg class="snlmini" viewBox="0 200 400 400">${sq}${snakeSvg(15, 4)}${ladderSvg(2, 14)}</svg>`
     + `<span class="tok o1" style="left: 37.5%; top: 37.5%">${svg('bear', 'winner')}</span>`
     + `<span class="tok o2" style="left: 37.5%; top: 86%">${svg('robot')}</span>`;
-  for (const id of ['tttLink', 'cardsLink', 'c4Link', 'countLink', 'snlLink', 'rpsLink']) {
+  // Five Dice: a full house, and the bear who rolled it.
+  document.getElementById('dicePic').innerHTML = [5, 5, 5, 2, 2].map(n => `<span class="die">${dotsSvg(n)}</span>`).join('')
+    + `<span class="o1">${svg('bear', 'winner')}</span>`;
+  for (const id of ['tttLink', 'cardsLink', 'c4Link', 'countLink', 'snlLink', 'diceLink', 'rpsLink']) {
     const link = document.getElementById(id);
     link.href = withDev(link.getAttribute('href'));
   }

@@ -17,9 +17,9 @@ const html = Object.fromEntries(await Promise.all(pages.map(async p => [p, await
 const localRefs = s => [...s.matchAll(/(?:href|src)="([^"]+)"|from '(\.\/[^']+)'/g)]
   .map(m => m[1] ?? m[2]).filter(u => !/^(https?:|mailto:|#)/.test(u)).map(u => u.replace(/[?#].*$/, ''));
 
-test('pages: the home page and the six games exist', () => {
+test('pages: the home page and the seven games exist', () => {
   assert.ok(pages.includes('index.html'));
-  for (const g of ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'rock-paper-scissors.html']) assert.ok(games.includes(g), `${g} missing: ${games.join()}`);
+  for (const g of ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html', 'rock-paper-scissors.html']) assert.ok(games.includes(g), `${g} missing: ${games.join()}`);
 });
 
 test('pages: every page has the footer, and "Source code" opens in a new tab', () => {
@@ -61,7 +61,7 @@ test('pages: the home page groups the games: two players, then one player', () =
   const groups = [...html['index.html'].matchAll(/<section class="group" id="(\w+)"[\s\S]*?<h2[^>]*>([\s\S]*?)<\/h2>([\s\S]*?)<\/section>/g)]
     .map(([, id, title, body]) => ({ id, title: title.replace(/<[^>]+>/g, '').trim(), games: [...body.matchAll(/<a class="game"[^>]*href="([^"]+)"/g)].map(m => m[1]) }));
   assert.deepEqual(groups.map(g => [g.id, g.title]), [['twoGroup', '👥 Two players'], ['oneGroup', '👤 One player']]);
-  assert.deepEqual(groups[0].games, ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html']);
+  assert.deepEqual(groups[0].games, ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html']);
   assert.deepEqual(groups[1].games, ['rock-paper-scissors.html']);
   const all = groups.flatMap(g => g.games);
   assert.deepEqual([...all].sort(), [...games].sort(), 'every game in exactly one group');

@@ -4,10 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-05): tic-tac-toe, matching cards, Connect Four, Count
+*Status (2026-10-06): tic-tac-toe, matching cards, Connect Four, Count
 to 9, Snakes and Ladders and rock paper scissors published, the home
-page grouped by players. Five Dice agreed from mockup v5, to be built
-(2026-10-06).*
+page grouped by players. Five Dice built from mockup v5 (2026-10-06),
+not yet published.*
 
 ## Goal
 
@@ -19,7 +19,7 @@ page. So far:
 - **Connect Four** (drop pieces into columns; 4 in a row wins)
 - **Count to 9** (turn over numbered cards in order, 1 to 9)
 - **Snakes and Ladders** (roll the die, climb ladders, slide down snakes)
-- **Five Dice** (Yahtzee-style: roll five dice up to 3 times, fill the boxes; to be built)
+- **Five Dice** (Yahtzee-style: roll five dice up to 3 times, fill the boxes)
 - **Rock paper scissors** (against the robot)
 
 ## Players
@@ -69,7 +69,9 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   Little space around it (16 px above, 12 px below the page), so the play
   screens fit a phone.
 - **Shared styles**: `css/site.css` (every page), `css/game.css` (the
-  game screens' setup panels, turn line, buttons), `css/cards.css` (the
+  game screens' setup panels, including the three-way "Who's playing?"
+  and the two-choice "How hard?" / "How long?", turn line, buttons),
+  `css/cards.css` (the
   flipping cards of matching cards and Count to 9), then each game's own.
 - **Game rules kept apart from the screen code**: rules in `src/core/`
   (no DOM or UI code, unit-tested in Node), screens in `src/ui/`.
@@ -314,13 +316,14 @@ trademark); "Five Dice" agreed by the developer (2026-10-06).
   anywhere closes it**; that touch does nothing else.
 - **The robot** shows what it does at a person's pace: thinks before its
   first roll, looks at each roll, **picks up the dice to roll again one at
-  a time**, shows its box pulsing before scoring (`ROBOT.wait`, mockup:
-  1.2 s, 1.6 s, 0.5 s per die, 0.9 s, 1.6 s, 1.5 s). It keeps its most
-  common number whose box is still open (or a run, when a run box is
-  open), stops early for a big box, scores where it gets most for the
-  least waste; **sloppy 20% (short) / 50% (long)** of the time it keeps a
-  random number or takes its second-best box: about even with a simple
-  player (journal, mockup v2).
+  a time**, shows its box pulsing before scoring (`ROBOT_WAIT` in
+  `src/ui/five-dice.js`: 1.2 s, 1.6 s, 0.5 s per die, 0.9 s, 1.6 s,
+  1.5 s). It keeps its most common number whose box is still open (or a
+  run, when a run box is open), stops early for a big box, scores where it
+  gets most for the least waste; **sloppy 20% (short) / 50% (long)** of
+  the time it keeps a random number or takes its second-best box
+  (`ROBOT_TUNING` in `src/core/five-dice.js`): about even with a simple
+  player (journal, mockup v2 and "Five Dice built").
 - 🏠, footer, end-of-game scorecard cheer and "aww" face, debug log as in
   the other games. Ties possible ("It's a tie!").
 

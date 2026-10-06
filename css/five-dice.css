@@ -1,0 +1,119 @@
+/* Five Dice screens (from mockup v5). The setup panels, turn line and
+   buttons are shared (game.css). The play screen, top to bottom: the 🏠
+   and the words; a tray of five dice and the Roll button; the score sheet
+   (pictures down the left, one column per player); the dark scoreboard;
+   Play again / New game.
+
+   --row is one score-sheet row and --die one die. src/ui/five-dice.js sets
+   them so the whole page fits the screen with no scrolling (developer,
+   2026-10-04, iPhone 16); these are the sizes before that runs. The 🏠 is
+   one die, at least 48px. */
+:root {
+  --row: 46px; --die: 53px; --pic: 62px; --home: max(48px, var(--die));
+  --cheer-scale: 1.5;
+  --box: #F1F6F5;
+}
+
+#play { gap: 10px; position: relative; }
+#play .turn { font-size: 20px; gap: 6px; line-height: 1.15; min-height: var(--home); }
+#play .turn .chip { width: 40px; height: 40px; }
+#play .turn .say { min-width: 0; text-wrap: balance; }
+#play .turn b { font-size: 28px; font-variant-numeric: tabular-nums; }
+#play .turn.pop { animation: bounce .45s ease; }
+
+/* the tray: five dice and the Roll button */
+.tray { display: flex; gap: 6px; justify-content: center; align-items: stretch; }
+.dz {
+  width: var(--die); height: var(--die); flex: none; border: 0; padding: calc(var(--die) * .08); border-radius: 18%; cursor: pointer;
+  background: var(--card); box-shadow: 0 4px 0 var(--line); transition: transform .15s, background .15s;
+}
+/* waiting for the first roll: Snakes and Ladders' cube, in the player's colour */
+.dz.cube { background: transparent; box-shadow: none; padding: 0; }
+.dz:disabled { cursor: default; }
+/* a die picked up to roll again: lifted off the table and tilted, in the
+   player's colour; the dice left alone stay where they are */
+.dz.up { transform: translateY(-9px) rotate(-10deg); background: var(--p1-soft); box-shadow: inset 0 0 0 4px var(--p1), 0 12px 10px #1E344538; }
+.dz.up:nth-child(even) { transform: translateY(-9px) rotate(10deg); }
+.p2t .dz.up { background: var(--p2-soft); box-shadow: inset 0 0 0 4px var(--p2), 0 12px 10px #1E344538; }
+.dz.rolling { animation: tumble .12s linear infinite; }
+.dz.yay .av { animation: wiggle .9s ease-in-out 2; }
+@keyframes tumble { 0% { transform: rotate(0) scale(1.05); } 50% { transform: rotate(16deg) scale(.95); } 100% { transform: rotate(0) scale(1.05); } }
+.roll {
+  flex: 1 1 0; max-width: 92px; min-width: 60px; border: 0; border-radius: 16px; cursor: pointer; padding: 2px 4px;
+  background: var(--sun); box-shadow: 0 4px 0 #C98F0A; font-size: 19px; font-weight: 800; display: grid; place-content: center; gap: 2px;
+}
+/* three dots: rolls left */
+.roll .pips { display: flex; gap: 4px; justify-content: center; }
+.roll .pips i { width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
+.roll .pips i.used { background: transparent; box-shadow: inset 0 0 0 2px #0003; }
+.roll:disabled { background: #E3E8E7; color: #97A6A9; box-shadow: 0 4px 0 #CBD3D2; cursor: default; }
+.roll:not(:disabled):active { transform: translateY(2px); box-shadow: 0 2px 0 #C98F0A; }
+.roll.nudge:not(:disabled) { animation: nudge 1.6s ease-in-out infinite; }
+/* Undo, in the Roll button's place for a few seconds after scoring; the
+   bar along its bottom runs out when the turn passes */
+.roll.undo { position: relative; overflow: hidden; background: var(--card); box-shadow: inset 0 0 0 3px var(--ink), 0 4px 0 var(--line); font-size: 22px; line-height: 1; }
+.roll.undo small { font-size: 14px; }
+.roll.undo::after { content: ""; position: absolute; left: 0; bottom: 0; height: 5px; width: 100%; background: var(--ink); animation: drain var(--undo) linear forwards; }
+@keyframes drain { to { width: 0; } }
+@keyframes nudge { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-5deg) scale(1.05); } 88% { transform: rotate(5deg) scale(1.05); } }
+
+/* the score sheet: short, one panel; long, two side by side */
+.sheet { background: var(--card); border-radius: 18px; box-shadow: 0 4px 0 var(--line); padding: 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sheet.one { grid-template-columns: 1fr; }
+.half { display: grid; grid-auto-rows: var(--row); gap: 3px; min-width: 0; }
+.half.c2 { grid-template-columns: var(--pic) repeat(2, minmax(0, 1fr)); }
+.half.c1 { grid-template-columns: var(--pic) minmax(0, 1fr); }
+.sheet.one .half.c2 { grid-template-columns: calc(var(--pic) * 1.4) repeat(2, minmax(0, 1fr)); }
+.pic { display: grid; place-items: center; border: 0; padding: 2px; border-radius: 10px; background: var(--sky); cursor: pointer; }
+.pic svg { width: 100%; height: 100%; }
+.box {
+  border: 0; border-radius: 10px; background: var(--box); padding: 0; min-width: 0; display: grid; place-items: center;
+  font-size: calc(var(--row) * .46); font-weight: 800; font-variant-numeric: tabular-nums; cursor: default;
+}
+.box.f1 { background: var(--p1-soft); }
+.box.f2 { background: var(--p2-soft); }
+.box.zero { color: var(--muted); font-weight: 600; }
+/* after a roll: what each empty box would score, faded */
+.box.opt { cursor: pointer; background: var(--card); color: #1E344580; box-shadow: inset 0 0 0 2px var(--p1); }
+.p2t .box.opt { box-shadow: inset 0 0 0 2px var(--p2); }
+.box.opt.nil { color: #1E344540; }
+/* the robot's box, shown before it scores */
+.box.pend { color: #fff; background: var(--p1); animation: pulse .7s ease-in-out infinite alternate; }
+.p2t .box.pend { background: var(--p2); }
+.box.just { animation: bounce .45s ease; }
+@keyframes pulse { to { transform: scale(1.08); } }
+.box.bonus { display: grid; place-items: center; padding: 0 5px; font-size: calc(var(--row) * .36); }
+.bar { display: block; width: 100%; height: 8px; border-radius: 4px; background: #D9E6E3; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--sun); }
+
+/* the pop-up that explains a picture on the score sheet. Centred with
+   margins, not a transform: its pop-in animation would replace the
+   transform (mockup v4). */
+.tip {
+  position: absolute; z-index: 5; left: 0; right: 0; margin-inline: auto; width: min(310px, 100%);
+  background: var(--card); border-radius: 18px; padding: 12px 14px; box-shadow: 0 0 0 3px var(--ink), 0 10px 24px #1E344566;
+  display: grid; gap: 8px; animation: bounce .25s ease;
+}
+.tip .head { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; padding-right: 40px; }
+.tip .head svg { width: 84px; height: 52px; flex: none; background: var(--sky); border-radius: 10px; padding: 3px; }
+.tip p { margin: 0; font-size: 17px; line-height: 1.3; }
+.tip .eg { display: flex; align-items: center; gap: 4px; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tip .eg span { width: 30px; height: 30px; padding: 2px; background: #fff; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--line); }
+.tip .eg b { margin-left: 6px; }
+.tip .now { font-size: 15px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.tip .now b { color: var(--ink); font-size: 18px; }
+.tip .now .mini { display: inline-block; width: 22px; height: 22px; vertical-align: middle; }
+.tip .x {
+  position: absolute; top: 8px; right: 8px; width: 40px; height: 40px; border: 0; border-radius: 50%; cursor: pointer;
+  background: var(--sky); font-size: 20px; font-weight: 800; line-height: 1; display: grid; place-items: center;
+}
+.tip .close { font-size: 13px; color: var(--muted); text-align: center; }
+
+/* the scoreboard: points this game, games won (Just me: points and the best) */
+.scoreboard {
+  background: var(--ink); color: var(--board-ink); border-radius: 18px; padding: 6px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 4px;
+}
+.scoreboard .side .chip { width: 52px; height: 52px; flex: none; display: grid; place-items: center; font-size: 34px; }
+.mid { font-size: 12px; opacity: .85; text-align: center; line-height: 1.2; }
+.controls { margin-top: 2px; }

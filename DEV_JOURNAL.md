@@ -1877,3 +1877,110 @@ out.
 timers while its pane is hidden: an element measured mid-animation (the
 pop-up at 60% of its size) or a robot turn taking longer is the pane,
 not the page; check by screenshot, or by state rather than timing.
+
+## 2026-10-06: Five Dice built (from mockup v5)
+
+**Built** from `DESIGN.md` "Five Dice" and the mockup's code (read back
+from the artifact). Rules in `src/core/five-dice.js` (scoring, the bonus,
+a turn's rolls and picked-up dice, scoring with Undo, the end of a game,
+the robot's choice `robotPlan` as a pure function, `ROBOT_TUNING`);
+screens `five-dice.html`, `src/ui/five-dice.js`, `css/five-dice.css`;
+the box pictures and pop-up words in `src/ui/fivedice-pics.js` (shared
+with the home page); dice from `dotsSvg`/`cubeSvg` (`src/ui/snlart.js`).
+Home page: a button in 👥 Two players, after Snakes and Ladders (a full
+house of dice and the smiling bear). Debug log category `dice`; every
+pending step is a tracked timer (Play again / New game cancel them).
+
+**Changes from the mockup, and why:**
+- **Names:** the mockup's `ROBOT` object is split: `ROBOT_TUNING.sloppy`
+  in the rules (as in Connect Four and Count to 9; `ROBOT` is already the
+  robot's face name in `players.js`) and `ROBOT_WAIT` (the robot's pauses)
+  in the screen code, since timing is the screen's job. Same values.
+- **Undo is in the rules**: after scoring, the turn waits
+  (`match.scored`) until the screen calls `endTurn` after 3 s; `undo`
+  takes the box back out. So "one box a turn" and "no roll after
+  scoring" are tested, not only drawn.
+- **Shared CSS:** the three-way "Who's playing?" and the two-choice
+  panel (`.modes.three`, `.levels`) moved from `count-to-9.css` to
+  `game.css`, now that two games use them (unchanged rules; Count to 9's
+  setup checked after: 3 equal columns, 2 equal columns, the yellow
+  border on the picked level).
+
+**Tests:** `tests/five-dice.test.js`, 16 tests: each box's score with
+edge cases (a repeat inside a run, 5 the same isn't a full house, 4 the
+same is also 3 the same), the bonus at 62/63 and long only, a turn's
+rolls (first roll all five, then only the picked-up dice; none picked up
+refused; 3 rolls is all), one box a turn, Undo, the turn passing, whole
+games finishing (200 short and 200 long, every box filled, points add
+up, starters 1, 2, 1, 2), a tie, Just me and the best, Play again
+mid-game, the robot never picking a filled box or rolling nothing (5000
+random states), and its win rate. `tests/pages.test.js` now expects
+`five-dice.html` and its place on the home page. Suite: **129 of 129**
+(113 before).
+
+**The robot's win rate**, against the simple player (keep the most
+common number, the higher on a tie; use all 3 rolls; take the biggest
+score), 2000 games each, measured by a scratchpad script with the same
+code as the test:
+
+| Robot | Short: robot wins | Long: robot wins | Means (robot / simple) |
+|---|---|---|---|
+| Agreed (sloppy 0.2 / 0.5) | 50.4% | 46.5% | 54/57 short, 141/144 long |
+| Never sloppy | 68.0% | 87.1% | 68/58, 208/146 |
+| Always sloppy | 1.8% | 4.3% | 18/56, 79/145 |
+
+Close to the mockup's 49% / 48%. The test's range, 38-62%, fails for
+both broken tunings, so the check can fail. Ties: 2.3% (short), 0.8%
+(long).
+
+**Checks can fail:** before the home-page button was added, the pages
+test failed twice ("home has no button for five-dice.html", and the
+groups), with `five-dice.html` already in the folder.
+
+**Checked in the built-in browser** (`npm run serve`, port 8123; by
+script, the pane was hidden so no screenshots):
+- 393x659 (iPhone 16 in Safari, as for the mockup): long game, rows 40
+  px and dice 48 px, page height 659 of 659 (no scrolling); short game
+  with two players the same sizes and height. Same as the mockup.
+- Me and the robot, short: first Roll rolled all five; 2 dice picked up
+  ("Roll those 2?"), the second roll changed only those (the other three
+  the same); Roll with none up: all five lifted, "Roll them all?", rolls
+  still 2; one put back ("Roll those 4?"); one tap scored ("Zero this
+  time"), Undo shown; Undo emptied the box, Roll back; scored 12 in the
+  6s; 3 s later the robot's turn. The robot (debug log): rolled
+  [2,5,4,6,5], kept the 5s, rolled 3 dice, kept the 5s again, scored 15
+  in the 5s after its third roll, turn back to the bear.
+- The pop-up (pointerdown, then click, as a touch sends): opened on "5
+  the same" with "Your dice now: 0"; another picture switched it; a tap
+  on a box closed it and scored nothing; a tap on Roll closed it, no
+  roll, no dice lifted; ✕, the bare page, and inside it each closed it;
+  with it closed, a box scored.
+- Just me, long, a whole game: 66 points, "best 66", 14 rows in two
+  panels with the bonus row; Play again: a fresh game keeping the best.
+- Me and the robot, a whole short game (a script playing the bear badly):
+  robot 50, bear 25, "wins!", the robot's scorecard face cheering and the
+  bear's "aww"; after the cheer the faces stayed so; games won 1; dice and
+  Roll disabled; nobody outlined.
+- Two players: "Player 2 needs a face." until picked; the turn passes to
+  player 2 (blue).
+- No console errors on the home page or the game.
+
+**Not checked:** a real phone or tablet, Safari (the pane is Chrome),
+and how it looks (no screenshot while the pane was hidden). The
+developer asked to test it on their computer and phone once published.
+
+## 2026-10-06: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with six games.
+Working branch `home-groups`: Five Dice built, **not yet published**
+(waiting for the developer's OK to merge to `main`). `main` is at
+`6c6f602`.
+
+**Known:** `npm test` 129 of 129. Five Dice checked in the built-in
+browser (entry above), not on a phone.
+
+**Next:** with the developer's OK, publish (merge `home-groups` to
+`main`); then the developer tests Five Dice on their computer and phone
+and reports back.
+
+**Open questions:** none.
