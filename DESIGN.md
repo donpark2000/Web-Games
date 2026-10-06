@@ -4,10 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-06): tic-tac-toe, matching cards, Connect Four, Count
-to 9, Snakes and Ladders and rock paper scissors published, the home
-page grouped by players. Five Dice built from mockup v5 (2026-10-06),
-not yet published.*
+*Status (2026-10-06): all seven games published, the home page grouped
+by players. Five Dice's robot now plays its best and its pop-up closes
+with the ✕ only (2026-10-06), not yet published.*
 
 ## Goal
 
@@ -312,18 +311,21 @@ trademark); "Five Dice" agreed by the developer (2026-10-06).
   No extra 5-the-same bonuses or "joker" rules.
 - **Tap a picture: a pop-up** with the picture, its name, the rule in a
   few words, an example roll and its score, and on your turn "Your dice
-  now: N" (the bonus: each player's 1s-6s "of 63"). A ✕, and **a touch
-  anywhere closes it**; that touch does nothing else.
+  now: N" (the bonus: each player's 1s-6s "of 63"). **Only the ✕ closes
+  it** (developer, 2026-10-06; "tap anywhere to close" dropped). Another
+  picture shows that one; taps elsewhere work as usual.
 - **The robot** shows what it does at a person's pace: thinks before its
   first roll, looks at each roll, **picks up the dice to roll again one at
   a time**, shows its box pulsing before scoring (`ROBOT_WAIT` in
   `src/ui/five-dice.js`: 1.2 s, 1.6 s, 0.5 s per die, 0.9 s, 1.6 s,
-  1.5 s). It keeps its most common number whose box is still open (or a
-  run, when a run box is open), stops early for a big box, scores where it
-  gets most for the least waste; **sloppy 20% (short) / 50% (long)** of
-  the time it keeps a random number or takes its second-best box
-  (`ROBOT_TUNING` in `src/core/five-dice.js`): about even with a simple
-  player (journal, mockup v2 and "Five Dice built").
+  1.5 s). **It plays its best** (developer, 2026-10-06: to show good
+  play): the most points on average over the rest of the game, worked out
+  exactly (`src/core/five-dice-best.js`). Short game: worked out on the
+  spot. Long game: a 1 MB file of values (`data/five-dice-long.bin`, made
+  by `tools/five-dice-table.js`), loaded when a long game against the
+  robot starts. Its average: 70.4 points short, 245.9 long (the published
+  best, James Glenn). Against a simple player it wins about 70% short,
+  93% long (journal, "Five Dice: the robot plays its best").
 - 🏠, footer, end-of-game scorecard cheer and "aww" face, debug log as in
   the other games. Ties possible ("It's a tie!").
 

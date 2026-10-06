@@ -1,13 +1,15 @@
 // Five Dice screens (setup and play), from mockup v5. The setup screen is
 // Count to 9's (with "How long?" and no "Who goes first?"); the dice are
 // Snakes and Ladders'; the scoreboard and cheers are the other games'. The
-// rules live in src/core/five-dice.js; this file only draws, keeps time
-// and handles taps.
+// rules live in src/core/five-dice.js, the robot's best play in
+// src/core/five-dice-best.js; this file only draws, keeps time, handles
+// taps and loads the long game's values for the robot.
 
 import {
-  MODES, LENGTHS, BOXES, ROLLS, BONUS_AT, ROBOT_TUNING, score, upper, points, openBoxes, players,
-  checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn, robotPlan,
+  MODES, LENGTHS, BOXES, ROLLS, BONUS_AT, score, upper, points, openBoxes, players,
+  checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn,
 } from '../core/five-dice.js';
+import { bestPlay, useValues, hasValues, fromFile, gameWorth } from '../core/five-dice-best.js';
 import { FACE_NAMES, endMoods } from '../core/players.js';
 import { svg } from './faces.js';
 import { dotsSvg, cubeSvg } from './snlart.js';
@@ -25,6 +27,7 @@ const CHEER_MS = 2800;   // the end-of-game scorecard cheer (css: .cheer-win)
 const ROBOT_WAIT = { start: 1200, look: 1600, each: 500, roll: 900, box: 1600, after: 1500 };
 const MIN_ROW = 28, MAX_ROW = 64;   // score-sheet rows; smaller than MIN_ROW: the page scrolls
 const MAX_DIE = 84;
+const LONG_VALUES = 'data/five-dice-long.bin';   // the robot's long-game values (tools/five-dice-table.js)
 const RING = { 1: '#F2724F', 2: '#3A94D4' };   // css: --p1, --p2
 // The score sheet's panels: short, one; long, the 1s-6s and the bonus on
 // the left, the other 7 on the right.
@@ -122,8 +125,8 @@ for (const b of document.querySelectorAll('.level')) {
 $('playBtn').onclick = () => {
   if (checkFaces(setup) || !MODES.includes(setup.mode) || !LENGTHS.includes(setup.length)) return;
   match = createMatch(setup);
-  L('match started', { mode: match.mode, faces: match.faces, length: match.length,
-    ...(match.mode === 'robot' && { robotSloppy: ROBOT_TUNING.sloppy[match.length] }) });
+  L('match started', { mode: match.mode, faces: match.faces, length: match.length });
+  if (match.mode === 'robot' && match.length === 'long') loadLongValues();
   $('setup').hidden = true;
   $('play').hidden = false;
   scrollTo(0, 0);
@@ -145,6 +148,25 @@ function fit() {
   L('fit', { ...r, die: play.style.getPropertyValue('--die') });
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fit(); });
+
+/* ---------- the robot's long-game values ---------- */
+
+// Loaded when the first long game against the robot starts (1 MB; the
+// short game's are worked out on the spot). Until they're in, the robot
+// waits; if they can't be loaded, it plays for the most points each turn.
+let longLoading = null;   // the load, while it runs
+function loadLongValues() {
+  if (hasValues('long') || longLoading) return;
+  const t = performance.now();
+  longLoading = fetch(LONG_VALUES)
+    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.arrayBuffer(); })
+    .then(buf => {
+      useValues('long', fromFile(new Uint16Array(buf)));
+      L('robot values loaded', { bytes: buf.byteLength, ms: Math.round(performance.now() - t), gameWorth: gameWorth('long').toFixed(2) });
+    })
+    .catch(e => L('robot values not loaded: it plays for the most points each turn', { error: String(e) }))
+    .finally(() => { longLoading = null; });
+}
 
 /* ---------- play screen ---------- */
 
@@ -312,11 +334,13 @@ function endRound(result) {
 }
 
 // The robot: thinks, then either shows the box it picks (pulsing) and
-// scores it, or picks its dice up one at a time and rolls them.
+// scores it, or picks its dice up one at a time and rolls them. It plays
+// its best: the most points on average over the rest of the game.
 function robotThink() {
+  if (longLoading) { L('robot waits for its values'); return later(robotThink, 300); }
   const p = match.turn, open = openBoxes(match.cards[p], match.length);
-  const plan = robotPlan(match.dice, match.rolls, open, match.length);
-  L('robot plan', { dice: match.dice.slice(), rolls: match.rolls, open, plan });
+  const plan = bestPlay(match.dice, match.rolls, match.cards[p], match.length);
+  L('robot plan', { dice: match.dice.slice(), rolls: match.rolls, open, plan: { ...plan, worth: plan.worth.toFixed(2) } });
   if (plan.box) {
     pendingBox = plan.box;
     sayP(p, `<b>${plan.points}</b> here`);
@@ -431,8 +455,9 @@ function showTip(box, picEl) {
   }
   tip.innerHTML = `<button type="button" class="x" aria-label="Close">✕</button><div class="head">${BOX_PICS[box]}<span>${title}</span></div><p>${rule}</p>`
     + (eg ? `<div class="eg">${eg.map(v => `<span>${dotsSvg(v)}</span>`).join('')}<b>= ${score(box, eg)}</b></div>` : '')
-    + now + '<div class="close">Tap anywhere to close</div>';
+    + now;
   tip.hidden = false;
+  tip.querySelector('.x').onclick = () => closeTip('✕');
   // Under the picture's row, or above it when that would run off the page.
   const play = $('play').getBoundingClientRect(), r = picEl.getBoundingClientRect(), h = tip.offsetHeight;
   const below = r.bottom - play.top + 6, above = r.top - play.top - h - 6;
@@ -444,24 +469,9 @@ function closeTip(why) {
   $('tip').hidden = true;
   L('pop-up closed', { why });
 }
-// While the pop-up is open, a touch anywhere closes it, and the tap it
-// starts does nothing else (it can't also score a box or roll); a tap on
-// another picture shows that one. Closed on pointerdown, not click: a tap
-// on a plain part of the page didn't close it with click (developer,
-// 2026-10-06, in the Claude app's viewer).
-let swallowClick = false;
-document.addEventListener('pointerdown', e => {
-  if ($('tip').hidden || e.target.closest('.pic')) return;
-  closeTip('tap');
-  swallowClick = true;
-  setTimeout(() => { swallowClick = false; }, 700);
-}, true);
-document.addEventListener('click', e => {
-  if (!swallowClick) return;
-  swallowClick = false;
-  e.stopPropagation();
-  e.preventDefault();
-}, true);
+// Only the ✕ closes the pop-up (developer, 2026-10-06: "tap anywhere to
+// close" didn't work for them, and the ✕ is enough). Another picture shows
+// that one; a new turn or New game closes it. Taps elsewhere work as usual.
 
 $('againBtn').onclick = () => { L('play again'); $('turn').classList.remove('won'); startRound(); };
 $('newBtn').onclick = () => {

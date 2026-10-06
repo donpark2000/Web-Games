@@ -14,7 +14,8 @@
 // A match is a plain object, as in the other games. After a box is
 // scored the turn waits (match.scored) so the screen can offer Undo; the
 // screen calls endTurn when that time is up. The rules don't keep time
-// themselves. Players are 1 and 2.
+// themselves. Players are 1 and 2. The robot's play is in
+// five-dice-best.js.
 
 import { FACE_NAMES, ROBOT, checkFaces as checkPicks } from './players.js';
 
@@ -221,58 +222,4 @@ function finishRound(match) {
   if (winner) match.wins[winner]++;
   match.result = { winner, points: pts, best: false };
   match.starter = 3 - match.starter;   // players take turns starting each game
-}
-
-/* ---------- the robot ---------- */
-
-// Beatable, a little greedy (mockups v1-v3). It keeps its most common
-// number whose box is still open (or a run, when a run box is open),
-// stops early for a big box, and scores where it gets most for the least
-// waste. `sloppy`, per length: how often it keeps a random number or takes
-// its second-best box. Simulated against a simple player (keep the most
-// common number, take the biggest score), 2000 games each (journal, mockup
-// v2): 49% wins in the short game at 0.2, 48% in the long one at 0.5.
-export const ROBOT_TUNING = { sloppy: { short: 0.2, long: 0.5 } };
-
-// How much a box "costs" to use on this roll: giving up a big box for a
-// zero, or a 1s-6s box for fewer than three of that number.
-function waste(box, s) {
-  if (box === 'chance') return 9;
-  if (s) return UPPER.includes(box) && s < 3 * Number(box) ? (3 * Number(box) - s) * 0.6 : 0;
-  return { five: 15, big: 10, small: 8, house: 6, four: 4, three: 3 }[box] ?? Number(box) * 0.8;
-}
-
-// The robot's choice, from the dice, the rolls so far (1 to 3) and its
-// open boxes: { box, points } to score, or { up } (which dice to pick up
-// and roll again; never none). A pure function, so it can be simulated.
-export function robotPlan(dice, rolls, open, length, rand = Math.random, tuning = ROBOT_TUNING) {
-  if (!open.length) throw new Error('robotPlan: no open boxes');
-  if (!(rolls >= 1 && rolls <= ROLLS)) throw new Error(`robotPlan: bad rolls: ${rolls}`);
-  const sloppy = tuning.sloppy[length];
-  const ranked = open.map(box => ({ box, s: score(box, dice) }))
-    .map(o => ({ ...o, v: o.s - waste(o.box, o.s) }))
-    .sort((a, b) => b.v - a.v);
-  const great = ranked[0].s > 0 && ['five', 'big', 'small', 'house'].includes(ranked[0].box);
-  if (rolls >= ROLLS || great) {
-    const pick = ranked.length > 1 && rand() < sloppy ? ranked[1] : ranked[0];
-    return { box: pick.box, points: pick.s };
-  }
-  // What to keep: a run if a run box is open, else the most common number
-  // whose box is still open (or any, for 3/4/5 the same).
-  const c = counts(dice);
-  let keep;
-  if ((open.includes('small') || open.includes('big')) && run(dice) >= 3 && Math.max(...c) < 3) {
-    let best = [], cur = [];
-    for (let v = 1; v <= SIDES; v++) { cur = dice.includes(v) ? [...cur, v] : []; if (cur.length > best.length) best = cur; }
-    const want = new Set(best);
-    keep = dice.map(v => want.delete(v));
-  } else {
-    const kinds = open.some(b => ['three', 'four', 'five'].includes(b));
-    const worth = v => c[v] * 10 + v + (open.includes(String(v)) ? 30 : kinds && c[v] >= 2 ? 0 : -100);
-    let v = [6, 5, 4, 3, 2, 1].sort((a, b) => worth(b) - worth(a))[0];
-    if (rand() < sloppy) v = rollDie(rand);   // not too clever
-    keep = dice.map(x => x === v && worth(v) > -50);
-  }
-  if (keep.every(Boolean)) keep[dice.indexOf(Math.min(...dice))] = false;   // always roll something
-  return { up: keep.map(k => !k) };
 }

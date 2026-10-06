@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  DICE, ROLLS, BOXES, UPPER, ROBOT, ROBOT_TUNING, counts, run, score, upper, bonusOf, points, openBoxes, rollDie,
-  checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn, robotPlan,
+  ROLLS, BOXES, UPPER, ROBOT, run, score, upper, bonusOf, points, openBoxes,
+  checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn,
 } from '../src/core/five-dice.js';
+import { bestPlay } from '../src/core/five-dice-best.js';
 
 // A small repeatable random source (mulberry32), as in the other tests.
 function seeded(seed) {
@@ -143,14 +144,16 @@ test('scoring: one box a turn, only an empty one in this game; undo; the turn pa
   assert.deepEqual(scoreBox(m, '2'), { ok: false, why: 'filled' });
 });
 
-// Fills every box of a game, the robot's way for every player.
+// Fills every box of a game, the robot's way for every player (the long
+// game's values aren't loaded here: the robot's stand-in, the most points
+// each turn; the best play has its own tests, five-dice-best.test.js).
 function playGame(m, rand) {
   let turns = 0;
   while (!m.result) {
     assert.ok(++turns < 100, 'a game never ended');
     assert.ok(roll(m, rand).ok);
     for (;;) {
-      const plan = robotPlan(m.dice, m.rolls, openBoxes(m.cards[m.turn], m.length), m.length, rand);
+      const plan = bestPlay(m.dice, m.rolls, m.cards[m.turn], m.length);
       if (plan.box) { assert.ok(scoreBox(m, plan.box).ok); break; }
       plan.up.forEach((u, i) => { if (u) toggle(m, i); });
       assert.ok(roll(m, rand).ok);
@@ -219,85 +222,4 @@ test('play again mid-game: cards cleared, not scored, same starter', () => {
   endTurn(m);
   newRound(m);
   assert.deepEqual([m.cards, m.turn, m.rolls, m.wins, m.starter], [{ 1: {}, 2: {} }, 1, 0, { 1: 0, 2: 0 }, 1]);
-});
-
-test('robot: never picks a filled box, never rolls nothing; refuses bad input', () => {
-  const rand = seeded(21);
-  let plans = 0, boxes = 0;
-  for (let k = 0; k < 5000; k++) {
-    const length = k % 2 ? 'long' : 'short';
-    const all = BOXES[length];
-    const open = all.filter(() => rand() < 0.5);
-    if (!open.length) open.push(all[k % all.length]);
-    const dice = Array.from({ length: DICE }, () => rollDie(rand));
-    const rolls = 1 + (k % 3);
-    const plan = robotPlan(dice, rolls, open, length, rand);
-    plans++;
-    if (plan.box) {
-      boxes++;
-      assert.ok(open.includes(plan.box), `${plan.box} not open: ${open}`);
-      assert.equal(plan.points, score(plan.box, dice));
-    } else {
-      assert.ok(rolls < ROLLS, 'no rolls left: it must score');
-      assert.equal(plan.up.length, DICE);
-      assert.ok(plan.up.some(Boolean), `rolls nothing: ${dice}`);
-    }
-  }
-  assert.ok(boxes > 1000 && plans - boxes > 1000, `${boxes} boxes of ${plans}`);
-  assert.throws(() => robotPlan([1, 2, 3, 4, 5], 1, [], 'short'), /no open boxes/);
-  assert.throws(() => robotPlan([1, 2, 3, 4, 5], 0, ['1'], 'short'), /bad rolls/);
-});
-
-test('robot: stops early for a big box; keeps its number whose box is open', () => {
-  const never = { sloppy: { short: 0, long: 0 } };
-  assert.deepEqual(robotPlan([6, 6, 6, 6, 6], 1, ['1', 'five'], 'short', seeded(1), never), { box: 'five', points: 50 });
-  assert.deepEqual(robotPlan([2, 3, 4, 5, 6], 1, ['big', 'chance'], 'long', seeded(1), never), { box: 'big', points: 40 });
-  // Three 2s but the 2s box is filled; the 5s box is open: keeps the 5s.
-  const plan = robotPlan([2, 2, 2, 5, 5], 1, ['1', '5', '6'], 'short', seeded(1), never);
-  assert.deepEqual(plan.up, [true, true, true, false, false]);
-});
-
-// A simple player, the yardstick for the robot (journal, mockup v2): keeps
-// the most common number (the higher one on a tie), uses all 3 rolls,
-// then takes the biggest score among its open boxes.
-function simplePlan(dice, rolls, open) {
-  if (rolls >= ROLLS) {
-    const best = open.map(box => ({ box, s: score(box, dice) })).sort((a, b) => b.s - a.s)[0];
-    return { box: best.box };
-  }
-  const c = counts(dice);
-  const v = [6, 5, 4, 3, 2, 1].sort((a, b) => c[b] - c[a])[0];
-  const up = dice.map(x => x !== v);
-  return { up: up.some(Boolean) ? up : null };
-}
-function robotVsSimple(length, games, rand) {
-  const m = createMatch({ mode: 'two', p1: 'bear', p2: 'cat', length });
-  for (let g = 0; g < games; g++) {
-    newRound(m);
-    while (!m.result) {
-      roll(m, rand);
-      for (;;) {
-        const open = openBoxes(m.cards[m.turn], length);
-        // player 1 is the robot, player 2 the simple player
-        let plan = m.turn === 1 ? robotPlan(m.dice, m.rolls, open, length, rand) : simplePlan(m.dice, m.rolls, open);
-        if (plan.up === null) plan = { box: simplePlan(m.dice, ROLLS, open).box };
-        if (plan.box) { scoreBox(m, plan.box); break; }
-        plan.up.forEach((u, i) => { if (u) toggle(m, i); });
-        roll(m, rand);
-      }
-      endTurn(m);
-    }
-  }
-  return m.wins[1] / games;
-}
-
-// The agreed tuning keeps the robot about even with a simple player
-// (journal, mockup v2: 49% short, 48% long over 2000 games each).
-test('robot is beatable: about even with a simple player, short and long', () => {
-  const rand = seeded(33);
-  assert.deepEqual(ROBOT_TUNING.sloppy, { short: 0.2, long: 0.5 });
-  const short = robotVsSimple('short', 2000, rand);
-  const long = robotVsSimple('long', 2000, rand);
-  assert.ok(short > 0.38 && short < 0.62, `short: robot won ${(short * 100).toFixed(1)}%`);
-  assert.ok(long > 0.38 && long < 0.62, `long: robot won ${(long * 100).toFixed(1)}%`);
 });

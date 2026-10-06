@@ -1997,3 +1997,81 @@ script (state, not timing). Its viewport size isn't applied until a page
 loads after resize_window (a check right after showed 1280x720). The
 browser tool gives up after 45 s, but a page script keeps running: start
 a long check (a whole game) without waiting, then read the result.
+
+## 2026-10-06: Five Dice: the robot plays its best; pop-up closes with ✕ only
+
+**The developer's feedback** (live site, computer and phone): "looks
+pretty good". Two things:
+1. The robot made silly moves: with five 3s it took 15 in the 3s, not 50
+   in 5 the same. The developer: the robot should make the best move;
+   most of the game is luck, and better robot play helps teach strategy.
+2. The pop-ups say "Tap anywhere to close", but for the developer they
+   only closed on a tap on the pop-up itself. The developer: drop the
+   words, keep only the ✕.
+
+**1. Why the 15:** not a bug, the agreed tuning. `ROBOT_TUNING.sloppy`
+had the robot take its second-best box 20% (short) / 50% (long) of the
+time. Measured: `robotPlan([3,3,3,3,3], 1, ['3','five'], ...)` took the
+3s in 202 of 1000 calls (short) and 491 of 1000 (long).
+
+**The fix: the best play, worked out exactly**
+(`src/core/five-dice-best.js`, replacing `robotPlan`, `ROBOT_TUNING` and
+`waste` in `src/core/five-dice.js`). "Best" = the most points on average
+over the rest of the game. Going backwards from a full card, each card's
+value (boxes filled; in the long game, the 1s-6s total capped at 63 for
+the bonus) is worked out from the cards after it. A turn's choices
+(which dice to keep, which box) then come from a small calculation over
+the 252 rolls of five dice. Short game: 128 cards, 16 ms, worked out on
+the spot. Long game: 8192 x 64 cards, 19.5 s in Node, so
+`tools/five-dice-table.js` saves them once as `data/five-dice-long.bin`
+(16-bit hundredths, 1 MB; 444 KB gzipped). The screen loads it when a
+long game against the robot starts: 184 ms locally. Until it's loaded the
+robot waits; if the load fails it plays for the most points each turn
+(logged).
+
+**Checked against the real thing:** James Glenn's published average for
+the best play without the extra-Yahtzee bonus is 245.87 (found by web
+search, 2026-10-06: Glenn, "Computer Strategies for Solitaire Yahtzee",
+2007). Our long game (the same rules: no extra-5-the-same bonus, no joker
+rules) gives 245.8708. Short game: 70.41 (no published figure; checked by
+simulation below).
+
+**Tests** (`tests/five-dice-best.test.js`, 8 tests): 3000 short games
+average 70.41 within 3 standard errors, and 1000 long games average
+245.87 within 3 standard errors. The saved file is checked against the
+rules: 300 random cards, each saved value against one worked out again
+from the saved values after it (within 0.011). The check fails on a value
+nudged by 0.05. Five 3s go in 5 the same, on every roll and in both
+lengths. It never picks a filled box or rolls nothing, and refuses bad
+input. The stand-in is used before the long values load. It beats a
+simple player more often than not. The three old robot tests are gone.
+`npm test`: 134 of 134.
+
+**What the best play means for the kids (measured, 1000 games each,
+against the "simple player": keep the most common number, use all 3
+rolls, take the biggest score):**
+
+| | Robot average | Simple player average | Robot wins |
+|---|---|---|---|
+| Short | 71.3 | 58.2 | 69% (ties 1%) |
+| Long | 244.0 | 151.5 | 93% |
+
+The old robot was tuned to about 50% against this player. In the short
+game luck still counts for a lot. In the long game play counts for most
+of it: a child playing like the simple player would win about 1 game in
+14. (The test run's own seed gave 72% and 96%.)
+
+**Checked in the built-in browser** (local, `?dev`). In a long game the
+log shows `robot values loaded {"bytes":1048576,"ms":184,"gameWorth":
+"245.87"}`. The robot's first turn: it kept the 4s twice and scored
+4 4 4 5 4 as 16 in the 4s (the plan's `worth` is in the log). No console
+errors.
+
+**2. The pop-up:** couldn't reproduce the problem first. In the built-in
+browser (local, and the live site's `five-dice.js`, fetched: byte for
+byte the same), a real click on the empty page closed the pop-up
+(`pop-up closed {"why":"tap"}`). So why it didn't close for the
+developer is unknown. It no longer matters: as the developer asked, the
+"Tap anywhere to close" line and the page-wide tap handler are gone, and
+the ✕ closes it. Checked: a click beside the pop-up leaves it open; the ✕
+closes it (`pop-up closed {"why":"✕"}`); the words are gone.
