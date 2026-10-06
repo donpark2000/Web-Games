@@ -1727,3 +1727,36 @@ false, true] seen) and finishing; long game skipped to the last box,
 finished, Play again → the robot starts ("is thinking..."); the setup
 screen's panels: Who's playing?, faces, How long?; page bottom 644 of
 659. No console errors.
+
+## 2026-10-06: Five Dice mockup v3
+
+**The developer** on v2: tapping a box twice "feels tedious"; Roll with
+nothing picked up could roll all five; "both changes could allow
+accidental mistakes ... we could add an undo. Thoughts?" Claude: Undo for
+scoring (it changes no dice, so it can't be used to cheat), but not for a
+roll (undoing a roll after seeing the new dice is a free extra roll);
+instead Roll with nothing picked up lifts all five and asks. The
+developer: "I like both suggestions", and: the robot "makes decisions too
+fast. A bit more of a pause and making visible robot's selections for
+re-roll would make it more human like".
+
+**Changed (v3, same link):**
+- **One tap scores.** For 3 s (`UNDO_MS`) the Roll button becomes
+  **↩ Undo**, with a bar along its bottom running out; Undo takes the
+  score back out and the turn carries on; otherwise the turn passes.
+- **Roll with nothing picked up** lifts all five ("Roll them all?"); a
+  second Roll rolls them; tapping a die first puts it back.
+- **A slower robot** (`ROBOT.wait`): 1.2 s before its first roll, 1.6 s
+  looking at each roll, then **picks up its dice one at a time** (0.5 s
+  apart, "Rolls 2 again"), 0.9 s, rolls; shows its box pulsing for 1.6 s
+  ("8 here") before scoring; 1.5 s before the next turn.
+
+**Checked in the built-in browser** (393x659): first Roll rolled all;
+Roll with none up: all five lifted, "Roll them all?", rolls still 1; die
+1 put back, Roll: die 1 unchanged (5 → 5); one tap on a box scored it
+("Zero this time"), Undo shown; Undo: the box empty again, Roll back,
+"Pick a box, or tap dice to roll again"; scoring again without Undo: the
+robot's turn 3.4 s later. A robot turn, timed by script (the pane hidden,
+so timers may run late): roll 2 at 0.2 s, "is thinking..." to 2.5 s,
+dice lifted at 2.5 s and 2.9 s, rolled at 3.9 s, thinking to 6.0 s, box
+shown "8 here", scored at 7.7 s. No console errors.
