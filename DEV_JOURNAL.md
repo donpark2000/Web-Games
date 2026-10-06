@@ -2155,3 +2155,14 @@ turn. Three-dice re-rolls: 1, 2, 3 about 0.5 s apart, as before.
 
 **Published** 2026-10-06 (developer's OK): `main` at `1006ba2`; the live
 `five-dice.js` had the change about 27 s after the push (curl).
+
+## 2026-10-06: Five Dice checked again; rolls-left words not wanted
+
+**The developer** (live site): "Everything is good." They asked whether
+to show which roll it is or how many are left. The Roll button's three
+dots already do (one greys per roll used); the developer hadn't noticed
+them. Proposed: words in the turn line ("2 more rolls…"), or a number on
+the button. The developer: "fine the way it is" (no change). They also
+asked whether scoring before the third roll passes the turn: yes, after
+the 3 s Undo (`endTurn`), and unused rolls are lost. Playing alone, a
+new turn starts.
