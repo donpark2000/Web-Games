@@ -6,13 +6,17 @@ and what it does and doesn't prove.
 
 ## Open questions
 
+(none)
+
+## Resolved
+
 - **Q7. The name of the Yahtzee-style game.** *Raised 2026-10-06 (entry
   "All games checked; next game idea: Yahtzee").* Not "Yahtzee" (Hasbro's
   trademark). "Five Dice" is Claude's working name, used in the mockups;
   the developer hasn't said yes or no. To settle: the developer's pick
   (it's the page title, the home-page button and `five-dice.html`).
-
-## Resolved
+  **Resolved 2026-10-06:** the developer: "Five Dice is fine for the
+  name".
 
 - **Q5. Is the Count to 9 robot too strong?** *Raised 2026-10-04 (entry
   "Count to 9 built").* The developer, after playing it on the live site:
@@ -1867,8 +1871,7 @@ https://claude.ai/artifact/JJKuS2fc4kpTo7YDdDDWKk). It's a mockup:
 one file, no debug log, no tests; it has a "Mockup only" strip to leave
 out.
 
-**Open questions:** Q7, the game's name ("Five Dice" until the developer
-picks one).
+**Open questions:** none. Q7 (the name) resolved: "Five Dice".
 
 **Testing notes:** the built-in browser runs no CSS animations and slows
 timers while its pane is hidden: an element measured mid-animation (the

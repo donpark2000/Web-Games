@@ -276,7 +276,7 @@ recommendation, left to Claude ("Perfect. Please build the game").
 Yahtzee-style, agreed 2026-10-06 from mockup v5 (journal):
 [Five Dice Mockup](https://claude.ai/artifact/JJKuS2fc4kpTo7YDdDDWKk)
 (private Claude artifact, version 5). Not called "Yahtzee" (Hasbro's
-trademark); "Five Dice" is a working name (journal, open questions).
+trademark); "Five Dice" agreed by the developer (2026-10-06).
 
 - **Setup:** Count to 9's **Who's playing?** (Just me / Me and the robot,
   preselected / Two players) and face pickers, then **How long?**: 🎲
