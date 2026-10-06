@@ -1592,3 +1592,24 @@ by script before trusting (or dismissing) a screenshot. Claude's mockups
 are built by a script in its scratchpad from the real faces; the pane
 can't open claude.ai artifacts (not signed in), so a mockup is served
 from the scratchpad on another port to check it.
+
+## 2026-10-06: All games checked; next game idea: Yahtzee
+
+**Checked by the developer:** "All games tried an working" (2026-10-06):
+Snakes and Ladders, rock paper scissors and the gentler Count to 9 robot
+included. Not recorded: which devices and browsers (Safari, Android).
+
+**Next game idea (developer):** Yahtzee, "it seems like it could be a
+good fit". Claude's first thoughts, for the developer to decide:
+
+- A good fit for the site: five dice reuse Snakes and Ladders' die, and
+  the setup (Me and the robot / Two players / Just me), faces, scoreboard
+  and cheers carry over. It would go in 👥 Two players.
+- The full game is a lot for ages 5-7: 13 boxes with names to read,
+  adding up dice, and choosing where to score. Simpler: the screen does
+  all the adding; each empty box shows what this roll would score there;
+  pictures instead of names; maybe a shorter game.
+- A full scorecard for two players has 13+ rows: hard to fit on a phone
+  with no scrolling, so a mockup first.
+- "Yahtzee" is Hasbro's trademark; the site should use its own name
+  (e.g. "Five Dice"), a free name for the same game.
