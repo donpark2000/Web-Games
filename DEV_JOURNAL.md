@@ -1789,3 +1789,29 @@ replaced, shifting it right. (Measuring the pop-up by script gave 186 px
 wide, not 310: the pane doesn't run CSS animations while hidden, so it
 stayed at the animation's starting 60% size; the screenshot showed it at
 full size. A finding about the pane, not the page.)
+
+## 2026-10-06: Five Dice mockup v5
+
+**The developer** on v4: "a tap anywhere does not close the pop-up. It
+has to be a tap inside the pop-up." Either make "anywhere" true, or add a
+close button.
+
+**Likely cause (not confirmed):** the developer's device wasn't recorded.
+v4 closed the pop-up on `click`. iOS Safari doesn't send a click for a
+tap on a plain part of the page (one with no click handler and no
+pointer cursor), so only taps on buttons would close it. On a computer,
+a click on the empty page did close it (checked in the pane before the
+change). Asked the developer which device it was.
+
+**Changed (v5, same link):** the pop-up closes on `pointerdown` (sent for
+a touch anywhere, iOS included), and the click that follows is swallowed,
+so the tap that closes it does nothing else. Plus a round **✕** button in
+its top-right corner.
+
+**Checked in the built-in browser** (393x659, simulated touches:
+pointerdown, then click): a touch on the bare page closed it; a tap on a
+box closed it and scored nothing; ✕ closed it; a tap inside closed it; a
+tap on another picture switched to it ("4 in a row"); with it closed, a
+tap on a box scored. A real click on the empty bottom-right corner
+(BODY) closed it. Not checked: an iPhone or iPad (the pane is Chrome).
+No console errors.
