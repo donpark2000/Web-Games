@@ -2152,3 +2152,6 @@ turns). The log showed `robot plan {"dice":[3,5,4,5,1],"rolls":1,"plan":
 turn. Three-dice re-rolls: 1, 2, 3 about 0.5 s apart, as before.
 `npm test` 134 of 134 (the screen's timing has no unit tests; the rules'
 `pickUpAll` does).
+
+**Published** 2026-10-06 (developer's OK): `main` at `1006ba2`; the live
+`five-dice.js` had the change about 27 s after the push (curl).
