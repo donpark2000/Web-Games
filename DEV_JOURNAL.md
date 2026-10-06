@@ -2122,3 +2122,10 @@ best play.
 
 **Open questions:** none. (Why "tap anywhere to close" didn't work for
 the developer was never found; the feature is gone.)
+
+**Testing notes:** GitHub Pages serves files with `Cache-Control:
+max-age=600`, so for up to 10 minutes after publishing a browser can
+keep the old version (2026-10-06: the developer still saw "Tap anywhere
+to close" right after publishing; the live `five-dice.js` was already
+new, checked with curl). After each publish, tell the developer: Ctrl+F5
+on a computer; on a phone wait 10 minutes, then close the tab and reopen.
