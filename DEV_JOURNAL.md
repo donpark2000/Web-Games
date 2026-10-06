@@ -2129,3 +2129,26 @@ keep the old version (2026-10-06: the developer still saw "Tap anywhere
 to close" right after publishing; the live `five-dice.js` was already
 new, checked with curl). After each publish, tell the developer: Ctrl+F5
 on a computer; on a phone wait 10 minutes, then close the tab and reopen.
+
+## 2026-10-06: Five Dice: the robot lifts all five at once
+
+**The developer** (live site, after the fix): the robot plays much
+better and the pop-ups are fixed. One detail: a person rolling all five
+again sees them lift at once, but the robot lifted them one at a time.
+Make the two look the same.
+
+**Done:** when the robot's plan is all five, it picks them all up at
+once (`pickUpAll`, as a person's Roll with none picked up) and rolls
+0.9 s later (`ROBOT_WAIT.roll`). Fewer than five are still lifted one at
+a time, 0.5 s apart.
+
+**Checked** in the built-in browser (local, `?dev`). A script played my
+side and restarted games, and a MutationObserver recorded the number of
+lifted dice. It ran until the robot re-rolled all five (about 1 robot
+turn in 12 in the short game, measured by simulation: 172 of 2100
+turns). The log showed `robot plan {"dice":[3,5,4,5,1],"rolls":1,"plan":
+{"up":[true,true,true,true,true]}}`. The observer saw lifted dice go
+0 → 5 in one step, back to 0 at the roll 0.9 s later, twice in that
+turn. Three-dice re-rolls: 1, 2, 3 about 0.5 s apart, as before.
+`npm test` 134 of 134 (the screen's timing has no unit tests; the rules'
+`pickUpAll` does).

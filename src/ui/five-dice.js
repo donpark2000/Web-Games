@@ -349,6 +349,13 @@ function robotThink() {
   }
   const picks = plan.up.flatMap((u, i) => (u ? [i] : [])), n = picks.length;
   sayP(p, `Rolls ${n === 5 ? 'them all' : n === 1 ? '1 again' : `${n} again`}`);
+  // All five lift at once, as when a person rolls them all (developer,
+  // 2026-10-06); fewer are picked up one at a time.
+  if (n === 5) {
+    pickUpAll(match);
+    renderTray();
+    return later(doRoll, ROBOT_WAIT.roll);
+  }
   picks.forEach((i, k) => later(() => { toggle(match, i); renderTray(); }, k * ROBOT_WAIT.each));
   later(doRoll, (n - 1) * ROBOT_WAIT.each + ROBOT_WAIT.roll);
 }

@@ -316,7 +316,8 @@ trademark); "Five Dice" agreed by the developer (2026-10-06).
   picture shows that one; taps elsewhere work as usual.
 - **The robot** shows what it does at a person's pace: thinks before its
   first roll, looks at each roll, **picks up the dice to roll again one at
-  a time**, shows its box pulsing before scoring (`ROBOT_WAIT` in
+  a time** (all five at once, as a person's "Roll them all", developer
+  2026-10-06), shows its box pulsing before scoring (`ROBOT_WAIT` in
   `src/ui/five-dice.js`: 1.2 s, 1.6 s, 0.5 s per die, 0.9 s, 1.6 s,
   1.5 s). **It plays its best** (developer, 2026-10-06: to show good
   play): the most points on average over the rest of the game, worked out
