@@ -1969,18 +1969,31 @@ script, the pane was hidden so no screenshots):
 and how it looks (no screenshot while the pane was hidden). The
 developer asked to test it on their computer and phone once published.
 
+**Published** (developer: "yes, publish it"): `main` fast-forwarded to
+`2fabc68`; Pages build "built 2fabc68"; the new and changed files all
+200, and the home page links to `five-dice.html`. Live site in the
+built-in browser at 393x659: Play!, Roll: five dice, 7 boxes offered,
+rows 40 px, dice 48 px, page height 659 of 659; no console errors.
+
 ## 2026-10-06: Status (start here next session)
 
-**Live:** https://donpark2000.github.io/Web-Games/ with six games.
-Working branch `home-groups`: Five Dice built, **not yet published**
-(waiting for the developer's OK to merge to `main`). `main` is at
-`6c6f602`.
+**Live:** https://donpark2000.github.io/Web-Games/ with seven games,
+Five Dice included (published 2026-10-06, `main` at `2fabc68`).
+Working branch `home-groups`, level with `main` but for this journal
+entry.
 
 **Known:** `npm test` 129 of 129. Five Dice checked in the built-in
-browser (entry above), not on a phone.
+browser, locally and live (entries above), not on a phone or in Safari.
 
-**Next:** with the developer's OK, publish (merge `home-groups` to
-`main`); then the developer tests Five Dice on their computer and phone
-and reports back.
+**Next:** the developer tests Five Dice on the live site, on their
+computer and phone, and brings the feedback to a new session. Read
+"Five Dice built (from mockup v5)" for what was checked and how.
 
 **Open questions:** none.
+
+**Testing notes:** the built-in browser runs no CSS animations, slows
+timers and can't take screenshots while its pane is hidden; check by
+script (state, not timing). Its viewport size isn't applied until a page
+loads after resize_window (a check right after showed 1280x720). The
+browser tool gives up after 45 s, but a page script keeps running: start
+a long check (a whole game) without waiting, then read the result.
