@@ -1671,3 +1671,59 @@ a 48 px die); scores not centred in filled boxes. No console errors.
 **For the developer to check:** the two taps to score; pictures instead
 of words; the bonus row in the long game only; short as the default; the
 name ("Yahtzee" is Hasbro's trademark; "Five Dice" for now).
+
+## 2026-10-06: Five Dice mockup v2
+
+**The developer** on v1: (1) "I picked 'short' but the game play mockup
+still showed 13 slots to score"; (2) after the first roll it wasn't clear
+whether tapping a die meant "keep" or "roll again": "selecting the die to
+roll again is more intuitive ... if you were playing with physical dice,
+the ones you roll again are the ones you pick up"; (3) "who goes first"
+isn't relevant to this game.
+
+**(1) Not reproduced.** In the scratchpad copy, Short gave 7 picture rows
+(and 14 boxes against the robot: 7 per player) every way tried: Short
+straight away; Long, then New game, then Short; Play again; Two players.
+Long gave 14 rows (13 boxes + the bonus row). A first try with real
+clicks went wrong because of the test, not the page: the click meant for
+Short landed on "Winner goes first" after the page scrolled. Asked the
+developer what they saw. Meanwhile the scoreboard now says "Short" or
+"Long" under "Points".
+
+**Changed (v2, same link):**
+- **Tap a die to pick it up and roll it again** (it lifts off the
+  table, tilts, and turns the player's colour; tap again to put it back).
+  Dice not tapped stay where they are. The first roll rolls all five;
+  after that **Roll** is greyed until at least one die is picked up. The
+  words: "Pick a box, or tap dice to roll again", then "Roll those 2?".
+  The robot shows the dice it picks up ("Rolls 3 again") before rolling.
+- **No "Who goes first?"**: players take turns starting each game, with
+  player 1 starting the first.
+- **The robot played badly in a test game** (zeros in five of its seven
+  boxes): it kept its most common number even when that number's box was
+  already filled. Now it keeps a number whose box is still open (any
+  number, for 3/4/5 the same). Its choice is now a function apart from
+  the screen (`robotPlan`), so it could be simulated: 2000 games each
+  against a simple player (keep the most common number, take the biggest
+  score):
+
+  | Game | Robot, mean (10%-90%) | Simple player | Robot wins |
+  |---|---|---|---|
+  | Short, sloppy 20% | 56 (36-97) | 58 (33-97) | 49% |
+  | Long, sloppy 20% | 177 (127-229) | 145 (99-192) | 73% |
+  | Long, sloppy 35% | 159 | | 60% |
+  | Long, sloppy 50% | 141 | | 48% |
+  | Long, sloppy 70% | 116 | | 29% |
+
+  ("Sloppy": how often it keeps a random number or takes its second-best
+  box.) Now 20% in the short game and 50% in the long one.
+
+**Checked in the built-in browser** (393x659): first roll all five;
+Roll greyed with nothing picked up (a tap left the rolls at 1); dice 2 and
+4 picked up, "Roll those 2?", the second roll changed only those two (the
+other three the same); a whole short game against the robot (a script
+playing the bear) with the robot picking up dice ([true, true, false,
+false, true] seen) and finishing; long game skipped to the last box,
+finished, Play again → the robot starts ("is thinking..."); the setup
+screen's panels: Who's playing?, faces, How long?; page bottom 644 of
+659. No console errors.
