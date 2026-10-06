@@ -2075,3 +2075,21 @@ developer is unknown. It no longer matters: as the developer asked, the
 "Tap anywhere to close" line and the page-wide tap handler are gone, and
 the ✕ closes it. Checked: a click beside the pop-up leaves it open; the ✕
 closes it (`pop-up closed {"why":"✕"}`); the words are gone.
+
+**The developer, after the fix:** the two kinds of silly move they saw
+(the fewest points for a roll; rolling all five with three 4s) "seem like
+bugs or throwing the game", and should never happen; subtler mistakes
+that lower the average would be fine. Both came from the old `sloppy`
+randomness, now gone. The best play does sometimes look similar but is
+right. Measured over 500 solo games each (scratch script):
+- **All five rolled again with 3+ the same:** short 30 of 6934 re-rolls,
+  long 58 of 12083 (0.5%), only when no open box wants that number. For
+  example 2 2 2 4 4 with only 5s, 6s, 4 in a row and 5 in a row open.
+- **Fewer points than the most available:** short 667 of 3500 boxes,
+  long 2599 of 6500. For example 6 6 6 3 6 at the start of a long game:
+  24 in the 6s, not 27 in 3 the same (towards the bonus). Or 5 6 5 2 1 in
+  the short game: 1 in the 1s, not 10 in the 5s (the 1s box is the
+  cheapest place for a poor roll).
+Robot strength stays at its best (developer: "Commit the changes and
+publish"). If the long game proves too hard, weaken it with close
+second-best choices only, never obvious ones.
