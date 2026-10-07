@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ROLLS, BOXES, UPPER, ROBOT, run, score, upper, bonusOf, points, openBoxes,
-  checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn,
+  checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn, cardsShown,
 } from '../src/core/five-dice.js';
 import { bestPlay } from '../src/core/five-dice-best.js';
 
@@ -213,6 +213,30 @@ test('just me: one column, the turn never passes, the best per length', () => {
   for (let t = 0; t < 7; t++) { roll(m, faces(1, 2, 2, 3, 4)); scoreBox(m, openBoxes(m.cards[1], 'short')[0]); endTurn(m); }
   if (m.result.points[1] <= m.best.short) assert.equal(m.result.best, false);
   assert.ok(m.best.short >= m.result.points[1]);
+});
+
+test('cards shown: whose turn it is, switching when the turn passes; everyone at the end', () => {
+  for (const length of ['short', 'long']) {
+    const m = createMatch({ mode: 'robot', p1: 'bear', length });
+    assert.deepEqual(cardsShown(m), [1], 'player 1 starts');
+    roll(m, faces(4));
+    scoreBox(m, '4');
+    assert.deepEqual(cardsShown(m), [1], 'still player 1 during Undo');
+    undo(m);
+    scoreBox(m, '4');
+    endTurn(m);
+    assert.deepEqual(cardsShown(m), [2], 'the turn passed: the robot\'s card');
+    const turns = playGame(m, seeded(3));
+    assert.equal(turns, 2 * BOXES[length].length - 1);
+    assert.deepEqual(cardsShown(m), [1, 2], 'game over: both cards');
+    newRound(m);
+    assert.deepEqual(cardsShown(m), [m.starter], 'the next game: the starter\'s card');
+    assert.equal(m.starter, 2);
+  }
+  const solo = createMatch({ mode: 'solo', p1: 'bear' });
+  assert.deepEqual(cardsShown(solo), [1]);
+  playGame(solo, seeded(4));
+  assert.deepEqual(cardsShown(solo), [1], 'just me: one card, also at the end');
 });
 
 test('play again mid-game: cards cleared, not scored, same starter', () => {

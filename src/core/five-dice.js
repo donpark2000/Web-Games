@@ -81,6 +81,11 @@ export const rollDie = (rand = Math.random) => 1 + Math.min(SIDES - 1, Math.floo
 
 export const players = match => (match.mode === 'solo' ? [1] : [1, 2]);
 
+// The score cards on the screen (developer, 2026-10-07): during a game only
+// the card of whose turn it is, switching when the turn passes (so not
+// during Undo's few seconds); once the game is over, everyone's side by side.
+export const cardsShown = match => (match.result ? players(match) : [match.turn]);
+
 // A new match: nothing won yet, player 1 starts the first game. Throws if
 // the picks aren't valid (the screen keeps "Play!" greyed until they are).
 export function createMatch({ mode, p1, p2, length = 'short' }) {

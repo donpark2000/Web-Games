@@ -4,9 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-06): all seven games published, the home page grouped
-by players. Five Dice's robot now plays its best and its pop-up closes
-with the ✕ only (2026-10-06), not yet published.*
+*Status (2026-10-07): all seven games published, the home page grouped
+by players. Five Dice's score sheet now shows one player's card at a time
+(2026-10-07), not yet published.*
 
 ## Goal
 
@@ -291,6 +291,14 @@ trademark); "Five Dice" agreed by the developer (2026-10-06).
   points and the best per length 🏆); Play again / New game. Sized so
   the page fits the screen (rows and dice grow together; 40 px rows and
   48 px dice on an iPhone 16).
+- **One score card at a time** (developer, 2026-10-07: on a phone the
+  long game's two columns were small, and which was whose was confusing):
+  during a game the sheet shows only the card of whose turn it is, the
+  robot's too; it **switches when the turn passes** (after the 3 s Undo),
+  so the next player sees their own card before rolling. **When the game
+  is over, both cards side by side.** The player's face, on their colour,
+  heads each column. Short and long alike (developer: the same look in
+  both).
 - **A turn, up to 3 rolls:** the dice wait as Snakes and Ladders' cube in
   the player's colour; the first Roll rolls all five. After that, **tap a
   die to pick it up and roll it again** (it lifts, tilts, turns the

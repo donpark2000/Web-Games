@@ -7,7 +7,7 @@
 
 import {
   MODES, LENGTHS, BOXES, ROLLS, BONUS_AT, score, upper, points, openBoxes, players,
-  checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn,
+  checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn, cardsShown,
 } from '../core/five-dice.js';
 import { bestPlay, useValues, hasValues, fromFile, gameWorth } from '../core/five-dice-best.js';
 import { FACE_NAMES, endMoods } from '../core/players.js';
@@ -388,13 +388,20 @@ function renderTray() {
   else $('rollBtn').onclick = tapRoll;
 }
 
-// Pictures down the left, one column per player. After a roll, each empty
-// box in the turn's column shows what it would score, faded.
+// Pictures down the left, a column per card shown, its face on top: during
+// a game only the card of whose turn it is, at the end everyone's
+// (developer, 2026-10-07: two columns were small on a phone, and which was
+// whose was confusing). After a roll, each empty box shows what it would
+// score, faded.
+let sheetShows = '';   // whose cards the sheet shows, for the debug log
 function renderSheet() {
-  const ps = players(match), sheet = $('sheet'), panels = LAYOUT[match.length];
+  const ps = cardsShown(match), sheet = $('sheet'), panels = LAYOUT[match.length];
   const offer = !match.result && !rolling && match.rolls > 0 && !match.scored;
+  const shows = ps.map(faceOf).join(' + ');
+  if (shows !== sheetShows) { sheetShows = shows; L('score card shown', { cards: shows }); }
+  const head = '<span class="hd"></span>' + ps.map(p => `<span class="hd f${p}" aria-label="${faceOf(p)}'s card">${svg(faceOf(p))}</span>`).join('');
   sheet.className = 'sheet' + (panels.length === 1 ? ' one' : '');
-  sheet.innerHTML = panels.map(col => `<div class="half c${ps.length}">` + col.map(box => {
+  sheet.innerHTML = panels.map(col => `<div class="half c${ps.length}">` + head + col.map(box => {
     const [title, rule] = HELP[box];
     const row = `<button type="button" class="pic" data-box="${box}" aria-label="${title}: ${rule}">${BOX_PICS[box]}</button>`;
     return row + ps.map(p => {

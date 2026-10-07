@@ -2166,3 +2166,49 @@ the button. The developer: "fine the way it is" (no change). They also
 asked whether scoring before the third roll passes the turn: yes, after
 the 3 s Undo (`endTurn`), and unused rolls are lost. Playing alone, a
 new turn starts.
+
+## 2026-10-07: Five Dice: one score card at a time
+
+**The developer:** the play is good, but on a phone the long game's score
+sheet is hard to see and tap, and it's confusing which column is whose.
+Two ideas: show only the card of whoever is rolling (switching at the
+next player's first roll), both side by side at the end; or grey out the
+other player's column.
+
+**Why it was hard** (from the stylesheet): the long game has two panels,
+each with a picture column and two player columns, so a box was about
+50 px wide on a phone. The columns had no heading; only the orange/blue
+tint said whose they were.
+
+**Agreed** (Claude's suggestion, developer's OK, no mockup): one card at
+a time, a face heading each column, switching **when the turn passes**,
+not at the next first roll (the player who just scored still sees it
+during the Undo; then the dice and words already show the next player,
+and that player can look at their open boxes before rolling). Both cards
+at the end. The short game too (developer: the same look in both).
+Greying out was dropped: it helped the confusion, not the size.
+
+**Done:** `cardsShown(match)` in `src/core/five-dice.js` (whose turn it
+is; everyone once the game is over); the sheet draws those columns under
+a row of faces (0.7 of a row high, the player's colour), with bigger
+numbers in a single column (0.58 of a row, was 0.46). The debug log says
+`score card shown {"cards":"bear"}` on each switch.
+
+**Checked:** `npm test` 135 of 135 (the new test: player 1's card first,
+still during Undo, the robot's after the turn passes, both at the end of
+short and long games, the starter's on the next game, Just me always
+one). With `cardsShown` changed back to everyone's, the test fails
+("player 1 starts"). In the built-in browser at 393x852 (iPhone 16 size,
+no browser bars), without `?dev`: long and short games both get 60 px
+rows, the footer ends at 840 px of 852 (no scrolling). A box is 106 px
+wide in the long game (was about 50) and 259 px in the short game. Played
+a whole two-player long game: the headings read the bear's during the
+Undo, the cat's once the turn passed, both at "wins!". Against the robot,
+its card showed on its turn. No console errors.
+
+**Finding (not new):** with `?dev`, the open debug panel adds room under
+the page (`body` padding, `debuglog.js`), up to 30% of the screen, and
+the fit shrinks the rows to keep the page on screen: 47 px, once 28 px,
+where the page without `?dev` gets 60 px. It stays at 106 px even with the
+panel hidden. So row sizes in a `?dev` log are smaller than what the
+children see; don't read them as a fit problem.
