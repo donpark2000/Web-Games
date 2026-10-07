@@ -8,6 +8,13 @@ and what it does and doesn't prove.
 
 (none)
 
+## Proposed additions to the standards skill
+
+- **Debug output can change what it measures.** Before trusting a
+  measurement taken with debugging on, check it once with debugging off.
+  *Evidence (2026-10-07):* the `?dev` panel's room under the page shrank
+  Five Dice's fitted rows from 60 px to 47 px (once 28 px).
+
 ## Resolved
 
 - **Q7. The name of the Yahtzee-style game.** *Raised 2026-10-06 (entry
@@ -2240,3 +2247,25 @@ errors. `npm test` 135 of 135 (the change is drawing only).
 
 **Published** 2026-10-07 (developer's OK): `main` at `1c355d6`; the live
 `five-dice.css` had the change about 31 s after the push (curl).
+
+**The developer** (phone): "All good."
+
+## 2026-10-07: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with seven games.
+Five Dice shows one score card at a time (whose turn it is, switching when
+the turn passes; both at the end), one face across the long game's card;
+checked on the developer's phone. Working branch `home-groups`, level
+with `main` but for this entry.
+
+**Known:** `npm test` 135 of 135. Row sizes in a `?dev` log are smaller
+than without `?dev` (the debug panel's room; entry "one score card at a
+time").
+
+**Next:** nothing waiting. Ideas from DESIGN.md "Later": matching cards
+with the developer's photos, a rock paper scissors difficulty setting,
+sound (off until heard), more games; watch whether the long Five Dice
+game is too hard for the grandkids.
+
+**Open questions:** none. **Proposed skill additions:** one (debug output
+changing what it measures), to review with the developer.

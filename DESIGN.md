@@ -5,8 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-07): all seven games published, the home page grouped
-by players. Five Dice's score sheet now shows one player's card at a time
-(2026-10-07, published).*
+by players. Five Dice's score sheet shows one player's card at a time
+(2026-10-07, published, checked by the developer).*
 
 ## Goal
 
