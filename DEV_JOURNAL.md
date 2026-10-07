@@ -2237,3 +2237,6 @@ face headings (bear, cat, bear, cat). Rows 60 px and the footer at 840 px
 of 852 in all three cases, as before the change (the heading takes the
 same height). Short: one face over its column, as before. No console
 errors. `npm test` 135 of 135 (the change is drawing only).
+
+**Published** 2026-10-07 (developer's OK): `main` at `1c355d6`; the live
+`five-dice.css` had the change about 31 s after the push (curl).
