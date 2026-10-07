@@ -2372,3 +2372,35 @@ old save put back (`lines.slice(-max)`), the first two failed; restored.
 In the built-in browser, Five Dice in one tab and Connect Four in
 another, played in turn: the log kept all 15 lines, five blocks, each
 under its own page's heading (three "continued").
+
+**Published** 2026-10-07 (developer's OK): `main` at `3e8c1d3`; the live
+`log.js` had the change about 21 s after the push (curl).
+
+## 2026-10-07: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with seven games.
+Today: Five Dice shows one score card at a time (one face across the long
+game's card), checked on the developer's phone. The debug log is no
+longer on screen: every page keeps it on the device (newest 3000 lines;
+two tabs add to it, not over it) and
+https://donpark2000.github.io/Web-Games/log.html shows it, with Save
+log, Copy and Clear; reached by its address only. Log page checked on
+the developer's phone ("It works great"). Working branch `home-groups`,
+level with `main` but for this entry.
+
+**Known:** `npm test` 143 of 143. To ask the developer for a log: play,
+then open log.html and tap Copy (it worked on the phone; in the built-in
+browser it falls back to selecting the lines). Testing in the built-in
+browser: there's no `?dev` any more; read the log from
+`localStorage['web-games-log']` or open log.html; the game screens are
+now the size the children see.
+
+**Next:** nothing waiting; the developer will bring changes to a new
+session. Ideas from DESIGN.md "Later": matching cards with the
+developer's photos, a rock paper scissors difficulty setting, sound (off
+until heard), more games; watch whether the long Five Dice game is too
+hard for the grandkids.
+
+**Open questions:** none. **Proposed skill additions:** one (debug output
+changing what it measures), kept in the journal for now (Claude's view:
+this project removed the cause); to review with the developer.
