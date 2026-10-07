@@ -2326,3 +2326,7 @@ buttons. Copy fell back to selecting the lines in the built-in browser,
 by a script and by a real click: probably the pane being hidden (the
 clipboard needs a focused page); **not yet seen on a phone**. Save log
 not clicked (it downloads a file); its code is the old panel's.
+
+**Published** 2026-10-07 (developer's OK): `main` at `41f9a5f`; the live
+`log.html` answered 200 and `debuglog.js` had `startLog` about 32 s after
+the push (curl). Next: the developer tries log.html and Copy on the phone.
