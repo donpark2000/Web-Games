@@ -2215,3 +2215,25 @@ children see; don't read them as a fit problem.
 
 **Published** 2026-10-07 (developer's OK): `main` at `a5009b7`; the live
 `five-dice.js` (core) had `cardsShown` about 21 s after the push (curl).
+
+## 2026-10-07: One face across the long game's card
+
+**The developer** (phone, live site): "Much better. It solves both the
+visibility problem and the interaction problem." One change for the long
+game: one face in the middle instead of one on each of the two panels,
+to show that both halves are one player's, one turn.
+
+**Done:** during a long game the face is one heading across the whole
+sheet (`hd across`, 0.7 of a row high, as before), centred on the
+player's colour; the panels have no heading row of their own (`nohd`).
+At the end of the game each column keeps its own face (each panel then
+holds both players' columns). The short game is unchanged (one panel,
+one face already).
+
+**Checked** in the built-in browser at 393x852, without `?dev`: long,
+one heading 349 px wide (the sheet's width), the bear's, the cat's once
+the turn passed; a whole two-player long game played to "wins!": four
+face headings (bear, cat, bear, cat). Rows 60 px and the footer at 840 px
+of 852 in all three cases, as before the change (the heading takes the
+same height). Short: one face over its column, as before. No console
+errors. `npm test` 135 of 135 (the change is drawing only).

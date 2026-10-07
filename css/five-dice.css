@@ -59,7 +59,8 @@
 
 /* the score sheet: short, one panel; long, two side by side. One column
    (c1) during a game, whose turn it is; both (c2) when it's over. A row of
-   faces on top says whose column is whose. */
+   faces on top says whose column is whose (one across the sheet for one
+   card on the long game's two panels). */
 .sheet { background: var(--card); border-radius: 18px; box-shadow: 0 4px 0 var(--line); padding: 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .sheet.one { grid-template-columns: 1fr; }
 .half { display: grid; grid-template-rows: calc(var(--row) * .7); grid-auto-rows: var(--row); gap: 3px; min-width: 0; }
@@ -71,6 +72,9 @@
 .hd.f1 { background: var(--p1-soft); box-shadow: inset 0 -3px 0 var(--p1); }
 .hd.f2 { background: var(--p2-soft); box-shadow: inset 0 -3px 0 var(--p2); }
 .hd svg { height: 100%; width: auto; aspect-ratio: 1; padding: 2px 0 4px; }
+/* the long game during play: one face across both panels, on its own row */
+.hd.across { grid-column: 1 / -1; height: calc(var(--row) * .7); margin-bottom: -5px; }
+.half.nohd { grid-template-rows: none; }
 .pic { display: grid; place-items: center; border: 0; padding: 2px; border-radius: 10px; background: var(--sky); cursor: pointer; }
 .pic svg { width: 100%; height: 100%; }
 .box {

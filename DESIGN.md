@@ -297,7 +297,9 @@ trademark); "Five Dice" agreed by the developer (2026-10-06).
   robot's too; it **switches when the turn passes** (after the 3 s Undo),
   so the next player sees their own card before rolling. **When the game
   is over, both cards side by side.** The player's face, on their colour,
-  heads each column. Short and long alike (developer: the same look in
+  heads each column; during a long game, **one face across the sheet**
+  instead of one per panel (developer, 2026-10-07: both halves are one
+  player's, one turn). Short and long alike (developer: the same look in
   both).
 - **A turn, up to 3 rolls:** the dice wait as Snakes and Ladders' cube in
   the player's colour; the first Roll rolls all five. After that, **tap a

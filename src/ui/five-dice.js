@@ -399,9 +399,14 @@ function renderSheet() {
   const offer = !match.result && !rolling && match.rolls > 0 && !match.scored;
   const shows = ps.map(faceOf).join(' + ');
   if (shows !== sheetShows) { sheetShows = shows; L('score card shown', { cards: shows }); }
-  const head = '<span class="hd"></span>' + ps.map(p => `<span class="hd f${p}" aria-label="${faceOf(p)}'s card">${svg(faceOf(p))}</span>`).join('');
+  const hd = (p, cls = '') => `<span class="hd f${p}${cls}" aria-label="${faceOf(p)}'s card">${svg(faceOf(p))}</span>`;
+  // One card on the long game's two panels: one face across both
+  // (developer, 2026-10-07: both halves are one player's); otherwise a
+  // face on each column.
+  const across = panels.length > 1 && ps.length === 1;
+  const head = across ? '' : '<span class="hd"></span>' + ps.map(p => hd(p)).join('');
   sheet.className = 'sheet' + (panels.length === 1 ? ' one' : '');
-  sheet.innerHTML = panels.map(col => `<div class="half c${ps.length}">` + head + col.map(box => {
+  sheet.innerHTML = (across ? hd(ps[0], ' across') : '') + panels.map(col => `<div class="half c${ps.length}${across ? ' nohd' : ''}">` + head + col.map(box => {
     const [title, rule] = HELP[box];
     const row = `<button type="button" class="pic" data-box="${box}" aria-label="${title}: ${rule}">${BOX_PICS[box]}</button>`;
     return row + ps.map(p => {
