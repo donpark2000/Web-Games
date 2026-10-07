@@ -6,14 +6,7 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q9. Two tabs at once overwrite each other's log lines.** *Raised
-  2026-10-07 (the developer asked whether logs are separate per
-  computer).* Each tab saves its whole copy of the log
-  (`storage.setItem`), so with two tabs of the site open in one browser
-  the last to save wins and the other's newest lines are lost. Not seen,
-  read from the code. Fix: on save, add this tab's new lines to what's
-  stored. Also asked: automatic clearing (Claude: not needed, the log
-  stops at 3000 lines; maybe fewer lines). Waiting for the developer.
+(none)
 
 ## Proposed additions to the standards skill
 
@@ -23,6 +16,16 @@ and what it does and doesn't prove.
   Five Dice's fitted rows from 60 px to 47 px (once 28 px).
 
 ## Resolved
+
+- **Q9. Two tabs at once overwrite each other's log lines.** *Raised
+  2026-10-07 (the developer asked whether logs are separate per
+  computer).* Each tab saved its whole copy of the log, so with two tabs
+  of the site open in one browser the last to save won and the other's
+  newest lines were lost (read from the code, then shown by a test). Also
+  asked: automatic clearing. **Resolved 2026-10-07:** the developer: fix
+  the two tabs ("unlikely ... but worth doing to avoid any confusion");
+  clearing: "leave it" (3000 lines, no clearing by age). Entry "Two tabs
+  share the log".
 
 - **Q8. The debug log off the game screen?** *Raised 2026-10-07 (entry
   "Status", after the score cards).* The developer didn't know about
@@ -2343,3 +2346,29 @@ log gets cleared: only by Clear; otherwise the oldest lines go once there
 are 3000; the browser also deletes it when the site's data is cleared,
 at the end of a private tab, and Safari after 7 days without a visit to
 the site (its limit on what pages store).
+
+## 2026-10-07: Two tabs share the log
+
+**The developer** asked whether two people on different computers have
+separate logs (yes: per device and per browser), whether to clear the log
+automatically (Claude: not needed, it stops at 3000 lines, an estimated
+well under 1 MB of the about 5 MB a site may keep; the developer: "leave
+it"), and where it's stored (the browser's localStorage for
+`donpark2000.github.io`, shared with any other GitHub Pages site of the
+developer's there; key `web-games-log`). Claude found Q9 while answering:
+two tabs open at once overwrote each other's lines.
+
+**Done** (`src/core/log.js`): a save reads what's on the device and adds
+only this page's new lines (`unsaved`). If another tab wrote there (or
+cleared it) since this page last read or wrote, the block starts with
+`=== <time> <page> (continued) ===`, so its lines don't read as the other
+tab's. A refused save keeps the lines for the next one; with nothing new
+nothing is written.
+
+**Checked:** `npm test` 143 of 143 (three new: two tabs interleaved keep
+both, with "(continued)" headings; a Clear in another tab stays cleared;
+a refused save is retried, and an empty save writes nothing). With the
+old save put back (`lines.slice(-max)`), the first two failed; restored.
+In the built-in browser, Five Dice in one tab and Connect Four in
+another, played in turn: the log kept all 15 lines, five blocks, each
+under its own page's heading (three "continued").

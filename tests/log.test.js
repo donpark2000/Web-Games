@@ -88,6 +88,58 @@ test('kept on the device: clear empties it; a bad or missing record is an empty 
   }
 });
 
+// Two tabs of the site open at once in one browser (developer, 2026-10-07):
+// neither may overwrite the other's lines.
+const body = l => (l.startsWith('=== ') ? l.replace(/^=== [\d-]+ [\d:]+ /, '=== ') : l.split('] ')[1]);
+
+test('two tabs: both keep their lines; a tab writing after the other gets a "continued" heading', () => {
+  const storage = fakeStorage();
+  const a = createLog({ storage, now: clock() });
+  const b = createLog({ storage, now: clock() });
+  a.begin('five-dice.html');
+  a.add('t', 'a1');
+  a.save();
+  b.begin('connect-four.html');
+  b.add('t', 'b1');
+  b.save();
+  a.add('t', 'a2');
+  a.save();
+  a.add('t', 'a3');
+  a.save();
+  const kept = createLog({ storage }).lines().map(body);
+  assert.deepEqual(kept, ['=== five-dice.html ===', 'a1', '=== connect-four.html ===', 'b1', '=== five-dice.html (continued) ===', 'a2', 'a3']);
+  assert.deepEqual(a.lines().map(body), kept, 'the tab now sees both');
+});
+
+test('two tabs: a Clear in one stays cleared; the other adds only its new lines', () => {
+  const storage = fakeStorage();
+  const game = createLog({ storage, now: clock() });
+  game.begin('matching.html');
+  game.add('t', 'old');
+  game.save();
+  createLog({ storage }).clear();   // the log page, in another tab
+  game.add('t', 'new');
+  game.save();
+  assert.deepEqual(createLog({ storage }).lines().map(body), ['=== matching.html (continued) ===', 'new']);
+});
+
+test('two tabs: a refused save is tried again with the next one; nothing new, nothing written', () => {
+  const storage = fakeStorage();
+  const a = createLog({ storage, now: clock() });
+  a.begin('index.html');
+  const setItem = storage.setItem;
+  storage.setItem = () => { throw new Error('full'); };
+  assert.equal(a.save(), false);
+  storage.setItem = setItem;
+  a.add('t', 'later');
+  assert.equal(a.save(), true);
+  assert.deepEqual(createLog({ storage }).lines().map(body), ['=== index.html ===', 'later']);
+  let writes = 0;
+  storage.setItem = (k, v) => { writes++; setItem(k, v); };
+  assert.equal(a.save(), true);
+  assert.equal(writes, 0);
+});
+
 test('kept on the device: a storage that refuses still logs in memory', () => {
   const refuses = { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('full'); }, removeItem() { throw new Error('blocked'); } };
   const a = createLog({ storage: refuses, now: clock() });
