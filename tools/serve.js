@@ -54,7 +54,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   const port = Number(process.argv[2] || process.env.PORT || 8123);
   const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
   createServer(root, { log: line => console.log(line) }).listen(port, '127.0.0.1', () => {
-    console.log(`Web Games: http://localhost:${port}/  (debug log: http://localhost:${port}/?dev)`);
+    console.log(`Web Games: http://localhost:${port}/  (debug log: http://localhost:${port}/log.html)`);
     console.log('Press Ctrl+C to stop.');
   });
 }

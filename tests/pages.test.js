@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pages = (await readdir(root)).filter(f => f.endsWith('.html')).sort();
-const games = pages.filter(p => p !== 'index.html');
+const games = pages.filter(p => p !== 'index.html' && p !== 'log.html');
 const html = Object.fromEntries(await Promise.all(pages.map(async p => [p, await readFile(path.join(root, p), 'utf8')])));
 // The local files a page loads or links to (stylesheets, scripts, pages,
 // module imports in inline scripts), without any ?query or #hash.
@@ -51,6 +51,21 @@ test('pages: the home page links to every game; every game has a 🏠 back to it
     assert.match(html['index.html'], new RegExp(`<a class="game"[^>]*href="${g}"`), `home has no button for ${g}`);
     assert.ok((html[g].match(/<a class="homebtn" href="index.html"/g) || []).length >= 2, `${g}: 🏠 missing on setup or play`);
   }
+});
+
+// The log page is reached by its address only (developer, 2026-10-07), and
+// the games have no on-screen debug panel or ?dev any more.
+test('pages: the log page exists; no page links to it; no ?dev panel left', async () => {
+  assert.ok(pages.includes('log.html'));
+  for (const p of pages) assert.doesNotMatch(html[p], /href="log\.html/, `${p} links to the log page`);
+  const ui = await readdir(path.join(root, 'src/ui'));
+  let checked = 0;
+  for (const f of [...ui.map(f => `src/ui/${f}`), ...pages]) {
+    const s = await readFile(path.join(root, f), 'utf8');
+    assert.doesNotMatch(s, /installDebugPanel|withDev|[?&]dev\b/, f);
+    checked++;
+  }
+  assert.ok(checked > 20, `only ${checked} files checked`);
 });
 
 // The home page's groups (developer, 2026-10-04): a game with a two-player

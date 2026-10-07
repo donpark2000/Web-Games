@@ -9,7 +9,7 @@ import {
 import { endMoods } from '../core/players.js';
 import { svg } from './faces.js';
 import { boardArtSvg, snakePoints, dotsSvg, cubeSvg } from './snlart.js';
-import { log, installDebugPanel, withDev } from './debuglog.js';
+import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 
 // Timings (mockup v3).
@@ -375,6 +375,5 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
-for (const a of document.querySelectorAll('.homebtn')) a.href = withDev(a.getAttribute('href'));
-installDebugPanel('snakes-ladders');
+startLog('snakes-ladders');
 renderSetup();

@@ -17,8 +17,9 @@ tests; the site itself is plain files, no build step).
 node tools/serve.js
 ```
 
-Then open http://localhost:8123/ (add `?dev` for the debug log:
-http://localhost:8123/?dev). Ctrl+C stops the server.
+Then open http://localhost:8123/. Ctrl+C stops the server. The debug log,
+kept on the device, is at http://localhost:8123/log.html (on the live
+site: https://donpark2000.github.io/Web-Games/log.html).
 
 ## Tests
 

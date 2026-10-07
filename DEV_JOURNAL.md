@@ -17,6 +17,14 @@ and what it does and doesn't prove.
 
 ## Resolved
 
+- **Q8. The debug log off the game screen?** *Raised 2026-10-07 (entry
+  "Status", after the score cards).* The developer didn't know about
+  `?dev`; the panel doesn't belong on the screen, maybe a "log" concept
+  instead. Claude proposed: keep the log on the device, a separate page
+  to view and save it, no panel on the games. **Resolved 2026-10-07:**
+  the developer: "Yes, build it, address only" (entry "The debug log
+  moves to a log page").
+
 - **Q7. The name of the Yahtzee-style game.** *Raised 2026-10-06 (entry
   "All games checked; next game idea: Yahtzee").* Not "Yahtzee" (Hasbro's
   trademark). "Five Dice" is Claude's working name, used in the mockups;
@@ -2269,3 +2277,52 @@ game is too hard for the grandkids.
 
 **Open questions:** none. **Proposed skill additions:** one (debug output
 changing what it measures), to review with the developer.
+
+## 2026-10-07: The debug log moves to a log page
+
+**The developer** hadn't known about `?dev`: a good idea during
+development, but the panel doesn't belong on the screen; maybe a "log"
+concept. Claude proposed keeping the log on the device and a separate
+page to look at it, reached by its address or a footer link; the
+developer: "Yes, build it, address only". Claude's view on the proposed
+skill addition (debug output changing what it measures): keep it in the
+journal for now, since this change removes the cause here.
+
+**Done:**
+- `src/core/log.js`: the log can be given a storage (the browser's
+  localStorage, key `web-games-log`): it starts with the lines kept by
+  earlier pages, `save()` writes them (false if the storage refuses),
+  `clear()` removes them, `begin(title)` writes a page's heading
+  (`=== 2026-10-07 12:50:59 five-dice.html, 393x852 ===`). The newest
+  3000 lines (`LOG_MAX`); a long Five Dice game logs about 150-200. A
+  storage that throws or holds something unreadable gives an empty log
+  that still works in memory.
+- `src/ui/debuglog.js`: the heading as soon as a page loads (some pages
+  log before `startLog`), then `startLog(page)` (was `installDebugPanel`)
+  saves 0.5 s after a line and when the page is left or hidden. The
+  panel, `?dev`, `devMode` and `withDev` (which kept `?dev` on links) are
+  gone from every page.
+- `log.html` (`src/ui/logpage.js`, `css/log.css`): the lines, newest at
+  the bottom; Save log (the file as before: browser and device details,
+  then the lines), Copy (if the browser won't, it selects the lines) and
+  Clear (asks first). It reads the log; it doesn't add to it. `noindex`,
+  🏠 and the footer like the other pages; nothing links to it.
+- README, `tools/serve.js`'s start-up line and CLAUDE.md's working
+  standards point at `log.html` instead of `?dev`.
+
+**Checked:** `npm test` 140 of 140: four new log tests (kept across
+pages; the newest lines only, across pages; clear, and unreadable
+records; a storage that refuses) and a page test (log.html exists, no
+page links to it, no `installDebugPanel`, `withDev` or `?dev` left in
+`src/ui` or the pages; 25+ files checked). Breaking the reading-back
+(`let lines = []`) failed three log tests; a link to log.html on the home
+page failed the page test; both put back. In the built-in browser: a
+roll and a score in Five Dice, 🏠, then log.html showed 19 lines under
+three headings (home, five-dice, home); no panel, no padding added under
+the page; at 393x852 Five Dice's rows are 60 px (the footer at 840 of
+852). All eight pages load and log "loaded"; no console errors. Clear:
+answering No kept the 19 lines, Yes emptied the storage and greyed the
+buttons. Copy fell back to selecting the lines in the built-in browser,
+by a script and by a real click: probably the pane being hidden (the
+clipboard needs a focused page); **not yet seen on a phone**. Save log
+not clicked (it downloads a file); its code is the old panel's.

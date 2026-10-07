@@ -7,7 +7,7 @@ import {
 } from '../core/connect-four.js';
 import { endMoods } from '../core/players.js';
 import { svg } from './faces.js';
-import { log, installDebugPanel, withDev } from './debuglog.js';
+import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 
 const ROBOT_THINK_MS = 800;
@@ -273,6 +273,5 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
-for (const a of document.querySelectorAll('.homebtn')) a.href = withDev(a.getAttribute('href'));
-installDebugPanel('connect-four');
+startLog('connect-four');
 renderSetup();

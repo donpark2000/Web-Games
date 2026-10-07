@@ -14,7 +14,7 @@ import { FACE_NAMES, endMoods } from '../core/players.js';
 import { svg } from './faces.js';
 import { dotsSvg, cubeSvg } from './snlart.js';
 import { BOX_PICS, HELP } from './fivedice-pics.js';
-import { log, installDebugPanel, withDev } from './debuglog.js';
+import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 
 const UNDO_MS = 3000;    // after scoring, Undo shows this long, then the turn passes (css: --undo)
@@ -505,6 +505,5 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
-for (const a of document.querySelectorAll('.homebtn')) a.href = withDev(a.getAttribute('href'));
-installDebugPanel('five-dice');
+startLog('five-dice');
 renderSetup();

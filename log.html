@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Web Games log</title>
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/log.css">
+</head>
+<body>
+<!-- The debug log kept on this device (DESIGN.md "Structure"). Nothing
+     links here: the developer opens it by its address (2026-10-07). -->
+<main class="app">
+  <div class="top">
+    <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
+    <h1>Log</h1>
+  </div>
+  <p class="about" id="about"></p>
+  <div class="logbtns">
+    <button type="button" class="pill primary" id="saveBtn">Save log</button>
+    <button type="button" class="pill" id="copyBtn">Copy</button>
+    <button type="button" class="pill" id="clearBtn">Clear</button>
+  </div>
+  <p class="said" id="said" aria-live="polite"></p>
+  <pre class="lines" id="lines" tabindex="0" aria-label="Log lines"></pre>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a></footer>
+<script type="module" src="src/ui/logpage.js"></script>
+</body>
+</html>

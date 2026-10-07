@@ -74,9 +74,14 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   flipping cards of matching cards and Count to 9), then each game's own.
 - **Game rules kept apart from the screen code**: rules in `src/core/`
   (no DOM or UI code, unit-tested in Node), screens in `src/ui/`.
-- **A debug log** (standards §1), hidden unless the address has `?dev`:
-  an on-screen panel plus "save log to file" with browser and device
-  details.
+- **A debug log** (standards §1), **never on the game screens**
+  (developer, 2026-10-07). Every page logs all the time; the lines are
+  kept on the device (the browser's localStorage, the newest 3000 lines,
+  each page's under a heading with the date, time and screen size) and
+  never sent anywhere. **`log.html`** shows them, with **Save log** (a
+  file with browser and device details), **Copy** and **Clear** (asks
+  first). **Nothing links to it**: the developer opens it by its address.
+  (Until 2026-10-07: a panel on screen with `?dev`.)
 
 ## The games (first version)
 

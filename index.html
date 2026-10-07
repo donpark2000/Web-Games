@@ -58,7 +58,7 @@
   import { numberSvg } from './src/ui/numbercard.js';
   import { PICTURES } from './src/ui/rpspics.js';
   import { ladderSvg, snakeSvg, dotsSvg } from './src/ui/snlart.js';
-  import { log, installDebugPanel, withDev } from './src/ui/debuglog.js';
+  import { log, startLog } from './src/ui/debuglog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
   const board = ['bear', 'robot', '', '', 'bear', 'robot', '', '', 'bear'];
@@ -97,11 +97,7 @@
   // Five Dice: a full house, and the bear who rolled it.
   document.getElementById('dicePic').innerHTML = [5, 5, 5, 2, 2].map(n => `<span class="die">${dotsSvg(n)}</span>`).join('')
     + `<span class="o1">${svg('bear', 'winner')}</span>`;
-  for (const id of ['tttLink', 'cardsLink', 'c4Link', 'countLink', 'snlLink', 'diceLink', 'rpsLink']) {
-    const link = document.getElementById(id);
-    link.href = withDev(link.getAttribute('href'));
-  }
-  installDebugPanel('home');
+  startLog('home');
   for (const g of document.querySelectorAll('.group')) {
     log.add('home', 'group', { group: g.id, games: [...g.querySelectorAll('.game')].map(a => a.getAttribute('href').replace(/[?#].*$/, '')) });
   }

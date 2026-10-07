@@ -24,8 +24,8 @@ Follow the `software-project-standards` skill if it's available. If not,
 this is the short version:
 
 1. **Debug output with every feature.** Hook it into the site's debug log
-   (`?dev`: on-screen panel plus "save log to file" with browser/device
-   details).
+   (kept on the device; `log.html` shows it and saves it to a file with
+   browser/device details).
 2. **A test with every feature**, covering the normal case and at least one
    failure or edge case.
 3. **One command runs the whole regression suite** with a single pass/fail

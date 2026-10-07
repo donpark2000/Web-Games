@@ -10,7 +10,7 @@ import { FACE_NAMES, endMoods } from '../core/players.js';
 import { svg } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { numberSvg } from './numbercard.js';
-import { log, installDebugPanel, withDev } from './debuglog.js';
+import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 
 const SHOW_MISS_MS = 1500;    // the wrong number flashes red this long (developer)
@@ -300,6 +300,5 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
-for (const a of document.querySelectorAll('.homebtn')) a.href = withDev(a.getAttribute('href'));
-installDebugPanel('count-to-9');
+startLog('count-to-9');
 renderSetup();

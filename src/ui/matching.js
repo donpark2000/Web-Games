@@ -9,7 +9,7 @@ import {
 import { FACE_NAMES, endMoods } from '../core/players.js';
 import { svg } from './faces.js';
 import { CARD_BACK } from './cardback.js';
-import { log, installDebugPanel, withDev } from './debuglog.js';
+import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 
 const SHOW_MATCH_MS = 600;    // "A match!" before the pair settles
@@ -379,6 +379,5 @@ addEventListener('resize', () => {
   else renderSizes();
 });
 
-for (const a of document.querySelectorAll('.homebtn')) a.href = withDev(a.getAttribute('href'));
-installDebugPanel('matching');
+startLog('matching');
 renderSetup();

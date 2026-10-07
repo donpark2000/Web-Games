@@ -1,0 +1,10 @@
+/* The log page (log.html): what the games logged on this device, newest at
+   the bottom, with Save log / Copy / Clear. */
+.about, .said { margin: 0; text-align: center; font-size: 16px; color: var(--muted); }
+.said:empty { display: none; }
+.logbtns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.logbtns .pill { font-size: 17px; }
+.lines {
+  margin: 0; padding: 10px; max-height: 60vh; overflow: auto; background: var(--ink); color: var(--board-ink);
+  border-radius: 14px; font: 12px/1.4 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-word;
+}
