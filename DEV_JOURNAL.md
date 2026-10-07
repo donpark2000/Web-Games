@@ -2330,3 +2330,9 @@ not clicked (it downloads a file); its code is the old panel's.
 **Published** 2026-10-07 (developer's OK): `main` at `41f9a5f`; the live
 `log.html` answered 200 and `debuglog.js` had `startLog` about 32 s after
 the push (curl). Next: the developer tries log.html and Copy on the phone.
+
+**The developer** (phone, live site): "It works great." Asked when the
+log gets cleared: only by Clear; otherwise the oldest lines go once there
+are 3000; the browser also deletes it when the site's data is cleared,
+at the end of a private tab, and Safari after 7 days without a visit to
+the site (its limit on what pages store).
