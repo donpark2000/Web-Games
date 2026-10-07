@@ -2212,3 +2212,6 @@ the fit shrinks the rows to keep the page on screen: 47 px, once 28 px,
 where the page without `?dev` gets 60 px. It stays at 106 px even with the
 panel hidden. So row sizes in a `?dev` log are smaller than what the
 children see; don't read them as a fit problem.
+
+**Published** 2026-10-07 (developer's OK): `main` at `a5009b7`; the live
+`five-dice.js` (core) had `cardsShown` about 21 s after the push (curl).
