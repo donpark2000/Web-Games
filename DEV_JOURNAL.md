@@ -6,7 +6,14 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-(none)
+- **Q9. Two tabs at once overwrite each other's log lines.** *Raised
+  2026-10-07 (the developer asked whether logs are separate per
+  computer).* Each tab saves its whole copy of the log
+  (`storage.setItem`), so with two tabs of the site open in one browser
+  the last to save wins and the other's newest lines are lost. Not seen,
+  read from the code. Fix: on save, add this tab's new lines to what's
+  stored. Also asked: automatic clearing (Claude: not needed, the log
+  stops at 3000 lines; maybe fewer lines). Waiting for the developer.
 
 ## Proposed additions to the standards skill
 
