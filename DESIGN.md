@@ -360,7 +360,9 @@ The developer's game, agreed 2026-10-08 from mockup v1 (journal):
 - **Setup:** a rules panel ("Take 1 or more matches from one row. Take
   the last match to win!" under a small 3-5-7 picture); **Who's
   playing?** (Me and the robot, preselected / Two players), face pickers,
-  **How hard?** (robot only), **Who goes first?** (the usual three).
+  **How hard?** (robot only; just "⭐ Easy" and "⭐⭐⭐ Hard", no line
+  under them: developer, 2026-10-08, "robot doesn't know the trick" won't
+  inspire anyone to play), **Who goes first?** (the usual three).
 - **Taking: tap each match, then Take** (developer). A tapped match lifts
   and tilts, on the player's colour; tap again to put it back. The button
   says how many ("Take 2"), greyed until one is picked. A tap in another
@@ -375,7 +377,7 @@ The developer's game, agreed 2026-10-08 from mockup v1 (journal):
   in `src/ui/nim.js`). **⭐ Easy** ("not stupid or random", developer):
   looks one move ahead: takes the win when it can, never leaves just one
   row, otherwise any move (a child who plays sensibly wins about half the
-  time). **⭐⭐⭐ Hard** ("The robot plays its best", to learn from): the
+  time). **⭐⭐⭐ Hard** (plays its best, to learn from): the
   exact method (leaves the rows' XOR at 0), Easy's move when it can't.
   From 3-5-7 whoever goes first can always win, so a child who has
   worked it out beats Hard by going first.

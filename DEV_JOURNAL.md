@@ -2580,3 +2580,16 @@ The live `nim.html` and the home page's Nim button were there about 30 s
 after the push (curl). Live site in the built-in browser at 393x659:
 43 px matches, no scrolling; one take, the robot took the whole middle
 row, back to "your turn".
+
+## 2026-10-08: Nim checked; Easy and Hard without their lines
+
+**The developer** (live site): "It looks great and game play is great
+but I would remove the text from easy mode and hard mode. I don't think
+'robot does not know the trick' is going to inspire anyone to play."
+
+**Done:** "How hard?" is now just ⭐ Easy and ⭐⭐⭐ Hard (`nim.html`). The
+robots themselves are unchanged. **Checked:** `npm test` 155 of 155 (one
+new in `pages.test.js`: Nim's level buttons hold only the stars and the
+word; with the old `nim.html` put back it failed; restored). Setup screen
+at 393x760 in the built-in browser: two plain buttons, same size as
+before. Not published yet (waiting for the developer's OK).

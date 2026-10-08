@@ -83,6 +83,14 @@ test('pages: the home page groups the games: two players, then one player', () =
   assert.equal((html['index.html'].match(/<a class="game"/g) || []).length, all.length, 'a game button outside the groups');
 });
 
+// Nim's "How hard?": just the stars and the word, no line under them
+// (developer, 2026-10-08: "robot doesn't know the trick" won't inspire
+// anyone to play).
+test('pages: Nim’s Easy and Hard have no explaining line', () => {
+  const levels = [...html['nim.html'].matchAll(/<button [^>]*class="level"[^>]*>([\s\S]*?)<\/button>/g)].map(m => m[1]);
+  assert.deepEqual(levels, ['<span class="ico">⭐</span>Easy', '<span class="ico">⭐⭐⭐</span>Hard']);
+});
+
 // The home page pictures: their grid columns must be minmax(0, 1fr). A
 // plain 1fr column grows to fit what's in it: the matching-cards columns
 // came out 20, 59 and 59 px and the Connect Four board's 5th column stuck
