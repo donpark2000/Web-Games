@@ -13,6 +13,13 @@ and what it does and doesn't prove.
   Across all the games, so a separate change after Nim. Claude's view in
   the 2026-10-08 entry "Nim built"; waiting for the developer.
 
+- **Q11. Sound in all the games?** *Raised 2026-10-08 (developer):* no
+  game has sound for turns, wins or losses; add it everywhere, with a way
+  to turn it off and on? DESIGN.md "Sound" already says: small effects, a
+  mute button, off by default until the developer has heard them.
+  Claude's proposal in the 2026-10-08 entry "Sound: proposal"; waiting
+  for the developer.
+
 ## Proposed additions to the standards skill
 
 - **Debug output can change what it measures.** Before trusting a
@@ -2549,3 +2556,16 @@ face (Froggy, Kitty, Grandma...), shown with the face on the scoreboard
 cost, and reading practice for the ones who can. Typed names only as an
 optional rename (e.g. Grandma → "Nana"), remembered on the device, never
 needed to start. All eight games, so a separate change after Nim.
+
+## 2026-10-08: Sound: proposal
+
+**The developer** asked about sound for turns and events like winning or
+losing, in every game, with a way to turn it off and on (Q11). Claude's
+proposal: sounds made in the browser (Web Audio, our own code: no sound
+files, nothing from other sites); a small shared set (tap/pick, a move
+landing, a card flip, a dice rattle, a cheerful win, a gentle "aww" for
+losing, maybe a tie); a 🔊/🔇 button top-right on every game screen,
+remembered on the device for all the games; a sound sampler artifact
+first, so the developer can hear and pick them before any game changes;
+then the default (on or off) decided after hearing. To check on the
+developer's iPhone: the silent switch and volume.
