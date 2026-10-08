@@ -4,9 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-08): seven games published, the home page grouped by
-players. Nim (the eighth) built from its agreed mockup, on branch `nim`,
-not yet published.*
+*Status (2026-10-08): all eight games published, the home page grouped
+by players. Nim added 2026-10-08 (checked by the developer on the live
+site).*
 
 ## Goal
 

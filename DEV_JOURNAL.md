@@ -27,6 +27,13 @@ and what it does and doesn't prove.
   *Evidence (2026-10-07):* the `?dev` panel's room under the page shrank
   Five Dice's fitted rows from 60 px to 47 px (once 28 px).
 
+- **A measurement must not depend on what it sets.** When code measures
+  a container to size its content, check that the content at its
+  starting size can't stretch that container. *Evidence (2026-10-08):*
+  Nim's tray at its 44 px default widened the play screen by 3 px, the
+  fit measured the widened screen and kept the overflow (`size 44,
+  tries 1`).
+
 ## Resolved
 
 - **Q9. Two tabs at once overwrite each other's log lines.** *Raised
@@ -2593,3 +2600,38 @@ new in `pages.test.js`: Nim's level buttons hold only the stars and the
 word; with the old `nim.html` put back it failed; restored). Setup screen
 at 393x760 in the built-in browser: two plain buttons, same size as
 before. Not published yet (waiting for the developer's OK).
+
+**Published** 2026-10-08 (developer: "1 and 2", i.e. publish, and make
+the sound sampler next): `main` at `9a986b1`; the live `nim.html` had
+the plain Easy / Hard about 30 s after the push (curl).
+
+## 2026-10-08: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with eight games.
+Today: **Nim** (3-5-7 matchsticks, take from one row, last match wins;
+Me and the robot / Two players; Easy looks one move ahead, Hard plays
+the exact method), checked by the developer on the live site ("game
+play is great"); Easy / Hard then lost their explaining lines.
+Working branch `nim`, level with `main` but for this entry.
+
+**Known:** `npm test` 155 of 155. Publishing: the first `git push origin
+main` of the session may be blocked by Claude Code's automatic
+permission check ("production deploy") even after the developer's OK;
+it went through when the developer said to go ahead again. Mockups are
+built by a script in Claude's scratchpad from the real CSS and faces;
+to try one in the built-in browser, a temporary `mockup` entry in
+`.claude/launch.json` serving the scratchpad (with `tools/serve.js`'s
+`createServer`) worked; it was removed afterwards (not committed).
+
+**Next: sound (Q11).** The developer said yes to a **sound sampler**
+artifact: a button per sound (a couple of versions each), made in the
+browser (Web Audio, our own code, no files): tap/pick, a move landing,
+card flip, dice rattle, a cheerful win, a gentle "aww" for losing, maybe
+a tie. Then: which sounds, on or off by default, a 🔊/🔇 button top-right
+on every game screen remembered for all games; check the iPhone's silent
+switch. Proposal in "Sound: proposal" (2026-10-08).
+
+**Open questions:** Q10 (names for the faces; Claude's view in "Nim
+built"), Q11 (sound). **Proposed skill additions:** two (debug output
+changing what it measures; a measurement must not depend on what it
+sets), to review with the developer.
