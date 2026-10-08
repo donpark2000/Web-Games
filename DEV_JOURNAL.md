@@ -6,7 +6,12 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-(none)
+- **Q10. Names for the faces?** *Raised 2026-10-08 (developer, while Nim
+  was being built):* only the robot has a name; give each face one?
+  Either a fixed name that fits the face ("Froggy"), or names people
+  type for the faces they pick (nice, but more tedious to start a game).
+  Across all the games, so a separate change after Nim. Claude's view in
+  the 2026-10-08 entry "Nim built"; waiting for the developer.
 
 ## Proposed additions to the standards skill
 
@@ -2483,3 +2488,64 @@ picking 2 in row 3 then 1 in row 1: "Take 1", the hint, one match picked;
 Take passed the turn to the robot, which took 3 from row 3 (3-5-2); a game
 played to the end: robot won, games won 0-1, two last matches kept; no
 console errors. Not yet checked in the desktop app's viewer.
+
+**Approved** (developer, 2026-10-08): "Looks good. Any questions before
+publishing?" Mockup v1 is the agreed design, with Claude's three choices
+in it (the rules panel on setup; no row numbers or counts; taken matches
+disappear rather than piling up). Its decisions are in `DESIGN.md`
+("Nim"). Nim goes in the 👥 Two players group, after Five Dice.
+
+## 2026-10-08: Nim built (from mockup v1)
+
+**Done** (branch `nim`): `src/core/nim.js` (rules and robot, no DOM),
+`src/ui/nim.js` (screens), `nim.html`, `css/nim.css`,
+`src/ui/matchstick.js` (the drawn match, shared with the home page), a
+button in the 👥 Two players group after Five Dice (the three rows on a
+wooden tray, two matches picked up in the bear's colour). Debug log
+(`[nim]`): picks, mode, level, first rule, match/round started or
+restarted, fit, picks dropped for another row, every take (row, count,
+what's left, the nim-sum, person or robot), the robot's choice and its
+reason (`win` / `safe` / `stuck` / `best`), round won, scorecard cheer,
+pending robot steps cancelled.
+
+**Changed from the mockup, for the phone** (Claude; to confirm with the
+developer): at the assumed iPhone 16 Safari size (393x659) the mockup's
+layout fitted only **32 px** matches. Matches are now 1.6x as tall as
+wide (were 2.1x), and "One row at a time!" shows **in the turn line for
+2 s** instead of on a line of its own under Take: now **43 px** (the full
+width) with no scrolling.
+
+**Found while checking:** the tray stuck out 3 px past the page on a
+393 px screen. Cause: the CSS default match size (44 px) made the tray
+364 px in a 361 px column, which stretched the play screen, and the fit
+measured the stretched width (fit log: `size 44, tries 1`). Fixed: the
+default comes from the screen width, and the fit measures the page column
+(`main`): 43 px, tray 361 px. Also: "pending steps cancelled" counted
+steps that had already run (14); now only those still waiting (2, for a
+one-match move cancelled before its lift).
+
+**Checked:** `npm test` 154 of 154 (11 new in `tests/nim.test.js`:
+takes and every refusal, the last match wins and is scored, next
+starter, Play again mid-round; over all 191 positions, Hard always
+leaves a nim-sum of 0 when it can and Easy always takes a win and never
+leaves one row (exact counts 15 / 173 / 3); whole games: Easy vs a
+sensible player 35-65%, Hard over 90%, a perfect player going first
+beats both, Hard going first always wins; `pages.test.js` has nim.html
+in the Two players group). Three deliberate breaks (Hard never plays
+best; Easy may leave one row; the last take doesn't win) each failed two
+tests; restored. Built-in browser on localhost: 393x659 (above), 393x760
+43 px, 820x1180 64 px, 320x568 and 844x390 at the 30 px minimum (the page
+scrolls, as in the other games); no sideways scroll at any size. Played:
+picks, put back, another row (hint, then "your turn" after 2.2 s), Take,
+taps ignored on the robot's turn; Easy and Hard games to the end (cheer,
+last matches kept, games won); Hard after a person's move left [2,5,7]
+(nim-sum 0) and went first with 3-5-7 → 2-5-7; Play again during the
+robot's move restarted unscored; New game during it; two players with
+"Winner goes first". No console errors, no `[error]` lines in the log.
+
+**Q10 (names for the faces), Claude's view:** a fixed, friendly name per
+face (Froggy, Kitty, Grandma...), shown with the face on the scoreboard
+(instead of "You" / "Player 1") and maybe in the turn line; no setup
+cost, and reading practice for the ones who can. Typed names only as an
+optional rename (e.g. Grandma → "Nana"), remembered on the device, never
+needed to start. All eight games, so a separate change after Nim.

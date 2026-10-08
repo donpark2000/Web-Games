@@ -4,9 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-07): all seven games published, the home page grouped
-by players. Five Dice's score sheet shows one player's card at a time
-(2026-10-07, published, checked by the developer).*
+*Status (2026-10-08): seven games published, the home page grouped by
+players. Nim (the eighth) built from its agreed mockup, on branch `nim`,
+not yet published.*
 
 ## Goal
 
@@ -19,6 +19,7 @@ page. So far:
 - **Count to 9** (turn over numbered cards in order, 1 to 9)
 - **Snakes and Ladders** (roll the die, climb ladders, slide down snakes)
 - **Five Dice** (Yahtzee-style: roll five dice up to 3 times, fill the boxes)
+- **Nim** (take matches from one row; whoever takes the last one wins)
 - **Rock paper scissors** (against the robot)
 
 ## Players
@@ -48,7 +49,7 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   is just another button. **Grouped by who can play** (developer,
   2026-10-04): **👥 Two players** first (a game with a two-player choice,
   the second player a person or the robot: tic-tac-toe, matching cards,
-  Connect Four, Count to 9, Snakes and Ladders, Five Dice), then **👤 One player** (no way to play
+  Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim), then **👤 One player** (no way to play
   another person: rock paper scissors). Each game in one group only; a
   group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
@@ -344,6 +345,44 @@ trademark); "Five Dice" agreed by the developer (2026-10-06).
   93% long (journal, "Five Dice: the robot plays its best").
 - 🏠, footer, end-of-game scorecard cheer and "aww" face, debug log as in
   the other games. Ties possible ("It's a tie!").
+
+### Nim
+
+The developer's game, agreed 2026-10-08 from mockup v1 (journal):
+[Nim Mockup](https://claude.ai/artifact/3sRohn5n7h6VaGBU394722)
+(private Claude artifact, version 1).
+
+- **Three rows of drawn matchsticks: 3, 5 and 7**, centred on a wooden
+  tray. On your turn take **one or more matches from one row** (the whole
+  row too). **Whoever takes the last match wins** (developer; the other
+  way round works too, and switching mid-game was left out: "might just
+  make it more confusing").
+- **Setup:** a rules panel ("Take 1 or more matches from one row. Take
+  the last match to win!" under a small 3-5-7 picture); **Who's
+  playing?** (Me and the robot, preselected / Two players), face pickers,
+  **How hard?** (robot only), **Who goes first?** (the usual three).
+- **Taking: tap each match, then Take** (developer). A tapped match lifts
+  and tilts, on the player's colour; tap again to put it back. The button
+  says how many ("Take 2"), greyed until one is picked. A tap in another
+  row drops the first row's picks, and the turn line says "One row at a
+  time!" for 2 s. Taken matches fly off and leave their places empty; no
+  row numbers or counts.
+- **The end:** the last match (or matches) stays, in the winner's colour,
+  and wiggles; "<face> wins!"; the scorecard cheer and "aww" face as in
+  the other games. No ties. The dark scoreboard counts games won.
+- **The robot** thinks 0.8 s, lifts its matches one at a time (0.45 s
+  each, the rightmost first), waits 0.7 s, then takes them (`ROBOT_WAIT`
+  in `src/ui/nim.js`). **⭐ Easy** ("not stupid or random", developer):
+  looks one move ahead: takes the win when it can, never leaves just one
+  row, otherwise any move (a child who plays sensibly wins about half the
+  time). **⭐⭐⭐ Hard** ("The robot plays its best", to learn from): the
+  exact method (leaves the rows' XOR at 0), Easy's move when it can't.
+  From 3-5-7 whoever goes first can always win, so a child who has
+  worked it out beats Hard by going first.
+- **Sized to the screen:** the matches are the biggest that let the page
+  fit with no scrolling (43 px on an iPhone 16, at most 64 px); the 🏠
+  is one match, at least 48 px. 🏠, footer, debug log as in the other
+  games.
 
 ### Rock paper scissors
 
