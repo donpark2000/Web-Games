@@ -2569,3 +2569,14 @@ remembered on the device for all the games; a sound sampler artifact
 first, so the developer can hear and pick them before any game changes;
 then the default (on or off) decided after hearing. To check on the
 developer's iPhone: the silent switch and volume.
+
+## 2026-10-08: Nim published
+
+**Published** 2026-10-08 (developer's OK, "2" = Claude publishes): `main`
+fast-forwarded to `nim` at `bf8b352` and pushed. (A first try was
+blocked by Claude Code's automatic permission check as a "production
+deploy"; it went through when the developer said to go ahead again.)
+The live `nim.html` and the home page's Nim button were there about 30 s
+after the push (curl). Live site in the built-in browser at 393x659:
+43 px matches, no scrolling; one take, the robot took the whole middle
+row, back to "your turn".
