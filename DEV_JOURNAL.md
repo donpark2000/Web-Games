@@ -2404,3 +2404,82 @@ hard for the grandkids.
 **Open questions:** none. **Proposed skill additions:** one (debug output
 changing what it measures), kept in the journal for now (Claude's view:
 this project removed the cause); to review with the developer.
+
+## 2026-10-08: Nim: the developer's game
+
+**The developer** proposed the eighth game: Nim. Three rows of matchsticks
+(3, 5 and 7); on your turn take as many as you like from **one** row (the
+whole row too); whoever takes the last match wins (or loses: both work,
+and changing the rule partway through can be fun).
+
+**Claude's questions, the developer's answers:**
+
+1. Who's playing? **Me and the robot (preselected) or Two players**; no
+   Just me.
+2. The robot's strength? Claude: from 3-5-7 whoever goes first can always
+   win with the exact method (the "nim-sum", XOR of the rows, 3^5^7 = 1),
+   so a robot that always plays its best can't be beaten once it's ahead.
+   The developer: "A perfect robot would lose every time against a
+   perfect human who went first, right? ... the robot playing his best
+   helps with learning." Claude: yes; offered **How hard?** with Easy and
+   Hard. The developer: OK, **"but easy should not be stupid or random"**.
+3. Changing the rule mid-game? **Left out for now** (developer: "might
+   just make it more confusing (or frustrating, when you realize a perfect
+   player can force either)"). **Taking the last match wins**; no setup
+   choice for the rule.
+4. Tokens: **drawn matchsticks**.
+5. Taking: **tap each match, then a separate Take button**.
+6. Name "Nim" (no trademark) and the three "Who goes first?" choices:
+   Claude's suggestions, not objected to.
+
+**Easy robot, measured** (a scratchpad simulation, 4000 games per line,
+3-5-7, last match wins; "sensible" player = takes a win when it can and
+never leaves just one row, otherwise any move; robot's win rate, same
+whether it goes first or second unless noted):
+
+| Robot | vs random taps | vs sensible | vs perfect (going first) |
+|---|---|---|---|
+| Looks 1 move ahead (takes a win, never leaves one row) | 80% | 50% | 0% |
+| Looks 3 moves ahead | 90% | 72% | 0% |
+| Looks 5 moves ahead | 97% | 91% | 0% |
+| Best move half the time, else "1 ahead" | 89% | 72% | 0% |
+| Best always (Hard) | 100% | 99-100% | 0% (robot first: 100%) |
+
+Claude's proposal for Easy: **looks one move ahead**: always takes the
+win when it can, never hands you an easy win, otherwise plays a move a
+person who doesn't know the trick might. No dice-roll between "good" and
+"bad" moves, so it never does something silly; a child who plays sensibly
+wins about half the time. Tunable (how far it looks).
+
+## 2026-10-08: Nim mockup v1
+
+[Nim Mockup](https://claude.ai/artifact/3sRohn5n7h6VaGBU394722) (private
+Claude artifact, version 1). Built from the site's own `site.css` and
+`game.css` and the real faces (`src/ui/faces.js`), by a script in Claude's
+scratchpad.
+
+- **Setup:** a rules panel (a small 3-5-7 picture; "Take 1 or more
+  matches from one row. Take the last match to win!"), Who's playing?
+  (Me and the robot, preselected / Two players), face pickers, **How
+  hard?** (⭐ Easy "The robot doesn't know the trick" / ⭐⭐⭐ Hard "The
+  robot plays its best"; only against the robot), Who goes first?, Play!.
+- **Play:** 🏠 and the turn line; a wooden tray with the three rows of
+  drawn matchsticks, centred (3, 5, 7); a yellow **Take** button (greyed
+  until a match is picked, then "Take 2"); the dark scoreboard (games
+  won; no ties possible); Play again / New game.
+- **Picking:** tap a match: it lifts and tilts, on the player's colour,
+  and its row lights up; tap again to put it back. A tap in another row
+  drops the first row's picks and says "One row at a time!". Take: the
+  matches fly off; the turn passes.
+- **Robot:** "is thinking..." 0.8 s, lifts its matches one at a time
+  (0.45 s each), 0.7 s, takes. Easy = looks one move ahead; Hard = the
+  exact method (Easy's move when it's losing).
+- **End:** the last match(es) stay, in the winner's colour, and wiggle;
+  "<face> wins!"; scorecard cheer and "aww" face as in the other games.
+
+**Checked** (served on localhost from the scratchpad, built-in browser,
+393x760): setup and play fit with no scrolling (matches 43 px wide);
+picking 2 in row 3 then 1 in row 1: "Take 1", the hint, one match picked;
+Take passed the turn to the robot, which took 3 from row 3 (3-5-2); a game
+played to the end: robot won, games won 0-1, two last matches kept; no
+console errors. Not yet checked in the desktop app's viewer.
