@@ -3,12 +3,13 @@
 // keeps time (the countdown, the pauses between rounds) and handles taps.
 
 import { PICKS, checkFaces, createMatch, newGame, newRound, unlock, choose } from '../core/rock-paper-scissors.js';
-import { FACE_NAMES, endMoods } from '../core/players.js';
+import { FACE_NAMES, endMoods, endSound } from '../core/players.js';
 import { svg } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { PICTURES, SAYS } from './rpspics.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
+import { sound } from './sound.js';
 
 const READY_MS = 1000;   // "Ready?" before a game's first round
 const COUNT_MS = 700;    // per number of the 1, 2, 3
@@ -157,6 +158,8 @@ function tap(pick) {
   const r = choose(match, pick);
   if (!r.ok) { L('pick refused', { pick, why: r.why }); return; }
   L('picked', { mine: pick, robot: r.robot, winner: r.winner, stars: { ...match.stars } });
+  sound.play('tick');
+  sound.play('swish', 0.05);   // the robot's card turns over
   setPicks(false, pick);
   $('myPic').innerHTML = PICTURES[pick];
   $('botPic').innerHTML = PICTURES[r.robot];
@@ -166,12 +169,14 @@ function tap(pick) {
   $('count').textContent = 'vs';
   if (!r.winner) {
     turn('Same! Go again.', true);
+    sound.play('tie', 0.2);
     later(startRound, SAME_MS);
     return;
   }
   later(() => {
     $(r.winner === 1 ? 'mySlot' : 'botSlot').classList.add('hit');
     $(r.winner === 1 ? 'botSlot' : 'mySlot').classList.add('hurt');
+    sound.play(r.gameOver ? endSound(r.winner, { vsRobot: true }) : r.winner === 1 ? 'ding' : 'uhoh');
     if (r.gameOver) {
       moods = endMoods(r.winner);
       cheering = true;

@@ -5,10 +5,11 @@
 import {
   FACE_NAMES, FIRST_RULES, checkFaces, createMatch, newRound, place, robotMove,
 } from '../core/tic-tac-toe.js';
-import { endMoods } from '../core/players.js';
+import { endMoods, endSound } from '../core/players.js';
 import { svg } from './faces.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
+import { sound } from './sound.js';
 
 const ROBOT_THINK_MS = 800;
 const MIN_CELL = 56;     // smaller squares than this: the page scrolls instead
@@ -162,8 +163,10 @@ function take(square, who) {
   if (!r.ok) { L('move refused', { square, why: r.why, who }); return; }
   justPlaced = square;
   L('move', { player, face: faceOf(player), square, who });
+  sound.play('thud');
   if (match.result) {
     const { winner, line } = match.result;
+    sound.play(endSound(winner, { vsRobot: match.vsRobot }), 0.3);
     L(winner ? 'round won' : 'round tied', {
       winner: winner ? faceOf(winner) : null, line, scores: match.scores, nextStarter: faceOf(match.starter),
     });

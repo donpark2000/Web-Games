@@ -6,11 +6,12 @@
 import {
   COLS, ROWS, GOAL, FACE_NAMES, FIRST_RULES, numAt, centre, boardTotals, checkFaces, createMatch, newRound, move, rollDie,
 } from '../core/snakes-ladders.js';
-import { endMoods } from '../core/players.js';
+import { endMoods, endSound } from '../core/players.js';
 import { svg } from './faces.js';
 import { boardArtSvg, snakePoints, dotsSvg, cubeSvg } from './snlart.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
+import { sound } from './sound.js';
 
 // Timings (mockup v3).
 const THINK_MS = 800;    // the robot "is thinking..." before it rolls
@@ -34,6 +35,7 @@ let match = null;        // from createMatch, while on the play screen
 let busy = false;        // a roll or a move is being shown: the die can't be tapped
 let timers = [];         // every pending step, so Play again / New game can stop them
 let spin = null;         // the die's tumble (an interval)
+let robotPlayed = false; // the robot has just had a turn: "your turn" (ping) on the next one
 // Each piece's face: 'winner' while climbing a ladder; 'sad' after a snake,
 // until that player's next turn (developer, 2026-10-05).
 const pieceMood = { 1: 'normal', 2: 'normal' };
@@ -233,6 +235,8 @@ function nextTurn() {
     $('die').classList.add('think');
     later(roll, THINK_MS);
   } else {
+    if (robotPlayed) sound.play('ping');
+    robotPlayed = false;
     turnLine(svg(faceOf(p)), match.vsRobot ? 'your turn. Tap the die!' : '’s turn. Tap the die!', true);
   }
 }
@@ -252,6 +256,8 @@ function roll() {
   const r = move(match, n);
   if (!r.ok) { L('move refused', { why: r.why }); busy = false; return; }
   L('roll', { player: faceOf(p), who, roll: n, from, path: r.path, bounced: r.bounced, jump: r.jump, at: r.at });
+  if (who === 'robot') robotPlayed = true;
+  sound.play('shake');
   dieDots(p, 1);
   $('die').classList.add('rolling');
   spin = setInterval(() => { $('die').innerHTML = dotsSvg(1 + Math.floor(Math.random() * 6)); }, 90);
@@ -271,6 +277,7 @@ function hop(r, k) {
   if (k === r.path.length) return landed(r);
   const sq = r.path[k], back = k > 0 && sq < r.path[k - 1];
   showAt(p, sq);
+  sound.play('tick');
   pieces[p].classList.remove('hop'); void pieces[p].offsetWidth; pieces[p].classList.add('hop');
   dieDots(p, r.roll - k - 1);
   turnLine(back ? '' : svg(faceOf(p)), back ? `Too many! Back <b>${k + 1}</b>` : `<b>${k + 1}</b>`);
@@ -307,6 +314,7 @@ function landed(r) {
 // Happy while climbing; normal again at the top.
 function climb(r) {
   const p = r.player;
+  sound.play('climb');
   pieces[p].style.transition = `left ${CLIMB_MS}ms ease-in-out, top ${CLIMB_MS}ms ease-in-out`;
   placeBoth();
   later(() => { pieces[p].style.transition = ''; setPieceMood(p, 'normal'); lit(0); endTurn(); }, CLIMB_MS + 100);
@@ -316,6 +324,7 @@ function climb(r) {
 function slide(r) {
   const p = r.player, pts = snakePoints(r.jump.from, r.jump.to), t0 = Date.now();
   pieces[p].style.transition = 'none';
+  sound.play('wheee');
   const step = () => {
     const t = Math.min(1, (Date.now() - t0) / SLIDE_MS), e = t * t * (3 - 2 * t);
     const o = pts[Math.round(e * (pts.length - 1))];
@@ -336,6 +345,7 @@ function won(p) {
   $('die').disabled = true;
   placeBoth();
   L('round won', { winner: faceOf(p), moves: match.moves, scores: { ...match.scores }, nextStarter: faceOf(match.starter) });
+  sound.play(endSound(p, { vsRobot: match.vsRobot }));
   turnLine(svg(faceOf(p), 'winner'), 'wins!', true);
   $('turn').classList.add('won');
   setPieceMood(p, 'winner');

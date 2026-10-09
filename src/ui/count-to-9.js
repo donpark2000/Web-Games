@@ -6,12 +6,13 @@
 import {
   MODES, LEVELS, FIRST_RULES, ROBOT_TUNING, checkFaces, createMatch, newRound, flip, settle, robotPick,
 } from '../core/count-to-9.js';
-import { FACE_NAMES, endMoods } from '../core/players.js';
+import { FACE_NAMES, endMoods, endSound } from '../core/players.js';
 import { svg } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { numberSvg } from './numbercard.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
+import { sound } from './sound.js';
 
 const SHOW_MISS_MS = 1500;    // the wrong number flashes red this long (developer)
 const ROBOT_THINK_MS = 800;   // before each card the robot turns over
@@ -201,6 +202,8 @@ function turnOver(i, who) {
     ...(match.mode === 'robot' ? { robotRemembers: match.seen.filter(Boolean).length } : {}),
   });
   just = r.correct ? i : -1;
+  sound.play('swish');
+  if (!r.result) sound.play(r.correct ? 'ding' : 'uhoh', 0.15);
   if (r.result) endRound(r.result);
   else if (!r.correct) missTimer = setTimeout(settleNow, SHOW_MISS_MS);
   render();
@@ -220,6 +223,8 @@ function settleNow() {
     next: match.next, turn: match.mode === 'solo' ? null : faceOf(r.turn), turns: match.turns,
   });
   just = -1;
+  // The robot missed: your turn ("your turn" after the robot's steps).
+  if (match.mode === 'robot' && r.turn === 1) sound.play('ping');
   render();
   maybeRobot();
 }
@@ -239,6 +244,7 @@ function maybeRobot() {
 function endRound({ winner, turns }) {
   if (match.mode === 'solo') L('counted to 9', { turns, level: match.level, best: match.best[match.level] });
   else L('round won', { winner: faceOf(winner), wins: { ...match.wins }, nextStarter: faceOf(match.starter) });
+  sound.play(endSound(winner, { vsRobot: match.mode === 'robot', solo: match.mode === 'solo' }), 0.15);
   startCheer(winner);
 }
 

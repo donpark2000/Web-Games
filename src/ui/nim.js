@@ -6,11 +6,12 @@ import {
   FACE_NAMES, FIRST_RULES, LEVELS, START_ROWS, checkFaces, createMatch, newRound, take, counts, nimSum,
   robotMove, robotPicks,
 } from '../core/nim.js';
-import { endMoods } from '../core/players.js';
+import { endMoods, endSound } from '../core/players.js';
 import { svg } from './faces.js';
 import { MATCH_SVG } from './matchstick.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
+import { sound } from './sound.js';
 
 // The robot at a person's pace (agreed mockup, 2026-10-08): it thinks,
 // lifts its matches one at a time, waits a moment, then takes them.
@@ -183,6 +184,7 @@ function startRound() {
 // drops the first row's picks (one row at a time).
 function tap(row, i) {
   if (!match || match.result || busy || robotsTurn() || match.taken[row][i]) return;
+  const otherRow = !!sel && sel.row !== row;
   if (!sel || sel.row !== row) {
     if (sel) {
       L('picks dropped: another row', { from: sel.row + 1, to: row + 1 });
@@ -190,6 +192,7 @@ function tap(row, i) {
     }
     sel = { row, picks: new Set() };
   }
+  sound.play(otherRow ? 'uhoh' : 'tick');
   if (sel.picks.has(i)) sel.picks.delete(i);
   else sel.picks.add(i);
   if (!sel.picks.size) sel = null;
@@ -205,11 +208,13 @@ function doTake(who) {
   if (!r.ok) { L('take refused', { row: row + 1, picks, why: r.why, who }); return; }
   const left = counts(match.taken);
   L('take', { player, face: faceOf(player), row: row + 1, count: picks.length, left, nimSum: nimSum(left), who });
+  sound.play('thud');
   clearHint();
   if (match.result) {
     L('round won', { winner: faceOf(match.result.winner), scores: match.scores, nextStarter: faceOf(match.starter) });
     sel = null;
     busy = false;
+    sound.play(endSound(match.result.winner, { vsRobot: match.vsRobot }), 0.3);
     startCheer(match.result.winner);
     render();
     return;
@@ -220,6 +225,7 @@ function doTake(who) {
   later(FLY_MS, () => {
     sel = null;
     busy = false;
+    if (who === 'robot') sound.play('ping');   // your turn, after the robot's
     render();
     maybeRobot();
   });
@@ -233,7 +239,7 @@ function maybeRobot() {
   busy = true;
   sel = { row: m.row, picks: new Set() };
   render();
-  picks.forEach((i, n) => later(ROBOT_WAIT.think + n * ROBOT_WAIT.lift, () => { sel.picks.add(i); render(); }));
+  picks.forEach((i, n) => later(ROBOT_WAIT.think + n * ROBOT_WAIT.lift, () => { sel.picks.add(i); sound.play('tick'); render(); }));
   later(ROBOT_WAIT.think + (picks.length - 1) * ROBOT_WAIT.lift + ROBOT_WAIT.beforeTake, () => doTake('robot'));
 }
 

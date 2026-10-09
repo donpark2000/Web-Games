@@ -8,11 +8,10 @@ and what it does and doesn't prove.
 
 - **Q11. Sound in all the games?** *Raised 2026-10-08 (developer):* no
   game has sound for turns, wins or losses; add it everywhere, with a way
-  to turn it off and on? DESIGN.md "Sound" already says: small effects, a
-  mute button, off by default until the developer has heard them.
-  Claude's proposal in the 2026-10-08 entry "Sound: proposal". The
-  developer said yes to a sampler first: v1 is up (2026-10-08, "Sound
-  sampler v1; face names agreed"); waiting for the developer's picks.
+  to turn it off and on? Sampler v1 heard and picked (2026-10-09); built
+  on branch `sound` ("Sound in all eight games", 2026-10-09). **Open
+  until** the developer has heard it in the games, including on the
+  iPhone (silent switch).
 
 ## Proposed additions to the standards skill
 
@@ -2673,3 +2672,55 @@ project too. New `SKILL.md` and a zip for upload in
 settle before building: the tie, on or off by default, which end-of-round
 sound plays in a two-player game, the iPhone's silent switch, and which
 moment in each game gets which sound (Claude's proposal in chat).
+
+## 2026-10-09: Sound in all eight games
+
+**Settled first (developer):** the table of which moment gets which
+sound ("OK"), the tie is "Ding ding", sound **on** by default, and on
+the iPhone the sounds **follow the silent switch**. Now in `DESIGN.md`
+"Sound".
+
+**Built** (branch `sound`): `src/ui/sounds.js` makes the twelve sounds
+(the sampler's recipes, unchanged, at the sampler's default volume) and
+keeps on/off (`web-games-sound` in localStorage, on when nothing is
+kept); it has no DOM code and takes its audio context, storage and log
+from the caller, so the tests run it with fakes. `src/ui/sound.js` wires
+it to the page: the 🔊/🔇 button in each screen's top row, a tick for
+every setup choice (one click listener on `#setup`), sound allowed to
+start on any tap, `navigator.audioSession.type = 'ambient'` where Safari
+has it (follows the silent switch, leaves music playing), and other tabs'
+on/off followed. Each game plays its moments with `sound.play(name,
+delay)`; the end of a round uses `endSound()` in `src/core/players.js`.
+Connect Four's thud waits for the disc to reach its hole (78% of its
+fall). The debug log has a `[sound]` line per sound, with the audio
+state when it isn't running (a suspended context plays nothing).
+
+**Checked:** `npm test` 166 of 166 (11 new: the sounds with a fake audio
+context that, like the real one, refuses a ramp to 0 and a stop before
+the start; on/off kept; blocked storage; no Web Audio; an unknown name;
+resuming; `endSound`; and each game's sounds read from its screen file
+against the agreed table, 27 in all). Each new check was seen to fail
+once, in a throwaway copy: a misspelled sound in Nim ("plays 'thudd',
+which isn't a sound"), Five Dice without its ping ("five-dice: sounds"),
+a sound ramping to 0 ("bad ramp 0"). In the built-in browser at 393x659:
+Nim against the robot logged tick (Play!), tick, tick, thud, the robot's
+five ticks, thud, ping, all with the audio running; Matching logged
+swish, swish, uh-oh on a miss; Snakes and Ladders shake, a tick per hop,
+the robot's turn, ping. Turned off on Snakes and Ladders: the next roll
+logged no sound, both buttons showed 🔇, `off` was kept, and tic-tac-toe
+then opened with 🔇. **The fit is unchanged:** each play screen's fitted
+size and page height were the same with and without the sound changes
+(`git stash`): tic-tac-toe 75, Connect Four 43, Count to 9 95, Snakes
+and Ladders 56, Five Dice 36 (dice 43), Nim 43, Rock paper scissors 125
+(Matching measured separately: 4x4 cards 64 px, whole page fits). Not
+checked: the sounds by ear in the games (Claude can't hear), and the
+iPhone.
+
+**On tic-tac-toe's setup screen** the 🏠 is one grid square (about 115
+px at 393 px wide) and the 🔊 48 px, so the title sits a little right of
+centre; the other setup screens have a 48 px 🏠 and a centred title.
+
+**Skill update installed** (the developer asked to confirm): the skill
+file this app loads was updated 2026-10-09 11:08 and is byte for byte
+the new version (`diff`), the only copy found. The skill-update folder
+`Web-Games-testing\2026-10-08_skill-update\` can be purged.

@@ -5,10 +5,11 @@
 import {
   COLS, ROWS, FACE_NAMES, FIRST_RULES, checkFaces, createMatch, newRound, drop, landingSpot, robotMove,
 } from '../core/connect-four.js';
-import { endMoods } from '../core/players.js';
+import { endMoods, endSound } from '../core/players.js';
 import { svg } from './faces.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
+import { sound } from './sound.js';
 
 const ROBOT_THINK_MS = 800;
 const PAD = 8, GAP = 4;  // css: --c4pad, --c4gap
@@ -163,8 +164,12 @@ function take(col, who) {
   if (!r.ok) { L('move refused', { col, why: r.why, who }); return; }
   justPlaced = r.spot;
   L('move', { player, face: faceOf(player), col, spot: spotName(r.spot), who });
+  // The thud when the disc reaches its hole: 78% of the fall (css: .disc.drop).
+  const landsIn = (0.18 + (Math.floor(r.spot / COLS) + 0.5) * 0.06) * 0.78;
+  sound.play('thud', landsIn);
   if (match.result) {
     const { winner, line } = match.result;
+    sound.play(endSound(winner, { vsRobot: match.vsRobot }), landsIn + 0.3);
     L(winner ? 'round won' : 'round tied', {
       winner: winner ? faceOf(winner) : null, line: line.map(spotName), scores: match.scores, nextStarter: faceOf(match.starter),
     });

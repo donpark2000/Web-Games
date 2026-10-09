@@ -32,6 +32,17 @@ export function endMoods(winner, { solo = false } = {}) {
   return { [winner]: 'winner', [3 - winner]: 'sad' };
 }
 
+// The sound at the end of a round (developer, 2026-10-09): 'win' when a
+// person wins, 'aww' when the robot beats you, 'tie' for a tie. Two
+// players: 'win' only (the loser's "aww" face is enough). Playing alone
+// (`solo`): 'win' when you finish. Against the robot, it is player 2.
+export function endSound(winner, { vsRobot = false, solo = false } = {}) {
+  if (![0, 1, 2].includes(winner)) throw new Error(`endSound: bad winner: ${winner}`);
+  if (solo) return 'win';
+  if (!winner) return 'tie';
+  return vsRobot && winner === 2 ? 'aww' : 'win';
+}
+
 // Checks the setup screen's picks. Returns '' when they're fine, otherwise
 // a reason code the screen turns into words:
 //   'p1-missing', 'p2-missing', 'unknown-face', 'same-face'.

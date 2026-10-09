@@ -4,9 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-08): all eight games published, the home page grouped
+*Status (2026-10-09): all eight games published, the home page grouped
 by players. Nim added 2026-10-08 (checked by the developer on the live
-site).*
+site). Sound built 2026-10-09 on branch `sound`, not yet published.*
 
 ## Goal
 
@@ -425,8 +425,32 @@ names agreed").
 
 ## Sound
 
-Small effects, with a mute button. **Off by default** until the developer
-has heard them.
+Small effects in every game, picked by the developer from a sampler
+(2026-10-09; journal, "Sounds picked from sampler v1"):
+[Game Sound Sampler](https://claude.ai/artifact/TfxCqWQnvPEfxg4iwX5d8c)
+(private Claude artifact, version 1).
+
+- **Made in the page** (Web Audio, `src/ui/sounds.js`): no sound files,
+  nothing from other sites.
+- **On by default** (developer). A **🔊/🔇 button top-right** on every
+  game screen (setup and play), 48 px, turns sound off or on for all the
+  games, **remembered on the device**.
+- **On iPhone and iPad the sounds follow the silent switch** (developer),
+  and leave any music playing alone.
+- **The sounds:** a wood tick for setup choices, picking a match or a die,
+  and each hop; a thud when a move lands (tic-tac-toe, Connect Four as the
+  disc reaches its hole, Nim's Take, a Five Dice score); a swish when a
+  card turns (Matching cards, Count to 9, the robot's card in Rock paper
+  scissors); a soft dice shake; a ding for a pair, the right number, or a
+  round of Rock paper scissors won; "uh-oh" for no match, a wrong number,
+  a round lost, or "One row at a time!"; a climb up a ladder and a
+  "wheee" down a snake; a ping for "your turn" after the robot's turn
+  where it takes several steps (Count to 9, Snakes and Ladders, Five Dice,
+  Nim).
+- **At the end of a round:** a sparkle when a person wins; a gentle
+  wobble-down "aww" when the robot wins; two players, only the sparkle;
+  playing alone, the sparkle when you finish; a tie (and "Same!" in Rock
+  paper scissors), "ding ding".
 
 ## Later
 

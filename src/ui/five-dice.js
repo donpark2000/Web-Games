@@ -10,12 +10,13 @@ import {
   checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn, cardsShown,
 } from '../core/five-dice.js';
 import { bestPlay, useValues, hasValues, fromFile, gameWorth } from '../core/five-dice-best.js';
-import { FACE_NAMES, endMoods } from '../core/players.js';
+import { FACE_NAMES, endMoods, endSound } from '../core/players.js';
 import { svg } from './faces.js';
 import { dotsSvg, cubeSvg } from './snlart.js';
 import { BOX_PICS, HELP } from './fivedice-pics.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
+import { sound } from './sound.js';
 
 const UNDO_MS = 3000;    // after scoring, Undo shows this long, then the turn passes (css: --undo)
 const SPIN_MS = 75;      // the dice tumble: a new face this often...
@@ -223,6 +224,7 @@ function tapRoll() {
     const r = pickUpAll(match);
     if (!r.ok) return L('roll tap ignored', { why: r.why });
     L('picked up all five (asks first)');
+    sound.play('tick');
     sayP(match.turn, 'Roll them all?');
     return render();
   }
@@ -234,6 +236,7 @@ function doRoll() {
   const r = roll(match);
   if (!r.ok) return L('roll refused', { why: r.why });
   L('roll', { player: faceOf(p), who: who(), roll: r.rolls, before, rolled: r.rolled, dice: r.dice });
+  sound.play('shake');
   rolling = r.rolled;
   yay = false;
   let k = 0;
@@ -267,6 +270,7 @@ function tapDie(i) {
   if (!r.ok) return L('die tap ignored', { die: i, why: r.why });
   const n = match.up.filter(Boolean).length;
   L(r.up ? 'die picked up' : 'die put back', { die: i, shows: match.dice[i], up: n });
+  sound.play('tick');
   sayP(match.turn, n ? `Roll ${n === 5 ? 'them all' : n === 1 ? 'that one' : `those ${n}`}?` : pickWords());
   render();
 }
@@ -290,6 +294,7 @@ function commit(box) {
     total: points(match.cards[p], match.length) });
   pendingBox = null;
   just = { p, box };
+  sound.play('thud');
   sayP(p, r.points ? `<b>+${r.points}</b>` : 'Zero this time', true);
   render();
   passTimer = later(finishTurn, isRobot(p) ? ROBOT_WAIT.after : UNDO_MS);
@@ -310,10 +315,12 @@ function tapUndo() {
 
 function finishTurn() {
   passTimer = null;
+  const wasRobot = robotsTurn();
   const r = endTurn(match);
   if (!r.ok) return L('end of turn refused', { why: r.why });
   if (r.result) return endRound(r.result);
   L('turn passes', { to: faceOf(r.turn) });
+  if (wasRobot) sound.play('ping');   // your turn, after the robot's
   beginTurn();
 }
 
@@ -322,6 +329,7 @@ function finishTurn() {
 function endRound(result) {
   const solo = match.mode === 'solo';
   moods = endMoods(result.winner, { solo });
+  sound.play(endSound(result.winner, { vsRobot: match.mode === 'robot', solo }));
   cheering = true;
   L('game over', { winner: result.winner ? faceOf(result.winner) : 'tie', points: result.points, wins: { ...match.wins },
     best: match.best, newBest: result.best, nextStarter: faceOf(match.starter) });
@@ -353,10 +361,11 @@ function robotThink() {
   // 2026-10-06); fewer are picked up one at a time.
   if (n === 5) {
     pickUpAll(match);
+    sound.play('tick');
     renderTray();
     return later(doRoll, ROBOT_WAIT.roll);
   }
-  picks.forEach((i, k) => later(() => { toggle(match, i); renderTray(); }, k * ROBOT_WAIT.each));
+  picks.forEach((i, k) => later(() => { toggle(match, i); sound.play('tick'); renderTray(); }, k * ROBOT_WAIT.each));
   later(doRoll, (n - 1) * ROBOT_WAIT.each + ROBOT_WAIT.roll);
 }
 

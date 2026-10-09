@@ -6,11 +6,12 @@ import {
   SIZES, DEFAULT_SIZE, MIN_CARD, FIRST_RULES, checkFaces, sizeKey, parseSize, fitLayout,
   createMatch, newRound, flip, settle,
 } from '../core/matching.js';
-import { FACE_NAMES, endMoods } from '../core/players.js';
+import { FACE_NAMES, endMoods, endSound } from '../core/players.js';
 import { svg } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
+import { sound } from './sound.js';
 
 const SHOW_MATCH_MS = 600;    // "A match!" before the pair settles
 const SHOW_MISS_MS = 1500;    // "Not a match": the two cards stay up this long
@@ -278,7 +279,9 @@ function tap(i) {
   if (!r.ok) { L('flip refused', { card: i, why: r.why }); return; }
   just = [];
   L('flip', { card: i, picture: match.deck[i], player: match.solo ? 1 : faceOf(player) });
+  sound.play('swish');
   if (r.pending) {
+    sound.play(r.pending === 'match' ? 'ding' : 'uhoh', 0.15);
     L(r.pending === 'match' ? 'a match' : 'not a match', { cards: [...match.open], turns: match.turns });
     settleTimer = setTimeout(settleNow, r.pending === 'match' ? SHOW_MATCH_MS : SHOW_MISS_MS);
   }
@@ -301,6 +304,7 @@ function settleNow() {
 
 function endRound({ winner, turns }) {
   moods = endMoods(winner, { solo: match.solo });
+  sound.play(endSound(winner, { solo: match.solo }));
   for (const p of [1, 2]) {
     const mood = moods[p];
     if (mood) setAnim(p, mood === 'winner' ? 'cheer-win' : 'cheer-lose', WIN_CHEER_MS);
