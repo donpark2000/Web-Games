@@ -16,7 +16,9 @@ import { sound } from './sound.js';
 
 const READY_MS = 1000;    // "Ready?" before the first step
 const LEAD_MS = 500;      // "Watch me!", then the first pad lights
-const YES_MS = 1100;      // "Yes! 3!" before the robot adds a step
+// "Yes! 3!" before the robot adds a step: with LEAD_MS, 2 s of quiet from
+// your last note to the robot's first (developer, 2026-10-09).
+const YES_MS = 1500;
 const AGAIN_MS = 2000;    // a miss (shake, the right pad blinks) before the robot shows it again
 const OVER_MS = 1300;     // a miss, then the end of the game
 const TAP_LIT_MS = 260;   // a tapped pad stays lit this long
@@ -235,7 +237,8 @@ function onTap(i) {
       L('order right', { length: match.seq.length });
       setWait(true);
       renderBoard();
-      sound.play('ding', 0.25);
+      // No ding (developer, 2026-10-09): it covered your last note, and in
+      // this game the notes are the only sounds while you play.
       say(`${chip(match.face, 'winner')}<span class="say">Yes! ${match.done}!</span>`, true);
       later(nextRound, YES_MS);
     }

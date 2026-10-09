@@ -3069,3 +3069,40 @@ The developer: "Yes, fix the README too". Its first line named only
 tic-tac-toe, matching cards and Connect Four; it now lists all nine in the
 home page's two groups.
 
+## 2026-10-09: Follow Me: no ding for a right order; 2 s of quiet
+
+**Developer, after trying Follow Me on a phone and a desktop:** "It all
+works as planned", but there was "still an extra sound when the person's
+turn is over"; suggested silence and a slightly longer pause before the
+robot's next order, or maybe a control to start it. "Sounds are very
+much a part of this game. Much more so than the other games. And extra
+sounds are potentially distracting."
+
+**Claude:** the sound was the ding for a right order (`sound.play('ding',
+0.25)` on the last tap), which also covered that tap's note. Proposed:
+no ding ("Yes! 3!", the smiling face and the full dots already say it),
+the pause from 1.6 s to about 2 s, and no "go" button for now (a tap
+more each round, easy for a 5-year-old to miss, breaks the watch-repeat
+rhythm). **Developer:** "Yes, remove the ding and make it 2 s".
+
+**Change** (`src/ui/follow-me.js`): no ding; `YES_MS` 1100 -> 1500, so
+with `LEAD_MS` (500) 2 s from your last note to the robot's first. The
+"uh-oh" for a miss and the end-of-game sound stay. Claude's three open
+choices from "Follow Me built" stand (the developer: works as planned).
+
+**Tests:** `npm test` 183 of 183 (182 before). `tests/sound.test.js`:
+Follow Me's sounds now just `uhoh` (the count 29 -> 28); new: YES_MS +
+LEAD_MS is 2000, and both are where the code waits. **Shown to fail:**
+the sound check failed on the change before the test was updated
+("follow-me: sounds"); YES_MS back at 1100 failed the new check ("YES_MS
+1100 + LEAD_MS 500"), then restored.
+
+**Checked in the built-in browser** (port 8124, a temporary launch.json
+entry, removed), 393 x 760, 4 faces, Easy: a right order logged "order
+right" with no ding; the robot's first note came 2.03 s after the last
+tap (37.143 s -> 39.172 s in the debug log; the developer's earlier
+session, with the old code: ding on the last tap, 1.63 s). A miss still
+plays "uh-oh". (My script then tapped a wrong order in round 2: it
+counted its own tap as part of the robot's order; the script, not the
+game.) Not checked by ear (the developer's).
+

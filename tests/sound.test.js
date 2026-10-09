@@ -169,7 +169,9 @@ const GAME_SOUNDS = {
   'rock-paper-scissors': ['tick', 'swish', 'tie', 'ding', 'uhoh'],
   // Not the ping after the robot (developer, Follow Me mockup v1): the
   // robot's notes are the order to count. Each pad's note is sound.note().
-  'follow-me': ['ding', 'uhoh'],
+  // No ding for a right order either (developer, 2026-10-09): it covered
+  // the last note.
+  'follow-me': ['uhoh'],
 };
 
 test('sound: each game plays its agreed sounds, all real ones, and the end-of-round sound', async () => {
@@ -186,5 +188,14 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 29);
+  assert.equal(checked, 28);
+});
+
+test('sound: Follow Me leaves 2 s of quiet from your last note to the robot’s first', async () => {
+  const src = await readFile(path.join(root, 'src/ui/follow-me.js'), 'utf8');
+  const ms = name => Number((src.match(new RegExp(`const ${name} = (\\d+);`)) || [])[1]);
+  // A right order waits YES_MS, then "Watch me!" waits LEAD_MS.
+  assert.match(src, /later\(nextRound, YES_MS\)/);
+  assert.match(src, /later\(\(\) => \{ light\(p, on\); renderDots\(i\); \}, LEAD_MS \+ i \* \(on \+ gap\)\)/);
+  assert.equal(ms('YES_MS') + ms('LEAD_MS'), 2000, `YES_MS ${ms('YES_MS')} + LEAD_MS ${ms('LEAD_MS')}`);
 });

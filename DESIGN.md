@@ -5,7 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-09): all nine games published, the home page grouped
-by players. Follow Me added 2026-10-09. Nim added 2026-10-08 (checked by the developer on the live
+by players. Follow Me added 2026-10-09 (no ding for a right order: on
+the branch, not yet published). Nim added 2026-10-08 (checked by the developer on the live
 site). Sound published 2026-10-09 (heard by the developer). Face names
 published 2026-10-09.*
 
@@ -440,9 +441,10 @@ a v3 that was skipped (developer: "go straight to publish").
   (bright colour, smiling face, its note) in turn. Then the turn line says
   "Leo's turn!", **with no sound** (developer: a ping after the robot's
   notes is one sound more than the faces shown). Each tap lights the pad
-  and plays its note; a row of dots fills, one per step. All right: a
-  ding, "Yes! 3!", and the robot shows the order again with one more
-  step. Never the same pad three times running. No time limit.
+  and plays its note; a row of dots fills, one per step. All right:
+  "Yes! 3!", **with no sound** (developer, 2026-10-09: a ding covered
+  the last note), then **2 s of quiet** from your last note to the
+  robot's first, and it shows the order again with one more step. Never the same pad three times running. No time limit.
 - **A miss:** "uh-oh", the tapped pad shakes, the right one blinks twice,
   a heart is lost. Hearts left (Easy): "Oops! Watch again." and the same
   order is shown again. None left (Hard: the first miss): "Leo got 5!
@@ -512,7 +514,11 @@ Small effects in every game, picked by the developer from a sampler
   "wheee" down a snake; a ping for "your turn" after the robot's turn
   where it takes several steps (Count to 9, Snakes and Ladders, Five Dice,
   Nim), but **not in Follow Me**, where the robot's notes are the order to
-  count. Follow Me's pads each play **their own note** (`sound.note()`).
+  count. Follow Me's pads each play **their own note** (`sound.note()`);
+  **while you play, the notes are its only sounds** (no ding for a right
+  order; developer, 2026-10-09: sound matters more in this game than in
+  the others, and extra sounds distract), only "uh-oh" for a miss and the
+  end-of-game sound.
 - **At the end of a round:** a sparkle when a person wins; a gentle
   wobble-down "aww" when the robot wins; two players, only the sparkle;
   playing alone, the sparkle when you finish; a tie (and "Same!" in Rock
