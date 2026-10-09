@@ -3213,3 +3213,35 @@ link; a real click on it opened `index.html`. No console errors. (My
 timing script mis-tapped round 2: it counted each lit pad twice; the
 script, not the game.)
 
+**Published** 2026-10-09 (developer: "Yes, publish"): `main`
+fast-forwarded to `follow-me` at `ee495ed` and pushed. Live within about
+40 s: the served `src/ui/follow-me.js` has `YES_MS = 2000` and
+`showBanner`, `follow-me.html` the hidden `#over` banner,
+`src/core/follow-me.js` Easy at 450 ms. Local servers then stopped (the
+new CLAUDE.md rule): none were left running (Claude's 8124 stopped after
+each check; the developer's 8123 stopped earlier this session). Not yet
+tried by the developer.
+
+## 2026-10-09: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with nine games, sound
+and face names. Follow Me today: no ding for a right order; Easy at Hard's
+starting pace (0.45 s lit, 0.17 s gap), steady; 3 s of quiet before the
+robot's next order ("Yes! 3!" 2 s, "Watch me!" 1 s); at the end the pads
+dim under a "Game over" banner holding the only Play again / New game.
+Working branch `follow-me`, level with `main` but for the journal. `npm
+test` 184 of 184.
+
+**Next:** the developer tries the new Follow Me (the 3 s pause, Easy's
+pace, the banner). Then more on this game or a new one: Spell the animal,
+Maze, Sliding puzzle, Higher or lower ("One-player game ideas"). On hold:
+a "go" button between rounds (only if the grandkids want breaks).
+
+**New rule** (CLAUDE.md, 2026-10-09): once a publish is live, stop the
+localhost servers. **Mockups** can now be made from the real code: a
+one-off bundling script in Claude's scratchpad (not kept in the repo;
+"Easy at Hard's starting pace; Follow Me mockup v3") turns a game page
+and its modules into one self-contained file.
+
+**Open questions:** none. **Proposed skill additions:** none waiting.
+
