@@ -2976,3 +2976,60 @@ Rock paper scissors.
 setup screen?
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
+
+## 2026-10-09: Follow Me built (no mockup v3)
+
+**Developer:** no "faster" on the Hard button ("No need to say
+'faster'"), and skip mockup v3: "I think we can go straight to publish".
+Built on branch `follow-me` from mockup v2 plus the agreed "How many
+faces?" (4 / 6 / 9). DESIGN.md "Follow Me" has the result. Claude's
+choices beyond the mockup, all open to change:
+- **The pads never show your own face**: the first 4, 6 or 9 of a fixed
+  list (frog, chick, pig, bunny, fox, panda, lion, mouse, monkey, cat),
+  skipping yours, so the face on the scoreboard is never a pad.
+- **Best per size and level, kept for the visit** (across New game).
+  The other games keep their bests in the match, so New game resets
+  them; here a best per size and level only makes sense if it survives
+  changing the size. Not kept on the device (as in the other games).
+- **Taps act as the finger lands** (pointerdown), as in the mockup.
+- **Dots on one line**, shrinking for a long order (45 steps: 4 px dots),
+  so the fitted page never grows.
+- **6 pads on a phone held sideways** (844 x 390): nothing fits even at
+  56 px, so the page scrolls; the 3x2 layout is used there (scroll 446 px
+  of 390, against 514 for 2x3).
+- New: `sound.note(freq, seconds)` in `src/ui/sounds.js` for the pads'
+  notes (the mockup's recipe: a triangle tone and a soft octave).
+- Home page: a 👤 One player button with the four pads, the frog lit.
+
+**Tests:** `npm test` 182 of 182 (170 before): 11 in
+`tests/follow-me.test.js` (pads: count, distinct faces/colours/notes,
+never your face; layouts; speed; never three in a row over 3000 steps
+per size and at the edges of `rand`; setup checks; right orders;
+refused taps; Easy misses and replay; Hard; best per size and level,
+equal not a new best, 0 not kept; Play again), `sound.note` in
+`tests/sound.test.js`, and the pages test (nine games, two in One
+player). **Shown to fail:** allowing three in a row ("three 0s at 4")
+and counting an equal score as a new best (2 tests) each failed, then
+restored.
+
+**Checked in the built-in browser** (served on port 8124: another
+chat's server had 8123; a launch.json entry for this session, removed):
+- 393 x 760: home page button; setup (the mini pads, the size grids,
+  hearts). Easy, 4: rounds 1-5 right ("Yes! 1!" to "Yes! 5!", dots 2-5,
+  orders 21, 213, 2131, 21311); a miss: hearts 3 to 2, the tapped pad
+  shook, the right one blinked, "Oops! Watch again.", the same 6 steps
+  shown again (213110); two more misses: "Teddy got 5! New best!", cheer,
+  🏆 bounce, best 5. Froggy, 9, Hard: no frog pad (Peep ... Kitty), one
+  heart, a miss: "Try again!", best stays 0. Page 760 high, 393 wide.
+- Pad sizes: 393 x 760: 4 at 174 px, 6 at 132 (2x3), 9 at 112. 375 x 667:
+  154, 106 (3x2: bigger there), 101; no scrolling. iPad 1180 x 820: 6 at
+  165 (3x2), no scrolling. No console errors.
+- Fixed while checking: "best (4, Easy)" wrapped mid-label; now "best"
+  above "(4, Easy)".
+- Not checked: the notes and sounds by ear (the developer's), a real
+  phone.
+
+My test script's first two tries read the robot's order wrongly (it
+started watching mid-show); that was the script, not the game: the
+third try watched from "Watch me!".
+

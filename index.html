@@ -52,6 +52,10 @@
         <span class="pic rps" id="rpsPic" aria-hidden="true"></span>
         Rock Paper Scissors
       </a>
+      <a class="game" id="fmLink" href="follow-me.html">
+        <span class="pic fm" id="fmPic" aria-hidden="true"></span>
+        Follow Me
+      </a>
     </div>
   </section>
 </main>
@@ -63,6 +67,8 @@
   import { PICTURES } from './src/ui/rpspics.js';
   import { ladderSvg, snakeSvg, dotsSvg } from './src/ui/snlart.js';
   import { MATCH_SVG } from './src/ui/matchstick.js';
+  import { padsFor } from './src/core/follow-me.js';
+  import { padStyle } from './src/ui/fmpads.js';
   import { log, startLog } from './src/ui/debuglog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
@@ -106,6 +112,9 @@
   // bear's colour) from the last row.
   document.getElementById('nimPic').innerHTML = [3, 5, 7].map((n, r) => '<span class="nrow">'
     + Array.from({ length: n }, (_, i) => `<span class="${r === 2 && i >= 5 ? 'o1' : ''}">${MATCH_SVG}</span>`).join('') + '</span>').join('');
+  // Follow Me: the four pads, the frog lit up.
+  document.getElementById('fmPic').innerHTML = padsFor(4, 'bear').map((p, i) =>
+    `<span class="${i === 0 ? 'lit' : ''}" style="${padStyle(p.color)}">${svg(p.face, i === 0 ? 'winner' : 'normal')}</span>`).join('');
   startLog('home');
   for (const g of document.querySelectorAll('.group')) {
     log.add('home', 'group', { group: g.id, games: [...g.querySelectorAll('.game')].map(a => a.getAttribute('href').replace(/[?#].*$/, '')) });

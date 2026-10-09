@@ -155,7 +155,24 @@ export function createSound({ makeContext, storage = null, log = () => {} }) {
     log(on ? 'turned on' : 'turned off');
     if (on) { unlock(); play('tick'); }
   }
+  // A soft note of `freq` Hz, about `seconds` long (at least 0.25 s), now
+  // or `delay` seconds from now: Follow Me's pads, each with its own note.
+  // Returns true when it was scheduled.
+  function note(freq, seconds, delay = 0) {
+    if (!(freq > 0) || !(seconds > 0)) { log('bad note', { freq, seconds }); return false; }
+    if (!on || !audio()) return false;
+    try {
+      const t = ctx.currentTime + LEAD + delay, d = Math.max(0.25, seconds);
+      tools.tone(t, freq, { type: 'triangle', dur: d, peak: 0.32, attack: 0.012 });
+      tools.tone(t, freq * 2, { dur: d * 0.6, peak: 0.08, attack: 0.012 });
+    } catch (e) {
+      log('note failed', { freq, error: String(e.message ?? e) });
+      return false;
+    }
+    log('note', ctx.state === 'running' ? { freq } : { freq, state: ctx.state });
+    return true;
+  }
   // Another tab changed it (the storage event): follow, without saving again.
   function follow(value) { on = value !== 'off'; log(on ? 'turned on (another tab)' : 'turned off (another tab)'); }
-  return { play, unlock, setOn, follow, get on() { return on; } };
+  return { play, note, unlock, setOn, follow, get on() { return on; } };
 }

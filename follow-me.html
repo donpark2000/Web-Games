@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Follow Me</title>
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/follow-me.css">
+</head>
+<body>
+<main class="app">
+  <!-- SETUP ("New game") -->
+  <section id="setup" class="app" aria-label="New game">
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
+      <h1>Follow Me</h1>
+    </div>
+
+    <div class="panel rulesbox">
+      <div class="mini4" id="mini4" aria-hidden="true"></div>
+      <p class="rules">Watch the robot. Then tap the <b>same faces</b> in the <b>same order</b>!</p>
+    </div>
+
+    <div class="panel p1">
+      <h2><span>Pick your face</span> <span class="chip" id="p1Chip"></span></h2>
+      <div class="faces" id="p1Faces"></div>
+    </div>
+
+    <div class="panel">
+      <h2>How many faces?</h2>
+      <div class="sizes">
+        <button type="button" class="size" data-size="4" aria-pressed="true"><span class="sgrid" data-grid="4"></span>4</button>
+        <button type="button" class="size" data-size="6" aria-pressed="false"><span class="sgrid" data-grid="6"></span>6</button>
+        <button type="button" class="size" data-size="9" aria-pressed="false"><span class="sgrid" data-grid="9"></span>9</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>How hard?</h2>
+      <div class="levels">
+        <button type="button" class="level" data-level="easy" aria-pressed="true"><span class="ico">⭐</span>Easy<span class="hearts" aria-label="3 tries">❤️❤️❤️</span></button>
+        <button type="button" class="level" data-level="hard" aria-pressed="false"><span class="ico">⭐⭐⭐</span>Hard<span class="hearts" aria-label="1 try">❤️</span></button>
+      </div>
+    </div>
+
+    <div class="go">
+      <button type="button" class="big" id="playBtn">Play!</button>
+      <div class="why" id="why"></div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="app" aria-label="Game" hidden>
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
+      <div class="turn" id="turn" aria-live="polite"></div>
+    </div>
+    <div class="pads wait" id="pads"></div>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <div class="scoreboard" aria-label="Score">
+      <div class="side"><span class="chip" id="s1Chip"></span><span><span class="n" id="s1">0</span><span class="who" id="s1Who"></span></span></div>
+      <div class="mid" id="mid"></div>
+      <div class="side"><span class="chip cup" id="cup">🏆</span><span><span class="n" id="s2">0</span><span class="who" id="s2Who">best</span></span></div>
+    </div>
+    <div class="controls">
+      <button type="button" class="pill primary" id="againBtn">Play again</button>
+      <button type="button" class="pill" id="newBtn">New game</button>
+    </div>
+  </section>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a></footer>
+<script type="module" src="src/ui/follow-me.js"></script>
+</body>
+</html>

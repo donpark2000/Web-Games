@@ -4,8 +4,8 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-09): all eight games published, the home page grouped
-by players. Nim added 2026-10-08 (checked by the developer on the live
+*Status (2026-10-09): all nine games published, the home page grouped
+by players. Follow Me added 2026-10-09. Nim added 2026-10-08 (checked by the developer on the live
 site). Sound published 2026-10-09 (heard by the developer). Face names
 published 2026-10-09.*
 
@@ -22,6 +22,7 @@ page. So far:
 - **Five Dice** (Yahtzee-style: roll five dice up to 3 times, fill the boxes)
 - **Nim** (take matches from one row; whoever takes the last one wins)
 - **Rock paper scissors** (against the robot)
+- **Follow Me** (repeat the robot's order of faces, Simon-style)
 
 ## Players
 
@@ -51,7 +52,7 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   2026-10-04): **👥 Two players** first (a game with a two-player choice,
   the second player a person or the robot: tic-tac-toe, matching cards,
   Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim), then **👤 One player** (no way to play
-  another person: rock paper scissors). Each game in one group only; a
+  another person: rock paper scissors, Follow Me). Each game in one group only; a
   group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
   the home page to change games, **as big as one of that game's grid
@@ -418,6 +419,50 @@ The developer's design, agreed 2026-10-04 from mockup v2 (journal):
   keeps it, New game resets it.
 - 🏠, footer, no scrolling, debug log as in the other games.
 
+### Follow Me
+
+Simon-style, one player. Agreed 2026-10-09 from mockup v2 (journal):
+[Follow Me Mockup](https://claude.ai/artifact/CYBaCqBjipGMo88xYWr8tJ)
+(private Claude artifact, version 2), plus "How many faces?", agreed for
+a v3 that was skipped (developer: "go straight to publish").
+
+- **Setup:** a rules panel (the four pads in small: "Watch the robot.
+  Then tap the same faces in the same order!"), **Pick your face**, **How
+  many faces?** (**4**, 2x2, preselected; **6**; **9**, 3x3; each button
+  a small grid), **How hard?** (⭐ Easy ❤️❤️❤️ / ⭐⭐⭐ Hard ❤️: the hearts
+  only, no "faster" or other words: developer, 2026-10-09), Play!.
+- **The pads:** each its own face, colour and note: frog (green), chick
+  (yellow), pig (pink), bunny (blue), then fox, panda, lion, mouse,
+  monkey, cat (`PAD_FACES` in `src/core/follow-me.js`), **never your own
+  face** (the next one comes in). Notes from one pentatonic scale, low to
+  high in reading order (4 pads: G4 C5 E5 G5, as in the mockup).
+- **A round:** "Ready?" 1 s; the robot: "Watch me!", each pad lights
+  (bright colour, smiling face, its note) in turn. Then the turn line says
+  "Leo's turn!", **with no sound** (developer: a ping after the robot's
+  notes is one sound more than the faces shown). Each tap lights the pad
+  and plays its note; a row of dots fills, one per step. All right: a
+  ding, "Yes! 3!", and the robot shows the order again with one more
+  step. Never the same pad three times running. No time limit.
+- **A miss:** "uh-oh", the tapped pad shakes, the right one blinks twice,
+  a heart is lost. Hearts left (Easy): "Oops! Watch again." and the same
+  order is shown again. None left (Hard: the first miss): "Leo got 5!
+  New best!", the sparkle and the scorecard cheer (the smiling face stays
+  until the next game); a game that ends at 0: "Try again!", no sparkle.
+- **Speed:** Easy, each step lit 0.65 s with 0.28 s between, all game;
+  Hard, 0.45 s and 0.17 s, 6% quicker each round, down to 0.26 s lit
+  (`LEVELS`).
+- **Scoreboard** (dark strip): your face and name, steps in a row this
+  game; the hearts and the level; 🏆 the **best for this size and level**
+  ("best (9, Hard)"), kept for the visit, across New game (7 on 9 faces is
+  much harder than 7 on 4). Play again / New game as in the other games.
+- **Sized to the screen:** the pads are the biggest that let the page fit
+  with no scrolling, at most 200 px (on a 393 x 760 phone: 174 px for 4,
+  132 px for 6, 112 px for 9). 6 is 2 across and 3 down on an upright
+  phone, 3x2 when that gives bigger pads (wide screens); a phone held
+  sideways can't fit them, so it scrolls, 3x2 at 56 px. The 🏠 follows the
+  pads (48-64 px). A long order makes the dots smaller, never a second
+  line.
+
 ## Face names
 
 Each face has a **fixed name** (developer, 2026-10-08), with **no
@@ -466,7 +511,8 @@ Small effects in every game, picked by the developer from a sampler
   a round lost, or "One row at a time!"; a climb up a ladder and a
   "wheee" down a snake; a ping for "your turn" after the robot's turn
   where it takes several steps (Count to 9, Snakes and Ladders, Five Dice,
-  Nim).
+  Nim), but **not in Follow Me**, where the robot's notes are the order to
+  count. Follow Me's pads each play **their own note** (`sound.note()`).
 - **At the end of a round:** a sparkle when a person wins; a gentle
   wobble-down "aww" when the robot wins; two players, only the sparkle;
   playing alone, the sparkle when you finish; a tie (and "Same!" in Rock

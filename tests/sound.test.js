@@ -117,6 +117,29 @@ test('sound: no Web Audio: every sound quietly does nothing, logged once', () =>
   assert.equal(lines.filter(l => l.startsWith('no sound')).length, 1, lines.join(' | '));
 });
 
+test('sound: a pad note: that pitch, at least 0.25 s; off or bad values play nothing', () => {
+  const { s, ctx, lines } = setupSound();
+  const freqs = [];
+  const make = ctx.createOscillator;
+  ctx.createOscillator = () => {
+    const o = make();
+    o.frequency.setValueAtTime = v => freqs.push(v);
+    return o;
+  };
+  assert.equal(s.note(392, 0.1), true);
+  assert.deepEqual(freqs, [392, 784], 'the note and its octave');
+  assert.ok(Math.max(...ctx.ends) >= ctx.currentTime + 0.25, `ends at ${Math.max(...ctx.ends)}: shorter than 0.25 s`);
+  assert.ok(Math.max(...ctx.ends) <= ctx.currentTime + 0.4, `ends at ${Math.max(...ctx.ends)}`);
+  assert.ok(lines.includes('note {"freq":392}'), lines.join(' | '));
+  assert.equal(s.note(0, 0.5), false);
+  assert.equal(s.note(440, -1), false);
+  assert.ok(lines.some(l => l.startsWith('bad note')), lines.join(' | '));
+  s.setOn(false);
+  freqs.length = 0;
+  assert.equal(s.note(440, 0.5), false);
+  assert.deepEqual(freqs, []);
+});
+
 test('sound: an unknown name is logged, not thrown', () => {
   const { s, lines } = setupSound();
   assert.equal(s.play('trumpet'), false);
@@ -144,6 +167,9 @@ const GAME_SOUNDS = {
   'five-dice': ['shake', 'tick', 'thud', 'ping'],
   nim: ['tick', 'uhoh', 'thud', 'ping'],
   'rock-paper-scissors': ['tick', 'swish', 'tie', 'ding', 'uhoh'],
+  // Not the ping after the robot (developer, Follow Me mockup v1): the
+  // robot's notes are the order to count. Each pad's note is sound.note().
+  'follow-me': ['ding', 'uhoh'],
 };
 
 test('sound: each game plays its agreed sounds, all real ones, and the end-of-round sound', async () => {
@@ -160,5 +186,5 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 27);
+  assert.equal(checked, 29);
 });
