@@ -3033,3 +3033,35 @@ My test script's first two tries read the robot's order wrongly (it
 started watching mid-show); that was the script, not the game: the
 third try watched from "Watch me!".
 
+
+## 2026-10-09: Follow Me published
+
+**Published** 2026-10-09 (developer: "go straight to publish", then
+"Please push and publish"): `main` fast-forwarded to `follow-me` at
+`96cf14a` and pushed. The first try was blocked by the session's
+auto-mode permission check (a push to `main` counts as a production
+deploy); it went through once the developer asked again in chat. Live
+within about 10 s (Invoke-WebRequest): the home page links
+`follow-me.html`; `follow-me.html`, both `follow-me.js` files,
+`fmpads.js` and `follow-me.css` are served; `sounds.js` has `note`.
+Not yet tried by the developer.
+
+## 2026-10-09: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with nine games (Follow
+Me added 2026-10-09, in 👤 One player), sound and face names. Working
+branch `follow-me`, level with `main` but for the journal. `npm test`
+182 of 182.
+
+**Next:** the developer tries Follow Me (the notes and sounds by ear,
+4 / 6 / 9 faces, Easy and Hard, on a phone or tablet), and says whether
+Claude's open choices stand ("Follow Me built (no mockup v3)"): pads
+never your own face; best kept for the visit per size and level; dots
+shrinking on one line. Other ideas waiting: Spell the animal, Maze,
+Sliding puzzle, Higher or lower ("One-player game ideas").
+
+**Noticed, not done:** `README.md` still says the site has "tic-tac-toe,
+matching cards and Connect Four".
+
+**Open questions:** none. **Proposed skill additions:** none waiting.
+
