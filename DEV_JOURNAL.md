@@ -3060,8 +3060,12 @@ never your own face; best kept for the visit per size and level; dots
 shrinking on one line. Other ideas waiting: Spell the animal, Maze,
 Sliding puzzle, Higher or lower ("One-player game ideas").
 
-**Noticed, not done:** `README.md` still says the site has "tic-tac-toe,
-matching cards and Connect Four".
-
 **Open questions:** none. **Proposed skill additions:** none waiting.
+
+
+## 2026-10-09: README lists the nine games
+
+The developer: "Yes, fix the README too". Its first line named only
+tic-tac-toe, matching cards and Connect Four; it now lists all nine in the
+home page's two groups.
 

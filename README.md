@@ -1,8 +1,10 @@
 # Web Games
 
 Simple games for young kids (ages 5-7), played in a web browser on a
-tablet or phone: tic-tac-toe, matching cards and Connect Four, all reached
-from one home page.
+tablet or phone, all reached from one home page. Two players (the second
+a person, or in most games the robot): tic-tac-toe, matching cards,
+Connect Four, Count to 9, Snakes and Ladders, Five Dice and Nim. One
+player: rock paper scissors and Follow Me.
 
 **Play it:** https://donpark2000.github.io/Web-Games/
 
