@@ -10,13 +10,10 @@ None.
 
 ## Proposed additions to the standards skill
 
-- **(2026-10-09) Tune by steps big enough to notice.** When the person
-  is adjusting something they judge by feel (a pause, a speed, a
-  volume), propose a change they'll clearly notice, around 50% or more,
-  and say the old and new numbers. *Evidence:* Follow Me's pause went
-  from 1.6 to 2.0 s (measured 2.03 s), and the developer's next try
-  found it "still seems fast"; 3 s took one more round. For the
-  developer to review at the next checkpoint.
+None waiting. (2026-10-09, "Tune by steps big enough to notice": dropped
+by the developer, "likely to be very game dependent rather than an
+overarching generic rule"; see "Follow Me's home picture on light
+tints".)
 
 (The two from 2026-10-07 and 2026-10-08 were approved by the developer
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
@@ -3282,3 +3279,25 @@ selector and failed on the new CSS too: the test, not the page; fixed.)
 #DDF1DF, #FFF0C4, #FDE1EB, #D8EBF9 (all soft); the frog's tile ringed
 in #4FB264. No console errors. Screenshots before and after in
 `Web-Games-testing\2026-10-09_fm-home-picture\`.
+
+**Published** 2026-10-09 (developer: "Yes, publish"): `main`
+fast-forwarded to `follow-me` at `9c8f1f1` and pushed. Live about 15 s
+later (the served `css/site.css` has the lit pad's ring). Claude's local
+server (8123) stopped; nothing left listening on 8123 or 8124. **Skill
+addition dropped** (developer: tuning "is likely to be very game
+dependent rather than an overarching generic rule").
+
+## 2026-10-09: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with nine games, sound
+and face names. The developer tried the new Follow Me: "New game is
+good." Its home picture is now on light tints like the others. Working
+branch `follow-me`, level with `main` but for the journal. `npm test`
+185 of 185.
+
+**Next:** a new one-player game, or more on an existing one. Ideas
+("One-player game ideas"): Spell the animal, Maze, Sliding puzzle,
+Higher or lower. On hold: a "go" button between Follow Me rounds (only if
+the grandkids want breaks).
+
+**Open questions:** none. **Proposed skill additions:** none waiting.
