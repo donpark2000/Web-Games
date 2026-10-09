@@ -10,8 +10,16 @@ None.
 
 ## Proposed additions to the standards skill
 
-None waiting. (The two from 2026-10-07 and 2026-10-08 were approved by
-the developer on 2026-10-08; see "Sound sampler v1; face names agreed".)
+- **(2026-10-09) Tune by steps big enough to notice.** When the person
+  is adjusting something they judge by feel (a pause, a speed, a
+  volume), propose a change they'll clearly notice, around 50% or more,
+  and say the old and new numbers. *Evidence:* Follow Me's pause went
+  from 1.6 to 2.0 s (measured 2.03 s), and the developer's next try
+  found it "still seems fast"; 3 s took one more round. For the
+  developer to review at the next checkpoint.
+
+(The two from 2026-10-07 and 2026-10-08 were approved by the developer
+on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
@@ -3243,5 +3251,6 @@ one-off bundling script in Claude's scratchpad (not kept in the repo;
 "Easy at Hard's starting pace; Follow Me mockup v3") turns a game page
 and its modules into one self-contained file.
 
-**Open questions:** none. **Proposed skill additions:** none waiting.
+**Open questions:** none. **Proposed skill additions:** one waiting ("Tune by steps big enough to
+notice"), to review together.
 
