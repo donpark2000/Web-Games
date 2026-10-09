@@ -2864,6 +2864,54 @@ pushed. Live about 30 s after the push (curl): `players.js` has
 `rock-paper-scissors.html` the scoreboard name, `matching.css` the
 "Games won" names.
 
+## 2026-10-09: One-player game ideas; Follow Me mockup v1
+
+**Ideas** (developer: "Any ideas for more one player games?"), Claude's
+five, in order: **Follow Me** (Simon-style: repeat the robot's sequence
+of faces), **Spell the animal** (CAT, DOG, PIG from letter tiles),
+**Maze** (lead a face to the 🏠 with a finger), **Sliding puzzle** (a
+face cut into tiles), **Higher or lower** (Count to 9's number cards).
+Claude recommended Follow Me (no words to read, quick to learn, uses the
+new sound). The developer: "Mock up Follow Me".
+
+**Mockup v1:** [Follow Me Mockup](https://claude.ai/artifact/CYBaCqBjipGMo88xYWr8tJ)
+(private Claude artifact, version 1). Built from the site's own
+`site.css`, `game.css`, faces, names and sounds by a script in Claude's
+scratchpad. Claude's choices, all open:
+- **Setup:** a rules panel (the four pads in small; "Watch the robot.
+  Then tap the same faces in the same order!"), Pick your face, **How
+  hard?** (⭐ Easy ❤️❤️❤️ / ⭐⭐⭐ Hard ❤️: hearts, not words), Play!.
+- **Play:** 🏠, the turn line, 🔊; four big pads, 2 x 2: Froggy (green),
+  Peep (yellow), Piggy (pink), Hoppy (blue), each with its own note (G4,
+  C5, E5, G5: any order sounds pleasant). A row of dots, one per step.
+  The dark scoreboard: your face, steps in a row this game; the hearts
+  and the level; 🏆 the best per level. Play again / New game.
+- **A round:** "Ready?" 1 s; the robot: "Watch me!", each pad lights
+  (bright colour, smiling face, its note); then a ping and "Leo's turn!".
+  Each tap lights the pad and plays its note; a dot fills. All right:
+  a ding, "Yes! 3!", and the robot shows the sequence again with one
+  more step. Never the same pad three times running. No time limit.
+- **A miss:** "uh-oh", the tapped pad shakes, the right one blinks
+  twice. Easy: a heart is lost and the robot shows the same sequence
+  again ("Oops! Watch again."). No hearts left (Hard: the first miss):
+  the game ends: "Leo got 5! New best!" with the sparkle and the
+  scorecard cheer (a game that ends at 0: "Try again!", no sparkle).
+- **Speed:** Easy, each step lit 0.65 s with 0.28 s between, the same
+  all game; Hard, 0.45 s and 0.17 s, 6% quicker each round, down to
+  0.26 s.
+- **Sized to the screen:** the pads are the biggest that let the page fit
+  with no scrolling (173 px at 393 x 760, at most 200 px).
+
+**Checked** (served on localhost from the scratchpad, built-in browser,
+393 x 760; a temporary entry in `.claude/launch.json`, removed after):
+setup fits; a game in Easy: 3 rounds right (sequence 2, 22, 223; "Yes!
+1!" to "Yes! 3!", dots filling), a tap while the robot showed was
+ignored; a miss: hearts 3 to 2, the hint blink, the same 4 steps shown
+again; two more misses: "Teddy got 3! New best!", best 3. Hard: one miss
+ended it (then "Leo got 0!", reworded to "Try again!"). No page
+scrolling, no console errors. The pad notes and sounds only by ear,
+which is the developer's. Not yet checked in the desktop app's viewer.
+
 ## 2026-10-09: Status (start here next session)
 
 **Live:** https://donpark2000.github.io/Web-Games/ with eight games,
@@ -2871,8 +2919,7 @@ sound, and **face names** (published 2026-10-09; girl and boy dropped).
 Working branch `face-names`, level with `main` but for the journal.
 `npm test` 170 of 170.
 
-**Next:** nothing agreed. Ideas on file: DESIGN.md "Later" (Matching
-cards with the developer's photos; a harder or easier robot in Rock
-paper scissors; more games).
+**Next:** Follow Me, from mockup v1 ("One-player game ideas; Follow Me
+mockup v1"): the developer tries it; then a v2 or building it.
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
