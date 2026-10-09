@@ -44,6 +44,9 @@ this is the short version:
 - Nothing loaded from other sites; no ads, tracking or sign-in.
 - Publishing is merging to `main` (once GitHub Pages is on); only with the
   developer's OK. Work happens on branches.
+- Once a publish is live on github.io, stop the localhost servers
+  (`tools/serve.js`, the developer's and Claude's) and say so; they
+  aren't needed any more and leftovers clash on ports.
 
 ## Files: repo vs. test output
 
