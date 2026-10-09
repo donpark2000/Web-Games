@@ -6,12 +6,7 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q11. Sound in all the games?** *Raised 2026-10-08 (developer):* no
-  game has sound for turns, wins or losses; add it everywhere, with a way
-  to turn it off and on? Sampler v1 heard and picked (2026-10-09); built
-  on branch `sound` ("Sound in all eight games", 2026-10-09). **Open
-  until** the developer has heard it in the games, including on the
-  iPhone (silent switch).
+None.
 
 ## Proposed additions to the standards skill
 
@@ -20,6 +15,12 @@ the developer on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q11. Sound in all the games?** *Raised 2026-10-08 (developer):* no
+  game has sound for turns, wins or losses; add it everywhere, with a way
+  to turn it off and on? Sampler v1 heard and picked (2026-10-09); built
+  on branch `sound` ("Sound in all eight games", 2026-10-09). **Resolved
+  2026-10-09:** published, and the developer, having heard it: "Sounds
+  are good".
 - **Q10. Names for the faces?** *Raised 2026-10-08 (developer, while Nim
   was being built):* only the robot has a name; give each face one?
   Either a fixed name that fits the face ("Froggy"), or names people
@@ -2761,3 +2762,72 @@ the turn line, in all eight games.
 
 **Open questions:** Q11 (sound, until heard on the devices).
 **Proposed skill additions:** none waiting.
+
+## 2026-10-09: Face names; girl and boy dropped
+
+**Q11 resolved:** the developer: "Sounds are good" (sound live since
+earlier today).
+
+**Girl and boy dropped** (developer: "Maybe we should drop girl/boy"):
+two problems with them. A fixed name can't fit a real child, so they
+would have needed typed names (renaming was already turned down); and
+two players never share a face, so one of two brothers couldn't be "the
+boy". Claude agreed: everyone picks an animal, and the names keep the
+two apart. Grandma and Grandpa stay (the name fits whoever plays). Two
+players still never share a face (two Leos would make "Leo's turn"
+ambiguous). The names as drafted, agreed ("Yes, drop them and use those
+names"). Branch `face-names`, from `sound`.
+
+**Built:**
+- `src/core/players.js`: `FACE_NAMES` without girl and boy (14 faces);
+  `NAMES` and `nameOf(face)` (an unknown face throws, rather than showing
+  a blank name); `twoPlayerFaces(p1, p2)` for the "Two players" button's
+  two faces (it showed the girl and boy before a pick; now bear and cat,
+  never the same two). The 7 copies of that line in the screens now call
+  it.
+- `src/ui/faces.js`: the girl and boy drawings removed; `pickerFace(f)`,
+  the face with its name under it. `css/game.css`: the picker buttons
+  are no longer square (face, then the name in 12 px).
+- All eight screens: names in the pickers (and their aria-labels), on
+  the scoreboards instead of You / Player 1 / Player 2 / Robot (Matching
+  cards and Five Dice keep their pairs / points labels), under your card
+  in Rock paper scissors, and in the turn lines (DESIGN.md "Face
+  names"). Against the robot the turn line now says "Leo's turn", not
+  "your turn", as with two players.
+- Debug log: no new lines. The log already records every face by its id
+  ("p1 picked", "match started", ...), and a name follows from the id.
+
+**Matching cards:** with two fewer faces, 13 pictures are left after two
+players' picks (was 15). A 4x6 grid (12 pairs) still has no repeats; 5x6
+now has 2 pictures 4 times (was none), 6x6 has 5 (was 3).
+
+**Tests:** `npm test` 170 of 170 (was 166): names for every face and the
+robot, all different; girl and boy gone (not pickable, no name, no
+drawing); `twoPlayerFaces` never shows the same face twice (every pair of
+picks); `pickerFace`; the face and picture counts updated (16 to 14
+faces, 51 to 45 drawings, Matching's repeats). Shown to fail: with the
+panda renamed "Teddy", the names test fails.
+
+**Checked in the browser** (375 x 812, the local server): the picker
+shows the 14 faces with names, 4 a row. Every game in each mode, with
+the longest name (Grandpa, and Grandma as player 2): the turn line and
+scoreboard show the names, and **the play screen still fits with no
+scrolling** (scrollHeight minus window height 0 on all 15). Snakes and
+Ladders' "Grandpa's turn. Tap the die!" takes three lines beside the
+die, but fits. No console errors.
+
+**Correction:** Claude told the developer a device with "girl" or "boy" saved
+as a last pick would just go back to empty. In fact the picks aren't
+saved on the device at all (only in the page while it's open), so
+there is nothing to clear.
+
+## 2026-10-09: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with eight games and
+sound. **Branch `face-names`** (pushed, not published): face names, girl
+and boy dropped. `npm test` 170 of 170.
+
+**Next:** the developer tries the names (locally or after publishing);
+publish on their OK (merge `face-names` to `main`).
+
+**Open questions:** none. **Proposed skill additions:** none waiting.

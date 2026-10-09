@@ -6,8 +6,8 @@
 import {
   COLS, ROWS, GOAL, FACE_NAMES, FIRST_RULES, numAt, centre, boardTotals, checkFaces, createMatch, newRound, move, rollDie,
 } from '../core/snakes-ladders.js';
-import { endMoods, endSound } from '../core/players.js';
-import { svg } from './faces.js';
+import { endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { svg, pickerFace } from './faces.js';
 import { boardArtSvg, snakePoints, dotsSvg, cubeSvg } from './snlart.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
@@ -68,9 +68,9 @@ function renderSetup() {
   for (const b of document.querySelectorAll('.first')) {
     b.setAttribute('aria-pressed', String(b.dataset.rule === setup.firstRule));
   }
-  const p1Pic = setup.p1 || 'girl';
+  const [p1Pic, p2Pic] = twoPlayerFaces(setup.p1, setup.p2);
   $('pairRobot').innerHTML = svg(p1Pic) + svg('robot');
-  $('pairTwo').innerHTML = svg(p1Pic) + svg(setup.p2 && setup.p2 !== setup.p1 ? setup.p2 : (setup.p1 === 'boy' ? 'girl' : 'boy'));
+  $('pairTwo').innerHTML = svg(p1Pic) + svg(p2Pic);
   $('p1Title').textContent = vs ? 'Pick your face' : 'Player 1, pick a face';
   $('p2Panel').hidden = vs;
   fillPicker($('p1Faces'), setup.p1, vs ? null : setup.p2, f => pick('p1', f));
@@ -87,8 +87,8 @@ function fillPicker(box, mine, theirs, onPick) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'face';
-    b.innerHTML = svg(f);
-    b.setAttribute('aria-label', f);
+    b.innerHTML = pickerFace(f);
+    b.setAttribute('aria-label', nameOf(f));
     b.setAttribute('aria-pressed', String(f === mine));
     b.disabled = f === theirs;
     b.onclick = () => onPick(f);
@@ -231,13 +231,13 @@ function nextTurn() {
   busy = robotsTurn();
   $('die').disabled = busy;
   if (robotsTurn()) {
-    turnLine(svg('robot'), 'is thinking…', true);
+    turnLine(svg('robot'), 'Robot is thinking…', true);
     $('die').classList.add('think');
     later(roll, THINK_MS);
   } else {
     if (robotPlayed) sound.play('ping');
     robotPlayed = false;
-    turnLine(svg(faceOf(p)), match.vsRobot ? 'your turn. Tap the die!' : '’s turn. Tap the die!', true);
+    turnLine(svg(faceOf(p)), `${nameOf(faceOf(p))}’s turn. Tap the die!`, true);
   }
 }
 
@@ -265,7 +265,7 @@ function roll() {
     clearInterval(spin);
     spin = null;
     dieDots(p, n);
-    turnLine(svg(faceOf(p)), `rolled <b>${n}</b>`, true);
+    turnLine(svg(faceOf(p)), `${nameOf(faceOf(p))} rolled <b>${n}</b>`, true);
     later(() => hop(r, 0), PAUSE_MS);
   }, ROLL_MS);
 }
@@ -346,7 +346,7 @@ function won(p) {
   placeBoth();
   L('round won', { winner: faceOf(p), moves: match.moves, scores: { ...match.scores }, nextStarter: faceOf(match.starter) });
   sound.play(endSound(p, { vsRobot: match.vsRobot }));
-  turnLine(svg(faceOf(p), 'winner'), 'wins!', true);
+  turnLine(svg(faceOf(p), 'winner'), `${nameOf(faceOf(p))} wins!`, true);
   $('turn').classList.add('won');
   setPieceMood(p, 'winner');
   pieces[p].classList.add('win');
@@ -367,8 +367,8 @@ function renderScores() {
   }
   $('s1').textContent = match.scores[1];
   $('s2').textContent = match.scores[2];
-  $('s1Who').textContent = match.vsRobot ? 'You' : 'Player 1';
-  $('s2Who').textContent = match.vsRobot ? 'Robot' : 'Player 2';
+  $('s1Who').textContent = nameOf(faceOf(1));
+  $('s2Who').textContent = nameOf(faceOf(2));
   $('side1').classList.toggle('now', !r && match.turn === 1);
   $('side2').classList.toggle('now', !r && match.turn === 2);
 }

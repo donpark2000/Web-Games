@@ -5,8 +5,8 @@
 import {
   COLS, ROWS, FACE_NAMES, FIRST_RULES, checkFaces, createMatch, newRound, drop, landingSpot, robotMove,
 } from '../core/connect-four.js';
-import { endMoods, endSound } from '../core/players.js';
-import { svg } from './faces.js';
+import { endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { svg, pickerFace } from './faces.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
@@ -47,9 +47,9 @@ function renderSetup() {
   for (const b of document.querySelectorAll('.first')) {
     b.setAttribute('aria-pressed', String(b.dataset.rule === setup.firstRule));
   }
-  const p1Pic = setup.p1 || 'girl';
+  const [p1Pic, p2Pic] = twoPlayerFaces(setup.p1, setup.p2);
   $('pairRobot').innerHTML = svg(p1Pic) + svg('robot');
-  $('pairTwo').innerHTML = svg(p1Pic) + svg(setup.p2 && setup.p2 !== setup.p1 ? setup.p2 : (setup.p1 === 'boy' ? 'girl' : 'boy'));
+  $('pairTwo').innerHTML = svg(p1Pic) + svg(p2Pic);
   $('p1Title').textContent = vs ? 'Pick your face' : 'Player 1, pick a face';
   // Against the robot there's no player 2 to pick for (developer,
   // 2026-10-04): the panel is hidden.
@@ -71,8 +71,8 @@ function fillPicker(box, mine, theirs, onPick) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'face';
-    b.innerHTML = svg(f);
-    b.setAttribute('aria-label', f);
+    b.innerHTML = pickerFace(f);
+    b.setAttribute('aria-label', nameOf(f));
     b.setAttribute('aria-pressed', String(f === mine));
     b.disabled = f === theirs;
     b.onclick = () => onPick(f);
@@ -236,10 +236,10 @@ function renderStatus() {
   const r = match.result;
   const t = $('turn');
   t.className = 'turn' + (r ? ' won' : '');
-  if (r && r.winner) t.innerHTML = `<span class="chip">${svg(faceOf(r.winner), 'winner')}</span> wins!`;
+  if (r && r.winner) t.innerHTML = `<span class="chip">${svg(faceOf(r.winner), 'winner')}</span> ${nameOf(faceOf(r.winner))} wins!`;
   else if (r) t.textContent = "It's a tie!";
-  else if (robotThinking()) t.innerHTML = `<span class="chip">${svg('robot')}</span> is thinking…`;
-  else t.innerHTML = `<span class="chip">${svg(faceOf(match.turn))}</span> ${match.vsRobot && match.turn === 1 ? 'your turn' : '’s turn'}`;
+  else if (robotThinking()) t.innerHTML = `<span class="chip">${svg('robot')}</span> Robot is thinking…`;
+  else t.innerHTML = `<span class="chip">${svg(faceOf(match.turn))}</span> ${nameOf(faceOf(match.turn))}’s turn`;
 
   const locked = !!r || robotThinking() || (match.vsRobot && match.turn === 2);
   for (const col of $('board').children) {
@@ -260,8 +260,8 @@ function renderStatus() {
   $('s1').textContent = match.scores[1];
   $('s2').textContent = match.scores[2];
   $('sT').textContent = match.scores.ties;
-  $('s1Who').textContent = match.vsRobot ? 'You' : 'Player 1';
-  $('s2Who').textContent = match.vsRobot ? 'Robot' : 'Player 2';
+  $('s1Who').textContent = nameOf(faceOf(1));
+  $('s2Who').textContent = nameOf(faceOf(2));
   $('side1').classList.toggle('now', !r && match.turn === 1);
   $('side2').classList.toggle('now', !r && match.turn === 2);
 }

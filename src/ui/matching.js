@@ -6,8 +6,8 @@ import {
   SIZES, DEFAULT_SIZE, MIN_CARD, FIRST_RULES, checkFaces, sizeKey, parseSize, fitLayout,
   createMatch, newRound, flip, settle,
 } from '../core/matching.js';
-import { FACE_NAMES, endMoods, endSound } from '../core/players.js';
-import { svg } from './faces.js';
+import { FACE_NAMES, endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
@@ -108,9 +108,9 @@ function renderSetup() {
   const solo = setup.solo;
   $('modeSolo').setAttribute('aria-pressed', String(solo));
   $('modeTwo').setAttribute('aria-pressed', String(!solo));
-  const p1Pic = setup.p1 || 'girl';
+  const [p1Pic, p2Pic] = twoPlayerFaces(setup.p1, setup.p2);
   $('pairSolo').innerHTML = svg(p1Pic);
-  $('pairTwo').innerHTML = svg(p1Pic) + svg(setup.p2 && setup.p2 !== setup.p1 ? setup.p2 : (setup.p1 === 'boy' ? 'girl' : 'boy'));
+  $('pairTwo').innerHTML = svg(p1Pic) + svg(p2Pic);
   $('p1Title').textContent = solo ? 'Pick your face' : 'Player 1, pick a face';
   $('p2Panel').hidden = solo;
   $('firstPanel').hidden = solo;
@@ -135,8 +135,8 @@ function fillPicker(box, mine, theirs, onPick) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'face';
-    b.innerHTML = svg(f);
-    b.setAttribute('aria-label', f);
+    b.innerHTML = pickerFace(f);
+    b.setAttribute('aria-label', nameOf(f));
     b.setAttribute('aria-pressed', String(f === mine));
     b.disabled = f === theirs;
     b.onclick = () => onPick(f);
@@ -325,12 +325,12 @@ function renderPlay() {
   const t = $('turn');
   t.className = 'turn' + (r ? ' won' : '');
   if (r && match.solo) t.innerHTML = `${chipSvg(1, 'winner')} All found in ${r.turns} turns!`;
-  else if (r && r.winner) t.innerHTML = `${chipSvg(r.winner, 'winner')} wins!`;
+  else if (r && r.winner) t.innerHTML = `${chipSvg(r.winner, 'winner')} ${nameOf(faceOf(r.winner))} wins!`;
   else if (r) t.innerHTML = `${chipSvg(1, 'winner')}${chipSvg(2, 'winner')} It's a tie!`;
   else if (match.pending === 'match') t.textContent = 'A match!';
   else if (match.pending === 'miss') t.textContent = 'Not a match';
   else if (match.solo) t.textContent = 'Find the pairs!';
-  else t.innerHTML = `${chipSvg(match.turn, 'normal')} ’s turn`;
+  else t.innerHTML = `${chipSvg(match.turn, 'normal')} ${nameOf(faceOf(match.turn))}’s turn`;
 
   [...$('grid').children].forEach((c, i) => {
     const s = match.state[i];

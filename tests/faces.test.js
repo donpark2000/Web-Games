@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { svg, DRAWN_FACES, MOODS } from '../src/ui/faces.js';
+import { svg, pickerFace, DRAWN_FACES, MOODS } from '../src/ui/faces.js';
 import { FACE_NAMES, ROBOT } from '../src/core/tic-tac-toe.js';
 
 test('faces: every pickable face and the robot has a drawing, and nothing extra', () => {
@@ -20,7 +20,7 @@ test('faces: each drawing, in both moods, is one well-formed SVG with no missing
       drawings++;
     }
   }
-  assert.equal(drawings, 51);
+  assert.equal(drawings, 45);   // 14 faces and the robot, 3 moods each
 });
 
 test('faces: the three versions (normal, winner, sad) all differ, for every face', () => {
@@ -33,4 +33,11 @@ test('faces: the three versions (normal, winner, sad) all differ, for every face
 test('faces: unknown face or mood is an error, not a blank picture', () => {
   assert.throws(() => svg('dragon'), /no drawing/);
   assert.throws(() => svg('cat', 'happy'), /unknown mood/);
+});
+
+test('pickerFace: the face with its name under it; an unknown face is an error', () => {
+  const b = pickerFace('lion');
+  assert.ok(b.startsWith(svg('lion')), 'the face first');
+  assert.ok(b.endsWith('<span class="nm">Leo</span>'), b.slice(-60));
+  assert.throws(() => pickerFace('girl'));
 });

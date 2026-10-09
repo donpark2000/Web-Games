@@ -10,8 +10,8 @@ import {
   checkFaces, createMatch, newRound, roll, toggle, pickUpAll, scoreBox, undo, endTurn, cardsShown,
 } from '../core/five-dice.js';
 import { bestPlay, useValues, hasValues, fromFile, gameWorth } from '../core/five-dice-best.js';
-import { FACE_NAMES, endMoods, endSound } from '../core/players.js';
-import { svg } from './faces.js';
+import { FACE_NAMES, endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { svg, pickerFace } from './faces.js';
 import { dotsSvg, cubeSvg } from './snlart.js';
 import { BOX_PICS, HELP } from './fivedice-pics.js';
 import { log, startLog } from './debuglog.js';
@@ -77,10 +77,10 @@ function renderSetup() {
   const mode = setup.mode;
   for (const b of document.querySelectorAll('.mode')) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
   for (const b of document.querySelectorAll('.level')) b.setAttribute('aria-pressed', String(b.dataset.length === setup.length));
-  const p1Pic = setup.p1 || 'girl';
+  const [p1Pic, p2Pic] = twoPlayerFaces(setup.p1, setup.p2);
   $('pairSolo').innerHTML = svg(p1Pic);
   $('pairRobot').innerHTML = svg(p1Pic) + svg('robot');
-  $('pairTwo').innerHTML = svg(p1Pic) + svg(setup.p2 && setup.p2 !== setup.p1 ? setup.p2 : (setup.p1 === 'boy' ? 'girl' : 'boy'));
+  $('pairTwo').innerHTML = svg(p1Pic) + svg(p2Pic);
   $('p1Title').textContent = mode === 'two' ? 'Player 1, pick a face' : 'Pick your face';
   $('p2Panel').hidden = mode !== 'two';
   fillPicker($('p1Faces'), setup.p1, mode === 'two' ? setup.p2 : null, f => pick('p1', f));
@@ -97,8 +97,8 @@ function fillPicker(box, mine, theirs, onPick) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'face';
-    b.innerHTML = svg(f);
-    b.setAttribute('aria-label', f);
+    b.innerHTML = pickerFace(f);
+    b.setAttribute('aria-label', nameOf(f));
     b.setAttribute('aria-pressed', String(f === mine));
     b.disabled = f === theirs;
     b.onclick = () => onPick(f);
@@ -206,10 +206,10 @@ function beginTurn() {
   yay = false;
   render();
   if (robotsTurn()) {
-    sayP(2, 'is thinking…');
+    sayP(2, 'Robot is thinking…');
     later(doRoll, ROBOT_WAIT.start);
   } else {
-    sayP(match.turn, match.mode === 'solo' ? 'Roll the dice!' : 'Your turn. Roll!');
+    sayP(match.turn, match.mode === 'solo' ? 'Roll the dice!' : `${nameOf(faceOf(match.turn))}’s turn. Roll!`);
   }
 }
 
@@ -254,7 +254,7 @@ function afterRoll() {
   yay = fiveSame(match.dice);
   render();
   if (isRobot(p)) {
-    sayP(p, yay ? 'Five the same!' : 'is thinking…', yay);
+    sayP(p, yay ? 'Five the same!' : 'Robot is thinking…', yay);
     later(robotThink, ROBOT_WAIT.look);
     return;
   }
@@ -335,7 +335,7 @@ function endRound(result) {
     best: match.best, newBest: result.best, nextStarter: faceOf(match.starter) });
   later(() => { cheering = false; renderBoard(); }, CHEER_MS);
   if (solo) sayP(1, `<b>${result.points[1]}</b> points!${result.best ? ' Your best!' : ''}`, true);
-  else if (result.winner) sayP(result.winner, 'wins!', true);
+  else if (result.winner) sayP(result.winner, `${nameOf(faceOf(result.winner))} wins!`, true);
   else say('<span class="say">It’s a tie!</span>', true);
   $('turn').classList.add('won');
   render();

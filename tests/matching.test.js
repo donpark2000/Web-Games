@@ -46,8 +46,8 @@ test('sizes: every grid has an even number of cards; 4x4 is offered', () => {
   assert.throws(() => parseSize('5x5'), /unknown grid size/);
 });
 
-test('pictures: the 16 faces plus the robot', () => {
-  assert.equal(PICTURES.length, 17);
+test('pictures: the 14 faces plus the robot', () => {
+  assert.equal(PICTURES.length, 15);
   assert.ok(PICTURES.includes('robot'));
 });
 
@@ -75,13 +75,15 @@ test('deck: every size, both players excluded: every picture appears an even num
 });
 
 test('deck: pictures repeat only when there are more pairs than pictures', () => {
-  // 15 pictures left after two players; 15 pairs (5x6) fit with no repeats.
+  // 13 pictures left after two players; 12 pairs (4x6) fit with no repeats.
+  const d12 = makeDeck(12, ['bear', 'cat'], seeded(3));
+  assert.ok([...count(d12).values()].every(n => n === 2));
+  // 15 pairs (5x6): 2 pictures appear 4 times; 18 pairs (6x6): 5 do.
   const d15 = makeDeck(15, ['bear', 'cat'], seeded(3));
-  assert.ok([...count(d15).values()].every(n => n === 2));
-  // 18 pairs (6x6): 3 pictures appear 4 times, the rest twice.
+  assert.deepEqual([...count(d15).values()].sort(), [...Array(11).fill(2), 4, 4]);
   const d18 = makeDeck(18, ['bear', 'cat'], seeded(3));
   const n = [...count(d18).values()].sort();
-  assert.deepEqual(n, [...Array(12).fill(2), 4, 4, 4]);
+  assert.deepEqual(n, [...Array(8).fill(2), 4, 4, 4, 4, 4]);
   assert.throws(() => makeDeck(2, PICTURES), /no pictures/);
 });
 

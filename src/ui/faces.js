@@ -6,7 +6,10 @@
 // a round (developer, 2026-10-04).
 //
 // svg(name, mood) returns an SVG string; mood is 'normal', 'winner' or
-// 'sad'.
+// 'sad'. pickerFace(name): the face with its name under it, for the face
+// pickers.
+
+import { nameOf } from '../core/players.js';
 
 const D = '#2B2B33';
 function eyes(m, y, dx, col = D) {
@@ -67,11 +70,6 @@ const DRAWINGS = {
     ${eyes(m,48,13)}${cheeks(m,62,22)}${m === 'winner'
       ? `<ellipse cx="50" cy="67" rx="7" ry="5" fill="${D}"/><path d="M41 60 L59 60 L50 66 Z" fill="#F28C28"/><path d="M43 69 L57 69 L50 76 Z" fill="#F28C28"/>`
       : `<path d="M42 61 L58 61 L50 70 Z" fill="#F28C28"/>`}`,
-  girl: m => `<circle cx="18" cy="60" r="12" fill="#6B3E26"/><circle cx="82" cy="60" r="12" fill="#6B3E26"/><circle cx="26" cy="49" r="4.5" fill="#FF7FA8"/><circle cx="74" cy="49" r="4.5" fill="#FF7FA8"/>
-    <circle cx="50" cy="49" r="32" fill="#6B3E26"/><ellipse cx="50" cy="59" rx="27" ry="28" fill="#F6C8A0"/>
-    <path d="M23 50 Q28 22 50 22 Q72 22 77 50 Q64 34 50 39 Q36 34 23 50 Z" fill="#6B3E26"/>${eyes(m,58,11)}${cheeks(m,68,19)}${mouth(m,73,6)}`,
-  boy: m => `<circle cx="23" cy="60" r="6" fill="#E8B48A"/><circle cx="77" cy="60" r="6" fill="#E8B48A"/><circle cx="50" cy="47" r="30" fill="#3F2A1D"/><ellipse cx="50" cy="59" rx="27" ry="28" fill="#E8B48A"/>
-    <path d="M23 52 Q23 24 50 22 Q77 24 77 52 Q71 37 57 38 L50 31 L43 38 Q29 37 23 52 Z" fill="#3F2A1D"/>${eyes(m,58,11)}${cheeks(m,68,19)}${mouth(m,73,6)}`,
   grandma: m => `<circle cx="50" cy="19" r="12" fill="#C9CDD6"/><circle cx="50" cy="49" r="32" fill="#C9CDD6"/><ellipse cx="50" cy="59" rx="27" ry="28" fill="#F3CDA9"/>
     <path d="M23 52 Q25 26 50 26 Q75 26 77 52 Q66 38 50 41 Q34 38 23 52 Z" fill="#C9CDD6"/>${eyes(m,58,11)}${glasses(58,'#7A5BB0')}${cheeks(m,69,20)}${mouth(m,74,6)}`,
   grandpa: m => `<circle cx="22" cy="60" r="6" fill="#EBC09A"/><circle cx="78" cy="60" r="6" fill="#EBC09A"/><ellipse cx="50" cy="56" rx="28" ry="30" fill="#EBC09A"/>
@@ -96,4 +94,10 @@ export function svg(name, mood = 'normal') {
   if (!draw) throw new Error(`no drawing for face: ${name}`);
   if (!MOODS.includes(mood)) throw new Error(`unknown mood: ${mood}`);
   return `<svg class="av" viewBox="0 0 100 100" aria-hidden="true">${draw(mood)}</svg>`;
+}
+
+// A face picker's button content: the face, its name under it (developer,
+// 2026-10-09).
+export function pickerFace(name) {
+  return `${svg(name)}<span class="nm">${nameOf(name)}</span>`;
 }

@@ -36,7 +36,13 @@ h2 .chip { width: 34px; height: 34px; }
 
 /* face pickers */
 .faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
-.face { aspect-ratio: 1; border-radius: 16px; border: 3px solid transparent; background: var(--sky); cursor: pointer; padding: 6px; }
+.face {
+  border-radius: 16px; border: 3px solid transparent; background: var(--sky); cursor: pointer; padding: 6px 0 4px;
+  display: grid; justify-items: center; gap: 2px; min-width: 0;
+}
+.face .av { width: calc(100% - 12px); height: auto; aspect-ratio: 1; }
+/* the face's name (developer, 2026-10-09) */
+.face .nm { font-size: 12px; font-weight: 700; line-height: 1.1; white-space: nowrap; color: var(--ink); }
 .p1 .face[aria-pressed="true"] { border-color: var(--p1); background: var(--p1-soft); }
 .p2 .face[aria-pressed="true"] { border-color: var(--p2); background: var(--p2-soft); }
 .face:disabled { opacity: .2; cursor: default; }

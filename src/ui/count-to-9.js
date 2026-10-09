@@ -6,8 +6,8 @@
 import {
   MODES, LEVELS, FIRST_RULES, ROBOT_TUNING, checkFaces, createMatch, newRound, flip, settle, robotPick,
 } from '../core/count-to-9.js';
-import { FACE_NAMES, endMoods, endSound } from '../core/players.js';
-import { svg } from './faces.js';
+import { FACE_NAMES, endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { numberSvg } from './numbercard.js';
 import { log, startLog } from './debuglog.js';
@@ -51,10 +51,10 @@ function renderSetup() {
   for (const b of document.querySelectorAll('.mode')) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
   for (const b of document.querySelectorAll('.level')) b.setAttribute('aria-pressed', String(b.dataset.level === setup.level));
   for (const b of document.querySelectorAll('.first')) b.setAttribute('aria-pressed', String(b.dataset.rule === setup.firstRule));
-  const p1Pic = setup.p1 || 'girl';
+  const [p1Pic, p2Pic] = twoPlayerFaces(setup.p1, setup.p2);
   $('pairSolo').innerHTML = svg(p1Pic);
   $('pairRobot').innerHTML = svg(p1Pic) + svg('robot');
-  $('pairTwo').innerHTML = svg(p1Pic) + svg(setup.p2 && setup.p2 !== setup.p1 ? setup.p2 : (setup.p1 === 'boy' ? 'girl' : 'boy'));
+  $('pairTwo').innerHTML = svg(p1Pic) + svg(p2Pic);
   $('p1Title').textContent = mode === 'two' ? 'Player 1, pick a face' : 'Pick your face';
   // Only two players need a second face, and someone to go first.
   $('p2Panel').hidden = mode !== 'two';
@@ -76,8 +76,8 @@ function fillPicker(box, mine, theirs, onPick) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'face';
-    b.innerHTML = svg(f);
-    b.setAttribute('aria-label', f);
+    b.innerHTML = pickerFace(f);
+    b.setAttribute('aria-label', nameOf(f));
     b.setAttribute('aria-pressed', String(f === mine));
     b.disabled = f === theirs;
     b.onclick = () => onPick(f);
@@ -255,11 +255,11 @@ function render() {
   t.className = 'turn' + (r ? ' won' : '') + (match.pending ? ' oops' : '');
   const want = `<span class="want">${match.next}</span>`;
   if (r && solo) t.innerHTML = `${chip(faceOf(1), 'winner')} 1 to 9 in ${r.turns} ${r.turns === 1 ? 'turn' : 'turns'}!`;
-  else if (r) t.innerHTML = `${chip(faceOf(r.winner), 'winner')} wins!`;
+  else if (r) t.innerHTML = `${chip(faceOf(r.winner), 'winner')} ${nameOf(faceOf(r.winner))} wins!`;
   else if (match.pending) t.textContent = 'Oops!';
-  else if (robotThinking()) t.innerHTML = `${chip('robot')} is thinking…`;
+  else if (robotThinking()) t.innerHTML = `${chip('robot')} Robot is thinking…`;
   else if (solo) t.innerHTML = `Find ${want}`;
-  else t.innerHTML = `${chip(faceOf(match.turn))} find ${want}`;
+  else t.innerHTML = `${chip(faceOf(match.turn))} ${nameOf(faceOf(match.turn))}, find ${want}`;
 
   const locked = !!r || !!match.pending || robotThinking() || robotsTurn();
   [...$('grid').children].forEach((c, i) => {
@@ -287,8 +287,8 @@ function render() {
   } else {
     $('s1').textContent = match.wins[1];
     $('s2').textContent = match.wins[2];
-    $('s1Who').textContent = match.mode === 'robot' ? 'You' : 'Player 1';
-    $('s2Who').textContent = match.mode === 'robot' ? 'Robot' : 'Player 2';
+    $('s1Who').textContent = nameOf(faceOf(1));
+    $('s2Who').textContent = nameOf(faceOf(2));
   }
   $('side1').classList.toggle('now', !solo && !r && match.turn === 1);
   $('side2').classList.toggle('now', !solo && !r && match.turn === 2);

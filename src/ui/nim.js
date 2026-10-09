@@ -6,8 +6,8 @@ import {
   FACE_NAMES, FIRST_RULES, LEVELS, START_ROWS, checkFaces, createMatch, newRound, take, counts, nimSum,
   robotMove, robotPicks,
 } from '../core/nim.js';
-import { endMoods, endSound } from '../core/players.js';
-import { svg } from './faces.js';
+import { endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { svg, pickerFace } from './faces.js';
 import { MATCH_SVG } from './matchstick.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
@@ -58,9 +58,9 @@ function renderSetup() {
   $('modeTwo').setAttribute('aria-pressed', String(!vs));
   for (const b of document.querySelectorAll('.first')) b.setAttribute('aria-pressed', String(b.dataset.rule === setup.firstRule));
   for (const b of document.querySelectorAll('.level')) b.setAttribute('aria-pressed', String(b.dataset.level === setup.level));
-  const p1Pic = setup.p1 || 'girl';
+  const [p1Pic, p2Pic] = twoPlayerFaces(setup.p1, setup.p2);
   $('pairRobot').innerHTML = svg(p1Pic) + svg('robot');
-  $('pairTwo').innerHTML = svg(p1Pic) + svg(setup.p2 && setup.p2 !== setup.p1 ? setup.p2 : (setup.p1 === 'boy' ? 'girl' : 'boy'));
+  $('pairTwo').innerHTML = svg(p1Pic) + svg(p2Pic);
   $('p1Title').textContent = vs ? 'Pick your face' : 'Player 1, pick a face';
   // Against the robot there's no player 2 to pick for; two players have no
   // robot to make easy or hard.
@@ -82,8 +82,8 @@ function fillPicker(box, mine, theirs, onPick) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'face';
-    b.innerHTML = svg(f);
-    b.setAttribute('aria-label', f);
+    b.innerHTML = pickerFace(f);
+    b.setAttribute('aria-label', nameOf(f));
     b.setAttribute('aria-pressed', String(f === mine));
     b.disabled = f === theirs;
     b.onclick = () => onPick(f);
@@ -291,10 +291,10 @@ function renderStatus() {
   const r = match.result;
   const t = $('turn');
   t.className = 'turn' + (r ? ' won' : '');
-  if (r) t.innerHTML = `<span class="chip">${svg(faceOf(r.winner), 'winner')}</span> wins!`;
+  if (r) t.innerHTML = `<span class="chip">${svg(faceOf(r.winner), 'winner')}</span> ${nameOf(faceOf(r.winner))} wins!`;
   else if (hint) t.innerHTML = `<span class="chip">${svg(faceOf(match.turn))}</span> ${hint}`;
-  else if (robotsTurn()) t.innerHTML = `<span class="chip">${svg('robot')}</span> is thinking…`;
-  else t.innerHTML = `<span class="chip">${svg(faceOf(match.turn))}</span> ${match.vsRobot ? 'your turn' : '’s turn'}`;
+  else if (robotsTurn()) t.innerHTML = `<span class="chip">${svg('robot')}</span> Robot is thinking…`;
+  else t.innerHTML = `<span class="chip">${svg(faceOf(match.turn))}</span> ${nameOf(faceOf(match.turn))}’s turn`;
 
   const n = sel ? sel.picks.size : 0;
   const take = $('takeBtn');
@@ -311,8 +311,8 @@ function renderStatus() {
   }
   $('s1').textContent = match.scores[1];
   $('s2').textContent = match.scores[2];
-  $('s1Who').textContent = match.vsRobot ? 'You' : 'Player 1';
-  $('s2Who').textContent = match.vsRobot ? 'Robot' : 'Player 2';
+  $('s1Who').textContent = nameOf(faceOf(1));
+  $('s2Who').textContent = nameOf(faceOf(2));
   $('side1').classList.toggle('now', !r && match.turn === 1);
   $('side2').classList.toggle('now', !r && match.turn === 2);
 }

@@ -3,8 +3,8 @@
 // keeps time (the countdown, the pauses between rounds) and handles taps.
 
 import { PICKS, checkFaces, createMatch, newGame, newRound, unlock, choose } from '../core/rock-paper-scissors.js';
-import { FACE_NAMES, endMoods, endSound } from '../core/players.js';
-import { svg } from './faces.js';
+import { FACE_NAMES, endMoods, endSound, nameOf } from '../core/players.js';
+import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { PICTURES, SAYS } from './rpspics.js';
 import { log, startLog } from './debuglog.js';
@@ -39,8 +39,8 @@ function renderSetup() {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'face';
-    b.innerHTML = svg(f);
-    b.setAttribute('aria-label', f);
+    b.innerHTML = pickerFace(f);
+    b.setAttribute('aria-label', nameOf(f));
     b.setAttribute('aria-pressed', String(f === setup.p1));
     b.onclick = () => { setup.p1 = f; L('p1 picked', { face: f }); renderSetup(); };
     return b;
@@ -60,6 +60,7 @@ $('playBtn').onclick = () => {
   $('play').hidden = false;
   scrollTo(0, 0);
   for (const [id, f] of [['meFace', 0], ['botFace', 1], ['g1c', 0], ['g2c', 1]]) $(id).innerHTML = svg(match.faces[f]);
+  $('meLbl').textContent = nameOf(match.faces[0]);
   $('botBack').innerHTML = CARD_BACK;
   startGame();
   fitCards();
@@ -136,7 +137,7 @@ function startRound() {
   const robot = newRound(match);
   L('round', { n: match.rounds + 1, robotPicked: robot });
   $('botLbl').textContent = 'Picked! (hidden)';
-  turn(`${chip('robot')} has picked!`);
+  turn(`${chip('robot')} Robot has picked!`);
   [1, 2, 3].forEach((n, i) => later(() => {
     $('count').innerHTML = `<b class="tick">${n}</b>`;
     const slot = $('botSlot');
@@ -181,7 +182,7 @@ function tap(pick) {
       moods = endMoods(r.winner);
       cheering = true;
       later(() => { cheering = false; renderScore(); }, CHEER_MS);
-      turn(`${chip(faceOf(r.winner), 'winner')} wins!`, true);
+      turn(`${chip(faceOf(r.winner), 'winner')} ${nameOf(faceOf(r.winner))} wins!`, true);
       const w = $(`g${r.winner}w`);
       w.classList.remove('up');
       void w.offsetWidth;

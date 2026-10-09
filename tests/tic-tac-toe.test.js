@@ -61,9 +61,9 @@ test('nextStarter: all three rules, after a win by either player and after a tie
   }
 });
 
-test('faces: 16 to pick from; the robot is not one of them', () => {
-  assert.equal(FACE_NAMES.length, 16);
-  assert.equal(new Set(FACE_NAMES).size, 16);
+test('faces: 14 to pick from; the robot is not one of them', () => {
+  assert.equal(FACE_NAMES.length, 14);
+  assert.equal(new Set(FACE_NAMES).size, 14);
   assert.ok(!FACE_NAMES.includes(ROBOT));
 });
 

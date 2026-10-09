@@ -6,7 +6,8 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-10-09): all eight games published, the home page grouped
 by players. Nim added 2026-10-08 (checked by the developer on the live
-site). Sound built 2026-10-09 on branch `sound`, not yet published.*
+site). Sound published 2026-10-09 (heard by the developer). Face names
+built 2026-10-09 on branch `face-names`, not yet published.*
 
 ## Goal
 
@@ -94,8 +95,9 @@ Claude artifacts: [Tic-Tac-Toe Mockup](https://claude.ai/artifact/Y4LgG7JDqk9KBz
 
 - **Faces instead of X and O.** Each player picks a face; it fills the
   squares they take. **Drawn faces** (our own SVG, not emoji): bear, cat,
-  dog, bunny, fox, panda, pig, frog, lion, mouse, monkey, chick, girl,
-  boy, grandma, grandpa, plus the robot (computer only). Each has a
+  dog, bunny, fox, panda, pig, frog, lion, mouse, monkey, chick,
+  grandma, grandpa, plus the robot (computer only), each with a fixed
+  name (see "Face names"; girl and boy dropped 2026-10-09). Each has a
   **normal**, a **winner** and an **"aww"** version (worried eyebrows, a
   small frown, no tears; added 2026-10-04, developer). The winner's
   squares and the "wins!" line show the winner version.
@@ -152,7 +154,7 @@ Agreed 2026-10-04 from mockup v1 (journal):
   **How many cards?** (3x4, **4x4 default**, 4x5, 4x6, 5x6, 6x6; sizes
   whose cards would be under 56 px on the screen are greyed, with a
   note), who goes first (two players only; same three choices).
-- **Pictures: the drawn faces** (the 17, robot included) less the
+- **Pictures: the drawn faces** (the 15, robot included) less the
   players' picks; when a grid needs more pairs than that, some faces
   appear 4 times. No timer.
 - **Play screen**: 🏠 (one card; on the setup screen, one 4x4 card),
@@ -225,7 +227,7 @@ numbered cards).
 - **Cards**: a big number with that many dots under it, laid out like a
   die (for a child not sure of 7 vs 8). Counted cards are tinted the
   colour of whoever counted them.
-- **Turn line**: "<face> find <n>" (alone: "Find <n>"); the robot "is
+- **Turn line**: "<face> <name>, find <n>" (alone: "Find <n>"); the robot "is
   thinking..." 0.8 s before each card it turns over.
 - **Scoreboard** (dark strip): games won per player. **Just me**: the
   turns this round and the best (fewest turns) per level, with a 🏆;
@@ -418,10 +420,24 @@ The developer's design, agreed 2026-10-04 from mockup v2 (journal):
 
 ## Face names
 
-Each face gets a **fixed name** (developer, 2026-10-08), with **no
+Each face has a **fixed name** (developer, 2026-10-08), with **no
 renaming** ("not sure optional rename is worth the complexity"). The
-names themselves are still to be agreed (journal, "Sound sampler v1; face
-names agreed").
+names (agreed 2026-10-09): bear **Teddy**, cat **Kitty**, dog **Buddy**,
+bunny **Hoppy**, fox **Foxy**, panda **Ping**, pig **Piggy**, frog
+**Froggy**, lion **Leo**, mouse **Squeak**, monkey **Coco**, chick
+**Peep**, **Grandma**, **Grandpa**, **Robot** (`NAMES` in
+`src/core/players.js`).
+
+- **No girl or boy faces** (developer, 2026-10-09): a fixed name can't
+  fit a real child, and two brothers couldn't both be "the boy" (two
+  players never share a face). Children pick an animal.
+- **Where the names show:** under each face in the pickers; on the
+  scoreboards instead of "You" / "Player 1" / "Player 2" (Matching cards
+  and Five Dice keep their "pairs" / "points" labels); under your card in
+  Rock paper scissors instead of "You"; and in the turn lines: "<face>
+  Leo's turn" (also against the robot, instead of "your turn"), "Leo
+  wins!", "Robot is thinking…", "Leo, find 3" (Count to 9), "Leo rolled
+  4" (Snakes and Ladders), "Leo's turn. Roll!" (Five Dice).
 
 ## Sound
 
