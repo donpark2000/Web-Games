@@ -5,8 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-09): all nine games published, the home page grouped
-by players. Follow Me added 2026-10-09 (no ding for a right order: on
-the branch, not yet published). Nim added 2026-10-08 (checked by the developer on the live
+by players. Follow Me added 2026-10-09 (no ding for a right order,
+published the same day). Nim added 2026-10-08 (checked by the developer on the live
 site). Sound published 2026-10-09 (heard by the developer). Face names
 published 2026-10-09.*
 

@@ -3106,3 +3106,22 @@ plays "uh-oh". (My script then tapped a wrong order in round 2: it
 counted its own tap as part of the robot's order; the script, not the
 game.) Not checked by ear (the developer's).
 
+**Published** 2026-10-09 (developer: "Yes, publish"): `main`
+fast-forwarded to `follow-me` at `8fd7e7d` and pushed. Live within about
+30 s: the served `src/ui/follow-me.js` has `YES_MS = 1500` and no
+`play('ding'`. Not yet heard by the developer.
+
+## 2026-10-09: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with nine games, sound
+and face names; Follow Me with no ding for a right order and 2 s of quiet
+before the robot. Working branch `follow-me`, level with `main` but for
+the journal. `npm test` 183 of 183.
+
+**Next:** the developer listens to Follow Me's new pause on a phone. Then
+maybe a new game: Spell the animal, Maze, Sliding puzzle, Higher or lower
+("One-player game ideas"). A "go" button between rounds is on hold (only
+if the grandkids want breaks).
+
+**Open questions:** none. **Proposed skill additions:** none waiting.
+
