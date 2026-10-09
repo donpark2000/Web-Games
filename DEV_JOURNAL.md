@@ -2724,3 +2724,40 @@ centre; the other setup screens have a 48 px 🏠 and a centred title.
 file this app loads was updated 2026-10-09 11:08 and is byte for byte
 the new version (`diff`), the only copy found. The skill-update folder
 `Web-Games-testing\2026-10-08_skill-update\` can be purged.
+
+## 2026-10-09: Sound published
+
+**Published** 2026-10-09 (developer: "publish"): `main` fast-forwarded to
+`sound` at `87c924c` and pushed (no permission-check block this time).
+The live `src/ui/sounds.js` was there about 30 s after the push (curl); the
+live `nim.js` has its 5 `sound.play` calls, `site.css` the button's style,
+`sound.js` the silent-switch setting.
+
+**Purged** (developer's OK): `Web-Games-testing\2026-10-08_skill-update\`
+sent to the Recycle Bin (the skill files, now installed).
+
+## 2026-10-09: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with eight games, now
+**with sound** (on by default; 🔊/🔇 top-right on every game screen,
+remembered for all the games). Working branch `sound`, level with `main`
+but for the journal.
+
+**Known:** `npm test` 166 of 166. The sounds are the developer's picks
+from the [Game Sound Sampler](https://claude.ai/artifact/TfxCqWQnvPEfxg4iwX5d8c);
+the code is `src/ui/sounds.js` (the sounds, testable with fakes) and
+`src/ui/sound.js` (the button, setup ticks, unlocking on a tap). Not yet
+heard by the developer in the games or on the iPhone: Q11 stays open
+until then (silent switch on and off; the volume of each sound against
+the others). The standards skill now has the two rules from this project
+(installed and confirmed 2026-10-09).
+
+**Next: face names** (Q10, resolved as fixed names, no renaming). The
+draft list is in "Sound sampler v1; face names agreed" (2026-10-08);
+still to settle with the developer: the list itself, and the girl and
+boy faces (names, or just "Girl" / "Boy"). Then: names under the faces
+in the pickers, on the scoreboard instead of "You" / "Player 1", and in
+the turn line, in all eight games.
+
+**Open questions:** Q11 (sound, until heard on the devices).
+**Proposed skill additions:** none waiting.
