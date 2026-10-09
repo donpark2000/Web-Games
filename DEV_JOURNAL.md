@@ -3285,7 +3285,8 @@ fast-forwarded to `follow-me` at `9c8f1f1` and pushed. Live about 15 s
 later (the served `css/site.css` has the lit pad's ring). Claude's local
 server (8123) stopped; nothing left listening on 8123 or 8124. **Skill
 addition dropped** (developer: tuning "is likely to be very game
-dependent rather than an overarching generic rule").
+dependent rather than an overarching generic rule"). **Purged** (developer's OK): `Web-Games-testing6-10-09_fm-home-picture\`
+(the two screenshots) sent to the Recycle Bin.
 
 ## 2026-10-09: Status (start here next session)
 
