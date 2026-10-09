@@ -104,3 +104,33 @@ test('pages: the home page pictures share their width equally (no plain 1fr)', a
     assert.match(cols, /^repeat\(\d+, minmax\(0, 1fr\)\)$/, `${sel.trim()}: ${cols}`);
   }
 });
+
+// The end of a Follow Me game (developer, 2026-10-09, mockup v3): Play
+// again and New game only in the "Game over" banner over the pads, hidden
+// during a game; the 🏠 outside it, so it still works with the banner up.
+test('pages: Follow Me’s buttons are only in the Game over banner; the 🏠 stays outside it', async () => {
+  const play = html['follow-me.html'].match(/<section id="play"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(play, 'no play screen');
+  const board = play.match(/<div class="board">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/)?.[0];
+  assert.ok(board, 'no .board around the pads and the banner');
+  assert.match(board, /<div class="pads wait" id="pads"><\/div>/);
+  const over = board.match(/<div class="over" id="over"([^>]*)>([\s\S]*)/);
+  assert.ok(over, 'no banner');
+  assert.match(over[1], /\bhidden\b/, 'the banner shows during a game');
+  assert.match(over[2], /Game over/);
+  const buttons = [...play.matchAll(/<button[^>]*id="(\w+)"/g)].map(m => m[1]);
+  assert.deepEqual(buttons, ['againBtn', 'newBtn'], `the play screen's buttons: ${buttons}`);
+  for (const id of buttons) assert.match(over[2], new RegExp(`id="${id}"`), `${id} outside the banner`);
+  assert.doesNotMatch(play, /class="controls"/, 'a Play again / New game row under the scoreboard');
+  assert.match(play.slice(0, play.indexOf('<div class="board">')), /class="homebtn" href="index\.html"/, 'no 🏠 above the board');
+  assert.doesNotMatch(board, /homebtn/, 'the 🏠 is under the banner');
+  // The screen shows and hides it, and the banner sits over the pads,
+  // out of the page's flow (so the fitted pads don't move).
+  const js = await readFile(path.join(root, 'src/ui/follow-me.js'), 'utf8');
+  assert.match(js, /later\(showBanner, BANNER_MS\)/);
+  assert.equal((js.match(/hideBanner\(\);/g) || []).length, 2, 'hidden on Play again and on New game');
+  const css = await readFile(path.join(root, 'css/follow-me.css'), 'utf8');
+  assert.match(css, /\.board \{ position: relative; \}/);
+  assert.match(css, /\.over \{ position: absolute; inset: 0;/);
+});
+

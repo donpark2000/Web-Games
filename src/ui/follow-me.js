@@ -15,12 +15,14 @@ import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
 
 const READY_MS = 1000;    // "Ready?" before the first step
-const LEAD_MS = 500;      // "Watch me!", then the first pad lights
-// "Yes! 3!" before the robot adds a step: with LEAD_MS, 2 s of quiet from
-// your last note to the robot's first (developer, 2026-10-09).
-const YES_MS = 1500;
+// After a right order, 3 s of quiet from your last note to the robot's
+// first: "Yes! 3!" 2 s, then "Watch me!" 1 s, a clear "get ready" each
+// time the robot starts (developer, 2026-10-09; 2 s still felt fast).
+const LEAD_MS = 1000;     // "Watch me!", then the first pad lights
+const YES_MS = 2000;      // "Yes! 3!" before the robot adds a step
 const AGAIN_MS = 2000;    // a miss (shake, the right pad blinks) before the robot shows it again
 const OVER_MS = 1300;     // a miss, then the end of the game
+const BANNER_MS = 2000;   // a miss, then the "Game over" banner (after the right pad's blink)
 const TAP_LIT_MS = 260;   // a tapped pad stays lit this long
 const MISS_MS = 1800;     // the shake and the blink (css: .miss, .hint)
 const CHEER_MS = 2800;    // the end-of-game scorecard cheer (css: .cheer-win)
@@ -187,6 +189,7 @@ function setWait(on) { $('pads').classList.toggle('wait', on); }
 function startGame() {
   const midGame = match.seq.length > 0 && !match.result;
   clearTimers();
+  hideBanner();
   newGame(match);
   L(midGame ? 'game restarted (not counted)' : 'game started', { size: match.size, level: match.level });
   for (let i = 0; i < match.size; i++) { const b = padEl(i); b.className = 'padb'; b.innerHTML = svg(match.pads[i].face); }
@@ -255,6 +258,7 @@ function onTap(i) {
   renderBoard();
   if (r.gameOver) {
     later(gameOver, OVER_MS);
+    later(showBanner, BANNER_MS);
   } else {
     say(`${chip(match.face, 'sad')}<span class="say">Oops! Watch again.</span>`, true);
     later(() => { showAgain(match); show(); }, AGAIN_MS);
@@ -281,6 +285,19 @@ function gameOver() {
   if (newBest) { const c = $('cup'); c.classList.remove('up'); void c.offsetWidth; c.classList.add('up'); }
 }
 
+// The "Game over" banner over the dimmed pads, with Play again and New
+// game: the only buttons on the play screen (developer, 2026-10-09).
+function showBanner() {
+  $('pads').classList.add('done');
+  $('over').hidden = false;
+  $('againBtn').focus({ preventScroll: true });
+  L('game over banner');
+}
+function hideBanner() {
+  $('pads').classList.remove('done');
+  $('over').hidden = true;
+}
+
 // One dot per step: while the robot shows, the step it's on; on your
 // turn, the steps you've tapped.
 function renderDots(showing = null) {
@@ -303,6 +320,7 @@ function renderBoard() {
 $('againBtn').onclick = () => { L('play again'); startGame(); };
 $('newBtn').onclick = () => {
   clearTimers();
+  hideBanner();
   L('new game');
   match = null;
   $('play').hidden = true;

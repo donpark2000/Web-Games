@@ -3176,3 +3176,40 @@ height, so no bigger without the buttons). The mockup bundle: its script
 parses (`node --check`); the pane shows local files outside the project
 only as static pages, so the bundle itself wasn't run before publishing.
 
+## 2026-10-09: Game over banner agreed; a 3 s pause
+
+**Developer, on mockup v3:** "Game Over banner looks good." Asked
+whether the 🏠 works on the real game with the banner up ("I think it
+should"); in the mockup it did nothing (Claude had pointed it at "#":
+no home page there). It does: the banner covers only the pads. And the
+pause before the robot's next order "still seems fast". Claude: it went
+from 1.6 to 2.0 s, only 0.4 s more, easy to miss with Easy now quicker;
+proposed 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (a clear "get ready",
+also before the first round and after "Oops! Watch again."). **Developer:
+"Yes, make it 3 s".**
+
+**Change:** the banner (as in mockup v3) committed; `YES_MS` 1500 ->
+2000, `LEAD_MS` 500 -> 1000 (`src/ui/follow-me.js`).
+
+**Tests:** `npm test` 184 of 184 (183 before). `tests/sound.test.js`:
+the pause test now wants YES_MS 2000 and LEAD_MS 1000. New in
+`tests/pages.test.js`: Follow Me's only buttons on the play screen are
+Play again and New game, both in a `#over` banner that starts hidden,
+inside a `.board` with the pads; no `.controls` row; the 🏠 above the
+board, not in it; the screen shows the banner (`showBanner`) and hides
+it on Play again and New game; the banner sits over the pads out of the
+page's flow. **Shown to fail:** both on the code before the change ("no
+.board around the pads and the banner"; "YES_MS: 1500"), and the banner
+left showing (no `hidden`): "the banner shows during a game"; restored.
+(My first try at the banner test had backspace characters for ``,
+written by my edit script; fixed.)
+
+**Checked in the built-in browser** (port 8124, temporary entry,
+removed), 393 x 760: Easy, 4 faces: last right tap 2.656 s, "Watch me!"
+4.677 s (2.02 s later), first robot note 5.673 s (1.00 s later): 3.0 s.
+Hard, a wrong first tap: "Try again!", the banner up 2.3 s later (a
+score of 0 gets it too); the top element at the 🏠's centre is the 🏠
+link; a real click on it opened `index.html`. No console errors. (My
+timing script mis-tapped round 2: it counted each lit pad twice; the
+script, not the game.)
+

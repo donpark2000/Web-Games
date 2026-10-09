@@ -6,7 +6,8 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-10-09): all nine games published, the home page grouped
 by players. Follow Me added 2026-10-09 (no ding for a right order,
-published the same day). Nim added 2026-10-08 (checked by the developer on the live
+published the same day; Easy's pace, a 3 s pause and a "Game over"
+banner on the branch, not yet published). Nim added 2026-10-08 (checked by the developer on the live
 site). Sound published 2026-10-09 (heard by the developer). Face names
 published 2026-10-09.*
 
@@ -437,19 +438,27 @@ a v3 that was skipped (developer: "go straight to publish").
   monkey, cat (`PAD_FACES` in `src/core/follow-me.js`), **never your own
   face** (the next one comes in). Notes from one pentatonic scale, low to
   high in reading order (4 pads: G4 C5 E5 G5, as in the mockup).
-- **A round:** "Ready?" 1 s; the robot: "Watch me!", each pad lights
+- **A round:** "Ready?" 1 s; the robot: "Watch me!" (1 s), each pad lights
   (bright colour, smiling face, its note) in turn. Then the turn line says
   "Leo's turn!", **with no sound** (developer: a ping after the robot's
   notes is one sound more than the faces shown). Each tap lights the pad
   and plays its note; a row of dots fills, one per step. All right:
   "Yes! 3!", **with no sound** (developer, 2026-10-09: a ding covered
-  the last note), then **2 s of quiet** from your last note to the
-  robot's first, and it shows the order again with one more step. Never the same pad three times running. No time limit.
+  the last note), then **3 s of quiet** from your last note to the
+  robot's first ("Yes! 3!" 2 s, "Watch me!" 1 s; developer, 2026-10-09:
+  2 s still felt fast), and it shows the order again with one more step.
+  Never the same pad three times running. No time limit.
 - **A miss:** "uh-oh", the tapped pad shakes, the right one blinks twice,
   a heart is lost. Hearts left (Easy): "Oops! Watch again." and the same
   order is shown again. None left (Hard: the first miss): "Leo got 5!
   New best!", the sparkle and the scorecard cheer (the smiling face stays
   until the next game); a game that ends at 0: "Try again!", no sparkle.
+- **Game over** (agreed 2026-10-09 from mockup v3): 2 s after the last
+  miss (after the right pad's blink) the pads dim and a **"Game over"
+  banner** sits over them with **Play again** (big, yellow) and **New
+  game**: the play screen's **only buttons** (developer: none during a
+  game, so a stray tap can't restart it). The 🏠 stays outside the
+  banner and works while it shows.
 - **Speed:** both start with each step lit 0.45 s and 0.17 s between.
   Easy stays at that all game; Hard gets 6% quicker each round, down to
   0.26 s lit (`LEVELS`). (Easy was slower, 0.65 s and 0.28 s, until
@@ -457,7 +466,7 @@ a v3 that was skipped (developer: "go straight to publish").
 - **Scoreboard** (dark strip): your face and name, steps in a row this
   game; the hearts and the level; 🏆 the **best for this size and level**
   ("best (9, Hard)"), kept for the visit, across New game (7 on 9 faces is
-  much harder than 7 on 4). Play again / New game as in the other games.
+  much harder than 7 on 4).
 - **Sized to the screen:** the pads are the biggest that let the page fit
   with no scrolling, at most 200 px (on a 393 x 760 phone: 174 px for 4,
   132 px for 6, 112 px for 9). 6 is 2 across and 3 down on an upright

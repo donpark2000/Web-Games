@@ -71,4 +71,18 @@
 .scoreboard .mid { display: grid; justify-items: center; gap: 2px; font-size: 12px; opacity: .9; text-align: center; }
 .scoreboard .mid .hearts { font-size: 18px; letter-spacing: 0; }
 .cup.up { animation: bounce .6s ease 2; }
-.controls { margin-top: 2px; }
+
+/* the end: the pads dim, out of play, and the "Game over" banner sits over
+   them with Play again and New game, the screen's only buttons (developer,
+   2026-10-09). Over the pads, not in the page's flow, so the fit is the
+   same with or without it. */
+.board { position: relative; }
+.pads.done .padb { opacity: .35; filter: grayscale(.7); transition: opacity .4s, filter .4s; }
+.over { position: absolute; inset: 0; display: grid; place-items: center; z-index: 3; }
+.overcard {
+  display: grid; gap: 12px; justify-items: stretch; padding: 18px 22px 20px; min-width: 220px;
+  background: var(--card); border-radius: 24px; box-shadow: 0 6px 0 var(--line), 0 10px 30px #1E344533;
+  animation: bounce .45s ease;
+}
+.overtitle { margin: 0; text-align: center; font-size: 30px; font-weight: 800; }
+.overcard .big { padding: 14px 24px; }

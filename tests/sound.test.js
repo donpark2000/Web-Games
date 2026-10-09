@@ -191,11 +191,13 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
   assert.equal(checked, 28);
 });
 
-test('sound: Follow Me leaves 2 s of quiet from your last note to the robot’s first', async () => {
+// 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (developer, 2026-10-09; was
+// 2 s, 1.5 + 0.5, still felt fast).
+test('sound: Follow Me leaves 3 s of quiet from your last note to the robot’s first', async () => {
   const src = await readFile(path.join(root, 'src/ui/follow-me.js'), 'utf8');
   const ms = name => Number((src.match(new RegExp(`const ${name} = (\\d+);`)) || [])[1]);
   // A right order waits YES_MS, then "Watch me!" waits LEAD_MS.
   assert.match(src, /later\(nextRound, YES_MS\)/);
   assert.match(src, /later\(\(\) => \{ light\(p, on\); renderDots\(i\); \}, LEAD_MS \+ i \* \(on \+ gap\)\)/);
-  assert.equal(ms('YES_MS') + ms('LEAD_MS'), 2000, `YES_MS ${ms('YES_MS')} + LEAD_MS ${ms('LEAD_MS')}`);
+  assert.deepEqual({ YES_MS: ms('YES_MS'), LEAD_MS: ms('LEAD_MS') }, { YES_MS: 2000, LEAD_MS: 1000 });
 });
