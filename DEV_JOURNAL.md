@@ -2912,6 +2912,21 @@ ended it (then "Leo got 0!", reworded to "Try again!"). No page
 scrolling, no console errors. The pad notes and sounds only by ear,
 which is the developer's. Not yet checked in the desktop app's viewer.
 
+## 2026-10-09: Follow Me mockup v2
+
+**Developer, trying v1:** liked it, but after the robot's sequence one
+more sound (the "your turn" ping) came before the player's turn, "which
+is a bit confusing since you count 1 more sound than faces in the
+pattern". **v2** (same artifact, version 2): the ping is gone; the turn
+line changing to "Leo's turn!" is the only cue. The only sounds between
+the robot's last note and the child's first tap are now none. Checked:
+the script parses (`node --check`), no `ping` left in the page.
+
+**Lesson for the other games (project):** the "your turn" ping after the
+robot (DESIGN.md "Sound") is fine where the robot's turn isn't a pattern
+to count; in Follow Me the sounds *are* the content, so nothing may be
+added to them.
+
 ## 2026-10-09: Status (start here next session)
 
 **Live:** https://donpark2000.github.io/Web-Games/ with eight games,
@@ -2920,6 +2935,6 @@ Working branch `face-names`, level with `main` but for the journal.
 `npm test` 170 of 170.
 
 **Next:** Follow Me, from mockup v1 ("One-player game ideas; Follow Me
-mockup v1"): the developer tries it; then a v2 or building it.
+mockup v2"): the developer tries v2; then building it.
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
