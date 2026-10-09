@@ -2662,3 +2662,14 @@ change what it measures" (§1) and "A measurement must not depend on what
 it sets" (§4), each with one line of evidence; the intro now names this
 project too. New `SKILL.md` and a zip for upload in
 `Web-Games-testing\2026-10-08_skill-update\`; the developer installs it.
+
+## 2026-10-09: Sounds picked from sampler v1
+
+**The developer's picks:** tap/pick C (Wood tick); a move lands A
+(Thud); a win B (Sparkle); a gentle "aww" C (Wobble down); card flip A
+(Swish); dice rolling B (Soft shake); "Got one!" A (Ding); oops B
+(Uh-oh); up the ladder A (Climb); down the snake A (Wheee); your turn A
+(Ping). **No tie sound picked.** Every "maybe" sound was kept. Still to
+settle before building: the tie, on or off by default, which end-of-round
+sound plays in a two-player game, the iPhone's silent switch, and which
+moment in each game gets which sound (Claude's proposal in chat).
