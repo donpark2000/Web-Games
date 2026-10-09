@@ -431,10 +431,14 @@ bunny **Hoppy**, fox **Foxy**, panda **Ping**, pig **Piggy**, frog
 - **No girl or boy faces** (developer, 2026-10-09): a fixed name can't
   fit a real child, and two brothers couldn't both be "the boy" (two
   players never share a face). Children pick an animal.
-- **Where the names show:** under each face in the pickers; on the
-  scoreboards instead of "You" / "Player 1" / "Player 2" (Matching cards
-  and Five Dice keep their "pairs" / "points" labels); under your card in
-  Rock paper scissors instead of "You"; and in the turn lines: "<face>
+- **Where the names show:** under each face in the pickers; on every
+  scoreboard (instead of "You" / "Player 1" / "Player 2"; in Matching
+  cards and Five Dice above "pairs" / "points" / "won N"; under the face
+  in Rock paper scissors) and on the "Games won" strips (its label on two
+  lines, to keep one row on a phone); beside the face at the top of Five
+  Dice's score card (left out when both long cards show at the end: the
+  columns are 48 px on a phone); under your card in Rock paper scissors
+  instead of "You"; and in the turn lines: "<face>
   Leo's turn" (also against the robot, instead of "your turn"), "Leo
   wins!", "Robot is thinking…", "Leo, find 3" (Count to 9), "Leo rolled
   4" (Snakes and Ladders), "Leo's turn. Roll!" (Five Dice).

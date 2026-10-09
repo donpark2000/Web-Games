@@ -408,7 +408,7 @@ function renderSheet() {
   const offer = !match.result && !rolling && match.rolls > 0 && !match.scored;
   const shows = ps.map(faceOf).join(' + ');
   if (shows !== sheetShows) { sheetShows = shows; L('score card shown', { cards: shows }); }
-  const hd = (p, cls = '') => `<span class="hd f${p}${cls}" aria-label="${faceOf(p)}'s card">${svg(faceOf(p))}</span>`;
+  const hd = (p, cls = '') => `<span class="hd f${p}${cls}" aria-label="${nameOf(faceOf(p))}'s card">${svg(faceOf(p))}<span class="nm">${nameOf(faceOf(p))}</span></span>`;
   // One card on the long game's two panels: one face across both
   // (developer, 2026-10-07: both halves are one player's); otherwise a
   // face on each column.
@@ -456,17 +456,17 @@ function renderBoard() {
   setChip($('s1Chip'), faceOf(1), moods?.[1] ?? 'normal');
   $('s1').textContent = points(match.cards[1], match.length);
   if (solo) {
-    $('s1Who').textContent = 'points';
+    $('s1Who').innerHTML = `${nameOf(faceOf(1))}<br>points`;
     $('mid').textContent = len;
     setChip($('s2Chip'), 'cup', 'normal');
     $('s2').textContent = match.best[match.length] ?? '—';
     $('s2Who').textContent = 'best';
   } else {
-    $('s1Who').textContent = `points · won ${match.wins[1]}`;
+    $('s1Who').innerHTML = `${nameOf(faceOf(1))}<br>won ${match.wins[1]}`;
     $('mid').innerHTML = `Points<br>${len}`;
     setChip($('s2Chip'), faceOf(2), moods?.[2] ?? 'normal');
     $('s2').textContent = points(match.cards[2], match.length);
-    $('s2Who').textContent = `points · won ${match.wins[2]}`;
+    $('s2Who').innerHTML = `${nameOf(faceOf(2))}<br>won ${match.wins[2]}`;
   }
 }
 

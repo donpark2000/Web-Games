@@ -267,8 +267,8 @@ function buildScorecard() {
   $('sc').classList.toggle('solo', solo);
   $('mid').hidden = solo;
   $('s2Chip').hidden = solo;
-  $('s1Who').textContent = solo ? `of ${match.deck.length / 2} pairs` : 'pairs';
-  $('s2Who').textContent = solo ? 'turns' : 'pairs';
+  $('s1Who').innerHTML = `${nameOf(faceOf(1))}<br>${solo ? `of ${match.deck.length / 2} pairs` : 'pairs'}`;
+  $('s2Who').innerHTML = solo ? 'turns' : `${nameOf(faceOf(2))}<br>pairs`;
   for (const p of [1, 2]) delete $(`s${p}Chip`).dataset.face;
 }
 
@@ -358,10 +358,10 @@ function renderPlay() {
     const best = match.best[sizeKey(match.size)];
     $('sc2').innerHTML = `<span class="lbl">Best for ${a} × ${b}</span><span class="w">${best === undefined ? '—' : `${best} turns`}</span>`;
   } else {
-    $('sc2').innerHTML = `<span class="lbl">Games won</span>`
-      + `<span class="w">${chipSvg(1, 'normal')}${match.wins[1]}</span>`
+    $('sc2').innerHTML = `<span class="lbl">Games<br>won</span>`
+      + `<span class="w">${chipSvg(1, 'normal')}<span class="nm">${nameOf(faceOf(1))}</span>${match.wins[1]}</span>`
       + `<span class="w">Ties ${match.wins.ties}</span>`
-      + `<span class="w">${chipSvg(2, 'normal')}${match.wins[2]}</span>`;
+      + `<span class="w">${chipSvg(2, 'normal')}<span class="nm">${nameOf(faceOf(2))}</span>${match.wins[2]}</span>`;
   }
 }
 

@@ -2821,11 +2821,46 @@ as a last pick would just go back to empty. In fact the picks aren't
 saved on the device at all (only in the page while it's open), so
 there is nothing to clear.
 
+## 2026-10-09: Names on the score cards too
+
+**Developer, trying the branch locally:** in Five Dice the name didn't
+show at the top of the score card (just the face), nor on the points
+scoreboard; the same in Matching cards and Rock paper scissors. Those
+were the places Claude had left with faces only (DESIGN.md said so, but
+the developer hadn't been told plainly).
+
+**Built:**
+- **Five Dice:** the name beside the face at the top of the score card;
+  the scoreboard shows the name, then "won N" (Just me: "points").
+  Where a column is under 90 px the name is left out (a CSS container
+  query): that is only both long cards at the end of a game, 48 px
+  columns on a 375 px phone (measured), where the scoreboard below shows
+  the names. The short game's two end columns are 123 px: names shown.
+- **Matching cards:** the name above "pairs" (Just me: above "of 8
+  pairs"); names on the "Games won" strip.
+- **Rock paper scissors:** the name under each face on the stars
+  scoreboard; names on the "Games won" strip.
+- With names, Matching's "Games won" strip wrapped to two rows at 375 px
+  (86 px tall instead of 46); "Games won" on two lines keeps it one row
+  (46 px). The same done in Rock paper scissors for a matching look (it
+  fitted, but wrapped at 320 px).
+
+**Checked** (375 x 812, local server, Grandpa and Grandma, the longest
+names): Five Dice long two players, Matching two players and alone,
+Rock paper scissors: the names show; no page scrolls (scrollHeight
+minus window height 0; width 375 of 375). At 320 px the "Games won"
+strips still wrap to two rows, but the page still fits. No console
+errors. `npm test` 170 of 170 (screen layout only; nothing new for the
+Node tests to check). The browser pane's screenshot of Matching came out
+tiled and cut off twice, while the page measured 375 px wide with no
+scrolling: a capture problem, not the page.
+
 ## 2026-10-09: Status (start here next session)
 
 **Live:** https://donpark2000.github.io/Web-Games/ with eight games and
 sound. **Branch `face-names`** (pushed, not published): face names, girl
-and boy dropped. `npm test` 170 of 170.
+and boy dropped; names on every scoreboard (after the developer's check,
+"Names on the score cards too"). `npm test` 170 of 170.
 
 **Next:** the developer tries the names (locally or after publishing);
 publish on their OK (merge `face-names` to `main`).

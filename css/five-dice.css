@@ -68,10 +68,14 @@
 .half.c1 { grid-template-columns: var(--pic) minmax(0, 1fr); }
 .sheet.one .half.c2 { grid-template-columns: calc(var(--pic) * 1.4) repeat(2, minmax(0, 1fr)); }
 .sheet.one .half.c1 { grid-template-columns: calc(var(--pic) * 1.4) minmax(0, 1fr); }
-.hd { display: grid; place-items: center; min-width: 0; border-radius: 10px; }
+.hd { display: flex; align-items: center; justify-content: center; gap: 4px; min-width: 0; border-radius: 10px; container-type: inline-size; }
+/* the player's name beside the face (developer, 2026-10-09); left out
+   where the column is too narrow for it (both long cards at the end) */
+.hd .nm { font-size: 15px; font-weight: 800; white-space: nowrap; padding-bottom: 3px; }
+@container (max-width: 90px) { .hd .nm { display: none; } }
 .hd.f1 { background: var(--p1-soft); box-shadow: inset 0 -3px 0 var(--p1); }
 .hd.f2 { background: var(--p2-soft); box-shadow: inset 0 -3px 0 var(--p2); }
-.hd svg { height: 100%; width: auto; aspect-ratio: 1; padding: 2px 0 4px; }
+.hd svg { height: 100%; width: auto; aspect-ratio: 1; padding: 2px 0 4px; flex: none; }
 /* the long game during play: one face across both panels, on its own row */
 .hd.across { grid-column: 1 / -1; height: calc(var(--row) * .7); margin-bottom: -5px; }
 .half.nohd { grid-template-rows: none; }

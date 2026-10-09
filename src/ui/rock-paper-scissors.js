@@ -60,7 +60,7 @@ $('playBtn').onclick = () => {
   $('play').hidden = false;
   scrollTo(0, 0);
   for (const [id, f] of [['meFace', 0], ['botFace', 1], ['g1c', 0], ['g2c', 1]]) $(id).innerHTML = svg(match.faces[f]);
-  $('meLbl').textContent = nameOf(match.faces[0]);
+  for (const id of ['meLbl', 's1Name', 'g1Name']) $(id).textContent = nameOf(match.faces[0]);
   $('botBack').innerHTML = CARD_BACK;
   startGame();
   fitCards();

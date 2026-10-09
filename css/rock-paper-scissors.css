@@ -56,6 +56,9 @@
 .sc .s { display: flex; align-items: center; gap: 8px; justify-content: center; }
 .sc .s.r { flex-direction: row-reverse; }
 .sc .chip { width: 52px; height: 52px; flex: none; }
+/* the name under the face (developer, 2026-10-09) */
+.sc .pl { display: grid; justify-items: center; }
+.sc .nm { font-size: 12px; opacity: .75; line-height: 1.1; }
 .stars { display: flex; gap: 2px; font-size: 22px; }
 .stars i { font-style: normal; color: #4A6275; }
 .stars i.on { color: var(--sun); }
@@ -67,9 +70,10 @@
   background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 6px 10px;
   display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 17px; font-weight: 800; flex-wrap: wrap; font-variant-numeric: tabular-nums;
 }
-.sc2 .lbl { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.sc2 .lbl { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; line-height: 1.15; text-align: center; }
 .sc2 .w { display: flex; align-items: center; gap: 6px; }
 .sc2 .chip { width: 30px; height: 30px; display: block; }
+.sc2 .nm { font-size: 13px; color: var(--muted); }
 .sc2 .w.up { animation: pop .5s ease; }
 .controls { margin-top: 2px; }
 
