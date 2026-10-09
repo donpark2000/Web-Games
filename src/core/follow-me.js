@@ -21,11 +21,12 @@ export const SIZES = [4, 6, 9];
 export const DEFAULT_SIZE = 4;
 
 // Per level: hearts, and the robot's speed (ms): each step lit `on`, then
-// `gap` before the next. Easy stays the same all game; Hard starts quicker
-// and gets `faster` (6%) quicker each round, down to `minOn` lit (and the
-// gap down to 40% of that).
+// `gap` before the next. Both start at the same pace; Easy stays at it all
+// game (it was slower, 650/280: harder to remember, the order no longer a
+// tune; developer, 2026-10-09). Hard gets `faster` (6%) quicker each round,
+// down to `minOn` lit (and the gap down to 40% of that).
 export const LEVELS = {
-  easy: { hearts: 3, on: 650, gap: 280, faster: 1, minOn: 650 },
+  easy: { hearts: 3, on: 450, gap: 170, faster: 1, minOn: 450 },
   hard: { hearts: 1, on: 450, gap: 170, faster: 0.94, minOn: 260 },
 };
 
@@ -67,7 +68,7 @@ export function speed(level, round) {
   if (!L) throw new Error(`speed: unknown level: ${level}`);
   if (!(Number.isInteger(round) && round >= 1)) throw new Error(`speed: bad round: ${round}`);
   const k = L.faster ** (round - 1);
-  return { on: Math.round(Math.max(L.minOn, L.on * k)), gap: Math.round(Math.max(L.minOn * 0.4, L.gap * k)) };
+  return { on: Math.round(Math.max(L.minOn, L.on * k)), gap: Math.round(Math.max(Math.min(L.gap, L.minOn * 0.4), L.gap * k)) };
 }
 
 // The next step: any pad, but never the same pad three times running.

@@ -54,9 +54,11 @@ test('follow me: layouts: 2x2, 2 across 3 down or 3x2, 3x3', () => {
   assert.deepEqual(ARRANGEMENTS[6][0], [2, 3], 'upright first');
 });
 
-test('follow me: speed: Easy the same all game; Hard quicker each round, down to its floor', () => {
-  assert.deepEqual(speed('easy', 1), { on: 650, gap: 280 });
-  assert.deepEqual(speed('easy', 20), { on: 650, gap: 280 });
+test('follow me: speed: Easy at Hard’s starting pace all game; Hard quicker each round, down to its floor', () => {
+  // Easy was 650/280: slower was harder to remember (developer, 2026-10-09).
+  assert.deepEqual(speed('easy', 1), { on: 450, gap: 170 });
+  assert.deepEqual(speed('easy', 20), { on: 450, gap: 170 });
+  assert.deepEqual(speed('hard', 1), speed('easy', 1));
   assert.deepEqual(speed('hard', 1), { on: 450, gap: 170 });
   assert.deepEqual(speed('hard', 2), { on: 423, gap: 160 });   // 6% quicker
   let prev = Infinity;

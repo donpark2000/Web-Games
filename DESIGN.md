@@ -450,9 +450,10 @@ a v3 that was skipped (developer: "go straight to publish").
   order is shown again. None left (Hard: the first miss): "Leo got 5!
   New best!", the sparkle and the scorecard cheer (the smiling face stays
   until the next game); a game that ends at 0: "Try again!", no sparkle.
-- **Speed:** Easy, each step lit 0.65 s with 0.28 s between, all game;
-  Hard, 0.45 s and 0.17 s, 6% quicker each round, down to 0.26 s lit
-  (`LEVELS`).
+- **Speed:** both start with each step lit 0.45 s and 0.17 s between.
+  Easy stays at that all game; Hard gets 6% quicker each round, down to
+  0.26 s lit (`LEVELS`). (Easy was slower, 0.65 s and 0.28 s, until
+  2026-10-09: the developer found it harder to remember.)
 - **Scoreboard** (dark strip): your face and name, steps in a row this
   game; the hearts and the level; 🏆 the **best for this size and level**
   ("best (9, Hard)"), kept for the visit, across New game (7 on 9 faces is

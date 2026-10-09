@@ -3125,3 +3125,54 @@ if the grandkids want breaks).
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
 
+## 2026-10-09: Easy at Hard's starting pace; Follow Me mockup v3 (Game over banner)
+
+**Developer, after trying the 2 s pause** ("all working as planned"):
+Easy, the slower pace, "seems harder to remember to me than the hard
+mode with the faster pace", and after the last heart "some better
+indication that the only options ... is to play again (or new game or
+home). Maybe a 'Game Over' flag over the grid?"
+
+**Easy's pace.** Claude: we hold a short order mostly as a tune; at
+Easy's 0.93 s a step (650 ms lit + 280 gap) 6 steps take about 5.5 s, the
+start fades before the end, and the notes stop sounding like a tune.
+Proposed: Easy at Hard's starting pace (450 / 170, 0.62 s a step) all
+game; Easy keeps 3 hearts and no speed-up, Hard 1 heart and 6% quicker a
+round. **Developer: yes.** `LEVELS.easy` in `src/core/follow-me.js`
+(was 650 / 280). The gap's floor is now never above its start
+(`min(gap, minOn * 0.4)`), or Easy's gap would have been 180, not 170;
+Hard's numbers are unchanged (its round 40 still 260 / 104). Test: the
+speed test wants Easy 450 / 170 in rounds 1 and 20, equal to Hard's
+round 1; **shown to fail** on the old code ("on: 650, gap: 280").
+`npm test` 183 of 183.
+
+**The end of a game.** Before: the pads looked as in play, only the turn
+line said it was over. Claude proposed dimming the pads and a "Game over"
+banner with a big Play again in it. The developer: a second Play again
+"would be confusing"; instead remove Play again and New game from the
+screen, and show them only in the banner. Claude agreed: a stray tap
+can't restart a game; the cost is no way back to setup mid-game but 🏠
+(games are short). The developer wanted a mockup first.
+
+**Mockup v3** ([Follow Me Mockup](https://claude.ai/artifact/CYBaCqBjipGMo88xYWr8tJ),
+version 3), made from the real code this time, not by hand: the change
+is in the working copy (not committed until agreed): `follow-me.html`
+(a `.board` holding the pads and a hidden `#over` banner with the
+buttons; the `.controls` row gone), `css/follow-me.css` (dimmed pads
+`.pads.done`, the banner over the pads, out of the page's flow, so the
+fit is the same), `src/ui/follow-me.js` (`showBanner` 2 s after the last
+miss, after the right pad's blink, Play again focused; hidden on Play
+again / New game; logged "game over banner"). A one-off script in
+Claude's scratchpad bundles the page, its CSS and its 11 modules into
+the one-file mockup, each module in its own scope.
+
+Checked on the real page (built-in browser, port 8124, temporary entry,
+removed), 393 x 760, 4 faces, Hard: during play the only buttons are the
+pads and 🔊; page 760 of 760 high. A wrong tap: "Teddy got 1! New best!",
+then the pads dimmed, the banner (Game over, Play again, New game),
+Play again focused, no scrolling. Play again: banner gone, "Ready?", the
+heart back. The pads stay 174 px here (limited by the width, not the
+height, so no bigger without the buttons). The mockup bundle: its script
+parses (`node --check`); the pane shows local files outside the project
+only as static pages, so the bundle itself wasn't run before publishing.
+
