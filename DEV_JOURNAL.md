@@ -2855,14 +2855,24 @@ Node tests to check). The browser pane's screenshot of Matching came out
 tiled and cut off twice, while the page measured 375 px wide with no
 scrolling: a capture problem, not the page.
 
+## 2026-10-09: Face names published
+
+**Published** 2026-10-09 (developer, after trying it locally: "Looks
+good. Publish"): `main` fast-forwarded to `face-names` at `f01ec63` and
+pushed. Live about 30 s after the push (curl): `players.js` has
+`nameOf` and no 'girl', `five-dice.js` the name in the card header,
+`rock-paper-scissors.html` the scoreboard name, `matching.css` the
+"Games won" names.
+
 ## 2026-10-09: Status (start here next session)
 
-**Live:** https://donpark2000.github.io/Web-Games/ with eight games and
-sound. **Branch `face-names`** (pushed, not published): face names, girl
-and boy dropped; names on every scoreboard (after the developer's check,
-"Names on the score cards too"). `npm test` 170 of 170.
+**Live:** https://donpark2000.github.io/Web-Games/ with eight games,
+sound, and **face names** (published 2026-10-09; girl and boy dropped).
+Working branch `face-names`, level with `main` but for the journal.
+`npm test` 170 of 170.
 
-**Next:** the developer tries the names (locally or after publishing);
-publish on their OK (merge `face-names` to `main`).
+**Next:** nothing agreed. Ideas on file: DESIGN.md "Later" (Matching
+cards with the developer's photos; a harder or easier robot in Rock
+paper scissors; more games).
 
 **Open questions:** none. **Proposed skill additions:** none waiting.

@@ -7,7 +7,7 @@ reasoning, evidence, and anything still open live in
 *Status (2026-10-09): all eight games published, the home page grouped
 by players. Nim added 2026-10-08 (checked by the developer on the live
 site). Sound published 2026-10-09 (heard by the developer). Face names
-built 2026-10-09 on branch `face-names`, not yet published.*
+published 2026-10-09.*
 
 ## Goal
 
