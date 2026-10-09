@@ -2918,14 +2918,38 @@ which is the developer's. Not yet checked in the desktop app's viewer.
 more sound (the "your turn" ping) came before the player's turn, "which
 is a bit confusing since you count 1 more sound than faces in the
 pattern". **v2** (same artifact, version 2): the ping is gone; the turn
-line changing to "Leo's turn!" is the only cue. The only sounds between
-the robot's last note and the child's first tap are now none. Checked:
+line changing to "Leo's turn!" is the only cue; nothing sounds between
+the robot's last note and the child's first tap. Checked:
 the script parses (`node --check`), no `ping` left in the page.
 
 **Lesson for the other games (project):** the "your turn" ping after the
 robot (DESIGN.md "Sound") is fine where the robot's turn isn't a pattern
 to count; in Follow Me the sounds *are* the content, so nothing may be
 added to them.
+
+## 2026-10-09: Follow Me: how many faces? (for mockup v3)
+
+**Easy vs Hard** (developer asked): Easy, 3 hearts (a miss replays the
+same pattern) and slow, the same speed all game (0.65 s lit, 0.28 s
+gap); Hard, 1 heart and faster, 6% quicker each round (0.45 s / 0.17 s,
+down to 0.26 s lit). Otherwise the same. The setup shows only the
+hearts; whether Hard should also say "faster" was left to the developer
+(no answer yet; Nim's levels have no lines under them).
+
+**Grid size** (developer: "maybe add 3x2 and 3x3 choices?"). Agreed
+("OK. Add it to the notes"), for **mockup v3**, as Claude proposed:
+- A separate **"How many faces?"** choice beside How hard?: **4** (2x2,
+  preselected), **6** and **9** (3x3), each button a small grid. How
+  hard? still sets the hearts and the speed.
+- Every pad its own colour, animal and note; the notes from one
+  pentatonic scale (any order sounds pleasant; 9 still easy to tell
+  apart).
+- **6 on an upright phone: 2 across, 3 down** (bigger pads than 3
+  across); 3x2 when wide. 9: 3x3, about 105 px pads on a 375 px phone.
+  The pads the biggest that fit with no scrolling, as now.
+- **Best kept per size and level** (7 on 9 faces is much harder than 7
+  on 4); the scoreboard shows the current one, e.g. "best (9, Hard)".
+- 4 faces on Easy stays the default; 9 on Hard is the top challenge.
 
 ## 2026-10-09: Status (start here next session)
 
@@ -2934,7 +2958,21 @@ sound, and **face names** (published 2026-10-09; girl and boy dropped).
 Working branch `face-names`, level with `main` but for the journal.
 `npm test` 170 of 170.
 
-**Next:** Follow Me, from mockup v1 ("One-player game ideas; Follow Me
-mockup v2"): the developer tries v2; then building it.
+**Next: Follow Me mockup v3**, adding "How many faces?" (4 / 6 / 9) as
+agreed in "Follow Me: how many faces? (for mockup v3)". The mockup is
+[Follow Me Mockup](https://claude.ai/artifact/CYBaCqBjipGMo88xYWr8tJ)
+(version 2: no ping before your turn; v1's design in "One-player game
+ideas; Follow Me mockup v1"). Its build script and template were in
+Claude's scratchpad, which a new session won't have: start from the
+published page (the Artifact tool's read gives its full HTML) or write
+a new script the same way (the site's `site.css`, `game.css`, faces,
+names and `sounds.js` put into one page). To test it in the built-in
+browser, serve it with `tools/serve.js`'s `createServer` (a
+`.claude/launch.json` entry for that session only, not committed).
+Then building it: Follow Me goes in the 👤 One player group, beside
+Rock paper scissors.
+
+**Still to ask the developer:** should Hard also say "faster" on the
+setup screen?
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
