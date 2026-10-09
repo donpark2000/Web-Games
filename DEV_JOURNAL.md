@@ -6,35 +6,30 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q10. Names for the faces?** *Raised 2026-10-08 (developer, while Nim
-  was being built):* only the robot has a name; give each face one?
-  Either a fixed name that fits the face ("Froggy"), or names people
-  type for the faces they pick (nice, but more tedious to start a game).
-  Across all the games, so a separate change after Nim. Claude's view in
-  the 2026-10-08 entry "Nim built"; waiting for the developer.
-
 - **Q11. Sound in all the games?** *Raised 2026-10-08 (developer):* no
   game has sound for turns, wins or losses; add it everywhere, with a way
   to turn it off and on? DESIGN.md "Sound" already says: small effects, a
   mute button, off by default until the developer has heard them.
-  Claude's proposal in the 2026-10-08 entry "Sound: proposal"; waiting
-  for the developer.
+  Claude's proposal in the 2026-10-08 entry "Sound: proposal". The
+  developer said yes to a sampler first: v1 is up (2026-10-08, "Sound
+  sampler v1; face names agreed"); waiting for the developer's picks.
 
 ## Proposed additions to the standards skill
 
-- **Debug output can change what it measures.** Before trusting a
-  measurement taken with debugging on, check it once with debugging off.
-  *Evidence (2026-10-07):* the `?dev` panel's room under the page shrank
-  Five Dice's fitted rows from 60 px to 47 px (once 28 px).
-
-- **A measurement must not depend on what it sets.** When code measures
-  a container to size its content, check that the content at its
-  starting size can't stretch that container. *Evidence (2026-10-08):*
-  Nim's tray at its 44 px default widened the play screen by 3 px, the
-  fit measured the widened screen and kept the overflow (`size 44,
-  tries 1`).
+None waiting. (The two from 2026-10-07 and 2026-10-08 were approved by
+the developer on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q10. Names for the faces?** *Raised 2026-10-08 (developer, while Nim
+  was being built):* only the robot has a name; give each face one?
+  Either a fixed name that fits the face ("Froggy"), or names people
+  type for the faces they pick (nice, but more tedious to start a game).
+  Across all the games, so a separate change after Nim. **Settled
+  2026-10-08 (developer):** "faces should have names", **fixed** ones, and
+  no renaming ("not sure optional rename is worth the complexity"). The
+  list is Claude's draft in "Sound sampler v1; face names agreed"; the
+  girl and boy faces' names still to choose.
 
 - **Q9. Two tabs at once overwrite each other's log lines.** *Raised
   2026-10-07 (the developer asked whether logs are separate per
@@ -2635,3 +2630,35 @@ switch. Proposal in "Sound: proposal" (2026-10-08).
 built"), Q11 (sound). **Proposed skill additions:** two (debug output
 changing what it measures; a measurement must not depend on what it
 sets), to review with the developer.
+
+## 2026-10-08: Sound sampler v1; face names agreed
+
+**Face names (Q10, resolved):** the developer wants fixed names, no
+renaming. Claude's draft list (not yet confirmed): bear Teddy, cat Kitty,
+dog Buddy, bunny Hoppy, fox Foxy, panda Ping, pig Piggy, frog Froggy,
+lion Leo, mouse Squeak, monkey Coco, chick Peep, grandma Grandma,
+grandpa Grandpa, robot Robot; girl and boy to choose (a child often
+picks them to be themselves, so maybe just "Girl" / "Boy"). Shown under
+each face in the pickers, on the scoreboard instead of "You" / "Player
+1", and in the turn line. **Order** (developer): one thing at a time,
+sound first, names after.
+
+**Sound sampler v1:** [Game Sound Sampler](https://claude.ai/artifact/TfxCqWQnvPEfxg4iwX5d8c)
+(private Claude artifact). Made with Web Audio in the page (oscillators
+and filtered noise, no sound files), in the site's colours and font. For
+every game: tap/pick (Soft pop, Bubble, Wood tick), a move lands (Thud,
+Plunk, Clack), a win (Ta-da, Sparkle, Fanfare), a gentle "aww" (Aww, Two
+notes down, Wobble down), a tie (Ding ding, Even chord). For some games,
+maybe: card flip, dice rolling, "Got one!", oops, up the ladder, down
+the snake, your turn (two or three versions each). A volume slider; ♡ on
+each version, the picks listed at the bottom with Copy. Checked: the
+script parses (`node --check`); the sounds themselves only by ear, which
+is the developer's. To check later on the iPhone: Web Audio follows the
+silent switch on iOS (Safari can be told to play anyway with
+`navigator.audioSession`; whether it should is a question for then).
+
+**Skill additions approved** (developer: "add both"): "Debug output can
+change what it measures" (§1) and "A measurement must not depend on what
+it sets" (§4), each with one line of evidence; the intro now names this
+project too. New `SKILL.md` and a zip for upload in
+`Web-Games-testing\2026-10-08_skill-update\`; the developer installs it.

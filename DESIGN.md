@@ -416,6 +416,13 @@ The developer's design, agreed 2026-10-04 from mockup v2 (journal):
   keeps it, New game resets it.
 - 🏠, footer, no scrolling, debug log as in the other games.
 
+## Face names
+
+Each face gets a **fixed name** (developer, 2026-10-08), with **no
+renaming** ("not sure optional rename is worth the complexity"). The
+names themselves are still to be agreed (journal, "Sound sampler v1; face
+names agreed").
+
 ## Sound
 
 Small effects, with a mute button. **Off by default** until the developer
