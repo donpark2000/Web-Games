@@ -3254,3 +3254,31 @@ and its modules into one self-contained file.
 **Open questions:** none. **Proposed skill additions:** one waiting ("Tune by steps big enough to
 notice"), to review together.
 
+
+## 2026-10-09: Follow Me's home picture on light tints
+
+**Developer, after trying the new Follow Me:** "New game is good." But
+on the home page the Follow Me picture's tile "used color almost the same
+as the color of the face"; the other games use a much lighter colour.
+**Seen** (built-in browser, 393 x 760): the lit frog sat on its pad's
+bright green (`--c`, #4FB264) under a #6CC24A frog; the other three pads
+were already on their soft colours (`--soft`).
+
+**Change** (`css/site.css`): the lit pad keeps its soft colour too
+(#DDF1DF) and is marked by a 4 px ring in its bright colour inside the
+tile, with the smiling face as before; the way Nim's picture shows the
+picked matches (soft tint plus a ring). The play screen is unchanged
+(there a lit pad flashes bright: the signal to watch).
+
+**Tests:** `npm test` 185 of 185 (184 before). New in
+`tests/pages.test.js`: the Follow Me picture's only pad background is
+`var(--soft)`, and the lit pad has an inset ring in `var(--c)`. **Shown
+to fail:** on the old CSS ("a pad background other than var(--soft)")
+and with the ring removed ("the lit pad has no ring in its bright
+colour"); restored. (My first try picked the whole match instead of its
+selector and failed on the new CSS too: the test, not the page; fixed.)
+
+**Checked in the built-in browser** (port 8123): computed backgrounds
+#DDF1DF, #FFF0C4, #FDE1EB, #D8EBF9 (all soft); the frog's tile ringed
+in #4FB264. No console errors. Screenshots before and after in
+`Web-Games-testing\2026-10-09_fm-home-picture\`.

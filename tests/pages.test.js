@@ -105,6 +105,20 @@ test('pages: the home page pictures share their width equally (no plain 1fr)', a
   }
 });
 
+// Follow Me's home picture (developer, 2026-10-09): every pad on its soft
+// colour, the lit one too (ringed in its bright colour), like the other
+// pictures' light tints; the frog on the bright green was hard to see.
+test('pages: the Follow Me picture keeps every pad on its soft colour', async () => {
+  const css = await readFile(path.join(root, 'css/site.css'), 'utf8');
+  const rules = [...css.matchAll(/(\.game \.pic\.fm span[^{]*)\{([^}]*)\}/g)];
+  assert.ok(rules.length >= 2, `only ${rules.length} Follow Me pad rules found`);
+  const bgs = rules.flatMap(([, sel, body]) => [...body.matchAll(/background(?:-color)?:\s*([^;]+)/g)].map(m => [sel.trim(), m[1].trim()]));
+  assert.deepEqual(bgs, [['.game .pic.fm span', 'var(--soft)']], 'a pad background other than var(--soft)');
+  const lit = rules.find(([, sel]) => /span\.lit\s*$/.test(sel));
+  assert.ok(lit, 'no rule for the lit pad');
+  assert.match(lit[2], /inset 0 0 0 \d+px var\(--c\)/, 'the lit pad has no ring in its bright colour');
+});
+
 // The end of a Follow Me game (developer, 2026-10-09, mockup v3): Play
 // again and New game only in the "Game over" banner over the pads, hidden
 // during a game; the 🏠 outside it, so it still works with the banner up.
