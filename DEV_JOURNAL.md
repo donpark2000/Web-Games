@@ -6,7 +6,16 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-None.
+- **Q12. Track how the sites are used?** *Raised 2026-10-10
+  (developer):* which games are played and from where (totals, a chart
+  over time); for GP-200 Patch Manager Web, which features are used.
+  Both sites' DESIGN.md say nothing is loaded from other sites, and the
+  games' also "no tracking", so any counter changes an agreed decision.
+  Options laid out in chat: GitHub's own (nothing for Pages sites), the
+  games' on-device log (no change), a cookieless counter (GoatCounter or
+  similar), our own counter on a free serverless host, Google Analytics
+  (not recommended: cookies and a children's site). Waiting for the
+  developer's choice.
 
 ## Proposed additions to the standards skill
 
