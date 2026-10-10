@@ -5,7 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-10): all nine games published, the home page grouped
-by players. Stats (GoatCounter, "Stats" in every footer) published
+by players. The offline app ("Let's Play!", happy bear icon) built on
+branch `offline-app`, not yet published. Stats (GoatCounter, "Stats" in every footer) published
 2026-10-10. Follow Me added 2026-10-09 (the same day: no ding for a
 right order, Easy at Hard's starting pace, a 3 s pause before the robot's
 next order, a "Game over" banner; all published). Nim added 2026-10-08 (checked by the developer on the live
@@ -38,6 +39,8 @@ page. So far:
 
 - **A static web site on GitHub Pages**, from the public repo
   `donpark2000/Web-Games`. Nothing to install; the kids open a link.
+  **Installing is optional**, for play with no connection (see "Offline
+  app").
 - **Plain JavaScript (ES modules), no build step.** What's in the repo is
   what's served. Tests run under Node.
 - **Works in Safari** (iPad, iPhone) as well as Chrome and Edge.
@@ -556,6 +559,41 @@ Which games are opened and played, from where, over time (developer,
   (sent or not) goes in the debug log.
 - **The dashboard is public**, linked as "Stats" in every footer (a new
   tab, like "Source code").
+
+## Offline app
+
+The kids' phones have no cellular plan, only home wifi; the games must
+work in the car too (developer, 2026-10-10; journal, Q13).
+
+- **An installable web app** (a PWA): no app store, no developer account
+  or fee. Opened once with a connection, it can be installed from the
+  browser (iPhone and iPad: Safari, Share, Add to Home Screen; Android,
+  Windows, Mac, Linux: the browser's Install button) and then plays with
+  none. On a computer, a bookmark plays offline too.
+- **Named "Let's Play!"** (developer, 2026-10-10; "Web Games" was dull),
+  also the home page's tab title. **Icon: the happy bear** on sunny
+  yellow (mockup v1, idea A), drawn from the site's own bear by
+  `tools/make-icons.js` (`icons/`: SVG, and PNGs at 192, 512 (also
+  Android's trimmed "maskable" one) and 180 for iPhone and iPad).
+  `manifest.webmanifest` holds the name, icons and colours; every page
+  links it.
+- **`sw.js` saves the whole site** (every page, style, script, the Five
+  Dice robot's data and the icons, about 1.5 MB) on the first visit, so
+  every game plays offline, not just the ones opened. It serves the
+  saved files first (instant, online or not); other sites (the stats
+  counter) are left alone, so **offline plays aren't counted**.
+- **Updates:** the saved files carry a version made from their contents
+  (`tools/offline.js` writes the list and version into `sw.js`; the
+  tests fail until it's run after a change). A device that opens the app
+  online gets the new version in the background; the next page opened
+  uses it, and the old copy is deleted.
+- **On localhost the network comes first**, so the local server still
+  shows edits on a reload; 127.0.0.1 behaves like the live site, for
+  testing it.
+- **`src/ui/offline.js`** (every page) registers `sw.js` and logs
+  ("offline"): opened as the installed app or in the browser, the saved
+  version and file count, a new version taking over, or why there's
+  none.
 
 ## Later
 

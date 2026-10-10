@@ -22,11 +22,23 @@ and what it does and doesn't prove.
   the browser's; offline plays aren't counted in the stats.
   2026-10-10, developer: the app's name "Let's Play!" or "Game Corner"
   ("Web Games" is dull); no idea for the icon, wants suggestions. Icon
-  mockup: see "App icon ideas".
+  mockup: see "App icon ideas". 2026-10-10, developer: "happy bear icon
+  with Let's Play!". Built on branch `offline-app` ("The offline app,
+  built"); waiting for the developer's check on an iPhone and an Android
+  phone in airplane mode, then publish.
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-10-09, "Tune by steps big enough to notice": dropped
+- **Derived files come from a tool, and a test fails when they're
+  stale, naming the command.** (2026-10-10, "The offline app, built".)
+  Anything worked out from the sources and kept in the repo (a file
+  list, a content version, generated images) is written by a tool, never
+  by hand; a test recomputes it and fails with "run <command>" when it
+  no longer matches. *Evidence:* the offline app's file list and version
+  must change with every site change or devices keep the old games; the
+  test caught a one-line CSS edit (version f62ec5a8f3b0 vs 19e2c03b21a3).
+
+Older: none waiting. (2026-10-09, "Tune by steps big enough to notice": dropped
 by the developer, "likely to be very game dependent rather than an
 overarching generic rule"; see "Follow Me's home picture on light
 tints".)
@@ -3452,3 +3464,83 @@ Android circle) and the wallpaper. Each keeps its picture inside the
 middle circle (radius 40 of 100) so Android's circle cut loses nothing.
 Not checked: the page wasn't looked at before publishing (the built-in
 browser can't act on a local file outside the project).
+
+## 2026-10-10: The offline app, built
+
+Q13; DESIGN.md "Offline app". On branch `offline-app` (from
+`follow-me`).
+
+**What was built:** `manifest.webmanifest` ("Let's Play!", standalone,
+sky-coloured bars, icons); `icons/` from `tools/make-icons.js` (the
+happy bear from `faces.js`; PNGs drawn by headless Edge); `sw.js`
+(saves all 68 site files on install, serves them first; network first on
+localhost only); `tools/offline.js` (writes `sw.js`'s list and a
+content version); `src/ui/offline.js` on every page (registers, logs
+"offline"); every page's head links the manifest and icons; the home
+page's title is now "Let's Play!"; `tools/serve.js` serves
+`.webmanifest` as `application/manifest+json`.
+
+**Findings on the way:**
+- Headless Edge won't make a window narrower than about 500 px: the
+  192 px and 180 px icons came out as the left edge of the picture only
+  (seen: icon-192.png 1281 bytes, flat yellow and a sliver of circle).
+  Fixed by drawing every size in a 512 px window, scaled with
+  `--force-device-scale-factor`. The scaled 180 px one then had a faint
+  light line on its right and bottom edges (rounding); the page behind
+  the icon is now the same yellow, and it's gone (looked at, 192 and 180).
+- git here turns LF into CRLF on checkout (warning on this repo), so the
+  content version counts text files with LF; a test checks that CRLF
+  gives the same version and that binary files aren't touched.
+
+**Tests:** `tests/offline.test.js`, 15 checks, `npm test` 208 of 208.
+`sw.js` runs in a Node `vm` with a fake cache and network: install
+saves every file with `cache: 'reload'` and fails whole if one file
+404s; activate deletes older `lets-play-` caches only; the live site
+serves saved files with the network down (folder -> index.html, ?query
+ignored), sends unsaved files to the network, leaves other sites and
+POST alone; localhost fetches first and falls back to the saved copy.
+Shown to fail: with `FRESH_FIRST = true` and the ?query kept, 2 tests
+failed (the live-site one and the version message); a changed, added and
+removed file are each reported by `check()` on a temp site.
+
+**In the built-in browser** (Chromium), at http://127.0.0.1:8123/ (the
+live-site behaviour):
+- First visit: registered, installed and took over in 0.19 s; one cache,
+  `lets-play-19e2c03b21a3`, 68 files; the log shows each step.
+- **Server stopped** (a fetch of an unsaved file then failed: "Failed to
+  fetch"): the home page (9 pictures drawn), all nine games (Play! shows
+  the play screen; Matching Cards after picking player 2's face, 16
+  cards), and log.html all loaded and ran. Five Dice, robot, long game:
+  "robot values loaded" (1048576 bytes, 155 ms) with no server. The only
+  console error was that probe fetch.
+- **Update:** a comment added to css/site.css, `node tools/offline.js`
+  (new version f62ec5a8f3b0), server restarted, home page opened: "a new
+  version took over" after 1.7 s; the next page (nim.html) got the new
+  CSS; the old cache was gone soon after (still listed at 2.5 s: with
+  `skipWaiting` the page switches before activate finishes deleting).
+  The change was then undone and the version restored.
+- **localhost:** a CSS edit showed with no new version (network first).
+
+**Not checked:** installing ("Add to Home Screen" / Install) on any
+device; Safari (iPhone, iPad, Mac); Android; Firefox. The live site
+(https) until it's published.
+
+## 2026-10-10: Status (start here next session)
+
+**Live:** unchanged (nine games, sound, face names, stats). **Branch
+`offline-app`:** the offline app, "Let's Play!" with the happy bear
+icon, built and checked in the built-in browser (offline, update,
+localhost); `npm test` 208 of 208. Not published.
+
+**Next:** with the developer's OK, publish (merge `offline-app` to
+`main`). Then the developer checks on the live site: on an iPhone or
+iPad (Safari, Share, Add to Home Screen) and an Android phone (Install),
+open it once on wifi, then airplane mode and play each game; also that
+the icon and name look right. Then GP-200 stats (see the previous status
+entry).
+
+**Remember:** after any change to the site, `node tools/offline.js`
+(the tests say so).
+
+**Open questions:** Q13 (until checked on devices). **Proposed skill
+additions:** one (derived files from a tool, stale-checked by a test).

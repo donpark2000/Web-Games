@@ -8,6 +8,13 @@ player: rock paper scissors and Follow Me.
 
 **Play it:** https://donpark2000.github.io/Web-Games/
 
+**Play with no connection:** open the site once with a connection and
+install it, as **Let's Play!** (iPhone and iPad: Safari, Share, Add to
+Home Screen; Android, Windows, Mac and Linux: the browser's Install
+button or menu). It's saved on the device, and every game then plays
+with no wifi or cellular. Updates come in the next time it's opened
+online.
+
 See [`DESIGN.md`](DESIGN.md) for how each game works.
 
 ## Try it on this computer
@@ -30,6 +37,20 @@ npm test
 ```
 
 Runs every test once and ends with a pass/fail count.
+
+## After changing the site
+
+Any change to a page, style, script, data file or icon needs a new
+version of the offline app's file list (the tests fail until then):
+
+```bash
+node tools/offline.js
+```
+
+On http://localhost:8123/ edits still show on a reload. To try the app
+the way the live site behaves (saved files first), use
+http://127.0.0.1:8123/ instead; stopping the server is then the same as
+having no connection.
 
 ## License
 
