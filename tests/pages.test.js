@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { readdir, readFile, access } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { statsPage } from '../src/core/stats.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pages = (await readdir(root)).filter(f => f.endsWith('.html')).sort();
@@ -32,6 +33,22 @@ test('pages: every page has the footer, and "Source code" opens in a new tab', (
     assert.match(a, /href="https:\/\/github\.com\/donpark2000\/Web-Games"/, p);
     assert.match(a, /target="_blank"/, `${p}: the link would replace the game`);
     assert.match(a, /rel="noopener"/, p);
+  }
+});
+
+// The stats (DESIGN.md "Stats", developer 2026-10-10): every footer links
+// to the public dashboard, in a new tab like "Source code"; every page but
+// log.html (the developer's) sends the counts.
+test('pages: every footer links to the stats; every page but log.html counts', () => {
+  for (const p of pages) {
+    const foot = html[p].match(/<footer class="site-foot">([\s\S]*?)<\/footer>/)[1];
+    const a = foot.match(/<a [^>]*>Stats<\/a>/)?.[0];
+    assert.ok(a, `${p}: no "Stats" link`);
+    assert.ok(a.includes(`href="${statsPage()}"`), `${p}: ${a}`);
+    assert.match(a, /target="_blank"/, `${p}: the link would replace the game`);
+    assert.match(a, /rel="noopener"/, p);
+    const loads = html[p].includes('<script type="module" src="src/ui/stats.js"></script>');
+    assert.equal(loads, p !== 'log.html', `${p}: ${loads ? 'counts' : 'no counts'}`);
   }
 });
 

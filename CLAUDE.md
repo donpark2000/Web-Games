@@ -41,7 +41,8 @@ this is the short version:
 
 - Keep `src/core/` free of DOM/UI code.
 - Plain JavaScript ES modules, no build step.
-- Nothing loaded from other sites; no ads, tracking or sign-in.
+- Nothing loaded from other sites; no ads or sign-in. The one exception
+  to "no tracking": the anonymous stats counter (DESIGN.md "Stats").
 - Publishing is merging to `main` (once GitHub Pages is on); only with the
   developer's OK. Work happens on branches.
 - Once a publish is live on github.io, stop the localhost servers

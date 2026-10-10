@@ -6,6 +6,20 @@ and what it does and doesn't prove.
 
 ## Open questions
 
+None.
+
+## Proposed additions to the standards skill
+
+None waiting. (2026-10-09, "Tune by steps big enough to notice": dropped
+by the developer, "likely to be very game dependent rather than an
+overarching generic rule"; see "Follow Me's home picture on light
+tints".)
+
+(The two from 2026-10-07 and 2026-10-08 were approved by the developer
+on 2026-10-08; see "Sound sampler v1; face names agreed".)
+
+## Resolved
+
 - **Q12. Track how the sites are used?** *Raised 2026-10-10
   (developer):* which games are played and from where (totals, a chart
   over time); for GP-200 Patch Manager Web, which features are used.
@@ -21,21 +35,10 @@ and what it does and doesn't prove.
   no cookies); its "Dashboard viewable by" setting includes "logged in
   users or with secret token" (help page "Embed GoatCounter in a frame").
   Proposed: our own few lines send the count (no outside script), the
-  footer links to the GoatCounter dashboard. Waiting for the developer's
-  choice.
-
-## Proposed additions to the standards skill
-
-None waiting. (2026-10-09, "Tune by steps big enough to notice": dropped
-by the developer, "likely to be very game dependent rather than an
-overarching generic rule"; see "Follow Me's home picture on light
-tints".)
-
-(The two from 2026-10-07 and 2026-10-08 were approved by the developer
-on 2026-10-08; see "Sound sampler v1; face names agreed".)
-
-## Resolved
-
+  footer links to the GoatCounter dashboard. *Resolved 2026-10-10
+  (developer):* "Yes, go ahead with GoatCounter; make the stats public."
+  One account; a separate site for each website. Built for the games:
+  see "Stats with GoatCounter".
 - **Q11. Sound in all the games?** *Raised 2026-10-08 (developer):* no
   game has sound for turns, wins or losses; add it everywhere, with a way
   to turn it off and on? Sampler v1 heard and picked (2026-10-09); built
@@ -3318,3 +3321,55 @@ Higher or lower. On hold: a "go" button between Follow Me rounds (only if
 the grandkids want breaks).
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
+
+## 2026-10-10: Stats with GoatCounter
+
+**Developer:** wants to see which games are played, from where, totals
+and over time; for GP-200 Patch Manager Web, which features are used.
+One stats page per site, linked from each footer; nothing paid. After
+the options (Q12): "Yes, go ahead with GoatCounter; make the stats
+public." Signing up, the developer asked whether two accounts are needed:
+no, GoatCounter's help ("Track multiple domains/sites") says one login
+can hold a site per website. Self-hosting (the other way GoatCounter
+offers) needs an always-on server: no. The site's domain at sign-up:
+donpark2000.github.io (the pages' paths then link to the real pages).
+
+**Checked first** (goatcounter.com): "offered for free for reasonable
+public usage", donation-supported, no paid plans, no cookies; counting
+without its script: GET `https://<code>.goatcounter.com/count` with `p`
+(page, or event name, which can't start with '/'), `t` title, `r`
+referrer, `s` screen, `e` event, `rnd` cache buster (help page
+"Tracking pixel"); the dashboard's "Dashboard viewable by" setting.
+
+**Built:** `src/core/stats.js` (no DOM: the site code `donpark-games`,
+only the live host counts, page paths, `play-<game>` events, the
+referrer only from another site, the count address) and
+`src/ui/stats.js` (sends one count when a page opens and one on each
+Play! / Play again, as an image request; logs each as "stats": "counted",
+"not counted (localhost)", or "count not sent (blocked or offline)").
+Loaded by every page but log.html; every footer gets "· Stats" (the
+dashboard, new tab). Not counted: localhost, an automated browser
+(`navigator.webdriver`). DESIGN.md: "Stats", the Platform rule and the
+footer; CLAUDE.md's project rule.
+
+**Tests:** `npm test` 193 of 193 (185 before). New `tests/stats.test.js`
+(7): live host only (localhost, '', a look-alike host, webdriver: not),
+page paths (index.html is its folder), event names (the home page
+refused), the referrer, the count address (every parameter, an event with
+only what was given), bad counts refused, the dashboard address. In
+`tests/pages.test.js`: every footer has the Stats link (new tab), every
+page but log.html loads `src/ui/stats.js`. **Shown to fail**, one at a
+time: counting on any host ("localhost"), the home page as index.html
+(2 failures), Nim without the script ("nim.html: no counts"), log.html
+with it ("log.html: counts"), log.html without the link ("no Stats
+link"); restored, 193 of 193.
+
+**Checked in the built-in browser** (port 8123), 393 x 760, Nim: the log
+has "not counted (localhost)" for the home page, nim.html, and
+`play-nim` for Play! and again for Play again; no request to
+goatcounter.com; the play screen still fits (page 760 px high in 760);
+the footer still two lines (52 px), "Stats" after "code". No console
+errors.
+
+**Not yet:** a count from the live site (only after publishing; the site
+code must match the one the developer signed up with).

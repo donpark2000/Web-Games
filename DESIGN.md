@@ -40,8 +40,9 @@ page. So far:
 - **Plain JavaScript (ES modules), no build step.** What's in the repo is
   what's served. Tests run under Node.
 - **Works in Safari** (iPad, iPhone) as well as Chrome and Edge.
-- **No ads, no tracking, no sign-in, nothing loaded from other sites**
-  (no web fonts, no outside scripts).
+- **No ads, no sign-in, nothing loaded from other sites** (no web fonts,
+  no outside scripts). **One anonymous counter** for the site's stats (see
+  "Stats"; developer, 2026-10-10: until then "no tracking").
 
 ## Licence
 
@@ -66,8 +67,8 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   56 px; below that the
   page scrolls). Big screens keep big pieces. The setup screens scroll.
 - **A small footer on every page:** "© 2026 Donald Parker · Free software
-  under the GPL-3.0 · Source code" (link to the GitHub repo) (developer,
-  2026-10-04). **At the bottom of the screen** when the page is shorter
+  under the GPL-3.0 · Source code · Stats" (links to the GitHub repo and
+  the stats; developer, 2026-10-04, "Stats" 2026-10-10). **At the bottom of the screen** when the page is shorter
   than the screen, under everything when it's longer; "Source code"
   **opens in a new tab**, so the game stays open (developer, 2026-10-04).
   Little space around it (16 px above, 12 px below the page), so the play
@@ -533,6 +534,27 @@ Small effects in every game, picked by the developer from a sampler
   wobble-down "aww" when the robot wins; two players, only the sparkle;
   playing alone, the sparkle when you finish; a tie (and "Same!" in Rock
   paper scissors), "ding ding".
+
+## Stats
+
+Which games are opened and played, from where, over time (developer,
+2026-10-10; journal, Q12). No paid service.
+
+- **GoatCounter** (goatcounter.com, free, donation-supported): no
+  cookies, nothing personal kept; country from the visitor's address,
+  which isn't stored. The site `donpark-games` (`GOATCOUNTER` in
+  `src/core/stats.js`), domain donpark2000.github.io.
+- **Our own few lines send the counts** (`src/ui/stats.js`, on every page
+  but log.html), one small request each, no script from another site:
+  each **page opened** (its full path, e.g. `/Web-Games/nim.html`; the
+  home page `/Web-Games/`), with its title, the screen size and the
+  referrer when another site sent the visitor; and each **game started**
+  (Play! or Play again) as an event, `play-<game>` (e.g. `play-nim`).
+- **Only the live site counts** (donpark2000.github.io), not localhost or
+  an automated browser, so testing doesn't add to the numbers. Each count
+  (sent or not) goes in the debug log.
+- **The dashboard is public**, linked as "Stats" in every footer (a new
+  tab, like "Source code").
 
 ## Later
 
