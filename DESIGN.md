@@ -4,8 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-09): all nine games published, the home page grouped
-by players. Follow Me added 2026-10-09 (the same day: no ding for a
+*Status (2026-10-10): all nine games published, the home page grouped
+by players. Stats (GoatCounter, "Stats" in every footer) published
+2026-10-10. Follow Me added 2026-10-09 (the same day: no ding for a
 right order, Easy at Hard's starting pace, a 3 s pause before the robot's
 next order, a "Game over" banner; all published). Nim added 2026-10-08 (checked by the developer on the live
 site). Sound published 2026-10-09 (heard by the developer). Face names

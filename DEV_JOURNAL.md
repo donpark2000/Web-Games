@@ -3384,3 +3384,38 @@ dashboard isn't public yet: `https://donpark2000.goatcounter.com/`
 answers 303 to `/user/new` (sign in) without a login.
 
 **Dashboard public** (developer: "Dashboard viewable by" set to "Anyone", under "Site settings" at /settings/main; the developer first could not find it). Checked: at first the dashboard still answered 303 to the sign-in page (the change wasn't saved yet: the developer had forgotten Save, not a cache); after the save, 200, title "donpark2000 – GoatCounter", without a login.
+
+**Published** 2026-10-10 (developer: "Yes, publish"): `main`
+fast-forwarded to `follow-me` at `8a83d05` and pushed; live about 25 s
+later (the served `src/core/stats.js` has `donpark2000`, `nim.html`
+loads `src/ui/stats.js`). **Checked on the live site** (built-in
+browser; `navigator.webdriver` false, so it counts): the home page, Nim
+and Play! logged "counted" for `/Web-Games/`, `/Web-Games/nim.html` and
+`play-nim`; the requests went to `donpark2000.goatcounter.com/count`
+(the home page's took 665 ms; no "not sent"). On the public dashboard
+about 40 s later: `/Web-Games/nim.html` and `play-nim`, and the home
+page as **`/Web-Games`** (GoatCounter drops the trailing slash; my first
+search for `/Web-Games/` missed it: the search, not the count). So the
+dashboard has a few visits of Claude's from this check. The built-in
+browser reported its screen as 0 x 0 (`s=0,0,1`): the pane, not the
+site. Claude's local server (8123) stopped; nothing left on 8123 or 8124.
+
+## 2026-10-10: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/ with nine games, sound,
+face names, and now **stats**: each page opened and each game started
+(Play! / Play again) counted on GoatCounter, public at
+https://donpark2000.goatcounter.com/ ("Stats" in every footer). Working
+branch `follow-me`, level with `main` but for the journal. `npm test`
+193 of 193.
+
+**Next:** the same for **GP-200 Patch Manager Web** (Q12: which features
+are used), in a session in that repo: the developer adds a second site
+under the same GoatCounter login (Settings, Sites; its own code, e.g.
+`donpark-gp200`; "Dashboard viewable by: Anyone", then Save); that
+site's DESIGN.md also says nothing is loaded from other sites, so the
+same approach (our own lines, no count.js). Then games: a new one-player
+game (Spell the animal, Maze, Sliding puzzle, Higher or lower) or more on
+an existing one.
+
+**Open questions:** none. **Proposed skill additions:** none waiting.
