@@ -542,7 +542,7 @@ Which games are opened and played, from where, over time (developer,
 
 - **GoatCounter** (goatcounter.com, free, donation-supported): no
   cookies, nothing personal kept; country from the visitor's address,
-  which isn't stored. The site `donpark-games` (`GOATCOUNTER` in
+  which isn't stored. The site `donpark2000` (`GOATCOUNTER` in
   `src/core/stats.js`), domain donpark2000.github.io.
 - **Our own few lines send the counts** (`src/ui/stats.js`, on every page
   but log.html), one small request each, no script from another site:

@@ -3373,3 +3373,12 @@ errors.
 
 **Not yet:** a count from the live site (only after publishing; the site
 code must match the one the developer signed up with).
+
+**Site code** (developer, signed up and confirmed): `donpark2000`, not
+the `donpark-games` built first; changed in `src/core/stats.js`, every
+footer, DESIGN.md and the test. GoatCounter's sign-up page offered its
+script tag (`count.js` from gc.zgo.at): not used, as it loads a script
+from another site; our lines send the same count to the same
+`https://donpark2000.goatcounter.com/count`. `npm test` 193 of 193. The
+dashboard isn't public yet: `https://donpark2000.goatcounter.com/`
+answers 303 to `/user/new` (sign in) without a login.

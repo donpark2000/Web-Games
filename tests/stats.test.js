@@ -39,14 +39,14 @@ test('stats: the referrer is kept only when another site sent the visitor', () =
 });
 
 test('stats: a page count and a game event as GoatCounter takes them', () => {
-  const page = new URL(countUrl('donpark-games', {
+  const page = new URL(countUrl('donpark2000', {
     path: '/Web-Games/nim.html', title: 'Nim & co', referrer: 'https://example.com/a?b=1', screen: '393,852,3', rnd: 'abc',
   }));
-  assert.equal(page.origin + page.pathname, 'https://donpark-games.goatcounter.com/count');
+  assert.equal(page.origin + page.pathname, 'https://donpark2000.goatcounter.com/count');
   assert.deepEqual(Object.fromEntries(page.searchParams), {
     p: '/Web-Games/nim.html', t: 'Nim & co', r: 'https://example.com/a?b=1', s: '393,852,3', rnd: 'abc',
   });
-  const ev = new URL(countUrl('donpark-games', { path: 'play-nim', event: true }));
+  const ev = new URL(countUrl('donpark2000', { path: 'play-nim', event: true }));
   assert.deepEqual(Object.fromEntries(ev.searchParams), { p: 'play-nim', e: 'true' }, 'only what was given');
 });
 

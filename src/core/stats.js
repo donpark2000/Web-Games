@@ -8,7 +8,7 @@
 // footer ("Stats"). Only the live site counts, so testing on localhost or
 // with an automated browser doesn't add to the numbers.
 
-export const GOATCOUNTER = 'donpark-games';   // the site's code: https://<code>.goatcounter.com
+export const GOATCOUNTER = 'donpark2000';   // the site's code: https://<code>.goatcounter.com
 export const LIVE_HOST = 'donpark2000.github.io';
 
 // The dashboard (the footer's "Stats" link).
