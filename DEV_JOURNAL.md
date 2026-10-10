@@ -24,8 +24,9 @@ and what it does and doesn't prove.
   ("Web Games" is dull); no idea for the icon, wants suggestions. Icon
   mockup: see "App icon ideas". 2026-10-10, developer: "happy bear icon
   with Let's Play!". Built on branch `offline-app` ("The offline app,
-  built"); waiting for the developer's check on an iPhone and an Android
-  phone in airplane mode, then publish.
+  built"). Published 2026-10-10 (developer: "Publish and I will phone
+  check"); waiting for the developer's check on an iPhone and an Android
+  phone in airplane mode.
 
 ## Proposed additions to the standards skill
 
@@ -3527,20 +3528,27 @@ device; Safari (iPhone, iPad, Mac); Android; Firefox. The live site
 
 ## 2026-10-10: Status (start here next session)
 
-**Live:** unchanged (nine games, sound, face names, stats). **Branch
-`offline-app`:** the offline app, "Let's Play!" with the happy bear
-icon, built and checked in the built-in browser (offline, update,
-localhost); `npm test` 208 of 208. Not published.
+**Live:** https://donpark2000.github.io/Web-Games/ with nine games,
+sound, face names, stats, and now the **offline app**: "Let's Play!"
+with the happy bear icon, installable, every game playable with no
+connection. Published 2026-10-10 (developer's OK): `main` fast-forwarded
+to `offline-app` at `f53decf` and pushed; GitHub Pages served the new
+`sw.js` about 20 s later. Checked live in the built-in browser: the
+manifest is served as `application/manifest+json`; the home page's
+title is "Let's Play!"; the service worker took over and saved 68 files
+(`lets-play-19e2c03b21a3`); the four manifest icons answer 200. Local
+servers stopped. Working branch `offline-app`; `npm test` 208 of 208.
 
-**Next:** with the developer's OK, publish (merge `offline-app` to
-`main`). Then the developer checks on the live site: on an iPhone or
-iPad (Safari, Share, Add to Home Screen) and an Android phone (Install),
-open it once on wifi, then airplane mode and play each game; also that
-the icon and name look right. Then GP-200 stats (see the previous status
-entry).
+**Next:** the developer's phone check, in a new session: on an iPhone
+or iPad (Safari, Share, Add to Home Screen) and an Android phone
+(Install), open once on wifi, then airplane mode and play each game from
+the icon; do the icon and name look right? Then deal with anything
+found, close Q13, and on to GP-200 stats (see the 2026-10-10 status
+entry before "App icon ideas").
 
 **Remember:** after any change to the site, `node tools/offline.js`
-(the tests say so).
+(the tests say so). On localhost edits show on a reload; 127.0.0.1
+behaves like the live site.
 
 **Open questions:** Q13 (until checked on devices). **Proposed skill
 additions:** one (derived files from a tool, stale-checked by a test).
