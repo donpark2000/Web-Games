@@ -6,7 +6,23 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-None.
+- **Q13. Play offline, as an installable app?** *Raised 2026-10-10
+  (developer):* the kids' phones have no cellular plan, only home wifi;
+  could they play in the car? Opening `index.html` from disk doesn't work:
+  the pages load their code as ES modules, which Chrome and Edge refuse
+  from `file://` (and Five Dice's `fetch` of its 1 MB data file too).
+  Options laid out in chat: one standalone file per game (fine on
+  computers, not on iPhone/iPad) or an installable web app (PWA: a
+  manifest plus a service worker that saves every game on the first visit
+  with a connection). Developer chose to explore the PWA. Facts given:
+  no Apple or Google developer account or fee; installed from the browser
+  (iPhone: Safari, Share, Add to Home Screen; Android, Windows, Mac,
+  Linux: the browser's install button); works offline on all of them;
+  installed apps keep their own storage (sound setting, log) apart from
+  the browser's; offline plays aren't counted in the stats.
+  2026-10-10, developer: the app's name "Let's Play!" or "Game Corner"
+  ("Web Games" is dull); no idea for the icon, wants suggestions. Icon
+  mockup: see "App icon ideas".
 
 ## Proposed additions to the standards skill
 
@@ -3419,3 +3435,20 @@ game (Spell the animal, Maze, Sliding puzzle, Higher or lower) or more on
 an existing one.
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
+
+## 2026-10-10: App icon ideas
+
+Q13 (play offline, installable app): the developer wants the icon
+suggested. **Icon mockup v1** (private Claude artifact, throwaway:
+[App Icon Ideas](https://claude.ai/artifact/EWvwWoB58C7JbtrV8z9btH)),
+built by a scratchpad script from the site's own drawings
+(`src/ui/faces.js`, `snlart.js` `cubeSvg`, `cardback.js`, `fmpads.js`), so
+the icons match the games. Six ideas: A happy bear on yellow, B bear and
+robot, C four in a row, D big die, E four friends (Follow Me pads), F card
+flip. The page shows them large, on a mock phone home screen at real size
+(60 px) with stand-in apps, at 32 and 24 px, with toggles for the name
+("Let's Play!" / "Game Corner"), the shape (iPhone rounded square /
+Android circle) and the wallpaper. Each keeps its picture inside the
+middle circle (radius 40 of 100) so Android's circle cut loses nothing.
+Not checked: the page wasn't looked at before publishing (the built-in
+browser can't act on a local file outside the project).
