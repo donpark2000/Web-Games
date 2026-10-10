@@ -14,8 +14,15 @@ and what it does and doesn't prove.
   Options laid out in chat: GitHub's own (nothing for Pages sites), the
   games' on-device log (no change), a cookieless counter (GoatCounter or
   similar), our own counter on a free serverless host, Google Analytics
-  (not recommended: cookies and a children's site). Waiting for the
-  developer's choice.
+  (not recommended: cookies and a children's site).
+  2026-10-10, developer: one stats page per site is fine, linked from
+  each footer; no paid service. Checked: goatcounter.com is "offered for
+  free for reasonable public usage" (donation-supported, no paid plans,
+  no cookies); its "Dashboard viewable by" setting includes "logged in
+  users or with secret token" (help page "Embed GoatCounter in a frame").
+  Proposed: our own few lines send the count (no outside script), the
+  footer links to the GoatCounter dashboard. Waiting for the developer's
+  choice.
 
 ## Proposed additions to the standards skill
 
