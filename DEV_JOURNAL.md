@@ -3383,4 +3383,4 @@ from another site; our lines send the same count to the same
 dashboard isn't public yet: `https://donpark2000.goatcounter.com/`
 answers 303 to `/user/new` (sign in) without a login.
 
-**Dashboard public** (developer: "Dashboard viewable by" set to "Anyone", under "Site settings" at /settings/main; the developer first could not find it). Checked: right after, the dashboard still answered 303 to the sign-in page; on the next try, a few seconds later, 200, title "donpark2000 – GoatCounter", without a login.
+**Dashboard public** (developer: "Dashboard viewable by" set to "Anyone", under "Site settings" at /settings/main; the developer first could not find it). Checked: at first the dashboard still answered 303 to the sign-in page (the change wasn't saved yet: the developer had forgotten Save, not a cache); after the save, 200, title "donpark2000 – GoatCounter", without a login.
