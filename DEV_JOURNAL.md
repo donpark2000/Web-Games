@@ -3702,3 +3702,14 @@ without internet" button. Its point would be finding the install step
 the app on the kids' devices themselves, it isn't needed. Developer will
 check Android.
 
+
+## 2026-10-11: The log link published; an update watched live
+
+Published with the developer's OK ("Yes, publish it"): `main`
+fast-forwarded to `offline-app` at `f0549fc`; GitHub Pages served `sw.js`
+5b27e82150d1 about 30-40 s later. Checked live in the built-in browser,
+which had 446039 saved: the first open showed "Version Oct 11, 2026 ·
+446039" (no link: the old page); about 7 s later the line read "...
+(new version next time: Oct 11, 2026 · 5b27e8)", and the old copy was
+gone (`lets-play-5b27e82150d1` only); the next open showed "Version Oct
+11, 2026 · 5b27e8" as a link to `log.html`. Local server stopped.
