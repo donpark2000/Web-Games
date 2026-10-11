@@ -91,8 +91,10 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   each page's under a heading with the date, time and screen size) and
   never sent anywhere. **`log.html`** shows them, with **Save log** (a
   file with browser and device details), **Copy** and **Clear** (asks
-  first). **Nothing links to it**: the developer opens it by its address.
-  (Until 2026-10-07: a panel on screen with `?dev`.)
+  first). **Reached by its address, or by tapping the home page's version
+  line** ("sort of hidden": it looks like plain text; developer,
+  2026-10-11: the installed app has no address bar). (Until 2026-10-07: a
+  panel on screen with `?dev`; until 2026-10-11 nothing linked to it.)
 
 ## The games (first version)
 
@@ -605,7 +607,8 @@ work in the car too (developer, 2026-10-10; journal, Q13).
   "Version Oct 11, 2026 · 446039", the day `tools/offline.js` made that
   version and its first 6 characters, asked of the running `sw.js`. When
   a new version arrives while the page is open: "(new version next time:
-  …)". Not saved yet: "Not saved for offline yet".
+  …)". Not saved yet: "Not saved for offline yet". **Tapping it opens
+  the log page** (see "Structure").
 
 ## Later
 

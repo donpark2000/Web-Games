@@ -3678,3 +3678,27 @@ a home-screen web app with a service worker in airplane mode; a reporter
 there says a test site "sort of works" but still brings up the "turn off
 airplane mode" dialog. No setting found that a page can use to stop it.
 Conclusion: leave it; it's cosmetic. Measured, not designed around.
+
+## 2026-10-11: The version line opens the log page
+
+The developer: "we could add a link to the footer (a new link or attach
+it to the version text to make it 'sort of hidden')". Claude took the
+version text: it stays plain-looking (same colour as the footer, no
+underline), and kids are unlikely to tap it. This replaces the
+2026-10-07 rule "nothing links to the log page" (it was reachable only
+by its address, which the installed app doesn't have). `log.html`
+already has a 🏠 back to the games.
+
+**Evidence:** `npm test` 211 of 211; the pages test now allows exactly
+one link to `log.html`, the home page's version line. Shown to fail: a
+temporary `<a href="log.html">` in nim.html gave "nim.html: links to the
+log page" (then removed). Built-in browser on localhost: the line's
+colour is the footer's (rgb(91, 113, 128)), no underline; a tap opened
+`log.html`.
+
+**Also discussed:** the developer didn't see the point of a "Play
+without internet" button. Its point would be finding the install step
+(the page itself shows nothing to install); if the developer installs
+the app on the kids' devices themselves, it isn't needed. Developer will
+check Android.
+

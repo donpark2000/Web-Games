@@ -70,11 +70,16 @@ test('pages: the home page links to every game; every game has a 🏠 back to it
   }
 });
 
-// The log page is reached by its address only (developer, 2026-10-07), and
-// the games have no on-screen debug panel or ?dev any more.
-test('pages: the log page exists; no page links to it; no ?dev panel left', async () => {
+// The log page is reached by its address, or the home page's version line,
+// which looks like plain text (developer, 2026-10-07 and 2026-10-11: the
+// installed app has no address bar); the games have no on-screen debug
+// panel or ?dev any more.
+test('pages: the log page exists; only the version line links to it; no ?dev panel left', async () => {
   assert.ok(pages.includes('log.html'));
-  for (const p of pages) assert.doesNotMatch(html[p], /href="log\.html/, `${p} links to the log page`);
+  for (const p of pages) {
+    const links = html[p].match(/<[^>]*href="log\.html[^>]*>/g) ?? [];
+    assert.deepEqual(links, p === 'index.html' ? ['<a class="app-version" id="appVersion" href="log.html" hidden>'] : [], `${p}: links to the log page`);
+  }
   const ui = await readdir(path.join(root, 'src/ui'));
   let checked = 0;
   for (const f of [...ui.map(f => `src/ui/${f}`), ...pages]) {

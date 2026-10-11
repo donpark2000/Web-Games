@@ -277,5 +277,5 @@ test('offline: every page links the manifest and icons, and loads src/ui/offline
   }
   const home = await readFile(path.join(root, 'index.html'), 'utf8');
   assert.match(home, /<title>Let's Play!<\/title>/);
-  assert.match(home, /<footer class="site-foot">[\s\S]*<span class="app-version" id="appVersion" hidden><\/span><\/footer>/, 'the home page has no version line');
+  assert.match(home, /<footer class="site-foot">[\s\S]*<a class="app-version" id="appVersion" href="log.html" hidden><\/a><\/footer>/, 'the home page has no version line');
 });
