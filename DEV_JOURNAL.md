@@ -3639,3 +3639,15 @@ isn't the live site, which is checked first); the unit test covers it.
 version, then "new version next time"); open it again: the new version.
 Then airplane mode: does iOS's alert still show?
 
+
+## 2026-10-11: Published; the version line checked live
+
+The developer had opened the app on wifi before this was published and
+saw no change (it was only pushed to the branch; Claude hadn't said
+plainly that publishing waits for the OK). Published with the
+developer's OK ("Yes, publish it"): `main` fast-forwarded to
+`offline-app` at `27ab3c8` and pushed; GitHub Pages served the new
+`sw.js` (version 44603965c635) about 20-30 s later. Checked live in the
+built-in browser: the first open showed the old saved page (no version
+line) while the new version was saved (`lets-play-44603965c635`); the
+next open showed "Version Oct 11, 2026 · 446039". Local server stopped.
