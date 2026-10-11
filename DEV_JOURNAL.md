@@ -3922,3 +3922,24 @@ standards.zip` in that repo, rebuilt).
 **Next:** GP-200 stats (that repo), or the DESIGN.md "Later" list.
 
 **Open questions:** none.
+
+## 2026-10-11: The version line published and checked live
+
+Published with the developer's OK ("You go ahead"): `main` fast-forwarded
+to `version-line` (e9b0801..8ec19a0); the Pages build for 8ec19a0
+succeeded, and the live `src/core/version.js` says 60d967d73c47
+(2026-10-11). (An earlier "I pushed it" turned out not to be: `main` was
+still e9b0801, the local reflog showed no merge; the developer: "I did
+not push".)
+
+**Checked in Claude's browser on the live site:** a plain load showed
+"Version Oct 11, 2026 · 60d967", saved as `lets-play-60d967d73c47`. Then,
+with `sw.js` unregistered and the saved files deleted (what Ctrl+F5
+gives: no controller), the next load showed "Version Oct 11, 2026 ·
+60d967" at once (controller none, nothing saved). Before this change
+that case showed "Not saved for offline yet".
+
+The developer uploaded the new skill zip. Local servers stopped (Claude's
+preview; no other `tools/serve.js` running).
+
+**Open questions:** none.
