@@ -3651,3 +3651,30 @@ developer's OK ("Yes, publish it"): `main` fast-forwarded to
 built-in browser: the first open showed the old saved page (no version
 line) while the new version was saved (`lets-play-44603965c635`); the
 next open showed "Version Oct 11, 2026 · 446039". Local server stopped.
+
+## 2026-10-11: The update seen on the iPhone; the alert remains
+
+The developer (iPhone, installed app):
+
+- **The update works, silently:** first open on wifi showed the old
+  version; after opening a game and going back to 🏠 the version line
+  appeared ("Version Oct 11, 2026 · 446039"). No message that a new
+  version was downloaded. As designed.
+- **The airplane-mode alert remains:** fully closed, then opened in
+  airplane mode: iOS's "Turn off Airplane Mode or use Wi-Fi to access
+  data" still shows. The game plays. Developer: "Not a big deal ...
+  more of a cosmetic thing. But it would be nice to suppress it if
+  possible."
+
+**What this shows:** with this version the page sends no count and
+doesn't register `sw.js` when offline (both tested in the browser, see
+"No counts offline"), so the attempt comes from iOS/WebKit itself, not
+the page: its own check for a new `sw.js` as the app opens, or the
+launch itself. Not proven on the phone: the installed app has no way to
+reach `log.html`, so its log can't be read there.
+
+**Outside evidence** (web search, 2026-10-11): WebKit bug 182874 (2018),
+a home-screen web app with a service worker in airplane mode; a reporter
+there says a test site "sort of works" but still brings up the "turn off
+airplane mode" dialog. No setting found that a page can use to stop it.
+Conclusion: leave it; it's cosmetic. Measured, not designed around.
