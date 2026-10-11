@@ -26,7 +26,9 @@ and what it does and doesn't prove.
   with Let's Play!". Built on branch `offline-app` ("The offline app,
   built"). Published 2026-10-10 (developer: "Publish and I will phone
   check"); checked by the developer on an iPhone (see "The offline app
-  on the developer's iPhone"); Android not yet.
+  on the developer's iPhone"): installs, plays offline, updates itself
+  (version line, 2026-10-11); iOS's airplane-mode alert at launch is
+  its own and stays (see "The alert is iOS's own"). Android not yet.
 
 ## Proposed additions to the standards skill
 
@@ -38,6 +40,12 @@ and what it does and doesn't prove.
   no longer matches. *Evidence:* the offline app's file list and version
   must change with every site change or devices keep the old games; the
   test caught a one-line CSS edit (version f62ec5a8f3b0 vs 19e2c03b21a3).
+- **Don't trust a platform's status flag at startup; log it over time
+  before acting on it.** (2026-10-11, "navigator.onLine at launch".) A
+  flag read once as a program starts can still be catching up. *Evidence:*
+  an iPhone's installed web app opened in airplane mode reported
+  `navigator.onLine` true until 1.8 s, so a check made at start let
+  network calls through; logging it at 0.5/1/2/4 s showed when it turned.
 
 Older: none waiting. (2026-10-09, "Tune by steps big enough to notice": dropped
 by the developer, "likely to be very game dependent rather than an
@@ -3763,3 +3771,67 @@ fast-forwarded to `offline-app` at `e9b0801`; GitHub Pages served `sw.js`
 (online): "Version Oct 11, 2026 · 6b971e"; net samples at 0.5/1/2/4 s,
 "[stats] counted" at 2.011 s and "registered" at 2.020 s. Local server
 stopped.
+
+## 2026-10-11: The alert is iOS's own
+
+The developer's iPhone log, version 6b971e50ac17 (cleared, app fully
+closed, opened in airplane mode, log copied about 20 s later), and "I
+still see the airplane mode error":
+
+    === 2026-10-11 12:21:37 index.html, 393x793 ===
+    +0.013s [offline] opened as the installed app {"online":true}
+    +0.014s [offline] saved for offline {"version":"6b971e50ac17",...}
+    +0.513s [net] after 0.5 s {"online":true}
+    +1.014s [net] after 1 s {"online":true}
+    +1.814s [net] offline event {"online":false}
+    +2.014s [net] after 2 s {"online":false}
+    +2.015s [stats] not counted (no connection) {"what":"/Web-Games/"}
+    +2.015s [offline] no connection: not registering (no check for a new version) {"running":true}
+    +4.014s [net] after 4 s {"online":false}
+
+**What it shows:** iOS says the installed app is online for about 1.8 s
+after it opens in airplane mode, then sends an offline event. With the
+2 s wait, the page tried no network at all (no count, no registration),
+and the alert still showed. So it comes from iOS/WebKit itself: most
+likely its own check for a new `sw.js` as the app opens (the service
+worker standard's update on navigation), which a page can't turn off,
+or the launch itself. The 1.8 s turn may be that check failing.
+Earlier conclusion ("The update seen on the iPhone; the alert remains")
+now has the evidence it lacked.
+
+**Decision:** leave the alert (developer: cosmetic, the games play).
+Keep the 2 s wait: it stops the page's own attempts and costs only a
+home page count left within 2 s. Keep the "net" log lines for now; trim
+once Android is checked.
+
+## 2026-10-11: Status (start here next session)
+
+**Live:** https://donpark2000.github.io/Web-Games/, version
+6b971e50ac17 ("Version Oct 11, 2026 · 6b971e" under the home page's
+footer). Published today, each with the developer's OK: no counts sent
+offline; the version line (tapping it opens the log page, the only way
+there in the installed app); a 2 s wait before the page count and
+`sw.js` registration, with `navigator.onLine` logged after opening.
+Branch `offline-app` = `main` plus journal commits; `npm test` 214 of
+214. Local servers stopped.
+
+**iPhone (done):** the app installs, plays offline, and updates itself
+silently (old version on the first open, new on the next page opened).
+iOS's airplane-mode alert at launch stays: it's iOS's own (see "The
+alert is iOS's own"); the developer is fine with it.
+
+**Next:** the developer's **Android check** (Chrome, ⋮ menu, Install
+app; open from the icon, a game and back so the version line shows;
+airplane mode, play; icon and name right?). Then close Q13, trim the
+"net" log lines if not needed, and on to GP-200 stats (see the
+2026-10-10 status entry before "App icon ideas"). The "Play without
+internet" button: dropped for now (the developer installs the app).
+
+**Remember:** after any change to the site, `node tools/offline.js`
+(the tests say so). The version line shows the day `tools/offline.js`
+made the version.
+
+**Open questions:** Q13 (Android). **Proposed skill additions:** two
+(derived files stale-checked by a test; don't trust a status flag at
+startup).
+
