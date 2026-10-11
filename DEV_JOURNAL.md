@@ -3569,8 +3569,9 @@ The developer's report (2026-10-10 evening, in chat):
   Safari saved weren't the app's; it needs one launch online. With
   airplane mode off it played; airplane mode back on, it kept working.
 - **Every launch in airplane mode shows an error message, but the game
-  plays fine if it's ignored.** Not yet known: the message's wording.
-  Likely iOS's own "Airplane Mode is On" alert, shown when an app tries
+  plays fine if it's ignored.** The message (developer, 2026-10-11):
+  "Turn off Airplane Mode or use Wi-Fi to access data", one button,
+  "Open Settings": iOS's own alert, shown when an app tries
   the network: on the live site `src/ui/stats.js` sends the page-open
   count at every launch, and WebKit checks `sw.js` for updates. Fix
   to try: no count sent when `navigator.onLine` is false; then see
@@ -3584,5 +3585,5 @@ the new icon on wifi" and why. Also: `log.html` can't be reached inside
 the installed app (no address bar, nothing links to it), so a device's
 offline log can only be read in the browser.
 
-**Next session:** the message's exact wording; the stats fix; the
+**Next session:** the stats fix (then check whether the alert remains); the
 "Play without internet" button (mockup first); Android check.
