@@ -25,8 +25,8 @@ and what it does and doesn't prove.
   mockup: see "App icon ideas". 2026-10-10, developer: "happy bear icon
   with Let's Play!". Built on branch `offline-app` ("The offline app,
   built"). Published 2026-10-10 (developer: "Publish and I will phone
-  check"); waiting for the developer's check on an iPhone and an Android
-  phone in airplane mode.
+  check"); checked by the developer on an iPhone (see "The offline app
+  on the developer's iPhone"); Android not yet.
 
 ## Proposed additions to the standards skill
 
@@ -3552,3 +3552,37 @@ behaves like the live site.
 
 **Open questions:** Q13 (until checked on devices). **Proposed skill
 additions:** one (derived files from a tool, stale-checked by a test).
+
+## 2026-10-11: The offline app on the developer's iPhone
+
+The developer's report (2026-10-10 evening, in chat):
+
+- **Finding the install button:** the page itself shows nothing to
+  install (only the tab title and icon changed); Claude hadn't said so
+  plainly, and the developer looked on the page. On the **Windows
+  desktop**, Edge's "App available" icon in the address bar: "it
+  installed fine". On the **iPhone** (Safari and Edge "look the same")
+  the Share button wasn't found at first (newer Safari shrinks its
+  toolbar); then "I found it. It works."
+- **First launch in airplane mode: an error.** Expected: on iOS the
+  installed app has its own storage, apart from Safari's, so the files
+  Safari saved weren't the app's; it needs one launch online. With
+  airplane mode off it played; airplane mode back on, it kept working.
+- **Every launch in airplane mode shows an error message, but the game
+  plays fine if it's ignored.** Not yet known: the message's wording.
+  Likely iOS's own "Airplane Mode is On" alert, shown when an app tries
+  the network: on the live site `src/ui/stats.js` sends the page-open
+  count at every launch, and WebKit checks `sw.js` for updates. Fix
+  to try: no count sent when `navigator.onLine` is false; then see
+  whether the alert remains (if so, it's the update check).
+
+**Ideas from this** (proposed to the developer, to decide in the next
+session): a **"Play without internet"** button on the home page (Chrome
+and Edge: installs directly; iPhone/iPad: shows the steps with a
+picture; hidden once installed); the steps to say "open it once from
+the new icon on wifi" and why. Also: `log.html` can't be reached inside
+the installed app (no address bar, nothing links to it), so a device's
+offline log can only be read in the browser.
+
+**Next session:** the message's exact wording; the stats fix; the
+"Play without internet" button (mockup first); Android check.
