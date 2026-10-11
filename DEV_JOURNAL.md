@@ -3587,3 +3587,55 @@ offline log can only be read in the browser.
 
 **Next session:** the stats fix (then check whether the alert remains); the
 "Play without internet" button (mockup first); Android check.
+
+## 2026-10-11: No counts offline; a version line on the home page
+
+The developer (chat): go ahead with the stats fix; also wants to test
+that the app updates itself to new versions, and asked for a version on
+the home page ("I do not see any version info on my phone"). On the
+update check: "if it is an iOS thing, it seems silly for it to try when
+there is no data service."
+
+**What was built** (branch `offline-app`):
+
+- **Stats:** `whyNotCounted()` in `src/core/stats.js` (`shouldCount` now
+  uses it) adds "no connection" when `navigator.onLine` is false; the
+  page asks at each count, since the connection can come and go during a
+  visit. The log says why: "not counted (no connection)".
+- **Update check:** `src/ui/offline.js` doesn't call
+  `navigator.serviceWorker.register('sw.js')` when offline (logged: "no
+  connection: not registering (no check for a new version)"); it asks the
+  running `sw.js` for its version instead. Told the developer plainly:
+  the browser itself (WebKit) also checks for a new `sw.js` when a page
+  opens (the service worker standard's update on navigation); a page
+  can't turn that off. So if the alert remains after this, that check is
+  the likely cause (or iOS alerts for any web app opened offline);
+  measure before designing around it.
+- **Version line:** `tools/offline.js` now also writes `MADE` (the day,
+  YYYY-MM-DD) into `sw.js`, kept while the version is unchanged, today's
+  date for a new one (`madeDay`); `sw.js` returns it with the version;
+  `src/core/appversion.js` words the line; `#appVersion` under the home
+  page's footer. Why a day as well as the content version: the developer
+  can tell "new" at a glance, without knowing the hash.
+
+**Evidence:** `npm test` 211 of 211 (208 + 3: offline counts and their
+reasons; the version's day kept or renewed, a bad or missing day
+refused/reported; the line's wording, incl. no day from an older
+`sw.js`). Built-in browser on 127.0.0.1:8123 (behaves like the live
+site): the first load was still an older saved copy (no `#appVersion`);
+the log showed "a new version took over" 1.8 s after opening
+(f62ec5a8f3b0 to 44603965c635), and the reload showed "Version Oct 11,
+2026 · 446039". With `navigator.onLine` faked false and
+`src/ui/offline.js` loaded again: `register` called 0 times, the log
+line above, the version still shown. With a temporary CSS edit (new
+version afd089fdc74e, then undone): reloaded, the line read "Version Oct
+11, 2026 · 446039 (new version next time: Oct 11, 2026 · afd089)" within
+4 s. At 375 px wide it wraps to two lines, no sideways scroll. Not
+shown: the "not counted (no connection)" line in a browser (127.0.0.1
+isn't the live site, which is checked first); the unit test covers it.
+
+**To check on the iPhone, after publishing:** open the app once on wifi
+(it fetches the new version in the background: the line shows the old
+version, then "new version next time"); open it again: the new version.
+Then airplane mode: does iOS's alert still show?
+

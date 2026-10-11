@@ -14,11 +14,19 @@ export const LIVE_HOST = 'donpark2000.github.io';
 // The dashboard (the footer's "Stats" link).
 export const statsPage = (code = GOATCOUNTER) => `https://${code}.goatcounter.com/`;
 
-// Whether this page should send counts: only on the live site, and not in
-// an automated browser (navigator.webdriver).
-export function shouldCount({ hostname, webdriver = false }) {
-  return hostname === LIVE_HOST && !webdriver;
+// Why this page sends no count, or '' when it should: only the live site
+// counts, not an automated browser (navigator.webdriver), and nothing is
+// tried with no connection (navigator.onLine false: an iPhone in airplane
+// mode shows an alert when an app tries the network; journal, "The
+// offline app on the developer's iPhone").
+export function whyNotCounted({ hostname, webdriver = false, online = true }) {
+  if (webdriver) return 'automated browser';
+  if (hostname !== LIVE_HOST) return hostname || 'a file';
+  if (!online) return 'no connection';
+  return '';
 }
+
+export const shouldCount = opts => whyNotCounted(opts) === '';
 
 // The page as the dashboard shows it: its full path, which GoatCounter
 // links to on the site's domain (donpark2000.github.io), with the home

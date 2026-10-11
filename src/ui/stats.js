@@ -3,15 +3,16 @@
 // loads this but log.html. The counts and why: src/core/stats.js. Each one
 // goes in the debug log ("stats"), sent or not.
 
-import { GOATCOUNTER, shouldCount, pagePath, gameEvent, otherSite, countUrl } from '../core/stats.js';
+import { GOATCOUNTER, whyNotCounted, pagePath, gameEvent, otherSite, countUrl } from '../core/stats.js';
 import { log } from './debuglog.js';
 
-const live = shouldCount({ hostname: location.hostname, webdriver: navigator.webdriver });
 const page = pagePath(location.pathname);
 
 function send(opts, what) {
-  if (!live) {
-    log.add('stats', `not counted (${navigator.webdriver ? 'automated browser' : location.hostname || 'a file'})`, { what });
+  // Asked at each count: the connection can come and go during a visit.
+  const why = whyNotCounted({ hostname: location.hostname, webdriver: navigator.webdriver, online: navigator.onLine });
+  if (why) {
+    log.add('stats', `not counted (${why})`, { what });
     return;
   }
   const url = countUrl(GOATCOUNTER, { ...opts, rnd: Math.random().toString(36).slice(2, 8) });

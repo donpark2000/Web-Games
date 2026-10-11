@@ -3,7 +3,7 @@
 // GoatCounter's count address. Pure functions; nothing is sent or written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GOATCOUNTER, LIVE_HOST, statsPage, shouldCount, pagePath, gameEvent, otherSite, countUrl } from '../src/core/stats.js';
+import { GOATCOUNTER, LIVE_HOST, statsPage, shouldCount, whyNotCounted, pagePath, gameEvent, otherSite, countUrl } from '../src/core/stats.js';
 
 test('stats: only the live site counts, and not an automated browser', () => {
   assert.equal(LIVE_HOST, 'donpark2000.github.io');
@@ -12,6 +12,16 @@ test('stats: only the live site counts, and not an automated browser', () => {
   for (const hostname of ['localhost', '127.0.0.1', '', 'donpark2000.github.io.evil.example', 'github.io']) {
     assert.equal(shouldCount({ hostname }), false, hostname || '(a file)');
   }
+});
+
+test('stats: nothing is sent with no connection; the log says why', () => {
+  assert.equal(shouldCount({ hostname: LIVE_HOST, online: true }), true);
+  assert.equal(shouldCount({ hostname: LIVE_HOST, online: false }), false, 'airplane mode');
+  assert.equal(whyNotCounted({ hostname: LIVE_HOST, online: false }), 'no connection');
+  assert.equal(whyNotCounted({ hostname: LIVE_HOST }), '');
+  assert.equal(whyNotCounted({ hostname: LIVE_HOST, webdriver: true, online: false }), 'automated browser');
+  assert.equal(whyNotCounted({ hostname: 'localhost', online: false }), 'localhost');
+  assert.equal(whyNotCounted({ hostname: '' }), 'a file');
 });
 
 test('stats: page names keep the site folder; the home page is its folder', () => {

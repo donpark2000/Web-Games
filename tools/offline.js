@@ -1,7 +1,9 @@
 // Keeps the offline app's file list up to date (DESIGN.md "Offline app").
 // sw.js saves every file of the site on the device; this writes into it
 // the list of those files and a version made from their contents, so that
-// any change to the site makes a new version that devices pick up.
+// any change to the site makes a new version that devices pick up, and the
+// day that version was made (shown on the home page with the version; kept
+// while the version stays the same).
 //   node tools/offline.js        -> updates sw.js
 // Run it after changing any page, style, script, data file or icon (the
 // tests fail until it's run, saying so).
@@ -54,15 +56,28 @@ export async function siteVersion(root, files) {
 const START = '// ---- made by tools/offline.js (don\'t edit by hand) ----';
 const END = '// ---- end ----';
 
-export function generated(version, files) {
-  return `${START}\nconst VERSION = '${version}';\nconst FILES = [\n${files.map(f => `  '${f}',`).join('\n')}\n];\n${END}`;
+export function generated(version, files, made) {
+  if (!/^\d{4}-\d\d-\d\d$/.test(made ?? '')) throw new Error(`sw.js: the version's day must be YYYY-MM-DD: ${made}`);
+  return `${START}\nconst VERSION = '${version}';\nconst MADE = '${made}';\nconst FILES = [\n${files.map(f => `  '${f}',`).join('\n')}\n];\n${END}`;
 }
 
-// sw.js with its list and version brought up to date.
-export function withList(sw, version, files) {
+// sw.js with its list, version and the version's day brought up to date.
+export function withList(sw, version, files, made) {
   const a = sw.indexOf(START), b = sw.indexOf(END);
   if (a < 0 || b < a) throw new Error('sw.js: the made-by-tools/offline.js lines are missing');
-  return sw.slice(0, a) + generated(version, files) + sw.slice(b + END.length);
+  return sw.slice(0, a) + generated(version, files, made) + sw.slice(b + END.length);
+}
+
+// The day a version was made: the one sw.js has if its version is the
+// same, otherwise `today` (YYYY-MM-DD).
+export function madeDay(sw, version, today) {
+  const same = sw.match(/const VERSION = '([^']*)';/)?.[1] === version;
+  return (same && sw.match(/const MADE = '(\d{4}-\d\d-\d\d)';/)?.[1]) || today;
+}
+
+// Today on this computer, YYYY-MM-DD.
+export function today(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 // What's out of date in `root`'s sw.js: [] when it's current.
@@ -77,6 +92,7 @@ export async function check(root) {
   if (extra.length) problems.push(`listed but not in the site: ${extra.join(', ')}`);
   const has = sw.match(/const VERSION = '([^']*)';/)?.[1];
   if (has !== version) problems.push(`version ${has}, the files make ${version}`);
+  if (!/const MADE = '\d{4}-\d\d-\d\d';/.test(sw)) problems.push('no day for the version (MADE)');
   return { files, version, problems };
 }
 
@@ -86,11 +102,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   const version = await siteVersion(root, files);
   const file = path.join(root, 'sw.js');
   const before = await readFile(file, 'utf8');
-  const after = withList(before, version, files);
+  const made = madeDay(before, version, today());
+  const after = withList(before, version, files, made);
   if (after === before) {
-    console.log(`sw.js is up to date: version ${version}, ${files.length} files`);
+    console.log(`sw.js is up to date: version ${version} (${made}), ${files.length} files`);
   } else {
     await writeFile(file, after);
-    console.log(`sw.js: version ${version}, ${files.length} files`);
+    console.log(`sw.js: version ${version} (${made}), ${files.length} files`);
   }
 }

@@ -19,7 +19,8 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '19e2c03b21a3';
+const VERSION = '44603965c635';
+const MADE = '2026-10-11';
 const FILES = [
   'connect-four.html',
   'count-to-9.html',
@@ -50,6 +51,7 @@ const FILES = [
   'nim.html',
   'rock-paper-scissors.html',
   'snakes-ladders.html',
+  'src/core/appversion.js',
   'src/core/connect-four.js',
   'src/core/count-to-9.js',
   'src/core/fit.js',
@@ -136,7 +138,8 @@ self.addEventListener('fetch', event => {
   })());
 });
 
-// A page can ask which version is running (for its debug log).
+// A page can ask which version is running (for its debug log, and the home
+// page's version line).
 self.addEventListener('message', event => {
-  if (event.data === 'version') event.source?.postMessage({ version: VERSION, files: FILES.length, freshFirst: FRESH_FIRST });
+  if (event.data === 'version') event.source?.postMessage({ version: VERSION, made: MADE, files: FILES.length, freshFirst: FRESH_FIRST });
 });

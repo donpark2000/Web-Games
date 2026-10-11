@@ -11,7 +11,8 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
-import { siteFiles, siteVersion, withList, check } from '../tools/offline.js';
+import { siteFiles, siteVersion, withList, check, madeDay, today } from '../tools/offline.js';
+import { versionLabel, dayLabel } from '../src/core/appversion.js';
 import { iconSvg, pngSize, PNGS } from '../tools/make-icons.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -48,7 +49,7 @@ async function tinySite(t) {
   await writeFile(path.join(dir, 'tests/x.test.js'), '');
   await writeFile(path.join(dir, 'README.md'), '');
   const files = await siteFiles(dir);
-  await writeFile(path.join(dir, 'sw.js'), withList(swSource, await siteVersion(dir, files), files));
+  await writeFile(path.join(dir, 'sw.js'), withList(swSource, await siteVersion(dir, files), files, '2026-10-11'));
   return dir;
 }
 
@@ -83,7 +84,35 @@ test('offline: Windows line ends make the same version; a binary file is taken a
 });
 
 test('offline: sw.js without its made-by-the-tool lines is refused', () => {
-  assert.throws(() => withList('const x = 1;', 'abc', []), /missing/);
+  assert.throws(() => withList('const x = 1;', 'abc', [], '2026-10-11'), /missing/);
+});
+
+test("offline: the version's day is kept while the version stays, and is today for a new one", async t => {
+  const dir = await tinySite(t);
+  const sw = await readFile(path.join(dir, 'sw.js'), 'utf8');
+  const version = sw.match(/const VERSION = '([^']*)';/)[1];
+  assert.match(sw, /const MADE = '2026-10-11';/);
+  assert.equal(madeDay(sw, version, '2026-12-25'), '2026-10-11', 'same version: its day kept');
+  assert.equal(madeDay(sw, 'another', '2026-12-25'), '2026-12-25', 'a new version: today');
+  assert.equal(madeDay('no lines at all', version, '2026-12-25'), '2026-12-25');
+  assert.equal(today(new Date(2026, 0, 5, 23, 59)), '2026-01-05', 'local day, zero-padded');
+  // A bad day is refused; a sw.js without one is reported.
+  assert.throws(() => withList(sw, version, ['index.html'], '11 Oct'), /YYYY-MM-DD/);
+  assert.throws(() => withList(sw, version, ['index.html']), /YYYY-MM-DD/);
+  await writeFile(path.join(dir, 'sw.js'), sw.replace(/const MADE = .*\n/, ''));
+  assert.deepEqual((await check(dir)).problems, ['no day for the version (MADE)']);
+});
+
+test("offline: the home page's version line", () => {
+  const v1 = { version: '19e2c03b21a3', made: '2026-10-11' }, v2 = { version: 'a1b2c3d4e5f6', made: '2026-10-12' };
+  assert.equal(versionLabel(v1), 'Version Oct 11, 2026 · 19e2c0');
+  assert.equal(versionLabel(v1, v1), 'Version Oct 11, 2026 · 19e2c0', 'the same version is no news');
+  assert.equal(versionLabel(v1, v2), 'Version Oct 11, 2026 · 19e2c0 (new version next time: Oct 12, 2026 · a1b2c3)');
+  assert.equal(versionLabel(null), 'Not saved for offline yet');
+  assert.equal(versionLabel({ version: 'abcdef123456' }), 'Version abcdef', 'an older sw.js has no day');
+  assert.equal(dayLabel('2026-01-05'), 'Jan 5, 2026');
+  assert.equal(dayLabel('2026-13-05'), '2026-13-05', 'not a day: as it is');
+  assert.equal(dayLabel(undefined), '');
 });
 
 /* ---------- sw.js at work, with a fake cache and network ---------- */
@@ -93,7 +122,7 @@ const SITE = 'https://donpark2000.github.io/Web-Games/';
 // Runs sw.js for `host` with FILES and VERSION set, a fake cache store and
 // a fake network: `net.down` makes every fetch fail; `net.missing` files
 // answer 404. Returns the handlers and what they did.
-function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.html', 'src/a.js'], version = 'v2', store = new Map() } = {}) {
+function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.html', 'src/a.js'], version = 'v2', made = '2026-10-11', store = new Map() } = {}) {
   const scope = `https://${host}/Web-Games/`;
   const net = { down: false, missing: [], calls: [] };
   const fetch = async r => {
@@ -130,7 +159,7 @@ function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.htm
     skipWaiting: async () => { did.skipWaiting++; },
     clients: { claim: async () => { did.claim++; } },
   };
-  vm.runInNewContext(withList(swSource, version, files), { self, caches, fetch, Request, Response, URL });
+  vm.runInNewContext(withList(swSource, version, files, made), { self, caches, fetch, Request, Response, URL });
   const wait = type => { const e = { waitUntil(p) { e.p = p; } }; handlers[type](e); return e.p; };
   // A fetch event: the response, or null if sw.js leaves it to the browser.
   const get = async (url, method = 'GET') => {
@@ -200,12 +229,12 @@ test('offline sw: on localhost the network comes first; the saved copy when the 
 });
 
 test('offline sw: tells a page its version', () => {
-  const sw = runSw({ files: ['a.html', 'b.html'], version: 'abc' });
+  const sw = runSw({ files: ['a.html', 'b.html'], version: 'abc', made: '2026-10-12' });
   const posted = [];
   sw.handlers.message({ data: 'version', source: { postMessage: m => posted.push(m) } });
   sw.handlers.message({ data: 'something else', source: { postMessage: m => posted.push(m) } });
   // (made inside the vm, so compared as JSON: its objects have their own prototype)
-  assert.deepEqual(JSON.parse(JSON.stringify(posted)), [{ version: 'abc', files: 2, freshFirst: false }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(posted)), [{ version: 'abc', made: '2026-10-12', files: 2, freshFirst: false }]);
 });
 
 /* ---------- the manifest, icons and pages ---------- */
@@ -246,5 +275,7 @@ test('offline: every page links the manifest and icons, and loads src/ui/offline
       assert.ok(s.includes(tag), `${p}: no ${tag}`);
     }
   }
-  assert.match(await readFile(path.join(root, 'index.html'), 'utf8'), /<title>Let's Play!<\/title>/);
+  const home = await readFile(path.join(root, 'index.html'), 'utf8');
+  assert.match(home, /<title>Let's Play!<\/title>/);
+  assert.match(home, /<footer class="site-foot">[\s\S]*<span class="app-version" id="appVersion" hidden><\/span><\/footer>/, 'the home page has no version line');
 });

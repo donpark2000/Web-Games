@@ -4,9 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-10): all nine games published, the home page grouped
+*Status (2026-10-11): all nine games published, the home page grouped
 by players. The offline app ("Let's Play!", happy bear icon) published
-2026-10-10. Stats (GoatCounter, "Stats" in every footer) published
+2026-10-10; a version line on the home page and no counts sent offline
+built 2026-10-11 (not yet published). Stats (GoatCounter, "Stats" in every footer) published
 2026-10-10. Follow Me added 2026-10-09 (the same day: no ding for a
 right order, Easy at Hard's starting pace, a 3 s pause before the robot's
 next order, a "Game over" banner; all published). Nim added 2026-10-08 (checked by the developer on the live
@@ -555,8 +556,10 @@ Which games are opened and played, from where, over time (developer,
   referrer when another site sent the visitor; and each **game started**
   (Play! or Play again) as an event, `play-<game>` (e.g. `play-nim`).
 - **Only the live site counts** (donpark2000.github.io), not localhost or
-  an automated browser, so testing doesn't add to the numbers. Each count
-  (sent or not) goes in the debug log.
+  an automated browser, so testing doesn't add to the numbers. **Nothing
+  is sent with no connection** (2026-10-11: an iPhone in airplane mode
+  shows an alert when the app tries the network). Each count (sent or
+  not, and why) goes in the debug log.
 - **The dashboard is public**, linked as "Stats" in every footer (a new
   tab, like "Source code").
 
@@ -593,7 +596,16 @@ work in the car too (developer, 2026-10-10; journal, Q13).
 - **`src/ui/offline.js`** (every page) registers `sw.js` and logs
   ("offline"): opened as the installed app or in the browser, the saved
   version and file count, a new version taking over, or why there's
-  none.
+  none. **With no connection it doesn't register** (nothing to fetch;
+  2026-10-11, the iPhone's airplane-mode alert). The browser may still
+  check for a new `sw.js` by itself when a page opens; that can't be
+  turned off from the page.
+- **A version line on the home page**, under the footer (developer,
+  2026-10-11: to see on a phone whether a new version has arrived):
+  "Version Oct 11, 2026 · 446039", the day `tools/offline.js` made that
+  version and its first 6 characters, asked of the running `sw.js`. When
+  a new version arrives while the page is open: "(new version next time:
+  …)". Not saved yet: "Not saved for offline yet".
 
 ## Later
 
