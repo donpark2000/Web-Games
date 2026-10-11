@@ -7,7 +7,8 @@ reasoning, evidence, and anything still open live in
 *Status (2026-10-11): all nine games published, the home page grouped
 by players. The offline app ("Let's Play!", happy bear icon) published
 2026-10-10; a version line on the home page and no counts sent offline
-built 2026-10-11 (not yet published). Stats (GoatCounter, "Stats" in every footer) published
+published 2026-10-11, and the app checked on an iPhone and an Android
+tablet. Stats (GoatCounter, "Stats" in every footer) published
 2026-10-10. Follow Me added 2026-10-09 (the same day: no ding for a
 right order, Easy at Hard's starting pace, a 3 s pause before the robot's
 next order, a "Game over" banner; all published). Nim added 2026-10-08 (checked by the developer on the live
@@ -590,8 +591,9 @@ work in the car too (developer, 2026-10-10; journal, Q13).
   saved files first (instant, online or not); other sites (the stats
   counter) are left alone, so **offline plays aren't counted**.
 - **Updates:** the saved files carry a version made from their contents
-  (`tools/offline.js` writes the list and version into `sw.js`; the
-  tests fail until it's run after a change). A device that opens the app
+  (`tools/offline.js` writes the list and version into `sw.js`, and the
+  version into `src/core/version.js` for the pages; the tests fail until
+  it's run after a change). A device that opens the app
   online gets the new version in the background; the next page opened
   uses it, and the old copy is deleted.
 - **On localhost the network comes first**, so the local server still
@@ -604,17 +606,20 @@ work in the car too (developer, 2026-10-10; journal, Q13).
   connection** (nothing to fetch; 2026-10-11, the iPhone's airplane-mode
   alert; the installed app said `navigator.onLine` true as it opened in
   airplane mode). `src/core/net.js` (`SETTLE_MS`) does the waiting, and
-  logs ("net") `navigator.onLine` 0.5, 1, 2 and 4 s after opening and
-  each online/offline event. The browser may still
+  logs ("net") each online/offline event (until 2026-10-11 also
+  `navigator.onLine` 0.5, 1, 2 and 4 s after opening). The browser may still
   check for a new `sw.js` by itself when a page opens; that can't be
   turned off from the page.
 - **A version line on the home page**, under the footer (developer,
   2026-10-11: to see on a phone whether a new version has arrived):
   "Version Oct 11, 2026 · 446039", the day `tools/offline.js` made that
-  version and its first 6 characters, asked of the running `sw.js`. When
-  a new version arrives while the page is open: "(new version next time:
-  …)". Not saved yet: "Not saved for offline yet". **Tapping it opens
-  the log page** (see "Structure").
+  version and its first 6 characters. **Always the version of the page's
+  own files** (`src/core/version.js`), however it was loaded (developer,
+  2026-10-11: "The version should always be the version"; until then it
+  was asked of the running `sw.js`, and a first visit or a hard reload
+  showed "Not saved for offline yet"). When a new version takes over
+  while the page is open: "(new version next time: …)". **Tapping it
+  opens the log page** (see "Structure").
 
 ## Later
 

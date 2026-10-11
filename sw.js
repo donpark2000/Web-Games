@@ -19,7 +19,7 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '6b971e50ac17';
+const VERSION = '60d967d73c47';
 const MADE = '2026-10-11';
 const FILES = [
   'connect-four.html',
@@ -67,6 +67,7 @@ const FILES = [
   'src/core/snakes-ladders.js',
   'src/core/stats.js',
   'src/core/tic-tac-toe.js',
+  'src/core/version.js',
   'src/ui/cardback.js',
   'src/ui/connect-four.js',
   'src/ui/count-to-9.js',

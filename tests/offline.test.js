@@ -1,5 +1,6 @@
 // The offline app (DESIGN.md "Offline app"): sw.js lists every file of the
-// site with a version made from them (tools/offline.js), and saves, serves
+// site with a version made from them, also in src/core/version.js for the
+// pages (tools/offline.js), and saves, serves
 // and replaces them as it should (run here with a fake cache and network);
 // the manifest and icons are right; every page links them and loads
 // src/ui/offline.js. Stale-list checks run on a small site in a temp
@@ -11,7 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
-import { siteFiles, siteVersion, withList, check, madeDay, today } from '../tools/offline.js';
+import { siteFiles, siteVersion, withList, check, madeDay, today, update, versionModule, VERSION_FILE } from '../tools/offline.js';
 import { versionLabel, dayLabel } from '../src/core/appversion.js';
 import { iconSvg, pngSize, PNGS } from '../tools/make-icons.js';
 
@@ -22,7 +23,7 @@ const swSource = await readFile(path.join(root, 'sw.js'), 'utf8');
 
 test('offline: sw.js lists every file of the site, with their version', async () => {
   const { files, version, problems } = await check(root);
-  assert.deepEqual(problems, [], `sw.js is out of date: run  node tools/offline.js\n${problems.join('\n')}`);
+  assert.deepEqual(problems, [], `sw.js or ${VERSION_FILE} is out of date: run  node tools/offline.js\n${problems.join('\n')}`);
   assert.match(version, /^[0-9a-f]{12}$/);
   assert.ok(files.length >= 60, `only ${files.length} files`);
 });
@@ -30,13 +31,14 @@ test('offline: sw.js lists every file of the site, with their version', async ()
 test('offline: the list has every page, style, script, data file and icon, and nothing else', async () => {
   const files = await siteFiles(root);
   const pages = (await readdir(root)).filter(f => f.endsWith('.html'));
-  for (const f of [...pages, 'manifest.webmanifest', 'css/site.css', 'src/ui/offline.js', 'src/core/nim.js', 'data/five-dice-long.bin', 'icons/apple-touch-icon.png']) {
+  for (const f of [...pages, 'manifest.webmanifest', 'css/site.css', 'src/ui/offline.js', VERSION_FILE, 'src/core/nim.js', 'data/five-dice-long.bin', 'icons/apple-touch-icon.png']) {
     assert.ok(files.includes(f), `${f} not saved`);
   }
   for (const f of files) assert.doesNotMatch(f, /^(tests|tools|sw\.js|package\.json|.*\.md$)/, `${f} shouldn't be saved`);
 });
 
-// A small site in a temp folder, its sw.js made current.
+// A small site in a temp folder, made current by the tool (its version's
+// day 2026-10-11).
 async function tinySite(t) {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'offline-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
@@ -48,26 +50,50 @@ async function tinySite(t) {
   await writeFile(path.join(dir, 'src/x.js'), 'export const x = 1;\n');
   await writeFile(path.join(dir, 'tests/x.test.js'), '');
   await writeFile(path.join(dir, 'README.md'), '');
-  const files = await siteFiles(dir);
-  await writeFile(path.join(dir, 'sw.js'), withList(swSource, await siteVersion(dir, files), files, '2026-10-11'));
+  await writeFile(path.join(dir, 'sw.js'), swSource);
+  assert.match(await update(dir, '2026-10-11'), /^sw\.js and src\/core\/version\.js: version [0-9a-f]{12} \(2026-10-11\), 4 files$/);
   return dir;
 }
 
 test('offline: a current list passes; a changed, added or removed file is reported', async t => {
   const dir = await tinySite(t);
   assert.deepEqual((await check(dir)).problems, []);
-  assert.deepEqual(await siteFiles(dir), ['css/a.css', 'index.html', 'src/x.js']);
+  assert.deepEqual(await siteFiles(dir), ['css/a.css', 'index.html', 'src/core/version.js', 'src/x.js']);
+  assert.match(await update(dir, '2026-12-25'), /^sw\.js and src\/core\/version\.js are up to date: .*\(2026-10-11\)/, 'nothing to do');
 
   await writeFile(path.join(dir, 'css/a.css'), 'p { color: blue }\n');
   const changed = (await check(dir)).problems;
-  assert.equal(changed.length, 1, changed.join('\n'));
+  assert.equal(changed.length, 2, changed.join('\n'));
   assert.match(changed[0], /^version [0-9a-f]{12}, the files make [0-9a-f]{12}$/);
+  assert.match(changed[1], /^src\/core\/version\.js doesn't say version [0-9a-f]{12} \(2026-10-11\)$/);
 
   await writeFile(path.join(dir, 'src/y.js'), '');
   assert.ok((await check(dir)).problems.some(p => p === 'not saved for offline: src/y.js'));
 
   await rm(path.join(dir, 'index.html'));
   assert.ok((await check(dir)).problems.some(p => p === 'listed but not in the site: index.html'));
+});
+
+test('offline: src/core/version.js says the version and its day; stale or missing is reported', async t => {
+  const dir = await tinySite(t);
+  const sw = await readFile(path.join(dir, 'sw.js'), 'utf8');
+  const version = sw.match(/const VERSION = '([^']*)';/)[1];
+  const mod = await readFile(path.join(dir, VERSION_FILE), 'utf8');
+  assert.equal(mod, versionModule(version, '2026-10-11'));
+  assert.ok(mod.includes(`export const VERSION = '${version}';`) && mod.includes("export const MADE = '2026-10-11';"), mod);
+  // It holds the version, so it isn't part of it (or the version could never settle).
+  await writeFile(path.join(dir, VERSION_FILE), '// anything\n');
+  assert.equal(await siteVersion(dir, await siteFiles(dir)), version);
+  assert.deepEqual((await check(dir)).problems, [`${VERSION_FILE} doesn't say version ${version} (2026-10-11)`]);
+  await writeFile(path.join(dir, VERSION_FILE), mod.replace(/\n/g, '\r\n'));
+  assert.deepEqual((await check(dir)).problems, [], 'Windows line ends: the same file');
+  await rm(path.join(dir, VERSION_FILE));
+  assert.deepEqual((await check(dir)).problems, [`no ${VERSION_FILE}`]);
+  // A new version: both files change, with that day.
+  await writeFile(path.join(dir, 'index.html'), '<p>hello</p>\n');
+  assert.match(await update(dir, '2026-12-25'), /^sw\.js and src\/core\/version\.js: version [0-9a-f]{12} \(2026-12-25\)/);
+  assert.deepEqual((await check(dir)).problems, []);
+  assert.match(await readFile(path.join(dir, VERSION_FILE), 'utf8'), /export const MADE = '2026-12-25';/);
 });
 
 test('offline: Windows line ends make the same version; a binary file is taken as it is', async t => {
@@ -108,7 +134,6 @@ test("offline: the home page's version line", () => {
   assert.equal(versionLabel(v1), 'Version Oct 11, 2026 · 19e2c0');
   assert.equal(versionLabel(v1, v1), 'Version Oct 11, 2026 · 19e2c0', 'the same version is no news');
   assert.equal(versionLabel(v1, v2), 'Version Oct 11, 2026 · 19e2c0 (new version next time: Oct 12, 2026 · a1b2c3)');
-  assert.equal(versionLabel(null), 'Not saved for offline yet');
   assert.equal(versionLabel({ version: 'abcdef123456' }), 'Version abcdef', 'an older sw.js has no day');
   assert.equal(dayLabel('2026-01-05'), 'Jan 5, 2026');
   assert.equal(dayLabel('2026-13-05'), '2026-13-05', 'not a day: as it is');
@@ -276,6 +301,11 @@ test('offline: every page links the manifest and icons, and loads src/ui/offline
     }
   }
   const home = await readFile(path.join(root, 'index.html'), 'utf8');
+  // The version line shows the page's own version (developer, 2026-10-11:
+  // "The version should always be the version"), not "Not saved for offline yet".
+  const ui = await readFile(path.join(root, 'src/ui/offline.js'), 'utf8');
+  assert.match(ui, /import \{ VERSION, MADE \} from '\.\.\/core\/version\.js';/);
+  assert.doesNotMatch(ui + await readFile(path.join(root, 'src/core/appversion.js'), 'utf8'), /'Not saved for offline yet'/);
   assert.match(home, /<title>Let's Play!<\/title>/);
   assert.match(home, /<footer class="site-foot">[\s\S]*<a class="app-version" id="appVersion" href="log.html" hidden><\/a><\/footer>/, 'the home page has no version line');
 });

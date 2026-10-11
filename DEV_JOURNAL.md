@@ -10,22 +10,14 @@ None.
 
 ## Proposed additions to the standards skill
 
-- **Derived files come from a tool, and a test fails when they're
-  stale, naming the command.** (2026-10-10, "The offline app, built".)
-  Anything worked out from the sources and kept in the repo (a file
-  list, a content version, generated images) is written by a tool, never
-  by hand; a test recomputes it and fails with "run <command>" when it
-  no longer matches. *Evidence:* the offline app's file list and version
-  must change with every site change or devices keep the old games; the
-  test caught a one-line CSS edit (version f62ec5a8f3b0 vs 19e2c03b21a3).
-- **Don't trust a platform's status flag at startup; log it over time
-  before acting on it.** (2026-10-11, "navigator.onLine at launch".) A
-  flag read once as a program starts can still be catching up. *Evidence:*
-  an iPhone's installed web app opened in airplane mode reported
-  `navigator.onLine` true until 1.8 s, so a check made at start let
-  network calls through; logging it at 0.5/1/2/4 s showed when it turned.
+None waiting. (2026-10-11: "Derived files come from a tool, and a test
+fails when they're stale" (from "The offline app, built") and "Don't
+trust a platform's status flag at startup" (from "navigator.onLine at
+launch") approved by the developer and added to the skill, sections 3
+and 4; ai-dev-practices commit c06e60b. See "The version line always
+shows the version".)
 
-Older: none waiting. (2026-10-09, "Tune by steps big enough to notice": dropped
+Older: (2026-10-09, "Tune by steps big enough to notice": dropped
 by the developer, "likely to be very game dependent rather than an
 overarching generic rule"; see "Follow Me's home picture on light
 tints".)
@@ -3850,3 +3842,83 @@ stats in that repo).
 
 **Open questions:** none.
 
+
+## 2026-10-11: The version line always shows the version
+
+**What the developer saw:** the live home page, opened with Ctrl+F5 in
+a browser, said "Not saved for offline yet" under the footer instead of
+the version. The developer: "The version should always be the version",
+and asked how a site could know it wasn't installed as an app ("reading
+data from my system that is not authorised or controlled by me").
+
+**Why:** the line asked the running `sw.js` for its version
+(`navigator.serviceWorker.controller.postMessage('version')`). Ctrl+F5
+(a hard reload) loads the page past `sw.js`, so the page has no
+controller, nobody answers, and the line fell back to "Not saved for
+offline yet", though the site was saved. (A first visit looks the same.)
+So the message was wrong as well as unwanted: it didn't mean "not
+saved" or "not installed".
+
+**What the page can and can't see** (the reply in chat, for the record):
+it never knew whether the app was installed for that line. It asked only
+whether this page came through this site's own `sw.js`. The site can
+see two things about itself, both standard and both only for its own
+address (donpark2000.github.io): its own `sw.js` and the files it saved
+(Cache Storage, in the browser's own storage for that site), and
+whether it's open in an app window or a browser tab (the CSS media query
+`display-mode: standalone`, written in the debug log only, kept on the
+device). It can't see other sites, files, or which apps are installed.
+The developer controls both: the browser's site settings for
+donpark2000.github.io (clear data removes the saved copy and the debug
+log), and uninstalling the app.
+
+**Fix:** `tools/offline.js` now also writes `src/core/version.js`
+(`VERSION`, `MADE`), which `src/ui/offline.js` imports, so the line
+shows the page's own files' version however it was loaded. That file is
+in the saved list but left out of the version's hash (it holds the hash).
+"(new version next time: …)" now shows only after a version takes over
+while the page is open (`controllerchange`), not on the first answer
+from `sw.js`. The log gains "this page is not from the saved copy (not
+saved yet, or a hard reload)". `check()` reports a missing or stale
+`src/core/version.js`; the new `update()` does what the command did, and
+the tests' small site is made with it.
+
+**The "net" log lines trimmed:** `navigator.onLine` at 0.5/1/2/4 s
+answered its question ("navigator.onLine at launch") and the iPhone and
+Android are checked; removed (`SAMPLES_MS`). The 2 s wait stays; each
+online/offline event is still logged.
+
+**Evidence:** `npm test` 215 of 215 (net: a test that the log has only
+the events, nothing on a timer; offline: version.js matches and its day,
+a stale, missing or CRLF one, left out of the hash, a new version
+rewriting both). In Claude's browser at http://127.0.0.1:8123/ (behaves
+like the live site): with `sw.js` unregistered and the saved files
+deleted, the home page loaded with no controller and nothing saved and
+showed "Version Oct 11, 2026 · 60d967" at once. Update path: a throwaway
+line added to `css/log.css` and `node tools/offline.js` (c5a487); the
+next load showed "Version … 60d967", 4 s later "(new version next time:
+Oct 11, 2026 · c5a487)", and the next page "Version … c5a487". The
+throwaway line was undone (back to 60d967).
+
+**Also:** DESIGN.md's status line still said the version line was "not
+yet published"; fixed. The two proposed skill additions approved by the
+developer and added (see "Proposed additions").
+
+**Open questions:** none.
+
+## 2026-10-11: Status (start here next session)
+
+**Branch `version-line`** (from `offline-app`): the version line from
+the page's own files, the "net" log trim, DESIGN.md brought up to date.
+`npm test` 215 of 215. **Not published**; needs the developer's OK.
+After publishing: on the live site, Ctrl+F5 on the home page should show
+"Version Oct 11, 2026 · <new version>", never "Not saved for offline
+yet"; the iPhone's app shows the new version on its second opening.
+
+**The skill:** two additions committed and pushed in ai-dev-practices
+(c06e60b); the developer uploads the new zip (`software-project-
+standards.zip` in that repo, rebuilt).
+
+**Next:** GP-200 stats (that repo), or the DESIGN.md "Later" list.
+
+**Open questions:** none.
