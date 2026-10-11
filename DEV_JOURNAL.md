@@ -3756,3 +3756,10 @@ log. Expected: "net after ... s" lines show when `onLine` turns false;
 if by 2 s, no count tried and "no connection: not registering". Then:
 does the alert still show?
 
+
+Published with the developer's OK ("Yes, publish it"): `main`
+fast-forwarded to `offline-app` at `e9b0801`; GitHub Pages served `sw.js`
+6b971e50ac17 about 20-30 s later. Checked live in the built-in browser
+(online): "Version Oct 11, 2026 · 6b971e"; net samples at 0.5/1/2/4 s,
+"[stats] counted" at 2.011 s and "registered" at 2.020 s. Local server
+stopped.
