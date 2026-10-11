@@ -7,13 +7,15 @@
 // (#appVersion; src/core/appversion.js), so a phone shows whether a new
 // version has arrived.
 //
-// With no connection (navigator.onLine false) it doesn't register sw.js,
-// which can mean a check for a new version: nothing could be fetched, and
-// an iPhone in airplane mode shows an alert when an app tries the network
-// (journal, "The offline app on the developer's iPhone"). The saved copy
-// works without it. The browser may still check by itself as a page opens.
+// It registers sw.js (which can mean a check for a new version) only once
+// the page has settled and only with a connection: an iPhone in airplane
+// mode shows an alert when an app tries the network, and its installed app
+// can say it's online as it opens (src/core/net.js; journal,
+// "navigator.onLine at launch"). The saved copy works without it. The
+// browser may still check by itself as a page opens.
 
 import { log } from './debuglog.js';
+import { net } from './net.js';
 import { versionLabel } from '../core/appversion.js';
 
 const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -50,13 +52,14 @@ if (!('serviceWorker' in navigator)) {
     hadController = true;
     askVersion(sw.controller);
   });
-  if (navigator.onLine) {
+  askVersion(sw.controller);
+  net.afterSettle(online => {
+    if (!online) {
+      log.add('offline', 'no connection: not registering (no check for a new version)', { running: !!sw.controller });
+      return;
+    }
     sw.register('sw.js').then(reg => {
       log.add('offline', 'registered', { scope: reg.scope, running: !!sw.controller, installing: !!reg.installing });
-      if (sw.controller) askVersion(sw.controller);
     }).catch(e => log.add('offline', 'not registered', { error: String(e) }));
-  } else {
-    log.add('offline', 'no connection: not registering (no check for a new version)', { running: !!sw.controller });
-    askVersion(sw.controller);
-  }
+  });
 }

@@ -5,6 +5,7 @@
 
 import { GOATCOUNTER, whyNotCounted, pagePath, gameEvent, otherSite, countUrl } from '../core/stats.js';
 import { log } from './debuglog.js';
+import { net } from './net.js';
 
 const page = pagePath(location.pathname);
 
@@ -22,12 +23,14 @@ function send(opts, what) {
   log.add('stats', 'counted', { what });
 }
 
-send({
+// The page count waits for the page to settle: an iPhone's installed app
+// can say it's online as it opens in airplane mode (src/core/net.js).
+net.afterSettle(() => send({
   path: page,
   title: document.title,
   referrer: otherSite(document.referrer, location.hostname),
   screen: `${screen.width},${screen.height},${devicePixelRatio}`,
-}, page);
+}, page));
 
 // Play! and Play again, on every game (capture: counted even if the game's
 // own handler stops the click). Disabled buttons send no click.

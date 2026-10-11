@@ -3713,3 +3713,46 @@ which had 446039 saved: the first open showed "Version Oct 11, 2026 ·
 (new version next time: Oct 11, 2026 · 5b27e8)", and the old copy was
 gone (`lets-play-5b27e82150d1` only); the next open showed "Version Oct
 11, 2026 · 5b27e8" as a link to `log.html`. Local server stopped.
+
+## 2026-10-11: navigator.onLine at launch
+
+The developer's iPhone log (Copy on log.html, pasted in chat; iPhone
+OS 18_7 in the user agent, Safari 27.0.1): cleared, then the app fully
+closed and opened in airplane mode, version 5b27e82150d1:
+
+    === 2026-10-11 12:14:49 index.html, 393x793 ===
+    +0.007s [stats] counted {"what":"/Web-Games/"}
+    +0.008s [offline] opened as the installed app {"online":true}
+    +0.008s [offline] registered {...,"running":true,"installing":false}
+    +0.008s [offline] saved for offline {"version":"5b27e82150d1",...}
+    +0.012s [stats] count not sent (blocked or offline) {"what":"/Web-Games/"}
+
+**What it shows:** in airplane mode, as it opened, the installed app
+said `navigator.onLine` **true**, so neither check from "No counts
+offline" applied: the page count was tried (and failed 5 ms later) and
+`sw.js` was registered. So the alert may be the page's own doing after
+all; "The update seen on the iPhone; the alert remains" concluded too
+soon that it was iOS's. Corrected here. (A line the developer quoted
+earlier, `opened as the installed app {"online":false}`, was from
+another open, probably later after launch, so `onLine` likely becomes
+right after a moment. Not yet measured.)
+
+**Change:** `src/core/net.js` (`createNet`; `src/ui/net.js` the page's
+copy): the page count and `sw.js` registration wait `SETTLE_MS` (2 s)
+and use `navigator.onLine` then; the version line is still asked of the
+running `sw.js` at once (no network). The log gets `navigator.onLine` at
+0.5, 1, 2 and 4 s and each online/offline event ("net"), to see when iOS
+gets it right. Cost: a home page left within 2 s isn't counted (the
+game page it leads to is).
+
+**Evidence:** `npm test` 214 of 214 (+3 in `tests/net.test.js`: online
+at opening, offline by 2 s, gives offline; nothing before 2 s; the log
+lines and events). Built-in browser, 127.0.0.1: version 6b971e50ac17;
+"saved for offline" at 0.021 s, net samples at 0.5/1/2/4 s, "not
+counted" and "registered" at 2.02 s.
+
+**Next, on the iPhone:** clear the log, airplane-mode launch, copy the
+log. Expected: "net after ... s" lines show when `onLine` turns false;
+if by 2 s, no count tried and "no connection: not registering". Then:
+does the alert still show?
+

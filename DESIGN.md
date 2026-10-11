@@ -560,7 +560,9 @@ Which games are opened and played, from where, over time (developer,
 - **Only the live site counts** (donpark2000.github.io), not localhost or
   an automated browser, so testing doesn't add to the numbers. **Nothing
   is sent with no connection** (2026-10-11: an iPhone in airplane mode
-  shows an alert when the app tries the network). Each count (sent or
+  shows an alert when the app tries the network); **the page count waits
+  2 s** after the page opens and checks then (the iPhone's app can say
+  it's online as it opens; see "Offline app"). Each count (sent or
   not, and why) goes in the debug log.
 - **The dashboard is public**, linked as "Stats" in every footer (a new
   tab, like "Source code").
@@ -598,8 +600,12 @@ work in the car too (developer, 2026-10-10; journal, Q13).
 - **`src/ui/offline.js`** (every page) registers `sw.js` and logs
   ("offline"): opened as the installed app or in the browser, the saved
   version and file count, a new version taking over, or why there's
-  none. **With no connection it doesn't register** (nothing to fetch;
-  2026-10-11, the iPhone's airplane-mode alert). The browser may still
+  none. **It registers 2 s after the page opens, and only with a
+  connection** (nothing to fetch; 2026-10-11, the iPhone's airplane-mode
+  alert; the installed app said `navigator.onLine` true as it opened in
+  airplane mode). `src/core/net.js` (`SETTLE_MS`) does the waiting, and
+  logs ("net") `navigator.onLine` 0.5, 1, 2 and 4 s after opening and
+  each online/offline event. The browser may still
   check for a new `sw.js` by itself when a page opens; that can't be
   turned off from the page.
 - **A version line on the home page**, under the footer (developer,

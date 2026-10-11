@@ -19,7 +19,7 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '5b27e82150d1';
+const VERSION = '6b971e50ac17';
 const MADE = '2026-10-11';
 const FILES = [
   'connect-four.html',
@@ -60,6 +60,7 @@ const FILES = [
   'src/core/follow-me.js',
   'src/core/log.js',
   'src/core/matching.js',
+  'src/core/net.js',
   'src/core/nim.js',
   'src/core/players.js',
   'src/core/rock-paper-scissors.js',
@@ -79,6 +80,7 @@ const FILES = [
   'src/ui/logpage.js',
   'src/ui/matching.js',
   'src/ui/matchstick.js',
+  'src/ui/net.js',
   'src/ui/nim.js',
   'src/ui/numbercard.js',
   'src/ui/offline.js',
