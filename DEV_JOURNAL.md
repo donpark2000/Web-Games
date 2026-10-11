@@ -6,29 +6,7 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q13. Play offline, as an installable app?** *Raised 2026-10-10
-  (developer):* the kids' phones have no cellular plan, only home wifi;
-  could they play in the car? Opening `index.html` from disk doesn't work:
-  the pages load their code as ES modules, which Chrome and Edge refuse
-  from `file://` (and Five Dice's `fetch` of its 1 MB data file too).
-  Options laid out in chat: one standalone file per game (fine on
-  computers, not on iPhone/iPad) or an installable web app (PWA: a
-  manifest plus a service worker that saves every game on the first visit
-  with a connection). Developer chose to explore the PWA. Facts given:
-  no Apple or Google developer account or fee; installed from the browser
-  (iPhone: Safari, Share, Add to Home Screen; Android, Windows, Mac,
-  Linux: the browser's install button); works offline on all of them;
-  installed apps keep their own storage (sound setting, log) apart from
-  the browser's; offline plays aren't counted in the stats.
-  2026-10-10, developer: the app's name "Let's Play!" or "Game Corner"
-  ("Web Games" is dull); no idea for the icon, wants suggestions. Icon
-  mockup: see "App icon ideas". 2026-10-10, developer: "happy bear icon
-  with Let's Play!". Built on branch `offline-app` ("The offline app,
-  built"). Published 2026-10-10 (developer: "Publish and I will phone
-  check"); checked by the developer on an iPhone (see "The offline app
-  on the developer's iPhone"): installs, plays offline, updates itself
-  (version line, 2026-10-11); iOS's airplane-mode alert at launch is
-  its own and stays (see "The alert is iOS's own"). Android not yet.
+None.
 
 ## Proposed additions to the standards skill
 
@@ -56,6 +34,32 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q13. Play offline, as an installable app?** *Raised 2026-10-10
+  (developer):* the kids' phones have no cellular plan, only home wifi;
+  could they play in the car? Opening `index.html` from disk doesn't work:
+  the pages load their code as ES modules, which Chrome and Edge refuse
+  from `file://` (and Five Dice's `fetch` of its 1 MB data file too).
+  Options laid out in chat: one standalone file per game (fine on
+  computers, not on iPhone/iPad) or an installable web app (PWA: a
+  manifest plus a service worker that saves every game on the first visit
+  with a connection). Developer chose to explore the PWA. Facts given:
+  no Apple or Google developer account or fee; installed from the browser
+  (iPhone: Safari, Share, Add to Home Screen; Android, Windows, Mac,
+  Linux: the browser's install button); works offline on all of them;
+  installed apps keep their own storage (sound setting, log) apart from
+  the browser's; offline plays aren't counted in the stats.
+  2026-10-10, developer: the app's name "Let's Play!" or "Game Corner"
+  ("Web Games" is dull); no idea for the icon, wants suggestions. Icon
+  mockup: see "App icon ideas". 2026-10-10, developer: "happy bear icon
+  with Let's Play!". Built on branch `offline-app` ("The offline app,
+  built"). Published 2026-10-10 (developer: "Publish and I will phone
+  check"); checked by the developer on an iPhone (see "The offline app
+  on the developer's iPhone"): installs, plays offline, updates itself
+  (version line, 2026-10-11); iOS's airplane-mode alert at launch is
+  its own and stays (see "The alert is iOS's own"). **Resolved
+  2026-10-11:** the developer's Samsung Galaxy Tab (Android): "it works
+  good", the install went well, no errors starting with wifi off.
 
 - **Q12. Track how the sites are used?** *Raised 2026-10-10
   (developer):* which games are played and from where (totals, a chart
@@ -3834,4 +3838,15 @@ made the version.
 **Open questions:** Q13 (Android). **Proposed skill additions:** two
 (derived files stale-checked by a test; don't trust a status flag at
 startup).
+
+## 2026-10-11: Android checked; Q13 closed
+
+The developer, on a Samsung Galaxy Tab: "it works good"; the install
+worked well and there were no errors starting with wifi off (no alert
+like the iPhone's). Q13 moved to Resolved. Nothing in this project is
+waiting; the developer asked what's next and whether a new session is
+needed (see the reply in chat: the "Later" list in DESIGN.md, and GP-200
+stats in that repo).
+
+**Open questions:** none.
 
