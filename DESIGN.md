@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-11): all nine games published, the home page grouped
+*Status (2026-10-13): Hidden Faces, a logic puzzle for the developer
+(not the kids), agreed from mockup v2; to be built, then published
+(developer's OK given). Until then (2026-10-11): all nine games published, the home page grouped
 by players. The offline app ("Let's Play!", happy bear icon) published
 2026-10-10; a version line on the home page and no counts sent offline
 published 2026-10-11, and the app checked on an iPhone and an Android
@@ -29,6 +31,11 @@ page. So far:
 - **Nim** (take matches from one row; whoever takes the last one wins)
 - **Rock paper scissors** (against the robot)
 - **Follow Me** (repeat the robot's order of faces, Simon-style)
+
+And one for the developer (2026-10-13: "I wanted it for me"):
+
+- **Hidden Faces** (a logic puzzle: one face per row, column and colour,
+  none touching)
 
 ## Players
 
@@ -61,7 +68,9 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   2026-10-04): **👥 Two players** first (a game with a two-player choice,
   the second player a person or the robot: tic-tac-toe, matching cards,
   Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim), then **👤 One player** (no way to play
-  another person: rock paper scissors, Follow Me). Each game in one group only; a
+  another person: rock paper scissors, Follow Me), then **🧩 Puzzles for
+  grown-ups** (Hidden Faces; developer, 2026-10-13: one site, kept
+  apart). Each game in one group only; a
   group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
   the home page to change games, **as big as one of that game's grid
@@ -483,6 +492,55 @@ a v3 that was skipped (developer: "go straight to publish").
   sideways can't fit them, so it scrolls, 3x2 at 56 px. The 🏠 follows the
   pads (48-64 px). A long order makes the dots smaller, never a second
   line.
+
+### Hidden Faces
+
+A logic puzzle for the developer (like the "Zoodoko" / "Meowdoku" phone
+games; the puzzle is Star Battle with one star). Agreed 2026-10-13 from
+mockup v2 (journal):
+[Hidden Faces Mockup](https://claude.ai/artifact/HiQ1FiMsGUMRxGfoYfNXRs)
+(private Claude artifact, version 2). Name, hearts, hint counts and
+Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
+
+- **The rules:** an N x N grid in N joined colour regions hides N faces:
+  **one per row, one per column, one per colour**, and **no two faces
+  touch, not even at a corner** (developer: "a key part to the logic").
+  Sizes **6 x 6 to 10 x 10**. Every puzzle has exactly one answer,
+  reachable by reasoning alone (no guessing).
+- **Home:** the only game in **🧩 Puzzles for grown-ups**, below the
+  other two groups; its picture a 5 x 5 puzzle under way.
+- **Setup:** the rules beside a solved 5 x 5; **Who's hiding?** (the 14
+  faces; one face hides everywhere); **Size** (6 x 6 to 10 x 10); **When
+  you find a face:** **Auto ✕** (default: its row, column, colour and
+  neighbours get ✕s) or I'll do it; Play!.
+- **Play:** 🏠, the face and "8×8 · puzzle 1", 🔊; hearts ❤️❤️❤️, "3 of
+  8 found", a clock; the board as big as fits with no scrolling (thick
+  lines between colours, thin inside one); a **hint bar always 3 lines
+  high** (a hint never moves the board); **Undo**, **💡 Hint** (3 per
+  puzzle), **👁 Show** (uncovers a face; 1 per puzzle).
+- **Taps:** an empty square: ✕; a ✕: look under it. A face pops in (with
+  Auto ✕, the ✕s around it); a wrong look is a red ✕ that stays, shakes
+  and costs a heart; the third ends the game. **Drag** from an empty
+  square: ✕ every square passed; **drag from a ✕: rub ✕s out**. Undo
+  takes back ✕s and rub-outs, never a look.
+- **Hints** say the next step in words and never change the board: a
+  wrong ✕ first, then ✕s a found face already implies, then the solver's
+  next step (one square left; a unit's squares all inside another; a
+  face here would rule out all of a unit's squares; k colours in k rows
+  or columns; try-a-face). **Spotlight:** squares the hint isn't about
+  fade; those it is about keep their colour with a dark edge; the square
+  it means has a thick black ring in a white one, named in the text
+  ("the ringed square (row 3, column 1)"); squares to cross out a dark ✕
+  with a white edge (developer, 2026-10-13: in v1 "it is not clear where
+  'here' is").
+- **The end:** the result in the hint bar and three buttons in place of
+  the tools, so the board stays in view. Solved: the faces smile and
+  wiggle; "Solved! 4:12 · 1 mistake · 0 hints", best time per size; **Next**
+  (one size up, to 10 x 10) / Same size / New game. Out of hearts: the
+  faces not found show pale and sad; Try again / Another / New game.
+- **Puzzles** made ahead of time by a tool and kept in a data file
+  (works offline, even difficulty), at least as hard as mockup v2's (not
+  only "one square left" steps). Difficulty levels to be designed.
 
 ## Face names
 

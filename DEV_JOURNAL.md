@@ -4057,3 +4057,57 @@ none overflowed the bar; the spotlight dimmed the rest (opacity 0.35);
 the ring and ✕s show on tan, grey and purple squares. (Found on the way:
 an apostrophe in a quoted string broke the whole script; caught before
 publishing.)
+
+## 2026-10-13: Hidden Faces agreed
+
+**Developer:** "Hints are much better now. The name is fine. hearts and
+hint counts are fine, auto X on by default is fine." Rubbing out
+(explained: a drag that starts on a ✕ removes the ✕s it passes; a
+plain tap on a ✕ looks): "Yes keep it". Then: "go ahead and build it.
+And push and commit and publish." Recorded in DESIGN.md, "Hidden Faces".
+
+## 2026-10-13: Status (start here next session)
+
+**Branch `star-battle`** (from `version-line`; `main` is 8ec19a0, behind
+only by journal commits): journal and DESIGN.md only, no code yet.
+`npm test` not run this session (nothing in the repo changed but docs).
+
+**Next: build Hidden Faces** as agreed (DESIGN.md "Hidden Faces"), then
+**publish** (developer's OK given: "go ahead and build it. And push and
+commit and publish"); check it on the live site after, and stop the
+local servers.
+
+**The prototype code is inside mockup v2** (the scratchpad it was built
+in belongs to this session): read
+https://claude.ai/artifact/HiQ1FiMsGUMRxGfoYfNXRs with the Artifact
+tool's `read` action. Its one `<script>` holds, in order: `players.js`
+and `faces.js` (copies of the repo's), then `const HF = (() => {...})()`
+(the solver and puzzle maker: `mulberry32`, `seenBy`, `newState`,
+`place`, `nextStep`, `solve`, `generate`; meant for
+`src/core/hidden-faces.js`, already free of DOM code), `const PUZ` (the
+mockup's 15 puzzles), then the screens (hints in `findHint`, drags in
+the pointer handlers, the fit in `fit`). Its `<style>` ends with the
+game's own CSS (after `site.css` and `game.css`), from the comment
+"Hidden Faces mockup v1".
+
+**Plan** (standards: debug log, a test with each part, `npm test`):
+1. `src/core/hidden-faces.js` from `HF`, with tests: the solver on known
+   puzzles (each rule, a puzzle it can't finish, one that is broken),
+   `generate` gives one answer with no touching faces, every region
+   joined; hint wording can stay in the UI.
+2. A tool (`tools/hidden-faces-puzzles.js`) that writes the puzzle stock
+   to `data/`, and a test that the stock is valid (each solves to its
+   stored answer). Choose difficulty: the mockup kept puzzles needing
+   inside/touch/group steps in at least 60% as many steps as the size;
+   about 4 in 15 come out with "single" steps only. How many per size:
+   to decide (a few hundred is still small).
+3. `hidden-faces.html`, `css/hidden-faces.css`, `src/ui/hidden-faces.js`
+   from the mockup (drop the mockup bar and its home view); the home
+   page's third group and picture; sounds from `src/ui/sounds.js`
+   (tick, ding, uhoh, win, aww exist); `stats.js`, `offline.js`; the
+   offline file list (`node tools/offline.js`; a test fails while it's
+   stale); `pages.test.js` and README's list of games.
+4. Check in the built-in browser at 393 x 760 and on a wide screen, then
+   publish with the OK above.
+
+**Open questions:** none. **Proposed skill additions:** none waiting.
