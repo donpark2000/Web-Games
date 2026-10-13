@@ -225,6 +225,17 @@ addEventListener('pointercancel', () => {
   drag = null;
   if (G) draw();
 });
+// Two quick taps (✕, then look) zoomed the iPhone in on the board, despite
+// its touch-action: none (developer, 2026-10-13). Cancelling each touch's
+// end stops the double-tap zoom; the pointer events above still come.
+let lastTouchEnd = 0;
+$('board').addEventListener('touchend', e => {
+  if (!e.cancelable) return;
+  e.preventDefault();
+  const now = e.timeStamp;
+  if (now - lastTouchEnd < 400) L('quick second tap: zoom blocked', { ms: Math.round(now - lastTouchEnd) });
+  lastTouchEnd = now;
+}, { passive: false });
 
 // A look's result on the screen: a face pops in (and the ✕s around it),
 // or a red ✕ shakes and a heart goes.

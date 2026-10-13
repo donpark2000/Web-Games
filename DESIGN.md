@@ -522,7 +522,9 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   Auto ✕, the ✕s around it); a wrong look is a red ✕ that stays, shakes
   and costs a heart; the third ends the game. **Drag** from an empty
   square: ✕ every square passed; **drag from a ✕: rub ✕s out**. Undo
-  takes back ✕s and rub-outs, never a look.
+  takes back ✕s and rub-outs, never a look. **Two quick taps never zoom
+  the page** (developer, 2026-10-13: the iPhone zoomed in on a ✕-then-look
+  and there was no way back): the board cancels each touch's end.
 - **Hints** say the next step in words and never change the board: a
   wrong ✕ first, then ✕s a found face already implies, then the solver's
   next step (one square left; a unit's squares all inside another; a

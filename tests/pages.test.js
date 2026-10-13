@@ -189,3 +189,17 @@ test('pages: Hidden Faces’ end buttons replace the tools, hidden until the end
   const at = id => play.indexOf(`id="${id}"`);
   assert.ok(at('board') < at('hintbar') && at('hintbar') < at('tools'), 'the hint bar is not between the board and the tools');
 });
+
+// Hidden Faces' squares aren't buttons (they take drags), so they don't get
+// the buttons' touch-action: manipulation. Two quick taps (✕, then look)
+// zoomed the iPhone in on the board (developer, 2026-10-13): the board
+// cancels each touch's end, which needs a listener that isn't passive.
+test('pages: Hidden Faces’ board blocks the iPhone’s double-tap zoom', async () => {
+  const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
+  const h = js.match(/\$\('board'\)\.addEventListener\('touchend', [\s\S]*?\n\}, \{ passive: false \}\);/)?.[0];
+  assert.ok(h, 'no touchend listener on the board with { passive: false }');
+  assert.match(h, /e\.preventDefault\(\)/, 'the touch’s end is not cancelled');
+  const css = await readFile(path.join(root, 'css/hidden-faces.css'), 'utf8');
+  assert.match(css.match(/\.hfboard \{[^}]*\}/)?.[0] ?? '', /touch-action: none/, 'the board lets the browser pan or zoom');
+  assert.match(css.match(/#play \{[^}]*\}/)?.[0] ?? '', /touch-action: manipulation/, 'double-tap zoom around the board');
+});

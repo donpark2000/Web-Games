@@ -29,7 +29,7 @@
   background-image: linear-gradient(var(--thin) 1px, transparent 1px), linear-gradient(90deg, var(--thin) 1px, transparent 1px); }
 
 /* play */
-#play { gap: 10px; }
+#play { gap: 10px; touch-action: manipulation; } /* no double-tap zoom around the board either */
 .turn { font-size: 22px; gap: 8px; }
 .turn .chip { width: 44px; height: 44px; }
 .status { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }

@@ -6,7 +6,11 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-None.
+- **Q14. Does the double-tap zoom fix work on the iPhone?** *Raised
+  2026-10-13:* Hidden Faces zoomed in on two quick taps; fixed by
+  cancelling `touchend` on the board (see "Hidden Faces: no zoom on two
+  quick taps"). Only a real iPhone can show it; the developer checks
+  after it's published.
 
 ## Proposed additions to the standards skill
 
@@ -4228,3 +4232,45 @@ what to change; difficulty levels for it (the stock tool can keep more
 than one bar); or the DESIGN.md "Later" list.
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
+
+## 2026-10-13: Hidden Faces: no zoom on two quick taps
+
+**Report (developer, on the phone):** tapping a square twice (✕, then
+look) uncovered a face and the page zoomed in on that part of the board;
+the rest of the board was out of view and there was no obvious way to
+zoom back out.
+
+**What it is:** the iPhone's own double-tap zoom. The board already had
+`touch-action: none` (for the drags) and `preventDefault()` on
+`pointerdown`, which should stop it, and on the phone didn't. Why not is
+unknown (no iPhone here to look into it). The other nine games don't
+have the problem: their tap targets are all `<button>`s, which get
+`touch-action: manipulation` from `css/site.css`; Hidden Faces' squares
+are `<div>`s inside the board (checked by grepping `src/ui/` for tap
+handlers: the board's are the only ones not on a button).
+
+**Fix:** the board cancels each touch's end (`touchend`,
+`preventDefault()`, a listener with `{ passive: false }`), the usual way
+to stop the iPhone's double-tap zoom; the taps and drags run on pointer
+events, which still come. The play screen also has
+`touch-action: manipulation`, so a double tap just outside the board
+(the hint bar, the status line) doesn't zoom either. Pinch zoom is left
+alone. Debug output: "quick second tap: zoom blocked {ms}" when two
+touches end on the board within 400 ms.
+
+**Evidence:**
+- `npm test`: 236 of 236 (one new: "Hidden Faces' board blocks the
+  iPhone's double-tap zoom", reading the JS and CSS). Shown to fail three
+  ways: the listener passive, no `preventDefault()`, no `manipulation`
+  on the play screen; each reported, and it passes once restored.
+- Built-in browser, 393 x 760 with touch emulated, localhost: a tap
+  made a ✕ and a second found the bear (Auto ✕ around it); a drag ✕-ed
+  the bottom row; two synthetic `touchend`s on the board both came back
+  `defaultPrevented: true`, the second logged "quick second tap: zoom
+  blocked"; computed `touch-action` none on the board, manipulation on
+  the play screen; no console errors.
+- **Not shown:** that the iPhone no longer zooms. The built-in browser
+  sends mouse clicks and has no double-tap zoom. Q14 stays open until
+  the developer tries it on the live site.
+
+`tools/offline.js` run: version 7a02753c1849.
