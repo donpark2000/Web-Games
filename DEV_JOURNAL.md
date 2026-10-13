@@ -4274,3 +4274,33 @@ touches end on the board within 400 ms.
   the developer tries it on the live site.
 
 `tools/offline.js` run: version 7a02753c1849.
+
+## 2026-10-13: No-zoom fix published
+
+Published with the developer's OK ("publish"): `main` fast-forwarded to
+be4b75e and pushed; the Pages build for be4b75e was "built". **Checked
+live** (built-in browser): the server sends version 7a02753c1849 and the
+new `#play` rule and `touchend` listener (curl). The browser first
+showed the old version (3cd033e894d5) from its offline copy of the last
+check; after one reload the new one had taken over (computed
+`touch-action`: manipulation on the play screen, none on the board), as
+DESIGN.md "Offline app" says. At 393 x 760: a tap made a ✕ and a second
+found the bear; two synthetic `touchend`s on the board were both
+cancelled and "quick second tap: zoom blocked" was logged; no console
+errors. Claude's local server stopped; no other `serve.js` running.
+
+Q14 stays open: the developer tries two quick taps on the iPhone (the
+installed app picks up the new version on its second opening with a
+connection).
+
+## 2026-10-13: Status (start here next session)
+
+**Branch `star-battle`**, `main` = be4b75e plus journal-only commits
+after it. Hidden Faces' no-zoom fix is live. `npm test`: 236 of 236.
+
+**Next (developer's choice):** check Q14 on the iPhone (two quick taps
+on a Hidden Faces square: no zoom); then, as before, more Hidden Faces
+feedback, difficulty levels for it, or the DESIGN.md "Later" list.
+
+**Open questions:** Q14. **Proposed skill additions:** none waiting.
+
