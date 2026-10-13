@@ -4202,3 +4202,29 @@ Timing one make at a time showed it.
   progress removed from the browser's storage after.
 
 **Open questions:** none.
+
+## 2026-10-13: Hidden Faces published
+
+Published with the developer's OK ("publish"; a first try was blocked by
+Claude Code's permission check, and the developer then said "publish"):
+`main` fast-forwarded to cde3ea5 and pushed; the Pages build for cde3ea5
+was "built" after about 40 s. **Checked live** (built-in browser,
+393 x 760): `hidden-faces.html` loads version 3cd033e894d5 (2026-10-13),
+the puzzles load from the site, 8 x 8 fits at 44 px with no scrolling,
+no console errors; the home page shows the three groups, the 5 x 5
+picture (25 squares) and "Version Oct 13, 2026 · 3cd033". Claude's local
+server stopped; no other `serve.js` running.
+
+## 2026-10-13: Status (start here next session)
+
+**Branch `star-battle`**, `main` = cde3ea5 plus journal-only commits
+after it. Hidden Faces is live. `npm test`: 235 of 235.
+
+**The skill:** "Time one run before looping over many" added
+(ai-dev-practices 4e545f1); the developer uploads the rebuilt zip.
+
+**Next (developer's choice):** play Hidden Faces on the phone and say
+what to change; difficulty levels for it (the stock tool can keep more
+than one bar); or the DESIGN.md "Later" list.
+
+**Open questions:** none. **Proposed skill additions:** none waiting.
