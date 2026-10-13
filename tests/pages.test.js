@@ -203,3 +203,20 @@ test('pages: Hidden Faces’ board blocks the iPhone’s double-tap zoom', async
   assert.match(css.match(/\.hfboard \{[^}]*\}/)?.[0] ?? '', /touch-action: none/, 'the board lets the browser pan or zoom');
   assert.match(css.match(/#play \{[^}]*\}/)?.[0] ?? '', /touch-action: manipulation/, 'double-tap zoom around the board');
 });
+
+// Between hints the hint bar is empty and hidden, but keeps its place, so
+// a hint never moves the board (developer, 2026-10-13: "Tap 💡 for the
+// next step" stayed after the last hint, with nothing left to tap).
+test('pages: Hidden Faces’ hint bar is empty and hidden between hints, its space kept', async () => {
+  assert.match(html['hidden-faces.html'], /<div class="hintbar idle" id="hintbar"[^>]*><\/div>/, 'the hint bar starts with words in it, or not idle');
+  const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
+  const clear = js.match(/function clearHint\(\) \{[\s\S]*?\n\}/)?.[0];
+  assert.ok(clear, 'no clearHint()');
+  assert.match(clear, /\$\('hintbar'\)\.textContent = '';/, 'clearHint() leaves words in the hint bar');
+  assert.match(clear, /classList\.add\('idle'\)/);
+  const css = await readFile(path.join(root, 'css/hidden-faces.css'), 'utf8');
+  const idle = css.match(/\.hintbar\.idle \{([^}]*)\}/)?.[1] ?? '';
+  assert.match(idle, /visibility: hidden/, 'the idle hint bar shows');
+  assert.doesNotMatch(idle, /display: none|height/, 'the idle hint bar gives up its space');
+  assert.match(css.match(/\.hintbar \{[^}]*\}/)?.[0] ?? '', /height: calc\(3 \* 1\.4em \+ 20px\)/, 'the hint bar is not 3 lines high');
+});

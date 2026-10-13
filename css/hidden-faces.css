@@ -70,7 +70,7 @@
 
 /* always there, 3 lines high, so a hint never moves the board */
 .hintbar { height: calc(3 * 1.4em + 20px); overflow: auto; background: var(--card); border-radius: 14px; padding: 10px 14px; font-size: 15px; line-height: 1.4; box-shadow: 0 3px 0 var(--line); border-left: 6px solid var(--sun); }
-.hintbar.idle { color: var(--muted); border-left-color: var(--line); display: grid; align-items: center; }
+.hintbar.idle { visibility: hidden; } /* between hints: empty, its space kept so the board never moves */
 .hintbar.result { border-left-color: var(--p1); font-size: 16px; color: var(--ink); }
 
 .tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }

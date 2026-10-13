@@ -6,11 +6,7 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q14. Does the double-tap zoom fix work on the iPhone?** *Raised
-  2026-10-13:* Hidden Faces zoomed in on two quick taps; fixed by
-  cancelling `touchend` on the board (see "Hidden Faces: no zoom on two
-  quick taps"). Only a real iPhone can show it; the developer checks
-  after it's published.
+None.
 
 ## Proposed additions to the standards skill
 
@@ -34,6 +30,13 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q14. Does the double-tap zoom fix work on the iPhone?** *Raised
+  2026-10-13:* Hidden Faces zoomed in on two quick taps; fixed by
+  cancelling `touchend` on the board (see "Hidden Faces: no zoom on two
+  quick taps"). Only a real iPhone can show it; the developer checks
+  after it's published.
+  *Resolved 2026-10-13 (developer, on the iPhone, live site with
+  be4b75e):* "I am no longer seeing zooming."
 - **Q13. Play offline, as an installable app?** *Raised 2026-10-10
   (developer):* the kids' phones have no cellular plan, only home wifi;
   could they play in the car? Opening `index.html` from disk doesn't work:
@@ -4303,4 +4306,36 @@ on a Hidden Faces square: no zoom); then, as before, more Hidden Faces
 feedback, difficulty levels for it, or the DESIGN.md "Later" list.
 
 **Open questions:** Q14. **Proposed skill additions:** none waiting.
+
+## 2026-10-13: Q14 closed; the hint bar empty between hints
+
+**Q14:** the developer, on the iPhone: "I am no longer seeing zooming."
+Moved to Resolved.
+
+**Report (developer):** after the 3 hints were used, the hint bar still
+said "Tap 💡 for the next step, explained.", which was confusing with
+nothing left to tap; and not needed at all, since the button has a 💡
+and the word "Hint".
+
+**Change:** between hints the bar has no words and is hidden
+(`visibility: hidden`), but **keeps its 3-line space**, so a hint (or
+the end's result, which uses the same place) still never moves the board
+(DESIGN.md: "a hint never moves the board"). `display: none` would have
+given the space up and moved the tools on every hint. (Claude's choice
+of an empty space over an empty white box: an empty box looks like
+something is missing.)
+
+**Evidence:**
+- `npm test`: 237 of 237 (one new: "Hidden Faces' hint bar is empty and
+  hidden between hints, its space kept"). Shown to fail with words put
+  back in `clearHint()` and with `display: none`; passes once restored.
+- Built-in browser, 393 x 760, localhost: board top 110, hint bar top 480
+  and 83 px high, tools top 573 at the start (bar empty, hidden), after
+  each of 3 hints (bar showing) and after a tap with no hints left (bar
+  empty, hidden, 💡 Hint greyed): no movement, no scrolling. Lost on
+  purpose (3 wrong looks): "Out of hearts. The pale faces show where
+  they were." shows in the bar; Try again empties and hides it again. No
+  console errors.
+
+`tools/offline.js` run: version 0bb49faa688f.
 

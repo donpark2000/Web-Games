@@ -291,7 +291,10 @@ $('hintBtn').onclick = () => {
 function clearHint() {
   for (const c of cells()) c.classList.remove('why', 'out', 'tgt');
   $('board').classList.remove('spot');
-  $('hintbar').textContent = 'Tap 💡 for the next step, explained.';
+  // Empty and hidden between hints, but keeping its place (developer,
+  // 2026-10-13: "Tap 💡 for the next step" stayed after the last hint, with
+  // nothing left to tap, and the 💡 Hint button says it already).
+  $('hintbar').textContent = '';
   $('hintbar').classList.remove('result');
   $('hintbar').classList.add('idle');
 }

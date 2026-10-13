@@ -516,7 +516,9 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
 - **Play:** 🏠, the face and "8×8 · puzzle 1", 🔊; hearts ❤️❤️❤️, "3 of
   8 found", a clock; the board as big as fits with no scrolling (thick
   lines between colours, thin inside one); a **hint bar always 3 lines
-  high** (a hint never moves the board); **Undo**, **💡 Hint** (3 per
+  high** (a hint never moves the board), **empty and hidden between
+  hints** (developer, 2026-10-13: "Tap 💡 for the next step, explained"
+  wasn't needed, and stayed with no hints left); **Undo**, **💡 Hint** (3 per
   puzzle), **👁 Show** (uncovers a face; 1 per puzzle).
 - **Taps:** an empty square: ✕; a ✕: look under it. A face pops in (with
   Auto ✕, the ✕s around it); a wrong look is a red ✕ that stays, shakes
