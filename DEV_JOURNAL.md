@@ -3943,3 +3943,87 @@ The developer uploaded the new skill zip. Local servers stopped (Claude's
 preview; no other `tools/serve.js` running).
 
 **Open questions:** none.
+
+## 2026-10-13: A puzzle for grown-ups; Hidden Faces mockup v1
+
+**The idea** (developer): phone games like "Zoodoko" and "Meowdoku": an
+N x N grid in N joined colour regions hides N animal faces, one per row,
+column and colour. Tap once for ✕, twice to look; a wrong look is a red
+✕, too many and you lose; a few hints and "show me one face"; sizes
+6 x 6 up to 10 x 10. Claude: the puzzle is Star Battle with one star
+(LinkedIn's "Queens" is the best known), usually with a fourth rule, no
+two faces touching, not even at a corner. The rules can be copied, not
+those games' names or art.
+
+**Decided (developer):**
+- **For the developer, not the kids** ("I wanted it for me").
+- **On this site, kept apart** ("I lean towards keeping them together"):
+  Claude proposed a third home-page group under the other two.
+- **No-touching rule in** ("Yes definitely - no touching rule. That is a
+  key part to the logic in some scenarios").
+
+**Puzzle maker and solver** (scratchpad for now; to `src/core/` when
+built): the solver uses only steps a person can see, each with its rule
+and reason, so the same steps are the hints. Rules, easiest first: a
+row/column/colour with one square left (single); a unit's squares all
+inside another unit, so the rest of that one is out (inside); a square
+whose face would rule out every square left for some unit (touch); k
+colours confined to k rows or columns, or the other way (group); and a
+one-level "try it and something runs out" (tryit, for hints only). A
+puzzle the solver finishes has exactly one answer. The maker places
+faces at random (none touching), grows a colour out of each, then moves
+single squares between neighbouring colours while the solver gets
+further (rules up to "group"). **Measured:** 6 x 6 to 10 x 10 each
+made in 0 ms to 2.3 s (1 to 3 tries). **Too easy as they come:** 4 of
+15 needed only "single" steps; for the mockup Claude kept puzzles needing
+"inside", "touch" or "group" in at least 60% as many steps as the size
+(3 per size, from seeds n*10000 on). Difficulty levels still to design.
+
+**Mockup v1:** [Hidden Faces Mockup](https://claude.ai/artifact/HiQ1FiMsGUMRxGfoYfNXRs)
+(private Claude artifact, version 1). Built from the site's own
+`site.css`, `game.css`, faces and names by a script in Claude's
+scratchpad; the solver runs in the page for the hints. Claude's choices,
+all open:
+- **Name "Hidden Faces"**; home group **🧩 Puzzles for grown-ups**, a
+  tile with a 5 x 5 puzzle under way.
+- **Setup:** the rules with a solved 5 x 5; **Who's hiding?** (the
+  site's 14 faces; one face hides everywhere); **Size** 6 x 6 to
+  10 x 10; **When you find a face:** Auto ✕ (its row, column, colour and
+  neighbours get ✕s; default) or I'll do it.
+- **Play:** 🏠, "<face> 8×8 · puzzle 1", 🔊; hearts ❤️❤️❤️, "3 of 8
+  found", a clock; the board as big as fits (thick lines between
+  colours); a hint bar always 3 lines high (so a hint never moves the
+  board); Undo, 💡 Hint (3 per puzzle), 👁 Show (1 per puzzle).
+- **Taps:** empty to ✕; a ✕ to look. A face pops in; a wrong look is a
+  red ✕ that stays, shakes, and costs a heart (3 hearts: the third
+  wrong look ends it). Drag from an empty square to ✕ every square
+  passed; drag from a ✕ to rub ✕s out. Undo takes back ✕s and rub-outs,
+  never a look.
+- **Hints:** first a wrong ✕ ("This ✕ is wrong: there's a face under
+  it"), then ✕s a found face already implies (with I'll do it), then the
+  solver's next step in words, the reason squares ringed in yellow, the
+  squares to cross out blinking, or a blue ring where a face must be. A
+  hint never changes the board; the player acts on it.
+- **The end:** the result in the hint bar and Next / Same size (or Try
+  again / Another) / New game in place of the tools, so the board stays
+  in view. Win: the faces smile and wiggle; "Solved! 4:12 · 1 mistake ·
+  0 hints", best time per size. Out of hearts: the faces not found show
+  pale and sad. Next goes one size up, to 10 x 10.
+- No sound in the mockup.
+
+**Checked** (served on localhost from the scratchpad, built-in browser,
+393 x 760; a temporary `.claude/launch.json` entry, removed after): 6 x 6
+fits with 59 px squares, 10 x 10 with 35 px, no page scrolling either
+way; a drag marked 4 squares; a wrong look cost a heart; a right look
+with Auto ✕ filled its row, column, colour and neighbours; hints gave
+"inside" ("All the squares left for row 1 are in Yellow...") and a
+mid-game "inside" on Blue/column 4 with the right squares blinking; a
+win and a loss each showed their result and buttons; Try again restarted
+with 3 hearts. **Found and fixed while checking:** found faces had the
+face picker's grey-blue background (a shared `.face` class name); the
+first end banner covered the board, hiding where the faces were (moved
+below it); looks still worked after a loss. Not yet tried in the
+desktop app's viewer.
+
+**Open questions:** none yet; the mockup choices above are for the
+developer.
