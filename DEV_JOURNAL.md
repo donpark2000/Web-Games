@@ -10,14 +10,10 @@ None.
 
 ## Proposed additions to the standards skill
 
-- **Measure one unit first, and print as you go.** Before a loop over
-  many runs of something slow or unbounded (a search, a generator), time
-  one run, print a line per run, and cap each run. *Evidence:* a script
-  measuring a puzzle maker printed nothing for 10 minutes: one size's
-  failing seeds each ran 24,000 solves; timing one make at a time showed
-  it at once. (2026-10-13, "Hidden Faces built".)
-
-Earlier: none waiting. (2026-10-11: "Derived files come from a tool, and a test
+None waiting. (2026-10-13: "Time one run before looping over many"
+(from "Hidden Faces built") approved by the developer and added to the
+skill, section 4; ai-dev-practices commit 4e545f1, zip rebuilt for the
+developer to upload.) (2026-10-11: "Derived files come from a tool, and a test
 fails when they're stale" (from "The offline app, built") and "Don't
 trust a platform's status flag at startup" (from "navigator.onLine at
 launch") approved by the developer and added to the skill, sections 3
