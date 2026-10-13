@@ -4339,3 +4339,25 @@ something is missing.)
 
 `tools/offline.js` run: version 0bb49faa688f.
 
+## 2026-10-13: Empty hint bar published
+
+Published with the developer's OK ("publish"): `main` fast-forwarded to
+8ff36cf and pushed; the Pages build for 8ff36cf was "built", and the
+server sends version 0bb49faa688f and `.hintbar.idle { visibility:
+hidden; }` (curl). **Checked live** (built-in browser, 393 x 760, after
+one reload for the offline copy): the bar empty and hidden at the start,
+a hint showing in it, empty and hidden again after a tap; board top 110
+and tools top 573 throughout; no console errors. Claude's local server
+stopped; no other `serve.js` running.
+
+## 2026-10-13: Status (start here next session)
+
+**Branch `star-battle`**, `main` = 8ff36cf plus journal-only commits
+after it. Live today: Hidden Faces' no-zoom fix (checked on the iPhone
+by the developer) and the empty hint bar. `npm test`: 237 of 237.
+
+**Next (developer's choice):** more Hidden Faces feedback from play;
+difficulty levels for it; or the DESIGN.md "Later" list.
+
+**Open questions:** none. **Proposed skill additions:** none waiting.
+
