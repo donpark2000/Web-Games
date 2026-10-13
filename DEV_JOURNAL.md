@@ -4027,3 +4027,33 @@ desktop app's viewer.
 
 **Open questions:** none yet; the mockup choices above are for the
 developer.
+
+## 2026-10-13: Mockup v2: hints easier to see
+
+**Developer** (after playing v1): "It is working really well. I find the
+hints visually hard to see sometimes. Like 'if you see a face here' sort
+of hint but it is not clear where 'here' is." **Why:** in v1 the square a
+"touch" hint means was marked only by a thin blinking blue ✕, and the
+reason squares by a yellow ring that vanished on a Yellow region.
+
+**v2** ([Hidden Faces Mockup](https://claude.ai/artifact/HiQ1FiMsGUMRxGfoYfNXRs),
+version 2):
+- **Spotlight:** while a hint shows, every square it isn't about fades
+  (35% opacity, mostly grey); the ones it is about keep their colour
+  and get a dark edge. Works on any region colour.
+- **The square a hint means** (a face must be there, a face can't be
+  there, or a wrong ✕) gets a thick black ring inside a white one,
+  pulsing; the text names it: "the ringed square (row 3, column 1)".
+- **Squares to cross out:** a dark ✕ with a white edge, blinking.
+- Texts shortened to fit the 3-line hint bar at 393 px wide, e.g. "A face
+  on the ringed square (row 3, column 1) would rule out the lit squares,
+  the last ones for column 2. So cross it out."
+
+**Checked** (built-in browser, 393 x 760, the scratchpad server again,
+its `.claude/launch.json` entry removed after): a hint of each kind,
+reached by running the solver up to that kind of step (inside on 6 x 6,
+touch on 6 x 6 and 10 x 10, group on 7 x 7 and 9 x 9, single on 8 x 8):
+none overflowed the bar; the spotlight dimmed the rest (opacity 0.35);
+the ring and ✕s show on tan, grey and purple squares. (Found on the way:
+an apostrophe in a quoted string broke the whole script; caught before
+publishing.)
