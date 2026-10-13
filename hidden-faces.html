@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hidden Faces</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#E4F1EE">
+<meta name="apple-mobile-web-app-title" content="Let's Play!">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/hidden-faces.css">
+</head>
+<body>
+<main class="app">
+  <!-- SETUP ("New game") -->
+  <section id="setup" class="app" aria-label="New game">
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
+      <h1>Hidden Faces</h1>
+    </div>
+
+    <div class="panel rulesbox">
+      <div id="rulesPic" aria-hidden="true"></div>
+      <div class="rules">
+        <p>Find the hidden faces. Every <b>row</b>, every <b>column</b> and every <b>colour</b> has exactly one. Faces <b>never touch</b>, not even at a corner.</p>
+        <p class="how">Tap a square once for ✕ (no face here). Tap a ✕ to look under it. A wrong look costs a ❤️; lose all three and the game is over. Drag across squares to ✕ them all; drag from a ✕ to rub them out.</p>
+      </div>
+    </div>
+
+    <div class="panel p1">
+      <h2><span>Who's hiding?</span> <span class="chip" id="p1Chip"></span></h2>
+      <div class="faces" id="p1Faces"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Size</h2>
+      <div class="sizes" id="sizes"></div>
+    </div>
+
+    <div class="panel">
+      <h2>When you find a face</h2>
+      <div class="levels" id="autos">
+        <button type="button" class="level" data-auto="on" aria-pressed="true">Auto ✕<small>its row, column, colour and neighbours get ✕s</small></button>
+        <button type="button" class="level" data-auto="off" aria-pressed="false">I'll do it<small>you mark every ✕ yourself</small></button>
+      </div>
+    </div>
+
+    <div class="go">
+      <button type="button" class="big" id="playBtn" disabled>Play!</button>
+      <div class="why" id="why"></div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="app" aria-label="Game" hidden>
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
+      <div class="turn" id="turn"></div>
+    </div>
+    <div class="status">
+      <span class="hearts" id="hearts"></span>
+      <span class="found" id="found"></span>
+      <span class="clock" id="clock">0:00</span>
+    </div>
+    <div class="boardwrap">
+      <div class="hfboard" id="board" role="grid" aria-label="Puzzle"></div>
+    </div>
+    <!-- always 3 lines high, so a hint never moves the board -->
+    <div class="hintbar idle" id="hintbar" aria-live="polite"></div>
+    <div class="tools" id="tools">
+      <button type="button" class="tool" id="undoBtn">↩ Undo</button>
+      <button type="button" class="tool" id="hintBtn">💡 Hint <span class="left" id="hintsLeft">3</span></button>
+      <button type="button" class="tool" id="showBtn">👁 Show <span class="left" id="showsLeft">1</span></button>
+    </div>
+    <!-- at the end, in place of the tools: the board stays in view -->
+    <div class="tools" id="endTools" hidden>
+      <button type="button" class="tool primary" id="againBtn"></button>
+      <button type="button" class="tool" id="sameBtn" data-play></button>
+      <button type="button" class="tool" id="newBtn">New game</button>
+    </div>
+  </section>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a></footer>
+<script type="module" src="src/ui/hidden-faces.js"></script>
+<script type="module" src="src/ui/stats.js"></script>
+<script type="module" src="src/ui/offline.js"></script>
+</body>
+</html>

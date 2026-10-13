@@ -33,10 +33,12 @@ net.afterSettle(() => send({
 }, page));
 
 // Play! and Play again, on every game (capture: counted even if the game's
-// own handler stops the click). Disabled buttons send no click.
+// own handler stops the click), and any other button marked data-play
+// that starts a new game (Hidden Faces' "Same size" and "Another").
+// Disabled buttons send no click.
 if (!page.endsWith('/')) {
   const event = gameEvent(page);
   addEventListener('click', e => {
-    if (e.target.closest?.('#playBtn, #againBtn')) send({ path: event, title: document.title, event: true }, event);
+    if (e.target.closest?.('#playBtn, #againBtn, [data-play]')) send({ path: event, title: document.title, event: true }, event);
   }, { capture: true });
 }

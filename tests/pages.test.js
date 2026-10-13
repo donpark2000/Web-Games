@@ -18,9 +18,9 @@ const html = Object.fromEntries(await Promise.all(pages.map(async p => [p, await
 const localRefs = s => [...s.matchAll(/(?:href|src)="([^"]+)"|from '(\.\/[^']+)'/g)]
   .map(m => m[1] ?? m[2]).filter(u => !/^(https?:|mailto:|#)/.test(u)).map(u => u.replace(/[?#].*$/, ''));
 
-test('pages: the home page and the nine games exist', () => {
+test('pages: the home page and the ten games exist', () => {
   assert.ok(pages.includes('index.html'));
-  for (const g of ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html', 'nim.html', 'rock-paper-scissors.html', 'follow-me.html']) assert.ok(games.includes(g), `${g} missing: ${games.join()}`);
+  for (const g of ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html', 'nim.html', 'rock-paper-scissors.html', 'follow-me.html', 'hidden-faces.html']) assert.ok(games.includes(g), `${g} missing: ${games.join()}`);
 });
 
 test('pages: every page has the footer, and "Source code" opens in a new tab', () => {
@@ -92,14 +92,16 @@ test('pages: the log page exists; only the version line links to it; no ?dev pan
 
 // The home page's groups (developer, 2026-10-04): a game with a two-player
 // choice (a person or the robot as player 2) is a two-player game; one with
-// no way to play another person is a one-player game. Each game in exactly
-// one group.
-test('pages: the home page groups the games: two players, then one player', () => {
+// no way to play another person is a one-player game; then the puzzles for
+// grown-ups (developer, 2026-10-13: one site, kept apart). Each game in
+// exactly one group.
+test('pages: the home page groups the games: two players, one player, puzzles', () => {
   const groups = [...html['index.html'].matchAll(/<section class="group" id="(\w+)"[\s\S]*?<h2[^>]*>([\s\S]*?)<\/h2>([\s\S]*?)<\/section>/g)]
     .map(([, id, title, body]) => ({ id, title: title.replace(/<[^>]+>/g, '').trim(), games: [...body.matchAll(/<a class="game"[^>]*href="([^"]+)"/g)].map(m => m[1]) }));
-  assert.deepEqual(groups.map(g => [g.id, g.title]), [['twoGroup', '👥 Two players'], ['oneGroup', '👤 One player']]);
+  assert.deepEqual(groups.map(g => [g.id, g.title]), [['twoGroup', '👥 Two players'], ['oneGroup', '👤 One player'], ['puzGroup', '🧩 Puzzles for grown-ups']]);
   assert.deepEqual(groups[0].games, ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html', 'nim.html']);
   assert.deepEqual(groups[1].games, ['rock-paper-scissors.html', 'follow-me.html']);
+  assert.deepEqual(groups[2].games, ['hidden-faces.html']);
   const all = groups.flatMap(g => g.games);
   assert.deepEqual([...all].sort(), [...games].sort(), 'every game in exactly one group');
   assert.equal((html['index.html'].match(/<a class="game"/g) || []).length, all.length, 'a game button outside the groups');
@@ -170,3 +172,20 @@ test('pages: Follow Me’s buttons are only in the Game over banner; the 🏠 st
   assert.match(css, /\.over \{ position: absolute; inset: 0;/);
 });
 
+
+// Hidden Faces' end (mockup v2, 2026-10-13): the result in the hint bar
+// and three buttons in place of the tools, so the board stays in view;
+// the buttons that start a new puzzle count as games started (stats).
+test('pages: Hidden Faces’ end buttons replace the tools, hidden until the end', () => {
+  const play = html['hidden-faces.html'].match(/<section id="play"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(play, 'no play screen');
+  const tools = play.match(/<div class="tools" id="tools">([\s\S]*?)<\/div>/)?.[1];
+  const end = play.match(/<div class="tools" id="endTools" hidden>([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(tools && end, 'no tools, or the end buttons show during a game');
+  assert.deepEqual([...tools.matchAll(/<button[^>]*id="(\w+)"/g)].map(m => m[1]), ['undoBtn', 'hintBtn', 'showBtn']);
+  assert.deepEqual([...end.matchAll(/<button[^>]*id="(\w+)"/g)].map(m => m[1]), ['againBtn', 'sameBtn', 'newBtn']);
+  assert.match(end, /id="sameBtn" data-play/, 'Same size / Another not counted');
+  assert.doesNotMatch(end.match(/<button[^>]*id="newBtn"[^>]*>/)[0], /data-play/, 'New game counted');
+  const at = id => play.indexOf(`id="${id}"`);
+  assert.ok(at('board') < at('hintbar') && at('hintbar') < at('tools'), 'the hint bar is not between the board and the tools');
+});

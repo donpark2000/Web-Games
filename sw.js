@@ -19,8 +19,8 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '60d967d73c47';
-const MADE = '2026-10-11';
+const VERSION = '3cd033e894d5';
+const MADE = '2026-10-13';
 const FILES = [
   'connect-four.html',
   'count-to-9.html',
@@ -30,6 +30,7 @@ const FILES = [
   'css/five-dice.css',
   'css/follow-me.css',
   'css/game.css',
+  'css/hidden-faces.css',
   'css/log.css',
   'css/matching.css',
   'css/nim.css',
@@ -38,8 +39,10 @@ const FILES = [
   'css/snakes-ladders.css',
   'css/tic-tac-toe.css',
   'data/five-dice-long.bin',
+  'data/hidden-faces.json',
   'five-dice.html',
   'follow-me.html',
+  'hidden-faces.html',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
@@ -58,6 +61,7 @@ const FILES = [
   'src/core/five-dice-best.js',
   'src/core/five-dice.js',
   'src/core/follow-me.js',
+  'src/core/hidden-faces.js',
   'src/core/log.js',
   'src/core/matching.js',
   'src/core/net.js',
@@ -78,6 +82,8 @@ const FILES = [
   'src/ui/fivedice-pics.js',
   'src/ui/fmpads.js',
   'src/ui/follow-me.js',
+  'src/ui/hfboard.js',
+  'src/ui/hidden-faces.js',
   'src/ui/logpage.js',
   'src/ui/matching.js',
   'src/ui/matchstick.js',

@@ -10,7 +10,14 @@ None.
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-10-11: "Derived files come from a tool, and a test
+- **Measure one unit first, and print as you go.** Before a loop over
+  many runs of something slow or unbounded (a search, a generator), time
+  one run, print a line per run, and cap each run. *Evidence:* a script
+  measuring a puzzle maker printed nothing for 10 minutes: one size's
+  failing seeds each ran 24,000 solves; timing one make at a time showed
+  it at once. (2026-10-13, "Hidden Faces built".)
+
+Earlier: none waiting. (2026-10-11: "Derived files come from a tool, and a test
 fails when they're stale" (from "The offline app, built") and "Don't
 trust a platform's status flag at startup" (from "navigator.onLine at
 launch") approved by the developer and added to the skill, sections 3
@@ -4111,3 +4118,91 @@ game's own CSS (after `site.css` and `game.css`), from the comment
    publish with the OK above.
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
+
+## 2026-10-13: Hidden Faces built
+
+Built as agreed (DESIGN.md "Hidden Faces"), from mockup v2's code.
+
+**Files:** `src/core/hidden-faces.js` (solver, puzzle maker, colours,
+the game: taps, drags, undo, Show, hints with their words, progress),
+`src/ui/hidden-faces.js` (screens), `src/ui/hfboard.js` (board lines and
+the small pictures), `hidden-faces.html`, `css/hidden-faces.css`,
+`tools/hidden-faces-puzzles.js`, `data/hidden-faces.json`; the home
+page's third group "🧩 Puzzles for grown-ups"; tests
+`hidden-faces.test.js` (17), `hidden-faces-stock.test.js` (2), and
+`pages.test.js` (ten games, three groups, the end buttons).
+
+**Changed from the mockup's code, and why:**
+- **Shuffles** were `sort(() => rnd() - 0.5)`, which depends on the
+  browser's sort; now Fisher-Yates, so a seed makes the same puzzle and
+  colours everywhere. The puzzles therefore differ from the mockup's.
+  The 5 x 5 picture is now `generate(5, 50001)` (needs "inside" and
+  "touch").
+- **Hint words moved into `src/core/`** (no DOM in them), so the tests
+  can follow the hints.
+- **A win didn't make the faces smile** (the mockup had the same gap):
+  `draw()` only redrew a square whose mark changed, never one whose mood
+  did. Found in the browser (winner faces looked normal); fixed by
+  keeping the mood on each square. Same fix makes all faces sad at a loss.
+- **Kept on the device** (not in the mockup; Claude's choice): the next
+  puzzle per size and the best time per size (`web-games-hidden-faces`).
+  Otherwise every visit would start at "puzzle 1". **The clock stops**
+  while the page is hidden.
+- **Stats:** "Same size" and "Another" also start a new puzzle, so
+  `src/ui/stats.js` now counts any button marked `data-play` too (the
+  main end button is `#againBtn`, counted already).
+
+**The stock** (the plan's open choices, defaults given at session start;
+no objection): one difficulty, 200 per size. Measured before choosing
+(15 seeds per size, one core): make time average / max 12 / 27 ms
+(6 x 6), 46 / 149 (7), 190 / 680 (8), 834 / 2803 (9), 3906 / 12771 ms
+(10); kept by the bar 4, 6, 4, 5, 5 of 15. So the tool spreads seeds over
+15 worker threads and keeps the first 200 passing seeds in seed order
+(deterministic). Full run: 324 s; seeds tried 606, 594, 497, 553, 427;
+file 103 KB. **A stall on the way:** a first measuring script printed
+nothing for 10 minutes: it looked for a 5 x 5 seed with the default 60
+tries x 400 moves, and a 5 x 5 seed that fails runs all 24,000 solves.
+Timing one make at a time showed it.
+
+**Tests and how they were shown to fail:**
+- Every solver step on 6 test puzzles is right for the real answer
+  (placed faces in it, ruled-out squares not), and every rule is used.
+  It first failed: no test puzzle needed "group"; added `generate(6,
+  60023)`, and one needing "try it" (`generate(6, 172, { maxLevel: 4 })`,
+  which the stock's rules can't finish).
+- Following only the hints solves each test puzzle with no wrong look.
+- `problems()` reports each kind of broken puzzle (wrong size, a colour
+  outside 0..n-1, a colour in two pieces, a face missing, two in a row,
+  touching, another answer).
+- **Mutation:** the "touch" rule changed to rule out its reason squares
+  (in a scratch copy): 4 tests failed.
+- **Stock:** all 1000 puzzles pass `problems()` and the bar (1 s); the
+  first puzzles of 6, 7 and 8 are remade from their seeds (3.5 s; with 9
+  and 10 it took 36 s, too slow for every run). One region digit changed
+  in the file: both stock tests failed; file restored, checked with
+  `cmp`.
+- `npm test`: 235 pass, 0 fail, 12.7 s.
+
+**Checked in the built-in browser** (localhost, `.claude/launch.json`
+"web-games"):
+- 393 x 760: home page shows the third group and its 5 x 5 picture;
+  setup loads the puzzles (Play! enabled); 10 x 10 fits at 35 px
+  squares, 6 x 6 at 59 px (as the mockup), page height 760 = screen, no
+  sideways scroll.
+- Real clicks: a tap put a ✕, a second tap looked (a red ✕, a heart
+  lost); a drag over 4 squares ✕ed them, a drag from a ✕ rubbed out 2,
+  Undo put them back; a hint ("The lit squares, all that's left for
+  row 1, are all in Brown...") with the spotlight.
+- With pointer events from a script: a 10 x 10 and a 6 x 6 solved
+  ("Solved! 0:45 · 1 mistake · 1 hint. Your best for this size!", Next /
+  Same size / New game, faces smiling after the fix); Same size gave
+  puzzle 2; Show found 1 and greyed; three wrong looks: "Out of
+  hearts", 5 pale sad faces (the one shown stays), taps refused; Try
+  again: same puzzle, 3 hearts; Another: puzzle 3, kept on the device.
+- 1280 x 800: 6 x 6 at 81 px, 10 x 10 at 48 px, no scrolling. (The
+  emulated resize sent no `resize` event, so the board kept 59 px until
+  one was sent; a real window sends it.)
+- No console errors; 54 "hidden-faces" lines in the debug log. My test
+  progress removed from the browser's storage after.
+
+**Open questions:** none.

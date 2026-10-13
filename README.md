@@ -4,7 +4,8 @@ Simple games for young kids (ages 5-7), played in a web browser on a
 tablet or phone, all reached from one home page. Two players (the second
 a person, or in most games the robot): tic-tac-toe, matching cards,
 Connect Four, Count to 9, Snakes and Ladders, Five Dice and Nim. One
-player: rock paper scissors and Follow Me.
+player: rock paper scissors and Follow Me. And one puzzle for grown-ups:
+Hidden Faces (one face per row, column and colour, none touching).
 
 **Play it:** https://donpark2000.github.io/Web-Games/
 

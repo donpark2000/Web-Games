@@ -135,5 +135,12 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 .game .pic.fm { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 132px; }
 .game .pic.fm span { background: var(--soft); border-radius: 14px; padding: 10px; box-shadow: 0 3px 0 var(--edge); }
 .game .pic.fm span.lit { box-shadow: inset 0 0 0 4px var(--c), 0 3px 0 var(--edge); }
+/* Hidden Faces: a small board in colour regions (src/ui/hfboard.js), also
+   the setup screen's rules picture; on the home page a 5 x 5 under way. */
+.mini { display: grid; grid-template-columns: repeat(var(--mn, 5), minmax(0, 1fr)); aspect-ratio: 1; max-width: 100%;
+  border: 2.5px solid #2B2B33; border-radius: 6px; overflow: hidden; }
+.mini span { display: grid; place-items: center; border: 0 solid #2B2B3333; padding: 2px; font-size: 13px; font-weight: 800; color: #2B2B3399; }
+.game .pic.hf { display: block; width: 150px; }
+.game .pic.hf .mini span { border-radius: 0; aspect-ratio: auto; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

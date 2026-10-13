@@ -63,6 +63,16 @@
       </a>
     </div>
   </section>
+  <!-- For the developer, not the kids (2026-10-13: one site, kept apart). -->
+  <section class="group" id="puzGroup" aria-labelledby="puzTitle">
+    <h2 id="puzTitle"><span aria-hidden="true">🧩</span> Puzzles for grown-ups</h2>
+    <div class="games">
+      <a class="game" id="hfLink" href="hidden-faces.html">
+        <span class="pic hf" id="hfPic" aria-hidden="true"></span>
+        Hidden Faces
+      </a>
+    </div>
+  </section>
 </main>
 <footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a><a class="app-version" id="appVersion" href="log.html" hidden></a></footer>
 <script type="module">
@@ -74,6 +84,8 @@
   import { MATCH_SVG } from './src/ui/matchstick.js';
   import { padsFor } from './src/core/follow-me.js';
   import { padStyle } from './src/ui/fmpads.js';
+  import { DEMO, seenBy } from './src/core/hidden-faces.js';
+  import { miniBoard } from './src/ui/hfboard.js';
   import { log, startLog } from './src/ui/debuglog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
@@ -120,6 +132,10 @@
   // Follow Me: the four pads, the frog lit up.
   document.getElementById('fmPic').innerHTML = padsFor(4, 'bear').map((p, i) =>
     `<span class="${i === 0 ? 'lit' : ''}" style="${padStyle(p.color)}">${svg(p.face, i === 0 ? 'winner' : 'normal')}</span>`).join('');
+  // Hidden Faces: a 5 x 5 under way, two faces found and the ✕s around
+  // them in the top three rows.
+  const two = DEMO.faces.slice(0, 2);
+  document.getElementById('hfPic').innerHTML = miniBoard(DEMO, 'bear', two, two.flatMap(f => seenBy(5, DEMO.reg, f)).filter(i => i < 15));
   startLog('home');
   for (const g of document.querySelectorAll('.group')) {
     log.add('home', 'group', { group: g.id, games: [...g.querySelectorAll('.game')].map(a => a.getAttribute('href').replace(/[?#].*$/, '')) });

@@ -5,8 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-13): Hidden Faces, a logic puzzle for the developer
-(not the kids), agreed from mockup v2; to be built, then published
-(developer's OK given). Until then (2026-10-11): all nine games published, the home page grouped
+(not the kids), agreed from mockup v2, built and published, in a third
+home-page group. Until then (2026-10-11): all nine games published, the home page grouped
 by players. The offline app ("Let's Play!", happy bear icon) published
 2026-10-10; a version line on the home page and no counts sent offline
 published 2026-10-11, and the app checked on an iPhone and an Android
@@ -535,12 +535,25 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   'here' is").
 - **The end:** the result in the hint bar and three buttons in place of
   the tools, so the board stays in view. Solved: the faces smile and
-  wiggle; "Solved! 4:12 · 1 mistake · 0 hints", best time per size; **Next**
-  (one size up, to 10 x 10) / Same size / New game. Out of hearts: the
-  faces not found show pale and sad; Try again / Another / New game.
-- **Puzzles** made ahead of time by a tool and kept in a data file
-  (works offline, even difficulty), at least as hard as mockup v2's (not
-  only "one square left" steps). Difficulty levels to be designed.
+  wiggle; "Solved! 4:12 · 1 mistake · 0 hints" ("· 1 shown" after a
+  Show), best time per size; **Next** (one size up, to 10 x 10) / Same
+  size / New game. Out of hearts: all the faces show sad, those not found
+  pale; Try again / Another / New game.
+- **Puzzles: 200 per size, made ahead of time** by
+  `tools/hidden-faces-puzzles.js` into `data/hidden-faces.json` (works
+  offline; 103 KB). One difficulty for now (built 2026-10-13; levels
+  later): the bar mockup v2's puzzles were picked by, steps needing more
+  than "one square left" in at least 60% as many as the size (about 1 in
+  3 made puzzles passes). Each is stored with the seed it was made from;
+  the first 200 passing seeds from n x 10000 on, so the tool always makes
+  the same file. None needs "try it" (that rule is for hints).
+- **Kept on the device** (built 2026-10-13, Claude's choice): the next
+  puzzle per size ("puzzle 3": a win or Another moves on; Try again and
+  leaving mid-puzzle don't; after 200 they start over) and the best time
+  per size. **The clock stops** while the page is hidden (another app,
+  the phone locked).
+- **Sounds:** a tick per ✕, a ding for a face, "uh-oh" for a wrong look,
+  a ping for a hint, the sparkle when solved, "aww" when out of hearts.
 
 ## Face names
 
@@ -615,7 +628,8 @@ Which games are opened and played, from where, over time (developer,
   each **page opened** (its full path, e.g. `/Web-Games/nim.html`; the
   home page `/Web-Games/`), with its title, the screen size and the
   referrer when another site sent the visitor; and each **game started**
-  (Play! or Play again) as an event, `play-<game>` (e.g. `play-nim`).
+  (Play! or Play again) as an event, `play-<game>` (e.g. `play-nim`);
+  in Hidden Faces also "Same size" and "Another" (`data-play`).
 - **Only the live site counts** (donpark2000.github.io), not localhost or
   an automated browser, so testing doesn't add to the numbers. **Nothing
   is sent with no connection** (2026-10-11: an iPhone in airplane mode
