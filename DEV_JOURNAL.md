@@ -6,7 +6,12 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-None.
+- **Q15. Should Undo work after a slip ends the game?** *Raised
+  2026-10-13:* the third wrong look ends the puzzle ("Out of hearts"),
+  and Undo is gone from the end screen, so a slip on the last heart
+  can't be taken back. A double tap can no longer cause it (see
+  "Hidden Faces: undo a wrong look"), but a slower slip can. Asked the
+  developer.
 
 ## Proposed additions to the standards skill
 
@@ -4361,3 +4366,62 @@ difficulty levels for it; or the DESIGN.md "Later" list.
 
 **Open questions:** none. **Proposed skill additions:** none waiting.
 
+## 2026-10-13: Hidden Faces: undo a wrong look
+
+The developer: an accidental double tap on an empty square made a red ✕
+(a wrong look, a heart lost) and Undo couldn't take it back; "Being able
+to undo errors is kind of the whole point of undo, isn't it?"
+
+**Why:** a tap on an empty square puts a ✕, a tap on a ✕ looks under it,
+so two quick taps are ✕-then-look. Undo was built to take back ✕s and
+rub-outs, never a look (mockup v1: undoing a wrong look gives the heart
+back, so looking would be free). **A second fault found in the code:**
+after the slip, Undo popped the ✕ tap's step, whose square was now a red
+✕, so it changed 0 squares: a press that did nothing, with no sign why.
+
+Offered three options (ignore a quick second tap; Undo takes back a
+wrong look, the mistake still counted; both). **The developer chose
+both:** "I get the whole 'cheating' aspect but it is a game you are
+playing on your own. What's the point of cheating?"
+
+**Built** (`src/core/hidden-faces.js`):
+- A wrong look is its own undo step (`{ look: square }`): undone, the red
+  ✕ is a ✕ again and `hearts` goes back up; `mistakes` stays, so the
+  result line still says "1 mistake". A found face is never undone. The
+  look that ends the game can't be (the game is over; Q15).
+- `undo` skips steps that would change nothing (every square since
+  became a face, or is already what it was), and `canUndo` (the Undo
+  button) is false when no step would change anything. A step's squares
+  now count only if they really change (`marks[i] !== before`).
+- `tap(g, i, now)`: a tap on a ✕ within `QUICK_MS` (400 ms) of the tap
+  that put it is `{ ok: false, why: 'quick' }`, and each slip restarts the
+  wait, so a quick triple tap doesn't look either. Only two taps on the
+  same square: a tap elsewhere in between ends it. No `now` (the tests'
+  older calls), no slips. The screen passes the pointer event's
+  `timeStamp`.
+- Debug log: "quick second tap on a new ✕: a slip, not a look"
+  {square}; "undo: a wrong look taken back, the heart back" {squares,
+  hearts}; "undo" now also logs hearts.
+
+**Tests:** three new ones in `tests/hidden-faces.test.js` (a wrong look
+undone, then the ✕, then nothing; a wrong look on a dragged ✕ undone
+before the drag; the game-ending look not undoable; no-op steps skipped,
+including a rub-out a face's Auto ✕ has put back; quick taps: slip,
+slip again, look after a pause, another square not held back, no time
+no slip). **Shown to fail first**: run against the old rules (with only
+`QUICK_MS` and a naive `canUndo` stubbed in), all three failed, the
+first exactly on the developer's bug (`undo` returned 0, expected 1).
+One of Claude's own expectations was wrong (a quick tap back on square A
+after a ✕ on B, expected a slip; it's a look, and should be) and was
+fixed in the test, not the rule. `npm test`: 240 of 240.
+`tools/offline.js`: version dd76ea56d345.
+
+**Checked in the built-in browser** (localhost:8123, 393 x 760, 6 x 6
+puzzle 1): a double click on row 1, column 1 (next to the one-square
+brown colour, so no face): the log shows the ✕ (tick at 10.664 s) and
+"a slip, not a look" 9 ms later. A zoom taken just after showed the
+square empty; the log and the next step (the square was a ✕) show that
+was the screenshot taken before the redraw, not the game. A tap 1 s
+later: red ✕, 2 hearts. Undo: a plain ✕, 3 hearts, "undo: a wrong look
+taken back". Undo again: the square empty, Undo greyed. No console
+errors.

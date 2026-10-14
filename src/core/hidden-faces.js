@@ -42,6 +42,9 @@ export const DEFAULT_SIZE = 6;
 export const HEARTS = 3;   // wrong looks allowed: the third ends the game
 export const HINTS = 3;    // per puzzle
 export const SHOWS = 1;    // "show me one face", per puzzle
+// A second tap on a square this soon after its ✕ is a slip (two quick
+// taps), not a look (developer, 2026-10-13).
+export const QUICK_MS = 400;
 
 // Rule levels: how hard a step is to see.
 export const LEVEL = { single: 1, inside: 2, touch: 2, group: 3, tryit: 4 };
@@ -426,7 +429,9 @@ export function createGame(p, { auto = true, colorSeed = 0 } = {}) {
     marks: new Array(p.n * p.n).fill(''),
     hearts: HEARTS, hints: HINTS, shows: SHOWS,
     mistakes: 0, hintsUsed: 0, showsUsed: 0,
-    undo: [],          // groups of [square, mark before], newest last
+    undo: [],          // groups of [square, mark before], or { look: square }
+                       // for a wrong look; newest last
+    lastX: null,       // { i, at }: the last ✕ a tap put, for QUICK_MS
     result: null,      // 'won' or 'lost'
   };
 }
@@ -451,22 +456,34 @@ export function look(g, i) {
   g.marks[i] = 'bad';
   g.hearts--;
   g.mistakes++;
+  g.undo.push({ look: i });
   const lost = g.hearts <= 0;
   if (lost) g.result = 'lost';
   return { ok: true, face: false, autoX: [], won: false, lost };
 }
 
-// A tap on square i: an empty square gets a ✕ (undoable); a ✕ is looked
-// under. Returns { ok, did: 'x' | 'look', ...look's result }.
-export function tap(g, i) {
+// A tap on square i at time `now` (ms): an empty square gets a ✕
+// (undoable); a ✕ is looked under, unless the tap comes within QUICK_MS
+// of the tap that put that ✕ (or of a slip after it). Returns { ok, did:
+// 'x' | 'look', ...look's result }, or { ok: false, why: 'quick' } for a
+// slip. With no time given, no tap is a slip.
+export function tap(g, i, now = null) {
   if (g.result) return { ok: false, why: 'over' };
   const m = g.marks[i];
   if (m === '') {
     g.marks[i] = 'x';
     g.undo.push([[i, '']]);
+    g.lastX = now == null ? null : { i, at: now };
     return { ok: true, did: 'x' };
   }
-  if (m === 'x') return { ...look(g, i), did: 'look' };
+  if (m === 'x') {
+    if (now != null && g.lastX?.i === i && now - g.lastX.at < QUICK_MS) {
+      g.lastX.at = now;
+      return { ok: false, why: 'quick' };
+    }
+    g.lastX = null;
+    return { ...look(g, i), did: 'look' };
+  }
   return { ok: false, why: 'already' };
 }
 
@@ -489,17 +506,36 @@ export function endStroke(g, stroke) {
   return stroke.changed.length;
 }
 
-// Takes back the last ✕s or rub-out, never a look (a square that has
-// since become a face or a red ✕ keeps it). Returns how many squares
-// changed back, or -1 when there's nothing to undo.
+// What undoing one step would change: the squares to set back, as
+// [square, mark], and whether it gives a heart back. A square that has
+// since become a face stays one, so a step can come to change nothing.
+function undoes(g, step) {
+  if (step.look != null) return { back: [[step.look, 'x']], heart: true };
+  const back = [];
+  for (const [i, before] of [...step].reverse()) {
+    if ((g.marks[i] === '' || g.marks[i] === 'x') && g.marks[i] !== before) back.push([i, before]);
+  }
+  return { back, heart: false };
+}
+
+// Takes back the last ✕s, rub-out or wrong look (developer, 2026-10-13:
+// "being able to undo errors is kind of the whole point of undo"). A wrong
+// look's red ✕ is a ✕ again and the heart comes back; the mistake still
+// counts in the result. A found face is never taken back. Steps that
+// would change nothing are skipped. Returns how many squares changed
+// back, or -1 when there's nothing to undo (or the game is over).
 export function undo(g) {
   if (g.result) return -1;
-  const last = g.undo.pop();
-  if (!last) return -1;
-  let k = 0;
-  for (const [i, before] of last.reverse()) if (g.marks[i] === '' || g.marks[i] === 'x') { g.marks[i] = before; k++; }
-  return k;
+  while (g.undo.length) {
+    const u = undoes(g, g.undo.pop());
+    if (!u.back.length) continue;
+    for (const [i, m] of u.back) g.marks[i] = m;
+    if (u.heart) g.hearts++;
+    return u.back.length;
+  }
+  return -1;
 }
+export const canUndo = g => !g.result && g.undo.some(step => undoes(g, step).back.length > 0);
 
 // "Show me one face": looks under a face not yet found (rnd picks which).
 export function showOne(g, rnd = Math.random) {

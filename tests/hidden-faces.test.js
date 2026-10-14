@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   SIZES, HEARTS, HINTS, SHOWS, LEVEL, MAKE_LEVEL, DEMO, COLORS, PROGRESS_KEY,
   seenBy, units, newState, place, nextStep, solve, generate, connected, hardEnough, problems, colorsFor,
-  createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, showOne, findHint, useHint,
+  createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, canUndo, showOne, findHint, useHint, QUICK_MS,
   readProgress, recordTime, clock, mulberry32,
 } from '../src/core/hidden-faces.js';
 
@@ -184,7 +184,7 @@ test('hidden faces game: finding every face wins', () => {
   assert.equal(look(g, faces[0]).ok, false);
 });
 
-test('hidden faces game: drags ✕ or rub out; undo takes back ✕s, never a look', () => {
+test('hidden faces game: drags ✕ or rub out; undo takes back ✕s, never a face found', () => {
   const g = game({ auto: false });
   const path = [0, 1, 2, 3];
   const s = startStroke(g, 0);
@@ -201,20 +201,105 @@ test('hidden faces game: drags ✕ or rub out; undo takes back ✕s, never a loo
   assert.deepEqual(path.map(i => g.marks[i]), ['x', '', '', 'x']);
   assert.equal(undo(g), 2);
   assert.deepEqual(path.map(i => g.marks[i]), ['x', 'x', 'x', 'x']);
-  // A look on one of them stays when the drag is undone.
-  const f = path.find(i => g.sol.has(i)) ?? path.find(i => !g.sol.has(i));
+  // A face found on one of them (row 1 has one) stays when the drag is
+  // undone.
+  const f = path.find(i => g.sol.has(i));
   look(g, f);
-  const after = g.marks[f];
-  assert.ok(after === 'face' || after === 'bad');
+  assert.equal(g.marks[f], 'face');
   assert.equal(undo(g), 3);
-  assert.equal(g.marks[f], after);
+  assert.equal(g.marks[f], 'face');
   assert.equal(undo(g), -1);
+  assert.equal(canUndo(g), false);
   // A stroke from a face or a red ✕ does nothing.
   assert.equal(startStroke(g, f).mode, null);
   // An empty drag adds no undo step.
   const z = startStroke(g, 30);
   assert.equal(endStroke(g, z), 0);
   assert.equal(undo(g), -1);
+});
+
+test('hidden faces game: undo takes back a wrong look; the heart comes back, the mistake still counts', () => {
+  const g = game({ auto: false });
+  const i = notFace(g);
+  tap(g, i);
+  tap(g, i);
+  assert.equal(g.marks[i], 'bad');
+  assert.equal(g.hearts, HEARTS - 1);
+  assert.equal(canUndo(g), true);
+  assert.equal(undo(g), 1);
+  assert.equal(g.marks[i], 'x');
+  assert.equal(g.hearts, HEARTS);
+  assert.equal(g.mistakes, 1);
+  // Then the ✕ itself, then nothing.
+  assert.equal(undo(g), 1);
+  assert.equal(g.marks[i], '');
+  assert.equal(canUndo(g), false);
+  assert.equal(undo(g), -1);
+  // A wrong look on a dragged ✕ comes back before the drag.
+  const s = startStroke(g, 0);
+  for (const j of [0, 1, 2, 3, 4, 5]) strokeTo(g, s, j);
+  endStroke(g, s);
+  const w = [0, 1, 2, 3, 4, 5].find(j => !g.sol.has(j));
+  look(g, w);
+  assert.equal(undo(g), 1);
+  assert.equal(g.marks[w], 'x');
+  assert.equal(undo(g), 6);
+  // The look that ends the game can't be undone: the game is over.
+  const h = game();
+  for (let k = 0; k < HEARTS; k++) look(h, notFace(h));
+  assert.equal(h.result, 'lost');
+  assert.equal(canUndo(h), false);
+  assert.equal(undo(h), -1);
+});
+
+test('hidden faces game: a step with nothing left to change is skipped, not an Undo that does nothing', () => {
+  const g = game({ auto: false });
+  const f = MADE[0].faces[0];
+  tap(g, f);
+  tap(g, f);
+  assert.equal(g.marks[f], 'face');
+  assert.equal(canUndo(g), false);
+  assert.equal(undo(g), -1);
+  assert.equal(g.undo.length, 0);
+  // A rub-out, then a face's Auto ✕ puts that ✕ back: undoing the rub-out
+  // would change nothing, so it's skipped too.
+  const a = game();
+  const face = MADE[0].faces[1];
+  const near = seenBy(6, MADE[0].reg, face).find(j => !a.sol.has(j));
+  tap(a, near);
+  const e = startStroke(a, near);
+  strokeTo(a, e, near);
+  endStroke(a, e);
+  look(a, face);
+  assert.equal(a.marks[near], 'x');
+  assert.equal(undo(a), 1);   // the rub-out skipped; the ✕ tap undone
+  assert.equal(a.marks[near], '');
+});
+
+test('hidden faces game: a quick second tap on a new ✕ is a slip, not a look', () => {
+  const g = game();
+  const i = notFace(g);
+  assert.deepEqual(tap(g, i, 1000), { ok: true, did: 'x' });
+  assert.deepEqual(tap(g, i, 1000 + QUICK_MS - 1), { ok: false, why: 'quick' });
+  // Each slip waits again, so a quick third tap is one too.
+  assert.deepEqual(tap(g, i, 1000 + QUICK_MS + 200), { ok: false, why: 'quick' });
+  assert.equal(g.marks[i], 'x');
+  assert.equal(g.hearts, HEARTS);
+  // After a pause, a tap looks.
+  const r = tap(g, i, 1000 + 2 * QUICK_MS + 200);
+  assert.equal(r.did, 'look');
+  assert.equal(g.marks[i], 'bad');
+  // A quick tap on another square isn't held back, and after it a quick
+  // tap back on the first is a look (only two taps on one square are a
+  // slip); nor is a tap with no time given held back.
+  const j = notFace(g);
+  tap(g, j, 5000);
+  const k = notFace(g);
+  assert.deepEqual(tap(g, k, 5100), { ok: true, did: 'x' });
+  assert.equal(tap(g, j, 5200).did, 'look');
+  const h = game();
+  tap(h, i);
+  assert.equal(tap(h, i).did, 'look');
 });
 
 test('hidden faces game: Show uncovers a face not yet found, once', () => {

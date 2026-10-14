@@ -6,7 +6,7 @@
 
 import {
   SIZES, DEFAULT_SIZE, HEARTS, DEMO, PROGRESS_KEY, decode, createGame, foundCount, tap, startStroke, strokeTo,
-  endStroke, undo, showOne, useHint, readProgress, recordTime, clock,
+  endStroke, undo, canUndo, showOne, useHint, readProgress, recordTime, clock,
 } from '../core/hidden-faces.js';
 import { FACE_NAMES, nameOf } from '../core/players.js';
 import { svg, pickerFace } from './faces.js';
@@ -156,7 +156,7 @@ function draw(pop = -1) {
   $('showsLeft').textContent = G.shows;
   $('hintBtn').disabled = !G.hints || !!G.result;
   $('showBtn').disabled = !G.shows || !!G.result;
-  $('undoBtn').disabled = !G.undo.length || !!G.result;
+  $('undoBtn').disabled = !canUndo(G);
 }
 
 // The board as big as fits: the whole page on the screen, no scrolling.
@@ -205,7 +205,7 @@ $('board').addEventListener('pointermove', e => {
   drag.y = e.clientY;
   if (changed) draw();
 });
-addEventListener('pointerup', () => {
+addEventListener('pointerup', e => {
   if (!drag) return;
   const d = drag;
   drag = null;
@@ -215,7 +215,8 @@ addEventListener('pointerup', () => {
     draw();
     return;
   }
-  const r = tap(G, d.start);
+  const r = tap(G, d.start, e.timeStamp);
+  if (r.why === 'quick') L('quick second tap on a new ✕: a slip, not a look', { square: d.start });
   if (!r.ok) return;
   if (r.did === 'x') { sound.play('tick'); draw(); return; }
   afterLook(d.start, r, 'look');
@@ -259,8 +260,9 @@ function afterLook(i, r, how) {
 }
 
 $('undoBtn').onclick = () => {
+  const hearts = G.hearts;
   const k = undo(G);
-  L('undo', { squares: k });
+  L(G.hearts > hearts ? 'undo: a wrong look taken back, the heart back' : 'undo', { squares: k, hearts: G.hearts });
   clearHint();
   draw();
 };

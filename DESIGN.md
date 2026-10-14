@@ -6,7 +6,8 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-10-13): Hidden Faces, a logic puzzle for the developer
 (not the kids), agreed from mockup v2, built and published, in a third
-home-page group. Until then (2026-10-11): all nine games published, the home page grouped
+home-page group; Undo takes back a wrong look, and a double tap is just
+a ✕ (built, not yet published). Until then (2026-10-11): all nine games published, the home page grouped
 by players. The offline app ("Let's Play!", happy bear icon) published
 2026-10-10; a version line on the home page and no counts sent offline
 published 2026-10-11, and the app checked on an iPhone and an Android
@@ -523,8 +524,15 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
 - **Taps:** an empty square: ✕; a ✕: look under it. A face pops in (with
   Auto ✕, the ✕s around it); a wrong look is a red ✕ that stays, shakes
   and costs a heart; the third ends the game. **Drag** from an empty
-  square: ✕ every square passed; **drag from a ✕: rub ✕s out**. Undo
-  takes back ✕s and rub-outs, never a look. **Two quick taps never zoom
+  square: ✕ every square passed; **drag from a ✕: rub ✕s out**. **Undo
+  takes back ✕s, rub-outs and wrong looks** (developer, 2026-10-13:
+  "being able to undo errors is kind of the whole point of undo"; until
+  then never a look): the red ✕ is a ✕ again and the heart comes back,
+  but the mistake still counts in the result. A found face is never
+  taken back; a step with nothing left to change is skipped, and Undo is
+  greyed when nothing would change. **A second tap within 0.4 s of
+  putting a ✕ on that square is a slip, not a look** (`QUICK_MS`; each
+  slip waits again), so a double tap is just a ✕. **Two quick taps never zoom
   the page** (developer, 2026-10-13: the iPhone zoomed in on a ✕-then-look
   and there was no way back): the board cancels each touch's end.
 - **Hints** say the next step in words and never change the board: a
