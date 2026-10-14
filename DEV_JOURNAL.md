@@ -6,12 +6,7 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q16. "Replay" after running out of hearts: the same puzzle from the
-  start, or carry on where you were?** *Raised 2026-10-13:* with Q15 the
-  developer suggested "a 'replay' button instead of forcing a new game".
-  The out-of-hearts end already has **Try again** (`startGame(n, k)`:
-  the same puzzle, from an empty board), beside Another and New game.
-  Asked the developer which they mean.
+None.
 
 ## Proposed additions to the standards skill
 
@@ -34,6 +29,12 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q16. "Replay" after running out of hearts?** *Raised 2026-10-13:*
+  the developer suggested a "replay" button instead of forcing a new
+  game. *Resolved 2026-10-13:* the out-of-hearts end already has **Try
+  again** (the same puzzle from an empty board); the developer: "Try
+  again is what I meant, I missed it." No change.
 
 - **Q15. Should Undo work after a slip ends the game?** *Raised
   2026-10-13:* the third wrong look ends the puzzle and the end screen
@@ -4444,4 +4445,17 @@ slip, not a look"; a tap 1 s later, "look: no face", 2 hearts; Undo,
 "a wrong look taken back, the heart back", a plain ✕ and 3 hearts on
 screen. No console errors. Claude's local server stopped; no other
 `serve.js` running. Q15 closed ("OK as it is"); Q16 raised.
+
+## 2026-10-13: Status (start here next session)
+
+**Branch `star-battle`**, `main` = 9e81a1b plus journal-only commits
+after it. Live today: Hidden Faces' Undo for a wrong look (heart back,
+mistake still counted), a quick double tap only a ✕, and Undo never a
+press that does nothing (checked live). `npm test`: 240 of 240.
+
+**Next (developer's choice):** more Hidden Faces feedback from play;
+difficulty levels for it; or the DESIGN.md "Later" list.
+
+**Open questions:** none (Q15, Q16 closed). **Proposed skill
+additions:** none waiting.
 
