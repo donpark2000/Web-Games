@@ -10,8 +10,9 @@ and what it does and doesn't prove.
   the developer finds the reasoning of some hints hard to follow ("it
   would rule out the last options for a row or column" when other
   squares look left) and asked for an option to see why. Claude proposed
-  a free **Why?** in the hint bar; the developer to choose its form (see
-  "Hints: the reasoning is hard to follow").
+  a free **Why?** in the hint bar; the developer chose both a picture on
+  the board and a line of words, mockup first. Waiting for the
+  developer's verdict on mockup v1 (see "Why? mockup v1").
 
 ## Proposed additions to the standards skill
 
@@ -4724,3 +4725,60 @@ pale pretend star on the ringed square with a label on each lit square
 (touches it / its row / its column / its colour) and the named unit
 outlined, "nothing left for column 4"; for the other kinds, the same
 idea in words. Waiting for the developer's choice (Q19).
+
+## 2026-10-14: Why? mockup v1
+
+**Developer** (Q19): "Do both: the pretend star and labels on the
+board, plus a line of words. Make a mockup first."
+
+**Mockup v1:** [Why Hint Mockup](https://claude.ai/artifact/1ogeXejM7WRrnBtGFKqXq5)
+(private Claude artifact, version 1). The real game, copied into
+Claude's scratchpad with Why? added there, then packed into one page by
+a scratch script (the CSS and the 1,000 puzzles inline, each module
+wrapped in a function). Nothing in the repo changed. Claude's choices,
+all open:
+- **Where:** while a hint shows, the **💡 Hint** button becomes **❓ Why?**
+  (free; no hint used); in the Why? it reads **💡 The hint** and goes
+  back. A tap on the board ends both, as now. (Today a second 💡 tap
+  while a hint shows spends another hint on the same step; this also
+  ends that.)
+- **"Would rule out" (`touch`):** a pale pretend star in the ring (the
+  blinking ✕ hidden), a dark label on each lit square saying why it
+  would go (**touch**, **row**, **col**, **colour**), a red dashed
+  outline round the row, column or colour that runs out, and a dotted
+  outline round the pretend star's colour when a square goes for being
+  that colour. Words, e.g.: "If the ringed square had a star, row 6
+  would lose its last 4 squares (lit): 3 touch the star, 1 is Pink,
+  like the star. No star left for row 6!"
+- **"All inside":** blue outlines, solid round the unit whose squares
+  are left, dashed round the one they're all in: "Row 1's star is on a
+  lit square, and they're all in Brown. So Brown's one star is row 1's:
+  no star in the rest of Brown."
+- **"k in k rows" (`group`):** the colours solid, the rows dashed:
+  "Orange, Purple and Pink's 3 stars are on lit squares, in rows 8, 9
+  and 10. Those 3 rows have just 3 stars, so no star in the rest of
+  them."
+- **"Only one left":** the unit outlined: "Column 3 needs a star, and
+  the rest of it is crossed out. So the star is on the ringed square."
+- No Why? for a wrong ✕ or ✕s a found star implies (their words are the
+  reason already).
+- **Debug log:** each hint now logs its words too (`text`), and Why?
+  logs `why` with the hint's kind and the labels shown, so a confusing
+  hint can be read back from `log.html`.
+- **Mockup only:** 99 hints, and four buttons under the board that
+  follow the hints to the next one of a kind (a colour reason, all
+  touching, all inside, 2 in 2) and show it.
+
+**Checked** (built-in browser, 393 x 760, the scratch copy served by a
+temporary `.claude/launch.json` entry, removed after; then the packed
+page the same way): one of each kind on 7 x 7, 8 x 8 and 10 x 10; every
+Why? text fills the 3-line bar exactly (scrollHeight 83 = clientHeight
+83); labels readable at 10 x 10 ("touch" in 35 px squares); no console
+errors but one 404 (most likely the browser asking for a favicon).
+**Found and fixed while checking:** the outlines didn't
+show (an `<svg>` has no `.hidden` property, so the attribute stayed),
+then were drawn one board-offset too far right (the squares' offsets are
+from the board's frame); the first texts ran to 4 lines; the hint's
+blinking ✕ hid the pretend star; switching to the Why? made the
+spotlight flash off and on (now kept). Not yet tried in the desktop
+app's viewer.
