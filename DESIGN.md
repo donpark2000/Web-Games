@@ -4,10 +4,13 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-13): Hidden Faces, a logic puzzle for the developer
-(not the kids), agreed from mockup v2, built and published, in a third
-home-page group; Undo takes back a wrong look, and a double tap is just
-a ✕ (built, not yet published). Until then (2026-10-11): all nine games published, the home page grouped
+*Status (2026-10-14): Hidden Faces renamed **Find the Stars** (one white
+star hides, no faces), bigger ✕s, no wait on a double tap, the end in
+the hint bar; the 🏠 one size (80 px) in every game, drawn by the site;
+Nim's and Matching's setup pictures fixed (built, not yet published).
+2026-10-13: Hidden Faces, a logic puzzle for the developer (not the
+kids), agreed from mockup v2, built and published, in a third home-page
+group; Undo takes back a wrong look. Until then (2026-10-11): all nine games published, the home page grouped
 by players. The offline app ("Let's Play!", happy bear icon) published
 2026-10-10; a version line on the home page and no counts sent offline
 published 2026-10-11, and the app checked on an iPhone and an Android
@@ -35,8 +38,8 @@ page. So far:
 
 And one for the developer (2026-10-13: "I wanted it for me"):
 
-- **Hidden Faces** (a logic puzzle: one face per row, column and colour,
-  none touching)
+- **Find the Stars** (called Hidden Faces until 2026-10-14; a logic
+  puzzle: one star per row, column and colour, none touching)
 
 ## Players
 
@@ -70,15 +73,19 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   the second player a person or the robot: tic-tac-toe, matching cards,
   Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim), then **👤 One player** (no way to play
   another person: rock paper scissors, Follow Me), then **🧩 Puzzles for
-  grown-ups** (Hidden Faces; developer, 2026-10-13: one site, kept
+  grown-ups** (Find the Stars; developer, 2026-10-13: one site, kept
   apart). Each game in one group only; a
   group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
-  the home page to change games, **as big as one of that game's grid
-  squares** (developer, 2026-10-04).
+  the home page to change games, **80 px in every game** (developer,
+  2026-10-14: it changed size a lot from game to game; the bigger sizes
+  of tic-tac-toe and matching cards were the ones liked; from 2026-10-04
+  until then it was one of the game's grid squares). **The house is drawn
+  by the site**, not the 🏠 emoji: Chrome on a Linux VM with no colour
+  emoji font drew a purple building (developer, 2026-10-14).
 - **Every play screen fits the screen with no scrolling**, footer
-  included (developer, 2026-10-04, on an iPhone 16): the grid squares and
-  the 🏠 shrink together as far as needed (tic-tac-toe down to 56 px,
+  included (developer, 2026-10-04, on an iPhone 16): the grid squares
+  shrink as far as needed (tic-tac-toe down to 56 px,
   Connect Four holes to 30 px, matching cards and Count to 9 cards to
   56 px; below that the
   page scrolls). Big screens keep big pieces. The setup screens scroll.
@@ -179,8 +186,7 @@ Agreed 2026-10-04 from mockup v1 (journal):
 - **Pictures: the drawn faces** (the 15, robot included) less the
   players' picks; when a grid needs more pairs than that, some faces
   appear 4 times. No timer.
-- **Play screen**: 🏠 (one card; on the setup screen, one 4x4 card),
-  the turn line, the grid (sized so the whole page fits the screen,
+- **Play screen**: 🏠, the turn line, the grid (sized so the whole page fits the screen,
   turned sideways when that gives bigger cards; grids too big for that
   with cards of at least 56 px keep bigger cards and the page scrolls),
   then **two scorecards**: **This game** (dark
@@ -218,8 +224,7 @@ scoreboard are tic-tac-toe's (the developer).
   the winner face and wiggle; the rest are blurred out, as in
   tic-tac-toe. A full board with no 4 is a tie: the board dims.
 - **Sized to the screen**: the board is the page width (at most 520 px),
-  smaller when needed so the whole page fits the screen. The 🏠 is one
-  hole, but at least 48 px (a hole is about 43 px on a phone).
+  smaller when needed so the whole page fits the screen.
 - **Against the robot**, the setup screen has no player 2 panel, as in
   tic-tac-toe.
 - **The robot is beatable**, like tic-tac-toe's: takes a win 75% of the
@@ -254,7 +259,7 @@ numbered cards).
 - **Scoreboard** (dark strip): games won per player. **Just me**: the
   turns this round and the best (fewest turns) per level, with a 🏆;
   the end says "1 to 9 in N turns!". The end-of-round scorecard cheer and
-  "aww" face, Play again / New game and the 🏠 (one card) as in the other
+  "aww" face, Play again / New game and the 🏠 as in the other
   games; the page fits the screen with no scrolling.
 - **The robot never peeks**: it only knows cards it has seen turned over,
   each remembered with a **40% chance in easy, 30% in hard**
@@ -300,7 +305,7 @@ recommendation, left to Claude ("Perfect. Please build the game").
   5"). Whoever lands on 36 wins.
 - **Sized to the screen:** the squares are the biggest that let the page
   fit with no scrolling (56 px on an iPhone 16, at most 520 px of board);
-  the 🏠 and the die are one square, at least 48 px.
+  the die is one square, at least 48 px.
 
 ### Five Dice
 
@@ -406,8 +411,8 @@ The developer's game, agreed 2026-10-08 from mockup v1 (journal):
   From 3-5-7 whoever goes first can always win, so a child who has
   worked it out beats Hard by going first.
 - **Sized to the screen:** the matches are the biggest that let the page
-  fit with no scrolling (43 px on an iPhone 16, at most 64 px); the 🏠
-  is one match, at least 48 px. 🏠, footer, debug log as in the other
+  fit with no scrolling (43 px on an iPhone 16, at most 64 px). 🏠,
+  footer, debug log as in the other
   games.
 
 ### Rock paper scissors
@@ -490,11 +495,18 @@ a v3 that was skipped (developer: "go straight to publish").
   with no scrolling, at most 200 px (on a 393 x 760 phone: 174 px for 4,
   132 px for 6, 112 px for 9). 6 is 2 across and 3 down on an upright
   phone, 3x2 when that gives bigger pads (wide screens); a phone held
-  sideways can't fit them, so it scrolls, 3x2 at 56 px. The 🏠 follows the
-  pads (48-64 px). A long order makes the dots smaller, never a second
+  sideways can't fit them, so it scrolls, 3x2 at 56 px. A long order makes the dots smaller, never a second
   line.
 
-### Hidden Faces
+### Find the Stars
+
+(Called **Hidden Faces** until 2026-10-14. The developer: a coloured face
+over a square can hide that square's colour, which the logic needs; the
+white faces worked best, and for a grown-ups' game the cute faces matter
+less, so one fixed symbol. The files and code keep the old name:
+`hidden-faces.html`, `src/core/hidden-faces.js`, a found star is a
+'face' mark; renaming the page would break bookmarks and installed
+copies, reset its stats and lose the kept progress.)
 
 A logic puzzle for the developer (like the "Zoodoko" / "Meowdoku" phone
 games; the puzzle is Star Battle with one star). Agreed 2026-10-13 from
@@ -503,54 +515,65 @@ mockup v2 (journal):
 (private Claude artifact, version 2). Name, hearts, hint counts and
 Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
 
-- **The rules:** an N x N grid in N joined colour regions hides N faces:
-  **one per row, one per column, one per colour**, and **no two faces
+- **The rules:** an N x N grid in N joined colour regions hides N stars:
+  **one per row, one per column, one per colour**, and **no two stars
   touch, not even at a corner** (developer: "a key part to the logic").
   Sizes **6 x 6 to 10 x 10**. Every puzzle has exactly one answer,
   reachable by reasoning alone (no guessing).
 - **Home:** the only game in **🧩 Puzzles for grown-ups**, below the
   other two groups; its picture a 5 x 5 puzzle under way.
-- **Setup:** the rules beside a solved 5 x 5; **Who's hiding?** (the 14
-  faces; one face hides everywhere); **Size** (6 x 6 to 10 x 10); **When
-  you find a face:** **Auto ✕** (default: its row, column, colour and
+- **The star:** white with a dark edge, the same everywhere, so it
+  stands out on every square colour and is never taken for one
+  (developer, 2026-10-14). No face picker.
+- **Setup:** the rules beside a solved 5 x 5; **Size** (6 x 6 to 10 x
+  10); **When you find a star:** **Auto ✕** (default: its row, column, colour and
   neighbours get ✕s) or I'll do it; Play!.
-- **Play:** 🏠, the face and "8×8 · puzzle 1", 🔊; hearts ❤️❤️❤️, "3 of
+- **Play:** 🏠, the star and "8×8 · puzzle 1" (one line), 🔊; hearts ❤️❤️❤️, "3 of
   8 found", a clock; the board as big as fits with no scrolling (thick
   lines between colours, thin inside one); a **hint bar always 3 lines
   high** (a hint never moves the board), **empty and hidden between
   hints** (developer, 2026-10-13: "Tap 💡 for the next step, explained"
   wasn't needed, and stayed with no hints left); **Undo**, **💡 Hint** (3 per
-  puzzle), **👁 Show** (uncovers a face; 1 per puzzle).
-- **Taps:** an empty square: ✕; a ✕: look under it. A face pops in (with
+  puzzle), **👁 Show** (uncovers a star; 1 per puzzle).
+- **✕s are drawn lines**, nearly black, about 60% of a square (developer,
+  2026-10-14: the first ✕s, 40% and see-through grey, were hard to see
+  on a phone at 10 x 10); a wrong look's red ✕ is bigger (84%).
+- **Taps:** an empty square: ✕; a ✕: look under it. A star pops in (with
   Auto ✕, the ✕s around it); a wrong look is a red ✕ that stays, shakes
   and costs a heart; the third ends the game. **Drag** from an empty
   square: ✕ every square passed; **drag from a ✕: rub ✕s out**. **Undo
   takes back ✕s, rub-outs and wrong looks** (developer, 2026-10-13:
   "being able to undo errors is kind of the whole point of undo"; until
   then never a look): the red ✕ is a ✕ again and the heart comes back,
-  but the mistake still counts in the result. A found face is never
+  but the mistake still counts in the result. A found star is never
   taken back; a step with nothing left to change is skipped, and Undo is
-  greyed when nothing would change. **A second tap within 0.4 s of
-  putting a ✕ on that square is a slip, not a look** (`QUICK_MS`; each
-  slip waits again), so a double tap is just a ✕. **Two quick taps never zoom
+  greyed when nothing would change. **A double tap is a ✕ and a look**
+  (developer, 2026-10-14: the 0.4 s wait for a slip, built 2026-10-13,
+  was too long, and Undo takes back a wrong look); a double tap on the
+  last heart still ends the game (developer, 2026-10-14: OK).
+  **Two quick taps never zoom
   the page** (developer, 2026-10-13: the iPhone zoomed in on a ✕-then-look
   and there was no way back): the board cancels each touch's end.
 - **Hints** say the next step in words and never change the board: a
-  wrong ✕ first, then ✕s a found face already implies, then the solver's
+  wrong ✕ first, then ✕s a found star already implies, then the solver's
   next step (one square left; a unit's squares all inside another; a
-  face here would rule out all of a unit's squares; k colours in k rows
-  or columns; try-a-face). **Spotlight:** squares the hint isn't about
+  star here would rule out all of a unit's squares; k colours in k rows
+  or columns; try-a-star). **Spotlight:** squares the hint isn't about
   fade; those it is about keep their colour with a dark edge; the square
   it means has a thick black ring in a white one, named in the text
   ("the ringed square (row 3, column 1)"); squares to cross out a dark ✕
   with a white edge (developer, 2026-10-13: in v1 "it is not clear where
   'here' is").
-- **The end:** the result in the hint bar and three buttons in place of
-  the tools, so the board stays in view. Solved: the faces smile and
-  wiggle; "Solved! 4:12 · 1 mistake · 0 hints" ("· 1 shown" after a
-  Show), best time per size; **Next** (one size up, to 10 x 10) / Same
-  size / New game. Out of hearts: all the faces show sad, those not found
-  pale; Try again / Another / New game.
+- **The end:** the result in the hint bar beside **one big star**, and
+  three buttons in place of the tools, so the board stays in view and
+  nothing on it moves (developer, 2026-10-14: faces smiling and wiggling
+  on a big board were hard to see). Solved: the bar turns pale yellow,
+  a gold star pops in, bobs and throws sparkles; "Solved in 4:12!" over
+  "1 mistake · 0 hints · Best 3:50" ("· 1 shown" after a Show; "New
+  best!" for a best time per size); **Next** (one size up, to 10 x 10) /
+  Same size / New game. Out of hearts: a big grey star, "Out of hearts /
+  The pale stars show where they were", the stars not found pale on the
+  board; Try again / Another / New game.
 - **Puzzles: 200 per size, made ahead of time** by
   `tools/hidden-faces-puzzles.js` into `data/hidden-faces.json` (works
   offline; 103 KB). One difficulty for now (built 2026-10-13; levels
@@ -564,7 +587,7 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   leaving mid-puzzle don't; after 200 they start over) and the best time
   per size. **The clock stops** while the page is hidden (another app,
   the phone locked).
-- **Sounds:** a tick per ✕, a ding for a face, "uh-oh" for a wrong look,
+- **Sounds:** a tick per ✕, a ding for a star, "uh-oh" for a wrong look,
   a ping for a hint, the sparkle when solved, "aww" when out of hearts.
 
 ## Face names
@@ -641,7 +664,7 @@ Which games are opened and played, from where, over time (developer,
   home page `/Web-Games/`), with its title, the screen size and the
   referrer when another site sent the visitor; and each **game started**
   (Play! or Play again) as an event, `play-<game>` (e.g. `play-nim`);
-  in Hidden Faces also "Same size" and "Another" (`data-play`).
+  in Find the Stars also "Same size" and "Another" (`data-play`).
 - **Only the live site counts** (donpark2000.github.io), not localhost or
   an automated browser, so testing doesn't add to the numbers. **Nothing
   is sent with no connection** (2026-10-11: an iPhone in airplane mode

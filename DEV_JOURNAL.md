@@ -6,11 +6,32 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-None.
+- **Q17. Matching's 5 x 6 on a phone, with the 80 px 🏠?** *Raised
+  2026-10-14:* at 393 x 760 the 5 x 6 grid fit with 59 px cards while
+  the 🏠 was one card; with the 🏠 at 80 px even the smallest cards
+  (56 px) don't fit, so that page scrolls a little (it already did at
+  375 x 667). Accept it, or a smaller 🏠 everywhere?
+- **Q18. Which other emoji does Chrome on the Linux VM draw wrong?**
+  *Raised 2026-10-14:* the 🏠 drew as a purple building and 🔊 as an
+  outline (no colour emoji font). The 🏠 is now a picture; the developer
+  will test the rest (❤️ 🤍 💡 👁 ⏱ ⭐ 🏆 ...) before installing a font
+  and would rather not need one.
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-10-13: "Time one run before looping over many"
+- **A style loaded on every page needs a name nothing else uses** (from
+  "Find the Stars; one 🏠; Nim's picture fixed", 2026-10-14). A shared
+  stylesheet's rule applies to every page, so a short generic class name
+  (`.mini`, `.big`) silently restyles another page's own element of
+  that name. Prefix page-specific names, and keep a test that lists
+  class names styled in both a shared sheet and a page's own sheet,
+  failing on any not marked as meant to be shared. *Evidence:* Hidden
+  Faces' `.mini` in site.css turned Nim's 3-5-7 picture into one row
+  in a black-edged square, found on another machine a day later; a
+  `.big` clash had happened once before. The new test caught a third
+  one (`.won`) the same day.
+
+Earlier: none waiting. (2026-10-13: "Time one run before looping over many"
 (from "Hidden Faces built") approved by the developer and added to the
 skill, section 4; ai-dev-practices commit 4e545f1, zip rebuilt for the
 developer to upload.) (2026-10-11: "Derived files come from a tool, and a test
@@ -4459,3 +4480,125 @@ difficulty levels for it; or the DESIGN.md "Later" list.
 **Open questions:** none (Q15, Q16 closed). **Proposed skill
 additions:** none waiting.
 
+## 2026-10-14: Find the Stars; one 🏠; Nim's picture fixed
+
+The developer, from playing (Hidden Faces on a small phone, and the site
+in Chrome on a Linux VM):
+1. The quick-tap wait (0.4 s) is too long; Undo already takes back a
+   wrong look, so drop it. Asked: a double tap on the last heart then
+   ends the game (Undo can't take back the game-ending look): **"yes"**,
+   OK.
+2. ✕s are hard to see on a small phone at 10 x 10: bigger and bolder.
+3. Coloured faces can hide their square's colour, which the logic needs;
+   the white ones (Hoppy, Ping) work best. Claude offered "only Hoppy and
+   Ping". **The developer:** for a grown-ups' game the cute faces matter
+   less; a fixed symbol, unambiguous from ✕ at any size, in a colour no
+   square has. Claude: a white star with a dark edge (white is no square's
+   colour; a gold one would clash with Yellow). Name: **Find the Stars**
+   (developer). Claude kept the file names and storage key: renaming the
+   page would break bookmarks and installed copies, reset its stats and
+   lose the kept progress.
+4. Winning faces smiling and wiggling are hard to see on a big board:
+   instead one big animation with the result where the hints go. No
+   mockup (developer).
+5. The 🏠 changes size a lot between games: one size, the bigger one of
+   tic-tac-toe and matching cards. Measured on the live site at 393 x
+   760: 48 px (Connect Four, Nim, Hidden Faces), 52 (Five Dice), 57
+   (Snakes), 64 (Rock Paper Scissors), about 83 (Matching setup), 92
+   (tic-tac-toe; 112 on its setup), 112 (Count to 9). Agreed: **80 px**.
+6. Linux Chrome (developer's screenshot): **the 🏠 drew as a purple
+   building**, and **Nim's 3-5-7 setup picture was one row of matches in
+   a tall black-edged box**.
+
+**Nim was not a Linux problem: Claude broke it on 2026-10-13.** Hidden
+Faces' small board picture was styled in `css/site.css` (loaded on
+every page) as `.mini`; Nim, Matching and Five Dice already had their
+own `.mini`. Measured on the live site (393 x 760): Nim's `#mini` was
+a 5-column grid, 314 x 314 px, 2 px black border, its three rows all at
+top 92 px; Matching's size pictures got the black border too. **Fix:**
+renamed to `.hfmini`. **Test** (`tests/css.test.js`): a class styled
+in a shared sheet (site.css, game.css) and again in a game's sheet must
+be in a list of names meant to be shared; with `.mini` put back it
+fails naming five-dice.css, matching.css and nim.css. It then caught a
+new clash of Claude's own (`.won`, game.css's turn-line bounce),
+renamed `.solved`. Proposed as a skill addition.
+
+**The 🏠 is an emoji the device draws.** No colour emoji font on the VM,
+so Chrome fell back to a font with a different picture. The developer
+would rather not depend on installing one, so the house is now an SVG
+picture in `site.css` (a data URL: no extra file), and the buttons
+have no text (aria-label "All games"). **80 px everywhere** via
+`--homebtn`; every game's own `--home` setting went (9 files),
+except Five Dice and Snakes, where the same size also set the turn
+line's height and the die: renamed `--topsq`, unchanged. Matching's
+size greying assumed the 🏠 row is one card tall; it now uses the 🏠's
+size.
+
+**Fit with the 80 px 🏠, 393 x 760** (play screens, before → after):
+every page still fits with no scrolling; tic-tac-toe squares 92 → 94
+px, Five Dice rows 46 → 43, the others unchanged (Connect Four 45, Count
+to 9 112, Follow Me 172, Nim 43, Rock Paper Scissors 142, Snakes 57,
+Hidden Faces 10 x 10 35). **Matching 5 x 6 now scrolls** (before: 59 px
+cards, fit exactly; at 375 x 667 it already scrolled): Q17.
+
+**Find the Stars, built:**
+- `src/ui/hfboard.js`: `STAR` (white, dark edge) and `XMARK` (two
+  lines in the text colour, so every device draws it the same) as SVG;
+  `miniBoard(p, stars, xs)`.
+- Setup: no face picker; "Find the hidden stars...", "When you find a
+  star". Home page: "Find the Stars", its picture with stars and drawn
+  ✕s.
+- Board: ✕ 58% of a square, nearly black (was a 40% character, `#2B2B3388`);
+  red ✕ 84%; stars 88%. The turn line is one line beside the 80 px 🏠
+  (it wrapped to "puzzle / 1" at 22 px; now 20 px, the star 36 px).
+- Hint words say "star" (`src/core/hidden-faces.js`).
+- `tap(g, i)` takes no time: `QUICK_MS` and `lastX` removed.
+- The end: in the hint bar (same height, so the board doesn't move) one
+  big star beside "Solved in 0:00!" / "0 mistakes · 0 hints · New best!"
+  (or "Best 3:50"); the bar pale yellow, the star gold, popping in,
+  bobbing 3 times, 6 small stars flying out twice. Nothing on the board
+  smiles or wiggles. Out of hearts: a grey star, "Out of hearts" / "The
+  pale stars show where they were".
+- Debug log: "look: star" / "look: no star" (were "face"); the quick-tap
+  line gone.
+
+**Tests:** `npm test` 244 of 244. New: css.test.js (2); pages.test.js
+"Find the Stars: its name, no face picker, no wait on a quick second
+tap" (the screen calls `tap(G, d.start)` with no time) and "every 🏠
+button is the site's picture, one size in every game"; the quick-tap
+test in hidden-faces.test.js replaced by "a second tap on a new ✕ looks
+at once; Undo takes a wrong one back". **Shown to fail:** the new tests
+run against a copy of the last commit (`git archive HEAD`): all four
+new or changed checks failed (the title, "already has its star", the
+🏠 emoji text in connect-four.html, the `.mini` clash), and the old
+screen's call reads `tap(G, d.start, e.timeStamp)`, which the tap check
+rejects. The replaced core test alone would also pass on the old core
+(with no time given it looked too); the change is the screen's call.
+`tools/offline.js`: version d28220d46162.
+
+**Checked in the built-in browser** (localhost:8123, 393 x 760):
+setup shows the rules picture with stars, no picker, the house; 10 x 10
+at 35 px squares, real clicks: two single taps and a drag gave dark ✕s,
+a double click gave the red ✕ at once and 2 hearts; a 10 x 10 and a
+6 x 6 solved by script (pointer events on the stock's answer): the gold
+star and "Solved in 0:01! 0 mistakes · 0 hints · New best!", Next:
+7×7 / Same size / New game, page height 760 (no scrolling); three wrong
+looks: grey star, pale stars on the board, Try again. The pane wasn't
+drawing, so animations stood still (`currentTime` 0); paused at a set
+time they show (sparkles were small; made 1.4em, flying 3em). Nim's
+setup picture: three rows again. Home page: "Find the Stars", 2 stars
+and 12 ✕s. No console errors. Test progress removed from the browser's
+storage after.
+
+## 2026-10-14: Status (start here next session)
+
+**Branch `star-battle`**, not yet published: Find the Stars (was
+Hidden Faces), the 80 px drawn 🏠 in every game, Nim's and Matching's
+setup pictures fixed. `npm test`: 244 of 244.
+
+**Next:** the developer tests on the Linux VM (before installing an
+emoji font) once this is published; then decide Q17 (Matching 5 x 6
+scrolls on a phone) and Q18 (which other emoji to draw).
+
+**Open questions:** Q17, Q18. **Proposed skill additions:** one (a
+style loaded on every page needs a unique name).
