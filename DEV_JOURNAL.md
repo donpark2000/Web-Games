@@ -4656,17 +4656,31 @@ browser's storage; Claude's server stopped.
 
 Q17 and Q18 closed (see "Resolved").
 
+## 2026-10-14: Per-square Undo published
+
+Published with the developer's OK ("publish"): `main` fast-forwarded to
+be79583 and pushed; the Pages build for be79583 was "built", and the
+server sends version 6c5aa9b8dd60 and a `hidden-faces.js` whose
+`endStroke` pushes one step per square (curl). **Checked live**
+(built-in browser): after the first reload the page still ran
+d28220d46162 while the new cache (`lets-play-6c5aa9b8dd60`) was already
+installed, so one Undo took back all 5 ✕s of a drag (the old rule);
+after a second reload the page ran 6c5aa9b8dd60, and a 5-square drag
+went 5 → 4 → 3 ✕s with two Undos. That is the offline app's usual
+update: a page loaded while the new version installs runs the old one
+until the next load. The browser's saved progress put back as it was.
+No local server running.
+
 ## 2026-10-14: Status (start here next session)
 
-**Branch `star-battle`**: `main` = df5e726 (Find the Stars, the drawn
-80 px 🏠, Nim's picture fixed; checked live). On the branch, not yet
-published: Undo takes back one square of a drag at a time. `npm test`:
+**Branch `star-battle`**, published (`main` = be79583, checked live):
+Find the Stars (was Hidden Faces), the drawn 80 px 🏠 in every game,
+Nim's picture fixed, Undo one square of a drag at a time. `npm test`:
 244 of 244.
 
-**Next:** publish the Undo change (with the developer's OK); then more
-Find the Stars feedback, difficulty levels, or the DESIGN.md "Later"
-list.
+**Next (developer's choice):** more Find the Stars feedback, difficulty
+levels for it, or the DESIGN.md "Later" list.
 
-**Open questions:** none (Q17, Q18 closed). **Proposed skill
-additions:** one waiting (a style loaded on every page needs a unique
-name).
+**Open questions:** none. **Proposed skill additions:** one waiting (a
+style loaded on every page needs a unique name), for the developer to
+review.
