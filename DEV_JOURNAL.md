@@ -6,7 +6,12 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-None.
+- **Q19. Which deeper explanation for a hint?** *Raised 2026-10-14:*
+  the developer finds the reasoning of some hints hard to follow ("it
+  would rule out the last options for a row or column" when other
+  squares look left) and asked for an option to see why. Claude proposed
+  a free **Why?** in the hint bar; the developer to choose its form (see
+  "Hints: the reasoning is hard to follow").
 
 ## Proposed additions to the standards skill
 
@@ -4684,3 +4689,38 @@ levels for it, or the DESIGN.md "Later" list.
 **Open questions:** none. **Proposed skill additions:** one waiting (a
 style loaded on every page needs a unique name), for the developer to
 review.
+
+## 2026-10-14: Hints: the reasoning is hard to follow
+
+The developer: where a hint says to put a star or a ✕ is clear, but not
+always why; e.g. "it would rule out the last options for a row or
+column" when they can see other squares left there. They asked for an
+option to see a deeper explanation of why the other squares are ruled
+out.
+
+**Checked first: are the hints wrong?** A scratch script (Claude's
+scratchpad) played puzzles 1-40 of 6 x 6, 8 x 8 and 10 x 10 by
+following every hint, with Auto ✕: 2,072 hints, of them 960 "only one
+left", 445 "all inside", 621 "a star here would rule out" (`touch`)
+and 46 "k colours in k rows". **In every `touch` hint, every unmarked
+square of the named row, column or colour was lit** (0 of 621 with one
+left out), so the words are true of the board. "Try it" never came up,
+as expected: the stock needs at most "k colours in k rows", and the
+player's correct ✕s only add to what the solver knows.
+
+**Why it can still look wrong:** the hint names the unit but not why
+each lit square goes. In those 621 `touch` hints, only 360 (58%) had
+every lit square touching the ringed one; 131 had one in the ringed
+square's row or column, and **152 (24%) had one ruled out only by being
+the ringed square's colour**, often far from it. The unit is also often
+not the ringed square's own row or column (223 columns, 237 rows, 161
+colours), so its other open squares in its own row or column are not
+the point. Not yet seen: the developer's own example; the debug log
+records each hint's kind and square, not its words.
+
+**Proposed** (to the developer): a **Why?** under a hint, free (not a
+hint used), that shows the reason on the board: for "would rule out", a
+pale pretend star on the ringed square with a label on each lit square
+(touches it / its row / its column / its colour) and the named unit
+outlined, "nothing left for column 4"; for the other kinds, the same
+idea in words. Waiting for the developer's choice (Q19).
