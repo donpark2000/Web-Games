@@ -542,7 +542,10 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   Auto ✕, the ✕s around it); a wrong look is a red ✕ that stays, shakes
   and costs a heart; the third ends the game. **Drag** from an empty
   square: ✕ every square passed; **drag from a ✕: rub ✕s out**. **Undo
-  takes back ✕s, rub-outs and wrong looks** (developer, 2026-10-13:
+  takes back ✕s, rub-outs and wrong looks, one square at a time, last
+  first** (a drag is one step per square: developer, 2026-10-14, a long
+  drag easily went a square too far and Undo took back all of it)
+  (developer, 2026-10-13:
   "being able to undo errors is kind of the whole point of undo"; until
   then never a look): the red ✕ is a ✕ again and the heart comes back,
   but the mistake still counts in the result. A found star is never

@@ -184,7 +184,7 @@ test('hidden faces game: finding every face wins', () => {
   assert.equal(look(g, faces[0]).ok, false);
 });
 
-test('hidden faces game: drags ✕ or rub out; undo takes back ✕s, never a face found', () => {
+test('hidden faces game: drags ✕ or rub out; undo takes back one square at a time, never a face found', () => {
   const g = game({ auto: false });
   const path = [0, 1, 2, 3];
   const s = startStroke(g, 0);
@@ -199,14 +199,20 @@ test('hidden faces game: drags ✕ or rub out; undo takes back ✕s, never a fac
   strokeTo(g, e, 2);
   endStroke(g, e);
   assert.deepEqual(path.map(i => g.marks[i]), ['x', '', '', 'x']);
-  assert.equal(undo(g), 2);
+  // Undo: the last square rubbed out first, then the one before.
+  assert.equal(undo(g), 1);
+  assert.deepEqual(path.map(i => g.marks[i]), ['x', '', 'x', 'x']);
+  assert.equal(undo(g), 1);
   assert.deepEqual(path.map(i => g.marks[i]), ['x', 'x', 'x', 'x']);
-  // A face found on one of them (row 1 has one) stays when the drag is
-  // undone.
+  // A face found on one of them (row 1 has one) stays; the drag's other
+  // squares come back one by one, last first.
   const f = path.find(i => g.sol.has(i));
   look(g, f);
   assert.equal(g.marks[f], 'face');
-  assert.equal(undo(g), 3);
+  for (const i of [...path].reverse().filter(j => j !== f)) {
+    assert.equal(undo(g), 1);
+    assert.equal(g.marks[i], '', `square ${i} not undone in turn`);
+  }
   assert.equal(g.marks[f], 'face');
   assert.equal(undo(g), -1);
   assert.equal(canUndo(g), false);
@@ -243,7 +249,8 @@ test('hidden faces game: undo takes back a wrong look; the heart comes back, the
   look(g, w);
   assert.equal(undo(g), 1);
   assert.equal(g.marks[w], 'x');
-  assert.equal(undo(g), 6);
+  for (let k = 0; k < 6; k++) assert.equal(undo(g), 1);
+  assert.equal(undo(g), -1);
   // The look that ends the game can't be undone: the game is over.
   const h = game();
   for (let k = 0; k < HEARTS; k++) look(h, notFace(h));

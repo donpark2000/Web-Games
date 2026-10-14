@@ -478,7 +478,10 @@ export function tap(g, i) {
 
 // A drag: from an empty square it ✕s every empty square it passes; from a
 // ✕ it rubs out every ✕ it passes. startStroke at the first square,
-// strokeTo for each square passed, endStroke at the end (one undo step).
+// strokeTo for each square passed, endStroke at the end: one undo step
+// per square, so Undo takes back the last square first (developer,
+// 2026-10-14: a long drag easily goes a square too far, and Undo took
+// back the whole drag).
 // A stroke from a face or a red ✕ does nothing.
 export function startStroke(g, i) {
   const m = g.marks[i];
@@ -491,7 +494,7 @@ export function strokeTo(g, stroke, i) {
   return false;
 }
 export function endStroke(g, stroke) {
-  if (stroke.changed.length) g.undo.push(stroke.changed);
+  for (const c of stroke.changed) g.undo.push([c]);
   return stroke.changed.length;
 }
 
@@ -507,7 +510,7 @@ function undoes(g, step) {
   return { back, heart: false };
 }
 
-// Takes back the last ✕s, rub-out or wrong look (developer, 2026-10-13:
+// Takes back the last ✕, rubbed-out square or wrong look (developer, 2026-10-13:
 // "being able to undo errors is kind of the whole point of undo"). A wrong
 // look's red ✕ is a ✕ again and the heart comes back; the mistake still
 // counts in the result. A found face is never taken back. Steps that

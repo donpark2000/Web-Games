@@ -6,16 +6,7 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q17. Matching's 5 x 6 on a phone, with the 80 px 🏠?** *Raised
-  2026-10-14:* at 393 x 760 the 5 x 6 grid fit with 59 px cards while
-  the 🏠 was one card; with the 🏠 at 80 px even the smallest cards
-  (56 px) don't fit, so that page scrolls a little (it already did at
-  375 x 667). Accept it, or a smaller 🏠 everywhere?
-- **Q18. Which other emoji does Chrome on the Linux VM draw wrong?**
-  *Raised 2026-10-14:* the 🏠 drew as a purple building and 🔊 as an
-  outline (no colour emoji font). The 🏠 is now a picture; the developer
-  will test the rest (❤️ 🤍 💡 👁 ⏱ ⭐ 🏆 ...) before installing a font
-  and would rather not need one.
+None.
 
 ## Proposed additions to the standards skill
 
@@ -50,6 +41,22 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q18. Which other emoji does Chrome on the Linux VM draw wrong?**
+  *Raised 2026-10-14:* the 🏠 drew as a purple building and 🔊 as an
+  outline (no colour emoji font). *Resolved 2026-10-14:* after the 🏠
+  became a picture and the publish, the developer tested on the VM with
+  no emoji font installed: "they all look good now". No other change.
+  (Not explained: why the other emoji drew well while the 🏠 didn't;
+  not chased, as nothing the developer sees is wrong.)
+
+- **Q17. Matching's 5 x 6 on a phone, with the 80 px 🏠?** *Raised
+  2026-10-14:* in the built-in browser at 393 x 760 the 5 x 6 grid fit
+  with 59 px cards while the 🏠 was one card; with the 🏠 at 80 px even
+  the smallest cards (56 px) didn't fit, and the page scrolled a little.
+  *Resolved 2026-10-14:* on the developer's phone it doesn't scroll ("I
+  do not see any scrolling on my phone"). The emulated 393 x 760 is not
+  the phone's real page height; no change.
 
 - **Q16. "Replay" after running out of hearts?** *Raised 2026-10-13:*
   the developer suggested a "replay" button instead of forcing a new
@@ -4616,3 +4623,50 @@ Q18 (which other emoji to draw).
 
 **Open questions:** Q17, Q18. **Proposed skill additions:** one (a
 style loaded on every page needs a unique name).
+
+## 2026-10-14: Undo takes back one square of a drag at a time
+
+The developer, after testing the publish on the phone and the Linux VM
+("All problems have been addressed"): a long drag easily goes a square
+too far, and Undo took back everything the drag ✕ed. "Undo should
+always just undo the last cell that changed." Claude agreed and
+offered, as an extra, un-✕ing by dragging back before letting go; the
+developer: Undo change only.
+
+**Built** (`src/core/hidden-faces.js`): `endStroke` puts one undo step
+per square passed (`[[square, before]]`), in the order passed, so Undo
+takes back the last square first. Rub-out drags the same. Unchanged: a
+tap's ✕ is one step, a wrong look one step (heart back), a found star
+and its Auto ✕s never undone, steps that would change nothing skipped.
+The cost, said to the developer: undoing a whole unwanted drag takes
+one press per square.
+
+**Tests** (`tests/hidden-faces.test.js`): the drag test now undoes a
+rub-out of 2 squares in two presses (last first), and a 4-square drag
+with a star found on it square by square, last first, skipping the
+star; the wrong-look test undoes a 6-square drag in 6 presses. **Shown
+to fail:** with the old `endStroke` (git stash), both tests failed;
+restored, 20 of 20. `npm test`: 244 of 244. `tools/offline.js`:
+version 6c5aa9b8dd60.
+
+**Checked in the built-in browser** (localhost:8123, 393 x 760, 10 x
+10): a real drag across row 5 from column 1 to 7 put 7 ✕s; Undo: 6, Undo
+again: 5, from the end of the drag. Test progress removed from the
+browser's storage; Claude's server stopped.
+
+Q17 and Q18 closed (see "Resolved").
+
+## 2026-10-14: Status (start here next session)
+
+**Branch `star-battle`**: `main` = df5e726 (Find the Stars, the drawn
+80 px 🏠, Nim's picture fixed; checked live). On the branch, not yet
+published: Undo takes back one square of a drag at a time. `npm test`:
+244 of 244.
+
+**Next:** publish the Undo change (with the developer's OK); then more
+Find the Stars feedback, difficulty levels, or the DESIGN.md "Later"
+list.
+
+**Open questions:** none (Q17, Q18 closed). **Proposed skill
+additions:** one waiting (a style loaded on every page needs a unique
+name).
