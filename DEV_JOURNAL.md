@@ -4590,6 +4590,20 @@ setup picture: three rows again. Home page: "Find the Stars", 2 stars
 and 12 ✕s. No console errors. Test progress removed from the browser's
 storage after.
 
+## 2026-10-14: Find the Stars published
+
+Published with the developer's OK ("publish"):  fast-forwarded to
+df5e726 and pushed; the Pages build for df5e726 was "built", and the
+server sends version d28220d46162, a  titled "Find
+the Stars" and a  with  (curl). **Checked
+live** (built-in browser, 393 x 760): the first look still showed the old
+pages (the offline app's cached copies, as expected); after a reload:
+the home page says "Find the Stars"; Nim's 3-5-7 picture has its rows
+at 122, 152, 182 px (were all at 92); the 🏠 is 80 px and the drawn
+house, with no text, in Nim, Find the Stars and tic-tac-toe; Find the
+Stars has no face picker and 5 stars in its rules picture. Claude's
+local server stopped; no other  running.
+
 ## 2026-10-14: Status (start here next session)
 
 **Branch `star-battle`**, not yet published: Find the Stars (was
@@ -4597,7 +4611,7 @@ Hidden Faces), the 80 px drawn 🏠 in every game, Nim's and Matching's
 setup pictures fixed. `npm test`: 244 of 244.
 
 **Next:** the developer tests on the Linux VM (before installing an
-emoji font) once this is published; then decide Q17 (Matching 5 x 6
+emoji font); then decide Q17 (Matching 5 x 6
 scrolls on a phone) and Q18 (which other emoji to draw).
 
 **Open questions:** Q17, Q18. **Proposed skill additions:** one (a

@@ -7,7 +7,7 @@ reasoning, evidence, and anything still open live in
 *Status (2026-10-14): Hidden Faces renamed **Find the Stars** (one white
 star hides, no faces), bigger ✕s, no wait on a double tap, the end in
 the hint bar; the 🏠 one size (80 px) in every game, drawn by the site;
-Nim's and Matching's setup pictures fixed (built, not yet published).
+Nim's and Matching's setup pictures fixed (published 2026-10-14).
 2026-10-13: Hidden Faces, a logic puzzle for the developer (not the
 kids), agreed from mockup v2, built and published, in a third home-page
 group; Undo takes back a wrong look. Until then (2026-10-11): all nine games published, the home page grouped
