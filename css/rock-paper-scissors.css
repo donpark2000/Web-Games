@@ -1,8 +1,8 @@
 /* Rock paper scissors screens, from the agreed mockup v2. The setup panel,
    turn line and buttons are shared (game.css). The card size (--cs) is
    set by src/ui/rock-paper-scissors.js so the whole page fits the screen
-   with no scrolling; the 🏠 (--home) follows it. */
-:root { --cs: 140px; --home: 64px; --back-edge: #1C4A61; --cheer-scale: 1.5; }
+   with no scrolling. */
+:root { --cs: 140px; --back-edge: #1C4A61; --cheer-scale: 1.5; }
 
 /* setup */
 .vsnote { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: var(--muted); }

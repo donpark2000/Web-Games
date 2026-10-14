@@ -124,14 +124,14 @@ $('playBtn').onclick = () => {
 };
 
 // The square size: the biggest that lets the whole page fit the screen, up
-// to what the width allows (board at most 520px). The 🏠 and the die follow
-// it (at least 48px).
+// to what the width allows (board at most 520px). The die follows it (at
+// least 48px).
 function fitBoard() {
   const play = $('play');
   const maxSq = (Math.min(play.clientWidth, 520) - 2 * PAD) / COLS;
   const r = fitPlayScreen(px => {
     play.style.setProperty('--sq', `${px}px`);
-    play.style.setProperty('--home', `${Math.max(48, px)}px`);
+    play.style.setProperty('--topsq', `${Math.max(48, px)}px`);
   }, Math.min(MIN_SQ, maxSq), maxSq);
   L('fit', r);
 }

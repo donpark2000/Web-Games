@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   SIZES, HEARTS, HINTS, SHOWS, LEVEL, MAKE_LEVEL, DEMO, COLORS, PROGRESS_KEY,
   seenBy, units, newState, place, nextStep, solve, generate, connected, hardEnough, problems, colorsFor,
-  createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, canUndo, showOne, findHint, useHint, QUICK_MS,
+  createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, canUndo, showOne, findHint, useHint,
   readProgress, recordTime, clock, mulberry32,
 } from '../src/core/hidden-faces.js';
 
@@ -276,30 +276,27 @@ test('hidden faces game: a step with nothing left to change is skipped, not an U
   assert.equal(a.marks[near], '');
 });
 
-test('hidden faces game: a quick second tap on a new ✕ is a slip, not a look', () => {
+// No wait for a slip any more (developer, 2026-10-14): a double tap is a
+// ✕ and a look, and Undo takes a wrong look back.
+test('hidden faces game: a second tap on a new ✕ looks at once; Undo takes a wrong one back', () => {
   const g = game();
   const i = notFace(g);
-  assert.deepEqual(tap(g, i, 1000), { ok: true, did: 'x' });
-  assert.deepEqual(tap(g, i, 1000 + QUICK_MS - 1), { ok: false, why: 'quick' });
-  // Each slip waits again, so a quick third tap is one too.
-  assert.deepEqual(tap(g, i, 1000 + QUICK_MS + 200), { ok: false, why: 'quick' });
+  assert.deepEqual(tap(g, i), { ok: true, did: 'x' });
+  const r = tap(g, i);
+  assert.equal(r.did, 'look');
+  assert.equal(r.face, false);
+  assert.equal(g.marks[i], 'bad');
+  assert.equal(g.hearts, HEARTS - 1);
+  assert.deepEqual(tap(g, i), { ok: false, why: 'already' });
+  assert.equal(undo(g), 1);
   assert.equal(g.marks[i], 'x');
   assert.equal(g.hearts, HEARTS);
-  // After a pause, a tap looks.
-  const r = tap(g, i, 1000 + 2 * QUICK_MS + 200);
-  assert.equal(r.did, 'look');
-  assert.equal(g.marks[i], 'bad');
-  // A quick tap on another square isn't held back, and after it a quick
-  // tap back on the first is a look (only two taps on one square are a
-  // slip); nor is a tap with no time given held back.
-  const j = notFace(g);
-  tap(g, j, 5000);
-  const k = notFace(g);
-  assert.deepEqual(tap(g, k, 5100), { ok: true, did: 'x' });
-  assert.equal(tap(g, j, 5200).did, 'look');
-  const h = game();
-  tap(h, i);
-  assert.equal(tap(h, i).did, 'look');
+  assert.equal(g.mistakes, 1);
+  // On a star's square, a double tap finds it.
+  const s = [...g.sol][0];
+  tap(g, s);
+  assert.equal(tap(g, s).face, true);
+  assert.equal(g.marks[s], 'face');
 });
 
 test('hidden faces game: Show uncovers a face not yet found, once', () => {
@@ -331,7 +328,7 @@ test('hidden faces hints: a wrong ✕ first, then ✕s a found face implies, the
   assert.equal(im.kind, 'implied');
   assert.deepEqual(im.why, [f]);
   assert.ok(im.out.length && im.out.every(i => !g.sol.has(i)));
-  assert.match(im.text, /^Row \d already has its face/);
+  assert.match(im.text, /^Row \d already has its star/);
   // The board as a fresh game: the solver's first step.
   const fresh = game();
   const h = findHint(fresh);

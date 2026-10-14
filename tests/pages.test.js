@@ -204,6 +204,42 @@ test('pages: Hidden Faces’ board blocks the iPhone’s double-tap zoom', async
   assert.match(css.match(/#play \{[^}]*\}/)?.[0] ?? '', /touch-action: manipulation/, 'double-tap zoom around the board');
 });
 
+// Find the Stars (developer, 2026-10-14): the name everywhere it shows, no
+// face picker (one white star hides), and a tap passes no time to the
+// rules, so a quick second tap on a new ✕ looks (no 0.4 s wait).
+test('pages: Find the Stars: its name, no face picker, no wait on a quick second tap', async () => {
+  const page = html['hidden-faces.html'];
+  assert.match(page, /<title>Find the Stars<\/title>/);
+  assert.match(page, /<h1>Find the Stars<\/h1>/);
+  assert.match(html['index.html'], /<a class="game" id="hfLink" href="hidden-faces.html">\s*<span[^>]*><\/span>\s*Find the Stars\s*<\/a>/);
+  assert.doesNotMatch(page, /p1Faces|Who's hiding/, 'the face picker is still there');
+  const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
+  const taps = [...js.matchAll(/\btap\(G, ([^)]*)\)/g)].map(m => m[1]);
+  assert.deepEqual(taps, ['d.start'], `the screen's taps: ${taps.join(' | ')}`);
+});
+
+// The 🏠 button (developer, 2026-10-14): one size in every game, drawn by
+// the site (no 🏠 emoji, which Chrome on Linux drew as a building).
+test('pages: every 🏠 button is the site’s picture, one size in every game', async () => {
+  let buttons = 0;
+  for (const p of pages) {
+    for (const a of html[p].match(/<a class="homebtn"[^>]*>[^<]*<\/a>/g) ?? []) {
+      assert.match(a, /aria-label="All games"><\/a>$/, `${p}: ${a}`);
+      buttons++;
+    }
+  }
+  assert.ok(buttons >= 21, `${buttons} 🏠 buttons`);
+  const site = await readFile(path.join(root, 'css/site.css'), 'utf8');
+  const rule = site.match(/\.homebtn \{[^}]*\}/)?.[0] ?? '';
+  assert.match(rule, /width: var\(--homebtn\); height: var\(--homebtn\)/);
+  assert.match(rule, /url\("data:image\/svg\+xml,/, 'no house picture');
+  assert.match(site, /--homebtn: 80px;/);
+  for (const f of await readdir(path.join(root, 'src/ui'))) {
+    const js = await readFile(path.join(root, 'src/ui', f), 'utf8');
+    assert.doesNotMatch(js, /setProperty\('--home/,`src/ui/${f} sizes the 🏠`);
+  }
+});
+
 // Between hints the hint bar is empty and hidden, but keeps its place, so
 // a hint never moves the board (developer, 2026-10-13: "Tap 💡 for the
 // next step" stayed after the last hint, with nothing left to tap).

@@ -106,14 +106,12 @@ $('playBtn').onclick = () => {
 
 // The biggest pads that let the whole page fit the screen with no
 // scrolling, trying each way to lay them out (6: 2 across and 3 down, or
-// 3x2) and keeping the one with the bigger pads. The 🏠 follows the pads
-// (at least 48px).
+// 3x2) and keeping the one with the bigger pads.
 function fitPads() {
   const play = $('play');
   const apply = (cols, px) => {
     play.style.setProperty('--cols', cols);
     play.style.setProperty('--pad', `${px}px`);
-    play.style.setProperty('--home', `${Math.min(64, Math.max(48, Math.round(px * 0.4)))}px`);
   };
   // The page column's width (main), not the play screen's (nim.js).
   const width = Math.min(document.querySelector('main').clientWidth, 520);

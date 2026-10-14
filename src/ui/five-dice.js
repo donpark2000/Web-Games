@@ -136,7 +136,7 @@ $('playBtn').onclick = () => {
 
 // The row and die sizes: the biggest that let the whole page fit the
 // screen (rows and dice grow together), the dice no wider than the tray
-// allows. The 🏠 is one die, at least 48px.
+// allows. The turn line is one die tall, at least 48px.
 function fit() {
   const play = $('play');
   const dieMax = Math.min(MAX_DIE, Math.floor((play.clientWidth - 6 * 5 - 64) / 5));
@@ -144,7 +144,7 @@ function fit() {
     const die = Math.min(dieMax, Math.round(px * 1.2));
     play.style.setProperty('--row', `${px}px`);
     play.style.setProperty('--die', `${die}px`);
-    play.style.setProperty('--home', `${Math.max(48, die)}px`);
+    play.style.setProperty('--topsq', `${Math.max(48, die)}px`);
   }, MIN_ROW, MAX_ROW);
   L('fit', { ...r, die: play.style.getPropertyValue('--die') });
 }

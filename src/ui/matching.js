@@ -48,18 +48,18 @@ const WHY = {
 // The play screen's grid area: the page width less its 16px margins (at
 // most PLAY_MAX_W), and the screen height less what must stay on screen
 // with the grid: the page's top padding, the gaps, the "This game"
-// scorecard and the 🏠 row above the grid, which is one card tall
-// (extraRows). This decides which sizes are greyed and whether the grid
+// scorecard and the 🏠 row above the grid (the 🏠's size: --homebtn in
+// css/site.css). This decides which sizes are greyed and whether the grid
 // is turned sideways; layoutGrid() then shrinks the cards further so the
 // whole page fits, when it can.
 function playLayout(size) {
   const width = Math.min(innerWidth - 32, PLAY_MAX_W);
   const top = parseFloat(getComputedStyle(document.body).paddingTop) || 12;
   const sc = $('sc').offsetHeight || SC_HEIGHT;
-  const height = innerHeight - top - 12 - 12 - sc - 12;
-  return fitLayout(size, width, height, { gap: GAP, extraRows: 1 });
+  const home = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--homebtn')) || 80;
+  const height = innerHeight - top - 12 - 12 - sc - 12 - home - GAP;
+  return fitLayout(size, width, height, { gap: GAP });
 }
-const setHome = px => document.documentElement.style.setProperty('--home', `${px}px`);
 
 // The whole page should fit the screen with no scrolling: "Games won",
 // the buttons and the footer too (developer, 2026-10-04, iPhone 16). Both
@@ -74,7 +74,6 @@ function layoutGrid() {
   const apply = (cols, px) => {
     g.style.setProperty('--cols', cols);
     g.style.setProperty('--cs', `${px}px`);
-    setHome(px);   // the 🏠 button is one card (DESIGN.md "Structure")
   };
   const width = Math.min(innerWidth - 32, PLAY_MAX_W);
   const [a, b] = match.size;
@@ -173,7 +172,6 @@ function renderSizes() {
     return btn;
   }));
   $('sizeNote').textContent = greyed.length ? "Greyed sizes don't fit this screen. Turning a phone sideways can help." : '';
-  setHome(playLayout(parseSize(DEFAULT_SIZE)).cs);   // 🏠 on setup: one 4x4 card
 }
 
 function pick(player, face) {

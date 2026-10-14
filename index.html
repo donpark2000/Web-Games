@@ -69,7 +69,7 @@
     <div class="games">
       <a class="game" id="hfLink" href="hidden-faces.html">
         <span class="pic hf" id="hfPic" aria-hidden="true"></span>
-        Hidden Faces
+        Find the Stars
       </a>
     </div>
   </section>
@@ -132,10 +132,10 @@
   // Follow Me: the four pads, the frog lit up.
   document.getElementById('fmPic').innerHTML = padsFor(4, 'bear').map((p, i) =>
     `<span class="${i === 0 ? 'lit' : ''}" style="${padStyle(p.color)}">${svg(p.face, i === 0 ? 'winner' : 'normal')}</span>`).join('');
-  // Hidden Faces: a 5 x 5 under way, two faces found and the ✕s around
+  // Find the Stars: a 5 x 5 under way, two stars found and the ✕s around
   // them in the top three rows.
   const two = DEMO.faces.slice(0, 2);
-  document.getElementById('hfPic').innerHTML = miniBoard(DEMO, 'bear', two, two.flatMap(f => seenBy(5, DEMO.reg, f)).filter(i => i < 15));
+  document.getElementById('hfPic').innerHTML = miniBoard(DEMO, two, two.flatMap(f => seenBy(5, DEMO.reg, f)).filter(i => i < 15));
   startLog('home');
   for (const g of document.querySelectorAll('.group')) {
     log.add('home', 'group', { group: g.id, games: [...g.querySelectorAll('.game')].map(a => a.getAttribute('href').replace(/[?#].*$/, '')) });

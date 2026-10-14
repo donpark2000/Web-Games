@@ -9,7 +9,7 @@
 :root {
   --snlpad: 6px;
   --sq: calc((min(100vw - 32px, 520px) - 2 * var(--snlpad)) / 6);
-  --home: max(48px, var(--sq));
+  --topsq: max(48px, var(--sq));
   --cheer-scale: 1.4;
   --sq-a: #FFFFFF; --sq-b: #FFF4D6;
 }
@@ -17,7 +17,7 @@
 #play { gap: 12px; }
 .snl-top { grid-template-columns: auto minmax(0, 1fr) auto; }
 .snl-top.with-sound { grid-template-columns: auto minmax(0, 1fr) auto auto; }   /* 🏠, words, die, 🔊 */
-#play .turn { font-size: 20px; gap: 6px; line-height: 1.15; min-height: var(--home); }
+#play .turn { font-size: 20px; gap: 6px; line-height: 1.15; min-height: var(--topsq); }
 #play .turn .chip { width: 40px; height: 40px; }
 #play .turn .say { min-width: 0; text-wrap: balance; }
 #play .turn b { font-size: 30px; font-variant-numeric: tabular-nums; }
@@ -26,7 +26,7 @@
 /* the die: a cube while waiting (in the colour of whose turn it is), one
    flat face once rolled, until the turn is over */
 .die {
-  width: var(--home); height: var(--home); border: 0; border-radius: 18%; padding: 10%; cursor: pointer;
+  width: var(--topsq); height: var(--topsq); border: 0; border-radius: 18%; padding: 10%; cursor: pointer;
   background: var(--card); box-shadow: 0 5px 0 var(--line), inset 0 0 0 4px var(--p1);
 }
 .die.p2 { box-shadow: 0 5px 0 var(--line), inset 0 0 0 4px var(--p2); }

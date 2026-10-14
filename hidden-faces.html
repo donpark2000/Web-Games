@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hidden Faces</title>
+<title>Find the Stars</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -18,21 +18,16 @@
   <!-- SETUP ("New game") -->
   <section id="setup" class="app" aria-label="New game">
     <div class="top">
-      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
-      <h1>Hidden Faces</h1>
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <h1>Find the Stars</h1>
     </div>
 
     <div class="panel rulesbox">
       <div id="rulesPic" aria-hidden="true"></div>
       <div class="rules">
-        <p>Find the hidden faces. Every <b>row</b>, every <b>column</b> and every <b>colour</b> has exactly one. Faces <b>never touch</b>, not even at a corner.</p>
-        <p class="how">Tap a square once for ✕ (no face here). Tap a ✕ to look under it. A wrong look costs a ❤️; lose all three and the game is over. Drag across squares to ✕ them all; drag from a ✕ to rub them out.</p>
+        <p>Find the hidden stars. Every <b>row</b>, every <b>column</b> and every <b>colour</b> has exactly one. Stars <b>never touch</b>, not even at a corner.</p>
+        <p class="how">Tap a square once for ✕ (no star here). Tap a ✕ to look under it. A wrong look costs a ❤️; lose all three and the game is over. Drag across squares to ✕ them all; drag from a ✕ to rub them out.</p>
       </div>
-    </div>
-
-    <div class="panel p1">
-      <h2><span>Who's hiding?</span> <span class="chip" id="p1Chip"></span></h2>
-      <div class="faces" id="p1Faces"></div>
     </div>
 
     <div class="panel">
@@ -41,7 +36,7 @@
     </div>
 
     <div class="panel">
-      <h2>When you find a face</h2>
+      <h2>When you find a star</h2>
       <div class="levels" id="autos">
         <button type="button" class="level" data-auto="on" aria-pressed="true">Auto ✕<small>its row, column, colour and neighbours get ✕s</small></button>
         <button type="button" class="level" data-auto="off" aria-pressed="false">I'll do it<small>you mark every ✕ yourself</small></button>
@@ -57,7 +52,7 @@
   <!-- PLAY -->
   <section id="play" class="app" aria-label="Game" hidden>
     <div class="top">
-      <a class="homebtn" href="index.html" aria-label="All games">🏠</a>
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
       <div class="turn" id="turn"></div>
     </div>
     <div class="status">

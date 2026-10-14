@@ -72,7 +72,6 @@ function fitCards() {
   const play = $('play');
   const widest = Math.min(MAX_CARD, Math.floor((Math.min(play.clientWidth, 520) - 56 - 16) / 2));
   const r = fitPlayScreen(px => play.style.setProperty('--cs', `${px}px`), Math.min(MIN_CARD, widest), widest);
-  play.style.setProperty('--home', `${Math.max(56, Math.round(r.size * 0.46))}px`);
   L('fit', r);
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fitCards(); });

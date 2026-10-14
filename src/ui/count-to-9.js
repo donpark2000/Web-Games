@@ -118,13 +118,12 @@ $('playBtn').onclick = () => {
 };
 
 // The play screen's card size: the biggest that lets the whole page fit
-// the screen, up to what the width allows. The 🏠 is one card.
+// the screen, up to what the width allows.
 function fitGrid() {
   const play = $('play');
   const widest = Math.min(MAX_CARD, Math.floor((Math.min(play.clientWidth, 440) - 2 * GAP) / 3));
   const r = fitPlayScreen(px => {
     play.style.setProperty('--cs', `${px}px`);
-    play.style.setProperty('--home', `${px}px`);
   }, Math.min(MIN_CARD, widest), widest);
   L('fit', r);
 }

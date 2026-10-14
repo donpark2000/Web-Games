@@ -6,10 +6,10 @@
    scoreboard. */
 
 /* --pad is one pad's size and --cols the columns; on the play screen
-   src/ui/follow-me.js sets them (and --home) from a fitted size, so the
+   src/ui/follow-me.js sets them from a fitted size, so the
    whole page fits the screen with no scrolling. The default is small, so
    the pads can't widen the page the fit measures (nim.css, 2026-10-08). */
-:root { --pad: 96px; --cols: 2; --pgap: 12px; --home: 48px; --cheer-scale: 1.5; }
+:root { --pad: 96px; --cols: 2; --pgap: 12px; --cheer-scale: 1.5; }
 
 /* setup: the rules beside the 4 pads in small */
 .rulesbox { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }

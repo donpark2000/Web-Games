@@ -6,7 +6,7 @@
 
 /* --slot is one match's tap area: its width (the height is 1.6x). By
    default 7 matches fill the page width (at most 64px each); on the play
-   screen src/ui/nim.js sets it (and --home) from a fitted size, so the
+   screen src/ui/nim.js sets it from a fitted size, so the
    whole page fits the screen with no scrolling. (A fixed 44px default
    made the tray 3px wider than a 393px phone's page, which widened the
    column the fit then measured: 2026-10-08.) */
@@ -15,7 +15,6 @@
   --traypad: 10px;
   --slot: min(64px, (min(100vw - 32px, 520px) - 2 * var(--traypad) - 6 * var(--mgap)) / 7);
   --wood: #F3DDB0; --wood-edge: #D9B77C; --wood-line: #E8CB93;
-  --home: max(48px, var(--slot));
   --cheer-scale: 1.4;
 }
 

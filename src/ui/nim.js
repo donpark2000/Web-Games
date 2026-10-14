@@ -124,7 +124,7 @@ $('playBtn').onclick = () => {
 
 // The play screen's match size: the biggest that lets the whole page fit
 // the screen, up to what the width allows (7 matches across, at most
-// 520px of tray). Sets the 🏠 from it too (one match wide, at least 48px).
+// 520px of tray).
 function fitTray() {
   const play = $('play');
   // The page column's width (main), not the play screen's: a tray too wide
@@ -133,7 +133,6 @@ function fitTray() {
   const maxSlot = Math.min(MAX_SLOT, (width - 2 * TRAY_PAD - 6 * GAP) / 7);
   const r = fitPlayScreen(px => {
     play.style.setProperty('--slot', `${px}px`);
-    play.style.setProperty('--home', `${Math.max(48, px)}px`);
   }, Math.min(MIN_SLOT, maxSlot), maxSlot);
   L('fit', r);
 }

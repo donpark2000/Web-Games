@@ -1,5 +1,5 @@
-// Hidden Faces screens (setup and play), from the agreed mockup v2
-// (2026-10-13). The rules, solver and hints live in
+// Find the Stars screens (setup and play; called Hidden Faces until
+// 2026-10-14), from the agreed mockup v2 (2026-10-13). The rules, solver and hints live in
 // src/core/hidden-faces.js; this file only draws, keeps time and handles
 // taps and drags. The puzzles come from data/hidden-faces.json
 // (tools/hidden-faces-puzzles.js).
@@ -8,23 +8,20 @@ import {
   SIZES, DEFAULT_SIZE, HEARTS, DEMO, PROGRESS_KEY, decode, createGame, foundCount, tap, startStroke, strokeTo,
   endStroke, undo, canUndo, showOne, useHint, readProgress, recordTime, clock,
 } from '../core/hidden-faces.js';
-import { FACE_NAMES, nameOf } from '../core/players.js';
-import { svg, pickerFace } from './faces.js';
-import { borderStyle, miniBoard } from './hfboard.js';
+import { STAR, XMARK, borderStyle, miniBoard } from './hfboard.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
 
 const STOCK_FILE = 'data/hidden-faces.json';
-const WIN_MS = 1200;    // the faces wiggle, then the result and the end buttons
+const WIN_MS = 500;     // the last star pops in, then the result and the end buttons
 const LOSE_MS = 700;
-const CHEER_STEP_MS = 90;   // the faces start wiggling one after another
 const MIN_CELL = 28, MAX_BOARD = 600;
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('hidden-faces', msg, data);
 
 // Setup screen picks. "New game" comes back here with the last picks kept.
-const setup = { face: 'bear', size: DEFAULT_SIZE, auto: true };
+const setup = { size: DEFAULT_SIZE, auto: true };
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* blocked: nothing remembered */ }
@@ -36,7 +33,7 @@ function saveProgress() {
 }
 
 let stock = null;      // { size: [puzzle, ...] }, once loaded
-let G = null;          // the game being played, with the screen's extras (k, face, t0, ...)
+let G = null;          // the game being played, with the screen's extras (k, t0, ...)
 let clockTimer = null;
 let lastFit = '';
 
@@ -60,18 +57,7 @@ fetch(STOCK_FILE)
 /* ---------- setup screen ---------- */
 
 function renderSetup() {
-  $('p1Faces').replaceChildren(...FACE_NAMES.map(f => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'face';
-    b.innerHTML = pickerFace(f);
-    b.setAttribute('aria-label', nameOf(f));
-    b.setAttribute('aria-pressed', String(f === setup.face));
-    b.onclick = () => { setup.face = f; L('face picked', { face: f }); renderSetup(); };
-    return b;
-  }));
-  $('p1Chip').innerHTML = svg(setup.face);
-  $('rulesPic').innerHTML = miniBoard(DEMO, setup.face, DEMO.faces);
+  $('rulesPic').innerHTML = miniBoard(DEMO, DEMO.faces);
   $('sizes').replaceChildren(...SIZES.map(n => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -105,8 +91,8 @@ function startGame(n, k) {
   const list = stock[n];
   const p = list[k % list.length];
   G = createGame(p, { auto: setup.auto, colorSeed: p.seed });
-  Object.assign(G, { k, face: setup.face, t0: Date.now(), paused: null, mood: 'normal', ms: 0 });
-  L('game started', { size: n, puzzle: k + 1, seed: p.seed, auto: G.auto, face: G.face });
+  Object.assign(G, { k, t0: Date.now(), paused: null, ms: 0 });
+  L('game started', { size: n, puzzle: k + 1, seed: p.seed, auto: G.auto });
   const b = $('board');
   b.style.setProperty('--n', n);
   b.innerHTML = p.reg.map((g, i) => `<div class="cell" role="gridcell" data-i="${i}" style="--rc:${G.col[g].c};${borderStyle(n, p.reg, i)}"><span class="mk"></span></div>`).join('');
@@ -139,16 +125,12 @@ function draw(pop = -1) {
   G.marks.forEach((m, i) => {
     const mk = cs[i].firstChild;
     const cls = `mk${m ? ` mk-${m}` : ''}${i === pop ? ' pop' : ''}`;
-    // A face is drawn again when the mood changes (smiling at a win, sad
-    // when out of hearts), not only when the mark does.
-    const mood = m === 'face' || m === 'ghost' ? G.mood : '';
-    if (mk.className !== cls || i === pop || mk.dataset.mood !== mood) {
+    if (mk.className !== cls || i === pop) {
       mk.className = cls;
-      mk.dataset.mood = mood;
-      mk.innerHTML = m === 'x' || m === 'bad' ? '✕' : m === 'face' || m === 'ghost' ? svg(G.face, G.mood) : '';
+      mk.innerHTML = m === 'x' || m === 'bad' ? XMARK : m === 'face' || m === 'ghost' ? STAR : '';
     }
   });
-  $('turn').innerHTML = `<span class="chip">${svg(G.face)}</span><span>${G.n}×${G.n} · puzzle ${G.k + 1}</span>`;
+  $('turn').innerHTML = `<span class="chip">${STAR}</span><span>${G.n}×${G.n} · puzzle ${G.k + 1}</span>`;
   $('found').textContent = `${foundCount(G)} of ${G.n} found`;
   $('hearts').textContent = '❤️'.repeat(Math.max(0, G.hearts)) + '🤍'.repeat(HEARTS - Math.max(0, G.hearts));
   $('hearts').setAttribute('aria-label', `${Math.max(0, G.hearts)} of ${HEARTS} hearts left`);
@@ -215,8 +197,7 @@ addEventListener('pointerup', e => {
     draw();
     return;
   }
-  const r = tap(G, d.start, e.timeStamp);
-  if (r.why === 'quick') L('quick second tap on a new ✕: a slip, not a look', { square: d.start });
+  const r = tap(G, d.start);
   if (!r.ok) return;
   if (r.did === 'x') { sound.play('tick'); draw(); return; }
   afterLook(d.start, r, 'look');
@@ -238,18 +219,18 @@ $('board').addEventListener('touchend', e => {
   lastTouchEnd = now;
 }, { passive: false });
 
-// A look's result on the screen: a face pops in (and the ✕s around it),
+// A look's result on the screen: a star pops in (and the ✕s around it),
 // or a red ✕ shakes and a heart goes.
 function afterLook(i, r, how) {
   const at = { square: i, row: Math.floor(i / G.n) + 1, col: (i % G.n) + 1 };
   if (r.face) {
-    L(`${how}: face`, { ...at, found: foundCount(G), autoX: r.autoX.length });
+    L(`${how}: star`, { ...at, found: foundCount(G), autoX: r.autoX.length });
     sound.play('ding');
     draw(i);
     if (r.won) win();
     return;
   }
-  L(`${how}: no face`, { ...at, hearts: G.hearts });
+  L(`${how}: no star`, { ...at, hearts: G.hearts });
   sound.play('uhoh');
   const c = cells()[i];
   c.classList.remove('oops');
@@ -297,7 +278,7 @@ function clearHint() {
   // 2026-10-13: "Tap 💡 for the next step" stayed after the last hint, with
   // nothing left to tap, and the 💡 Hint button says it already).
   $('hintbar').textContent = '';
-  $('hintbar').classList.remove('result');
+  $('hintbar').classList.remove('result', 'solved', 'lost');
   $('hintbar').classList.add('idle');
 }
 
@@ -305,8 +286,9 @@ function clearHint() {
 
 const plural = (k, word) => `${k} ${word}${k === 1 ? '' : 's'}`;
 
-// Solved: the faces smile and wiggle; the time, mistakes and hints, and
-// the best time for this size.
+// Solved: one big star in the hint bar with the time, mistakes and hints
+// and the best time for this size (developer, 2026-10-14: faces wiggling
+// on a big board were hard to see; nothing moves on the board now).
 function win() {
   const ms = elapsed();
   clearInterval(clockTimer);
@@ -315,27 +297,24 @@ function win() {
   prog.next[G.n] = G.k + 1;
   saveProgress();
   L('solved', { size: G.n, puzzle: G.k + 1, time: clock(ms), mistakes: G.mistakes, hints: G.hintsUsed, shows: G.showsUsed, newBest, best: best && clock(best) });
-  G.mood = 'winner';
-  draw();
   sound.play('win');
-  [...G.sol].forEach((i, k) => setTimeout(() => cells()[i]?.classList.add('cheer'), k * CHEER_STEP_MS));
-  const bits = [clock(ms), plural(G.mistakes, 'mistake'), plural(G.hintsUsed, 'hint')];
+  const bits = [plural(G.mistakes, 'mistake'), plural(G.hintsUsed, 'hint')];
   if (G.showsUsed) bits.push(`${G.showsUsed} shown`);
+  bits.push(newBest ? 'New best!' : `Best ${clock(best)}`);
   const n = G.n, up = Math.min(10, n + 1);
   const game = G;
   setTimeout(() => {
     if (G !== game) return;
-    ending(`<b>Solved!</b> ${bits.join(' · ')}. ${newBest ? 'Your best for this size!' : `Best: ${clock(best)}.`}`,
+    ending('solved', `Solved in ${clock(ms)}!`, bits.join(' · '),
       n < 10 ? `Next: ${up}×${up}` : 'Next', () => startGame(up, prog.next[up] ?? 0),
       'Same size', () => startGame(n, prog.next[n] ?? 0));
   }, WIN_MS);
 }
 
-// Out of hearts: the faces not found show pale and sad.
+// Out of hearts: the stars not found show pale where they were.
 function lose() {
   clearInterval(clockTimer);
   L('out of hearts', { size: G.n, puzzle: G.k + 1, found: foundCount(G), time: clock(elapsed()) });
-  G.mood = 'sad';
   G.marks.forEach((m, i) => { if (G.sol.has(i) && m !== 'face') G.marks[i] = 'ghost'; });
   draw();
   for (const i of G.sol) if (G.marks[i] === 'ghost') cells()[i].classList.add('ghost');
@@ -344,17 +323,20 @@ function lose() {
   const game = G;
   setTimeout(() => {
     if (G !== game) return;
-    ending('<b>Out of hearts.</b> The pale faces show where they were.',
+    ending('lost', 'Out of hearts', 'The pale stars show where they were.',
       'Try again', () => startGame(n, k),
       'Another', () => { prog.next[n] = k + 1; saveProgress(); startGame(n, k + 1); });
   }, LOSE_MS);
 }
 
-// The result in the hint bar, and the end buttons in place of the tools.
-function ending(html, againText, again, sameText, same) {
-  $('hintbar').innerHTML = html;
+// The result in the hint bar, beside one big star (with sparkles for a
+// win, pale when out of hearts), and the end buttons in place of the
+// tools.
+function ending(how, title, line, againText, again, sameText, same) {
+  const sparks = how === 'solved' ? [0, 60, 120, 180, 240, 300].map((a, k) => `<i class="spark" style="--a:${a}deg;--d:${k * 60}ms">${STAR}</i>`).join('') : '';
+  $('hintbar').innerHTML = `<span class="bigstar">${STAR}${sparks}</span><span class="res"><b>${title}</b><span>${line}</span></span>`;
   $('hintbar').classList.remove('idle');
-  $('hintbar').classList.add('result');
+  $('hintbar').classList.add('result', how);
   $('againBtn').textContent = againText;
   $('againBtn').onclick = () => { L(againText); again(); };
   $('sameBtn').textContent = sameText;

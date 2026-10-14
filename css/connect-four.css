@@ -13,10 +13,6 @@
   --c4gap: 4px;
   --c4w: min(100vw - 32px, 520px);
   --cell: calc((var(--c4w) - 2 * var(--c4pad) - 6 * var(--c4gap)) / 7);
-  /* The 🏠 is one hole (developer, 2026-10-04: as big as a grid square),
-     but never under 48px (the size on the home page): a hole is only
-     about 43px on a phone. */
-  --home: max(48px, var(--cell));
   --cheer-scale: 1.4;
 }
 

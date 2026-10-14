@@ -1,5 +1,7 @@
-// Hidden Faces rules, solver and puzzle maker. No DOM or UI code: the
-// screen lives in src/ui/hidden-faces.js.
+// Find the Stars (called Hidden Faces until 2026-10-14; the files and
+// the code keep that name, and a found star is a 'face' mark): rules,
+// solver and puzzle maker. No DOM or UI code: the screen lives in
+// src/ui/hidden-faces.js.
 //
 // The puzzle is Star Battle with one star (DESIGN.md "Hidden Faces",
 // agreed 2026-10-13 from mockup v2): an N x N grid in N joined colour
@@ -42,9 +44,6 @@ export const DEFAULT_SIZE = 6;
 export const HEARTS = 3;   // wrong looks allowed: the third ends the game
 export const HINTS = 3;    // per puzzle
 export const SHOWS = 1;    // "show me one face", per puzzle
-// A second tap on a square this soon after its ✕ is a slip (two quick
-// taps), not a look (developer, 2026-10-13).
-export const QUICK_MS = 400;
 
 // Rule levels: how hard a step is to see.
 export const LEVEL = { single: 1, inside: 2, touch: 2, group: 3, tryit: 4 };
@@ -431,7 +430,6 @@ export function createGame(p, { auto = true, colorSeed = 0 } = {}) {
     mistakes: 0, hintsUsed: 0, showsUsed: 0,
     undo: [],          // groups of [square, mark before], or { look: square }
                        // for a wrong look; newest last
-    lastX: null,       // { i, at }: the last ✕ a tap put, for QUICK_MS
     result: null,      // 'won' or 'lost'
   };
 }
@@ -462,28 +460,19 @@ export function look(g, i) {
   return { ok: true, face: false, autoX: [], won: false, lost };
 }
 
-// A tap on square i at time `now` (ms): an empty square gets a ✕
-// (undoable); a ✕ is looked under, unless the tap comes within QUICK_MS
-// of the tap that put that ✕ (or of a slip after it). Returns { ok, did:
-// 'x' | 'look', ...look's result }, or { ok: false, why: 'quick' } for a
-// slip. With no time given, no tap is a slip.
-export function tap(g, i, now = null) {
+// A tap on square i: an empty square gets a ✕ (undoable); a ✕ is looked
+// under, however soon after its ✕ (developer, 2026-10-14: the 0.4 s wait
+// for a slip was too long, and Undo takes back a wrong look). Returns
+// { ok, did: 'x' | 'look', ...look's result }.
+export function tap(g, i) {
   if (g.result) return { ok: false, why: 'over' };
   const m = g.marks[i];
   if (m === '') {
     g.marks[i] = 'x';
     g.undo.push([[i, '']]);
-    g.lastX = now == null ? null : { i, at: now };
     return { ok: true, did: 'x' };
   }
-  if (m === 'x') {
-    if (now != null && g.lastX?.i === i && now - g.lastX.at < QUICK_MS) {
-      g.lastX.at = now;
-      return { ok: false, why: 'quick' };
-    }
-    g.lastX = null;
-    return { ...look(g, i), did: 'look' };
-  }
+  if (m === 'x') return { ...look(g, i), did: 'look' };
   return { ok: false, why: 'already' };
 }
 
@@ -566,15 +555,15 @@ export function findHint(g) {
   const { n, reg, marks, sol } = g;
   const sq = i => `row ${rowOf(n, i) + 1}, column ${i % n + 1}`;
   const wrong = marks.findIndex((m, i) => m === 'x' && sol.has(i));
-  if (wrong >= 0) return { kind: 'wrong', tgt: wrong, why: [], out: [], text: `The ringed ✕ (${sq(wrong)}) is wrong: there's a face under it.` };
+  if (wrong >= 0) return { kind: 'wrong', tgt: wrong, why: [], out: [], text: `The ringed ✕ (${sq(wrong)}) is wrong: there's a star under it.` };
   for (let f = 0; f < n * n; f++) {
     if (marks[f] !== 'face') continue;
     const r = rowOf(n, f), c = f % n;
     const sets = [
-      [j => rowOf(n, j) === r, `Row ${r + 1} already has its face. Cross out the rest of it.`],
-      [j => j % n === c, `Column ${c + 1} already has its face. Cross out the rest of it.`],
-      [j => reg[j] === reg[f], `${g.col[reg[f]].name} already has its face. Cross out the rest of it.`],
-      [j => Math.abs(rowOf(n, j) - r) <= 1 && Math.abs(j % n - c) <= 1, 'Faces never touch. Cross out the squares around it (marked ✕).'],
+      [j => rowOf(n, j) === r, `Row ${r + 1} already has its star. Cross out the rest of it.`],
+      [j => j % n === c, `Column ${c + 1} already has its star. Cross out the rest of it.`],
+      [j => reg[j] === reg[f], `${g.col[reg[f]].name} already has its star. Cross out the rest of it.`],
+      [j => Math.abs(rowOf(n, j) - r) <= 1 && Math.abs(j % n - c) <= 1, 'Stars never touch. Cross out the squares around it (marked ✕).'],
     ];
     for (const [inSet, text] of sets) {
       const out = marks.map((_, j) => j).filter(j => j !== f && marks[j] === '' && inSet(j));
@@ -582,7 +571,7 @@ export function findHint(g) {
     }
   }
   const st = nextStep(stateOf(g), 4);
-  if (!st) return { kind: 'none', why: [], out: [], text: 'No hint here: every face can be found from what is on the board.' };
+  if (!st) return { kind: 'none', why: [], out: [], text: 'No hint here: every star can be found from what is on the board.' };
   const U = st.units;
   const unitName = u => (u.type === 'row' ? `row ${u.idx + 1}` : u.type === 'col' ? `column ${u.idx + 1}` : g.col[u.idx].name);
   const cap = s => s[0].toUpperCase() + s.slice(1);
@@ -590,15 +579,15 @@ export function findHint(g) {
   const unitsName = us => (us[0].type === 'region' ? list(us.map(unitName))
     : `${us[0].type === 'row' ? 'rows' : 'columns'} ${list(us.map(u => String(u.idx + 1)))}`);
   const h = { kind: st.rule, why: st.why, out: st.out, units: U };
-  if (st.rule === 'single' && U[0].cells.length === 1) return { ...h, why: [], tgt: st.place, text: `${cap(unitName(U[0]))} is just one square (ringed, ${sq(st.place)}), so its face is there.` };
-  if (st.rule === 'single') return { ...h, why: U[0].cells, tgt: st.place, text: `The ringed square (${sq(st.place)}) is the only one left for ${unitName(U[0])}, so its face is there.` };
-  if (st.rule === 'inside') return { ...h, text: `The lit squares, all that's left for ${unitName(U[0])}, are all in ${unitName(U[1])}. So ${unitName(U[1])}'s face is one of them: cross out the rest of ${unitName(U[1])}.` };
-  if (st.rule === 'touch') return { ...h, tgt: st.out[0], text: `A face on the ringed square (${sq(st.out[0])}) would rule out the lit squares, the last ones for ${unitName(U[0])}. So cross it out.` };
+  if (st.rule === 'single' && U[0].cells.length === 1) return { ...h, why: [], tgt: st.place, text: `${cap(unitName(U[0]))} is just one square (ringed, ${sq(st.place)}), so its star is there.` };
+  if (st.rule === 'single') return { ...h, why: U[0].cells, tgt: st.place, text: `The ringed square (${sq(st.place)}) is the only one left for ${unitName(U[0])}, so its star is there.` };
+  if (st.rule === 'inside') return { ...h, text: `The lit squares, all that's left for ${unitName(U[0])}, are all in ${unitName(U[1])}. So ${unitName(U[1])}'s star is one of them: cross out the rest of ${unitName(U[1])}.` };
+  if (st.rule === 'touch') return { ...h, tgt: st.out[0], text: `A star on the ringed square (${sq(st.out[0])}) would rule out the lit squares, the last ones for ${unitName(U[0])}. So cross it out.` };
   if (st.rule === 'group') {
     const k = U.length / 2, a = U.slice(0, k), b = U.slice(k);
-    return { ...h, text: `${cap(unitsName(a))} only have squares left in ${unitsName(b)} (lit), so those ${k} faces are theirs. Cross out the rest of ${unitsName(b)}.` };
+    return { ...h, text: `${cap(unitsName(a))} only have squares left in ${unitsName(b)} (lit), so those ${k} stars are theirs. Cross out the rest of ${unitsName(b)}.` };
   }
-  return { ...h, why: [], tgt: st.out[0], text: `Try a face on the ringed square (${sq(st.out[0])}): follow the rules and some row, column or colour runs out of squares. So cross it out.` };
+  return { ...h, why: [], tgt: st.out[0], text: `Try a star on the ringed square (${sq(st.out[0])}): follow the rules and some row, column or colour runs out of squares. So cross it out.` };
 }
 
 // Uses a hint: returns it (findHint's), counting it unless there was none

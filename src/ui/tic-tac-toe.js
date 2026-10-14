@@ -107,7 +107,7 @@ $('playBtn').onclick = () => {
   fitBoard();
 };
 
-// The play screen's square size (and the 🏠, one square): the biggest that
+// The play screen's square size: the biggest that
 // lets the whole page fit the screen, up to what the width allows (board
 // at most 420px).
 function fitBoard() {
@@ -115,7 +115,6 @@ function fitBoard() {
   const maxCell = (Math.min(play.clientWidth, 420) - 20) / 3;
   const r = fitPlayScreen(px => {
     play.style.setProperty('--cell', `${px}px`);
-    play.style.setProperty('--home', `${px}px`);
   }, Math.min(MIN_CELL, maxCell), maxCell);
   L('fit', r);
 }

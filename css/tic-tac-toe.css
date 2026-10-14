@@ -5,13 +5,12 @@
 
 /* One grid square, worked out from the page width: the screen is the page
    less its 16px side margins, the board is at most 420px, with two 10px
-   gaps. The 🏠 button is one square too (developer, 2026-10-04).
+   gaps.
    On the play screen, src/ui/tic-tac-toe.js makes the square smaller when
    needed so the whole page fits the screen with no scrolling (developer,
    2026-10-04, iPhone 16); everything below is sized from --cell. */
 :root {
   --cell: calc((min(100vw - 32px, 420px) - 20px) / 3);
-  --home: var(--cell);
   --cheer-scale: 1.4;   /* the scorecard faces are already big */
 }
 

@@ -1,6 +1,6 @@
 /* Matching-cards screens, from the agreed mockup (version 3). The setup
    panels, turn line and buttons are shared (game.css). The play screen's
-   card size (--cs), columns (--cols) and the 🏠 size (--home, one card)
+   card size (--cs) and columns (--cols)
    are set by src/ui/matching.js so the grid fits the screen. The cards
    themselves (flipping, tints) are in cards.css, shared with Count to 9. */
 

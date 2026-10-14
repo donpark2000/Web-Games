@@ -6,16 +6,16 @@
 
    --row is one score-sheet row and --die one die. src/ui/five-dice.js sets
    them so the whole page fits the screen with no scrolling (developer,
-   2026-10-04, iPhone 16); these are the sizes before that runs. The 🏠 is
-   one die, at least 48px. */
+   2026-10-04, iPhone 16); these are the sizes before that runs. --topsq,
+   the turn line's height, is one die, at least 48px. */
 :root {
-  --row: 46px; --die: 53px; --pic: 62px; --home: max(48px, var(--die));
+  --row: 46px; --die: 53px; --pic: 62px; --topsq: max(48px, var(--die));
   --cheer-scale: 1.5;
   --box: #F1F6F5;
 }
 
 #play { gap: 10px; position: relative; }
-#play .turn { font-size: 20px; gap: 6px; line-height: 1.15; min-height: var(--home); }
+#play .turn { font-size: 20px; gap: 6px; line-height: 1.15; min-height: var(--topsq); }
 #play .turn .chip { width: 40px; height: 40px; }
 #play .turn .say { min-width: 0; text-wrap: balance; }
 #play .turn b { font-size: 28px; font-variant-numeric: tabular-nums; }

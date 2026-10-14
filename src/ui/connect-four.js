@@ -109,14 +109,13 @@ $('playBtn').onclick = () => {
 
 // The play screen's hole size: the biggest that lets the whole page fit
 // the screen, up to what the width allows (board at most 520px). Sets the
-// board width and the 🏠 from it (css/connect-four.css).
+// board width from it (css/connect-four.css).
 function fitBoard() {
   const play = $('play');
   const maxCell = (Math.min(play.clientWidth, 520) - 2 * PAD - 6 * GAP) / 7;
   const r = fitPlayScreen(px => {
     play.style.setProperty('--cell', `${px}px`);
     play.style.setProperty('--c4w', `${px * 7 + 6 * GAP + 2 * PAD}px`);
-    play.style.setProperty('--home', `${Math.max(48, px)}px`);
   }, Math.min(MIN_CELL, maxCell), maxCell);
   L('fit', r);
 }
