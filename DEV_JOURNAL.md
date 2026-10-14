@@ -6,12 +6,12 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q15. Should Undo work after a slip ends the game?** *Raised
-  2026-10-13:* the third wrong look ends the puzzle ("Out of hearts"),
-  and Undo is gone from the end screen, so a slip on the last heart
-  can't be taken back. A double tap can no longer cause it (see
-  "Hidden Faces: undo a wrong look"), but a slower slip can. Asked the
-  developer.
+- **Q16. "Replay" after running out of hearts: the same puzzle from the
+  start, or carry on where you were?** *Raised 2026-10-13:* with Q15 the
+  developer suggested "a 'replay' button instead of forcing a new game".
+  The out-of-hearts end already has **Try again** (`startGame(n, k)`:
+  the same puzzle, from an empty board), beside Another and New game.
+  Asked the developer which they mean.
 
 ## Proposed additions to the standards skill
 
@@ -34,6 +34,13 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q15. Should Undo work after a slip ends the game?** *Raised
+  2026-10-13:* the third wrong look ends the puzzle and the end screen
+  has no Undo, so a slow slip on the last heart can't be taken back (a
+  double tap no longer can cause it). *Resolved 2026-10-13:* the
+  developer: "OK as it is." Losing on the third mistake stays; a
+  "replay" idea followed (Q16).
 
 - **Q14. Does the double-tap zoom fix work on the iPhone?** *Raised
   2026-10-13:* Hidden Faces zoomed in on two quick taps; fixed by
@@ -4425,3 +4432,16 @@ was the screenshot taken before the redraw, not the game. A tap 1 s
 later: red ✕, 2 hearts. Undo: a plain ✕, 3 hearts, "undo: a wrong look
 taken back". Undo again: the square empty, Undo greyed. No console
 errors.
+
+## 2026-10-13: Undo for a wrong look published
+
+Published with the developer's OK ("publish"): `main` fast-forwarded to
+9e81a1b and pushed; the Pages build for 9e81a1b was "built", and the
+server sends version dd76ea56d345 and a `hidden-faces.js` with
+`QUICK_MS` (curl). **Checked live** (built-in browser, 393 x 760, after
+a reload, 6 x 6 puzzle 1): a double click on row 1, column 1 logged "a
+slip, not a look"; a tap 1 s later, "look: no face", 2 hearts; Undo,
+"a wrong look taken back, the heart back", a plain ✕ and 3 hearts on
+screen. No console errors. Claude's local server stopped; no other
+`serve.js` running. Q15 closed ("OK as it is"); Q16 raised.
+
