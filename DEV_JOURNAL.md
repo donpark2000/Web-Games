@@ -29,6 +29,33 @@ and what it does and doesn't prove.
   the start page, which our page can't stop. The fix is still the two
   above; reopening the last page alone would land on that game's setup
   screen, since the icon's tap reloads.
+  *2026-10-15, the developer:* both fixes, **for all the games**: "To
+  do otherwise is an unusual experience compared to other apps on a
+  phone. If you do not explicitly close them, you always come back to
+  where you left off."
+
+- **Q21. Find the Stars levels: easier, harder, or both?** *Raised
+  2026-10-15* by the developer: what level is it now, and would harder
+  mean fewer hints or a harder puzzle? **Measured** (the stock's 200
+  per size, solved with the stock's rules, a scratchpad script, 0.7 s):
+
+  | Size | Steps | Single | Inside | Touch | Group | Needing group |
+  |---|---|---|---|---|---|---|
+  | 6 x 6 | 13.1 | 6.0 | 3.2 | 3.9 | 0.1 | 6% |
+  | 7 x 7 | 15.4 | 7.0 | 3.7 | 4.5 | 0.2 | 16% |
+  | 8 x 8 | 16.6 | 8.0 | 3.9 | 4.5 | 0.2 | 19% |
+  | 9 x 9 | 19.6 | 9.0 | 3.9 | 6.2 | 0.6 | 43% |
+  | 10 x 10 | 21.2 | 10.0 | 4.0 | 6.5 | 0.7 | 53% |
+
+  (Averages per puzzle. Every star is placed by a "single" step; the
+  rest are steps that rule squares out.) Steps beyond "single" per
+  puzzle range 4 to 30 within a size, so puzzle 1 and puzzle 2 of one
+  size can differ a lot. **No puzzle needs "try it"** (a star here,
+  follow the simple rules, something runs out); the solver has it for
+  hints only, and Why? has no picture for it yet. So today is one middle
+  level, and size is the only dial. Claude's view: levels should change
+  the puzzle, not the help (hints and hearts are how you learn and
+  recover; a few fewer is a small change in feel, not in thinking).
 
 ## Proposed additions to the standards skill
 
