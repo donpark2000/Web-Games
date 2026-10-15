@@ -58,6 +58,7 @@
 .cell .mk-face svg, .cell .mk-ghost svg { width: 88%; height: 88%; }
 .cell .mk.pop { animation: bounce .4s ease; }
 .cell.oops { animation: shake .45s ease; }
+.cell.nope .mk { animation: nope .4s ease; } /* a look where there's known to be no star: not counted */
 .cell.ghost .mk { opacity: .45; }
 
 /* hint highlights (on any colour; developer, 2026-10-13: in v1 "it is not
@@ -88,11 +89,14 @@
 .tool.pressed { background: var(--sun-soft); border-color: var(--ink); }
 @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(.82); } }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@keyframes nope { 0%, 100% { transform: none; } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
 @keyframes shake { 0%, 100% { transform: none; } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 
 /* always there, 3 lines high, so a hint never moves the board */
 .hintbar { height: calc(3 * 1.4em + 20px); overflow: auto; background: var(--card); border-radius: 14px; padding: 10px 14px; font-size: 15px; line-height: 1.4; box-shadow: 0 3px 0 var(--line); border-left: 6px solid var(--sun); }
 .hintbar.idle { visibility: hidden; } /* between hints: empty, its space kept so the board never moves */
+.hintbar.past { color: var(--muted); border-left-color: var(--line); cursor: pointer; } /* the last hint, put out: tap to light it again */
+.hintbar.notice { color: var(--ink); border-left-color: var(--muted); }
 /* The end (developer, 2026-10-14: make it stand out, not the board): one
    big star beside the result. A win's star bounces, with sparkles; out of
    hearts it is pale. The bar keeps its height, so the board doesn't move. */

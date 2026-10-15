@@ -46,7 +46,7 @@ const resume = resumable('hidden-faces', 1, () => ({
   screen: G ? 'play' : 'setup', setup,
   game: G && {
     ...snapshotGame(G), k: G.k, seed: G.seed, ms: G.end?.ms ?? elapsed(), end: G.end,
-    hint: shown && !G.result ? { h: shown.h, deep: shown.deep } : null,
+    hint: shown && !G.result ? { h: shown.h, deep: shown.deep, lit: shown.lit } : null,
   },
 }));
 // A game kept from last time waits for the puzzles, with neither screen
@@ -137,9 +137,11 @@ function startGame(n, k, kept = null) {
   tick();
   if (kept?.hint) {
     try {
-      shown = { h: kept.hint.h, why: explainHint(G, kept.hint.h), deep: !!kept.hint.deep };
-      shown.deep &&= !!shown.why;
-      paintHint();
+      // Kept before 2026-10-15: no `lit` (a kept hint was on the board).
+      shown = { h: kept.hint.h, why: explainHint(G, kept.hint.h), deep: !!kept.hint.deep, lit: kept.hint.lit ?? true };
+      shown.deep &&= !!shown.why && shown.lit;
+      if (shown.lit) paintHint();
+      else { paintBar(); hintTool(); }
     } catch (e) { L('kept hint not shown', { error: String(e) }); clearHint(); }
   }
 }
@@ -188,7 +190,7 @@ function fit() {
   const r = fitPlayScreen(px => b.style.setProperty('--cell', `${px}px`), MIN_CELL, widest);
   const key = `${G.n}@${r.size}`;
   if (key !== lastFit) { lastFit = key; L('fit', { size: G.n, cell: r.size, fitted: r.fitted, tries: r.tries, screen: r.screen }); }
-  if (shown) paintHint();
+  if (shown?.lit) paintHint();
 }
 addEventListener('resize', fit);
 
@@ -205,7 +207,7 @@ $('board').addEventListener('pointerdown', e => {
   const i = cellAt(e.clientX, e.clientY);
   if (i == null) return;
   e.preventDefault();
-  clearHint();
+  dimHint();
   drag = { start: i, last: i, x: e.clientX, y: e.clientY, moved: false, stroke: startStroke(G, i) };
   try { $('board').setPointerCapture(e.pointerId); } catch { /* the pointer already went */ }
 });
@@ -259,9 +261,21 @@ $('board').addEventListener('touchend', e => {
 }, { passive: false });
 
 // A look's result on the screen: a star pops in (and the ✕s around it),
-// or a red ✕ shakes and a heart goes.
+// or a red ✕ shakes and a heart goes. Where there's known to be no star
+// (a found star or a hint rules it out), the ✕ wiggles and the hint bar
+// says why for a moment; nothing is counted.
 function afterLook(i, r, how) {
   const at = { square: i, row: Math.floor(i / G.n) + 1, col: (i % G.n) + 1 };
+  if (r.known) {
+    L(`${how}: known to be empty, not counted`, { ...at, why: r.known });
+    sound.play('tick');
+    const c = cells()[i];
+    c.classList.remove('nope');
+    void c.offsetWidth;
+    c.classList.add('nope');
+    showNote(r.known);
+    return;
+  }
   if (r.face) {
     L(`${how}: star`, { ...at, found: foundCount(G), autoX: r.autoX.length });
     sound.play('ding');
@@ -283,7 +297,7 @@ $('undoBtn').onclick = () => {
   const hearts = G.hearts;
   const k = undo(G);
   L(G.hearts > hearts ? 'undo: a wrong look taken back, the heart back' : 'undo', { squares: k, hearts: G.hearts });
-  clearHint();
+  dimHint();
   draw();
 };
 $('showBtn').onclick = () => {
@@ -295,13 +309,20 @@ $('showBtn').onclick = () => {
 
 /* ---------- hints ---------- */
 
-// The hint on show: { h (findHint's), why (its explainHint, or null),
-// deep: the Why? showing }. While a hint with a Why? shows, the 💡 Hint
-// button is ❓ Why?, and switches between the two.
+// The last hint: { h (findHint's), why (its explainHint, or null), deep:
+// the Why? showing, lit: on the board }. While a hint with a Why? is lit,
+// the 💡 Hint button is ❓ Why?, and switches between the two. A touch on
+// the board (or Undo) puts it out, but its words stay in the bar, greyed,
+// until the next hint, Show or the end (developer, 2026-10-15: to check it
+// was understood after following it); a tap on them lights it again.
 let shown = null;
+// A moment's words in the hint bar (why a look wasn't counted), over the
+// last hint's, then the bar as it was.
+const NOTE_MS = 2500;
+let note = null, noteTimer = null;
 
 $('hintBtn').onclick = () => {
-  if (shown?.why) {
+  if (shown?.lit && shown.why) {
     shown.deep = !shown.deep;
     L(shown.deep ? 'why' : 'why: back to the hint', { kind: shown.h.kind, tgt: shown.h.tgt, tags: shown.why.tags.map(t => t[1]).join(' ') });
     paintHint();
@@ -311,11 +332,19 @@ $('hintBtn').onclick = () => {
   if (!h.ok) return;
   L('hint', { kind: h.kind, tgt: h.tgt, why: h.why.length, out: h.out.length, left: G.hints, text: h.text });
   clearHint();
-  shown = { h, why: explainHint(G, h), deep: false };
+  shown = { h, why: explainHint(G, h), deep: false, lit: true };
   sound.play('ping');
   paintHint();
   draw();
 };
+$('hintbar').addEventListener('click', () => {
+  if (!G || G.result || !shown || shown.lit) return;
+  L('hint lit again', { kind: shown.h.kind, tgt: shown.h.tgt });
+  shown.lit = true;
+  stopNote();
+  paintHint();
+  resume.keep();
+});
 
 const TAGS = { touch: 'touch', row: 'row', col: 'col', colour: 'colour' };
 
@@ -335,8 +364,47 @@ function paintHint() {
     for (const [i, tag] of why.tags) cs[i].insertAdjacentHTML('beforeend', `<span class="tag">${TAGS[tag]}</span>`);
     drawRings(why.rings);
   }
-  $('hintbar').textContent = deep ? `❓ ${why.text}` : `💡 ${h.text}`;
-  $('hintbar').classList.remove('idle');
+  paintBar();
+  hintTool();
+}
+
+// The hint bar's words: a note, the last hint (greyed when put out), or
+// nothing (hidden, its space kept).
+function paintBar() {
+  const bar = $('hintbar');
+  bar.classList.remove('idle', 'past', 'notice', 'result', 'solved', 'lost');
+  bar.removeAttribute('role');
+  if (note) {
+    bar.textContent = note;
+    bar.classList.add('notice');
+  } else if (shown) {
+    bar.textContent = shown.deep ? `❓ ${shown.why.text}` : `💡 ${shown.h.text}`;
+    if (!shown.lit) { bar.classList.add('past'); bar.setAttribute('role', 'button'); }
+  } else {
+    bar.textContent = '';
+    bar.classList.add('idle');
+  }
+}
+function showNote(text) {
+  stopNote();
+  note = text;
+  paintBar();
+  const game = G;
+  noteTimer = setTimeout(() => { note = null; if (G === game && !G.result) paintBar(); }, NOTE_MS);
+}
+function stopNote() {
+  clearTimeout(noteTimer);
+  note = null;
+}
+
+// Puts the hint out: off the board, its words greyed in the bar.
+function dimHint() {
+  if (!shown?.lit) return;
+  L('hint put out, its words kept', { kind: shown.h.kind });
+  shown.lit = false;
+  shown.deep = false;
+  unpaint();
+  paintBar();
   hintTool();
 }
 
@@ -370,7 +438,7 @@ function drawRings(rings) {
 // The 💡 Hint button: ❓ Why? while a hint with one shows.
 function hintTool() {
   const b = $('hintBtn');
-  if (shown?.why && !G.result) {
+  if (shown?.lit && shown.why && !G.result) {
     b.innerHTML = shown.deep ? '💡 The hint' : '❓ Why?';
     b.classList.toggle('pressed', shown.deep);
     b.disabled = false;
@@ -393,15 +461,14 @@ function unpaint(again = false) {
   $('rings').setAttribute('hidden', '');
   $('rings').innerHTML = '';
 }
+// No hint: the bar empty and hidden, but keeping its place (developer,
+// 2026-10-13: "Tap 💡 for the next step" stayed after the last hint, with
+// nothing left to tap, and the 💡 Hint button says it already).
 function clearHint() {
   shown = null;
+  stopNote();
   unpaint();
-  // Empty and hidden between hints, but keeping its place (developer,
-  // 2026-10-13: "Tap 💡 for the next step" stayed after the last hint, with
-  // nothing left to tap, and the 💡 Hint button says it already).
-  $('hintbar').textContent = '';
-  $('hintbar').classList.remove('result', 'solved', 'lost');
-  $('hintbar').classList.add('idle');
+  paintBar();
   if (G) hintTool();
 }
 
@@ -463,8 +530,10 @@ function showEnd() {
 // tools.
 function ending(how, title, line, againText, again, sameText, same) {
   const sparks = how === 'solved' ? [0, 60, 120, 180, 240, 300].map((a, k) => `<i class="spark" style="--a:${a}deg;--d:${k * 60}ms">${STAR}</i>`).join('') : '';
+  stopNote();
   $('hintbar').innerHTML = `<span class="bigstar">${STAR}${sparks}</span><span class="res"><b>${title}</b><span>${line}</span></span>`;
-  $('hintbar').classList.remove('idle');
+  $('hintbar').classList.remove('idle', 'past', 'notice');
+  $('hintbar').removeAttribute('role');
   $('hintbar').classList.add('result', how);
   $('againBtn').textContent = againText;
   $('againBtn').onclick = () => { L(againText); again(); };

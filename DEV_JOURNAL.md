@@ -5049,3 +5049,78 @@ on my phone." Q20 moved to Resolved, with Q21 (resolved earlier today
 but left in the open list). Claude's instruction to look for version
 "45db805c0b9f" was wrong: the version line shows the first 6 characters
 ("45db80"), as DESIGN.md "Offline app" says. **Open questions:** none.
+
+## 2026-10-15: Find the Stars: free looks where no star can be; the hint's words stay
+
+The developer, playing: after a hint, they often double-tap a square the
+hint says to cross out (✕, then a look): a red ✕, a heart, and a mistake
+Undo doesn't take back ("I guess that makes sense otherwise it is like
+endless free guesses, but I did find it annoying"). And: "sometimes I
+wish the text of the hint stayed visible after following its
+suggestion". Claude proposed both; agreed as proposed, "including the
+squares a found star rules out".
+
+**Built** (DESIGN.md "Find the Stars", Taps and Hints):
+- `knownEmpty(g, i)` in `src/core/hidden-faces.js`: the reason in words
+  when a found star rules square i out (touch, row, column, colour) or a
+  hint said to cross it out, else null; never for a star's square.
+  `look()` checks it after the star check, so a look can never be
+  stopped from finding a star, and changes nothing when it applies
+  (`{ known: words }`). The squares a used hint crosses out go in
+  `g.told` (`useHint`, not `findHint`), kept by `snapshotGame` as
+  `told`; a kept game from before has none and still restores; a `told`
+  square that is a star, or not a square, is refused.
+- The screen: such a look wiggles the ✕ (`.cell.nope`), ticks, and the
+  hint bar says why for 2.5 s (`showNote`, class `notice`: `.note` was
+  already a shared class in `site.css`, which `tests/css.test.js`
+  caught). A touch on the board and Undo now call `dimHint()` (off the
+  board, words greyed, `.hintbar.past`, `role="button"`) instead of
+  `clearHint()`; a tap on the greyed words lights the hint again. The
+  next hint, Show, the end and a new puzzle still clear it. The kept
+  hint has `lit`; one kept before comes back lit, as it was. Logged
+  ("hidden-faces"): "look: known to be empty, not counted" with the
+  square and words, "hint put out, its words kept", "hint lit again".
+
+**Tests** (`npm test`: 259 of 259, 3 new): every square each star of the
+three test puzzles rules out, looked under with Auto ✕ off, gives
+exactly its words and changes no heart, mistake or undo step (all four
+kinds seen), and a square nothing rules out still costs a heart; Auto
+✕'s own ✕s alike; a hint's crossed-out squares, looked under, change
+nothing, still after Undo; `findHint` alone remembers nothing; `told`
+kept and restored, older kept games without it, bad `told` refused; the
+screen code (pages test) dims rather than clears on a touch and Undo,
+relights on a tap, handles a known look first with no "uh-oh".
+**Each check shown to fail**: with the free look removed, hints not
+remembered, `told` not kept, and the row reason off, the tests meant
+for each failed (2, 2, 1, 1 failing). The first try at this was
+PowerShell's `Set-Content -NoNewline`, which this shell refused, so the
+file never changed and every run said "fail 0": a case of the skill's
+"Prove every check can fail", caught because the error showed; redone
+with `sed`, checking the file differed before each run.
+
+**Checked in the built-in browser** (localhost:8123, 6 x 6 puzzle 1):
+the first hint, then a touch on the board: words kept, class `past`,
+no spotlight, the button "💡 Hint 2". A wrong look on a square nothing
+ruled out cost a heart (as before); Undo gave it back. The star found
+(11 Auto ✕s), its neighbour looked under: "No star here: it touches a
+star.", 3 hearts, the ✕ wiggling; 2.5 s later the greyed hint back. A
+tap on the greyed words lit it again (spotlight, ring), and ❓ Why?
+worked. An "inside" hint crossing out 3 squares; one double-tapped:
+"No star here: a hint crossed it out.", 3 hearts, still a ✕. Reloaded:
+the hint back greyed, no spotlight. No console errors. The browser's
+kept game and last page removed afterwards. (The pane's screenshots
+twice showed an older, smaller frame than the page held; the page's
+own state, read by script, was used for each check.)
+
+## 2026-10-15: Status (start here next session)
+
+**Branch `star-battle`**, not published (`main` = a2aed32): Find the
+Stars' free looks where no star can be and the last hint's words kept,
+greyed (above). `npm test`: 259 of 259. The local server is running
+(port 8123) for the developer to try it.
+
+**Next:** the developer tries it (locally or after publishing), then
+publish on their OK. Then: the DESIGN.md "Later" list.
+
+**Open questions:** none. **Proposed skill additions:** none (the
+mutation that didn't apply is a case of "Prove every check can fail").

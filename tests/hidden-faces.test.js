@@ -4,7 +4,7 @@ import {
   SIZES, HEARTS, HINTS, SHOWS, LEVEL, MAKE_LEVEL, DEMO, COLORS, PROGRESS_KEY,
   seenBy, units, newState, place, nextStep, solve, generate, connected, hardEnough, problems, colorsFor,
   createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, canUndo, showOne, findHint, useHint,
-  explainHint, snapshotGame, restoreGame,
+  explainHint, snapshotGame, restoreGame, knownEmpty,
   readProgress, recordTime, clock, mulberry32,
 } from '../src/core/hidden-faces.js';
 
@@ -307,6 +307,111 @@ test('hidden faces game: a second tap on a new ✕ looks at once; Undo takes a w
   assert.equal(g.marks[s], 'face');
 });
 
+// A look where there's known to be no star (developer, 2026-10-15: a
+// double tap on a square a hint had just crossed out cost a heart, and
+// Undo kept the mistake): it tells nothing new, so nothing changes or
+// counts, and the reason comes back in words. Anywhere else a wrong look
+// still costs a heart and counts.
+const kindOf = (n, f, j) => {
+  const r = Math.floor(j / n), c = j % n, rf = Math.floor(f / n), cf = f % n;
+  return Math.abs(r - rf) <= 1 && Math.abs(c - cf) <= 1 ? 'touch' : r === rf ? 'row' : c === cf ? 'col' : 'colour';
+};
+const unchanged = (g, before) => {
+  assert.equal(g.hearts, before.hearts, 'a heart went');
+  assert.equal(g.mistakes, before.mistakes, 'a mistake counted');
+  assert.equal(g.undo.length, before.undo, 'an undo step added');
+};
+
+test('hidden faces game: a look where a found star rules it out changes nothing and counts nothing', () => {
+  const kinds = { touch: 0, row: 0, col: 0, colour: 0 };
+  for (const p of MADE) {
+    const n = p.n;
+    for (const f of p.faces) {
+      const g = createGame(p, { auto: false });
+      look(g, f);
+      const name = g.col[p.reg[f]].name;
+      const says = {
+        touch: 'No star here: it touches a star.', row: `No star here: row ${Math.floor(f / n) + 1} already has its star.`,
+        col: `No star here: column ${f % n + 1} already has its star.`, colour: `No star here: ${name} already has its star.`,
+      };
+      for (const j of seenBy(n, p.reg, f)) {
+        if (g.sol.has(j)) continue;
+        tap(g, j);
+        const before = { hearts: g.hearts, mistakes: g.mistakes, undo: g.undo.length };
+        const r = tap(g, j);
+        const kind = kindOf(n, f, j);
+        assert.deepEqual(r, { ok: true, did: 'look', face: false, known: says[kind], autoX: [], won: false, lost: false }, `${n}x${n} star ${f}, square ${j}`);
+        assert.equal(g.marks[j], 'x', 'the ✕ is no longer a ✕');
+        unchanged(g, before);
+        kinds[kind]++;
+      }
+      // A square the star doesn't rule out: a wrong look, as before.
+      const other = g.marks.findIndex((m, i) => m === '' && !g.sol.has(i));
+      assert.equal(knownEmpty(g, other), null);
+      tap(g, other);
+      assert.equal(tap(g, other).face, false);
+      assert.equal(g.marks[other], 'bad');
+      assert.equal(g.hearts, HEARTS - 1);
+      assert.equal(g.mistakes, 1);
+    }
+  }
+  for (const [kind, k] of Object.entries(kinds)) assert.ok(k > 0, `no "${kind}" square checked: ${JSON.stringify(kinds)}`);
+  // With Auto ✕: the ✕s a found star puts round it, looked under.
+  const g = game();
+  const f = MADE[0].faces[0];
+  const { autoX } = look(g, f);
+  assert.ok(autoX.length);
+  for (const j of autoX) {
+    const before = { hearts: g.hearts, mistakes: g.mistakes, undo: g.undo.length };
+    assert.match(tap(g, j).known, /^No star here: /);
+    unchanged(g, before);
+  }
+  // A star's own square is never "known empty", and a look there finds it.
+  assert.ok(MADE[0].faces.every(s => knownEmpty(g, s) === null));
+});
+
+// A game of the first test puzzle, played by its hints (not used) up to
+// the first that crosses something out, then that one used.
+function toldGame() {
+  const g = game();
+  for (let k = 0; k < 50; k++) {
+    const h = findHint(g);
+    if (h.out.length) return { g, h: useHint(g) };
+    if (h.kind !== 'single') throw new Error(`a "${h.kind}" hint crossing nothing out`);
+    look(g, h.tgt);
+  }
+  throw new Error('no hint crosses anything out');
+}
+
+test('hidden faces game: a look where a hint said to cross out changes nothing, after Undo too', () => {
+  const f = game();
+  findHint(f);
+  assert.equal(f.told.size, 0, 'findHint alone remembered squares');
+  const { g, h } = toldGame();
+  assert.ok(h.out.some(j => !g.marks.some((m, s) => m === 'face' && seenBy(g.n, g.reg, s).includes(j))), 'every square the hint crosses out is a found star’s: no hint words checked');
+  assert.deepEqual([...g.told].sort((a, b) => a - b), [...h.out].sort((a, b) => a - b));
+  for (const j of h.out) {
+    tap(g, j);
+    const before = { hearts: g.hearts, mistakes: g.mistakes, undo: g.undo.length };
+    assert.equal(tap(g, j).known, 'No star here: a hint crossed it out.');
+    assert.equal(g.marks[j], 'x');
+    unchanged(g, before);
+  }
+  // Undo takes the ✕s back; the hint is still remembered.
+  while (undo(g) >= 0);
+  assert.ok(h.out.every(j => g.marks[j] === ''));
+  const j = h.out[0];
+  tap(g, j);
+  assert.equal(tap(g, j).known, 'No star here: a hint crossed it out.');
+  assert.equal(g.hearts, HEARTS);
+  // A square no hint or star rules out: a wrong look, as before.
+  const other = g.marks.findIndex((m, i) => m === '' && !g.sol.has(i) && !g.told.has(i));
+  tap(g, other);
+  assert.equal(tap(g, other).known, undefined);
+  assert.equal(g.marks[other], 'bad');
+  assert.equal(g.mistakes, 1);
+});
+
 test('hidden faces game: Show uncovers a face not yet found, once', () => {
   const g = game();
   look(g, MADE[0].faces[0]);
@@ -510,21 +615,24 @@ test('hidden faces: a bad puzzle can\'t start a game; the sizes are 6 to 10', ()
 // plays on the same; a kept game that isn't this puzzle's, or isn't
 // whole, is refused, saying why.
 test('hidden faces: a kept game comes back the same and plays on', () => {
-  const g = game();
-  const x = notFace(g);
+  const { g } = toldGame();                   // squares a hint crossed out remembered
+  const x = g.marks.findIndex((m, i) => m === '' && !g.sol.has(i) && !knownEmpty(g, i));
   tap(g, x);
   tap(g, x);                                  // a wrong look: a heart gone
-  const f = [...g.sol][0];
+  const f = [...g.sol].find(i => g.marks[i] !== 'face');
   look(g, f);                                 // a star, with Auto ✕
   const s = startStroke(g, notFace(g));
   strokeTo(g, s, notFace(g));
   endStroke(g, s);
-  useHint(g);
   const kept = JSON.parse(JSON.stringify(snapshotGame(g)));   // as stored
   const h = restoreGame(MADE[0], kept);
-  for (const k of ['n', 'auto', 'marks', 'hearts', 'hints', 'shows', 'mistakes', 'hintsUsed', 'showsUsed', 'undo', 'result']) {
+  for (const k of ['n', 'auto', 'marks', 'hearts', 'hints', 'shows', 'mistakes', 'hintsUsed', 'showsUsed', 'undo', 'told', 'result']) {
     assert.deepEqual(h[k], g[k], k);
   }
+  assert.ok(h.told.size > 0, 'the hint crossed nothing out: nothing checked');
+  // Kept before 2026-10-15 (no `told`): comes back, with nothing told.
+  const { told, ...older } = kept;
+  assert.equal(restoreGame(MADE[0], older).told.size, 0);
   assert.deepEqual([...h.sol], [...g.sol]);
   assert.deepEqual(h.col, g.col, 'the same colours (same colorSeed)');
   assert.equal(h.hearts, HEARTS - 1);
@@ -552,6 +660,9 @@ test('hidden faces: a kept game that is not this puzzle\'s, or not whole, is ref
     [{ undo: [[[999, '']]] }, /bad undo/],
     [{ undo: [{ look: -1 }] }, /bad undo/],
     [{ undo: [[[0, 'face']]] }, /bad undo/],
+    [{ told: [MADE[0].faces[1]] }, /bad squares crossed out by hints/],
+    [{ told: [999] }, /bad squares crossed out by hints/],
+    [{ told: 'all' }, /bad squares crossed out by hints/],
   ];
   for (const [change, why] of bad) assert.throws(() => restoreGame(MADE[0], { ...kept, ...change }), why, JSON.stringify(change));
   assert.throws(() => restoreGame(MADE[1], kept), /size 6, not 7/, 'another puzzle');

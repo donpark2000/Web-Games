@@ -248,11 +248,40 @@ test('pages: Hidden Faces’ hint bar is empty and hidden between hints, its spa
   const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
   const clear = js.match(/function clearHint\(\) \{[\s\S]*?\n\}/)?.[0];
   assert.ok(clear, 'no clearHint()');
-  assert.match(clear, /\$\('hintbar'\)\.textContent = '';/, 'clearHint() leaves words in the hint bar');
-  assert.match(clear, /classList\.add\('idle'\)/);
+  assert.match(clear, /shown = null;[\s\S]*stopNote\(\);[\s\S]*paintBar\(\);/, 'clearHint() leaves a hint or a note');
+  const bar = js.match(/function paintBar\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(bar, /\} else \{\s*bar\.textContent = '';\s*bar\.classList\.add\('idle'\);\s*\}/, 'with no hint, the bar keeps words or shows');
   const css = await readFile(path.join(root, 'css/hidden-faces.css'), 'utf8');
   const idle = css.match(/\.hintbar\.idle \{([^}]*)\}/)?.[1] ?? '';
   assert.match(idle, /visibility: hidden/, 'the idle hint bar shows');
   assert.doesNotMatch(idle, /display: none|height/, 'the idle hint bar gives up its space');
   assert.match(css.match(/\.hintbar \{[^}]*\}/)?.[0] ?? '', /height: calc\(3 \* 1\.4em \+ 20px\)/, 'the hint bar is not 3 lines high');
+});
+
+// Find the Stars (developer, 2026-10-15): a touch on the board (or Undo)
+// puts the hint out but keeps its words, greyed, and a tap on them lights
+// it again; a look where there's known to be no star wiggles and says why,
+// with no "uh-oh", before anything else happens.
+test('pages: Find the Stars keeps the last hint’s words; a known-empty look is not a wrong one', async () => {
+  const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
+  const down = js.match(/\$\('board'\)\.addEventListener\('pointerdown', [\s\S]*?\n\}\);/)?.[0] ?? '';
+  assert.match(down, /dimHint\(\);/, 'a touch on the board doesn’t put the hint out');
+  assert.doesNotMatch(down, /clearHint\(\)/, 'a touch on the board clears the hint’s words');
+  const undoBtn = js.match(/\$\('undoBtn'\)\.onclick = [\s\S]*?\n\};/)?.[0] ?? '';
+  assert.match(undoBtn, /dimHint\(\);/);
+  assert.doesNotMatch(undoBtn, /clearHint\(\)/, 'Undo clears the hint’s words');
+  const dim = js.match(/function dimHint\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(dim, /shown\.lit = false;[\s\S]*unpaint\(\);[\s\S]*paintBar\(\);/, 'dimHint() doesn’t take it off the board and grey it');
+  assert.doesNotMatch(dim, /shown = null/, 'dimHint() forgets the hint');
+  const relight = js.match(/\$\('hintbar'\)\.addEventListener\('click', [\s\S]*?\n\}\);/)?.[0] ?? '';
+  assert.match(relight, /shown\.lit = true;[\s\S]*paintHint\(\);/, 'a tap on the greyed words doesn’t light the hint');
+  assert.match(js, /hint: shown && !G\.result \? \{ h: shown\.h, deep: shown\.deep, lit: shown\.lit \}/, 'a put-out hint comes back lit');
+  const after = js.match(/function afterLook\([\s\S]*?\n\}/)?.[0] ?? '';
+  const known = after.match(/if \(r\.known\) \{[\s\S]*?return;\s*\}/)?.[0] ?? '';
+  assert.ok(known && after.indexOf(known) < after.indexOf('if (r.face)'), 'a known-empty look isn’t handled first');
+  assert.match(known, /showNote\(r\.known\)/);
+  assert.doesNotMatch(known, /uhoh|lose\(\)|oops/, 'a known-empty look is treated as a wrong one');
+  const css = await readFile(path.join(root, 'css/hidden-faces.css'), 'utf8');
+  assert.match(css.match(/\.hintbar\.past \{[^}]*\}/)?.[0] ?? '', /color: var\(--muted\)/, 'the put-out hint isn’t greyed');
+  assert.match(css, /\.cell\.nope \.mk \{ animation: nope /);
 });

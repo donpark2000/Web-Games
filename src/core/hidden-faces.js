@@ -430,15 +430,38 @@ export function createGame(p, { auto = true, colorSeed = 0 } = {}) {
     mistakes: 0, hintsUsed: 0, showsUsed: 0,
     undo: [],          // groups of [square, mark before], or { look: square }
                        // for a wrong look; newest last
+    told: new Set(),   // squares a hint said to cross out (no star there)
     result: null,      // 'won' or 'lost'
   };
 }
 
 export const foundCount = g => g.marks.filter(m => m === 'face').length;
 
+// Why square i is already known to hold no star, in words, or null: a
+// found star rules it out (its row, column, colour or a neighbour), or a
+// hint said to cross it out. A look there tells nothing new, so it isn't
+// counted (developer, 2026-10-15: a double tap on a square a hint had just
+// crossed out cost a heart, and Undo kept the mistake).
+export function knownEmpty(g, i) {
+  const { n, reg, marks } = g;
+  if (g.sol.has(i)) return null;
+  const r = rowOf(n, i), c = i % n;
+  for (let f = 0; f < n * n; f++) {
+    if (marks[f] !== 'face' || f === i) continue;
+    const rf = rowOf(n, f), cf = f % n;
+    if (Math.abs(rf - r) <= 1 && Math.abs(cf - c) <= 1) return 'No star here: it touches a star.';
+    if (rf === r) return `No star here: row ${r + 1} already has its star.`;
+    if (cf === c) return `No star here: column ${c + 1} already has its star.`;
+    if (reg[f] === reg[i]) return `No star here: ${g.col[reg[i]].name} already has its star.`;
+  }
+  return g.told.has(i) ? 'No star here: a hint crossed it out.' : null;
+}
+
 // Look under square i: a face (with Auto ✕, the ✕s it implies), or a red
 // ✕ and a heart lost. Returns { ok, face, autoX: [squares ✕ed], won,
-// lost } or { ok: false, why }.
+// lost } or { ok: false, why }. Where the board or a hint already says
+// there's no star (knownEmpty), nothing changes: { ok, face: false,
+// known: its words, ... }.
 export function look(g, i) {
   if (g.result) return { ok: false, why: 'over' };
   if (!(Number.isInteger(i) && i >= 0 && i < g.marks.length)) return { ok: false, why: 'bad-square' };
@@ -451,6 +474,8 @@ export function look(g, i) {
     if (won) g.result = 'won';
     return { ok: true, face: true, autoX, won, lost: false };
   }
+  const known = knownEmpty(g, i);
+  if (known) return { ok: true, face: false, known, autoX: [], won: false, lost: false };
   g.marks[i] = 'bad';
   g.hearts--;
   g.mistakes++;
@@ -663,6 +688,7 @@ export function useHint(g) {
   if (g.hints <= 0) return { ok: false, why: 'none-left' };
   const h = findHint(g);
   if (h.kind !== 'none') { g.hints--; g.hintsUsed++; }
+  for (const i of h.out) g.told.add(i);
   return { ok: true, ...h };
 }
 
@@ -671,11 +697,11 @@ export function useHint(g) {
 const MARKS = ['', 'x', 'face', 'bad', 'ghost'];
 
 // What to keep of game g (plain data): the marks, what's left and used,
-// the undo steps and the result. The puzzle itself is kept by the screen
-// as its size and number.
+// the undo steps, the squares hints crossed out and the result. The
+// puzzle itself is kept by the screen as its size and number.
 export function snapshotGame(g) {
   const { n, auto, marks, hearts, hints, shows, mistakes, hintsUsed, showsUsed, undo: steps, result } = g;
-  return JSON.parse(JSON.stringify({ n, auto, marks, hearts, hints, shows, mistakes, hintsUsed, showsUsed, undo: steps, result }));
+  return JSON.parse(JSON.stringify({ n, auto, marks, hearts, hints, shows, mistakes, hintsUsed, showsUsed, undo: steps, told: [...g.told].sort((a, b) => a - b), result }));
 }
 
 // Game g of puzzle p as it was kept (snapshotGame's). Throws, saying why,
@@ -695,11 +721,14 @@ export function restoreGame(p, kept, { colorSeed = 0 } = {}) {
   const stepOk = st => (st && !Array.isArray(st) ? sq(st.look)
     : Array.isArray(st) && st.every(c => Array.isArray(c) && sq(c[0]) && (c[1] === '' || c[1] === 'x')));
   if (!Array.isArray(k.undo) || !k.undo.every(stepOk)) throw new Error('restoreGame: bad undo steps');
+  // Kept before 2026-10-15: no `told` (no square known from a hint).
+  const told = k.told ?? [];
+  if (!Array.isArray(told) || !told.every(i => sq(i) && !p.faces.includes(i))) throw new Error('restoreGame: bad squares crossed out by hints');
   const g = createGame(p, { auto: !!k.auto, colorSeed });
   Object.assign(g, {
     marks: [...k.marks], hearts: k.hearts, hints: k.hints, shows: k.shows,
     mistakes: k.mistakes, hintsUsed: k.hintsUsed, showsUsed: k.showsUsed,
-    undo: JSON.parse(JSON.stringify(k.undo)), result: k.result,
+    undo: JSON.parse(JSON.stringify(k.undo)), told: new Set(told), result: k.result,
   });
   return g;
 }

@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-15): every game carries on where it was left, and the
+*Status (2026-10-15, later): Find the Stars: a look where there's known
+to be no star costs nothing, and the last hint's words stay in the bar,
+greyed (built, not yet published). Earlier 2026-10-15: every game carries on where it was left, and the
 installed app's icon goes back to the game left (published
 2026-10-15). 2026-10-14: Hidden Faces renamed **Find the Stars** (one white
 star hides, no faces), bigger ✕s, no wait on a double tap, the end in
@@ -533,9 +535,10 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
 - **Play:** 🏠, the star and "8×8 · puzzle 1" (one line), 🔊; hearts ❤️❤️❤️, "3 of
   8 found", a clock; the board as big as fits with no scrolling (thick
   lines between colours, thin inside one); a **hint bar always 3 lines
-  high** (a hint never moves the board), **empty and hidden between
-  hints** (developer, 2026-10-13: "Tap 💡 for the next step, explained"
-  wasn't needed, and stayed with no hints left); **Undo**, **💡 Hint** (3 per
+  high** (a hint never moves the board), **empty and hidden until the
+  first hint** (developer, 2026-10-13: "Tap 💡 for the next step, explained"
+  wasn't needed, and stayed with no hints left), then the last hint's
+  words, greyed (see "Hints"); **Undo**, **💡 Hint** (3 per
   puzzle), **👁 Show** (uncovers a star; 1 per puzzle).
 - **✕s are drawn lines**, nearly black, about 60% of a square (developer,
   2026-10-14: the first ✕s, 40% and see-through grey, were hard to see
@@ -556,6 +559,15 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   (developer, 2026-10-14: the 0.4 s wait for a slip, built 2026-10-13,
   was too long, and Undo takes back a wrong look); a double tap on the
   last heart still ends the game (developer, 2026-10-14: OK).
+  **A look where there's known to be no star costs nothing** (developer,
+  2026-10-15: after a hint, a double tap on a square it crossed out cost
+  a heart, and Undo kept the mistake): a square a found star rules out
+  (its row, column, colour or a neighbour, Auto ✕ or not) or a hint said
+  to cross out (remembered for the rest of the puzzle, after Undo too).
+  The ✕ stays and wiggles, a tick, and the hint bar says why for 2.5 s
+  ("No star here: row 3 already has its star.", "No star here: a hint
+  crossed it out."); no heart, no mistake. Such a look tells nothing new,
+  so it's no free guess; anywhere else a wrong look counts as before.
   **Two quick taps never zoom
   the page** (developer, 2026-10-13: the iPhone zoomed in on a ✕-then-look
   and there was no way back): the board cancels each touch's end.
@@ -569,6 +581,12 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   ("the ringed square (row 3, column 1)"); squares to cross out a dark ✕
   with a white edge (developer, 2026-10-13: in v1 "it is not clear where
   'here' is").
+- **The last hint's words stay** (developer, 2026-10-15: to check it was
+  understood after following it): a touch on the board (or Undo) takes
+  the hint off the board, but its words stay in the bar, greyed, until
+  the next hint, 👁 Show or the end. **A tap on the greyed words lights
+  it again** (free: the same hint), with its ❓ Why?. While greyed, the
+  button is 💡 Hint again. Kept with the game, greyed or lit.
 - **❓ Why?** (developer, 2026-10-14, from the agreed
   [Why Hint Mockup](https://claude.ai/artifact/1ogeXejM7WRrnBtGFKqXq5),
   version 1: where to put a star or a ✕ was clear, "but the reasoning is

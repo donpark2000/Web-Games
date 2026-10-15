@@ -19,7 +19,7 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '45db805c0b9f';
+const VERSION = '069fe186bfee';
 const MADE = '2026-10-15';
 const FILES = [
   'connect-four.html',
