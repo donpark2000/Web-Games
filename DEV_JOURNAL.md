@@ -6,7 +6,20 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-None.
+- **Q20. Back on the home page after switching apps: avoidable?**
+  *Raised 2026-10-15:* in the installed app on the developer's phone,
+  switching to another app and back sometimes lands on the home page,
+  even from the middle of a game. Claude's reading (not yet confirmed
+  on the device): the phone closed the backgrounded app to free memory,
+  and an installed app reopens at its start page (`start_url: "./"` in
+  `manifest.webmanifest`); nothing in our code goes back home
+  (`src/ui/offline.js` logs a new version taking over but never
+  reloads). Evidence to get: the debug log just after it happens, where
+  a fresh home-page heading at the return time means a relaunch. Not
+  inevitable, two separate fixes: reopen the last page (remembered on
+  the device), and resume the game itself (each game saves its state as
+  it goes; none does now; Find the Stars keeps only the next puzzle and
+  best times).
 
 ## Proposed additions to the standards skill
 
