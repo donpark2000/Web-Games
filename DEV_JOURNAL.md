@@ -4832,3 +4832,30 @@ and `why: back to the hint`. No console errors. "Would rule out" on the
 board was checked in the mockup (same UI code). The browser's saved
 progress was empty before and was removed after; Claude's server
 stopped.
+
+## 2026-10-14: Why? published
+
+Published with the developer's OK ("Build and publish"): `main`
+fast-forwarded to 117e3a0 and pushed; the Pages build for 117e3a0 was
+"built", and the server sends version ed48dd343284 and a
+`hidden-faces.js` with `explainHint` (curl). **Checked live** (built-in
+browser, after one reload): version ed48dd343284; on 6 x 6 the first hint
+("Brown is just one square") turned 💡 Hint into ❓ Why?, and Why? showed
+"Brown needs a star, like every colour, and it's just this one square."
+with its outline, the button reading 💡 The hint. The browser's saved
+progress was empty before and removed after. No local servers running.
+
+## 2026-10-14: Status (start here next session)
+
+**Branch `star-battle`**, published (`main` = 117e3a0, checked live):
+Find the Stars has ❓ Why? under a hint (a pretend star, labels and
+outlines on the board, a line of words). `npm test`: 246 of 246.
+
+**Next:** the developer is playing a few real games to look for other
+problems. A confusing hint can now be read back from the debug log
+(`log.html`), which keeps each hint's words. Then: more Find the Stars
+feedback, difficulty levels for it, or the DESIGN.md "Later" list.
+
+**Open questions:** none. **Proposed skill additions:** one waiting (a
+style loaded on every page needs a unique name), for the developer to
+review.
