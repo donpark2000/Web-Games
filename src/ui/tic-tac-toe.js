@@ -6,10 +6,12 @@ import {
   FACE_NAMES, FIRST_RULES, checkFaces, createMatch, newRound, place, robotMove,
 } from '../core/tic-tac-toe.js';
 import { endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
+import { resumable } from './resume.js';
 
 const ROBOT_THINK_MS = 800;
 const MIN_CELL = 56;     // smaller squares than this: the page scrolls instead
@@ -30,6 +32,10 @@ let justPlaced = null;   // the square to "pop" in
 let moods = null;
 let cheering = false;
 let cheerTimer = null;
+
+// Kept on the device after every change, and picked up when the page
+// opens (DESIGN.md "Coming back to a game").
+const resume = resumable('tic-tac-toe', 1, () => ({ screen: match ? 'play' : 'setup', setup, match }));
 
 const WHY = {
   'p1-missing': () => (setup.vsRobot ? 'Pick your face first.' : 'Player 1 needs a face.'),
@@ -62,6 +68,7 @@ function renderSetup() {
   const code = checkFaces(setup);
   $('playBtn').disabled = !!code;
   $('why').textContent = code ? WHY[code]() : '';
+  resume.keep();
 }
 
 // One button per face. The other player's face is greyed out: both players
@@ -100,12 +107,15 @@ $('playBtn').onclick = () => {
   if (checkFaces(setup) || !FIRST_RULES.includes(setup.firstRule)) return;
   match = createMatch(setup);
   L('match started', { faces: match.faces, firstRule: match.firstRule });
-  $('setup').hidden = true;
-  $('play').hidden = false;
-  scrollTo(0, 0);
+  showPlay();
   startRound();
   fitBoard();
 };
+function showPlay() {
+  $('setup').hidden = true;
+  $('play').hidden = false;
+  scrollTo(0, 0);
+}
 
 // The play screen's square size: the biggest that
 // lets the whole page fit the screen, up to what the width allows (board
@@ -230,6 +240,7 @@ function renderPlay() {
   $('s2Who').textContent = nameOf(faceOf(2));
   $('side1').classList.toggle('now', !r && match.turn === 1);
   $('side2').classList.toggle('now', !r && match.turn === 2);
+  resume.keep();
 }
 
 $('againBtn').onclick = () => { L('play again'); startRound(); };
@@ -244,5 +255,33 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
+// The game kept last time, as it was left: a robot's move is made again,
+// a finished round shows its smiling and "aww" faces.
+function restore() {
+  const kept = resume.saved;
+  if (!kept) return false;
+  try {
+    mergeSetup(setup, kept.setup);
+    if (kept.screen !== 'play') { renderSetup(); return true; }
+    match = kept.match;
+    if (match.result) moods = endMoods(match.result.winner);
+    showPlay();
+    renderPlay();
+    fitBoard();
+    maybeRobot();
+    L('resumed', { faces: match.faces, board: match.board.join(''), turn: match.turn, result: match.result, scores: match.scores });
+    return true;
+  } catch (e) {
+    L('resume failed: a new game', { error: String(e) });
+    resume.clear();
+    cancelRobot();
+    match = null;
+    moods = null;
+    $('play').hidden = true;
+    $('setup').hidden = false;
+    return false;
+  }
+}
+
 startLog('tic-tac-toe');
-renderSetup();
+restore() || renderSetup();

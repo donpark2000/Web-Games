@@ -7,11 +7,13 @@ import {
   createMatch, newRound, flip, settle,
 } from '../core/matching.js';
 import { FACE_NAMES, endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
+import { resumable } from './resume.js';
 
 const SHOW_MATCH_MS = 600;    // "A match!" before the pair settles
 const SHOW_MISS_MS = 1500;    // "Not a match": the two cards stay up this long
@@ -35,6 +37,10 @@ let just = [];             // the pair just found (it wiggles)
 let moods = null;
 const anim = { 1: '', 2: '' };
 const animTimers = { 1: null, 2: null };
+
+// Kept on the device after every change, and picked up when the page
+// opens (DESIGN.md "Coming back to a game").
+const resume = resumable('matching', 1, () => ({ screen: match ? 'play' : 'setup', setup, match }));
 
 const WHY = {
   'p1-missing': () => (setup.solo ? 'Pick your face first.' : 'Player 1 needs a face.'),
@@ -125,6 +131,7 @@ function renderSetup() {
   const code = checkFaces({ onePlayer: solo, p1: setup.p1, p2: setup.p2 });
   $('playBtn').disabled = !!code;
   $('why').textContent = code ? WHY[code]() : '';
+  resume.keep();
 }
 
 // One button per face. The other player's face is greyed out: two players
@@ -194,11 +201,14 @@ $('playBtn').onclick = () => {
   if (checkFaces({ onePlayer: setup.solo, p1: setup.p1, p2: setup.p2 }) || !FIRST_RULES.includes(setup.firstRule)) return;
   match = createMatch(setup);
   L('match started', { solo: match.solo, faces: match.faces, size: sizeKey(match.size), firstRule: match.firstRule });
+  showPlay();
+  startRound();
+};
+function showPlay() {
   $('setup').hidden = true;
   $('play').hidden = false;
   scrollTo(0, 0);
-  startRound();
-};
+}
 
 /* ---------- play screen ---------- */
 
@@ -361,6 +371,7 @@ function renderPlay() {
       + `<span class="w">Ties ${match.wins.ties}</span>`
       + `<span class="w">${chipSvg(2, 'normal')}<span class="nm">${nameOf(faceOf(2))}</span>${match.wins[2]}</span>`;
   }
+  resume.keep();
 }
 
 $('againBtn').onclick = () => { L('play again'); startRound(); };
@@ -381,5 +392,36 @@ addEventListener('resize', () => {
   else renderSizes();
 });
 
+// The game kept last time, as it was left: two cards left showing settle
+// (a pair is scored, a miss turns back), a finished round shows its
+// smiling and "aww" faces.
+function restore() {
+  const kept = resume.saved;
+  if (!kept) return false;
+  try {
+    mergeSetup(setup, kept.setup);
+    if (kept.screen !== 'play') { renderSetup(); return true; }
+    match = kept.match;
+    if (match.result) moods = endMoods(match.result.winner, { solo: match.solo });
+    showPlay();
+    buildGrid();
+    buildScorecard();
+    renderPlay();
+    layoutGrid();
+    if (match.pending) settleTimer = setTimeout(settleNow, match.pending === 'match' ? SHOW_MATCH_MS : SHOW_MISS_MS);
+    L('resumed', { solo: match.solo, faces: match.faces, size: sizeKey(match.size), pairs: match.pairs, turns: match.turns, pending: match.pending, result: match.result });
+    return true;
+  } catch (e) {
+    L('resume failed: a new game', { error: String(e) });
+    resume.clear();
+    cancelSettle();
+    match = null;
+    moods = null;
+    $('play').hidden = true;
+    $('setup').hidden = false;
+    return false;
+  }
+}
+
 startLog('matching');
-renderSetup();
+restore() || renderSetup();

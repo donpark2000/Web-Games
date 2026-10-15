@@ -7,11 +7,13 @@ import {
   COLS, ROWS, GOAL, FACE_NAMES, FIRST_RULES, numAt, centre, boardTotals, checkFaces, createMatch, newRound, move, rollDie,
 } from '../core/snakes-ladders.js';
 import { endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { boardArtSvg, snakePoints, dotsSvg, cubeSvg } from './snlart.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
+import { resumable } from './resume.js';
 
 // Timings (mockup v3).
 const THINK_MS = 800;    // the robot "is thinking..." before it rolls
@@ -42,6 +44,10 @@ const pieceMood = { 1: 'normal', 2: 'normal' };
 // The end of a round on the scorecard, as in the other games.
 let moods = null;
 let cheering = false;
+
+// Kept on the device after every change, and picked up when the page
+// opens (DESIGN.md "Coming back to a game").
+const resume = resumable('snakes-ladders', 1, () => ({ screen: match ? 'play' : 'setup', setup, match, pieceMood }));
 
 const later = (fn, ms) => { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); };
 function stopAll() {
@@ -80,6 +86,7 @@ function renderSetup() {
   const code = checkFaces(setup);
   $('playBtn').disabled = !!code;
   $('why').textContent = code ? WHY[code]() : '';
+  resume.keep();
 }
 
 function fillPicker(box, mine, theirs, onPick) {
@@ -116,12 +123,15 @@ $('playBtn').onclick = () => {
   if (checkFaces(setup) || !FIRST_RULES.includes(setup.firstRule)) return;
   match = createMatch(setup);
   L('match started', { faces: match.faces, firstRule: match.firstRule });
-  $('setup').hidden = true;
-  $('play').hidden = false;
-  scrollTo(0, 0);
+  showPlay();
   startRound();
   fitBoard();
 };
+function showPlay() {
+  $('setup').hidden = true;
+  $('play').hidden = false;
+  scrollTo(0, 0);
+}
 
 // The square size: the biggest that lets the whole page fit the screen, up
 // to what the width allows (board at most 520px). The die follows it (at
@@ -340,19 +350,23 @@ function slide(r) {
 function endTurn() { later(nextTurn, PAUSE_MS); }
 
 // The winner's piece and scorecard face cheer; the other shows "aww".
-function won(p) {
+// `quiet`: a finished round picked up again (no sound or cheer).
+function won(p, quiet = false) {
   busy = true;
   $('die').disabled = true;
   placeBoth();
-  L('round won', { winner: faceOf(p), moves: match.moves, scores: { ...match.scores }, nextStarter: faceOf(match.starter) });
-  sound.play(endSound(p, { vsRobot: match.vsRobot }));
-  turnLine(svg(faceOf(p), 'winner'), `${nameOf(faceOf(p))} wins!`, true);
+  if (!quiet) {
+    L('round won', { winner: faceOf(p), moves: match.moves, scores: { ...match.scores }, nextStarter: faceOf(match.starter) });
+    sound.play(endSound(p, { vsRobot: match.vsRobot }));
+  }
+  turnLine(svg(faceOf(p), 'winner'), `${nameOf(faceOf(p))} wins!`, !quiet);
   $('turn').classList.add('won');
   setPieceMood(p, 'winner');
   pieces[p].classList.add('win');
   setPieceMood(3 - p, 'sad');
   for (const q of [1, 2]) pieces[q].classList.remove('now');
-  startCheer(p);
+  if (quiet) moods = endMoods(p);
+  else startCheer(p);
   renderScores();
 }
 
@@ -371,6 +385,7 @@ function renderScores() {
   $('s2Who').textContent = nameOf(faceOf(2));
   $('side1').classList.toggle('now', !r && match.turn === 1);
   $('side2').classList.toggle('now', !r && match.turn === 2);
+  resume.keep();
 }
 
 $('die').onclick = tapDie;
@@ -385,5 +400,37 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
+// The game kept last time, as it was left: the pieces where their moves
+// ended (a roll being shown is done), then whose turn it is; a finished
+// round shows its smiling and "aww" faces.
+function restore() {
+  const kept = resume.saved;
+  if (!kept) return false;
+  try {
+    mergeSetup(setup, kept.setup);
+    if (kept.screen !== 'play') { renderSetup(); return true; }
+    match = kept.match;
+    showPlay();
+    for (const p of [1, 2]) setPieceMood(p, ['normal', 'winner', 'sad'].includes(kept.pieceMood?.[p]) ? kept.pieceMood[p] : 'normal');
+    renderBoard();
+    placeBoth();
+    renderScores();
+    fitBoard();
+    if (match.result) won(match.result.winner, true);
+    else nextTurn();
+    L('resumed', { faces: match.faces, pos: match.pos, turn: match.turn, result: match.result, scores: match.scores });
+    return true;
+  } catch (e) {
+    L('resume failed: a new game', { error: String(e) });
+    resume.clear();
+    stopAll();
+    match = null;
+    moods = null;
+    $('play').hidden = true;
+    $('setup').hidden = false;
+    return false;
+  }
+}
+
 startLog('snakes-ladders');
-renderSetup();
+restore() || renderSetup();

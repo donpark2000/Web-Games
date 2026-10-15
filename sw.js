@@ -19,8 +19,8 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'ed48dd343284';
-const MADE = '2026-10-14';
+const VERSION = '45db805c0b9f';
+const MADE = '2026-10-15';
 const FILES = [
   'connect-four.html',
   'count-to-9.html',
@@ -67,6 +67,7 @@ const FILES = [
   'src/core/net.js',
   'src/core/nim.js',
   'src/core/players.js',
+  'src/core/resume.js',
   'src/core/rock-paper-scissors.js',
   'src/core/snakes-ladders.js',
   'src/core/stats.js',
@@ -91,6 +92,7 @@ const FILES = [
   'src/ui/nim.js',
   'src/ui/numbercard.js',
   'src/ui/offline.js',
+  'src/ui/resume.js',
   'src/ui/rock-paper-scissors.js',
   'src/ui/rpspics.js',
   'src/ui/snakes-ladders.js',

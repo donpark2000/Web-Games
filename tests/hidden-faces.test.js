@@ -4,7 +4,7 @@ import {
   SIZES, HEARTS, HINTS, SHOWS, LEVEL, MAKE_LEVEL, DEMO, COLORS, PROGRESS_KEY,
   seenBy, units, newState, place, nextStep, solve, generate, connected, hardEnough, problems, colorsFor,
   createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, canUndo, showOne, findHint, useHint,
-  explainHint,
+  explainHint, snapshotGame, restoreGame,
   readProgress, recordTime, clock, mulberry32,
 } from '../src/core/hidden-faces.js';
 
@@ -503,4 +503,58 @@ test('hidden faces: a bad puzzle can\'t start a game; the sizes are 6 to 10', ()
   place(s, MADE[0].faces[0]);
   assert.equal(s.cand.reduce((t, c) => t + c, 0), 36 - seenBy(6, MADE[0].reg, MADE[0].faces[0]).length);
   assert.ok(nextStep(s));
+});
+
+// A game kept on the device (DESIGN.md "Coming back to a game"): what
+// snapshotGame keeps comes back with restoreGame as the same game, which
+// plays on the same; a kept game that isn't this puzzle's, or isn't
+// whole, is refused, saying why.
+test('hidden faces: a kept game comes back the same and plays on', () => {
+  const g = game();
+  const x = notFace(g);
+  tap(g, x);
+  tap(g, x);                                  // a wrong look: a heart gone
+  const f = [...g.sol][0];
+  look(g, f);                                 // a star, with Auto ✕
+  const s = startStroke(g, notFace(g));
+  strokeTo(g, s, notFace(g));
+  endStroke(g, s);
+  useHint(g);
+  const kept = JSON.parse(JSON.stringify(snapshotGame(g)));   // as stored
+  const h = restoreGame(MADE[0], kept);
+  for (const k of ['n', 'auto', 'marks', 'hearts', 'hints', 'shows', 'mistakes', 'hintsUsed', 'showsUsed', 'undo', 'result']) {
+    assert.deepEqual(h[k], g[k], k);
+  }
+  assert.deepEqual([...h.sol], [...g.sol]);
+  assert.deepEqual(h.col, g.col, 'the same colours (same colorSeed)');
+  assert.equal(h.hearts, HEARTS - 1);
+  // Both play on alike: Undo back to the wrong look gives the heart back.
+  while (undo(g) >= 0);
+  while (undo(h) >= 0);
+  assert.deepEqual(h.marks, g.marks);
+  assert.equal(h.hearts, HEARTS);
+  assert.notEqual(h.marks, kept.marks, 'not sharing the kept arrays');
+});
+
+test('hidden faces: a kept game that is not this puzzle\'s, or not whole, is refused', () => {
+  const g = game();
+  look(g, [...g.sol][0]);
+  const kept = snapshotGame(g);
+  const bad = [
+    [{ n: 7 }, /size 7, not 6/],
+    [{ marks: kept.marks.slice(1) }, /bad marks/],
+    [{ marks: kept.marks.map((m, i) => (i === 0 ? 'star' : m)) }, /bad marks/],
+    [{ marks: kept.marks.map((m, i) => (i === notFace(g) ? 'face' : m)) }, /a star the puzzle hasn't/],
+    [{ hearts: HEARTS + 1 }, /bad hearts/],
+    [{ hints: -1 }, /bad hearts, hints/],
+    [{ mistakes: 1.5 }, /bad counts/],
+    [{ result: 'maybe' }, /bad result/],
+    [{ undo: [[[999, '']]] }, /bad undo/],
+    [{ undo: [{ look: -1 }] }, /bad undo/],
+    [{ undo: [[[0, 'face']]] }, /bad undo/],
+  ];
+  for (const [change, why] of bad) assert.throws(() => restoreGame(MADE[0], { ...kept, ...change }), why, JSON.stringify(change));
+  assert.throws(() => restoreGame(MADE[1], kept), /size 6, not 7/, 'another puzzle');
+  assert.throws(() => restoreGame(MADE[0], null), /size/);
+  assert.doesNotThrow(() => restoreGame(MADE[0], kept));
 });

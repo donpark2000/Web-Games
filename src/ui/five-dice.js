@@ -11,12 +11,14 @@ import {
 } from '../core/five-dice.js';
 import { bestPlay, useValues, hasValues, fromFile, gameWorth } from '../core/five-dice-best.js';
 import { FACE_NAMES, endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { dotsSvg, cubeSvg } from './snlart.js';
 import { BOX_PICS, HELP } from './fivedice-pics.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
+import { resumable } from './resume.js';
 
 const UNDO_MS = 3000;    // after scoring, Undo shows this long, then the turn passes (css: --undo)
 const SPIN_MS = 75;      // the dice tumble: a new face this often...
@@ -54,6 +56,10 @@ let yay = false;         // five the same: the dice wiggle
 let moods = null;
 let cheering = false;
 
+// Kept on the device after every change, and picked up when the page
+// opens (DESIGN.md "Coming back to a game").
+const resume = resumable('five-dice', 1, () => ({ screen: match ? 'play' : 'setup', setup, match }));
+
 const later = (fn, ms) => { const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; };
 function stopAll() {
   if (timers.length) L('pending steps cancelled', { count: timers.length });
@@ -90,6 +96,7 @@ function renderSetup() {
   const code = checkFaces(setup);
   $('playBtn').disabled = !!code;
   $('why').textContent = code ? WHY[code]() : '';
+  resume.keep();
 }
 
 function fillPicker(box, mine, theirs, onPick) {
@@ -128,11 +135,14 @@ $('playBtn').onclick = () => {
   match = createMatch(setup);
   L('match started', { mode: match.mode, faces: match.faces, length: match.length });
   if (match.mode === 'robot' && match.length === 'long') loadLongValues();
+  showPlay();
+  startRound();
+};
+function showPlay() {
   $('setup').hidden = true;
   $('play').hidden = false;
   scrollTo(0, 0);
-  startRound();
-};
+}
 
 // The row and die sizes: the biggest that let the whole page fit the
 // screen (rows and dice grow together), the dice no wider than the tray
@@ -271,8 +281,13 @@ function tapDie(i) {
   const n = match.up.filter(Boolean).length;
   L(r.up ? 'die picked up' : 'die put back', { die: i, shows: match.dice[i], up: n });
   sound.play('tick');
-  sayP(match.turn, n ? `Roll ${n === 5 ? 'them all' : n === 1 ? 'that one' : `those ${n}`}?` : pickWords());
+  sayP(match.turn, rollWords());
   render();
+}
+// After a roll: what to do next, with the dice picked up so far.
+function rollWords() {
+  const n = match.up.filter(Boolean).length;
+  return n ? `Roll ${n === 5 ? 'them all' : n === 1 ? 'that one' : `those ${n}`}?` : pickWords();
 }
 
 // A box: one tap puts the score there (developer: two taps were tedious).
@@ -326,17 +341,20 @@ function finishTurn() {
 
 // The winner's scorecard face cheers; the other shows "aww" (both cheer on
 // a tie). Playing alone: the points, and "Your best!" for a new best.
-function endRound(result) {
+// `quiet`: a finished game picked up again (no sound or cheer).
+function endRound(result, quiet = false) {
   const solo = match.mode === 'solo';
   moods = endMoods(result.winner, { solo });
-  sound.play(endSound(result.winner, { vsRobot: match.mode === 'robot', solo }));
-  cheering = true;
-  L('game over', { winner: result.winner ? faceOf(result.winner) : 'tie', points: result.points, wins: { ...match.wins },
-    best: match.best, newBest: result.best, nextStarter: faceOf(match.starter) });
-  later(() => { cheering = false; renderBoard(); }, CHEER_MS);
-  if (solo) sayP(1, `<b>${result.points[1]}</b> points!${result.best ? ' Your best!' : ''}`, true);
-  else if (result.winner) sayP(result.winner, `${nameOf(faceOf(result.winner))} wins!`, true);
-  else say('<span class="say">It’s a tie!</span>', true);
+  if (!quiet) {
+    sound.play(endSound(result.winner, { vsRobot: match.mode === 'robot', solo }));
+    cheering = true;
+    L('game over', { winner: result.winner ? faceOf(result.winner) : 'tie', points: result.points, wins: { ...match.wins },
+      best: match.best, newBest: result.best, nextStarter: faceOf(match.starter) });
+    later(() => { cheering = false; renderBoard(); }, CHEER_MS);
+  }
+  if (solo) sayP(1, `<b>${result.points[1]}</b> points!${result.best ? ' Your best!' : ''}`, !quiet);
+  else if (result.winner) sayP(result.winner, `${nameOf(faceOf(result.winner))} wins!`, !quiet);
+  else say('<span class="say">It’s a tie!</span>', !quiet);
   $('turn').classList.add('won');
   render();
 }
@@ -451,6 +469,7 @@ function setChip(el, face, mood) {
 // Points this game and games won; playing alone, points and the best for
 // this length.
 function renderBoard() {
+  resume.keep();
   const solo = match.mode === 'solo', r = match.result, len = match.length === 'long' ? 'Long' : 'Short';
   for (const p of [1, 2]) $(`side${p}`).classList.toggle('now', !solo && !r && match.turn === p);
   setChip($('s1Chip'), faceOf(1), moods?.[1] ?? 'normal');
@@ -514,5 +533,55 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
+// The game kept last time, as it was left: the same dice and rolls; a box
+// just scored can still be undone for the usual 3 s; the robot thinks
+// again about its dice (any it had picked up go back down); a finished game
+// shows its result.
+function restore() {
+  const kept = resume.saved;
+  if (!kept) return false;
+  try {
+    mergeSetup(setup, kept.setup);
+    if (kept.screen !== 'play') { renderSetup(); return true; }
+    match = kept.match;
+    if (match.mode === 'robot' && match.length === 'long') loadLongValues();
+    showPlay();
+    const p = match.turn;
+    if (match.result) {
+      render();
+      endRound(match.result, true);
+      $('turn').classList.add('won');
+    } else if (match.scored) {
+      just = { p, box: match.scored };
+      const pts = match.cards[p][match.scored];
+      sayP(p, pts ? `<b>+${pts}</b>` : 'Zero this time');
+      render();
+      passTimer = later(finishTurn, isRobot(p) ? ROBOT_WAIT.after : UNDO_MS);
+    } else if (match.rolls === 0) {
+      beginTurn();
+    } else if (robotsTurn()) {
+      match.up.fill(false);
+      sayP(p, 'Robot is thinking…');
+      render();
+      later(robotThink, ROBOT_WAIT.look);
+    } else {
+      sayP(p, rollWords());
+      render();
+    }
+    fit();
+    L('resumed', { mode: match.mode, length: match.length, faces: match.faces, turn: p, dice: match.dice, rolls: match.rolls, scored: match.scored, result: match.result });
+    return true;
+  } catch (e) {
+    L('resume failed: a new game', { error: String(e) });
+    resume.clear();
+    stopAll();
+    match = null;
+    moods = null;
+    $('play').hidden = true;
+    $('setup').hidden = false;
+    return false;
+  }
+}
+
 startLog('five-dice');
-renderSetup();
+restore() || renderSetup();

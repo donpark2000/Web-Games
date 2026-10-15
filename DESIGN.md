@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-14): Hidden Faces renamed **Find the Stars** (one white
+*Status (2026-10-15): every game carries on where it was left, and the
+installed app's icon goes back to the game left (built, not yet
+published). 2026-10-14: Hidden Faces renamed **Find the Stars** (one white
 star hides, no faces), bigger ✕s, no wait on a double tap, the end in
 the hint bar; the 🏠 one size (80 px) in every game, drawn by the site;
 Nim's and Matching's setup pictures fixed (published 2026-10-14).
@@ -751,6 +753,41 @@ work in the car too (developer, 2026-10-10; journal, Q13).
   showed "Not saved for offline yet"). When a new version takes over
   while the page is open: "(new version next time: …)". **Tapping it
   opens the log page** (see "Structure").
+
+## Coming back to a game
+
+Like other phone apps, the games carry on where they were left
+(developer, 2026-10-15: "If you do not explicitly close them, you always
+come back to where you left off"; journal Q20). The iPhone's installed
+app, opened from its icon, starts again on the home page (from the app
+switcher it's as it was).
+
+- **Every game keeps its state on the device** (localStorage, one entry
+  per game, `src/core/resume.js` and `src/ui/resume.js`) after every
+  change and as the page is hidden or left, and **picks it up when it
+  opens**: the screen (setup or play), the setup picks, and on the play
+  screen the whole game, scores and "Games won" too.
+- **As it was left**, with what was moving finished or done again: a
+  robot's turn starts again; two cards left showing settle; a roll or a
+  move being shown is done (Snakes and Ladders: the pieces where they
+  landed); a Five Dice box just scored keeps its 3 s Undo; Nim's matches
+  picked up stay picked up; Rock paper scissors and Follow Me say
+  "Ready?" and play the round again (Follow Me shows the same order
+  again); a finished round shows its end, without the sound or cheer.
+  Find the Stars: the same puzzle, board, hearts, hints and Show left,
+  Undo, the clock and the hint on show (with its Why?); a finished
+  puzzle shows its result.
+- **The home page, opened by the app's icon, goes straight back to the
+  game left** (not in a browser tab, which keeps its own page, and not
+  after 🏠 or back). **🏠 is leaving on purpose**: the home page stays;
+  the game is still kept, and opening it again carries on. **New game**
+  goes back to the setup screen, as before.
+- A kept game that can't be read (an older format after an update, or a
+  Find the Stars puzzle no longer in the stock) is dropped, logged, and
+  the game starts at its setup screen.
+- Logged ("resume"): a kept game found (its screen, how long ago) or not
+  used and why; each game's "resumed" with what it picked up; going back
+  from the home page and why it did or didn't.
 
 ## Later
 

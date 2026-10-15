@@ -7,11 +7,13 @@ import {
   robotMove, robotPicks,
 } from '../core/nim.js';
 import { endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { MATCH_SVG } from './matchstick.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
+import { resumable } from './resume.js';
 
 // The robot at a person's pace (agreed mockup, 2026-10-08): it thinks,
 // lifts its matches one at a time, waits a moment, then takes them.
@@ -43,6 +45,14 @@ let moods = null;
 let cheering = false;
 let cheerTimer = null;
 
+// Kept on the device after every change, and picked up when the page
+// opens (DESIGN.md "Coming back to a game").
+// A person's matches picked up but not yet taken are kept too.
+const resume = resumable('nim', 1, () => ({
+  screen: match ? 'play' : 'setup', setup, match,
+  picks: match && sel && !busy && !robotsTurn() ? { row: sel.row, picks: [...sel.picks] } : null,
+}));
+
 const WHY = {
   'p1-missing': () => (setup.vsRobot ? 'Pick your face first.' : 'Player 1 needs a face.'),
   'p2-missing': () => 'Player 2 needs a face.',
@@ -73,6 +83,7 @@ function renderSetup() {
   const code = checkFaces(setup);
   $('playBtn').disabled = !!code;
   $('why').textContent = code ? WHY[code]() : '';
+  resume.keep();
 }
 
 // One button per face. The other player's face is greyed out: both players
@@ -115,12 +126,15 @@ $('playBtn').onclick = () => {
   if (checkFaces(setup) || !FIRST_RULES.includes(setup.firstRule) || !LEVELS.includes(setup.level)) return;
   match = createMatch(setup);
   L('match started', { faces: match.faces, firstRule: match.firstRule, level: match.vsRobot ? match.level : null });
-  $('setup').hidden = true;
-  $('play').hidden = false;
-  scrollTo(0, 0);
+  showPlay();
   startRound();
   fitTray();
 };
+function showPlay() {
+  $('setup').hidden = true;
+  $('play').hidden = false;
+  scrollTo(0, 0);
+}
 
 // The play screen's match size: the biggest that lets the whole page fit
 // the screen, up to what the width allows (7 matches across, at most
@@ -314,6 +328,7 @@ function renderStatus() {
   $('s2Who').textContent = nameOf(faceOf(2));
   $('side1').classList.toggle('now', !r && match.turn === 1);
   $('side2').classList.toggle('now', !r && match.turn === 2);
+  resume.keep();
 }
 
 $('takeBtn').onclick = () => { if (!busy && !robotsTurn()) doTake('person'); };
@@ -332,5 +347,39 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
+// The game kept last time, as it was left, with any matches picked up;
+// the robot makes its move again; a finished round shows its smiling and
+// "aww" faces.
+function restore() {
+  const kept = resume.saved;
+  if (!kept) return false;
+  try {
+    mergeSetup(setup, kept.setup);
+    if (kept.screen !== 'play') { renderSetup(); return true; }
+    match = kept.match;
+    if (match.result) moods = endMoods(match.result.winner);
+    const k = kept.picks;
+    const row = match.taken[k?.row];
+    if (!match.result && row && k.picks.length && k.picks.every(i => i in row && !row[i])) sel = { row: k.row, picks: new Set(k.picks) };
+    showPlay();
+    render();
+    fitTray();
+    maybeRobot();
+    L('resumed', { faces: match.faces, left: counts(match.taken), turn: match.turn, picked: sel ? sel.picks.size : 0, result: match.result, scores: match.scores });
+    return true;
+  } catch (e) {
+    L('resume failed: a new game', { error: String(e) });
+    resume.clear();
+    cancelTimers();
+    sel = null;
+    busy = false;
+    match = null;
+    moods = null;
+    $('play').hidden = true;
+    $('setup').hidden = false;
+    return false;
+  }
+}
+
 startLog('nim');
-renderSetup();
+restore() || renderSetup();

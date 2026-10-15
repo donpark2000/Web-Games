@@ -666,6 +666,44 @@ export function useHint(g) {
   return { ok: true, ...h };
 }
 
+/* ---------- a game kept on the device (DESIGN.md "Coming back to a game") ---------- */
+
+const MARKS = ['', 'x', 'face', 'bad', 'ghost'];
+
+// What to keep of game g (plain data): the marks, what's left and used,
+// the undo steps and the result. The puzzle itself is kept by the screen
+// as its size and number.
+export function snapshotGame(g) {
+  const { n, auto, marks, hearts, hints, shows, mistakes, hintsUsed, showsUsed, undo: steps, result } = g;
+  return JSON.parse(JSON.stringify({ n, auto, marks, hearts, hints, shows, mistakes, hintsUsed, showsUsed, undo: steps, result }));
+}
+
+// Game g of puzzle p as it was kept (snapshotGame's). Throws, saying why,
+// when the kept game isn't one of this puzzle's (a star where p has none,
+// the wrong size) or isn't whole.
+export function restoreGame(p, kept, { colorSeed = 0 } = {}) {
+  const k = kept ?? {};
+  const N = p.n * p.n;
+  const count = (v, max) => Number.isInteger(v) && v >= 0 && v <= max;
+  const sq = i => Number.isInteger(i) && i >= 0 && i < N;
+  if (k.n !== p.n) throw new Error(`restoreGame: size ${k.n}, not ${p.n}`);
+  if (!Array.isArray(k.marks) || k.marks.length !== N || !k.marks.every(m => MARKS.includes(m))) throw new Error('restoreGame: bad marks');
+  if (k.marks.some((m, i) => (m === 'face' || m === 'ghost') && !p.faces.includes(i))) throw new Error('restoreGame: a star the puzzle hasn\'t');
+  if (!count(k.hearts, HEARTS) || !count(k.hints, HINTS) || !count(k.shows, SHOWS)) throw new Error('restoreGame: bad hearts, hints or shows');
+  if (![k.mistakes, k.hintsUsed, k.showsUsed].every(v => count(v, 1e6))) throw new Error('restoreGame: bad counts');
+  if (![null, 'won', 'lost'].includes(k.result)) throw new Error(`restoreGame: bad result ${k.result}`);
+  const stepOk = st => (st && !Array.isArray(st) ? sq(st.look)
+    : Array.isArray(st) && st.every(c => Array.isArray(c) && sq(c[0]) && (c[1] === '' || c[1] === 'x')));
+  if (!Array.isArray(k.undo) || !k.undo.every(stepOk)) throw new Error('restoreGame: bad undo steps');
+  const g = createGame(p, { auto: !!k.auto, colorSeed });
+  Object.assign(g, {
+    marks: [...k.marks], hearts: k.hearts, hints: k.hints, shows: k.shows,
+    mistakes: k.mistakes, hintsUsed: k.hintsUsed, showsUsed: k.showsUsed,
+    undo: JSON.parse(JSON.stringify(k.undo)), result: k.result,
+  });
+  return g;
+}
+
 /* ---------- progress and best times (kept on the device) ---------- */
 
 export const PROGRESS_KEY = 'web-games-hidden-faces';

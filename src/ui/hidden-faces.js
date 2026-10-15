@@ -6,12 +6,14 @@
 
 import {
   SIZES, DEFAULT_SIZE, HEARTS, DEMO, PROGRESS_KEY, decode, createGame, foundCount, tap, startStroke, strokeTo,
-  endStroke, undo, canUndo, showOne, useHint, explainHint, readProgress, recordTime, clock,
+  endStroke, undo, canUndo, showOne, useHint, explainHint, readProgress, recordTime, clock, snapshotGame, restoreGame,
 } from '../core/hidden-faces.js';
+import { mergeSetup } from '../core/resume.js';
 import { STAR, XMARK, borderStyle, miniBoard } from './hfboard.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
+import { resumable } from './resume.js';
 
 const STOCK_FILE = 'data/hidden-faces.json';
 const WIN_MS = 500;     // the last star pops in, then the result and the end buttons
@@ -37,6 +39,20 @@ let G = null;          // the game being played, with the screen's extras (k, t0
 let clockTimer = null;
 let lastFit = '';
 
+// Kept on the device after every change, and picked up when the page
+// opens (DESIGN.md "Coming back to a game"): the puzzle (size, number and
+// seed), the board, the clock, the hint on show and the result.
+const resume = resumable('hidden-faces', 1, () => ({
+  screen: G ? 'play' : 'setup', setup,
+  game: G && {
+    ...snapshotGame(G), k: G.k, seed: G.seed, ms: G.end?.ms ?? elapsed(), end: G.end,
+    hint: shown && !G.result ? { h: shown.h, deep: shown.deep } : null,
+  },
+}));
+// A game kept from last time waits for the puzzles, with neither screen
+// showing (and nothing kept over it meanwhile).
+let resuming = resume.saved?.screen === 'play';
+
 /* ---------- the puzzles ---------- */
 
 const t0 = performance.now();
@@ -46,11 +62,13 @@ fetch(STOCK_FILE)
     stock = Object.fromEntries(SIZES.map(n => [n, (data[n] ?? []).map(e => decode(n, e))]));
     if (SIZES.some(n => !stock[n].length)) throw new Error('a size has no puzzles');
     L('puzzles loaded', { counts: SIZES.map(n => `${n}:${stock[n].length}`).join(' '), ms: Math.round(performance.now() - t0), next: prog.next });
+    if (resuming) { resuming = false; if (restore()) return; }
     renderSetup();
   })
   .catch(e => {
     stock = null;
     L('puzzles not loaded', { error: String(e) });
+    if (resuming) { resuming = false; $('setup').hidden = false; renderSetup(); }
     $('why').textContent = 'The puzzles didn\'t load. Check the connection, then reload the page.';
   });
 
@@ -71,28 +89,33 @@ function renderSetup() {
   $('playBtn').disabled = !stock;
   if (!stock && !$('why').textContent) $('why').textContent = 'Getting the puzzles…';
   if (stock) $('why').textContent = '';
+  if (!resuming) resume.keep();
 }
 for (const b of $('autos').children) {
   b.onclick = () => { setup.auto = b.dataset.auto === 'on'; L('auto', { auto: setup.auto }); renderSetup(); };
 }
 $('playBtn').onclick = () => {
   if (!stock) return;
+  showPlay();
+  startGame(setup.size, prog.next[setup.size] ?? 0);
+};
+function showPlay() {
   $('setup').hidden = true;
   $('play').hidden = false;
   scrollTo(0, 0);
-  startGame(setup.size, prog.next[setup.size] ?? 0);
-};
+}
 
 /* ---------- play screen ---------- */
 
 // Puzzle number k (0-based, counting on past the end of the stock: it
-// starts over) of size n.
-function startGame(n, k) {
+// starts over) of size n. `kept`: that puzzle's game as kept last time
+// (resume's), picked up where it was left.
+function startGame(n, k, kept = null) {
   const list = stock[n];
   const p = list[k % list.length];
-  G = createGame(p, { auto: setup.auto, colorSeed: p.seed });
-  Object.assign(G, { k, t0: Date.now(), paused: null, ms: 0 });
-  L('game started', { size: n, puzzle: k + 1, seed: p.seed, auto: G.auto });
+  G = kept ? restoreGame(p, kept, { colorSeed: p.seed }) : createGame(p, { auto: setup.auto, colorSeed: p.seed });
+  Object.assign(G, { k, seed: p.seed, t0: Date.now() - (kept?.ms ?? 0), paused: null, end: kept?.end ?? null });
+  if (!kept) L('game started', { size: n, puzzle: k + 1, seed: p.seed, auto: G.auto });
   const b = $('board');
   b.style.setProperty('--n', n);
   b.innerHTML = p.reg.map((g, i) => `<div class="cell" role="gridcell" data-i="${i}" style="--rc:${G.col[g].c};${borderStyle(n, p.reg, i)}"><span class="mk"></span></div>`).join('');
@@ -103,8 +126,22 @@ function startGame(n, k) {
   lastFit = '';
   fit();
   clearInterval(clockTimer);
+  if (G.result) {
+    G.end ??= G.result === 'won' ? { how: 'solved', title: 'Solved!', line: '', ms: elapsed() }
+      : { how: 'lost', title: 'Out of hearts', line: 'The pale stars show where they were.', ms: elapsed() };
+    $('clock').textContent = `⏱ ${clock(G.end.ms)}`;
+    showEnd();
+    return;
+  }
   clockTimer = setInterval(tick, 1000);
   tick();
+  if (kept?.hint) {
+    try {
+      shown = { h: kept.hint.h, why: explainHint(G, kept.hint.h), deep: !!kept.hint.deep };
+      shown.deep &&= !!shown.why;
+      paintHint();
+    } catch (e) { L('kept hint not shown', { error: String(e) }); clearHint(); }
+  }
 }
 
 const elapsed = () => (G.paused ?? Date.now()) - G.t0;
@@ -129,6 +166,7 @@ function draw(pop = -1) {
       mk.className = cls;
       mk.innerHTML = m === 'x' || m === 'bad' ? XMARK : m === 'face' || m === 'ghost' ? STAR : '';
     }
+    cs[i].classList.toggle('ghost', m === 'ghost');
   });
   $('turn').innerHTML = `<span class="chip">${STAR}</span><span>${G.n}×${G.n} · puzzle ${G.k + 1}</span>`;
   $('found').textContent = `${foundCount(G)} of ${G.n} found`;
@@ -138,6 +176,7 @@ function draw(pop = -1) {
   hintTool();
   $('showBtn').disabled = !G.shows || !!G.result;
   $('undoBtn').disabled = !canUndo(G);
+  resume.keep();
 }
 
 // The board as big as fits: the whole page on the screen, no scrolling.
@@ -385,14 +424,10 @@ function win() {
   const bits = [plural(G.mistakes, 'mistake'), plural(G.hintsUsed, 'hint')];
   if (G.showsUsed) bits.push(`${G.showsUsed} shown`);
   bits.push(newBest ? 'New best!' : `Best ${clock(best)}`);
-  const n = G.n, up = Math.min(10, n + 1);
+  G.end = { how: 'solved', title: `Solved in ${clock(ms)}!`, line: bits.join(' · '), ms };
+  resume.keep();
   const game = G;
-  setTimeout(() => {
-    if (G !== game) return;
-    ending('solved', `Solved in ${clock(ms)}!`, bits.join(' · '),
-      n < 10 ? `Next: ${up}×${up}` : 'Next', () => startGame(up, prog.next[up] ?? 0),
-      'Same size', () => startGame(n, prog.next[n] ?? 0));
-  }, WIN_MS);
+  setTimeout(() => { if (G === game) showEnd(); }, WIN_MS);
 }
 
 // Out of hearts: the stars not found show pale where they were.
@@ -400,17 +435,27 @@ function lose() {
   clearInterval(clockTimer);
   L('out of hearts', { size: G.n, puzzle: G.k + 1, found: foundCount(G), time: clock(elapsed()) });
   G.marks.forEach((m, i) => { if (G.sol.has(i) && m !== 'face') G.marks[i] = 'ghost'; });
+  G.end = { how: 'lost', title: 'Out of hearts', line: 'The pale stars show where they were.', ms: elapsed() };
   draw();
-  for (const i of G.sol) if (G.marks[i] === 'ghost') cells()[i].classList.add('ghost');
   sound.play('aww');
-  const { n, k } = G;
   const game = G;
-  setTimeout(() => {
-    if (G !== game) return;
-    ending('lost', 'Out of hearts', 'The pale stars show where they were.',
+  setTimeout(() => { if (G === game) showEnd(); }, LOSE_MS);
+}
+
+// The end's result and buttons (G.end), after a win or a loss, or for a
+// finished game picked up again.
+function showEnd() {
+  const { how, title, line } = G.end, { n, k } = G;
+  if (how === 'solved') {
+    const up = Math.min(10, n + 1);
+    ending(how, title, line,
+      n < 10 ? `Next: ${up}×${up}` : 'Next', () => startGame(up, prog.next[up] ?? 0),
+      'Same size', () => startGame(n, prog.next[n] ?? 0));
+  } else {
+    ending(how, title, line,
       'Try again', () => startGame(n, k),
       'Another', () => { prog.next[n] = k + 1; saveProgress(); startGame(n, k + 1); });
-  }, LOSE_MS);
+  }
 }
 
 // The result in the hint bar, beside one big star (with sparkles for a
@@ -439,6 +484,32 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
+// The game kept last time (once the puzzles are in): the same puzzle, if
+// it's still there, as it was left.
+function restore() {
+  const g = resume.saved.game;
+  try {
+    mergeSetup(setup, resume.saved.setup);
+    const list = stock[g?.n];
+    if (!list) throw new Error(`no ${g?.n} x ${g?.n} puzzles`);
+    if (list[g.k % list.length]?.seed !== g.seed) throw new Error('not the same puzzle (the puzzles changed)');
+    showPlay();
+    startGame(g.n, g.k, g);
+    L('resumed', { size: G.n, puzzle: G.k + 1, seed: G.seed, found: foundCount(G), hearts: G.hearts, time: clock(elapsed()), result: G.result, hint: !!shown });
+    return true;
+  } catch (e) {
+    L('resume failed: a new game', { error: String(e) });
+    resume.clear();
+    clearInterval(clockTimer);
+    G = null;
+    $('play').hidden = true;
+    $('setup').hidden = false;
+    return false;
+  }
+}
+
 startLog('hidden-faces');
-renderSetup();
+mergeSetup(setup, resume.saved?.setup);
+if (resuming) $('setup').hidden = true;
+else renderSetup();
 

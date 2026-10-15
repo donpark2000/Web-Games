@@ -33,6 +33,8 @@ and what it does and doesn't prove.
   do otherwise is an unusual experience compared to other apps on a
   phone. If you do not explicitly close them, you always come back to
   where you left off."
+  *2026-10-15:* built for all ten games and checked in the browser (see
+  "Coming back to a game, built"); to try on the iPhone once published.
 
 - **Q21. Find the Stars levels: easier, harder, or both?** *Raised
   2026-10-15* by the developer: what level is it now, and would harder
@@ -56,6 +58,13 @@ and what it does and doesn't prove.
   level, and size is the only dial. Claude's view: levels should change
   the puzzle, not the help (hints and hearts are how you learn and
   recover; a few fewer is a small change in feel, not in thinking).
+  *Resolved 2026-10-15:* no levels for now. The developer: "I don't
+  think I need a hard level. I don't want any puzzle that requires a
+  guess." Hard would have meant puzzles needing "try it", which plays
+  like a guess, so it's out. Today's stock already holds to that:
+  `problems()` checks each stock puzzle with the stock's rules
+  (`MAKE_LEVEL` 3, no "try it"), and the stock test runs it on all 1000.
+  Easy not asked for.
 
 ## Proposed additions to the standards skill
 
@@ -4918,3 +4927,81 @@ and judgment case by case. Claude recommended dropping it from the
 skill (a web/CSS case, already guarded by the repo's test), and the
 developer agreed; no to adding a "principle or case?" line to the
 skill. **Proposed skill additions:** none waiting.
+
+## 2026-10-15: Coming back to a game, built
+
+Q20's two fixes, for all ten games (developer: "For all apps"; "I do want
+the resume feature to work"), with the defaults Claude listed and the
+developer didn't change. DESIGN.md "Coming back to a game" has the rules.
+
+**How it works:**
+- `src/core/resume.js` (no DOM): `returnTo()` decides whether the home
+  page goes back to a game (only as the installed app, not after back
+  or a link on the site, and only to one of `GAME_PAGES`); `pack` /
+  `unpack` store a game's state with a format number, so an older copy
+  after an update is left alone, not misread; `mergeSetup` takes the kept
+  setup picks by the page's own keys and kinds; `createResume` keeps and
+  reads one game's entry and logs it.
+- `src/ui/resume.js`: `resumable(game, format, snapshot)` marks the page
+  as the last one (🏠 taps mark the home page), keeps the snapshot on
+  `pagehide` and when the page is hidden, and gives the page `keep()`;
+  `backToGame()` on the home page (the icon's start page) goes back with
+  `location.replace`. The home page's script stops there (an `await` that
+  never ends) so nothing else runs or is counted.
+- Each game: `keep()` at the end of its setup and play drawing (so after
+  every move), and a `restore()` that picks up the kept screen and game.
+  The match objects were already plain data (checked: a test stores
+  each game's match as JSON after some play and finds it the same, and
+  playing on the same). What was moving is finished or done again (the
+  list in DESIGN.md). Find the Stars keeps its game through new
+  `snapshotGame` / `restoreGame` in `src/core/hidden-faces.js` (its game
+  holds a Set); `restoreGame` refuses a kept game that isn't this
+  puzzle's (a star where the puzzle has none, another size) or isn't
+  whole. Its end (`G.end`) is now data, shown by `showEnd()`, so a
+  finished puzzle can be shown again without recording the time twice.
+- Any error while picking up: logged ("resume failed: a new game"), the
+  kept entry dropped, the setup screen shown.
+
+**Tests:** `tests/resume.test.js` (7: when the home page goes back and
+the seven cases where it stays; pack/unpack with other formats and junk;
+mergeSetup; keeping and finding; refused storage logged once),
+`tests/resume-games.test.js` (every game's match through JSON and
+playing on), two in `tests/hidden-faces.test.js` (a kept game comes back
+and plays on, Undo giving the heart back; 11 kinds of bad kept game
+refused). **Shown to fail:** a Set put in tic-tac-toe's match: "not the
+same after JSON"; restoreGame's star check removed: 1 failed; unpack
+using an old format's data: 2 failed. (The first try at the star check's
+break changed nothing: the pattern didn't match the source's `hasn\'t`,
+and the test passed. Checked with `cmp`, then broken properly.)
+`npm test`: 256 pass, 0 fail. `tools/offline.js`: version 45db805c0b9f,
+80 files.
+
+**Checked in the built-in browser** (localhost), each game played a
+little and reloaded (a reload loads the page again, as the icon does):
+- Tic-tac-toe: the board and turn back. Connect Four: reloaded while the
+  robot was thinking; it moved after.
+- Matching (alone): reloaded with a miss showing; it turned back, turns 1.
+- Count to 9: reloaded on a wrong card ("Oops!"); it turned back, the
+  robot played on.
+- Snakes and Ladders: reloaded mid-hop; the move was kept (by the
+  `pagehide` keep, not yet the drawing's), the robot rolled next.
+- Five Dice: reloaded with a die picked up ("Roll that one?" and it
+  still up); scored a box and reloaded inside the Undo: Undo showed,
+  the turn passed after 3 s, the robot played.
+- Nim: two matches picked up, reloaded: "Take 2" with both up; took them,
+  the robot answered.
+- Rock paper scissors: a star won, reloaded: the star kept, the next
+  round counted down.
+- Follow Me: reloaded while the robot showed a 2-step order: "Ready?",
+  the same order shown again, score 1 kept.
+- Find the Stars: a ✕ and a hint's Why? showing, reloaded: both back,
+  the clock on from 0:02. Out of hearts, reloaded: the result, the 5 pale
+  stars and Try again / Another back; Try again started it fresh.
+- 🏠 marked the home page as the last one, and the home page stayed
+  ("app": false, "fromSite": true). With `matchMedia` made to say
+  "installed" and the last page Nim, the home page opened with no
+  referrer went to nim.html, which picked up its game.
+- No console errors. The test keys removed from the browser afterwards.
+
+**Not checked:** the real iPhone app's icon (only reloads and a faked
+"installed" here). Q20 stays open until the developer has tried it.

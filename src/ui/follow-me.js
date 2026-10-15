@@ -8,11 +8,13 @@ import {
   createMatch, newGame, addStep, showAgain, yourTurn, tap,
 } from '../core/follow-me.js';
 import { endMoods, endSound, nameOf } from '../core/players.js';
+import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { padStyle } from './fmpads.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
+import { resumable } from './resume.js';
 
 const READY_MS = 1000;    // "Ready?" before the first step
 // After a right order, 3 s of quiet from your last note to the robot's
@@ -40,6 +42,11 @@ let match = null;        // from createMatch, while on the play screen
 let timers = [];         // the robot's steps and the pauses, so Play again / New game can stop them
 const padTimers = new Map();   // pad -> the timer that puts out its light
 let lastLayout = '';
+
+// Kept on the device after every change, and picked up when the page
+// opens (DESIGN.md "Coming back to a game").
+// The bests are kept with it: the visit carries on.
+const resume = resumable('follow-me', 1, () => ({ screen: match ? 'play' : 'setup', setup, best, match }));
 
 const later = (fn, ms) => timers.push(setTimeout(fn, ms));
 function clearTimers() {
@@ -73,6 +80,7 @@ function renderSetup() {
   const code = checkFaces(setup);
   $('playBtn').disabled = !!code;
   $('why').textContent = code ? WHY[code] : '';
+  resume.keep();
 }
 
 // Each "How many faces?" button: a small grid of that many pads, laid out
@@ -93,14 +101,17 @@ $('playBtn').onclick = () => {
   if (checkFaces(setup) || !SIZES.includes(setup.size) || !Object.hasOwn(LEVELS, setup.level)) return;
   match = createMatch(setup, best);
   L('match started', { face: match.face, size: match.size, level: match.level, pads: match.pads.map(p => p.face), best: { ...best } });
+  showPlay();
+  startGame();
+};
+function showPlay() {
   $('setup').hidden = true;
   $('play').hidden = false;
   scrollTo(0, 0);
   buildPads();
   lastLayout = '';
   fitPads();
-  startGame();
-};
+}
 
 /* ---------- fitting the pads to the screen ---------- */
 
@@ -265,19 +276,20 @@ function onTap(i) {
 
 // The end: "Leo got 5!", the sparkle and the scorecard cheer; the smiling
 // face stays until the next game. A game that ends at 0: "Try again!",
-// no sparkle.
-function gameOver() {
+// no sparkle. `quiet`: a finished game picked up again (no sound or cheer).
+function gameOver(quiet = false) {
   const { score, newBest } = match.result;
-  L('game over', { score, newBest, best: { ...best } });
+  if (!quiet) L('game over', { score, newBest, best: { ...best } });
   renderBoard();
   if (!score) {
-    say(`${chip(match.face, 'sad')}<span class="say">Try again!</span>`, true);
+    say(`${chip(match.face, 'sad')}<span class="say">Try again!</span>`, !quiet);
     return;
   }
-  sound.play(endSound(1, { solo: true }));
-  say(`${chip(match.face, 'winner')}<span class="say">${name()} got ${score}!${newBest ? ' New best!' : ''}</span>`, true);
+  say(`${chip(match.face, 'winner')}<span class="say">${name()} got ${score}!${newBest ? ' New best!' : ''}</span>`, !quiet);
   const c1 = $('s1Chip');
   c1.innerHTML = svg(match.face, endMoods(1, { solo: true })[1]);
+  if (quiet) return;
+  sound.play(endSound(1, { solo: true }));
   c1.className = 'chip cheer-win';
   later(() => { c1.className = 'chip'; }, CHEER_MS);
   if (newBest) { const c = $('cup'); c.classList.remove('up'); void c.offsetWidth; c.classList.add('up'); }
@@ -313,6 +325,7 @@ function renderBoard() {
   $('s2Who').innerHTML = `best<br>(${match.size}, ${levelWord(match.level)})`;
   const full = LEVELS[match.level].hearts, left = Math.max(0, match.hearts);
   $('mid').innerHTML = `<span class="hearts" aria-label="${left} of ${full} tries left">${'❤️'.repeat(left)}${'🤍'.repeat(full - left)}</span>${levelWord(match.level)}`;
+  resume.keep();
 }
 
 $('againBtn').onclick = () => { L('play again'); startGame(); };
@@ -327,5 +340,45 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
+// The game kept last time, as it was left: "Ready?", then the robot shows
+// the order again from the start (or adds its next step, if the last order
+// was right), with the hearts and score kept; a finished game shows its
+// "Game over" banner.
+function restore() {
+  const kept = resume.saved;
+  if (!kept) return false;
+  try {
+    mergeSetup(setup, kept.setup);
+    for (const [k, v] of Object.entries(kept.best ?? {})) if (Number.isInteger(v)) best[k] = v;
+    if (kept.screen !== 'play') { renderSetup(); return true; }
+    match = kept.match;
+    match.best = best;
+    showPlay();
+    setWait(true);
+    renderBoard();
+    renderDots();
+    if (match.result) {
+      gameOver(true);
+      showBanner();
+    } else {
+      // The last order was right (or none shown yet): the next step.
+      const next = !match.seq.length || match.pos === match.seq.length;
+      say(`${chip(match.face)}<span class="say">Ready?</span>`, true);
+      later(next ? nextRound : () => { showAgain(match); show(); }, READY_MS);
+    }
+    L('resumed', { face: match.face, size: match.size, level: match.level, steps: match.seq.length, done: match.done, hearts: match.hearts, result: match.result });
+    return true;
+  } catch (e) {
+    L('resume failed: a new game', { error: String(e) });
+    resume.clear();
+    clearTimers();
+    match = null;
+    $('over').hidden = true;
+    $('play').hidden = true;
+    $('setup').hidden = false;
+    return false;
+  }
+}
+
 startLog('follow-me');
-renderSetup();
+restore() || renderSetup();

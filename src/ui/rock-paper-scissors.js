@@ -4,12 +4,14 @@
 
 import { PICKS, checkFaces, createMatch, newGame, newRound, unlock, choose } from '../core/rock-paper-scissors.js';
 import { FACE_NAMES, endMoods, endSound, nameOf } from '../core/players.js';
+import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { PICTURES, SAYS } from './rpspics.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
+import { resumable } from './resume.js';
 
 const READY_MS = 1000;   // "Ready?" before a game's first round
 const COUNT_MS = 700;    // per number of the 1, 2, 3
@@ -26,6 +28,10 @@ let match = null;
 let timers = [];
 let moods = null;        // the end of a game on the scorecard, kept until the next game
 let cheering = false;    // the first 2.8 s of that
+
+// Kept on the device after every change, and picked up when the page
+// opens (DESIGN.md "Coming back to a game").
+const resume = resumable('rock-paper-scissors', 1, () => ({ screen: match ? 'play' : 'setup', setup, match }));
 
 const later = (fn, ms) => timers.push(setTimeout(fn, ms));
 function clearTimers() { timers.forEach(clearTimeout); timers = []; }
@@ -50,21 +56,25 @@ function renderSetup() {
   const code = checkFaces(setup);
   $('playBtn').disabled = !!code;
   $('why').textContent = code ? WHY[code] : '';
+  resume.keep();
 }
 
 $('playBtn').onclick = () => {
   if (checkFaces(setup)) return;
   match = createMatch(setup);
   L('match started', { faces: match.faces });
+  showPlay();
+  startGame();
+  fitCards();
+};
+function showPlay() {
   $('setup').hidden = true;
   $('play').hidden = false;
   scrollTo(0, 0);
   for (const [id, f] of [['meFace', 0], ['botFace', 1], ['g1c', 0], ['g2c', 1]]) $(id).innerHTML = svg(match.faces[f]);
   for (const id of ['meLbl', 's1Name', 'g1Name']) $(id).textContent = nameOf(match.faces[0]);
   $('botBack').innerHTML = CARD_BACK;
-  startGame();
-  fitCards();
-};
+}
 
 // The biggest cards (and with them the picture buttons and faces) that let
 // the whole page fit the screen, up to what the width allows.
@@ -114,6 +124,7 @@ function renderScore(newStar = 0) {
     if (el.dataset.face !== key) { el.innerHTML = svg(faceOf(p), mood); el.dataset.face = key; }
     $(`g${p}`).textContent = match.games[p];
   }
+  resume.keep();
 }
 
 // A game starts by itself: "Ready?", then the first round.
@@ -208,6 +219,42 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
+// The game kept last time: the stars so far, then a new round after
+// "Ready?" (a round being counted down is picked again; one already
+// picked is counted); a finished game shows who won.
+function restore() {
+  const kept = resume.saved;
+  if (!kept) return false;
+  try {
+    mergeSetup(setup, kept.setup);
+    if (kept.screen !== 'play') { renderSetup(); return true; }
+    match = kept.match;
+    showPlay();
+    resetCards();
+    if (match.result) {
+      moods = endMoods(match.result.winner);
+      renderScore();
+      turn(`${chip(faceOf(match.result.winner), 'winner')} ${nameOf(faceOf(match.result.winner))} wins!`);
+    } else {
+      renderScore();
+      turn(`${chip(faceOf(1))} Ready?`, true);
+      later(startRound, READY_MS);
+    }
+    fitCards();
+    L('resumed', { faces: match.faces, stars: match.stars, games: match.games, result: match.result });
+    return true;
+  } catch (e) {
+    L('resume failed: a new game', { error: String(e) });
+    resume.clear();
+    clearTimers();
+    match = null;
+    moods = null;
+    $('play').hidden = true;
+    $('setup').hidden = false;
+    return false;
+  }
+}
+
 startLog('rock-paper-scissors');
-renderSetup();
+restore() || renderSetup();
 L('picks', { picks: PICKS });

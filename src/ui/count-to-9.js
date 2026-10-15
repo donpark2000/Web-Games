@@ -7,12 +7,14 @@ import {
   MODES, LEVELS, FIRST_RULES, ROBOT_TUNING, checkFaces, createMatch, newRound, flip, settle, robotPick,
 } from '../core/count-to-9.js';
 import { FACE_NAMES, endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
+import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { numberSvg } from './numbercard.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
+import { resumable } from './resume.js';
 
 const SHOW_MISS_MS = 1500;    // the wrong number flashes red this long (developer)
 const ROBOT_THINK_MS = 800;   // before each card the robot turns over
@@ -36,6 +38,10 @@ let just = -1;             // the card just counted (it wiggles)
 let moods = null;
 let cheering = false;
 let cheerTimer = null;
+
+// Kept on the device after every change, and picked up when the page
+// opens (DESIGN.md "Coming back to a game").
+const resume = resumable('count-to-9', 1, () => ({ screen: match ? 'play' : 'setup', setup, match }));
 
 const WHY = {
   'p1-missing': () => (setup.mode === 'two' ? 'Player 1 needs a face.' : 'Pick your face first.'),
@@ -67,6 +73,7 @@ function renderSetup() {
   const code = checkFaces(setup);
   $('playBtn').disabled = !!code;
   $('why').textContent = code ? WHY[code]() : '';
+  resume.keep();
 }
 
 // One button per face. The other player's face is greyed out: two players
@@ -110,12 +117,15 @@ $('playBtn').onclick = () => {
   match = createMatch(setup);
   L('match started', { mode: match.mode, faces: match.faces, level: match.level, firstRule: match.firstRule,
     ...(match.mode === 'robot' && { robotRemembers: ROBOT_TUNING.remember[match.level] }) });
-  $('setup').hidden = true;
-  $('play').hidden = false;
-  scrollTo(0, 0);
+  showPlay();
   startRound();
   fitGrid();
 };
+function showPlay() {
+  $('setup').hidden = true;
+  $('play').hidden = false;
+  scrollTo(0, 0);
+}
 
 // The play screen's card size: the biggest that lets the whole page fit
 // the screen, up to what the width allows.
@@ -291,6 +301,7 @@ function render() {
   }
   $('side1').classList.toggle('now', !solo && !r && match.turn === 1);
   $('side2').classList.toggle('now', !solo && !r && match.turn === 2);
+  resume.keep();
 }
 
 $('againBtn').onclick = () => { L('play again'); startRound(); };
@@ -305,5 +316,37 @@ $('newBtn').onclick = () => {
   scrollTo(0, 0);
 };
 
+// The game kept last time, as it was left: a wrong card left showing
+// turns back, the robot carries on, a finished round shows its smiling and
+// "aww" faces.
+function restore() {
+  const kept = resume.saved;
+  if (!kept) return false;
+  try {
+    mergeSetup(setup, kept.setup);
+    if (kept.screen !== 'play') { renderSetup(); return true; }
+    match = kept.match;
+    if (match.result) moods = endMoods(match.result.winner, { solo: match.mode === 'solo' });
+    showPlay();
+    buildGrid();
+    buildScoreboard();
+    render();
+    fitGrid();
+    if (match.pending) missTimer = setTimeout(settleNow, SHOW_MISS_MS);
+    else maybeRobot();
+    L('resumed', { mode: match.mode, faces: match.faces, level: match.level, next: match.next, turn: match.turn, pending: match.pending, result: match.result });
+    return true;
+  } catch (e) {
+    L('resume failed: a new game', { error: String(e) });
+    resume.clear();
+    cancelTimers();
+    match = null;
+    moods = null;
+    $('play').hidden = true;
+    $('setup').hidden = false;
+    return false;
+  }
+}
+
 startLog('count-to-9');
-renderSetup();
+restore() || renderSetup();
