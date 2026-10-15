@@ -5,8 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-15): every game carries on where it was left, and the
-installed app's icon goes back to the game left (built, not yet
-published). 2026-10-14: Hidden Faces renamed **Find the Stars** (one white
+installed app's icon goes back to the game left (published
+2026-10-15). 2026-10-14: Hidden Faces renamed **Find the Stars** (one white
 star hides, no faces), bigger ✕s, no wait on a double tap, the end in
 the hint bar; the 🏠 one size (80 px) in every game, drawn by the site;
 Nim's and Matching's setup pictures fixed (published 2026-10-14).

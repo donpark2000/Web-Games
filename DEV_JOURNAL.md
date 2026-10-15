@@ -5005,3 +5005,33 @@ little and reloaded (a reload loads the page again, as the icon does):
 
 **Not checked:** the real iPhone app's icon (only reloads and a faked
 "installed" here). Q20 stays open until the developer has tried it.
+
+## 2026-10-15: Coming back to a game, published
+
+Published with the developer's OK ("Publish."): `main` fast-forwarded
+to a2aed32 and pushed; the Pages build for a2aed32 was "built", and the
+server sends version 45db805c0b9f and `src/ui/resume.js` (curl, 200).
+**Checked live** (built-in browser): the page's version 45db805c0b9f;
+tic-tac-toe played (a move and the robot's), reloaded: the same board
+back. The browser's kept game and last page removed afterwards. The
+local server stopped; no other `serve.js` running.
+
+**For the developer to try on the iPhone** (Q20): open the app once
+with wifi so it gets the new version (the version line says
+45db805c0b9f), start a game, switch to another app, then tap the
+app's icon: the game should be there as left.
+
+## 2026-10-15: Status (start here next session)
+
+**Branch `star-battle`**, published (`main` = a2aed32): every game
+carries on where it was left, and the installed app's icon goes back to
+the game left (DESIGN.md "Coming back to a game"). `npm test`: 256 of 256.
+
+**Next:** the developer tries it on the iPhone (above); then close Q20,
+or fix what the phone shows. Then: more Find the Stars feedback (no
+levels: Q21), or the DESIGN.md "Later" list.
+
+**Open questions:** Q20 (until the iPhone check). **Proposed skill
+additions:** none. (The mutation that didn't take, in "Coming back to a
+game, built", is a case of the skill's "Prove every check can fail",
+not a new rule.)
