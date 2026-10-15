@@ -10,19 +10,17 @@ None.
 
 ## Proposed additions to the standards skill
 
-- **A style loaded on every page needs a name nothing else uses** (from
-  "Find the Stars; one 🏠; Nim's picture fixed", 2026-10-14). A shared
-  stylesheet's rule applies to every page, so a short generic class name
-  (`.mini`, `.big`) silently restyles another page's own element of
-  that name. Prefix page-specific names, and keep a test that lists
-  class names styled in both a shared sheet and a page's own sheet,
-  failing on any not marked as meant to be shared. *Evidence:* Hidden
-  Faces' `.mini` in site.css turned Nim's 3-5-7 picture into one row
-  in a black-edged square, found on another machine a day later; a
-  `.big` clash had happened once before. The new test caught a third
-  one (`.won`) the same day.
+None waiting. (2026-10-14: "A style loaded on every page needs a name
+nothing else uses" (from "Find the Stars; one 🏠; Nim's picture fixed")
+dropped by the developer: sharing a class name is sometimes right, and
+the skill should stay "simple and generic and only add complexity when
+it seems re-usable". A CSS-specific case; the lesson stays here, and
+`tests/css.test.js` with its list of names meant to be shared keeps
+guarding it. Claude's offered one-line addition to the skill's section
+8 ("a new principle, or a case of one already here?"): no, for the same
+reason.)
 
-Earlier: none waiting. (2026-10-13: "Time one run before looping over many"
+Earlier: (2026-10-13: "Time one run before looping over many"
 (from "Hidden Faces built") approved by the developer and added to the
 skill, section 4; ai-dev-practices commit 4e545f1, zip rebuilt for the
 developer to upload.) (2026-10-11: "Derived files come from a tool, and a test
@@ -4858,4 +4856,16 @@ feedback, difficulty levels for it, or the DESIGN.md "Later" list.
 
 **Open questions:** none. **Proposed skill additions:** one waiting (a
 style loaded on every page needs a unique name), for the developer to
-review.
+review (since dropped: see below).
+
+## 2026-10-14: The class-name proposal dropped
+
+The developer, on the waiting skill proposal: "Maybe sometimes that is
+appropriate" (sharing a class name). Claude agreed the title overstated
+it (the shared sheets share 28 names on purpose, `MEANT_SHARED`) and
+offered a reworded version; the developer: rules that try to cover
+every case get harder to keep and to apply; better a few basic rules
+and judgment case by case. Claude recommended dropping it from the
+skill (a web/CSS case, already guarded by the repo's test), and the
+developer agreed; no to adding a "principle or case?" line to the
+skill. **Proposed skill additions:** none waiting.
