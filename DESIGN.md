@@ -567,6 +567,27 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   ("the ringed square (row 3, column 1)"); squares to cross out a dark ✕
   with a white edge (developer, 2026-10-13: in v1 "it is not clear where
   'here' is").
+- **❓ Why?** (developer, 2026-10-14, from the agreed
+  [Why Hint Mockup](https://claude.ai/artifact/1ogeXejM7WRrnBtGFKqXq5),
+  version 1: where to put a star or a ✕ was clear, "but the reasoning is
+  not always clear"): while a hint shows, the 💡 Hint button is **❓
+  Why?**, free (no hint used); in the Why? it reads **💡 The hint** and
+  goes back. A tap on the board ends both. The deeper reason, on the
+  board and in one line of words in the hint bar:
+  - **"would rule out":** a pale pretend star in the ring; on each lit
+    square a label saying why it would go (**touch**, **row**, **col**,
+    **colour**); the row, column or colour that would run out outlined
+    in red dashes, and the pretend star's colour dotted when a square
+    goes for being that colour. "A star on the ringed square would rule
+    out row 6's last 4 squares (lit): 3 touching it, 1 Pink like it. No
+    star left for row 6!"
+  - **"all inside"**, **"k in k rows"** and **"only one left":** the
+    units outlined in blue (solid: the ones whose squares are left;
+    dashed: the ones they lie in), and the reason in words ("Row 1's
+    star is on a lit square, and they're all in Brown. So Brown's one
+    star is row 1's: no star in the rest of Brown.").
+  - None for a wrong ✕ or ✕s a found star implies: their words are the
+    reason.
 - **The end:** the result in the hint bar beside **one big star**, and
   three buttons in place of the tools, so the board stays in view and
   nothing on it moves (developer, 2026-10-14: faces smiling and wiggling

@@ -4,6 +4,7 @@ import {
   SIZES, HEARTS, HINTS, SHOWS, LEVEL, MAKE_LEVEL, DEMO, COLORS, PROGRESS_KEY,
   seenBy, units, newState, place, nextStep, solve, generate, connected, hardEnough, problems, colorsFor,
   createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, canUndo, showOne, findHint, useHint,
+  explainHint,
   readProgress, recordTime, clock, mulberry32,
 } from '../src/core/hidden-faces.js';
 
@@ -371,6 +372,89 @@ test('hidden faces hints: following the hints alone solves the puzzle', () => {
   // longer ones scroll in it.
   assert.ok(longest.length < 200, longest);
 });
+
+// Why? (developer, 2026-10-14: "the logic escapes me" when a hint says
+// a star would rule out the last squares of a row while others look
+// left). Following the hints as above, every hint's deeper reason is
+// checked against the board: each lit square's label is the true reason
+// it would go, the outlines are the units named.
+test('hidden faces why: each "would rule out" square is labelled with its true reason', () => {
+  const kinds = {}, tags = {};
+  let longest = '';
+  for (const p of [DEMO, TRYIT, GROUP, ...MADE]) {
+    const g = createGame(p, { auto: false });
+    const n = p.n, row = i => Math.floor(i / n);
+    for (let k = 0; k < 400 && !g.result; k++) {
+      const h = findHint(g);
+      const before = g.marks.join();
+      const w = explainHint(g, h);
+      assert.equal(g.marks.join(), before, 'Why? changed the board');
+      if (['wrong', 'implied', 'none', 'tryit'].includes(h.kind)) assert.equal(w, null, h.kind);
+      else {
+        kinds[h.kind] = (kinds[h.kind] ?? 0) + 1;
+        if (w.text.length > longest.length) longest = w.text;
+        for (const r of w.rings) assert.ok(h.units.some(u => u.cells.join() === r.cells.join()) || r.style === 'reach', `${h.kind}: a ring that is no unit`);
+      }
+      if (h.kind === 'touch') {
+        const t = h.tgt, u = h.units[0];
+        assert.equal(w.pretend, t);
+        assert.deepEqual(w.tags.map(x => x[0]).sort((a, b) => a - b), [...h.why].sort((a, b) => a - b), 'not every lit square labelled');
+        const seen = new Set(seenBy(n, p.reg, t));
+        for (const [j, tag] of w.tags) {
+          assert.ok(seen.has(j), 'a labelled square a star there would not rule out');
+          const want = touching(n, t, j) ? 'touch' : row(j) === row(t) ? 'row' : j % n === t % n ? 'col' : 'colour';
+          assert.equal(tag, want);
+          if (tag === 'colour') assert.equal(p.reg[j], p.reg[t]);
+          tags[tag] = (tags[tag] ?? 0) + 1;
+        }
+        assert.equal(w.rings[0].style, 'empty');
+        assert.deepEqual(w.rings[0].cells, u.cells);
+        const reach = w.rings.find(r => r.style === 'reach');
+        assert.equal(!!reach, w.tags.some(x => x[1] === 'colour'));
+        if (reach) assert.deepEqual(reach.cells, p.reg.map((_, j) => j).filter(j => p.reg[j] === p.reg[t]));
+        assert.match(w.text, /^A star on the ringed square would rule out /);
+        assert.match(w.text, /No star left for (row|column) \d+!$|No star left for [A-Z][a-z]+!$/);
+      }
+      for (const i of h.out) g.marks[i] = 'x';
+      if (h.kind === 'single') look(g, h.tgt);
+    }
+  }
+  for (const kind of ['single', 'inside', 'touch']) assert.ok(kinds[kind], `no ${kind} Why?: ${JSON.stringify(kinds)}`);
+  for (const tag of ['touch', 'colour']) assert.ok(tags[tag], `no "${tag}" label: ${JSON.stringify(tags)}`);
+  // The hint bar's 3 lines hold about 140 characters on a 393 px phone;
+  // a few longer ones (in the stock: 26 of 5,110 "would rule out", 13 of
+  // 355 "k in k") scroll in it.
+  assert.ok(longest.length <= 160, longest);
+});
+
+test('hidden faces why: the words for one square, for all of one kind, and for a group', () => {
+  const g = game();
+  const n = g.n, U = units(n, g.reg);
+  // Made-up hints, so each wording is reached: one lit square touching,
+  // two both touching. (explainHint only explains; findHint checks.)
+  const t = 7, col0 = U[n]; // row 2, column 2; column 1
+  const one = explainHint(g, { kind: 'touch', tgt: t, why: [0], out: [t], units: [col0] });
+  assert.equal(one.text, "A star on the ringed square would rule out column 1's last square (lit): it touches the star. No star left for column 1!");
+  const two = explainHint(g, { kind: 'touch', tgt: t, why: [0, 6], out: [t], units: [col0] });
+  assert.match(two.text, /column 1's last 2 squares \(lit\): both touching it\./);
+  const at = playTo(GROUP, 'group');
+  const gr = explainHint(at.g, at.h);
+  assert.match(gr.text, /^.+'s 2 stars are on lit squares, in .+\. Those 2 (rows|columns|colours) have just 2 stars, so no star in the rest of them\.$/);
+  assert.equal(gr.rings.length, 4);
+  // Nothing more to say for a wrong ✕.
+  assert.equal(explainHint(g, { kind: 'wrong', tgt: 0, why: [], out: [] }), null);
+});
+// A game of puzzle p, played by its hints up to the first of a kind.
+function playTo(p, kind) {
+  const g = createGame(p, { auto: false });
+  for (let k = 0; k < 200; k++) {
+    const h = findHint(g);
+    if (h.kind === kind) return { g, h };
+    for (const i of h.out) g.marks[i] = 'x';
+    if (h.kind === 'single') look(g, h.tgt);
+  }
+  throw new Error(`no "${kind}" hint`);
+}
 
 test('hidden faces hints: 3 per puzzle; none is charged when there is no hint', () => {
   const g = game();

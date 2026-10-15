@@ -6,13 +6,7 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q19. Which deeper explanation for a hint?** *Raised 2026-10-14:*
-  the developer finds the reasoning of some hints hard to follow ("it
-  would rule out the last options for a row or column" when other
-  squares look left) and asked for an option to see why. Claude proposed
-  a free **Why?** in the hint bar; the developer chose both a picture on
-  the board and a line of words, mockup first. Waiting for the
-  developer's verdict on mockup v1 (see "Why? mockup v1").
+None.
 
 ## Proposed additions to the standards skill
 
@@ -47,6 +41,13 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q19. Which deeper explanation for a hint?** *Raised 2026-10-14:*
+  the developer found the reasoning of some hints hard to follow ("it
+  would rule out the last options for a row or column" when other
+  squares looked left). *Resolved 2026-10-14:* both a picture on the
+  board and a line of words ("Do both ... Make a mockup first"); mockup
+  v1 agreed ("This is good. Build and publish."). See "Why? built".
 
 - **Q18. Which other emoji does Chrome on the Linux VM draw wrong?**
   *Raised 2026-10-14:* the 🏠 drew as a purple building and 🔊 as an
@@ -4782,3 +4783,52 @@ from the board's frame); the first texts ran to 4 lines; the hint's
 blinking ✕ hid the pretend star; switching to the Why? made the
 spotlight flash off and on (now kept). Not yet tried in the desktop
 app's viewer.
+
+## 2026-10-14: Why? built
+
+**Developer** (after mockup v1): "This is good. Build and publish. I
+will need to play a few real games to see if there are any other
+problems."
+
+**Built** from the mockup's scratch copy, without its mockup-only parts
+(99 hints, the jump buttons): `explainHint` in `src/core/hidden-faces.js`
+(no DOM); in `src/ui/hidden-faces.js` the 💡 Hint button turns into ❓
+Why? while a hint with one shows, the pretend star, labels and an
+`<svg id="rings">` of outlines over the board (`hidden-faces.html`), and
+the styles in `css/hidden-faces.css` (new class names `pretend`,
+`pretending`, `tag`, `rings`, `ring`, `ring-*`, `pressed`: none in the
+shared sheets). DESIGN.md "Find the Stars" has a Why? item.
+
+**One change from the mockup: shorter "would rule out" words.** Over
+all 1,000 stock puzzles, followed by their hints (scratch script), the
+mockup's wording ran past the bar's 3 lines (about 140 characters) in
+2,000 of 5,110 "would rule out" Why?s, up to 173 characters. Now "A star
+on the ringed square would rule out Purple's last 5 squares (lit): 3
+touching it, 1 in its row, 1 in its column. No star left for Purple!":
+26 of 5,110 over 140 (longest 144), and 13 of 355 "k in k" (4 colours
+in 4 columns, up to 153); those scroll in the bar. "All inside" up to
+134, "only one left" up to 95.
+
+**Tests** (`tests/hidden-faces.test.js`, 2 new): following the hints on
+the 7 test puzzles, every Why? leaves the board as it was; none for a
+wrong ✕, implied ✕s or "try it"; for each "would rule out", every lit
+square has a label, each label is the true reason (touching, then the
+star's row, column, colour) and a star there really would rule it out,
+the red outline is the named unit, the dotted one the star's colour
+exactly when a square goes for its colour; the longest text ≤ 160.
+Made-up hints check the one-square and "both" wordings and a real
+"group" Why? on the GROUP puzzle. **Shown to fail:** row and column
+labels swapped, the colour outline left out, and "both" left out each
+failed a test; restored, 22 of 22. `npm test`: 246 of 246.
+`tools/offline.js`: version ed48dd343284.
+
+**Checked on the real page** (built-in browser, localhost:8123, 8 x 8):
+the first hint ("all inside") turned 💡 Hint into ❓ Why?; Why? showed its
+words and 2 outlines and the button read 💡 The hint; back and forth
+again; a tap on the board cleared the bar, labels and outlines, and the
+button read 💡 Hint 2 (Why? used no hint); the next hint, a wrong ✕, had
+no Why? (💡 Hint 1). The debug log shows `hint` with its words, `why`
+and `why: back to the hint`. No console errors. "Would rule out" on the
+board was checked in the mockup (same UI code). The browser's saved
+progress was empty before and was removed after; Claude's server
+stopped.

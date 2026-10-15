@@ -69,6 +69,23 @@
 .cell.why, .cell.out { box-shadow: inset 0 0 0 2px var(--thick); }
 .cell.tgt::before { content: ''; position: absolute; inset: 3px; border-radius: 50%; box-shadow: inset 0 0 0 4px var(--thick), inset 0 0 0 7px #fff, 0 0 0 2px #fff; animation: pulse 1.1s ease-in-out infinite; pointer-events: none; z-index: 1; }
 .cell.out::after { content: '✕'; position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * .5); font-weight: 900; color: var(--thick); text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 4px #fff; animation: blink 1.1s ease-in-out infinite; pointer-events: none; z-index: 2; }
+/* Why? (the deeper reason): a pale pretend star on the ringed square, a
+   label on each lit square saying why it would go, and outlines round
+   the rows, columns and colours the reason is about. */
+.cell .pretend { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 2; }
+.cell .pretend svg { width: 62%; height: 62%; opacity: .6; }
+.cell .tag { position: absolute; left: 1px; right: 1px; bottom: 2px; text-align: center; font-size: max(8px, calc(var(--cell) * .22)); font-weight: 900; line-height: 1.15;
+  color: #fff; background: #2B2B33E6; border-radius: 4px; pointer-events: none; z-index: 3; white-space: nowrap; overflow: hidden; }
+.boardwrap { position: relative; }
+.rings { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 4; }
+.cell.pretending::after { display: none; }
+.rings[hidden] { display: none; }
+.ring { fill: none; stroke-linecap: round; }
+.ring-empty { stroke: var(--bad); stroke-width: 4; stroke-dasharray: 9 6; }
+.ring-unit { stroke: #1F5FD1; stroke-width: 4; }
+.ring-other { stroke: #1F5FD1; stroke-width: 4; stroke-dasharray: 9 6; }
+.ring-reach { stroke: #2B2B33; stroke-width: 2.5; stroke-dasharray: 2 5; }
+.tool.pressed { background: var(--sun-soft); border-color: var(--ink); }
 @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(.82); } }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
 @keyframes shake { 0%, 100% { transform: none; } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }

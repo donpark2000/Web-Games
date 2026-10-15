@@ -6,7 +6,7 @@
 
 import {
   SIZES, DEFAULT_SIZE, HEARTS, DEMO, PROGRESS_KEY, decode, createGame, foundCount, tap, startStroke, strokeTo,
-  endStroke, undo, canUndo, showOne, useHint, readProgress, recordTime, clock,
+  endStroke, undo, canUndo, showOne, useHint, explainHint, readProgress, recordTime, clock,
 } from '../core/hidden-faces.js';
 import { STAR, XMARK, borderStyle, miniBoard } from './hfboard.js';
 import { log, startLog } from './debuglog.js';
@@ -134,9 +134,8 @@ function draw(pop = -1) {
   $('found').textContent = `${foundCount(G)} of ${G.n} found`;
   $('hearts').textContent = '❤️'.repeat(Math.max(0, G.hearts)) + '🤍'.repeat(HEARTS - Math.max(0, G.hearts));
   $('hearts').setAttribute('aria-label', `${Math.max(0, G.hearts)} of ${HEARTS} hearts left`);
-  $('hintsLeft').textContent = G.hints;
   $('showsLeft').textContent = G.shows;
-  $('hintBtn').disabled = !G.hints || !!G.result;
+  hintTool();
   $('showBtn').disabled = !G.shows || !!G.result;
   $('undoBtn').disabled = !canUndo(G);
 }
@@ -150,6 +149,7 @@ function fit() {
   const r = fitPlayScreen(px => b.style.setProperty('--cell', `${px}px`), MIN_CELL, widest);
   const key = `${G.n}@${r.size}`;
   if (key !== lastFit) { lastFit = key; L('fit', { size: G.n, cell: r.size, fitted: r.fitted, tries: r.tries, screen: r.screen }); }
+  if (shown) paintHint();
 }
 addEventListener('resize', fit);
 
@@ -256,30 +256,114 @@ $('showBtn').onclick = () => {
 
 /* ---------- hints ---------- */
 
+// The hint on show: { h (findHint's), why (its explainHint, or null),
+// deep: the Why? showing }. While a hint with a Why? shows, the 💡 Hint
+// button is ❓ Why?, and switches between the two.
+let shown = null;
+
 $('hintBtn').onclick = () => {
+  if (shown?.why) {
+    shown.deep = !shown.deep;
+    L(shown.deep ? 'why' : 'why: back to the hint', { kind: shown.h.kind, tgt: shown.h.tgt, tags: shown.why.tags.map(t => t[1]).join(' ') });
+    paintHint();
+    return;
+  }
   const h = useHint(G);
   if (!h.ok) return;
-  L('hint', { kind: h.kind, tgt: h.tgt, why: h.why.length, out: h.out.length, left: G.hints });
+  L('hint', { kind: h.kind, tgt: h.tgt, why: h.why.length, out: h.out.length, left: G.hints, text: h.text });
   clearHint();
+  shown = { h, why: explainHint(G, h), deep: false };
   sound.play('ping');
+  paintHint();
+  draw();
+};
+
+const TAGS = { touch: 'touch', row: 'row', col: 'col', colour: 'colour' };
+
+// The hint (or its Why?) on the board and in the bar.
+function paintHint() {
+  unpaint(true);
+  const { h, why, deep } = shown;
   const cs = cells();
   for (const i of h.why) cs[i].classList.add('why');
   for (const i of h.out) cs[i].classList.add('out');
   if (h.tgt != null) cs[h.tgt].classList.add('tgt');
   if (h.kind !== 'none') $('board').classList.add('spot');
-  $('hintbar').textContent = `💡 ${h.text}`;
+  if (deep) {
+
+    // The pretend star stands where the hint's blinking ✕ was.
+    if (why.pretend != null) { cs[why.pretend].classList.add('pretending'); cs[why.pretend].insertAdjacentHTML('beforeend', `<span class="pretend">${STAR}</span>`); }
+    for (const [i, tag] of why.tags) cs[i].insertAdjacentHTML('beforeend', `<span class="tag">${TAGS[tag]}</span>`);
+    drawRings(why.rings);
+  }
+  $('hintbar').textContent = deep ? `❓ ${why.text}` : `💡 ${h.text}`;
   $('hintbar').classList.remove('idle');
-  draw();
-};
+  hintTool();
+}
+
+// Outlines round whole rows, columns or colours, over the board (so the
+// spotlight's fading doesn't fade them). The squares' offsets are from the
+// board's frame (.boardwrap), which the outlines cover.
+function drawRings(rings) {
+  const wrap = $('board').parentElement, cs = cells(), n = G.n;
+  const W = wrap.offsetWidth, H = wrap.offsetHeight;
+  let paths = '';
+  for (const { cells: set, style } of rings) {
+    const inSet = new Set(set);
+    let d = '';
+    for (const i of set) {
+      const c = cs[i], x = c.offsetLeft, y = c.offsetTop, w = c.offsetWidth, hh = c.offsetHeight;
+      const r = Math.floor(i / n), k = i % n, e = style === 'reach' ? 5 : 2;
+      const x0 = x + e, y0 = y + e, x1 = x + w - e, y1 = y + hh - e;
+      if (r === 0 || !inSet.has(i - n)) d += `M${x0 - e} ${y0}H${x1 + e}`;
+      if (r === n - 1 || !inSet.has(i + n)) d += `M${x0 - e} ${y1}H${x1 + e}`;
+      if (k === 0 || !inSet.has(i - 1)) d += `M${x0} ${y0 - e}V${y1 + e}`;
+      if (k === n - 1 || !inSet.has(i + 1)) d += `M${x1} ${y0 - e}V${y1 + e}`;
+    }
+    paths += `<path class="ring ring-${style}" d="${d}"/>`;
+  }
+  $('rings').setAttribute('viewBox', `0 0 ${W} ${H}`);
+  Object.assign($('rings').style, { width: `${W}px`, height: `${H}px` });
+  $('rings').innerHTML = paths;
+  $('rings').removeAttribute('hidden'); // an <svg> has no .hidden
+}
+
+// The 💡 Hint button: ❓ Why? while a hint with one shows.
+function hintTool() {
+  const b = $('hintBtn');
+  if (shown?.why && !G.result) {
+    b.innerHTML = shown.deep ? '💡 The hint' : '❓ Why?';
+    b.classList.toggle('pressed', shown.deep);
+    b.disabled = false;
+    return;
+  }
+  b.classList.remove('pressed');
+  b.innerHTML = `💡 Hint <span class="left" id="hintsLeft">${G.hints}</span>`;
+  b.disabled = !G.hints || !!G.result;
+}
+
+// Takes the hint off the board. `again`: it's about to be painted again,
+// so the spotlight stays (taking it off and on would flash the board).
+function unpaint(again = false) {
+  for (const c of cells()) {
+    c.classList.remove('why', 'out', 'tgt', 'pretending');
+    for (const el of c.querySelectorAll('.pretend, .tag')) el.remove();
+  }
+
+  if (!again) $('board').classList.remove('spot');
+  $('rings').setAttribute('hidden', '');
+  $('rings').innerHTML = '';
+}
 function clearHint() {
-  for (const c of cells()) c.classList.remove('why', 'out', 'tgt');
-  $('board').classList.remove('spot');
+  shown = null;
+  unpaint();
   // Empty and hidden between hints, but keeping its place (developer,
   // 2026-10-13: "Tap 💡 for the next step" stayed after the last hint, with
   // nothing left to tap, and the 💡 Hint button says it already).
   $('hintbar').textContent = '';
   $('hintbar').classList.remove('result', 'solved', 'lost');
   $('hintbar').classList.add('idle');
+  if (G) hintTool();
 }
 
 /* ---------- the end ---------- */
@@ -357,3 +441,4 @@ $('newBtn').onclick = () => {
 
 startLog('hidden-faces');
 renderSetup();
+

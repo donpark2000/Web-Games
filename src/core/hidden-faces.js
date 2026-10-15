@@ -593,6 +593,69 @@ export function findHint(g) {
   return { ...h, why: [], tgt: st.out[0], text: `Try a star on the ringed square (${sq(st.out[0])}): follow the rules and some row, column or colour runs out of squares. So cross it out.` };
 }
 
+// The deeper reason for a hint (its Why?), without changing the board:
+// why the squares it lights are ruled out, or why they must hold the star.
+// Returns { text, pretend?: the square a pretend star goes on, tags:
+// [[square, 'touch' | 'row' | 'col' | 'colour']] (why each lit square
+// would go), rings: [{ cells, style: 'empty' | 'unit' | 'other' |
+// 'reach' }] (outlines: a unit left with nothing, the units the reason is
+// about, the pretend star's colour) }, or null for a hint with nothing
+// more to say (a wrong ✕, ✕s a found star implies, none).
+export function explainHint(g, h) {
+  const { n, reg } = g;
+  const U = h.units ?? [];
+  const name = u => (u.type === 'row' ? `row ${u.idx + 1}` : u.type === 'col' ? `column ${u.idx + 1}` : g.col[u.idx].name);
+  const cap = s => s[0].toUpperCase() + s.slice(1);
+  const list = xs => (xs.length < 2 ? xs[0] : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
+  const names = us => (us[0].type === 'region' ? list(us.map(name))
+    : `${us[0].type === 'row' ? 'rows' : 'columns'} ${list(us.map(u => String(u.idx + 1)))}`);
+  if (h.kind === 'touch') {
+    const t = h.tgt, r = rowOf(n, t), c = t % n, u = U[0];
+    const tagOf = j => {
+      const rj = rowOf(n, j), cj = j % n;
+      if (Math.abs(rj - r) <= 1 && Math.abs(cj - c) <= 1) return 'touch';
+      return rj === r ? 'row' : cj === c ? 'col' : 'colour';
+    };
+    const tags = h.why.map(j => [j, tagOf(j)]);
+    const colour = g.col[reg[t]].name;
+    // [one square's words, several's]: short, as each lit square's label
+    // says it too, and the bar has 3 lines (about 140 characters).
+    const says = {
+      touch: ['it touches the star', 'touching it'], row: ["it's in the star's row", 'in its row'],
+      col: ["it's in the star's column", 'in its column'], colour: [`it's ${colour}, like the star`, `${colour} like it`],
+    };
+    const k = tags.length;
+    const counts = Object.keys(says).map(tag => [tag, tags.filter(x => x[1] === tag).length]).filter(x => x[1]);
+    const what = k === 1 ? `${name(u)}'s last square (lit): ${says[counts[0][0]][0]}`
+      : `${name(u)}'s last ${k} squares (lit): ${counts.map(([tag, m]) => `${m === k ? (k === 2 ? 'both' : 'all') : m} ${says[tag][1]}`).join(', ')}`;
+    const rings = [{ cells: u.cells, style: 'empty' }];
+    if (tags.some(x => x[1] === 'colour')) rings.push({ cells: reg.map((_, j) => j).filter(j => reg[j] === reg[t]), style: 'reach' });
+    return { text: `A star on the ringed square would rule out ${what}. No star left for ${name(u)}!`, pretend: t, tags, rings };
+  }
+  if (h.kind === 'inside') {
+    const [a, b] = U;
+    return {
+      text: `${cap(name(a))}'s star is on a lit square, and they're all in ${name(b)}. So ${name(b)}'s one star is ${name(a)}'s: no star in the rest of ${name(b)}.`,
+      tags: [], rings: [{ cells: a.cells, style: 'unit' }, { cells: b.cells, style: 'other' }],
+    };
+  }
+  if (h.kind === 'group') {
+    const k = U.length / 2, a = U.slice(0, k), b = U.slice(k);
+    return {
+      text: `${cap(names(a))}'s ${k} stars are on lit squares, in ${names(b)}. Those ${k} ${b[0].type === 'region' ? 'colours' : b[0].type === 'row' ? 'rows' : 'columns'} have just ${k} stars, so no star in the rest of them.`,
+      tags: [], rings: [...a.map(u => ({ cells: u.cells, style: 'unit' })), ...b.map(u => ({ cells: u.cells, style: 'other' }))],
+    };
+  }
+  if (h.kind === 'single') {
+    const u = U[0];
+    const text = u.cells.length === 1
+      ? `${cap(name(u))} needs a star, like every colour, and it's just this one square.`
+      : `${cap(name(u))} needs a star, and the rest of it is crossed out. So the star is on the ringed square.`;
+    return { text, tags: [], rings: [{ cells: u.cells, style: 'unit' }] };
+  }
+  return null;
+}
+
 // Uses a hint: returns it (findHint's), counting it unless there was none
 // to give. { ok: false, why } when none are left or the game is over.
 export function useHint(g) {
