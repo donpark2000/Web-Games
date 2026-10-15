@@ -20,6 +20,15 @@ and what it does and doesn't prove.
   the device), and resume the game itself (each game saves its state as
   it goes; none does now; Find the Stars keeps only the next puzzle and
   best times).
+  *2026-10-15, the developer on the iPhone:* the log "does seem" to show
+  a restart (hard to read: "a lot of stuff there"). **What brings it
+  back decides it:** chosen from the app switcher (swipe up from the
+  bottom), the game is where it was left; tapped on its home-screen
+  icon, it starts over on the home page. So the phone hadn't closed it
+  for memory (Claude's first reading, wrong): a tap on the icon opens
+  the start page, which our page can't stop. The fix is still the two
+  above; reopening the last page alone would land on that game's setup
+  screen, since the icon's tap reloads.
 
 ## Proposed additions to the standards skill
 
