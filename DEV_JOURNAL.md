@@ -6,65 +6,7 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-- **Q20. Back on the home page after switching apps: avoidable?**
-  *Raised 2026-10-15:* in the installed app on the developer's phone,
-  switching to another app and back sometimes lands on the home page,
-  even from the middle of a game. Claude's reading (not yet confirmed
-  on the device): the phone closed the backgrounded app to free memory,
-  and an installed app reopens at its start page (`start_url: "./"` in
-  `manifest.webmanifest`); nothing in our code goes back home
-  (`src/ui/offline.js` logs a new version taking over but never
-  reloads). Evidence to get: the debug log just after it happens, where
-  a fresh home-page heading at the return time means a relaunch. Not
-  inevitable, two separate fixes: reopen the last page (remembered on
-  the device), and resume the game itself (each game saves its state as
-  it goes; none does now; Find the Stars keeps only the next puzzle and
-  best times).
-  *2026-10-15, the developer on the iPhone:* the log "does seem" to show
-  a restart (hard to read: "a lot of stuff there"). **What brings it
-  back decides it:** chosen from the app switcher (swipe up from the
-  bottom), the game is where it was left; tapped on its home-screen
-  icon, it starts over on the home page. So the phone hadn't closed it
-  for memory (Claude's first reading, wrong): a tap on the icon opens
-  the start page, which our page can't stop. The fix is still the two
-  above; reopening the last page alone would land on that game's setup
-  screen, since the icon's tap reloads.
-  *2026-10-15, the developer:* both fixes, **for all the games**: "To
-  do otherwise is an unusual experience compared to other apps on a
-  phone. If you do not explicitly close them, you always come back to
-  where you left off."
-  *2026-10-15:* built for all ten games and checked in the browser (see
-  "Coming back to a game, built"); to try on the iPhone once published.
-
-- **Q21. Find the Stars levels: easier, harder, or both?** *Raised
-  2026-10-15* by the developer: what level is it now, and would harder
-  mean fewer hints or a harder puzzle? **Measured** (the stock's 200
-  per size, solved with the stock's rules, a scratchpad script, 0.7 s):
-
-  | Size | Steps | Single | Inside | Touch | Group | Needing group |
-  |---|---|---|---|---|---|---|
-  | 6 x 6 | 13.1 | 6.0 | 3.2 | 3.9 | 0.1 | 6% |
-  | 7 x 7 | 15.4 | 7.0 | 3.7 | 4.5 | 0.2 | 16% |
-  | 8 x 8 | 16.6 | 8.0 | 3.9 | 4.5 | 0.2 | 19% |
-  | 9 x 9 | 19.6 | 9.0 | 3.9 | 6.2 | 0.6 | 43% |
-  | 10 x 10 | 21.2 | 10.0 | 4.0 | 6.5 | 0.7 | 53% |
-
-  (Averages per puzzle. Every star is placed by a "single" step; the
-  rest are steps that rule squares out.) Steps beyond "single" per
-  puzzle range 4 to 30 within a size, so puzzle 1 and puzzle 2 of one
-  size can differ a lot. **No puzzle needs "try it"** (a star here,
-  follow the simple rules, something runs out); the solver has it for
-  hints only, and Why? has no picture for it yet. So today is one middle
-  level, and size is the only dial. Claude's view: levels should change
-  the puzzle, not the help (hints and hearts are how you learn and
-  recover; a few fewer is a small change in feel, not in thinking).
-  *Resolved 2026-10-15:* no levels for now. The developer: "I don't
-  think I need a hard level. I don't want any puzzle that requires a
-  guess." Hard would have meant puzzles needing "try it", which plays
-  like a guess, so it's out. Today's stock already holds to that:
-  `problems()` checks each stock puzzle with the stock's rules
-  (`MAKE_LEVEL` 3, no "try it"), and the stock test runs it on all 1000.
-  Easy not asked for.
+None.
 
 ## Proposed additions to the standards skill
 
@@ -97,6 +39,70 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q21. Find the Stars levels: easier, harder, or both?** *Raised
+  2026-10-15* by the developer: what level is it now, and would harder
+  mean fewer hints or a harder puzzle? **Measured** (the stock's 200
+  per size, solved with the stock's rules, a scratchpad script, 0.7 s):
+
+  | Size | Steps | Single | Inside | Touch | Group | Needing group |
+  |---|---|---|---|---|---|---|
+  | 6 x 6 | 13.1 | 6.0 | 3.2 | 3.9 | 0.1 | 6% |
+  | 7 x 7 | 15.4 | 7.0 | 3.7 | 4.5 | 0.2 | 16% |
+  | 8 x 8 | 16.6 | 8.0 | 3.9 | 4.5 | 0.2 | 19% |
+  | 9 x 9 | 19.6 | 9.0 | 3.9 | 6.2 | 0.6 | 43% |
+  | 10 x 10 | 21.2 | 10.0 | 4.0 | 6.5 | 0.7 | 53% |
+
+  (Averages per puzzle. Every star is placed by a "single" step; the
+  rest are steps that rule squares out.) Steps beyond "single" per
+  puzzle range 4 to 30 within a size, so puzzle 1 and puzzle 2 of one
+  size can differ a lot. **No puzzle needs "try it"** (a star here,
+  follow the simple rules, something runs out); the solver has it for
+  hints only, and Why? has no picture for it yet. So today is one middle
+  level, and size is the only dial. Claude's view: levels should change
+  the puzzle, not the help (hints and hearts are how you learn and
+  recover; a few fewer is a small change in feel, not in thinking).
+  *Resolved 2026-10-15:* no levels for now. The developer: "I don't
+  think I need a hard level. I don't want any puzzle that requires a
+  guess." Hard would have meant puzzles needing "try it", which plays
+  like a guess, so it's out. Today's stock already holds to that:
+  `problems()` checks each stock puzzle with the stock's rules
+  (`MAKE_LEVEL` 3, no "try it"), and the stock test runs it on all 1000.
+  Easy not asked for.
+
+- **Q20. Back on the home page after switching apps: avoidable?**
+  *Raised 2026-10-15:* in the installed app on the developer's phone,
+  switching to another app and back sometimes lands on the home page,
+  even from the middle of a game. Claude's reading (not yet confirmed
+  on the device): the phone closed the backgrounded app to free memory,
+  and an installed app reopens at its start page (`start_url: "./"` in
+  `manifest.webmanifest`); nothing in our code goes back home
+  (`src/ui/offline.js` logs a new version taking over but never
+  reloads). Evidence to get: the debug log just after it happens, where
+  a fresh home-page heading at the return time means a relaunch. Not
+  inevitable, two separate fixes: reopen the last page (remembered on
+  the device), and resume the game itself (each game saves its state as
+  it goes; none does now; Find the Stars keeps only the next puzzle and
+  best times).
+  *2026-10-15, the developer on the iPhone:* the log "does seem" to show
+  a restart (hard to read: "a lot of stuff there"). **What brings it
+  back decides it:** chosen from the app switcher (swipe up from the
+  bottom), the game is where it was left; tapped on its home-screen
+  icon, it starts over on the home page. So the phone hadn't closed it
+  for memory (Claude's first reading, wrong): a tap on the icon opens
+  the start page, which our page can't stop. The fix is still the two
+  above; reopening the last page alone would land on that game's setup
+  screen, since the icon's tap reloads.
+  *2026-10-15, the developer:* both fixes, **for all the games**: "To
+  do otherwise is an unusual experience compared to other apps on a
+  phone. If you do not explicitly close them, you always come back to
+  where you left off."
+  *2026-10-15:* built for all ten games and checked in the browser (see
+  "Coming back to a game, built"); to try on the iPhone once published.
+  *Resolved 2026-10-15:* on the iPhone after the publish, the developer:
+  "It looks good on my phone." (Claude's note on the version line was
+  wrong: it shows the version's first 6 characters, "45db80", as
+  designed, not all 12.)
 
 - **Q19. Which deeper explanation for a hint?** *Raised 2026-10-14:*
   the developer found the reasoning of some hints hard to follow ("it
@@ -5035,3 +5041,11 @@ levels: Q21), or the DESIGN.md "Later" list.
 additions:** none. (The mutation that didn't take, in "Coming back to a
 game, built", is a case of the skill's "Prove every check can fail",
 not a new rule.)
+
+## 2026-10-15: Checked on the iPhone; Q20 closed
+
+The developer tried the published app on their iPhone: "It looks good
+on my phone." Q20 moved to Resolved, with Q21 (resolved earlier today
+but left in the open list). Claude's instruction to look for version
+"45db805c0b9f" was wrong: the version line shows the first 6 characters
+("45db80"), as DESIGN.md "Offline app" says. **Open questions:** none.
