@@ -5880,3 +5880,41 @@ measured in one browser's fonts can fail in another's; leave margin, or
 fit at run time. *Evidence:* a row of four buttons measured to fit with
 7 px to spare in Chromium pushed the play screen past the iPhone's edge
 in Safari." Added to "Proposed additions to the standards skill".
+
+## 2026-10-16: The tools fit published
+
+Published with the developer's OK ("Publish."): `main` fast-forwarded
+8f751b4..8fa77c9 and pushed at 12:33:48. The Pages build for 8fa77c9 was
+"built" at 19:34:23Z (about 34 s); the server sends version
+f4c8e57d3a6d and `src/ui/hidden-faces.js` with `fitTools` (curl).
+**Checked live** (built-in browser, 393 x 760): the first load still
+showed the pane's offline copy (fca8e7), the next "Version Oct 16, 2026
+· f4c8e5". Find the Stars: "tools fit {font 14, base 14, cutAtBase []}"
+and "fit {..., mainW 361, playW 361}"; the board 17 px from each side,
+the clock and Give up at 377 (the page column's edge); nothing cut; no
+console errors. (Chromium's fonts: the iPhone is the real check.) Test
+state cleared from `data/hidden-faces.json`; only the log. The local
+server stopped; no `serve.js` running, nothing on port 8123.
+
+**For the developer to try on the iPhone** (open the app with wifi
+until the version line says f4c8e5): Find the Stars' play screen
+centred, the clock and 🏳 Give up whole; the four tool labels whole
+(perhaps a little smaller). If anything is still off: the log page has
+"tools fit" (the size used, the buttons cut at the start size) and the
+"fit" line's `mainW` and `playW`.
+
+## 2026-10-16: Status (start here next session)
+
+**Published** (`main` = 8fa77c9, version f4c8e57d3a6d): Q22-Q25, and
+the tools row that can't widen Find the Stars' play screen. Branch
+`star-battle` = `main` plus this journal entry. `npm test`: 272 of 272.
+
+**Next:** the developer checks Find the Stars on the iPhone (centred,
+nothing cut); then close Q22, Q23 and Q25 with the evidence (the
+developer: "It all works" on the iPhone after the 8f751b4 publish, but
+for the screen shifted right). Q24 stays open until the home page fails
+to scroll again and its log is read. Review the proposed skill addition
+(fit on the target's fonts) with the developer.
+
+**Open questions:** Q22, Q23, Q25 (to close after the iPhone check),
+Q24, Q26. **Proposed skill additions:** one (above).
