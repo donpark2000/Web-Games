@@ -5651,3 +5651,51 @@ reload: only the log.
 
 **For the developer to try** on the local server: a hint, then ✓ Got it;
 the note, then the greyed words with ↻; a tap on them; Why? and back.
+
+## 2026-10-16: The greyed hint's "(tap to light this hint again)"
+
+The developer tried the Got it row and the note: "It works very well.
+One suggested change. The text that momentarily appears ... disappear in
+a second and there is a web browser 'refresh symbol' that is not doing a
+refresh function. How about this instead ... remove the refresh symbol
+and just add the text below the original hint '(click to light this
+hint again)'." Claude measured first (built-in browser, 375 x 667): with
+the line inside the 3-line bar, every hint over about 120 characters
+(even at 13px) would scroll; so the bar grows by one small line
+(`calc(3 * 1.4em + 20px + 1.3 * 12px + 2px)`, 83 to 101 px). At 393 x 760
+the board kept its size at 6, 8 and 10 (59, 44 and 35 px: limited by the
+screen's width there). "tap", not "click", as the game's other words.
+The developer: "Yes: build it that way (tap, the bar one small line
+taller, no note or refresh mark)."
+
+**Built:** `paintBar()` adds `<span class="relight">(tap to light this
+hint again)</span>` under the greyed words (12px, its own line); the
+words start with 💡 again; `dimHint()` paints the bar straight away (no
+note, no ↻ anywhere in the page's code). The note for a look known to be
+empty is unchanged.
+
+**How long real hints are** (a scratch script, not kept: the first 40
+puzzles of each size solved by hints alone): 3,474 hints, the longest
+157 characters; 258 over 129, nearly all "all inside" (at most 135); 5
+over 135, all "k in k rows" (group) hints. **In the greyed bar with the
+line** (real texts): the "all inside" ones of 134 and 135 fit at 375 and
+393 px wide; a group hint of 142 scrolls by one line at 375 (fits at
+393), the 157 one at both. **Correction:** Claude told the developer the
+extra room would stop the longest lit hint (155) scrolling; it doesn't
+(the 17 px is less than a line; 145 and 155 still scroll when lit, as
+before).
+
+**Tests:** `tests/pages.test.js`: the bar's height (3 lines and a small
+one), the line under the greyed words and its size, no ↻ in the code,
+`dimHint` painting the bar. **Shown to fail:** the line not added; ↻
+back; the old height; the line at 15px; `dimHint` not painting the bar:
+1 failed each. `npm test`: 271 pass, 0 fail. `tools/offline.js`:
+version bb780d361efe.
+
+**Checked in the built-in browser:** at 393 x 760 on a 10 x 10, a hint
+then Got it: the bar 101 px, "💡 The lit squares, all that's left for
+..." greyed, the line "(tap to light this hint again)" under it, no
+scrolling; the page 760 px on the 760 px screen. At 375 x 667 (after a
+reload): 10 x 10 squares 30 px, the page 667. No console errors. Test
+state cleared from `data/hidden-faces.json`; after a reload only the
+log.

@@ -269,7 +269,7 @@ test('pages: Hidden Faces’ hint bar is empty and hidden between hints, its spa
   const idle = css.match(/\.hintbar\.idle \{([^}]*)\}/)?.[1] ?? '';
   assert.match(idle, /visibility: hidden/, 'the idle hint bar shows');
   assert.doesNotMatch(idle, /display: none|height/, 'the idle hint bar gives up its space');
-  assert.match(css.match(/\.hintbar \{[^}]*\}/)?.[0] ?? '', /height: calc\(3 \* 1\.4em \+ 20px\)/, 'the hint bar is not 3 lines high');
+  assert.match(css.match(/\.hintbar \{[^}]*\}/)?.[0] ?? '', /height: calc\(3 \* 1\.4em \+ 20px \+ 1\.3 \* 12px \+ 2px\)/, 'the hint bar is not 3 lines and a small one high');
 });
 
 // Find the Stars (developer, 2026-10-15): a touch on the board (or Undo)
@@ -285,7 +285,7 @@ test('pages: Find the Stars keeps the last hint’s words; a known-empty look is
   assert.match(undoBtn, /dimHint\(\);/);
   assert.doesNotMatch(undoBtn, /clearHint\(\)/, 'Undo clears the hint’s words');
   const dim = js.match(/function dimHint\([^)]*\) \{[\s\S]*?\n\}/)?.[0] ?? '';
-  assert.match(dim, /shown\.lit = false;[\s\S]*unpaint\(\);[\s\S]*showNote\(AGAIN_NOTE\);/, 'dimHint() doesn’t take it off the board and say how to light it again');
+  assert.match(dim, /shown\.lit = false;[\s\S]*unpaint\(\);[\s\S]*paintBar\(\);/, 'dimHint() doesn’t take it off the board and grey it');
   assert.doesNotMatch(dim, /shown = null/, 'dimHint() forgets the hint');
   const relight = js.match(/\$\('hintbar'\)\.addEventListener\('click', [\s\S]*?\n\}\);/)?.[0] ?? '';
   assert.match(relight, /shown\.lit = true;[\s\S]*paintHint\(\);/, 'a tap on the greyed words doesn’t light the hint');
@@ -334,9 +334,9 @@ test('pages: no game asks with the browser’s confirm()', async () => {
 
 // Find the Stars (developer, 2026-10-16, Q25): while a hint is lit, the
 // tools row is its own, ❓ Why? and ✓ Got it ("not clear how to accept it
-// and get back to game play"); put out, a note says a tap on the bar
-// lights it again, then the greyed words start with ↻ (they speak of "lit
-// squares" with none lit).
+// and get back to game play"); put out, a small line under the greyed
+// words says a tap lights it again (they speak of "lit squares" with none
+// lit; no passing note or refresh mark: developer, 2026-10-16).
 test('pages: Find the Stars: a lit hint has Why? and Got it; put out, it says how to light it again', async () => {
   const play = html['hidden-faces.html'].match(/<section id="play"[\s\S]*?<\/section>/)?.[0] ?? '';
   const row = play.match(/<div class="tools hinttools" id="hintTools" hidden>([\s\S]*?)<\/div>/)?.[1];
@@ -348,8 +348,11 @@ test('pages: Find the Stars: a lit hint has Why? and Got it; put out, it says ho
   assert.match(tool, /const lit = !!shown\?\.lit && !G\.result;/);
   assert.match(tool, /\$\('tools'\)\.hidden = lit;\s*\$\('hintTools'\)\.hidden = !lit;/, 'the tools don’t give way to the hint’s row while it’s lit');
   assert.match(tool, /w\.hidden = !\(lit && shown\.why\);/, 'Why? shows for a hint with none');
-  assert.match(js, /const AGAIN_NOTE = '↻ Tap here to light this hint again\.';/);
+  assert.match(js, /const AGAIN = '\(tap to light this hint again\)';/);
+  assert.doesNotMatch(js, /↻/, 'the refresh mark is back');
   const bar = js.match(/function paintBar\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
-  assert.match(bar, /\$\{shown\.lit \? '💡' : '↻'\} \$\{shown\.h\.text\}/, 'the greyed words don’t start with ↻');
+  assert.match(bar, /if \(!shown\.lit\) \{[\s\S]*?again\.className = 'relight';\s*again\.textContent = AGAIN;\s*bar\.append\(again\);/, 'the greyed words have no line saying how to light the hint again');
+  const css = await readFile(path.join(root, 'css/hidden-faces.css'), 'utf8');
+  assert.match(css, /\.hintbar \.relight \{ display: block;[^}]*font-size: 12px; line-height: 1\.3; \}/, 'the line is not its own small line, or not the size the bar keeps room for');
   assert.match(js.match(/function ending\([\s\S]*?\n\}/)?.[0] ?? '', /\$\('hintTools'\)\.hidden = true;/, 'the hint’s row stays at the end');
 });

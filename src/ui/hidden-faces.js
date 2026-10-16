@@ -436,8 +436,15 @@ function paintBar() {
     bar.textContent = note;
     bar.classList.add('notice');
   } else if (shown) {
-    bar.textContent = shown.deep ? `❓ ${shown.why.text}` : `${shown.lit ? '💡' : '↻'} ${shown.h.text}`;
-    if (!shown.lit) { bar.classList.add('past'); bar.setAttribute('role', 'button'); }
+    bar.textContent = shown.deep ? `❓ ${shown.why.text}` : `💡 ${shown.h.text}`;
+    if (!shown.lit) {
+      bar.classList.add('past');
+      bar.setAttribute('role', 'button');
+      const again = document.createElement('span');
+      again.className = 'relight';
+      again.textContent = AGAIN;
+      bar.append(again);
+    }
   } else {
     bar.textContent = '';
     bar.classList.add('idle');
@@ -455,18 +462,19 @@ function stopNote() {
   note = null;
 }
 
-// Puts the hint out: off the board, its words greyed in the bar, after a
-// moment's note saying a tap lights it again (developer, 2026-10-16: the
-// greyed words speak of "lit squares" with none lit). `by`: what put it
-// out, for the log.
-const AGAIN_NOTE = '↻ Tap here to light this hint again.';
+// Puts the hint out: off the board, its words greyed in the bar with a
+// small line under them saying a tap lights it again (developer,
+// 2026-10-16: the greyed words speak of "lit squares" with none lit; the
+// bar is one small line taller for it). `by`: what put it out, for the
+// log.
+const AGAIN = '(tap to light this hint again)';
 function dimHint(by = 'the board') {
   if (!shown?.lit) return;
   L('hint put out, its words kept', { kind: shown.h.kind, by });
   shown.lit = false;
   shown.deep = false;
   unpaint();
-  showNote(AGAIN_NOTE);
+  paintBar();
   hintTool();
 }
 

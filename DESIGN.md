@@ -544,7 +544,9 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
 - **Play:** 🏠, the star and "8×8 · puzzle 1" (one line), 🔊; hearts ❤️❤️❤️, "3 of
   8 found", a clock; the board as big as fits with no scrolling (thick
   lines between colours, thin inside one); a **hint bar always 3 lines
-  high** (a hint never moves the board), **empty and hidden until the
+  and one small line high** (a hint never moves the board; the small
+  line since 2026-10-16, for a greyed hint's "tap to light this hint
+  again"), **empty and hidden until the
   first hint** (developer, 2026-10-13: "Tap 💡 for the next step, explained"
   wasn't needed, and stayed with no hints left), then the last hint's
   words, greyed (see "Hints"); **Undo**, **💡 Hint** (3 per
@@ -616,14 +618,14 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
 - **The last hint's words stay** (developer, 2026-10-15: to check it was
   understood after following it): ✓ Got it or a touch on the board takes
   the hint off the board, but its words stay in the bar, greyed, until
-  the next hint, 👁 Show or the end. As it goes out the bar says **"↻ Tap
-  here to light this hint again."** for 2.5 s, then the greyed words,
-  starting with ↻ (developer, 2026-10-16: the words speak of "lit
-  squares" with none lit; a lead-in or a button inside the bar would
-  make the longer hints scroll on a phone: measured, the bar holds about
-  130 characters at 375 px). **A tap on the greyed words lights it
-  again** (free: the same hint), with its ❓ Why?. Kept with the game,
-  greyed or lit.
+  the next hint, 👁 Show or the end, with a small line under them:
+  **"(tap to light this hint again)"** (developer, 2026-10-16: the words
+  speak of "lit squares" with none lit; a passing note and a ↻, tried
+  first, went too soon and looked like a browser's refresh). The bar is
+  one small line taller for it (on a 393 x 760 iPhone the board keeps
+  its size: the screen's width limits it there). **A tap on the greyed
+  words lights it again** (free: the same hint), with its ❓ Why?. Kept
+  with the game, greyed or lit.
 - **❓ Why?** (developer, 2026-10-14, from the agreed
   [Why Hint Mockup](https://claude.ai/artifact/1ogeXejM7WRrnBtGFKqXq5),
   version 1: where to put a star or a ✕ was clear, "but the reasoning is
