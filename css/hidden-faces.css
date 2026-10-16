@@ -124,16 +124,25 @@
 @keyframes starbob { 0%, 100% { transform: scale(1) rotate(0); } 30% { transform: scale(1.12) rotate(-8deg); } 60% { transform: scale(1.05) rotate(8deg); } }
 @keyframes spark { 0% { transform: rotate(var(--a)) translateY(0) scale(0); opacity: 1; } 70% { opacity: 1; } 100% { transform: rotate(var(--a)) translateY(-3em) scale(1); opacity: 0; } }
 
-.tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-/* Undo, Hint, Show, Give up: one row on a phone, down to 320 px wide */
-#tools { grid-template-columns: repeat(4, auto); justify-content: space-between; gap: 4px; }
-#tools .tool { font-size: 14px; gap: 3px; padding: 9px 7px; white-space: nowrap; }
+.tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; min-width: 0; }
+/* A row of buttons never widens the page: a button too wide for its place
+   is cut, not pushed out (developer, 2026-10-16: on the iPhone the tools
+   row, wider in Safari's fonts, pushed the play screen past the screen's
+   right edge, the clock and Give up cut, everything right of centre). */
+.tools > .tool { min-width: 0; overflow: hidden; }
+/* Undo, Hint, Show, Give up: one row on a phone, down to 320 px wide. The
+   words start at --tf0 and the screen makes them smaller (--tf) until
+   none is cut, for the phone's own fonts (src/ui/hidden-faces.js:
+   fitTools). */
+#tools { grid-template-columns: repeat(4, auto); justify-content: space-between; gap: 4px; --tf0: 14px; }
+#tools .tool { font-size: var(--tf, var(--tf0)); gap: 3px; padding: 9px 7px; white-space: nowrap; }
 #tools .tool .left { min-width: 18px; height: 18px; border-radius: 9px; font-size: 12px; padding: 0 4px; }
-/* measured 2026-10-15 (the row is the screen less 32 px): it needs 354 px
-   at 14px (a 393 px iPhone has 361), 298 px at 12.5px (a 360 px phone has
-   328), 272 px at 11.5px (a 320 px phone has 288) */
-@media (max-width: 385px) { #tools .tool { font-size: 12.5px; padding: 9px 3px; } }
-@media (max-width: 329px) { #tools .tool { font-size: 11.5px; padding: 9px 2px; gap: 2px; } }
+/* measured 2026-10-15 in Chromium (the row is the screen less 32 px): it
+   needs 354 px at 14px (a 393 px iPhone has 361), 298 px at 12.5px (a
+   360 px phone has 328), 272 px at 11.5px (a 320 px phone has 288);
+   Safari's are wider */
+@media (max-width: 385px) { #tools { --tf0: 12.5px; } #tools .tool { padding: 9px 3px; } }
+@media (max-width: 329px) { #tools { --tf0: 11.5px; } #tools .tool { padding: 9px 2px; gap: 2px; } }
 .tools.hinttools { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; } /* ❓ Why? and ✓ Got it (or Got it alone) */
 .tools.ask { grid-template-columns: 1fr auto auto; align-items: center; } /* "Give up this game?" Yes No, the tools' height */
 .tools.ask .tool { padding: 9px 22px; }

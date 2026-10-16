@@ -359,3 +359,23 @@ test('pages: Find the Stars: a lit hint has Why? and Got it; put out, it says ho
   assert.match(relight, /text-align: center;/, 'the line is not centred');
   assert.match(js.match(/function ending\([\s\S]*?\n\}/)?.[0] ?? '', /\$\('hintTools'\)\.hidden = true;/, 'the hint’s row stays at the end');
 });
+
+// Find the Stars (developer, 2026-10-16, on the iPhone): the tools row,
+// wider in Safari's fonts, pushed the play screen past the screen's right
+// edge (the clock and Give up cut, everything right of centre). A button
+// row can't widen the page (a button is cut instead), and the tools' words
+// shrink until none is cut.
+test('pages: Find the Stars: no button row widens the page; the tools’ words fit the row', async () => {
+  const css = await readFile(path.join(root, 'css/hidden-faces.css'), 'utf8');
+  assert.match(css, /\.tools \{ display: grid;[^}]*min-width: 0; \}/, 'a button row can widen the page');
+  assert.match(css, /\.tools > \.tool \{ min-width: 0; overflow: hidden; \}/, 'a button can widen its row');
+  assert.match(css, /#tools \.tool \{ font-size: var\(--tf, var\(--tf0\)\);/, 'the tools’ size can’t be fitted');
+  const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
+  const fitTools = js.match(/function fitTools\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(fitTools, /largestFitting\(h => \{ t\.style\.setProperty\('--tf', `\$\{h \/ 2\}px`\); return cut\(\)\.length === 0; \}, 20,/, 'the words aren’t made smaller until none is cut');
+  assert.match(fitTools, /L\('tools fit'/, 'the fit isn’t logged');
+  assert.match(js.match(/function fit\(\) \{[\s\S]*?\n\}/)?.[0] ?? '', /fitTools\(\);[\s\S]*fitPlayScreen/, 'the tools aren’t fitted before the board');
+  assert.match(js.match(/function hideAsk\(\) \{[\s\S]*?\n\}/)?.[0] ?? '', /fitTools\(\);/, 'the tools aren’t fitted when Give up’s question goes');
+  assert.match(js.match(/function hintTool\(\) \{[\s\S]*?\n\}/)?.[0] ?? '', /fitTools\(\);/, 'the tools aren’t fitted when a hint goes out');
+  assert.match(js, /mainW: document\.querySelector\('main'\)\.clientWidth, playW:/, 'the fit log doesn’t say the play screen’s width');
+});

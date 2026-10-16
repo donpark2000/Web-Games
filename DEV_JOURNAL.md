@@ -85,7 +85,14 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-10-14: "A style loaded on every page needs a name
+- **Measure fit on the target's fonts, or fit at run time** (2026-10-16,
+  from "The play screen pushed right on the iPhone"): a fit measured in
+  one browser's fonts can fail in another's; leave margin, or measure
+  and fit on the device. *Evidence:* four buttons measured to fit with
+  7 px to spare in Chromium pushed the play screen past the iPhone's
+  right edge in Safari. To review with the developer.
+
+Earlier: none waiting. (2026-10-14: "A style loaded on every page needs a name
 nothing else uses" (from "Find the Stars; one 🏠; Nim's picture fixed")
 dropped by the developer: sharing a class name is sometimes right, and
 the skill should stay "simple and generic and only add complexity when
@@ -5814,3 +5821,62 @@ open until the home page fails to scroll again and its log is read.
 
 **Open questions:** Q22-Q25 (published, the iPhone to try), Q26
 (log.html's Clear uses `confirm()`). **Proposed skill additions:** none.
+
+## 2026-10-16: The play screen pushed right on the iPhone
+
+The developer, on the iPhone after the publish of 8f751b4: "It all
+works. And while the buttons and grid fit my phone scree, they are not
+centered on my phone screen. All are closer to the right than the left.
+The whole grid is visible, but the right edge of the give up botton is
+off screen and the second counter above the grid is cut in half"; "Its
+like the whole screen should be shifted a bit left."
+
+**Cause, reproduced** (built-in browser, 393 x 760): the play screen is a
+grid column, and a grid item's text sets its smallest width, so the
+tools row (four buttons, `white-space: nowrap`, auto columns) widens the
+whole column when its words need more than the row has. In Chromium they
+need 354 px of 361 (measured 2026-10-15), so it fit here; Safari's fonts
+and emoji are wider. With the labels 1.2 px letter-spaced (9 px wider
+in all) the play screen went 361 to 370 px: the board's left edge 17 to
+21 px, the clock and Give up's right edges 377 to 386. On the iPhone
+more than that: past the screen's edge. (The 2026-10-15 fit check
+measured Chromium's fonts only: a lesson below.)
+
+**Fix:**
+- No row of buttons can widen the page: `.tools { min-width: 0 }` and
+  `.tools > .tool { min-width: 0; overflow: hidden }` (a button too wide
+  is cut instead).
+- `fitTools()` (`src/ui/hidden-faces.js`): the tools' words from the
+  CSS's size (`--tf0`: 14px, 12.5px under 386 px, 11.5px under 330) down
+  to 10px in half pixels (`largestFitting` from `src/core/fit.js`) until
+  no button is cut; once per screen width, when the tools show (the
+  fit, Give up's question going, a hint going out). Logged: "tools fit"
+  (font, base, the buttons cut at the base size, the row, the screen);
+  the "fit" line now has `mainW` and `playW` (they must match).
+
+**Tests:** `tests/pages.test.js` +1 (the two CSS rules, the size by
+variable, the fit loop, its log, called from the fit, Give up's question
+and the hint going out, the widths in the fit log). **Shown to fail:**
+the buttons' `min-width: 0` gone; the row's gone; `fitTools()` not
+called from the fit; the fit loop not checking for cut buttons: 1
+failed each. `npm test`: 272 pass, 0 fail. `tools/offline.js`: version
+f4c8e57d3a6d.
+
+**Checked in the built-in browser** (393 x 760, local server): as built,
+14px, nothing cut, "tools fit {font 14, cutAtBase []}", the play screen
+361 = the page column, the board 17 px from each side. The labels made
+wider by a style added in the page (before any refit): the play screen
+stayed 361, the board centred (17 | 17), the clock and Give up at 377;
+Hint, Show and Give up cut (the safety net). The same wider labels in
+the stylesheet for one load (then removed: `cmp` with the saved copy,
+no test line left): "tools fit {font 12.5, base 14, cutAtBase [hintBtn,
+showBtn, giveUpBtn]}", nothing cut, the board 17 | 17, all four labels
+whole. Not checked: Safari's own fonts (the iPhone, after a publish).
+Test state cleared from `data/hidden-faces.json`.
+
+**Proposed skill addition** (for the developer at a checkpoint):
+"Measure fit on the target browser's fonts, or design for them. A fit
+measured in one browser's fonts can fail in another's; leave margin, or
+fit at run time. *Evidence:* a row of four buttons measured to fit with
+7 px to spare in Chromium pushed the play screen past the iPhone's edge
+in Safari." Added to "Proposed additions to the standards skill".

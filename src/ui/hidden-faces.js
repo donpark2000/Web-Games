@@ -13,6 +13,7 @@ import { mergeSetup } from '../core/resume.js';
 import { STAR, XMARK, HXMARK, borderStyle, miniBoard } from './hfboard.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
+import { largestFitting } from '../core/fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -205,15 +206,35 @@ function armFull() {
   }, FULL_MS);
 }
 
+// The tools row's words as big as fit, none cut (developer, 2026-10-16: in
+// the iPhone's fonts the row was wider than the screen and pushed the play
+// screen past its right edge). From the CSS's size (--tf0) down to 10px, in
+// half pixels; once per screen width, while the tools show.
+let toolsFitFor = null;
+function fitTools() {
+  const t = $('tools');
+  if (!t.offsetParent || toolsFitFor === innerWidth) return;   // not on screen: nothing to measure
+  toolsFitFor = innerWidth;
+  const bs = [...t.children];
+  t.style.removeProperty('--tf');
+  const base = parseFloat(getComputedStyle(bs[0]).fontSize);
+  const cut = () => bs.filter(b => b.scrollWidth > b.clientWidth).map(b => b.id);
+  const before = cut();
+  const r = largestFitting(h => { t.style.setProperty('--tf', `${h / 2}px`); return cut().length === 0; }, 20, Math.max(20, Math.round(base * 2)));
+  L('tools fit', { font: r.size / 2, base, cutAtBase: before, fitted: r.fitted, row: t.clientWidth, screen: innerWidth });
+}
+
 // The board as big as fits: the whole page on the screen, no scrolling.
 function fit() {
   if (!G || $('play').hidden) return;
+  fitTools();
   const b = $('board');
   const width = Math.min(document.querySelector('main').clientWidth, MAX_BOARD);
   const widest = Math.max(MIN_CELL, Math.floor((width - 6) / G.n));
   const r = fitPlayScreen(px => b.style.setProperty('--cell', `${px}px`), MIN_CELL, widest);
   const key = `${G.n}@${r.size}`;
-  if (key !== lastFit) { lastFit = key; L('fit', { size: G.n, cell: r.size, fitted: r.fitted, tries: r.tries, screen: r.screen }); }
+  // playW: the play screen's width, which must be the page column's (mainW).
+  if (key !== lastFit) { lastFit = key; L('fit', { size: G.n, cell: r.size, fitted: r.fitted, tries: r.tries, screen: r.screen, mainW: document.querySelector('main').clientWidth, playW: Math.round($('play').getBoundingClientRect().width) }); }
   if (shown?.lit) paintHint();
 }
 addEventListener('resize', fit);
@@ -345,6 +366,7 @@ function hideAsk() {
   $('askTools').hidden = true;
   $('tools').hidden = false;
   $('hintTools').hidden = true;
+  fitTools();
 }
 $('showBtn').onclick = () => {
   const r = showOne(G);
@@ -513,6 +535,7 @@ function hintTool() {
   if (!G.result && $('askTools').hidden) {
     $('tools').hidden = lit;
     $('hintTools').hidden = !lit;
+    fitTools();
   }
   const w = $('whyBtn');
   w.hidden = !(lit && shown.why);

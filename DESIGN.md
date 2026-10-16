@@ -552,7 +552,11 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   words, greyed (see "Hints"); **Undo**, **💡 Hint** (3 per
   puzzle), **👁 Show** (uncovers a star; 1 per puzzle), **🏳 Give up**
   (2026-10-15, Q23: one row on phones from 320 px wide, the words a
-  little smaller under 386 px). Give up **asks first**, in the tools'
+  little smaller under 386 px, and smaller still if the phone's fonts
+  need it: the screen shrinks them until none is cut; developer,
+  2026-10-16: on the iPhone the row, wider in Safari's fonts, pushed
+  the whole play screen right. No row of buttons can widen the page: a
+  button too wide is cut instead). Give up **asks first**, in the tools'
   place: "Give up this game?" **Yes** / **No** (a touch on the board is
   No); Yes ends the game (see "The end").
 - **✕s are drawn lines**, nearly black, about 60% of a square (developer,
