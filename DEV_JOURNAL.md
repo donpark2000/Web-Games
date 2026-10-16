@@ -27,6 +27,9 @@ time, each tried before publishing:
   🏠, another game, or a restart.
   *Built 2026-10-15 (see "Q22-Q24 built"), on `star-battle`, not
   published; to resolve once the developer has tried it.*
+  *Tried by the developer 2026-10-16 on the local server (desktop):
+  works (see "Q22-Q24 tried on the desktop"). The iPhone after the
+  publish closes it.*
 - **Q23. No way out of a Find the Stars puzzle.** The play screen has
   only Undo, Hint and Show until the end, and with resume, 🏠 and back
   carries on the same puzzle. The developer tapped every square and
@@ -40,6 +43,9 @@ time, each tried before publishing:
   Follow Me and Find the Stars hide them until the end.)
   *Built 2026-10-15 (see "Q22-Q24 built"), on `star-battle`, not
   published; to resolve once the developer has tried it.*
+  *Tried by the developer 2026-10-16 on the local server (desktop):
+  works (see "Q22-Q24 tried on the desktop"). The iPhone after the
+  publish closes it.*
 - **Q24. The home page wouldn't scroll to the footer** once: it stopped
   "part way through the last game". Device, app or Safari, and what came
   before not yet known. *Developer, 2026-10-15:* on the iPhone, seen
@@ -5545,3 +5551,20 @@ Q25 (prototype the hint flow).
 
 **Open questions:** Q22-Q24 (built, to try), Q25, Q26 (new: log.html's
 Clear uses `confirm()`). **Proposed skill additions:** none.
+
+## 2026-10-16: Q22-Q24 tried on the desktop
+
+The local server had stopped overnight (it is the app's preview server
+for the build session; most likely the computer slept or the app
+closed); restarted, serving b1a3d9e3d733. The developer, on the desktop:
+(1) one game at a time "works"; (2) 🏠 wipes "works. In fact I do not
+even have to start a new game. Just going to the home page and back to
+the previous game makes it start fresh. Which is what I wanted." (the
+home page clears every game, as built); (3) Give up "works (yes and
+no)"; (4) the full grid "works"; (5) the tools row "Looks fine on my
+desktop". Not yet on the phone: that needs a publish (the restart, iOS
+closing the app in the background, the tools row at the phone's width,
+Q24's real scrolls).
+
+**Next:** the developer asked whether to test the new hints model (Q25)
+before publishing. Asked: publish Q22-Q24 now, or wait for Q25.
