@@ -87,12 +87,8 @@
   import { DEMO, seenBy } from './src/core/hidden-faces.js';
   import { miniBoard } from './src/ui/hfboard.js';
   import { log, startLog } from './src/ui/debuglog.js';
-  import { backToGame } from './src/ui/resume.js';
-
-  // Opened by the app's icon after leaving a game: back to that game
-  // (DESIGN.md "Coming back to a game"). Nothing more here: that page is
-  // loading.
-  if (backToGame()) await new Promise(() => {});
+  import { homePage } from './src/ui/resume.js';
+  import { logScrollRoom } from './src/ui/scrolllog.js';
 
   // A little finished game as the button's picture: the bear won the diagonal.
   const board = ['bear', 'robot', '', '', 'bear', 'robot', '', '', 'bear'];
@@ -143,6 +139,10 @@
   const two = DEMO.faces.slice(0, 2);
   document.getElementById('hfPic').innerHTML = miniBoard(DEMO, two, two.flatMap(f => seenBy(5, DEMO.reg, f)).filter(i => i < 15));
   startLog('home');
+  // Back on the home page: no game in progress any more (DESIGN.md
+  // "Coming back to a game").
+  homePage();
+  logScrollRoom('home');
   for (const g of document.querySelectorAll('.group')) {
     log.add('home', 'group', { group: g.id, games: [...g.querySelectorAll('.game')].map(a => a.getAttribute('href').replace(/[?#].*$/, '')) });
   }

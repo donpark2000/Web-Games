@@ -25,6 +25,8 @@ time, each tried before publishing:
   app." And "clicking Home should also wipe out current state of any
   one game." So at most one game in progress at a time, and only until
   🏠, another game, or a restart.
+  *Built 2026-10-15 (see "Q22-Q24 built"), on `star-battle`, not
+  published; to resolve once the developer has tried it.*
 - **Q23. No way out of a Find the Stars puzzle.** The play screen has
   only Undo, Hint and Show until the end, and with resume, 🏠 and back
   carries on the same puzzle. The developer tapped every square and
@@ -36,16 +38,27 @@ time, each tried before publishing:
   the game with 'you lose' or something semantically equivalent." (The
   other seven games show Play again / New game all through a game; only
   Follow Me and Find the Stars hide them until the end.)
+  *Built 2026-10-15 (see "Q22-Q24 built"), on `star-battle`, not
+  published; to resolve once the developer has tried it.*
 - **Q24. The home page wouldn't scroll to the footer** once: it stopped
   "part way through the last game". Device, app or Safari, and what came
   before not yet known. *Developer, 2026-10-15:* on the iPhone, seen
   once, not since; the log page couldn't be reached, as its link (the
   version line) is at the bottom, where the page wouldn't scroll.
+  *Debug output built 2026-10-15 (see "Q22-Q24 built"): the home page
+  logs its scroll room. Stays open until it happens again and the log
+  shows why.*
 - **Q25. The hint mechanism to be prototyped before publishing again.**
   The developer likes the white hint ✕s but isn't "sure the whole hint
   mechanism is working smoothly". What feels off not yet known.
   *Developer, 2026-10-15:* not sure, as not being able to start fresh
   threw everything off; fix Q22-Q24 first, then prototype the hints.
+- **Q26. log.html's Clear asks with the browser's `confirm()`.** The
+  games' Give up asks in the page itself (as the brief asked: "no
+  browser confirm()"), but the log page's Clear, given as the model,
+  uses `confirm()` (`src/ui/logpage.js`). Make Clear ask in the page
+  too, or leave it (it's for the developer, not the games)? Raised
+  2026-10-15.
 
 ## Proposed additions to the standards skill
 
@@ -5391,3 +5404,144 @@ before publishing):
   it can scroll) when it opens, changes size or comes back, so the next
   time it happens the log has it.
 - Then Q25: prototype the hint flow.
+
+## 2026-10-15: Q22-Q24 built
+
+The plan in "Q22-Q24: the fix agreed", on `star-battle`, one problem at
+a time. DESIGN.md "Coming back to a game", Follow Me and Find the Stars
+have the rules.
+
+**Q22, one game in progress at most.**
+- `src/core/resume.js`: `GAMES` (from `GAME_PAGES`), `clearGames(storage,
+  keep)` (every game's kept state but `keep`'s; null: all) and
+  `forgetOld(storage)` (the old `web-games-resume-*` and
+  `web-games-last-page` keys). `returnTo` and `LAST_KEY` are gone.
+- `src/ui/resume.js`: games keep to `sessionStorage`; opening a game
+  clears the others ("another game’s kept state cleared"); 🏠 clears
+  the game and nothing is kept after it ("🏠: the game cleared"); a game
+  page shown again from the browser's memory after its state was cleared
+  reloads ("back to a cleared game: starting fresh"). `homePage()` (on
+  the home page, in place of `backToGame()`): clears every game as it
+  opens and when shown again from memory ("home page" with what it
+  cleared). On load, `forgetOld(localStorage)` once ("old kept games
+  removed from the device").
+- The games themselves are unchanged (same `resumable()` API).
+
+**Q23, Give up.** Find the Stars: a fourth tool, 🏳 Give up; it asks in
+the tools' place ("Give up this game?" Yes / No; a touch on the board is
+No). Yes: `endGame(g, 'gaveup')` (core), then the out-of-hearts end
+with "You gave up". Follow Me: 🏳 Give up under the scoreboard; it asks
+in a card over the dimmed pads, with the robot stopped; Yes: `giveUp`
+(core: the end of the last miss, score and best kept, `gaveUp: true`),
+then the Game over banner; No: "Ready?" and the order shown again
+(`carryOn()`, shared with picking a game up). No `confirm()` anywhere in
+the games. (log.html's Clear, which the brief pointed to as the way to
+ask, uses the browser's `confirm()`: Q26.)
+
+**Full grid.** `isFull(g)` in `src/core/hidden-faces.js`: no game result,
+no empty square (hint ✕s count as filled), fewer stars found than the
+size. `endGame(g, 'full')` only when full. The screen ends it 0.4 s after
+the board becomes full (Claude's choice: the second tap of a double tap
+on the last square, a look, still comes first; a drag still going
+waits), "No squares left / The pale stars show where they were", Try
+again / Another / New game. `restoreGame` takes the results 'full' and
+'gaveup'; a full grid kept in the 0.4 s ends when picked up.
+
+**Q24, debug output only.** `scrollRoom()` in `src/core/fit.js` (heights
+rounded, `maxScroll`, `atEnd` within 2 px) and `src/ui/scrolllog.js`:
+the home page logs "scroll room" (docH, innerH, vvH, maxScroll, scrollY,
+atEnd) when it opens, on resize and turning (settled 250 ms, repeats
+skipped), when shown again from memory, and when a scroll stops at its
+end.
+
+**Tests** (270, was 262): `tests/resume.test.js` (opening a game clears
+the others, the home page all; the old keys removed once, Find the
+Stars' progress kept; games keep to sessionStorage and the home page has
+no jump back), `tests/hidden-faces.test.js` (+3: the full-grid end and
+not sooner, a whole row crossed out, one square left, Undo, kept and
+picked up; hint ✕s count and a full board of found stars is a win;
+Give up once, the end kept), `tests/follow-me.test.js` (+1: Give up part
+way, the score and best, refused after; at 0 no best),
+`tests/pages.test.js` (the four tools, the hidden question rows, no
+`confirm()`, Follow Me's buttons and Give up's place),
+`tests/fit.test.js` (+2: scrollRoom, the home page calls it). **Each
+new check shown to fail** (mutated, `cmp` confirmed the file changed,
+run, restored): clearGames keeping nothing back: 1 failed; forgetOld
+missing the last-page key: 1; localStorage for games: 1; `homePage()`
+removed: 1; isFull with one empty square allowed: 1; isFull ignoring
+the result: 2; restoreGame refusing 'full'/'gaveup': 2; endGame 'full'
+without the check: 1; Follow Me giveUp twice: 1; giveUp not keeping the
+best: 2; Give up button removed: 1; the question row not hidden: 1 (Find
+the Stars) and 1 (Follow Me); a `confirm()` put in: 1; Follow Me's
+button not hidden at the end: 1; atEnd at 3 px: 1; maxScroll below 0: 1;
+`logScrollRoom` removed: 1. (One catch on the way: `tests/css.test.js`
+failed on a class `.off` that site.css already has; renamed `.ended`.)
+`npm test`: 270 pass, 0 fail. `tools/offline.js`: version b1a3d9e3d733,
+81 files.
+
+**Checked in the built-in browser** (localhost:8123; state read by
+script, not screenshots):
+- Old keys: with `web-games-resume-nim`, `web-games-last-page` and Find
+  the Stars' progress set, a reload of the home page left only the
+  progress and the log; "old kept games removed from the device
+  {keys: [web-games-resume-nim, web-games-last-page]}".
+- Tic-tac-toe started (a move and the robot's), reloaded: "resumed",
+  board 100020000. Then Nim opened: "another game’s kept state cleared
+  {opened: nim, cleared: [tic-tac-toe]}", one entry. 🏠 from Nim's play
+  screen: "🏠: the game cleared", nothing kept; Back to Nim: its setup
+  screen, fresh. Follow Me played, then Back to the home page: "home
+  page {how: opened, cleared: [follow-me]}".
+- Every game played and reloaded, all ten "resumed" on the play screen
+  with only their own entry (Matching needed "Just me" or a second face
+  first: the test's mistake, not the page's).
+- Follow Me: one order right ("Yes! 1!"), Give up while the robot showed
+  the next: the card up, the pads dimmed; 2.5 s later nothing lit (the
+  robot stopped). No: "Ready?", the order shown again. Give up, Yes:
+  "Teddy got 1! New best!", Game over banner, Give up hidden, kept
+  result `{score: 1, newBest: true, gaveUp: true}`.
+- Find the Stars: Give up asked in the tools' place; No kept the ✕;
+  Yes: "You gave up / The pale stars show where they were", 6 pale
+  stars, Try again / Another / New game; after a reload the same end.
+  Every square but one ✕ed: the game went on; the last: "No squares
+  left" 0.4 s later. A double tap on the last empty square (a star
+  under it): the star found, then "No squares left" (the look counted).
+  Every square ✕ed and reloaded at once: "resumed" with no result, then
+  "no squares left" at +0.43 s.
+- Fit (pane sizes emulated): the four tools needed 362 px at first, more
+  than a 375 px phone's row (343: the screen less 32 px), so their words
+  shrink by width: 354 px at 14px from 386 px wide (393 x 760: row 361,
+  the 10 x 10 page exactly the screen's height), 298 px at 12.5px (360
+  and 375 wide: rows 328 and 343), 272 px at 11.5px under 330 (320
+  wide: row 288). No sideways scroll at any. Follow Me at 393 x 760: pads
+  174 px (4), 129 (6, was 132), 112 (9), no scrolling.
+- Q24: "scroll room" logged as the home page opened. The pane was hidden
+  (0 animation frames in 0.5 s), so no real scroll events came at all;
+  a script-sent scroll at the bottom logged "scroll stopped at its end
+  {docH 1679, innerH 768, maxScroll 911, scrollY 911, atEnd true}" once,
+  its repeat skipped.
+- No console errors. Test state cleared from `data/hidden-faces.json`
+  (sessionStorage, and localStorage but the log); after a reload only
+  `web-games-log`.
+
+**Not checked:** the iPhone (the app's restart, iOS closing it in the
+background, real scrolls on the home page); a real 320 px phone.
+
+**Open questions:** Q22-Q24 built, to try (below); Q26 raised.
+
+## 2026-10-15: Status (start here next session)
+
+**Branch `star-battle`**, ahead of `main` (= de21c8c, live): Q22-Q24
+built, not published: one game in progress at most (sessionStorage;
+cleared by 🏠, the home page and opening another game; no jump back from
+the app's icon; the old device keys removed once), Give up in Follow Me
+and Find the Stars (asking in the page), Find the Stars ending on a full
+grid, and the home page's scroll-room log lines. `npm test`: 270 of 270.
+
+**Next:** the developer tries it on the local server (the list in the
+build session's report); then publish only with their OK, then on the
+iPhone: a restart starts clean; whether iOS closing the app in the
+background keeps the game (to measure); Give up and the full grid. Then
+Q25 (prototype the hint flow).
+
+**Open questions:** Q22-Q24 (built, to try), Q25, Q26 (new: log.html's
+Clear uses `confirm()`). **Proposed skill additions:** none.

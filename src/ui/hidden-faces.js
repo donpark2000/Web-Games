@@ -7,6 +7,7 @@
 import {
   SIZES, DEFAULT_SIZE, HEARTS, DEMO, PROGRESS_KEY, decode, createGame, foundCount, tap, startStroke, strokeTo,
   endStroke, undo, canUndo, showOne, useHint, explainHint, readProgress, recordTime, clock, snapshotGame, restoreGame,
+  isFull, endGame,
 } from '../core/hidden-faces.js';
 import { mergeSetup } from '../core/resume.js';
 import { STAR, XMARK, HXMARK, borderStyle, miniBoard } from './hfboard.js';
@@ -18,6 +19,9 @@ import { resumable } from './resume.js';
 const STOCK_FILE = 'data/hidden-faces.json';
 const WIN_MS = 500;     // the last star pops in, then the result and the end buttons
 const LOSE_MS = 700;
+// The grid full with stars still hidden: the end after this long, so a
+// double tap's look on the last ✕ still comes first.
+const FULL_MS = 400;
 const MIN_CELL = 28, MAX_BOARD = 600;
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('hidden-faces', msg, data);
@@ -38,6 +42,7 @@ let stock = null;      // { size: [puzzle, ...] }, once loaded
 let G = null;          // the game being played, with the screen's extras (k, t0, ...)
 let clockTimer = null;
 let lastFit = '';
+let fullTimer = null;
 
 // Kept on the device after every change, and picked up when the page
 // opens (DESIGN.md "Coming back to a game"): the puzzle (size, number and
@@ -119,7 +124,9 @@ function startGame(n, k, kept = null) {
   const b = $('board');
   b.style.setProperty('--n', n);
   b.innerHTML = p.reg.map((g, i) => `<div class="cell" role="gridcell" data-i="${i}" style="--rc:${G.col[g].c};${borderStyle(n, p.reg, i)}"><span class="mk"></span></div>`).join('');
-  $('tools').hidden = false;
+  clearTimeout(fullTimer);
+  fullTimer = null;
+  hideAsk();
   $('endTools').hidden = true;
   clearHint();
   draw();
@@ -128,7 +135,7 @@ function startGame(n, k, kept = null) {
   clearInterval(clockTimer);
   if (G.result) {
     G.end ??= G.result === 'won' ? { how: 'solved', title: 'Solved!', line: '', ms: elapsed() }
-      : { how: 'lost', title: 'Out of hearts', line: 'The pale stars show where they were.', ms: elapsed() };
+      : { how: 'lost', title: ENDS[G.result] ?? ENDS.lost, line: PALE, ms: elapsed() };
     $('clock').textContent = `⏱ ${clock(G.end.ms)}`;
     showEnd();
     return;
@@ -178,7 +185,24 @@ function draw(pop = -1) {
   hintTool();
   $('showBtn').disabled = !G.shows || !!G.result;
   $('undoBtn').disabled = !canUndo(G);
+  $('giveUpBtn').disabled = !!G.result;
   resume.keep();
+  if (isFull(G)) armFull();
+}
+
+// No square left and stars still hidden (src/core: isFull): the end, as
+// out of hearts, after FULL_MS (a double tap's look on the last ✕ comes
+// first; a drag still going waits).
+function armFull() {
+  if (fullTimer) return;
+  const game = G;
+  fullTimer = setTimeout(() => {
+    fullTimer = null;
+    if (G !== game || !isFull(G)) return;
+    if (drag) { armFull(); return; }
+    endGame(G, 'full');
+    lose('full');
+  }, FULL_MS);
 }
 
 // The board as big as fits: the whole page on the screen, no scrolling.
@@ -207,6 +231,7 @@ $('board').addEventListener('pointerdown', e => {
   const i = cellAt(e.clientX, e.clientY);
   if (i == null) return;
   e.preventDefault();
+  if (!$('askTools').hidden) { L('give up: no (the board touched)'); hideAsk(); }
   dimHint();
   drag = { start: i, last: i, x: e.clientX, y: e.clientY, moved: false, stroke: startStroke(G, i) };
   try { $('board').setPointerCapture(e.pointerId); } catch { /* the pointer already went */ }
@@ -300,6 +325,26 @@ $('undoBtn').onclick = () => {
   dimHint();
   draw();
 };
+// Give up (developer, 2026-10-15: "Every game should have a 'give up' or
+// 'start again' option"): asks first, in place of the tools; Yes ends the
+// game as out of hearts, No (or a touch on the board) goes back.
+$('giveUpBtn').onclick = () => {
+  if (!G || G.result) return;
+  L('give up?', { found: foundCount(G), time: clock(elapsed()) });
+  $('tools').hidden = true;
+  $('askTools').hidden = false;
+};
+$('giveUpNo').onclick = () => { L('give up: no'); hideAsk(); };
+$('giveUpYes').onclick = () => {
+  if (!G || !endGame(G, 'gaveup').ok) return;
+  L('give up: yes');
+  hideAsk();
+  lose('gaveup');
+};
+function hideAsk() {
+  $('askTools').hidden = true;
+  $('tools').hidden = false;
+}
 $('showBtn').onclick = () => {
   const r = showOne(G);
   if (!r.ok) return;
@@ -504,12 +549,19 @@ function win() {
   setTimeout(() => { if (G === game) showEnd(); }, WIN_MS);
 }
 
-// Out of hearts: the stars not found show pale where they were.
-function lose() {
+// The ends without a win (G.result), each in its own words; then Try
+// again / Another / New game.
+const ENDS = { lost: 'Out of hearts', full: 'No squares left', gaveup: 'You gave up' };
+const PALE = 'The pale stars show where they were.';
+
+// Out of hearts, no squares left or given up: the stars not found show
+// pale where they were.
+function lose(how = 'lost') {
   clearInterval(clockTimer);
-  L('out of hearts', { size: G.n, puzzle: G.k + 1, found: foundCount(G), time: clock(elapsed()) });
+  L({ lost: 'out of hearts', full: 'no squares left', gaveup: 'gave up' }[how], { size: G.n, puzzle: G.k + 1, found: foundCount(G), hearts: G.hearts, time: clock(elapsed()) });
+  if (how !== 'lost') clearHint();
   G.marks.forEach((m, i) => { if (G.sol.has(i) && m !== 'face') G.marks[i] = 'ghost'; });
-  G.end = { how: 'lost', title: 'Out of hearts', line: 'The pale stars show where they were.', ms: elapsed() };
+  G.end = { how: 'lost', title: ENDS[how], line: PALE, ms: elapsed() };
   draw();
   sound.play('aww');
   const game = G;
@@ -552,6 +604,8 @@ function ending(how, title, line, againText, again, sameText, same) {
 
 $('newBtn').onclick = () => {
   clearInterval(clockTimer);
+  clearTimeout(fullTimer);
+  fullTimer = null;
   L('new game');
   G = null;
   $('play').hidden = true;

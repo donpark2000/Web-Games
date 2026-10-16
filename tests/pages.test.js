@@ -157,8 +157,16 @@ test('pages: Follow Me’s buttons are only in the Game over banner; the 🏠 st
   assert.match(over[1], /\bhidden\b/, 'the banner shows during a game');
   assert.match(over[2], /Game over/);
   const buttons = [...play.matchAll(/<button[^>]*id="(\w+)"/g)].map(m => m[1]);
-  assert.deepEqual(buttons, ['againBtn', 'newBtn'], `the play screen's buttons: ${buttons}`);
-  for (const id of buttons) assert.match(over[2], new RegExp(`id="${id}"`), `${id} outside the banner`);
+  assert.deepEqual(buttons, ['againBtn', 'newBtn', 'giveUpYes', 'giveUpNo', 'giveUpBtn'], `the play screen's buttons: ${buttons}`);
+  const banner = over[2].slice(0, over[2].indexOf('id="ask"'));
+  for (const id of ['againBtn', 'newBtn']) assert.match(banner, new RegExp(`id="${id}"`), `${id} outside the banner`);
+  // Give up (Q23, 2026-10-15): under the scoreboard, asking first in a
+  // card over the pads, hidden until then.
+  const ask = over[2].match(/<div class="over" id="ask"([^>]*)>([\s\S]*)/);
+  assert.ok(ask, 'no question card for Give up over the pads');
+  assert.match(ask[1], /\bhidden\b/, 'the question shows during a game');
+  assert.match(ask[2], /Give up this game\?[\s\S]*id="giveUpYes">Yes<[\s\S]*id="giveUpNo">No</);
+  assert.ok(play.indexOf('id="giveUpBtn"') > play.indexOf('class="scoreboard"'), 'Give up is not under the scoreboard');
   assert.doesNotMatch(play, /class="controls"/, 'a Play again / New game row under the scoreboard');
   assert.match(play.slice(0, play.indexOf('<div class="board">')), /class="homebtn" href="index\.html"/, 'no 🏠 above the board');
   assert.doesNotMatch(board, /homebtn/, 'the 🏠 is under the banner');
@@ -167,6 +175,7 @@ test('pages: Follow Me’s buttons are only in the Game over banner; the 🏠 st
   const js = await readFile(path.join(root, 'src/ui/follow-me.js'), 'utf8');
   assert.match(js, /later\(showBanner, BANNER_MS\)/);
   assert.equal((js.match(/hideBanner\(\);/g) || []).length, 2, 'hidden on Play again and on New game');
+  assert.match(js, /\$\('giveUp'\)\.classList\.toggle\('ended', !!match\.result\)/, 'Give up shows at the end');
   const css = await readFile(path.join(root, 'css/follow-me.css'), 'utf8');
   assert.match(css, /\.board \{ position: relative; \}/);
   assert.match(css, /\.over \{ position: absolute; inset: 0;/);
@@ -182,7 +191,12 @@ test('pages: Hidden Faces’ end buttons replace the tools, hidden until the end
   const tools = play.match(/<div class="tools" id="tools">([\s\S]*?)<\/div>/)?.[1];
   const end = play.match(/<div class="tools" id="endTools" hidden>([\s\S]*?)<\/div>/)?.[1];
   assert.ok(tools && end, 'no tools, or the end buttons show during a game');
-  assert.deepEqual([...tools.matchAll(/<button[^>]*id="(\w+)"/g)].map(m => m[1]), ['undoBtn', 'hintBtn', 'showBtn']);
+  assert.deepEqual([...tools.matchAll(/<button[^>]*id="(\w+)"/g)].map(m => m[1]), ['undoBtn', 'hintBtn', 'showBtn', 'giveUpBtn']);
+  // Give up asks first, in the page (Q23, 2026-10-15), in place of the tools.
+  const ask = play.match(/<div class="tools ask" id="askTools" hidden>([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(ask, 'no hidden question row for Give up');
+  assert.match(ask, /Give up this game\?/);
+  assert.deepEqual([...ask.matchAll(/<button[^>]*id="(\w+)"[^>]*>([^<]*)</g)].map(m => `${m[1]}:${m[2]}`), ['giveUpYes:Yes', 'giveUpNo:No']);
   assert.deepEqual([...end.matchAll(/<button[^>]*id="(\w+)"/g)].map(m => m[1]), ['againBtn', 'sameBtn', 'newBtn']);
   assert.match(end, /id="sameBtn" data-play/, 'Same size / Another not counted');
   assert.doesNotMatch(end.match(/<button[^>]*id="newBtn"[^>]*>/)[0], /data-play/, 'New game counted');
@@ -306,4 +320,14 @@ test('pages: Find the Stars draws a hint’s ✕s and wins from a hint’s star'
   assert.match(css, /\.cell \.mk-x svg \{ width: 58%; height: 58%; \}/);
   assert.doesNotMatch(css, /\.cell\.out::after/, 'the blinking ✕ is still drawn over the hint’s ✕s');
   assert.match(css, /\.cell\.pretending \.mk \{ visibility: hidden; \}/, 'the pretend star is drawn over the hint’s ✕');
+});
+
+// Give up asks in the page itself, never with the browser's pop-up (Q23).
+test('pages: no game asks with the browser’s confirm()', async () => {
+  for (const f of ['follow-me', 'hidden-faces']) {
+    const js = await readFile(path.join(root, `src/ui/${f}.js`), 'utf8');
+    assert.doesNotMatch(js, /\bconfirm\(/, `${f} uses confirm()`);
+    assert.match(js, /\$\('giveUpYes'\)\.onclick/, `${f}: no Yes for Give up`);
+    assert.match(js, /\$\('giveUpNo'\)\.onclick/, `${f}: no No for Give up`);
+  }
 });

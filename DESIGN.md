@@ -485,9 +485,17 @@ a v3 that was skipped (developer: "go straight to publish").
 - **Game over** (agreed 2026-10-09 from mockup v3): 2 s after the last
   miss (after the right pad's blink) the pads dim and a **"Game over"
   banner** sits over them with **Play again** (big, yellow) and **New
-  game**: the play screen's **only buttons** (developer: none during a
-  game, so a stray tap can't restart it). The 🏠 stays outside the
-  banner and works while it shows.
+  game** (developer: not during a game, so a stray tap can't restart
+  it). The 🏠 stays outside the banner and works while it shows.
+- **Give up** (built 2026-10-15, journal Q23; developer: "Every game
+  should have a 'give up' or 'start again' option"): a small 🏳 Give up
+  under the scoreboard all through a game (kept in its place, only
+  hidden, at the end, so the pads don't move). It **asks first**, in a
+  card over the dimmed pads like the banner: "Give up this game?" **Yes**
+  / **No**, with the robot stopped. Yes ends the game as the last miss
+  does: "Leo got 3!" (the score counts for the best), then the Game over
+  banner. No carries on: "Ready?" and the robot shows the order again
+  from the start (or adds its next step if the last order was right).
 - **Speed:** both start with each step lit 0.45 s and 0.17 s between.
   Easy stays at that all game; Hard gets 6% quicker each round, down to
   0.26 s lit (`LEVELS`). (Easy was slower, 0.65 s and 0.28 s, until
@@ -540,7 +548,11 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   first hint** (developer, 2026-10-13: "Tap 💡 for the next step, explained"
   wasn't needed, and stayed with no hints left), then the last hint's
   words, greyed (see "Hints"); **Undo**, **💡 Hint** (3 per
-  puzzle), **👁 Show** (uncovers a star; 1 per puzzle).
+  puzzle), **👁 Show** (uncovers a star; 1 per puzzle), **🏳 Give up**
+  (2026-10-15, Q23: one row on phones from 320 px wide, the words a
+  little smaller under 386 px). Give up **asks first**, in the tools'
+  place: "Give up this game?" **Yes** / **No** (a touch on the board is
+  No); Yes ends the game (see "The end").
 - **✕s are drawn lines**, nearly black, about 60% of a square (developer,
   2026-10-14: the first ✕s, 40% and see-through grey, were hard to see
   on a phone at 10 x 10); a wrong look's red ✕ is bigger (84%). **A
@@ -631,7 +643,15 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   best!" for a best time per size); **Next** (one size up, to 10 x 10) /
   Same size / New game. Out of hearts: a big grey star, "Out of hearts /
   The pale stars show where they were", the stars not found pale on the
-  board; Try again / Another / New game.
+  board; Try again / Another / New game. Two more ends, the same but for
+  the words (2026-10-15, Q23): **given up** ("You gave up") and **no
+  squares left** ("No squares left"): once no square is empty (a hint's
+  ✕s count) with stars still hidden, the game ends, after 0.4 s (Claude's
+  choice: a double tap's look on the last ✕ still comes first). Not
+  sooner: a row, column or colour all crossed out can still be put right
+  with Undo or a rub-out (developer: "OK"). The rule is `isFull` in
+  `src/core/hidden-faces.js`; a full grid kept in that 0.4 s ends when
+  picked up again.
 - **Puzzles: 200 per size, made ahead of time** by
   `tools/hidden-faces-puzzles.js` into `data/hidden-faces.json` (works
   offline; 103 KB). One difficulty for now (built 2026-10-13; levels
@@ -788,17 +808,28 @@ work in the car too (developer, 2026-10-10; journal, Q13).
 
 ## Coming back to a game
 
-Like other phone apps, the games carry on where they were left
-(developer, 2026-10-15: "If you do not explicitly close them, you always
-come back to where you left off"; journal Q20). The iPhone's installed
-app, opened from its icon, starts again on the home page (from the app
-switcher it's as it was).
+**At most one game in progress, kept only for a reload or a trip to
+another app** (2026-10-15, journal Q22; developer: "A restart should
+always start clean. In fact I would suggest that starting any new game
+clears out any in-progress games. It is one app." and "clicking Home
+should also wipe out current state of any one game"). This replaced
+Q20's rule of the same day (every game kept on the device until
+finished, and the app's icon going back to the last game).
 
-- **Every game keeps its state on the device** (localStorage, one entry
-  per game, `src/core/resume.js` and `src/ui/resume.js`) after every
-  change and as the page is hidden or left, and **picks it up when it
-  opens**: the screen (setup or play), the setup picks, and on the play
-  screen the whole game, scores and "Games won" too.
+- **Kept in the browser's per-session storage** (`sessionStorage`,
+  `src/core/resume.js` and `src/ui/resume.js`), after every change and
+  as the page is hidden or left, and **picked up when the page opens
+  again in the same visit**: a reload, or back from another app. A
+  restart of the app (or a new browser tab) is a new session, with
+  nothing kept: the home page, a clean slate. (Whether iOS closing the
+  app in the background on its own keeps the game is to be measured on
+  the iPhone; either fits the rule.)
+- **Cleared by:** 🏠 (and nothing kept after it), **the home page**
+  (also back to it, from the browser's memory or not), and **opening a
+  different game** (any other game's kept state is cleared). A game page
+  shown again from the browser's memory after its state was cleared
+  starts fresh (it reloads). The app's icon no longer goes back into a
+  game.
 - **As it was left**, with what was moving finished or done again: a
   robot's turn starts again; two cards left showing settle; a roll or a
   move being shown is done (Snakes and Ladders: the pieces where they
@@ -809,17 +840,25 @@ switcher it's as it was).
   Find the Stars: the same puzzle, board, hearts, hints and Show left,
   Undo, the clock and the hint on show (with its Why?); a finished
   puzzle shows its result.
-- **The home page, opened by the app's icon, goes straight back to the
-  game left** (not in a browser tab, which keeps its own page, and not
-  after 🏠 or back). **🏠 is leaving on purpose**: the home page stays;
-  the game is still kept, and opening it again carries on. **New game**
-  goes back to the setup screen, as before.
+- **Find the Stars' progress stays on the device** (`web-games-hidden-faces`:
+  the next puzzle per size and the best times), as before.
+- **Old keys removed:** on the first load after the update, the games
+  kept on the device before (`web-games-resume-<game>` in localStorage)
+  and the last page (`web-games-last-page`) are removed.
 - A kept game that can't be read (an older format after an update, or a
   Find the Stars puzzle no longer in the stock) is dropped, logged, and
   the game starts at its setup screen.
 - Logged ("resume"): a kept game found (its screen, how long ago) or not
-  used and why; each game's "resumed" with what it picked up; going back
-  from the home page and why it did or didn't.
+  used and why; each game's "resumed" with what it picked up; another
+  game's state cleared on opening one; "🏠: the game cleared"; "home
+  page" with what it cleared; the old keys removed; a cleared page
+  shown again from memory, starting fresh.
+- **The home page logs its scroll room** (journal Q24: once on the
+  iPhone it wouldn't scroll to its footer): the page's height, the
+  screen's (`innerHeight` and the visible viewport's), how far it can
+  scroll and where it is, when it opens, changes size or turns, is shown
+  again from memory, and when a scroll stops at its end
+  (`src/ui/scrolllog.js`).
 
 ## Later
 

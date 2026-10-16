@@ -1,13 +1,14 @@
-// Coming back to where you left off (src/core/resume.js): when the home
-// page goes back to a game, how a game's state is kept and read back, and
-// the setup picks merged. A fake storage and log; nothing is written to
-// disk.
+// Coming back to where you left off (src/core/resume.js): one game in
+// progress at most (opening a game or the home page clears the others),
+// the old device keys removed, how a game's state is kept and read back,
+// and the setup picks merged. A fake storage and log; nothing is written
+// to disk.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readdir } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { GAME_PAGES, HOME, returnTo, pack, unpack, mergeSetup, createResume, gameKey } from '../src/core/resume.js';
+import { GAME_PAGES, GAMES, HOME, OLD_LAST_KEY, clearGames, forgetOld, pack, unpack, mergeSetup, createResume, gameKey } from '../src/core/resume.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -18,6 +19,8 @@ function fakeStorage(init = {}, { refuse = false } = {}) {
     getItem: k => (m.has(k) ? m.get(k) : null),
     setItem: (k, v) => { if (refuse) throw new Error('QuotaExceededError'); m.set(k, String(v)); },
     removeItem: k => m.delete(k),
+    get length() { return m.size; },
+    key: i => [...m.keys()][i] ?? null,
   };
 }
 const fakeLog = () => { const lines = []; return { lines, add: (a, msg, d) => lines.push(`[${a}] ${msg} ${JSON.stringify(d)}`) }; };
@@ -27,25 +30,37 @@ test('resume: GAME_PAGES is every game page on the site', async () => {
   assert.deepEqual([...GAME_PAGES].sort(), pages);
 });
 
-test('resume: the app opened by its icon goes back to the game left', () => {
-  const base = { last: 'nim.html', app: true, navType: 'navigate', fromSite: false };
-  assert.equal(returnTo(base), 'nim.html');
-  assert.equal(returnTo({ ...base, navType: 'reload' }), 'nim.html', 'a reload of the start page');
-  assert.equal(returnTo({ ...base, last: 'hidden-faces.html' }), 'hidden-faces.html');
+test('resume: opening a game clears every other game’s; the home page clears them all', () => {
+  assert.deepEqual(GAMES, GAME_PAGES.map(p => p.slice(0, -5)));
+  const all = Object.fromEntries(GAMES.map(g => [gameKey(g), pack(1, { screen: 'play' }, 0)]));
+  const storage = fakeStorage({ ...all, 'web-games-log': 'x', 'other': 'y' });
+  assert.deepEqual(clearGames(storage, 'nim'), GAMES.filter(g => g !== 'nim'));
+  assert.deepEqual([...storage.m.keys()].sort(), ['other', 'web-games-log', gameKey('nim')], 'only nim’s kept, and nothing else touched');
+  assert.deepEqual(clearGames(storage, 'nim'), [], 'nothing more to clear');
+  assert.deepEqual(clearGames(storage), ['nim'], 'the home page: all');
+  assert.deepEqual([...storage.m.keys()].sort(), ['other', 'web-games-log']);
+  assert.deepEqual(clearGames(null), [], 'no storage');
+  assert.deepEqual(clearGames(fakeStorage({ [gameKey('nim')]: 'x' }, { refuse: true }), 'ttt').length, 1, 'removing still works when saving is refused');
 });
 
-test('resume: the home page stays: a browser tab, back, a link on the site, 🏠, or nothing left', () => {
-  const base = { last: 'nim.html', app: true, navType: 'navigate', fromSite: false };
-  const cases = [
-    [{ app: false }, 'a browser tab'],
-    [{ navType: 'back_forward' }, 'back to the home page (Android back)'],
-    [{ fromSite: true }, 'a link on the site'],
-    [{ last: HOME }, 'left with 🏠'],
-    [{ last: null }, 'nothing kept'],
-    [{ last: 'log.html' }, 'the log page'],
-    [{ last: 'https://example.com/' }, 'not one of our pages'],
-  ];
-  for (const [change, why] of cases) assert.equal(returnTo({ ...base, ...change }), null, why);
+test('resume: the old device keys (kept games, last page) are removed once; nothing else', () => {
+  const storage = fakeStorage({
+    [gameKey('nim')]: pack(1, { screen: 'play' }, 0), [gameKey('hidden-faces')]: 'x', [OLD_LAST_KEY]: 'nim.html',
+    'web-games-hidden-faces': '{"next":{"6":3}}', 'web-games-log': '[]', 'web-games-sound': 'on',
+  });
+  assert.deepEqual(forgetOld(storage).sort(), [OLD_LAST_KEY, gameKey('hidden-faces'), gameKey('nim')]);
+  assert.deepEqual([...storage.m.keys()].sort(), ['web-games-hidden-faces', 'web-games-log', 'web-games-sound'], 'Find the Stars’ progress kept');
+  assert.deepEqual(forgetOld(storage), [], 'the second time: nothing');
+  assert.deepEqual(forgetOld(null), [], 'no storage');
+});
+
+test('resume: games keep to the session’s storage; the home page clears and never goes back to a game', async () => {
+  const ui = await readFile(path.join(root, 'src/ui/resume.js'), 'utf8');
+  const home = await readFile(path.join(root, 'index.html'), 'utf8');
+  assert.match(ui, /storage = window\.sessionStorage/);
+  assert.doesNotMatch(ui.replace(/forgetOld\(window\.localStorage\)/, ''), /localStorage/, 'games kept on the device');
+  assert.doesNotMatch(ui + home, /location\.replace|backToGame|last-page/, 'the home page still jumps back');
+  assert.match(home, /homePage\(\);/);
 });
 
 test('resume: kept data reads back; other formats, junk and nothing are not used', () => {

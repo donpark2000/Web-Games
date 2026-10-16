@@ -28,3 +28,12 @@ export function largestFitting(fits, min, max) {
   fits(lo);   // leave the answer applied
   return { size: lo, tries, fitted: true };
 }
+
+// The page's scroll room, for the debug log (journal Q24: the home page
+// once wouldn't scroll to its footer on the iPhone). Heights in whole px;
+// maxScroll: how far the page can scroll (0 when it fits); atEnd: scrolled
+// to within 2 px of that. vvH: the visible viewport's height, or null.
+export function scrollRoom({ docH, innerH, vvH = null, scrollY }) {
+  const r = Math.round, maxScroll = Math.max(0, r(docH - innerH));
+  return { docH: r(docH), innerH: r(innerH), vvH: vvH == null ? null : r(vvH), maxScroll, scrollY: r(scrollY), atEnd: scrollY >= maxScroll - 2 };
+}

@@ -433,11 +433,29 @@ export function createGame(p, { auto = true, colorSeed = 0 } = {}) {
     undo: [],          // groups of [square, mark before], or { look: square }
                        // for a wrong look; newest last
     told: new Set(),   // squares a hint said to cross out (no star there)
-    result: null,      // 'won' or 'lost'
+    result: null,      // 'won', 'lost' (out of hearts), 'full' (no squares
+                       // left) or 'gaveup'
   };
 }
 
 export const foundCount = g => g.marks.filter(m => m === 'face').length;
+
+// No square left to mark (hint ✕s count as marked) and stars still
+// hidden: the game can't go on (developer, 2026-10-15: "filling the grid
+// did not just end the game"). Not sooner: a row, column or colour all
+// crossed out can still be put right with Undo or a rub-out.
+export const isFull = g => !g.result && foundCount(g) < g.n && g.marks.every(m => m !== '');
+
+// Ends the game without a win: 'full' (only when isFull) or 'gaveup'
+// (Give up, asked first by the screen). The screen then shows the stars
+// not found, as when out of hearts. Returns { ok } or { ok: false, why }.
+export function endGame(g, how) {
+  if (g.result) return { ok: false, why: 'over' };
+  if (how === 'full' && !isFull(g)) return { ok: false, why: 'not-full' };
+  if (how !== 'full' && how !== 'gaveup') return { ok: false, why: 'bad-end' };
+  g.result = how;
+  return { ok: true };
+}
 
 // Why square i is already known to hold no star, in words, or null: a
 // found star rules it out (its row, column, colour or a neighbour), or a
@@ -738,7 +756,7 @@ export function restoreGame(p, kept, { colorSeed = 0 } = {}) {
   if (k.marks.some((m, i) => m === 'hx' && p.faces.includes(i))) throw new Error('restoreGame: a hint’s ✕ on a star');
   if (!count(k.hearts, HEARTS) || !count(k.hints, HINTS) || !count(k.shows, SHOWS)) throw new Error('restoreGame: bad hearts, hints or shows');
   if (![k.mistakes, k.hintsUsed, k.showsUsed].every(v => count(v, 1e6))) throw new Error('restoreGame: bad counts');
-  if (![null, 'won', 'lost'].includes(k.result)) throw new Error(`restoreGame: bad result ${k.result}`);
+  if (![null, 'won', 'lost', 'full', 'gaveup'].includes(k.result)) throw new Error(`restoreGame: bad result ${k.result}`);
   const stepOk = st => (st && !Array.isArray(st) ? sq(st.look)
     : Array.isArray(st) && st.every(c => Array.isArray(c) && sq(c[0]) && (c[1] === '' || c[1] === 'x')));
   if (!Array.isArray(k.undo) || !k.undo.every(stepOk)) throw new Error('restoreGame: bad undo steps');

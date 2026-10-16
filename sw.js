@@ -19,7 +19,7 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'd4d04dca9b09';
+const VERSION = 'b1a3d9e3d733';
 const MADE = '2026-10-15';
 const FILES = [
   'connect-four.html',
@@ -95,6 +95,7 @@ const FILES = [
   'src/ui/resume.js',
   'src/ui/rock-paper-scissors.js',
   'src/ui/rpspics.js',
+  'src/ui/scrolllog.js',
   'src/ui/snakes-ladders.js',
   'src/ui/snlart.js',
   'src/ui/sound.js',

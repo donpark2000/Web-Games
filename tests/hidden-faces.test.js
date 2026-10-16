@@ -4,7 +4,7 @@ import {
   SIZES, HEARTS, HINTS, SHOWS, LEVEL, MAKE_LEVEL, DEMO, COLORS, PROGRESS_KEY,
   seenBy, units, newState, place, nextStep, solve, generate, connected, hardEnough, problems, colorsFor,
   createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, canUndo, showOne, findHint, useHint,
-  explainHint, snapshotGame, restoreGame, knownEmpty,
+  explainHint, snapshotGame, restoreGame, knownEmpty, isFull, endGame,
   readProgress, recordTime, clock, mulberry32,
 } from '../src/core/hidden-faces.js';
 
@@ -790,4 +790,58 @@ test('hidden faces: a kept game that is not this puzzle\'s, or not whole, is ref
   assert.throws(() => restoreGame(MADE[1], kept), /size 6, not 7/, 'another puzzle');
   assert.throws(() => restoreGame(MADE[0], null), /size/);
   assert.doesNotThrow(() => restoreGame(MADE[0], kept));
+});
+
+test('hidden faces: no square left with stars still hidden ends the game; not sooner', () => {
+  const g = game({ auto: false });
+  const n = g.n, star = [...g.sol][0], row = Math.floor(star / n);
+  // A whole row crossed out, its star under a ✕: wrong, but it can be put right.
+  for (let c = 0; c < n; c++) tap(g, row * n + c);
+  assert.equal(isFull(g), false, 'one row all crossed out');
+  assert.deepEqual(endGame(g, 'full'), { ok: false, why: 'not-full' });
+  const empty = () => g.marks.map((m, i) => (m === '' ? i : -1)).filter(i => i >= 0);
+  for (const i of empty().slice(0, -1)) tap(g, i);
+  assert.equal(empty().length, 1);
+  assert.equal(isFull(g), false, 'one square left');
+  const last = empty()[0];
+  tap(g, last);
+  assert.equal(isFull(g), true, 'every square crossed out, no star found');
+  // Undo before the end: a square empty again, the game goes on.
+  undo(g);
+  assert.equal(isFull(g), false);
+  tap(g, last);
+  // Kept and picked up before the end (the screen waits a moment): still full.
+  assert.equal(isFull(restoreGame(MADE[0], JSON.parse(JSON.stringify(snapshotGame(g))))), true);
+  assert.deepEqual(endGame(g, 'full'), { ok: true });
+  assert.equal(g.result, 'full');
+  assert.equal(isFull(g), false, 'over: not "full" again');
+  assert.deepEqual(tap(g, star), { ok: false, why: 'over' });
+  assert.equal(undo(g), -1);
+  assert.deepEqual(endGame(g, 'full'), { ok: false, why: 'over' });
+  const h = restoreGame(MADE[0], JSON.parse(JSON.stringify(snapshotGame(g))));
+  assert.equal(h.result, 'full', 'the end survives keeping');
+});
+
+test('hidden faces: hint ✕s count as filled; a full board with every star found is a win, not "full"', () => {
+  const { g } = toldGame();
+  assert.ok(g.marks.includes('hx'), 'no hint ✕: nothing checked');
+  for (let i = 0; i < g.marks.length; i++) if (g.marks[i] === '') tap(g, i);
+  assert.equal(isFull(g), true, 'the hint ✕s and the player’s ✕s fill it');
+  const w = game();
+  for (const f of w.sol) look(w, f);
+  assert.equal(w.result, 'won');
+  assert.equal(isFull(w), false);
+  assert.deepEqual(endGame(w, 'full'), { ok: false, why: 'over' });
+});
+
+test('hidden faces: Give up ends the game at any point; only once; the end survives keeping', () => {
+  const g = game();
+  assert.deepEqual(endGame(g, 'maybe'), { ok: false, why: 'bad-end' });
+  assert.equal(g.result, null);
+  tap(g, notFace(g));
+  assert.deepEqual(endGame(g, 'gaveup'), { ok: true });
+  assert.equal(g.result, 'gaveup');
+  assert.deepEqual(endGame(g, 'gaveup'), { ok: false, why: 'over' });
+  assert.deepEqual(useHint(g), { ok: false, why: 'over' });
+  assert.equal(restoreGame(MADE[0], snapshotGame(g)).result, 'gaveup');
 });

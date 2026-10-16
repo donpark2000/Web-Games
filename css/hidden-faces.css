@@ -122,6 +122,18 @@
 @keyframes spark { 0% { transform: rotate(var(--a)) translateY(0) scale(0); opacity: 1; } 70% { opacity: 1; } 100% { transform: rotate(var(--a)) translateY(-3em) scale(1); opacity: 0; } }
 
 .tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+/* Undo, Hint, Show, Give up: one row on a phone, down to 320 px wide */
+#tools { grid-template-columns: repeat(4, auto); justify-content: space-between; gap: 4px; }
+#tools .tool { font-size: 14px; gap: 3px; padding: 9px 7px; white-space: nowrap; }
+#tools .tool .left { min-width: 18px; height: 18px; border-radius: 9px; font-size: 12px; padding: 0 4px; }
+/* measured 2026-10-15 (the row is the screen less 32 px): it needs 354 px
+   at 14px (a 393 px iPhone has 361), 298 px at 12.5px (a 360 px phone has
+   328), 272 px at 11.5px (a 320 px phone has 288) */
+@media (max-width: 385px) { #tools .tool { font-size: 12.5px; padding: 9px 3px; } }
+@media (max-width: 329px) { #tools .tool { font-size: 11.5px; padding: 9px 2px; gap: 2px; } }
+.tools.ask { grid-template-columns: 1fr auto auto; align-items: center; } /* "Give up this game?" Yes No, the tools' height */
+.tools.ask .tool { padding: 9px 22px; }
+.askq { font-size: 16px; font-weight: 800; text-align: center; }
 .tool {
   border: 3px solid var(--ink); background: var(--card); border-radius: 999px; padding: 9px 4px; font-size: 16px; font-weight: 800; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 6px;

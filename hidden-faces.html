@@ -70,6 +70,13 @@
       <button type="button" class="tool" id="undoBtn">↩ Undo</button>
       <button type="button" class="tool" id="hintBtn">💡 Hint <span class="left" id="hintsLeft">3</span></button>
       <button type="button" class="tool" id="showBtn">👁 Show <span class="left" id="showsLeft">1</span></button>
+      <button type="button" class="tool" id="giveUpBtn">🏳 Give up</button>
+    </div>
+    <!-- Give up asks first, in place of the tools (no browser pop-up) -->
+    <div class="tools ask" id="askTools" hidden>
+      <span class="askq">Give up this game?</span>
+      <button type="button" class="tool primary" id="giveUpYes">Yes</button>
+      <button type="button" class="tool" id="giveUpNo">No</button>
     </div>
     <!-- at the end, in place of the tools: the board stays in view -->
     <div class="tools" id="endTools" hidden>

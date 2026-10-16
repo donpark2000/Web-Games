@@ -157,10 +157,27 @@ export function tap(match, pad) {
     match.phase = 'ready';
     return { ok: true, right: false, complete: false, want, gameOver: false, newBest: false };
   }
+  const { newBest } = end(match);
+  return { ok: true, right: false, complete: false, want, gameOver: true, newBest };
+}
+
+// The game ends with the score so far (the last miss, or Give up):
+// match.result is { score, newBest } (and gaveUp), the best kept.
+function end(match, gaveUp = false) {
   const key = bestKey(match.size, match.level);
   const newBest = match.done > (match.best[key] ?? 0);
   if (newBest) match.best[key] = match.done;
   match.phase = 'over';
-  match.result = { score: match.done, newBest };
-  return { ok: true, right: false, complete: false, want, gameOver: true, newBest };
+  match.result = { score: match.done, newBest, ...(gaveUp ? { gaveUp } : {}) };
+  return match.result;
+}
+
+// Give up (developer, 2026-10-15: "Every game should have a 'give up' or
+// 'start again' option"; the screen asks first): the game ends as on the
+// last miss, at any point of a round. Returns { ok, score, newBest } or
+// { ok: false, why: 'over' }.
+export function giveUp(match) {
+  if (match.result) return { ok: false, why: 'over' };
+  const { score, newBest } = end(match, true);
+  return { ok: true, score, newBest };
 }

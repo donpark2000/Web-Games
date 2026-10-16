@@ -61,9 +61,10 @@
       <a class="homebtn" href="index.html" aria-label="All games"></a>
       <div class="turn" id="turn" aria-live="polite"></div>
     </div>
-    <!-- The pads, and over them at the end the "Game over" banner with the
-         only buttons on this screen (developer, 2026-10-09): none during a
-         game, so a stray tap can't restart it; 🏠 still leaves. -->
+    <!-- The pads, and over them at the end the "Game over" banner with
+         Play again and New game (developer, 2026-10-09: not during a game,
+         so a stray tap can't restart it); 🏠 still leaves. Give up, under
+         the scoreboard, asks first, over the pads (2026-10-15). -->
     <div class="board">
       <div class="pads wait" id="pads"></div>
       <div class="over" id="over" hidden>
@@ -73,6 +74,13 @@
           <button type="button" class="pill" id="newBtn">New game</button>
         </div>
       </div>
+      <div class="over" id="ask" hidden>
+        <div class="overcard askcard" role="dialog" aria-labelledby="askTitle">
+          <p class="overtitle" id="askTitle">Give up this game?</p>
+          <button type="button" class="pill primary" id="giveUpYes">Yes</button>
+          <button type="button" class="pill" id="giveUpNo">No</button>
+        </div>
+      </div>
     </div>
     <div class="dots" id="dots" aria-hidden="true"></div>
     <div class="scoreboard" aria-label="Score">
@@ -80,6 +88,7 @@
       <div class="mid" id="mid"></div>
       <div class="side"><span class="chip cup" id="cup">🏆</span><span><span class="n" id="s2">0</span><span class="who" id="s2Who">best</span></span></div>
     </div>
+    <div class="giveup" id="giveUp"><button type="button" class="pill" id="giveUpBtn">🏳 Give up</button></div>
   </section>
 </main>
 <footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a></footer>

@@ -5,7 +5,7 @@
 
 import {
   FACE_NAMES, SIZES, DEFAULT_SIZE, LEVELS, ARRANGEMENTS, padsFor, speed, bestKey, checkFaces,
-  createMatch, newGame, addStep, showAgain, yourTurn, tap,
+  createMatch, newGame, addStep, showAgain, yourTurn, tap, giveUp,
 } from '../core/follow-me.js';
 import { endMoods, endSound, nameOf } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -194,6 +194,10 @@ function light(i, ms) {
 }
 
 function setWait(on) { $('pads').classList.toggle('wait', on); }
+// Every pad back to rest (none lit, shaking or blinking).
+function resetPads() {
+  for (let i = 0; i < match.size; i++) { const b = padEl(i); b.className = 'padb'; b.innerHTML = svg(match.pads[i].face); }
+}
 
 function startGame() {
   const midGame = match.seq.length > 0 && !match.result;
@@ -201,7 +205,7 @@ function startGame() {
   hideBanner();
   newGame(match);
   L(midGame ? 'game restarted (not counted)' : 'game started', { size: match.size, level: match.level });
-  for (let i = 0; i < match.size; i++) { const b = padEl(i); b.className = 'padb'; b.innerHTML = svg(match.pads[i].face); }
+  resetPads();
   $('s1Chip').className = 'chip';
   setWait(true);
   renderBoard();
@@ -325,13 +329,44 @@ function renderBoard() {
   $('s2Who').innerHTML = `best<br>(${match.size}, ${levelWord(match.level)})`;
   const full = LEVELS[match.level].hearts, left = Math.max(0, match.hearts);
   $('mid').innerHTML = `<span class="hearts" aria-label="${left} of ${full} tries left">${'❤️'.repeat(left)}${'🤍'.repeat(full - left)}</span>${levelWord(match.level)}`;
+  $('giveUp').classList.toggle('ended', !!match.result);
   resume.keep();
 }
 
 $('againBtn').onclick = () => { L('play again'); startGame(); };
+
+// Give up (developer, 2026-10-15: "Every game should have a 'give up' or
+// 'start again' option"): asks first, over the pads, with the robot
+// stopped. Yes ends the game as the last miss does (the score, Game over);
+// No carries on: "Ready?" and the order shown again.
+$('giveUpBtn').onclick = () => {
+  if (!match || match.result) return;
+  clearTimers();
+  resetPads();
+  setWait(true);
+  L('give up?', { steps: match.seq.length, done: match.done, phase: match.phase, pos: match.pos });
+  $('pads').classList.add('done');
+  $('ask').hidden = false;
+  $('giveUpNo').focus({ preventScroll: true });
+};
+$('giveUpNo').onclick = () => { L('give up: no'); hideAsk(); carryOn(); };
+$('giveUpYes').onclick = () => {
+  const r = giveUp(match);
+  if (!r.ok) return;
+  L('give up: yes', { score: r.score, newBest: r.newBest });
+  hideAsk();
+  gameOver();
+  showBanner();
+};
+function hideAsk() {
+  $('ask').hidden = true;
+  $('pads').classList.remove('done');
+}
+
 $('newBtn').onclick = () => {
   clearTimers();
   hideBanner();
+  hideAsk();
   L('new game');
   match = null;
   $('play').hidden = true;
@@ -360,12 +395,7 @@ function restore() {
     if (match.result) {
       gameOver(true);
       showBanner();
-    } else {
-      // The last order was right (or none shown yet): the next step.
-      const next = !match.seq.length || match.pos === match.seq.length;
-      say(`${chip(match.face)}<span class="say">Ready?</span>`, true);
-      later(next ? nextRound : () => { showAgain(match); show(); }, READY_MS);
-    }
+    } else carryOn();
     L('resumed', { face: match.face, size: match.size, level: match.level, steps: match.seq.length, done: match.done, hearts: match.hearts, result: match.result });
     return true;
   } catch (e) {
@@ -378,6 +408,16 @@ function restore() {
     $('setup').hidden = false;
     return false;
   }
+}
+
+// A game stopped part way (picked up again, or No to Give up): "Ready?",
+// then the robot shows the order again from the start, or adds its next
+// step if the last order was right (or none was shown yet).
+function carryOn() {
+  setWait(true);
+  const next = !match.seq.length || match.pos === match.seq.length;
+  say(`${chip(match.face)}<span class="say">Ready?</span>`, true);
+  later(next ? nextRound : () => { showAgain(match); show(); }, READY_MS);
 }
 
 startLog('follow-me');

@@ -86,3 +86,11 @@
 }
 .overtitle { margin: 0; text-align: center; font-size: 30px; font-weight: 800; }
 .overcard .big { padding: 14px 24px; }
+/* Give up (2026-10-15): a quiet button under the scoreboard, kept in its
+   place (only hidden) at the end so the fitted pads don't move; it asks
+   first, in a card like the banner's. */
+.giveup { display: flex; justify-content: center; }
+.giveup .pill { padding: 6px 20px; font-size: 16px; }
+.giveup.ended { visibility: hidden; }
+.askcard { grid-template-columns: 1fr 1fr; }
+.askcard .overtitle { grid-column: 1 / -1; font-size: 24px; }

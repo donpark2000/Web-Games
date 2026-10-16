@@ -1,32 +1,54 @@
 // Coming back to where you left off (DESIGN.md "Coming back to a game";
-// journal Q20). No DOM code: src/ui/resume.js passes the browser's storage
-// and how the page was opened.
+// journal Q20, Q22). No DOM code: src/ui/resume.js passes the browser's
+// storage.
 //
-// The iPhone's installed app reopens on its start page (the home page)
-// when its icon is tapped, and the game it showed is gone (developer,
-// 2026-10-15; from the app switcher it's still there). So each game keeps
-// its state on the device as it goes and picks it up when it opens; and
-// the home page, opened by the app's icon, goes straight back to the game
-// left there. A 🏠 tap is leaving on purpose: the home page stays (the game
-// is still kept, and opening it again carries on).
+// At most one game is in progress, and only for a reload or a trip to
+// another app (developer, 2026-10-15: "A restart should always start
+// clean. In fact I would suggest that starting any new game clears out
+// any in-progress games. It is one app."; "clicking Home should also wipe
+// out current state of any one game"). So a game keeps its state in the
+// browser's per-session storage (a restart of the app starts a new
+// session, with nothing in it), opening a game clears every other game's,
+// and the home page (🏠, or back to it) clears them all.
 
 export const HOME = 'index.html';
 export const GAME_PAGES = [
   'tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html',
   'five-dice.html', 'nim.html', 'rock-paper-scissors.html', 'follow-me.html', 'hidden-faces.html',
 ];
-export const LAST_KEY = 'web-games-last-page';
+export const GAMES = GAME_PAGES.map(p => p.replace(/\.html$/, ''));
 export const gameKey = game => `web-games-resume-${game}`;
 
-// The page the home page should go back to, or null to stay.
-//   last      the page last open (LAST_KEY)
-//   app       opened as the installed app (a browser tab keeps its own page)
-//   navType   how it was opened (Navigation Timing: 'navigate', 'reload',
-//             'back_forward'); back to the home page stays
-//   fromSite  a link on the site brought you (the referrer is the site)
-export function returnTo({ last, app, navType, fromSite }) {
-  if (!app || navType === 'back_forward' || fromSite) return null;
-  return GAME_PAGES.includes(last) ? last : null;
+// Clears every game's kept state but `keep`'s (null: all of them), from
+// storage (the per-session one). Returns the games cleared.
+export function clearGames(storage, keep = null) {
+  const cleared = [];
+  for (const g of GAMES) {
+    if (g === keep) continue;
+    try {
+      if (storage?.getItem(gameKey(g)) == null) continue;
+      storage.removeItem(gameKey(g));
+      cleared.push(g);
+    } catch { /* storage refused: nothing kept to clear */ }
+  }
+  return cleared;
+}
+
+// Until 2026-10-15 (Q22) each game was kept on the device (localStorage)
+// until finished, and the home page went back to the last page
+// (OLD_LAST_KEY) when the app's icon opened it. Removes those keys from
+// storage (the device's); returns the keys removed.
+export const OLD_LAST_KEY = 'web-games-last-page';
+export function forgetOld(storage) {
+  const keys = [];
+  try {
+    for (let i = 0; i < storage.length; i++) {
+      const k = storage.key(i);
+      if (k === OLD_LAST_KEY || k?.startsWith('web-games-resume-')) keys.push(k);
+    }
+    for (const k of keys) storage.removeItem(k);
+  } catch { /* storage refused, or none */ }
+  return keys;
 }
 
 // A game's kept state as stored: its format number (a game changes it when
@@ -59,7 +81,7 @@ export function mergeSetup(setup, kept) {
   return setup;
 }
 
-// One game's keeping. storage: the browser's localStorage (or null);
+// One game's keeping. storage: the browser's sessionStorage (or null);
 // log: the debug log. Returns { saved: the data found (or null), save(data),
 // clear() }. Each save is logged only when the screen changes (a save
 // follows every move).

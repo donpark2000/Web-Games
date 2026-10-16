@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   SIZES, LEVELS, PAD_FACES, ARRANGEMENTS, padsFor, speed, nextStep, bestKey, checkFaces,
-  createMatch, newGame, addStep, showAgain, yourTurn, tap,
+  createMatch, newGame, addStep, showAgain, yourTurn, tap, giveUp,
 } from '../src/core/follow-me.js';
 import { FACE_NAMES } from '../src/core/players.js';
 import { PAD_COLORS, padStyle } from '../src/ui/fmpads.js';
@@ -208,4 +208,28 @@ test('follow me: Play again mid-game starts over, full hearts, nothing scored', 
   assert.deepEqual([m.seq.length, m.pos, m.hearts, m.done, m.phase, m.result], [0, 0, 3, 0, 'ready', null]);
   assert.deepEqual(best, {});
   assert.equal(LEVELS.hard.hearts, 1);
+});
+
+test('follow me: Give up ends the game at any point, as the last miss would; only once', () => {
+  const best = {};
+  const m = createMatch({ p1: 'bear', size: 4, level: 'easy' }, best);
+  const rand = seeded(5);
+  for (let i = 0; i < 3; i++) { addStep(m, rand); playRight(m); }
+  addStep(m, rand);
+  yourTurn(m);
+  tap(m, m.seq[0]);                            // part way through the order
+  assert.deepEqual(giveUp(m), { ok: true, score: 3, newBest: true });
+  assert.deepEqual(m.result, { score: 3, newBest: true, gaveUp: true });
+  assert.equal(m.phase, 'over');
+  assert.deepEqual(best, { [bestKey(4, 'easy')]: 3 }, 'the score counts, as on a last miss');
+  assert.deepEqual(tap(m, 0), { ok: false, why: 'not-your-turn' });
+  assert.deepEqual(giveUp(m), { ok: false, why: 'over' });
+  assert.throws(() => addStep(m, rand), /over/);
+  // Straight away, before the first step: 0, no best.
+  const z = createMatch({ p1: 'bear', size: 9, level: 'hard' }, best);
+  assert.deepEqual(giveUp(z), { ok: true, score: 0, newBest: false });
+  assert.deepEqual(best, { [bestKey(4, 'easy')]: 3 });
+  // Play again after it: a fresh game.
+  newGame(m);
+  assert.equal(m.result, null);
 });

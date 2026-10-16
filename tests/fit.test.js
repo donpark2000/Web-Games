@@ -50,3 +50,22 @@ test('fit: fractional limits are rounded inward; a bad range is refused', () => 
   assert.throws(() => largestFitting(p.fits, 50, 40), /bad range/);
   assert.throws(() => largestFitting(p.fits, NaN, 40), /bad range/);
 });
+
+// Q24: the home page's scroll room, for the debug log.
+test('fit: scrollRoom says how far the page can scroll and whether it is at the end', async () => {
+  const { scrollRoom } = await import('../src/core/fit.js');
+  assert.deepEqual(scrollRoom({ docH: 1800.4, innerH: 760, vvH: 759.6, scrollY: 1040 }),
+    { docH: 1800, innerH: 760, vvH: 760, maxScroll: 1040, scrollY: 1040, atEnd: true });
+  assert.equal(scrollRoom({ docH: 1800, innerH: 760, scrollY: 1037.5 }).atEnd, false, 'short of the end');
+  assert.equal(scrollRoom({ docH: 1800, innerH: 760, scrollY: 1038 }).atEnd, true, 'within 2 px');
+  // A page shorter than the screen: no room, at its end; no visualViewport.
+  assert.deepEqual(scrollRoom({ docH: 500, innerH: 760, scrollY: 0 }),
+    { docH: 500, innerH: 760, vvH: null, maxScroll: 0, scrollY: 0, atEnd: true });
+});
+
+test('fit: the home page logs its scroll room', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const home = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(home, /import \{ logScrollRoom \} from '\.\/src\/ui\/scrolllog\.js';/);
+  assert.match(home, /logScrollRoom\('home'\);/);
+});
