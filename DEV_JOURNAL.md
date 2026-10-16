@@ -6,7 +6,29 @@ and what it does and doesn't prove.
 
 ## Open questions
 
-None.
+Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
+we tried to do too many different things at once"), to take one at a
+time, each tried before publishing:
+
+- **Q22. Restarting the app should be a clean slate.** "If I completely
+  stop and restart the app, I would expect it to go to the home page,
+  clean slate, and be able to start any new game. But any game I pick
+  goes back to where it left off." Q20's rule keeps every game until
+  it's finished or New game; switching apps should still come back as
+  it was. Unknown: whether the iPhone's app can tell a restart by the
+  person from iOS closing it in the background (both open fresh at
+  `start_url`); `sessionStorage` might, to be measured on the device.
+- **Q23. No way out of a Find the Stars puzzle.** The play screen has
+  only Undo, Hint and Show until the end, and with resume, 🏠 and back
+  carries on the same puzzle. The developer tapped every square and
+  "could not figure out a way to get out of it". Follow Me has no
+  buttons mid-game either (only on Game over), to check.
+- **Q24. The home page wouldn't scroll to the footer** once: it stopped
+  "part way through the last game". Device, app or Safari, and what came
+  before not yet known.
+- **Q25. The hint mechanism to be prototyped before publishing again.**
+  The developer likes the white hint ✕s but isn't "sure the whole hint
+  mechanism is working smoothly". What feels off not yet known.
 
 ## Proposed additions to the standards skill
 
