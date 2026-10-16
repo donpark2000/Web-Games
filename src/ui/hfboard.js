@@ -14,6 +14,10 @@ export const STAR = '<svg class="star" viewBox="0 0 100 100" aria-hidden="true">
 // device (the ✕ character's size and weight depend on the device's fonts).
 export const XMARK = '<svg class="xm" viewBox="0 0 100 100" aria-hidden="true"><path d="M22 22 L78 78 M78 22 L22 78" stroke="currentColor" stroke-width="13" stroke-linecap="round"/></svg>';
 
+// A hint's ✕: the same lines, white with a dark edge like the star
+// (developer, 2026-10-15: option B of the hint colour mockup v1).
+export const HXMARK = '<svg class="xm" viewBox="0 0 100 100" aria-hidden="true"><path d="M22 22 L78 78 M78 22 L22 78" stroke="#2B2B33" stroke-width="23" stroke-linecap="round"/><path d="M22 22 L78 78 M78 22 L22 78" stroke="#fff" stroke-width="13" stroke-linecap="round"/></svg>';
+
 // The right and bottom lines of square i (the board's frame draws the
 // outer edge). `thick` is the line between colours.
 export function borderStyle(n, reg, i, thick = 3) {

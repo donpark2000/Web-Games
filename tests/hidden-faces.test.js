@@ -371,38 +371,71 @@ test('hidden faces game: a look where a found star rules it out changes nothing 
 });
 
 // A game of the first test puzzle, played by its hints (not used) up to
-// the first that crosses something out, then that one used.
-function toldGame() {
+// the first that crosses something out, then that one used. `before(g,
+// h)` runs just before it's used.
+function toldGame(before = () => {}) {
   const g = game();
   for (let k = 0; k < 50; k++) {
     const h = findHint(g);
-    if (h.out.length) return { g, h: useHint(g) };
+    if (h.out.length) { before(g, h); return { g, h: useHint(g) }; }
     if (h.kind !== 'single') throw new Error(`a "${h.kind}" hint crossing nothing out`);
     look(g, h.tgt);
   }
   throw new Error('no hint crosses anything out');
 }
+const sorted = xs => [...xs].sort((a, b) => a - b);
 
-test('hidden faces game: a look where a hint said to cross out changes nothing, after Undo too', () => {
+// A hint takes its step (developer, 2026-10-15): its ✕s are fixed, like a
+// found star. Undo never takes them back (here even a ✕ and a rub-out the
+// player made on one of its squares just before), a drag can't change
+// them, and a tap on one is a look that costs nothing.
+test('hidden faces game: a hint’s ✕s are fixed: Undo and drags leave them alone, a look there costs nothing', () => {
   const f = game();
   findHint(f);
   assert.equal(f.told.size, 0, 'findHint alone remembered squares');
-  const { g, h } = toldGame();
+  assert.ok(f.marks.every(m => m === ''), 'findHint alone changed the board');
+  let j0 = -1;
+  const { g, h } = toldGame((g, h) => {
+    j0 = h.out[0];
+    tap(g, j0);                                    // the player's ✕ ...
+    const s = startStroke(g, j0);
+    strokeTo(g, s, j0);                            // ... rubbed out: two undo steps on j0
+    endStroke(g, s);
+    assert.equal(g.marks[j0], '');
+  });
   assert.ok(h.out.some(j => !g.marks.some((m, s) => m === 'face' && seenBy(g.n, g.reg, s).includes(j))), 'every square the hint crosses out is a found star’s: no hint words checked');
-  assert.deepEqual([...g.told].sort((a, b) => a - b), [...h.out].sort((a, b) => a - b));
+  assert.deepEqual(sorted(h.hx), sorted(h.out));
+  assert.equal(h.star, null);
+  assert.ok(h.out.every(j => g.marks[j] === 'hx'), 'the hint’s squares aren’t hint ✕s');
+  assert.deepEqual(sorted(g.told), sorted(h.out));
+  assert.equal(canUndo(g), false, 'Undo would take back a hint’s ✕');
+  assert.equal(undo(g), -1);
+  assert.equal(g.marks[j0], 'hx');
   for (const j of h.out) {
-    tap(g, j);
     const before = { hearts: g.hearts, mistakes: g.mistakes, undo: g.undo.length };
-    assert.equal(tap(g, j).known, 'No star here: a hint crossed it out.');
-    assert.equal(g.marks[j], 'x');
+    const r = tap(g, j);
+    assert.equal(r.did, 'look');
+    assert.equal(r.known, 'No star here: a hint crossed it out.');
+    assert.equal(g.marks[j], 'hx');
     unchanged(g, before);
   }
-  // Undo takes the ✕s back; the hint is still remembered.
+  // Drags: none from a hint's ✕; a ✕ drag and a rub-out passing over them
+  // change only the player's squares.
+  assert.equal(startStroke(g, h.out[0]).mode, null, 'a drag from a hint’s ✕ does something');
+  const e = g.marks.findIndex((m, i) => m === '' && !g.sol.has(i));
+  const s = startStroke(g, e);
+  assert.equal(s.mode, 'mark');
+  strokeTo(g, s, e);
+  for (const j of h.out) assert.equal(strokeTo(g, s, j), false, 'a ✕ drag changed a hint’s ✕');
+  endStroke(g, s);
+  const r = startStroke(g, e);
+  assert.equal(r.mode, 'erase');
+  strokeTo(g, r, e);
+  for (const j of h.out) assert.equal(strokeTo(g, r, j), false, 'a rub-out took a hint’s ✕');
+  endStroke(g, r);
+  assert.equal(g.marks[e], '');
   while (undo(g) >= 0);
-  assert.ok(h.out.every(j => g.marks[j] === ''));
-  const j = h.out[0];
-  tap(g, j);
-  assert.equal(tap(g, j).known, 'No star here: a hint crossed it out.');
+  assert.ok(h.out.every(j => g.marks[j] === 'hx'), 'Undo took back a hint’s ✕');
   assert.equal(g.hearts, HEARTS);
   // A square no hint or star rules out: a wrong look, as before.
   const other = g.marks.findIndex((m, i) => m === '' && !g.sol.has(i) && !g.told.has(i));
@@ -434,7 +467,7 @@ test('hidden faces hints: a wrong ✕ first, then ✕s a found face implies, the
   const w = findHint(g);
   assert.equal(w.kind, 'wrong');
   assert.equal(w.tgt, f2);
-  assert.match(w.text, /The ringed ✕ \(row \d, column \d\) is wrong/);
+  assert.match(w.text, /The ringed ✕ \(row \d, column \d\) was wrong/);
   g.marks[f2] = '';
   look(g, f);
   const im = findHint(g);
@@ -442,6 +475,13 @@ test('hidden faces hints: a wrong ✕ first, then ✕s a found face implies, the
   assert.deepEqual(im.why, [f]);
   assert.ok(im.out.length && im.out.every(i => !g.sol.has(i)));
   assert.match(im.text, /^Row \d already has its star/);
+  // Used, it puts its ✕s on as hint ✕s, and nothing else changes.
+  const want = g.marks.map((m, i) => (im.out.includes(i) ? 'hx' : m));
+  const used = useHint(g);
+  assert.equal(used.kind, 'implied');
+  assert.deepEqual(sorted(used.hx), sorted(im.out));
+  assert.deepEqual(g.marks, want);
+  assert.notEqual(findHint(g).text, im.text, 'the same hint again after its step');
   // The board as a fresh game: the solver's first step.
   const fresh = game();
   const h = findHint(fresh);
@@ -451,31 +491,111 @@ test('hidden faces hints: a wrong ✕ first, then ✕s a found face implies, the
   assert.deepEqual(fresh.marks, game().marks);
 });
 
-// Following only the hints (cross out what they say, look where they ring
-// a face) solves each test puzzle with no wrong look: every hint is
-// right. Every kind of hint shows up, each with words.
+// Using only hints (each takes its own step, 2026-10-15) solves each test
+// puzzle with no wrong look: every hint is right, and each step is just
+// the hint's: a star where it rings one with hint ✕s on the empty squares
+// the star rules out (Auto ✕ off), or hint ✕s on the empty squares it
+// crosses out. The last star, placed by a hint, wins. Every kind of hint
+// shows up, each with words.
 test('hidden faces hints: following the hints alone solves the puzzle', () => {
   const kinds = {};
-  let longest = '';
+  let longest = '', steps = 0;
   for (const p of [DEMO, TRYIT, GROUP, ...MADE]) {
     const g = createGame(p, { auto: false });
+    g.hints = Infinity;
     for (let k = 0; k < 400 && !g.result; k++) {
-      const h = findHint(g);
+      const before = [...g.marks];
+      const pre = findHint(g), why = explainHint(g, pre);
+      const h = useHint(g);
+      // Its words and Why? the same after its step, and as kept (a reload).
+      assert.equal(h.text, pre.text);
+      assert.deepEqual(explainHint(g, h), why, `${h.kind}: Why? changed by the hint's step`);
+      assert.deepEqual(explainHint(g, JSON.parse(JSON.stringify(h))), why, `${h.kind}: Why? changed as kept`);
       kinds[h.kind] = (kinds[h.kind] ?? 0) + 1;
       if (h.text.length > longest.length) longest = h.text;
       assert.notEqual(h.kind, 'none', `${p.n} x ${p.n}: no hint at step ${k}`);
-      for (const i of h.out) { assert.ok(!g.sol.has(i), `${h.kind}: ✕ on a face`); g.marks[i] = 'x'; }
+      const want = [...before];
       if (h.kind === 'single') {
-        assert.equal(look(g, h.tgt).face, true, 'single rang a square with no face');
+        assert.ok(g.sol.has(h.tgt), 'single rang a square with no face');
+        assert.equal(h.star, h.tgt);
+        want[h.tgt] = 'face';
+        for (const j of seenBy(p.n, p.reg, h.tgt)) if (want[j] === '') want[j] = 'hx';
+      } else {
+        assert.equal(h.star, null, `${h.kind} placed a star`);
+        assert.ok(h.out.length, `${h.kind} crosses nothing out`);
+        for (const i of h.out) {
+          assert.ok(!g.sol.has(i), `${h.kind}: ✕ on a face`);
+          assert.equal(before[i], '', `${h.kind}: crosses out a square already marked`);
+          want[i] = 'hx';
+        }
       }
+      assert.deepEqual(g.marks, want, `${p.n} x ${p.n} step ${k}: the board isn't just the ${h.kind} hint's step`);
+      steps++;
     }
     assert.equal(g.result, 'won', `${p.n} x ${p.n}`);
+    assert.equal(foundCount(g), p.n);
     assert.equal(g.mistakes, 0);
+    assert.ok(!g.marks.includes('x'), 'a ✕ that isn’t a hint’s');
   }
-  for (const kind of ['implied', 'single', 'inside', 'touch', 'tryit']) assert.ok(kinds[kind], `no ${kind} hint: ${JSON.stringify(kinds)}`);
+  for (const kind of ['single', 'inside', 'touch', 'group', 'tryit']) assert.ok(kinds[kind], `no ${kind} hint: ${JSON.stringify(kinds)}`);
+  assert.ok(steps > 40, `${steps} hints`);
   // The hint bar is 3 lines on a 393 px phone (about 135 characters);
   // longer ones scroll in it.
   assert.ok(longest.length < 200, longest);
+});
+
+// A hint that points at a star places it, and hint ✕s go on the empty
+// squares it rules out whether Auto ✕ is on or off (developer,
+// 2026-10-15: "place the star and add Xs"); the player's own ✕s there
+// stay theirs. A wrong ✕ becomes the star.
+test('hidden faces hints: a star hint places the star and hint ✕s, Auto ✕ on or off', () => {
+  for (const auto of [false, true]) {
+    const g = game({ auto });
+    const f = MADE[0].faces[1], seen = seenBy(g.n, g.reg, f), mine = seen[0];
+    tap(g, f);                                     // a ✕ on a star
+    tap(g, mine);                                  // the player's ✕ where the star rules out
+    const r = useHint(g);
+    assert.equal(r.kind, 'wrong');
+    assert.equal(r.star, f);
+    assert.equal(g.marks[f], 'face', 'the wrong ✕ isn’t the star');
+    assert.deepEqual(sorted(r.hx), sorted(seen.filter(j => j !== mine)), `auto ${auto}`);
+    assert.ok(seen.every(j => g.marks[j] === (j === mine ? 'x' : 'hx')), `auto ${auto}: not hint ✕s, or the player’s ✕ taken`);
+    assert.equal(g.marks.filter(m => m !== '').length, seen.length + 1, 'other squares changed');
+    assert.equal(g.hintsUsed, 1);
+    // Undo takes back the player's ✕ only.
+    while (undo(g) >= 0);
+    assert.equal(g.marks[f], 'face');
+    assert.equal(g.marks[mine], '');
+    assert.ok(r.hx.every(j => g.marks[j] === 'hx'));
+    // One square left: played by the hints (not used) up to one, then used.
+    const s = game({ auto });
+    let h = findHint(s);
+    for (let k = 0; k < 50 && h.kind !== 'single'; k++, h = findHint(s)) for (const i of h.out) s.marks[i] = 'x';
+    assert.equal(h.kind, 'single');
+    const xs = s.marks.filter(m => m === 'x').length;
+    const u = useHint(s);
+    assert.equal(u.star, h.tgt);
+    assert.equal(s.marks[h.tgt], 'face');
+    assert.ok(u.hx.length && seenBy(s.n, s.reg, h.tgt).every(j => s.marks[j] !== ''), 'a square the star rules out left empty');
+    assert.equal(s.marks.filter(m => m === 'x').length, xs, 'Auto ✕’s ✕s, not hint ✕s');
+    assert.equal(foundCount(s), 1);
+    assert.equal(u.won, false);
+  }
+});
+
+// The last star, placed by a hint, wins as a found one does.
+test('hidden faces hints: a star a hint places can win the game', () => {
+  const g = game();
+  const last = MADE[0].faces.at(-1);
+  for (const f of MADE[0].faces) if (f !== last) look(g, f);
+  assert.equal(g.result, null);
+  const r = useHint(g);
+  assert.equal(r.kind, 'single');
+  assert.equal(r.star, last);
+  assert.equal(r.won, true);
+  assert.equal(g.result, 'won');
+  assert.equal(foundCount(g), g.n);
+  assert.deepEqual(useHint(g), { ok: false, why: 'over' });
 });
 
 // Why? (developer, 2026-10-14: "the logic escapes me" when a hint says
@@ -630,6 +750,7 @@ test('hidden faces: a kept game comes back the same and plays on', () => {
     assert.deepEqual(h[k], g[k], k);
   }
   assert.ok(h.told.size > 0, 'the hint crossed nothing out: nothing checked');
+  assert.ok(kept.marks.includes('hx'), 'no hint ✕ kept: nothing checked');
   // Kept before 2026-10-15 (no `told`): comes back, with nothing told.
   const { told, ...older } = kept;
   assert.equal(restoreGame(MADE[0], older).told.size, 0);
@@ -653,6 +774,7 @@ test('hidden faces: a kept game that is not this puzzle\'s, or not whole, is ref
     [{ marks: kept.marks.slice(1) }, /bad marks/],
     [{ marks: kept.marks.map((m, i) => (i === 0 ? 'star' : m)) }, /bad marks/],
     [{ marks: kept.marks.map((m, i) => (i === notFace(g) ? 'face' : m)) }, /a star the puzzle hasn't/],
+    [{ marks: kept.marks.map((m, i) => (g.sol.has(i) && m === '' ? 'hx' : m)) }, /a hint’s ✕ on a star/],
     [{ hearts: HEARTS + 1 }, /bad hearts/],
     [{ hints: -1 }, /bad hearts, hints/],
     [{ mistakes: 1.5 }, /bad counts/],

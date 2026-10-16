@@ -9,7 +9,7 @@ import {
   endStroke, undo, canUndo, showOne, useHint, explainHint, readProgress, recordTime, clock, snapshotGame, restoreGame,
 } from '../core/hidden-faces.js';
 import { mergeSetup } from '../core/resume.js';
-import { STAR, XMARK, borderStyle, miniBoard } from './hfboard.js';
+import { STAR, XMARK, HXMARK, borderStyle, miniBoard } from './hfboard.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
@@ -166,7 +166,7 @@ function draw(pop = -1) {
     const cls = `mk${m ? ` mk-${m}` : ''}${i === pop ? ' pop' : ''}`;
     if (mk.className !== cls || i === pop) {
       mk.className = cls;
-      mk.innerHTML = m === 'x' || m === 'bad' ? XMARK : m === 'face' || m === 'ghost' ? STAR : '';
+      mk.innerHTML = m === 'x' || m === 'bad' ? XMARK : m === 'hx' ? HXMARK : m === 'face' || m === 'ghost' ? STAR : '';
     }
     cs[i].classList.toggle('ghost', m === 'ghost');
   });
@@ -328,14 +328,21 @@ $('hintBtn').onclick = () => {
     paintHint();
     return;
   }
+  // The hint takes its step on the board (a star, hint ✕s); its words and
+  // Why? don't depend on the board, so they read the same after it.
   const h = useHint(G);
   if (!h.ok) return;
   L('hint', { kind: h.kind, tgt: h.tgt, why: h.why.length, out: h.out.length, left: G.hints, text: h.text });
+  if (h.star != null || h.hx.length) {
+    const at = h.star == null ? {} : { row: Math.floor(h.star / G.n) + 1, col: (h.star % G.n) + 1 };
+    L('hint applied', { kind: h.kind, star: h.star, ...at, hintX: h.hx.length, squares: h.hx.join(' '), found: foundCount(G), won: h.won });
+  }
   clearHint();
   shown = { h, why: explainHint(G, h), deep: false, lit: true };
   sound.play('ping');
   paintHint();
-  draw();
+  draw(h.star ?? -1);
+  if (h.won) { clearHint(); win(); }
 };
 $('hintbar').addEventListener('click', () => {
   if (!G || G.result || !shown || shown.lit) return;
@@ -359,7 +366,7 @@ function paintHint() {
   if (h.kind !== 'none') $('board').classList.add('spot');
   if (deep) {
 
-    // The pretend star stands where the hint's blinking ✕ was.
+    // The pretend star stands in place of the hint's ✕ on the ringed square.
     if (why.pretend != null) { cs[why.pretend].classList.add('pretending'); cs[why.pretend].insertAdjacentHTML('beforeend', `<span class="pretend">${STAR}</span>`); }
     for (const [i, tag] of why.tags) cs[i].insertAdjacentHTML('beforeend', `<span class="tag">${TAGS[tag]}</span>`);
     drawRings(why.rings);

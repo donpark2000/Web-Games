@@ -285,3 +285,25 @@ test('pages: Find the Stars keeps the last hint’s words; a known-empty look is
   assert.match(css.match(/\.hintbar\.past \{[^}]*\}/)?.[0] ?? '', /color: var\(--muted\)/, 'the put-out hint isn’t greyed');
   assert.match(css, /\.cell\.nope \.mk \{ animation: nope /);
 });
+
+// Find the Stars (developer, 2026-10-15): a hint takes its step, so the
+// screen draws hint ✕s (white with a dark edge: option B of the hint
+// colour mockup v1, the player's ✕'s lines, the same size), logs what the
+// hint placed, and a star it places can win; the blinking "to cross out"
+// ✕ is gone, as those squares carry real marks now.
+test('pages: Find the Stars draws a hint’s ✕s and wins from a hint’s star', async () => {
+  const { XMARK, HXMARK } = await import('../src/ui/hfboard.js');
+  const d = XMARK.match(/ d="([^"]+)"/)[1];
+  const paths = [...HXMARK.matchAll(/<path d="([^"]+)" stroke="([^"]+)" stroke-width="(\d+)"/g)].map(m => m.slice(1).join(' '));
+  assert.deepEqual(paths, [`${d} #2B2B33 23`, `${d} #fff 13`], 'the hint’s ✕ is not dark at 23 under white at 13 on the ✕’s lines');
+  const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
+  assert.match(js, /m === 'hx' \? HXMARK/, 'a hint’s ✕ is not drawn');
+  const hint = js.match(/\$\('hintBtn'\)\.onclick = [\s\S]*?\n\};/)?.[0] ?? '';
+  assert.match(hint, /useHint\(G\)[\s\S]*L\('hint applied'/, 'what the hint placed is not logged');
+  assert.match(hint, /draw\(h\.star \?\? -1\);\s*if \(h\.won\) \{ clearHint\(\); win\(\); \}/, 'a hint’s star doesn’t pop in, or can’t win');
+  const css = await readFile(path.join(root, 'css/hidden-faces.css'), 'utf8');
+  assert.match(css, /\.cell \.mk-hx svg \{ width: 58%; height: 58%; \}/, 'the hint’s ✕ is not the player’s ✕’s size');
+  assert.match(css, /\.cell \.mk-x svg \{ width: 58%; height: 58%; \}/);
+  assert.doesNotMatch(css, /\.cell\.out::after/, 'the blinking ✕ is still drawn over the hint’s ✕s');
+  assert.match(css, /\.cell\.pretending \.mk \{ visibility: hidden; \}/, 'the pretend star is drawn over the hint’s ✕');
+});

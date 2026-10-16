@@ -415,7 +415,9 @@ export function colorsFor(n, reg, seed) {
 /* ---------- a game ---------- */
 
 // Marks: '' (nothing), 'x' (the player's ✕), 'face' (found), 'bad' (a
-// wrong look: a red ✕ that stays).
+// wrong look: a red ✕ that stays), 'hx' (a hint's ✕: fixed, like a found
+// star; Undo and drags leave it alone), 'ghost' (a star not found, shown
+// pale when out of hearts).
 
 // A new game of puzzle p ({ n, reg, faces }). `auto`: finding a face puts
 // ✕s on its row, column, colour and neighbours (Auto ✕, the default).
@@ -454,7 +456,7 @@ export function knownEmpty(g, i) {
     if (cf === c) return `No star here: column ${c + 1} already has its star.`;
     if (reg[f] === reg[i]) return `No star here: ${g.col[reg[i]].name} already has its star.`;
   }
-  return g.told.has(i) ? 'No star here: a hint crossed it out.' : null;
+  return g.told.has(i) || marks[i] === 'hx' ? 'No star here: a hint crossed it out.' : null;
 }
 
 // Look under square i: a face (with Auto ✕, the ✕s it implies), or a red
@@ -487,7 +489,8 @@ export function look(g, i) {
 
 // A tap on square i: an empty square gets a ✕ (undoable); a ✕ is looked
 // under, however soon after its ✕ (developer, 2026-10-14: the 0.4 s wait
-// for a slip was too long, and Undo takes back a wrong look). Returns
+// for a slip was too long, and Undo takes back a wrong look); a hint's ✕
+// too (a look that costs nothing: knownEmpty). Returns
 // { ok, did: 'x' | 'look', ...look's result }.
 export function tap(g, i) {
   if (g.result) return { ok: false, why: 'over' };
@@ -497,7 +500,7 @@ export function tap(g, i) {
     g.undo.push([[i, '']]);
     return { ok: true, did: 'x' };
   }
-  if (m === 'x') return { ...look(g, i), did: 'look' };
+  if (m === 'x' || m === 'hx') return { ...look(g, i), did: 'look' };
   return { ok: false, why: 'already' };
 }
 
@@ -507,7 +510,8 @@ export function tap(g, i) {
 // per square, so Undo takes back the last square first (developer,
 // 2026-10-14: a long drag easily goes a square too far, and Undo took
 // back the whole drag).
-// A stroke from a face or a red ✕ does nothing.
+// A stroke from a face, a red ✕ or a hint's ✕ does nothing, and no stroke
+// changes a hint's ✕.
 export function startStroke(g, i) {
   const m = g.marks[i];
   return { mode: g.result ? null : m === '' ? 'mark' : m === 'x' ? 'erase' : null, changed: [] };
@@ -525,7 +529,8 @@ export function endStroke(g, stroke) {
 
 // What undoing one step would change: the squares to set back, as
 // [square, mark], and whether it gives a heart back. A square that has
-// since become a face stays one, so a step can come to change nothing.
+// since become a face or a hint's ✕ stays one, so a step can come to
+// change nothing.
 function undoes(g, step) {
   if (step.look != null) return { back: [[step.look, 'x']], heart: true };
   const back = [];
@@ -567,23 +572,24 @@ export function showOne(g, rnd = Math.random) {
 /* ---------- hints ---------- */
 
 // The solver's state for the board as the player has it: the faces
-// found, every ✕ (theirs and red ones) as "no face".
+// found, every ✕ (theirs, red ones and hints') as "no face".
 export function stateOf(g) {
   const s = newState(g.n, g.reg);
   g.marks.forEach((m, i) => { if (m === 'face') place(s, i); });
-  g.marks.forEach((m, i) => { if (m === 'x' || m === 'bad') s.cand[i] = 0; });
+  g.marks.forEach((m, i) => { if (m === 'x' || m === 'bad' || m === 'hx') s.cand[i] = 0; });
   return s;
 }
 
-// The next hint, without changing the board: a wrong ✕ first, then ✕s a
-// found face already implies, then the solver's next step. Returns
+// The next hint, without changing the board (useHint takes its step): a
+// wrong ✕ first, then ✕s a found face already implies, then the solver's
+// next step. Returns
 // { kind, tgt?: the square it means, why: [squares lit as the reason],
 // out: [squares to cross out], units, text } or { kind: 'none', text }.
 export function findHint(g) {
   const { n, reg, marks, sol } = g;
   const sq = i => `row ${rowOf(n, i) + 1}, column ${i % n + 1}`;
   const wrong = marks.findIndex((m, i) => m === 'x' && sol.has(i));
-  if (wrong >= 0) return { kind: 'wrong', tgt: wrong, why: [], out: [], text: `The ringed ✕ (${sq(wrong)}) is wrong: there's a star under it.` };
+  if (wrong >= 0) return { kind: 'wrong', tgt: wrong, why: [], out: [], text: `The ringed ✕ (${sq(wrong)}) was wrong: there's a star under it.` };
   for (let f = 0; f < n * n; f++) {
     if (marks[f] !== 'face') continue;
     const r = rowOf(n, f), c = f % n;
@@ -681,20 +687,34 @@ export function explainHint(g, h) {
   return null;
 }
 
-// Uses a hint: returns it (findHint's), counting it unless there was none
-// to give. { ok: false, why } when none are left or the game is over.
+// Uses a hint and takes its step (developer, 2026-10-15: "It seems
+// unlikely that if one asks for a hint they would chose to ignore it"): a
+// hint that points at a star (one square left, a wrong ✕) places the star
+// and puts hint ✕s ('hx') on the empty squares it rules out, Auto ✕ or
+// not; any other puts hint ✕s on the empty squares it crosses out (the
+// player's own ✕s stay theirs). Hint ✕s are fixed: no Undo step, no drag
+// changes them. Returns the hint (findHint's, worked out before the step)
+// with { star: the square starred or null, hx: [squares given hint ✕s],
+// won }, counting it unless there was none to give. { ok: false, why }
+// when none are left or the game is over.
 export function useHint(g) {
   if (g.result) return { ok: false, why: 'over' };
   if (g.hints <= 0) return { ok: false, why: 'none-left' };
   const h = findHint(g);
   if (h.kind !== 'none') { g.hints--; g.hintsUsed++; }
+  const star = h.kind === 'single' || h.kind === 'wrong' ? h.tgt : null;
+  if (star != null) g.marks[star] = 'face';
+  const hx = (star != null ? seenBy(g.n, g.reg, star) : h.out).filter(i => g.marks[i] === '');
+  for (const i of hx) { g.marks[i] = 'hx'; g.told.add(i); }
   for (const i of h.out) g.told.add(i);
-  return { ok: true, ...h };
+  const won = star != null && foundCount(g) === g.n;
+  if (won) g.result = 'won';
+  return { ok: true, ...h, star, hx, won };
 }
 
 /* ---------- a game kept on the device (DESIGN.md "Coming back to a game") ---------- */
 
-const MARKS = ['', 'x', 'face', 'bad', 'ghost'];
+const MARKS = ['', 'x', 'face', 'bad', 'ghost', 'hx'];
 
 // What to keep of game g (plain data): the marks, what's left and used,
 // the undo steps, the squares hints crossed out and the result. The
@@ -715,6 +735,7 @@ export function restoreGame(p, kept, { colorSeed = 0 } = {}) {
   if (k.n !== p.n) throw new Error(`restoreGame: size ${k.n}, not ${p.n}`);
   if (!Array.isArray(k.marks) || k.marks.length !== N || !k.marks.every(m => MARKS.includes(m))) throw new Error('restoreGame: bad marks');
   if (k.marks.some((m, i) => (m === 'face' || m === 'ghost') && !p.faces.includes(i))) throw new Error('restoreGame: a star the puzzle hasn\'t');
+  if (k.marks.some((m, i) => m === 'hx' && p.faces.includes(i))) throw new Error('restoreGame: a hint’s ✕ on a star');
   if (!count(k.hearts, HEARTS) || !count(k.hints, HINTS) || !count(k.shows, SHOWS)) throw new Error('restoreGame: bad hearts, hints or shows');
   if (![k.mistakes, k.hintsUsed, k.showsUsed].every(v => count(v, 1e6))) throw new Error('restoreGame: bad counts');
   if (![null, 'won', 'lost'].includes(k.result)) throw new Error(`restoreGame: bad result ${k.result}`);

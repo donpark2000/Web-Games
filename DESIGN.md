@@ -542,7 +542,11 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   puzzle), **👁 Show** (uncovers a star; 1 per puzzle).
 - **✕s are drawn lines**, nearly black, about 60% of a square (developer,
   2026-10-14: the first ✕s, 40% and see-through grey, were hard to see
-  on a phone at 10 x 10); a wrong look's red ✕ is bigger (84%).
+  on a phone at 10 x 10); a wrong look's red ✕ is bigger (84%). **A
+  hint's ✕** is the same ✕, white with a dark edge like the star
+  (developer, 2026-10-15, option B of the
+  [Hint Colour Mockup](https://claude.ai/artifact/UHCmnZzkkCyGmscpWyDNxK),
+  version 1: the lines dark at 23 under white at 13).
 - **Taps:** an empty square: ✕; a ✕: look under it. A star pops in (with
   Auto ✕, the ✕s around it); a wrong look is a red ✕ that stays, shakes
   and costs a heart; the third ends the game. **Drag** from an empty
@@ -553,8 +557,10 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   (developer, 2026-10-13:
   "being able to undo errors is kind of the whole point of undo"; until
   then never a look): the red ✕ is a ✕ again and the heart comes back,
-  but the mistake still counts in the result. A found star is never
-  taken back; a step with nothing left to change is skipped, and Undo is
+  but the mistake still counts in the result. A found star and a hint's
+  step (its star, its ✕s) are never taken back, and no drag changes a
+  hint's ✕ (developer, 2026-10-15: they're certain, like a found star);
+  a step with nothing left to change is skipped, and Undo is
   greyed when nothing would change. **A double tap is a ✕ and a look**
   (developer, 2026-10-14: the 0.4 s wait for a slip, built 2026-10-13,
   was too long, and Undo takes back a wrong look); a double tap on the
@@ -562,8 +568,8 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   **A look where there's known to be no star costs nothing** (developer,
   2026-10-15: after a hint, a double tap on a square it crossed out cost
   a heart, and Undo kept the mistake): a square a found star rules out
-  (its row, column, colour or a neighbour, Auto ✕ or not) or a hint said
-  to cross out (remembered for the rest of the puzzle, after Undo too).
+  (its row, column, colour or a neighbour, Auto ✕ or not) or a hint
+  crossed out (a hint's ✕: a tap on one looks).
   The ✕ stays and wiggles, a tick, and the hint bar says why for 2.5 s
   ("No star here: row 3 already has its star.", "No star here: a hint
   crossed it out."); no heart, no mistake. Such a look tells nothing new,
@@ -571,16 +577,23 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   **Two quick taps never zoom
   the page** (developer, 2026-10-13: the iPhone zoomed in on a ✕-then-look
   and there was no way back): the board cancels each touch's end.
-- **Hints** say the next step in words and never change the board: a
+- **Hints** say the next step in words **and take it** (developer,
+  2026-10-15: "It seems unlikely that if one asks for a hint they would
+  chose to ignore it"): a hint that points at a star (one square left, a
+  wrong ✕) places the star, and hint ✕s go on the empty squares it rules
+  out, Auto ✕ or not; any other puts hint ✕s on the squares it crosses
+  out. The player's own ✕s stay theirs. A star placed by a hint can win
+  the game. The order: a
   wrong ✕ first, then ✕s a found star already implies, then the solver's
   next step (one square left; a unit's squares all inside another; a
   star here would rule out all of a unit's squares; k colours in k rows
   or columns; try-a-star). **Spotlight:** squares the hint isn't about
   fade; those it is about keep their colour with a dark edge; the square
   it means has a thick black ring in a white one, named in the text
-  ("the ringed square (row 3, column 1)"); squares to cross out a dark ✕
-  with a white edge (developer, 2026-10-13: in v1 "it is not clear where
-  'here' is").
+  ("the ringed square (row 3, column 1)") (developer, 2026-10-13: in v1
+  "it is not clear where 'here' is"). The squares it crossed out carry
+  its hint ✕s (until 2026-10-15, before hints took their step, a
+  blinking ✕ over each).
 - **The last hint's words stay** (developer, 2026-10-15: to check it was
   understood after following it): a touch on the board (or Undo) takes
   the hint off the board, but its words stay in the bar, greyed, until

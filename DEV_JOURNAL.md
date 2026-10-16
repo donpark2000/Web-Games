@@ -5180,3 +5180,114 @@ player's ✕). As the mockup says, a star a hint places then looks like
 any found star (no edge colour of its own). **Next:** build hints that
 do their own step (the entry before this one) with this ✕, on top of
 1852006; then the developer tries both, and publish on their OK.
+
+## 2026-10-15: Hints that do their own step, built
+
+Built as agreed in the two entries above, on top of 1852006 (DESIGN.md
+"Find the Stars": ✕s, Taps, Hints).
+
+**Built:**
+- `useHint()` (`src/core/hidden-faces.js`) works the hint out first
+  (`findHint`, unchanged: it still never changes the board), then takes
+  its step. "single" and "wrong" place the star (a wrong ✕ becomes the
+  star) and put **hint ✕s**, a new mark `'hx'`, on the empty squares the
+  star rules out, Auto ✕ or not; every other kind (implied, inside,
+  touch, group, tryit) puts `'hx'` on its `out` squares (all empty: the
+  solver's are candidates, "implied" picks empty ones). The player's own
+  ✕s are left as they are. It returns `star`, `hx` and `won`; a hint's
+  last star wins (`g.result = 'won'`), and the screen runs the normal
+  win. The `hx` squares also go in `g.told`, as before.
+- Hint ✕s are fixed: no undo step is added, and `undoes()` already only
+  sets back '' or 'x' squares, so a player's ✕-then-rub-out on a square
+  a hint later crossed out is skipped; `startStroke` from one does
+  nothing and `strokeTo` only marks '' and rubs out 'x'. A tap on one is
+  a look (`tap`), which `knownEmpty` makes free (a found star's words
+  first, else "No star here: a hint crossed it out.", also for an 'hx'
+  missing from `told`). `stateOf` counts 'hx' as no star. `MARKS`
+  accepts 'hx'; `restoreGame` refuses one on a star. Lost games' pale
+  stars are unaffected ('hx' is never on a star).
+- The wrong-✕ hint now reads "The ringed ✕ (...) **was** wrong: there's
+  a star under it.", as the star is there by the time it's read. The
+  other words read fine after the step ("So cross it out." etc.), so
+  they're unchanged.
+- **Why?** (`explainHint`) reads only the hint and the puzzle (units,
+  lit squares, ring, colours), never the marks, so it reads the same
+  computed after the step, and for a kept hint after a reload; the test
+  checks both (deepEqual before / after / after a JSON round trip, every
+  hint of 7 puzzles).
+- The screen (`src/ui/hidden-faces.js`): draws 'hx' with `HXMARK`
+  (`src/ui/hfboard.js`: XMARK's path, #2B2B33 at 23 under #fff at 13;
+  css `.mk-hx svg` 58%, as the player's ✕); a hint star pops in; on a
+  win, the hint comes off and `win()` runs. Logged: "hint applied" with
+  kind, star (and its row and column), hintX count, squares, found, won.
+- **The blinking "to cross out" ✕ is dropped** (`.cell.out::after` and
+  its `blink` keyframes): those squares carry real hint ✕s now, and in
+  the browser the lit squares (dark edge, unfaded, hint ✕) read clearly
+  without it. In a Why? the pretend star now hides the square's mark
+  (`.cell.pretending .mk { visibility: hidden }`) instead of the blink.
+  The spotlight, ring, lit squares and words are as before, put out by
+  the next touch with the words kept greyed.
+
+**Tests** (`npm test`: 262 of 262; 3 new, 4 changed): following the
+hints alone (`useHint`, Auto ✕ off) solves all 7 test puzzles with the
+board after each hint exactly its step (single, inside, touch, group,
+tryit all seen; 40+ hints), no plain ✕ left, the last star a hint's win;
+an "implied" hint's ✕s; a wrong-✕ hint with Auto ✕ off and on (the star,
+hint ✕s around it, the player's ✕ there kept, Undo taking back only
+that); a "single" hint with Auto ✕ on giving hint ✕s, not Auto ✕'s; a
+hint's star winning; hint ✕s fixed (Undo after a ✕ and a rub-out on one
+of the hint's squares, a drag from one, ✕ and rub-out drags across them,
+taps on them: free looks); 'hx' kept and restored, refused on a star;
+the screen (pages test): HXMARK's two paths, the 'hx' drawing, the log
+line, the win, the CSS sizes, no blinking ✕, the pretend star hiding the
+mark. **Each check shown to fail**: 13 mutations, each applied with
+`sed`, the file compared with its backup (`cmp`) before running, then
+restored from the backup (the working diff compared after): undo taking
+'hx', rub-out taking 'hx', erase from 'hx', tap on 'hx' not a look,
+`stateOf` ignoring 'hx', Auto ✕ giving a star hint plain ✕s, a wrong ✕
+hint placing no star, a hint star never winning, restore taking 'hx' on
+a star, restore refusing 'hx', the screen's win removed, the hint ✕'s
+edge 19, the blinking ✕ back: 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1
+failing, each the test meant for it.
+
+**Checked in the built-in browser** (localhost:8123, 6 x 6 puzzle 1,
+Auto ✕ on; the page's state read by script, clicks by the screenshot's
+coordinates): the first hint, "Brown is just one square", placed the
+star on row 2, column 1 with 11 hint ✕s (white, dark edge), Undo greyed.
+My ✕ on row 4, column 6; a tap on the hint ✕ at row 1, column 1: "No
+star here: it touches a star.", 3 hearts; Undo took back only my ✕. An
+"inside" hint put hint ✕s on squares 3, 19 and 33, lit with a dark edge
+(screenshot: clear without the blink); a tap on one: "No star here: a
+hint crossed it out."; a ✕ drag along row 1 across it marked only the
+two empty squares, a rub-out drag across it rubbed out only mine; Undo
+(3 steps) took back only mine, then greyed. The hint lit again, Why?,
+reload: the hint ✕s back, the Why? showing with its 2 outlines. Another
+"inside" hint: 1 hint ✕. Then a fresh puzzle 1: 5 stars found by double
+taps, then 💡: "The ringed square (row 6, column 5) is the only one left
+for row 6", the star placed, "Solved in 0:11! 0 mistakes · 1 hint · New
+best!", the end buttons, the kept game "won". Log lines as above. No
+console errors. **Not checked in the browser:** a "touch" hint's Why?
+(the pretend star over a hint ✕); covered by the CSS check only.
+
+**Cleanup finding:** the earlier session's kept game was still in the
+browser (its marks, `told` [3, 19, 33] and the mistake matched that
+entry's check), though that entry says it was removed. Removing the key
+on the game page and then reloading doesn't clear it: the page keeps
+the game again as it unloads. This time the keys were removed from a
+page with no game script (`data/hidden-faces.json`): the kept game, the
+last page and the best time this check's win made; the debug log left.
+A case of the skill's "Check the end state" (a cleanup checked right
+after it, not after the page had moved on); no new skill rule.
+
+## 2026-10-15: Status (start here next session)
+
+**Branch `star-battle`**, not published (`main` = a2aed32): two Find the
+Stars changes for the developer to try: 1852006 (free looks where no
+star can be; the last hint's words kept greyed) and hints that do their
+own step (above). `npm test`: 262 of 262. The local server is running
+(port 8123).
+
+**Next:** the developer tries both, then publish on their OK. Then: the
+DESIGN.md "Later" list.
+
+**Open questions:** none. **Proposed skill additions:** none.
