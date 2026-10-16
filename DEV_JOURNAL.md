@@ -5291,3 +5291,36 @@ own step (above). `npm test`: 262 of 262. The local server is running
 DESIGN.md "Later" list.
 
 **Open questions:** none. **Proposed skill additions:** none.
+
+## 2026-10-15: Free looks, kept hint words and hints that do their own step, published
+
+Published with the developer's OK ("Publish."), without trying it on
+the local server first: `main` fast-forwarded a2aed32..de21c8c and
+pushed. The Pages build for de21c8c was "built" at 18:04:33 (about
+40 s); the server sends version d4d04dca9b09 and `src/ui/hfboard.js`
+(curl, 200). **Checked live** (built-in browser): the home page's
+version line "Oct 15, 2026 · d4d04d"; Find the Stars 6 x 6 puzzle 1,
+💡 Hint: "Brown is just one square", the star placed (1 of 6 found)
+with 12 hint ✕s, each the two-path white ✕ with a dark edge
+(screenshot), the button ❓ Why?; no console errors. The browser's kept
+game and last page removed from a page with no game script
+(`data/hidden-faces.json`), and checked again after a reload: only the
+debug log left. The local server (port 8123, the build session's)
+stopped; no `serve.js` left running.
+
+**For the developer to try on the iPhone:** open the app once with wifi
+(the version line says d4d04d), then a Find the Stars puzzle: a hint
+puts its own ✕s and star; a double tap on a hint ✕ costs nothing; after
+a touch the hint's words stay greyed, and a tap on them lights it again.
+
+## 2026-10-15: Status (start here next session)
+
+**Branch `star-battle`**, published (`main` = de21c8c): Find the Stars'
+free looks where no star can be, the last hint's words kept greyed, and
+hints that do their own step (white hint ✕s, fixed). `npm test`: 262 of
+262.
+
+**Next:** the developer's feedback from playing it. Then: the DESIGN.md
+"Later" list.
+
+**Open questions:** none. **Proposed skill additions:** none.

@@ -6,7 +6,8 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-10-15, later): Find the Stars: a look where there's known
 to be no star costs nothing, and the last hint's words stay in the bar,
-greyed (built, not yet published). Earlier 2026-10-15: every game carries on where it was left, and the
+greyed; hints take their own step, with white hint ✕s (published
+2026-10-15). Earlier 2026-10-15: every game carries on where it was left, and the
 installed app's icon goes back to the game left (published
 2026-10-15). 2026-10-14: Hidden Faces renamed **Find the Stars** (one white
 star hides, no faces), bigger ✕s, no wait on a double tap, the end in
