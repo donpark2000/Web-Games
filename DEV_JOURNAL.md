@@ -59,6 +59,16 @@ time, each tried before publishing:
   mechanism is working smoothly". What feels off not yet known.
   *Developer, 2026-10-15:* not sure, as not being able to start fresh
   threw everything off; fix Q22-Q24 first, then prototype the hints.
+  *Developer, 2026-10-16* (after trying Q22-Q24 on the local server):
+  "The new hint scheme seems to be working well. Two things caught my
+  eye": **(a)** when the hint's words speak of "lit squares", the words
+  stay after the hint is accepted but no squares are lit any more ("Not
+  sure how to avoid that"); **(b)** when a hint first shows, "it is not
+  clear how to accept it and get back to game play. It seems clicking
+  on the grid does that, but there was no obvious sign that it would."
+  (Checked: the words that point at the board are "the lit squares",
+  "(lit)", "the ringed square" and "ringed ✕", in `findHint` and
+  `explainHint`, `src/core/hidden-faces.js`.)
 - **Q26. log.html's Clear asks with the browser's `confirm()`.** The
   games' Give up asks in the page itself (as the brief asked: "no
   browser confirm()"), but the log page's Clear, given as the model,
