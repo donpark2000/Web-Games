@@ -5699,3 +5699,30 @@ scrolling; the page 760 px on the 760 px screen. At 375 x 667 (after a
 reload): 10 x 10 squares 30 px, the page 667. No console errors. Test
 state cleared from `data/hidden-faces.json`; after a reload only the
 log.
+
+## 2026-10-16: A blank line, and the tap line centred
+
+The developer: "The function is great. I would suggest 2 formatting
+changes. Add a blank line between (tap to light this hint again) and
+the hint itself, and center justify it." **Measured first** (built-in
+browser, the bar 8 or 16 px taller, the fit run again): at 393 x 760 the
+squares stayed 59, 44 and 35 px (6, 8 and 10: the screen's width limits
+them); at 375 x 667 they went 50 to 47, 37 to 35 and 30 to 28 (the
+smallest the game allows) with 16 px.
+
+**Built:** `.hintbar .relight` gets `margin-top: 1.3em` (a blank line at
+its own 12px size, 16 px) and `text-align: center`; the bar is
+`calc(3 * 1.4em + 20px + 2 * 1.3 * 12px)` (101 to 114 px). Hints of up
+to 3 lines still fit with the blank line and the tap line.
+
+**Tests:** `tests/pages.test.js`: the bar's height and the line's blank
+line and centring. **Shown to fail:** the blank line removed; not
+centred; the old height: 1 failed each. `npm test`: 271 pass, 0 fail.
+`tools/offline.js`: version 5cb8670a591a.
+
+**Checked in the built-in browser** (393 x 760, a 10 x 10, a real hint
+put out with Got it): the bar 114 px, the line "(tap to light this hint
+again)" 16 px below the words, centred (its middle 200 px, the bar's 197:
+the bar's 6 px left edge), no scrolling; the longest "all inside" words
+(135 characters) fit too; the squares 35 px, the page 760 px on the
+760 px screen. Test state cleared from `data/hidden-faces.json`.

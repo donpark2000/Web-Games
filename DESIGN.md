@@ -544,9 +544,9 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
 - **Play:** 🏠, the star and "8×8 · puzzle 1" (one line), 🔊; hearts ❤️❤️❤️, "3 of
   8 found", a clock; the board as big as fits with no scrolling (thick
   lines between colours, thin inside one); a **hint bar always 3 lines
-  and one small line high** (a hint never moves the board; the small
-  line since 2026-10-16, for a greyed hint's "tap to light this hint
-  again"), **empty and hidden until the
+  and two small lines high** (a hint never moves the board; the small
+  lines since 2026-10-16, for a greyed hint's blank line and "tap to
+  light this hint again"), **empty and hidden until the
   first hint** (developer, 2026-10-13: "Tap 💡 for the next step, explained"
   wasn't needed, and stayed with no hints left), then the last hint's
   words, greyed (see "Hints"); **Undo**, **💡 Hint** (3 per
@@ -618,12 +618,14 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
 - **The last hint's words stay** (developer, 2026-10-15: to check it was
   understood after following it): ✓ Got it or a touch on the board takes
   the hint off the board, but its words stay in the bar, greyed, until
-  the next hint, 👁 Show or the end, with a small line under them:
-  **"(tap to light this hint again)"** (developer, 2026-10-16: the words
-  speak of "lit squares" with none lit; a passing note and a ↻, tried
-  first, went too soon and looked like a browser's refresh). The bar is
-  one small line taller for it (on a 393 x 760 iPhone the board keeps
-  its size: the screen's width limits it there). **A tap on the greyed
+  the next hint, 👁 Show or the end, with a blank line and then a small
+  centred line under them: **"(tap to light this hint again)"**
+  (developer, 2026-10-16: the words speak of "lit squares" with none
+  lit; a passing note and a ↻, tried first, went too soon and looked
+  like a browser's refresh; then "Add a blank line ... and center
+  justify it"). The bar is two small lines taller for them (on a 393 x
+  760 iPhone the board keeps its size: the screen's width limits it
+  there; on a 375 x 667 phone the squares give up 2-3 px). **A tap on the greyed
   words lights it again** (free: the same hint), with its ❓ Why?. Kept
   with the game, greyed or lit.
 - **❓ Why?** (developer, 2026-10-14, from the agreed

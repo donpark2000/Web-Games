@@ -269,7 +269,7 @@ test('pages: Hidden Faces’ hint bar is empty and hidden between hints, its spa
   const idle = css.match(/\.hintbar\.idle \{([^}]*)\}/)?.[1] ?? '';
   assert.match(idle, /visibility: hidden/, 'the idle hint bar shows');
   assert.doesNotMatch(idle, /display: none|height/, 'the idle hint bar gives up its space');
-  assert.match(css.match(/\.hintbar \{[^}]*\}/)?.[0] ?? '', /height: calc\(3 \* 1\.4em \+ 20px \+ 1\.3 \* 12px \+ 2px\)/, 'the hint bar is not 3 lines and a small one high');
+  assert.match(css.match(/\.hintbar \{[^}]*\}/)?.[0] ?? '', /height: calc\(3 \* 1\.4em \+ 20px \+ 2 \* 1\.3 \* 12px\)/, 'the hint bar is not 3 lines and two small ones high');
 });
 
 // Find the Stars (developer, 2026-10-15): a touch on the board (or Undo)
@@ -353,6 +353,8 @@ test('pages: Find the Stars: a lit hint has Why? and Got it; put out, it says ho
   const bar = js.match(/function paintBar\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
   assert.match(bar, /if \(!shown\.lit\) \{[\s\S]*?again\.className = 'relight';\s*again\.textContent = AGAIN;\s*bar\.append\(again\);/, 'the greyed words have no line saying how to light the hint again');
   const css = await readFile(path.join(root, 'css/hidden-faces.css'), 'utf8');
-  assert.match(css, /\.hintbar \.relight \{ display: block;[^}]*font-size: 12px; line-height: 1\.3; \}/, 'the line is not its own small line, or not the size the bar keeps room for');
+  const relight = css.match(/\.hintbar \.relight \{([^}]*)\}/)?.[1] ?? '';
+  assert.match(relight, /display: block; margin-top: 1\.3em; font-size: 12px; line-height: 1\.3;/, 'the line is not its own small line after a blank one, or not the size the bar keeps room for');
+  assert.match(relight, /text-align: center;/, 'the line is not centred');
   assert.match(js.match(/function ending\([\s\S]*?\n\}/)?.[0] ?? '', /\$\('hintTools'\)\.hidden = true;/, 'the hint’s row stays at the end');
 });
