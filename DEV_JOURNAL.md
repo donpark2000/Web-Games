@@ -10,44 +10,6 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q22. Restarting the app should be a clean slate.** "If I completely
-  stop and restart the app, I would expect it to go to the home page,
-  clean slate, and be able to start any new game. But any game I pick
-  goes back to where it left off." Q20's rule keeps every game until
-  it's finished or New game; switching apps should still come back as
-  it was. Unknown: whether the iPhone's app can tell a restart by the
-  person from iOS closing it in the background (both open fresh at
-  `start_url`); `sessionStorage` might, to be measured on the device.
-  *Developer's answers, 2026-10-15:* no rollback yet ("diagnose and
-  test fixes before back tracking"; no one else plays Find the Stars).
-  "A restart should always start clean. In fact I would suggest that
-  starting any new game clears out any in-progress games. It is one
-  app." And "clicking Home should also wipe out current state of any
-  one game." So at most one game in progress at a time, and only until
-  🏠, another game, or a restart.
-  *Built 2026-10-15 (see "Q22-Q24 built"), on `star-battle`, not
-  published; to resolve once the developer has tried it.*
-  *Tried by the developer 2026-10-16 on the local server (desktop):
-  works (see "Q22-Q24 tried on the desktop"). The iPhone after the
-  publish closes it.*
-  *Published 2026-10-16 (8f751b4); the iPhone to try.*
-- **Q23. No way out of a Find the Stars puzzle.** The play screen has
-  only Undo, Hint and Show until the end, and with resume, 🏠 and back
-  carries on the same puzzle. The developer tapped every square and
-  "could not figure out a way to get out of it". Follow Me has no
-  buttons mid-game either (only on Game over), to check.
-  *Developer's answers, 2026-10-15:* "Every game should have a 'give up'
-  or 'start again' option", and 🏠 wipes the game (Q22). Also: "with
-  Find the Stars I was surprised that filling the grid did not just end
-  the game with 'you lose' or something semantically equivalent." (The
-  other seven games show Play again / New game all through a game; only
-  Follow Me and Find the Stars hide them until the end.)
-  *Built 2026-10-15 (see "Q22-Q24 built"), on `star-battle`, not
-  published; to resolve once the developer has tried it.*
-  *Tried by the developer 2026-10-16 on the local server (desktop):
-  works (see "Q22-Q24 tried on the desktop"). The iPhone after the
-  publish closes it.*
-  *Published 2026-10-16 (8f751b4); the iPhone to try.*
 - **Q24. The home page wouldn't scroll to the footer** once: it stopped
   "part way through the last game". Device, app or Safari, and what came
   before not yet known. *Developer, 2026-10-15:* on the iPhone, seen
@@ -56,26 +18,6 @@ time, each tried before publishing:
   *Debug output built 2026-10-15 (see "Q22-Q24 built"): the home page
   logs its scroll room. Stays open until it happens again and the log
   shows why.*
-- **Q25. The hint mechanism to be prototyped before publishing again.**
-  The developer likes the white hint ✕s but isn't "sure the whole hint
-  mechanism is working smoothly". What feels off not yet known.
-  *Developer, 2026-10-15:* not sure, as not being able to start fresh
-  threw everything off; fix Q22-Q24 first, then prototype the hints.
-  *Developer, 2026-10-16* (after trying Q22-Q24 on the local server):
-  "The new hint scheme seems to be working well. Two things caught my
-  eye": **(a)** when the hint's words speak of "lit squares", the words
-  stay after the hint is accepted but no squares are lit any more ("Not
-  sure how to avoid that"); **(b)** when a hint first shows, "it is not
-  clear how to accept it and get back to game play. It seems clicking
-  on the grid does that, but there was no obvious sign that it would."
-  (Checked: the words that point at the board are "the lit squares",
-  "(lit)", "the ringed square" and "ringed ✕", in `findHint` and
-  `explainHint`, `src/core/hidden-faces.js`.) *(a) and (b) built
-  2026-10-16, see "Q25: Got it, and how to light a hint again", then
-  changed with the developer to a blank line and a centred "(tap to
-  light this hint again)" at the words' size; tried on the local server
-  ("Almost perfect", then the font size changed) and published
-  2026-10-16 (8f751b4); the iPhone to try.*
 - **Q26. log.html's Clear asks with the browser's `confirm()`.** The
   games' Give up asks in the page itself (as the brief asked: "no
   browser confirm()"), but the log page's Clear, given as the model,
@@ -122,6 +64,80 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q22. Restarting the app should be a clean slate.** "If I completely
+  stop and restart the app, I would expect it to go to the home page,
+  clean slate, and be able to start any new game. But any game I pick
+  goes back to where it left off." Q20's rule keeps every game until
+  it's finished or New game; switching apps should still come back as
+  it was. Unknown: whether the iPhone's app can tell a restart by the
+  person from iOS closing it in the background (both open fresh at
+  `start_url`); `sessionStorage` might, to be measured on the device.
+  *Developer's answers, 2026-10-15:* no rollback yet ("diagnose and
+  test fixes before back tracking"; no one else plays Find the Stars).
+  "A restart should always start clean. In fact I would suggest that
+  starting any new game clears out any in-progress games. It is one
+  app." And "clicking Home should also wipe out current state of any
+  one game." So at most one game in progress at a time, and only until
+  🏠, another game, or a restart.
+  *Built 2026-10-15 (see "Q22-Q24 built"), on `star-battle`, not
+  published; to resolve once the developer has tried it.*
+  *Tried by the developer 2026-10-16 on the local server (desktop):
+  works (see "Q22-Q24 tried on the desktop"). The iPhone after the
+  publish closes it.*
+  *Published 2026-10-16 (8f751b4); the iPhone to try.*
+  *Resolved 2026-10-16:* on the iPhone after the publish of 8f751b4
+  (and 8fa77c9), the developer: "It all works", then "It looks good";
+  on the desktop first, 🏠 and the home page wiping the game was "what
+  I wanted". Built as "Q22-Q24 built". Still to measure, either fitting
+  the rule: whether iOS closing the app in the background keeps the
+  game (the log's "kept game found" says).
+- **Q23. No way out of a Find the Stars puzzle.** The play screen has
+  only Undo, Hint and Show until the end, and with resume, 🏠 and back
+  carries on the same puzzle. The developer tapped every square and
+  "could not figure out a way to get out of it". Follow Me has no
+  buttons mid-game either (only on Game over), to check.
+  *Developer's answers, 2026-10-15:* "Every game should have a 'give up'
+  or 'start again' option", and 🏠 wipes the game (Q22). Also: "with
+  Find the Stars I was surprised that filling the grid did not just end
+  the game with 'you lose' or something semantically equivalent." (The
+  other seven games show Play again / New game all through a game; only
+  Follow Me and Find the Stars hide them until the end.)
+  *Built 2026-10-15 (see "Q22-Q24 built"), on `star-battle`, not
+  published; to resolve once the developer has tried it.*
+  *Tried by the developer 2026-10-16 on the local server (desktop):
+  works (see "Q22-Q24 tried on the desktop"). The iPhone after the
+  publish closes it.*
+  *Published 2026-10-16 (8f751b4); the iPhone to try.*
+  *Resolved 2026-10-16:* Give up in Follow Me and Find the Stars, and
+  Find the Stars ending on a full grid, "works (yes and no)" on the
+  desktop and "It all works" on the iPhone (developer). The tools row
+  first pushed the play screen right on the iPhone: fixed in 8fa77c9
+  ("The play screen pushed right on the iPhone"); "It looks good".
+- **Q25. The hint mechanism to be prototyped before publishing again.**
+  The developer likes the white hint ✕s but isn't "sure the whole hint
+  mechanism is working smoothly". What feels off not yet known.
+  *Developer, 2026-10-15:* not sure, as not being able to start fresh
+  threw everything off; fix Q22-Q24 first, then prototype the hints.
+  *Developer, 2026-10-16* (after trying Q22-Q24 on the local server):
+  "The new hint scheme seems to be working well. Two things caught my
+  eye": **(a)** when the hint's words speak of "lit squares", the words
+  stay after the hint is accepted but no squares are lit any more ("Not
+  sure how to avoid that"); **(b)** when a hint first shows, "it is not
+  clear how to accept it and get back to game play. It seems clicking
+  on the grid does that, but there was no obvious sign that it would."
+  (Checked: the words that point at the board are "the lit squares",
+  "(lit)", "the ringed square" and "ringed ✕", in `findHint` and
+  `explainHint`, `src/core/hidden-faces.js`.) *(a) and (b) built
+  2026-10-16, see "Q25: Got it, and how to light a hint again", then
+  changed with the developer to a blank line and a centred "(tap to
+  light this hint again)" at the words' size; tried on the local server
+  ("Almost perfect", then the font size changed) and published
+  2026-10-16 (8f751b4); the iPhone to try.*
+  *Resolved 2026-10-16:* the hint flow changed with the developer (the
+  ❓ Why? / ✓ Got it row; a greyed hint's blank line and centred "(tap to
+  light this hint again)" at the words' size): "The function is great",
+  "Almost perfect" before the font change; on the iPhone "It all works"
+  and "It looks good".
 - **Q21. Find the Stars levels: easier, harder, or both?** *Raised
   2026-10-15* by the developer: what level is it now, and would harder
   mean fewer hints or a harder puzzle? **Measured** (the stock's 200
@@ -5918,3 +5934,20 @@ to scroll again and its log is read. Review the proposed skill addition
 
 **Open questions:** Q22, Q23, Q25 (to close after the iPhone check),
 Q24, Q26. **Proposed skill additions:** one (above).
+
+## 2026-10-16: Q22, Q23 and Q25 closed; the two version numbers
+
+The developer, on the iPhone at f4c8e5: "It looks good." Q22, Q23 and
+Q25 moved to Resolved with the evidence. Q24 stays open (the home page's
+scroll-room log lines wait for it to happen again); Q26 stays open.
+
+The developer asked why the version line says f4c8e5, not 8fa77c9, and
+where the numbers come from ("They seem to be random"). Explained: two
+different fingerprints. 8fa77c9 is git's commit id (made from the
+commit: its files, message, parent, author and time). f4c8e5 is the
+site's version, made by `tools/offline.js` from the contents of the 81
+files the site saves for offline (SHA-256, the first 12 hex digits;
+the version line shows 6): the same files give the same number, so it
+changes exactly when the site changes (a journal-only commit makes a
+new commit id but not a new version), and devices fetch a new copy when
+it changes.
