@@ -5567,4 +5567,25 @@ closing the app in the background, the tools row at the phone's width,
 Q24's real scrolls).
 
 **Next:** the developer asked whether to test the new hints model (Q25)
-before publishing. Asked: publish Q22-Q24 now, or wait for Q25.
+before publishing. Claude suggested publishing Q22-Q24 first (this build
+doesn't touch hints; the phone checks need a publish; one change at a
+time). The developer: "Wait: do the hint prototype (Q25) first, then
+publish both."
+
+## 2026-10-16: Status (start here next session)
+
+**Branch `star-battle`**, ahead of `main` (= de21c8c, live): Q22-Q24
+built and tried by the developer on the desktop (all five checks work),
+**not published, on purpose**: the developer wants the hint prototype
+(Q25) done first, then both published together.
+
+**Next: Q25.** What feels off in the hint flow is not yet known: start
+by asking the developer what to look at (play a puzzle on the local
+server with hints, or a mockup), then prototype, try on the local
+server, and only then publish Q22-Q25 together with the developer's OK.
+After the publish, on the iPhone: a restart starts clean; whether iOS
+closing the app in the background keeps the game; Give up; the full
+grid; the tools row at the phone's width.
+
+**Open questions:** Q22-Q24 (built, tried on the desktop, the iPhone
+after the publish), Q25, Q26. **Proposed skill additions:** none.
