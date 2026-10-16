@@ -5170,3 +5170,13 @@ Then publish both on the developer's OK. The local server is running
 (port 8123).
 
 **Open questions:** none. **Proposed skill additions:** none.
+
+## 2026-10-15: Hint colour: B, white with a dark edge
+
+The developer picked **option B** from the hint colour mockup v1: a
+hint's ✕s are white with a dark edge (in the mockup: the ✕'s two lines
+drawn dark at stroke 23, then white at 13, over the same path as the
+player's ✕). As the mockup says, a star a hint places then looks like
+any found star (no edge colour of its own). **Next:** build hints that
+do their own step (the entry before this one) with this ✕, on top of
+1852006; then the developer tries both, and publish on their OK.
