@@ -5124,3 +5124,49 @@ publish on their OK. Then: the DESIGN.md "Later" list.
 
 **Open questions:** none. **Proposed skill additions:** none (the
 mutation that didn't apply is a case of "Prove every check can fail").
+
+## 2026-10-15: Hints that do their own step; hint colour mockup v1
+
+Before trying the build above, the developer had another idea: a hint
+puts its ✕s on the board itself, in a colour of its own, with the words
+explaining it ("It seems unlikely that if one asks for a hint they
+would chose to ignore it"). Claude confirmed first that hints don't only
+give ✕s: "only one left" (often: about 6 of a 6 x 6's 13 steps, Q21's
+measurements) and a wrong ✕ both point at a star.
+
+**Agreed:**
+1. A hint that points at a star **places the star**, and its ✕s go on
+   **in the hint colour** (Claude's reading: whether Auto ✕ is on or
+   not, since the developer said "place the star and add Xs").
+2. **Undo never takes back a hint**, and a drag can't rub its ✕s out
+   (they're certain, like a found star).
+3. **The colour from a mockup**, as ✕ visibility was a problem before
+   (2026-10-14).
+
+Kept from the build above: the lit squares and the words show until the
+next touch, then the words stay greyed (the reasoning still needs the
+lit squares); a tap on a hint ✕ is a free look.
+
+**Mockup v1**: [Hint Colour Mockup](https://claude.ai/artifact/UHCmnZzkkCyGmscpWyDNxK)
+(private Claude artifact, version 1). A real 10 x 10 puzzle (seed
+100022) at phone size (35 px squares, with a 56 px switch): two found
+stars with their Auto ✕s, your ✕s, a wrong look, a star a hint placed
+with its ✕s, and hint ✕s on all ten square colours (two of them made
+from ✕s, as the found stars had already crossed those colours out).
+Three options: **A Blue** (#1F5FD1, the Why?'s outline blue), **B White
+with a dark edge** (like the star; its hint star then looks like any
+found star), **C Purple** (#6A1B9A); a hint star has a thicker edge in
+the hint colour. Below the board, each mark on every colour in a row.
+
+## 2026-10-15: Status (start here next session)
+
+**Branch `star-battle`**, not published (`main` = a2aed32): Find the
+Stars' free looks where no star can be and the last hint's words kept
+greyed, built and committed (1852006), not yet tried by the developer.
+
+**Next:** the developer picks a colour from the hint colour mockup v1;
+then build hints that do their own step (above), on top of 1852006.
+Then publish both on the developer's OK. The local server is running
+(port 8123).
+
+**Open questions:** none. **Proposed skill additions:** none.
