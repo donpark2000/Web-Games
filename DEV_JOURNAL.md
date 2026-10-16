@@ -27,14 +27,13 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
-- **Measure fit on the target's fonts, or fit at run time** (2026-10-16,
-  from "The play screen pushed right on the iPhone"): a fit measured in
-  one browser's fonts can fail in another's; leave margin, or measure
-  and fit on the device. *Evidence:* four buttons measured to fit with
-  7 px to spare in Chromium pushed the play screen past the iPhone's
-  right edge in Safari. To review with the developer.
-
-Earlier: none waiting. (2026-10-14: "A style loaded on every page needs a name
+None waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
+run time" (from "The play screen pushed right on the iPhone") dropped by
+the developer: "Drop it: keep the lesson in the journal only." Claude's
+view, asked how general it is: a web case as written; the general part
+(a stand-in checked in place of the target) is mostly
+"Trust running the real thing over reading about it" and "Build fakes
+... from the real thing" already.) (2026-10-14: "A style loaded on every page needs a name
 nothing else uses" (from "Find the Stars; one 🏠; Nim's picture fixed")
 dropped by the developer: sharing a class name is sometimes right, and
 the skill should stay "simple and generic and only add complexity when
@@ -6062,3 +6061,22 @@ says ready; after the merge, tag `vX.Y`, push it, `gh release create vX.Y
 scroll, waiting for it to happen again), Q26 (log.html's Clear uses
 `confirm()`); the proposed skill addition (fit on the target's fonts) to
 review.
+
+## 2026-10-16: 1.0 on the iPhone; the skill proposal dropped
+
+The developer, on the iPhone at release 1.0: "It all looks good on my
+phone now." So Find the Stars' play screen is centred with the tools
+fit (8fa77c9's fix), checked on the real target.
+
+Asked "How gnereral and reusable would this be?" about the proposed skill
+addition (fit on the target's fonts), Claude: as written a web case; the
+general part, a stand-in (Chromium on Windows) checked in place of the
+target (Safari on the iPhone), is mostly in the skill already ("Trust
+running the real thing over reading about it", "Build fakes ... from the
+real thing"); options: drop it, or widen the first rule to "over a
+stand-in or reading about it"; Claude's pick: drop it. The developer:
+"Drop it: keep the lesson in the journal only." The lesson stays here,
+in "The play screen pushed right on the iPhone".
+
+**Status:** as in the last status entry (release 1.0 live), with no
+skill additions waiting. Open: Q24, Q26.
