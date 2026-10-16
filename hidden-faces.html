@@ -72,6 +72,12 @@
       <button type="button" class="tool" id="showBtn">👁 Show <span class="left" id="showsLeft">1</span></button>
       <button type="button" class="tool" id="giveUpBtn">🏳 Give up</button>
     </div>
+    <!-- While a hint is lit, in place of the tools: its Why? and Got it
+         (developer, 2026-10-16: no obvious way back to play) -->
+    <div class="tools hinttools" id="hintTools" hidden>
+      <button type="button" class="tool" id="whyBtn">❓ Why?</button>
+      <button type="button" class="tool primary" id="gotItBtn">✓ Got it</button>
+    </div>
     <!-- Give up asks first, in place of the tools (no browser pop-up) -->
     <div class="tools ask" id="askTools" hidden>
       <span class="askq">Give up this game?</span>

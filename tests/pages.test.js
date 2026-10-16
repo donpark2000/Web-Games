@@ -284,8 +284,8 @@ test('pages: Find the Stars keeps the last hint’s words; a known-empty look is
   const undoBtn = js.match(/\$\('undoBtn'\)\.onclick = [\s\S]*?\n\};/)?.[0] ?? '';
   assert.match(undoBtn, /dimHint\(\);/);
   assert.doesNotMatch(undoBtn, /clearHint\(\)/, 'Undo clears the hint’s words');
-  const dim = js.match(/function dimHint\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
-  assert.match(dim, /shown\.lit = false;[\s\S]*unpaint\(\);[\s\S]*paintBar\(\);/, 'dimHint() doesn’t take it off the board and grey it');
+  const dim = js.match(/function dimHint\([^)]*\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(dim, /shown\.lit = false;[\s\S]*unpaint\(\);[\s\S]*showNote\(AGAIN_NOTE\);/, 'dimHint() doesn’t take it off the board and say how to light it again');
   assert.doesNotMatch(dim, /shown = null/, 'dimHint() forgets the hint');
   const relight = js.match(/\$\('hintbar'\)\.addEventListener\('click', [\s\S]*?\n\}\);/)?.[0] ?? '';
   assert.match(relight, /shown\.lit = true;[\s\S]*paintHint\(\);/, 'a tap on the greyed words doesn’t light the hint');
@@ -330,4 +330,26 @@ test('pages: no game asks with the browser’s confirm()', async () => {
     assert.match(js, /\$\('giveUpYes'\)\.onclick/, `${f}: no Yes for Give up`);
     assert.match(js, /\$\('giveUpNo'\)\.onclick/, `${f}: no No for Give up`);
   }
+});
+
+// Find the Stars (developer, 2026-10-16, Q25): while a hint is lit, the
+// tools row is its own, ❓ Why? and ✓ Got it ("not clear how to accept it
+// and get back to game play"); put out, a note says a tap on the bar
+// lights it again, then the greyed words start with ↻ (they speak of "lit
+// squares" with none lit).
+test('pages: Find the Stars: a lit hint has Why? and Got it; put out, it says how to light it again', async () => {
+  const play = html['hidden-faces.html'].match(/<section id="play"[\s\S]*?<\/section>/)?.[0] ?? '';
+  const row = play.match(/<div class="tools hinttools" id="hintTools" hidden>([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(row, 'no hidden row for a lit hint');
+  assert.deepEqual([...row.matchAll(/<button[^>]*id="(\w+)"[^>]*>([^<]*)</g)].map(m => `${m[1]}:${m[2]}`), ['whyBtn:❓ Why?', 'gotItBtn:✓ Got it']);
+  const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
+  assert.match(js, /\$\('gotItBtn'\)\.onclick = \(\) => dimHint\('Got it'\);/, 'Got it doesn’t put the hint out');
+  const tool = js.match(/function hintTool\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(tool, /const lit = !!shown\?\.lit && !G\.result;/);
+  assert.match(tool, /\$\('tools'\)\.hidden = lit;\s*\$\('hintTools'\)\.hidden = !lit;/, 'the tools don’t give way to the hint’s row while it’s lit');
+  assert.match(tool, /w\.hidden = !\(lit && shown\.why\);/, 'Why? shows for a hint with none');
+  assert.match(js, /const AGAIN_NOTE = '↻ Tap here to light this hint again\.';/);
+  const bar = js.match(/function paintBar\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(bar, /\$\{shown\.lit \? '💡' : '↻'\} \$\{shown\.h\.text\}/, 'the greyed words don’t start with ↻');
+  assert.match(js.match(/function ending\([\s\S]*?\n\}/)?.[0] ?? '', /\$\('hintTools'\)\.hidden = true;/, 'the hint’s row stays at the end');
 });

@@ -68,7 +68,9 @@ time, each tried before publishing:
   on the grid does that, but there was no obvious sign that it would."
   (Checked: the words that point at the board are "the lit squares",
   "(lit)", "the ringed square" and "ringed ✕", in `findHint` and
-  `explainHint`, `src/core/hidden-faces.js`.)
+  `explainHint`, `src/core/hidden-faces.js`.) *(a) and (b) built
+  2026-10-16, see "Q25: Got it, and how to light a hint again"; to try
+  on the local server.*
 - **Q26. log.html's Clear asks with the browser's `confirm()`.** The
   games' Give up asks in the page itself (as the brief asked: "no
   browser confirm()"), but the log page's Clear, given as the model,
@@ -5599,3 +5601,53 @@ grid; the tools row at the phone's width.
 
 **Open questions:** Q22-Q24 (built, tried on the desktop, the iPhone
 after the publish), Q25, Q26. **Proposed skill additions:** none.
+
+## 2026-10-16: Q25: Got it, and how to light a hint again
+
+The developer chose to skip a mockup ("build both fixes on star-battle
+so I can try them on the local server"). Claude had proposed a ✓ Got it
+button in the hint bar's corner and the lead-in "Tap to show this hint
+again:" on the greyed words. **Changed before building, on a
+measurement** (built-in browser, 375 x 667, the bar 337 px wide, 83 px
+high): the bar's 3 lines hold about 130 characters at 15px. The longest
+hint ("Columns 1, 2 and 3 only have squares left in ...", 155
+characters) already scrolls inside the bar; with a corner button, or
+with the lead-in, hints of 122 and 129 characters scroll too (and at
+13px the lead-in still made 145 scroll). So, using space already there:
+- **(b)** While a hint is lit, the tools row gives way to its own:
+  `#hintTools`, **❓ Why?** (only for a hint with one; 💡 The hint in the
+  Why?) and **✓ Got it** (`dimHint('Got it')`). `hintTool()` swaps the
+  rows; the end and Give up's question hide it. The 💡 Hint button only
+  gives hints now.
+- **(a)** `dimHint(by)` (Got it, a board touch, Undo) shows a 2.5 s note,
+  "↻ Tap here to light this hint again.", then the greyed words, which
+  start with ↻ instead of 💡. A tap on the bar (the note or the words)
+  lights the hint again, as before. The words themselves are unchanged
+  ("the lit squares" is what a tap lights).
+- Logged: "hint put out, its words kept" with `by` (Got it, the board).
+
+**Tests:** `tests/pages.test.js` +1 (the hidden row with Why? and Got it;
+Got it puts the hint out; `hintTool` swaps the rows and hides Why? for a
+hint without one; the note's words; ↻ on the greyed words; the end hides
+the row), and the earlier check on `dimHint` now looks for the note.
+**Shown to fail:** Got it doing nothing; the tools not giving way;
+`dimHint` without the note; 💡 kept on the greyed words; the row not
+hidden in the HTML; the end not hiding it: 1 failed each. `npm test`:
+271 pass, 0 fail. `tools/offline.js`: version a266759938a8.
+
+**Checked in the built-in browser** (375 x 667, read by script): a hint
+("Brown is just one square ..."): the tools hidden, the row ❓ Why? / ✓
+Got it, 45 px high like the tools; Why?: "💡 The hint" and the Why?
+words, and back. Got it: the board unlit, the tools back, the bar
+"↻ Tap here to light this hint again."; 2.7 s later "↻ Brown is just one
+square ...", greyed. A tap on the bar: lit again, the row back. Reloaded
+while lit: lit, with the row. A touch on an empty square while lit: a ✕,
+the hint put out, the note. A wrong-✕ hint (no Why?): Got it alone, the
+whole row (343 px; it was a third of the row at first, the shared
+`.tools` 3 columns, fixed with `grid-template-columns: none`); with a
+Why?, 168 px each. The page 667 px high on the 667 px screen; no errors.
+Test state cleared from `data/hidden-faces.json` and checked after a
+reload: only the log.
+
+**For the developer to try** on the local server: a hint, then ✓ Got it;
+the note, then the greyed words with ↻; a tap on them; Why? and back.

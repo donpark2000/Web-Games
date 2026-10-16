@@ -344,6 +344,7 @@ $('giveUpYes').onclick = () => {
 function hideAsk() {
   $('askTools').hidden = true;
   $('tools').hidden = false;
+  $('hintTools').hidden = true;
 }
 $('showBtn').onclick = () => {
   const r = showOne(G);
@@ -366,13 +367,18 @@ let shown = null;
 const NOTE_MS = 2500;
 let note = null, noteTimer = null;
 
+// While a hint is lit, the tools row is its own: ❓ Why? (with one), which
+// switches with 💡 The hint, and ✓ Got it, which puts it out as a touch on
+// the board does (developer, 2026-10-16: "not clear how to accept it and
+// get back to game play").
+$('whyBtn').onclick = () => {
+  if (!shown?.lit || !shown.why) return;
+  shown.deep = !shown.deep;
+  L(shown.deep ? 'why' : 'why: back to the hint', { kind: shown.h.kind, tgt: shown.h.tgt, tags: shown.why.tags.map(t => t[1]).join(' ') });
+  paintHint();
+};
+$('gotItBtn').onclick = () => dimHint('Got it');
 $('hintBtn').onclick = () => {
-  if (shown?.lit && shown.why) {
-    shown.deep = !shown.deep;
-    L(shown.deep ? 'why' : 'why: back to the hint', { kind: shown.h.kind, tgt: shown.h.tgt, tags: shown.why.tags.map(t => t[1]).join(' ') });
-    paintHint();
-    return;
-  }
   // The hint takes its step on the board (a star, hint ✕s); its words and
   // Why? don't depend on the board, so they read the same after it.
   const h = useHint(G);
@@ -430,7 +436,7 @@ function paintBar() {
     bar.textContent = note;
     bar.classList.add('notice');
   } else if (shown) {
-    bar.textContent = shown.deep ? `❓ ${shown.why.text}` : `💡 ${shown.h.text}`;
+    bar.textContent = shown.deep ? `❓ ${shown.why.text}` : `${shown.lit ? '💡' : '↻'} ${shown.h.text}`;
     if (!shown.lit) { bar.classList.add('past'); bar.setAttribute('role', 'button'); }
   } else {
     bar.textContent = '';
@@ -449,14 +455,18 @@ function stopNote() {
   note = null;
 }
 
-// Puts the hint out: off the board, its words greyed in the bar.
-function dimHint() {
+// Puts the hint out: off the board, its words greyed in the bar, after a
+// moment's note saying a tap lights it again (developer, 2026-10-16: the
+// greyed words speak of "lit squares" with none lit). `by`: what put it
+// out, for the log.
+const AGAIN_NOTE = '↻ Tap here to light this hint again.';
+function dimHint(by = 'the board') {
   if (!shown?.lit) return;
-  L('hint put out, its words kept', { kind: shown.h.kind });
+  L('hint put out, its words kept', { kind: shown.h.kind, by });
   shown.lit = false;
   shown.deep = false;
   unpaint();
-  paintBar();
+  showNote(AGAIN_NOTE);
   hintTool();
 }
 
@@ -487,16 +497,20 @@ function drawRings(rings) {
   $('rings').removeAttribute('hidden'); // an <svg> has no .hidden
 }
 
-// The 💡 Hint button: ❓ Why? while a hint with one shows.
+// The buttons under the hint bar: while a hint is lit, its own row (❓
+// Why? if it has one, 💡 The hint in the Why?, and ✓ Got it) in place of
+// the tools; otherwise the tools, with 💡 Hint and the hints left.
 function hintTool() {
-  const b = $('hintBtn');
-  if (shown?.lit && shown.why && !G.result) {
-    b.innerHTML = shown.deep ? '💡 The hint' : '❓ Why?';
-    b.classList.toggle('pressed', shown.deep);
-    b.disabled = false;
-    return;
+  const lit = !!shown?.lit && !G.result;
+  if (!G.result && $('askTools').hidden) {
+    $('tools').hidden = lit;
+    $('hintTools').hidden = !lit;
   }
-  b.classList.remove('pressed');
+  const w = $('whyBtn');
+  w.hidden = !(lit && shown.why);
+  w.innerHTML = shown?.deep ? '💡 The hint' : '❓ Why?';
+  w.classList.toggle('pressed', !!shown?.deep);
+  const b = $('hintBtn');
   b.innerHTML = `💡 Hint <span class="left" id="hintsLeft">${G.hints}</span>`;
   b.disabled = !G.hints || !!G.result;
 }
@@ -599,6 +613,7 @@ function ending(how, title, line, againText, again, sameText, same) {
   $('sameBtn').textContent = sameText;
   $('sameBtn').onclick = () => { L(sameText); same(); };
   $('tools').hidden = true;
+  $('hintTools').hidden = true;
   $('endTools').hidden = false;
 }
 

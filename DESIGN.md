@@ -607,18 +607,29 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   "it is not clear where 'here' is"). The squares it crossed out carry
   its hint ✕s (until 2026-10-15, before hints took their step, a
   blinking ✕ over each).
+- **While a hint is lit, the tools row is its own** (developer,
+  2026-10-16, Q25: "not clear how to accept it and get back to game
+  play"): **❓ Why?** (when it has one) and **✓ Got it**, each half the
+  row (Got it the whole row for a hint with no Why?). Got it puts the
+  hint out, as a touch on the board does; Undo, Hint, Show and Give up
+  come back.
 - **The last hint's words stay** (developer, 2026-10-15: to check it was
-  understood after following it): a touch on the board (or Undo) takes
+  understood after following it): ✓ Got it or a touch on the board takes
   the hint off the board, but its words stay in the bar, greyed, until
-  the next hint, 👁 Show or the end. **A tap on the greyed words lights
-  it again** (free: the same hint), with its ❓ Why?. While greyed, the
-  button is 💡 Hint again. Kept with the game, greyed or lit.
+  the next hint, 👁 Show or the end. As it goes out the bar says **"↻ Tap
+  here to light this hint again."** for 2.5 s, then the greyed words,
+  starting with ↻ (developer, 2026-10-16: the words speak of "lit
+  squares" with none lit; a lead-in or a button inside the bar would
+  make the longer hints scroll on a phone: measured, the bar holds about
+  130 characters at 375 px). **A tap on the greyed words lights it
+  again** (free: the same hint), with its ❓ Why?. Kept with the game,
+  greyed or lit.
 - **❓ Why?** (developer, 2026-10-14, from the agreed
   [Why Hint Mockup](https://claude.ai/artifact/1ogeXejM7WRrnBtGFKqXq5),
   version 1: where to put a star or a ✕ was clear, "but the reasoning is
-  not always clear"): while a hint shows, the 💡 Hint button is **❓
-  Why?**, free (no hint used); in the Why? it reads **💡 The hint** and
-  goes back. A tap on the board ends both. The deeper reason, on the
+  not always clear"): while a hint shows, **❓ Why?** is in its row
+  (above), free (no hint used); in the Why? it reads **💡 The hint** and
+  goes back. ✓ Got it or a tap on the board ends both. The deeper reason, on the
   board and in one line of words in the hint bar:
   - **"would rule out":** a pale pretend star in the ring; on each lit
     square a label saying why it would go (**touch**, **row**, **col**,
