@@ -5363,3 +5363,31 @@ hints that do their own step (white hint ✕s, fixed). `npm test`: 262 of
 "Later" list.
 
 **Open questions:** none. **Proposed skill additions:** none.
+
+## 2026-10-15: Q22-Q24: the fix agreed
+
+From the developer's answers (recorded under Q22-Q25 above) and two
+more: **(1)** "OK" to Find the Stars ending once every square is crossed
+out with stars still hidden, like running out of hearts ("No squares
+left / The pale stars show where they were", Try again / Another / New
+game), and not sooner (a row, column or colour all crossed out can still
+be fixed with Undo or a rub-out). **(2)** Follow Me and Find the Stars
+get a way out mid-game that asks first: "A Give Up This Game or
+equivalent is appropriate."
+
+**The plan** (to build in a fresh session, tried on the local server
+before publishing):
+- At most one game in progress, kept only for a reload or a trip to
+  another app: cleared by 🏠 (and back to the home page), by opening a
+  different game, and by a restart. Kept in the browser's per-session
+  storage, not the device's; the app's icon no longer goes back into a
+  game. Find the Stars' next puzzle number and best times stay. Whether
+  iOS closing the app in the background keeps the game: to measure on
+  the iPhone later (either fits the developer's rule).
+- Give up in Follow Me and Find the Stars, asking first; the other seven
+  games already show Play again / New game all through a game.
+- Find the Stars ends when the grid is full (above).
+- Q24: debug output on the home page (its height, the screen's, how far
+  it can scroll) when it opens, changes size or comes back, so the next
+  time it happens the log has it.
+- Then Q25: prototype the hint flow.
