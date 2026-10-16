@@ -19,14 +19,15 @@ import { log } from './debuglog.js';
 import { net } from './net.js';
 import { versionLabel } from '../core/appversion.js';
 import { VERSION, MADE } from '../core/version.js';
+import { RELEASE } from '../core/release.js';
 
 const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-log.add('offline', installed ? 'opened as the installed app' : 'opened in the browser', { online: navigator.onLine, version: VERSION, made: MADE });
+log.add('offline', installed ? 'opened as the installed app' : 'opened in the browser', { online: navigator.onLine, release: RELEASE, version: VERSION, made: MADE });
 
 const line = document.getElementById('appVersion');   // the home page only
 function show(next = null) {
   if (!line) return;
-  line.textContent = versionLabel({ version: VERSION, made: MADE }, next);
+  line.textContent = versionLabel({ release: RELEASE, version: VERSION, made: MADE }, next);
   line.hidden = false;
 }
 show();

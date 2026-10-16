@@ -19,8 +19,9 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'f4c8e57d3a6d';
+const VERSION = '720f7406cc4a';
 const MADE = '2026-10-16';
+const RELEASE = '1.0';
 const FILES = [
   'connect-four.html',
   'count-to-9.html',
@@ -67,6 +68,7 @@ const FILES = [
   'src/core/net.js',
   'src/core/nim.js',
   'src/core/players.js',
+  'src/core/release.js',
   'src/core/resume.js',
   'src/core/rock-paper-scissors.js',
   'src/core/snakes-ladders.js',
@@ -153,5 +155,5 @@ self.addEventListener('fetch', event => {
 // A page can ask which version is running (for its debug log, and the home
 // page's version line).
 self.addEventListener('message', event => {
-  if (event.data === 'version') event.source?.postMessage({ version: VERSION, made: MADE, files: FILES.length, freshFirst: FRESH_FIRST });
+  if (event.data === 'version') event.source?.postMessage({ release: RELEASE, version: VERSION, made: MADE, files: FILES.length, freshFirst: FRESH_FIRST });
 });

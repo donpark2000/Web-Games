@@ -5,7 +5,8 @@
 // day that version was made (kept while the version stays the same). It
 // also writes both into src/core/version.js, which the pages load, so a
 // page knows its own files' version however it was loaded (the home page's
-// version line).
+// version line). It copies the release number (RELEASE_FILE, set by hand
+// at each publish: DESIGN.md "Releases") into sw.js too.
 //   node tools/offline.js        -> updates sw.js and src/core/version.js
 // Run it after changing any page, style, script, data file or icon (the
 // tests fail until it's run, saying so).
@@ -33,6 +34,14 @@ async function walk(root, dir) {
 // The version file this writes; part of the site, but not of its version
 // (it's made from it).
 export const VERSION_FILE = 'src/core/version.js';
+// The release number, set by hand (DESIGN.md "Releases").
+export const RELEASE_FILE = 'src/core/release.js';
+
+// The release number in `root`'s RELEASE_FILE, or '' when there's none.
+export async function readRelease(root) {
+  const text = await readText(path.join(root, RELEASE_FILE));
+  return text?.match(/export const RELEASE = '([^']*)';/)?.[1] ?? '';
+}
 
 // The site's files, as paths from the top (e.g. 'src/ui/nim.js'), sorted;
 // always with VERSION_FILE.
@@ -65,16 +74,17 @@ export async function siteVersion(root, files) {
 const START = '// ---- made by tools/offline.js (don\'t edit by hand) ----';
 const END = '// ---- end ----';
 
-export function generated(version, files, made) {
+export function generated(version, files, made, release = '') {
   if (!/^\d{4}-\d\d-\d\d$/.test(made ?? '')) throw new Error(`sw.js: the version's day must be YYYY-MM-DD: ${made}`);
-  return `${START}\nconst VERSION = '${version}';\nconst MADE = '${made}';\nconst FILES = [\n${files.map(f => `  '${f}',`).join('\n')}\n];\n${END}`;
+  return `${START}\nconst VERSION = '${version}';\nconst MADE = '${made}';\nconst RELEASE = '${release}';\nconst FILES = [\n${files.map(f => `  '${f}',`).join('\n')}\n];\n${END}`;
 }
 
-// sw.js with its list, version and the version's day brought up to date.
-export function withList(sw, version, files, made) {
+// sw.js with its list, version, the version's day and the release number
+// brought up to date.
+export function withList(sw, version, files, made, release = '') {
   const a = sw.indexOf(START), b = sw.indexOf(END);
   if (a < 0 || b < a) throw new Error('sw.js: the made-by-tools/offline.js lines are missing');
-  return sw.slice(0, a) + generated(version, files, made) + sw.slice(b + END.length);
+  return sw.slice(0, a) + generated(version, files, made, release) + sw.slice(b + END.length);
 }
 
 // A text file with plain (LF) line ends, or null if there's none.
@@ -119,6 +129,9 @@ export async function check(root) {
   if (has !== version) problems.push(`version ${has}, the files make ${version}`);
   const made = sw.match(/const MADE = '(\d{4}-\d\d-\d\d)';/)?.[1];
   if (!made) problems.push('no day for the version (MADE)');
+  const release = await readRelease(root);
+  const swRelease = sw.match(/const RELEASE = '([^']*)';/)?.[1];
+  if (swRelease !== release) problems.push(`release ${swRelease}, ${RELEASE_FILE} says ${release || 'none'}`);
   const mod = await readText(path.join(root, VERSION_FILE));
   if (mod === null) problems.push(`no ${VERSION_FILE}`);
   else if (made && mod !== versionModule(version, made)) problems.push(`${VERSION_FILE} doesn't say version ${version} (${made})`);
@@ -133,13 +146,14 @@ export async function update(root, day) {
   const file = path.join(root, 'sw.js');
   const before = await readFile(file, 'utf8');
   const made = madeDay(before, version, day);
-  const after = withList(before, version, files, made);
+  const release = await readRelease(root);
+  const after = withList(before, version, files, made, release);
   const changed = [];
   if (after !== before) { await writeFile(file, after); changed.push('sw.js'); }
   const vfile = path.join(root, VERSION_FILE);
   const had = await readText(vfile);
   if (had !== versionModule(version, made)) { await mkdir(path.dirname(vfile), { recursive: true }); await writeFile(vfile, versionModule(version, made)); changed.push(VERSION_FILE); }
-  const what = `version ${version} (${made}), ${files.length} files`;
+  const what = `${release ? `release ${release}, ` : ''}version ${version} (${made}), ${files.length} files`;
   return changed.length ? `${changed.join(' and ')}: ${what}` : `sw.js and ${VERSION_FILE} are up to date: ${what}`;
 }
 

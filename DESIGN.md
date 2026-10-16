@@ -819,14 +819,43 @@ work in the car too (developer, 2026-10-10; journal, Q13).
   turned off from the page.
 - **A version line on the home page**, under the footer (developer,
   2026-10-11: to see on a phone whether a new version has arrived):
-  "Version Oct 11, 2026 · 446039", the day `tools/offline.js` made that
-  version and its first 6 characters. **Always the version of the page's
+  "Version 1.0 · Oct 16, 2026 · 720f74": the release number (see
+  "Releases"), the day `tools/offline.js` made that version and its first
+  6 characters. **Always the version of the page's
   own files** (`src/core/version.js`), however it was loaded (developer,
   2026-10-11: "The version should always be the version"; until then it
   was asked of the running `sw.js`, and a first visit or a hard reload
   showed "Not saved for offline yet"). When a new version takes over
   while the page is open: "(new version next time: …)". **Tapping it
   opens the log page** (see "Structure").
+
+## Releases
+
+A release number for people (developer, 2026-10-16: "a more human
+meaningful version number"): **x.0 for a new game, x.1, x.2 ... for
+fixes and changes**, starting at **1.0** (2026-10-16: everything on the
+site until then). The site's version stays the files' fingerprint
+(`tools/offline.js`), which is what makes devices fetch a new copy; the
+release number goes in front of it on the version line.
+
+- **Set by hand at each publish** in `src/core/release.js` (whether a
+  change is a fix or a new game is a judgement): Claude proposes the
+  number when asking to publish ("Publish as 1.1?"), the developer
+  confirms or changes it. `tools/offline.js` copies it into `sw.js`, so a
+  new version taking over says its release too.
+- **Release notes** in `RELEASES.md`, newest first, under "## X.Y
+  (YYYY-MM-DD, version <the site's version>)": what changed, in a few
+  lines for the developer (no "What's new" in the app: developer,
+  2026-10-16).
+- **Visible on GitHub:** each release is a git tag `vX.Y` on `main` and a
+  GitHub release with its notes.
+- **Every publish is a new release.** `node tools/release.js` checks
+  before a publish: the number is x.y, newer than the last tag and not
+  one already made; `RELEASES.md`'s newest release is that number, with
+  notes and the site's current version; `tools/offline.js` is up to
+  date. `node tools/release.js notes` gives the notes for the GitHub
+  release. `npm test` checks the number's form and that `RELEASES.md`'s
+  newest is it.
 
 ## Coming back to a game
 

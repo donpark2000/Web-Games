@@ -12,7 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
-import { siteFiles, siteVersion, withList, check, madeDay, today, update, versionModule, VERSION_FILE } from '../tools/offline.js';
+import { siteFiles, siteVersion, withList, check, madeDay, today, update, versionModule, VERSION_FILE, RELEASE_FILE, readRelease } from '../tools/offline.js';
 import { versionLabel, dayLabel } from '../src/core/appversion.js';
 import { iconSvg, pngSize, PNGS } from '../tools/make-icons.js';
 
@@ -147,7 +147,7 @@ const SITE = 'https://donpark2000.github.io/Web-Games/';
 // Runs sw.js for `host` with FILES and VERSION set, a fake cache store and
 // a fake network: `net.down` makes every fetch fail; `net.missing` files
 // answer 404. Returns the handlers and what they did.
-function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.html', 'src/a.js'], version = 'v2', made = '2026-10-11', store = new Map() } = {}) {
+function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.html', 'src/a.js'], version = 'v2', made = '2026-10-11', release = '', store = new Map() } = {}) {
   const scope = `https://${host}/Web-Games/`;
   const net = { down: false, missing: [], calls: [] };
   const fetch = async r => {
@@ -184,7 +184,7 @@ function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.htm
     skipWaiting: async () => { did.skipWaiting++; },
     clients: { claim: async () => { did.claim++; } },
   };
-  vm.runInNewContext(withList(swSource, version, files, made), { self, caches, fetch, Request, Response, URL });
+  vm.runInNewContext(withList(swSource, version, files, made, release), { self, caches, fetch, Request, Response, URL });
   const wait = type => { const e = { waitUntil(p) { e.p = p; } }; handlers[type](e); return e.p; };
   // A fetch event: the response, or null if sw.js leaves it to the browser.
   const get = async (url, method = 'GET') => {
@@ -254,12 +254,12 @@ test('offline sw: on localhost the network comes first; the saved copy when the 
 });
 
 test('offline sw: tells a page its version', () => {
-  const sw = runSw({ files: ['a.html', 'b.html'], version: 'abc', made: '2026-10-12' });
+  const sw = runSw({ files: ['a.html', 'b.html'], version: 'abc', made: '2026-10-12', release: '1.0' });
   const posted = [];
   sw.handlers.message({ data: 'version', source: { postMessage: m => posted.push(m) } });
   sw.handlers.message({ data: 'something else', source: { postMessage: m => posted.push(m) } });
   // (made inside the vm, so compared as JSON: its objects have their own prototype)
-  assert.deepEqual(JSON.parse(JSON.stringify(posted)), [{ version: 'abc', made: '2026-10-12', files: 2, freshFirst: false }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(posted)), [{ release: '1.0', version: 'abc', made: '2026-10-12', files: 2, freshFirst: false }]);
 });
 
 /* ---------- the manifest, icons and pages ---------- */
@@ -308,4 +308,27 @@ test('offline: every page links the manifest and icons, and loads src/ui/offline
   assert.doesNotMatch(ui + await readFile(path.join(root, 'src/core/appversion.js'), 'utf8'), /'Not saved for offline yet'/);
   assert.match(home, /<title>Let's Play!<\/title>/);
   assert.match(home, /<footer class="site-foot">[\s\S]*<a class="app-version" id="appVersion" href="log.html" hidden><\/a><\/footer>/, 'the home page has no version line');
+});
+
+// Releases (DESIGN.md "Releases", 2026-10-16): the release number, set by
+// hand in src/core/release.js, is copied into sw.js and shown first on the
+// version line; a changed number with sw.js not brought up to date is
+// reported.
+test('offline: the release number goes into sw.js and leads the version line', async t => {
+  const dir = await tinySite(t);
+  assert.match(await readFile(path.join(dir, 'sw.js'), 'utf8'), /const RELEASE = '';/, 'no release file: none');
+  await mkdir(path.join(dir, 'src/core'), { recursive: true });
+  await writeFile(path.join(dir, RELEASE_FILE), "export const RELEASE = '1.0';\n");
+  assert.equal(await readRelease(dir), '1.0');
+  const stale = (await check(dir)).problems;
+  assert.ok(stale.includes(`release , ${RELEASE_FILE} says 1.0`), stale.join('\n'));
+  assert.match(await update(dir, '2026-10-16'), /: release 1\.0, version [0-9a-f]{12} \(2026-10-16\), 5 files$/);
+  assert.match(await readFile(path.join(dir, 'sw.js'), 'utf8'), /const RELEASE = '1\.0';/);
+  assert.deepEqual((await check(dir)).problems, []);
+  const v = { release: '1.0', version: '19e2c03b21a3', made: '2026-10-11' };
+  assert.equal(versionLabel(v), 'Version 1.0 · Oct 11, 2026 · 19e2c0');
+  assert.equal(versionLabel(v, { release: '1.1', version: 'a1b2c3d4e5f6', made: '2026-10-12' }), 'Version 1.0 · Oct 11, 2026 · 19e2c0 (new version next time: 1.1 · Oct 12, 2026 · a1b2c3)');
+  assert.equal(versionLabel(v, { version: 'a1b2c3d4e5f6', made: '2026-10-12' }), 'Version 1.0 · Oct 11, 2026 · 19e2c0 (new version next time: Oct 12, 2026 · a1b2c3)', 'an older sw.js: no release');
+  // The live sw.js tells the page its release.
+  assert.match(swSource, /postMessage\(\{ release: RELEASE, version: VERSION,/);
 });

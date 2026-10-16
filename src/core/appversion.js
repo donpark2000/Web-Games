@@ -18,9 +18,10 @@ export function dayLabel(made) {
   return `${MONTHS[m[2] - 1]} ${+m[3]}, ${m[1]}`;
 }
 
-// 'Oct 11, 2026 · 19e2c0' (the version's first 6 characters are enough to
-// tell two apart).
-const short = v => [dayLabel(v.made), String(v.version).slice(0, 6)].filter(Boolean).join(' · ');
+// '1.0 · Oct 11, 2026 · 19e2c0': the release number for people (DESIGN.md
+// "Releases"; none from an older sw.js), the day, and the version's first
+// 6 characters (enough to tell two apart).
+const short = v => [v.release, dayLabel(v.made), String(v.version).slice(0, 6)].filter(Boolean).join(' · ');
 
 export function versionLabel(own, next = null) {
   let s = `Version ${short(own)}`;

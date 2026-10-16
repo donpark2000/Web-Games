@@ -5,7 +5,7 @@ tablet or phone, all reached from one home page. Two players (the second
 a person, or in most games the robot): tic-tac-toe, matching cards,
 Connect Four, Count to 9, Snakes and Ladders, Five Dice and Nim. One
 player: rock paper scissors and Follow Me. And one puzzle for grown-ups:
-Hidden Faces (one face per row, column and colour, none touching).
+Find the Stars (one star per row, column and colour, none touching).
 
 **Play it:** https://donpark2000.github.io/Web-Games/
 
@@ -52,6 +52,18 @@ On http://localhost:8123/ edits still show on a reload. To try the app
 the way the live site behaves (saved files first), use
 http://127.0.0.1:8123/ instead; stopping the server is then the same as
 having no connection.
+
+## Releases
+
+Each publish of the site is a numbered release (x.0 for a new game,
+x.y for fixes and changes): its notes are in
+[`RELEASES.md`](RELEASES.md) and on
+[GitHub](https://github.com/donpark2000/Web-Games/releases). The home
+page's version line starts with the release number. Before a publish:
+
+```bash
+node tools/release.js
+```
 
 ## License
 

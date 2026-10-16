@@ -5951,3 +5951,62 @@ the version line shows 6): the same files give the same number, so it
 changes exactly when the site changes (a journal-only commit makes a
 new commit id but not a new version), and devices fetch a new copy when
 it changes.
+
+## 2026-10-16: Release numbers and release notes
+
+The developer, after the version-number explanation: "Should we
+consider a more 'human meaningful' version number? Like 1.0 (and 1.1
+for bug fixes on versiono 1) and 2.0 for new games?" Claude proposed it
+in front of the fingerprint, set by hand at each publish, starting at
+1.0. The developer: "Yes - build it. No need for the 'whats new' info in
+the app. But we should probably make the human friendly release numbers
+visible on github, and the 'changes in this release' or 'release notes'
+seems like a good thing to have."
+
+**Built** (DESIGN.md "Releases"; CLAUDE.md's publish steps):
+- `src/core/release.js`: `RELEASE = '1.0'`, set by hand. The version line:
+  "Version 1.0 · Oct 16, 2026 · 720f74" (`versionLabel` puts the release
+  first; an older `sw.js` without one shows as before).
+- `tools/offline.js` copies the release into `sw.js` (`const RELEASE`),
+  and `check()` reports a `sw.js` with another; `sw.js` tells pages its
+  release with the version. `src/ui/offline.js` logs it ("opened ...
+  {release, version, made}").
+- `RELEASES.md`: notes, newest first; 1.0's: everything on the site so
+  far (nine games for young kids, Find the Stars, offline, one game in
+  progress, Give up).
+- `tools/release.js`: `node tools/release.js` says "ready" or what's
+  missing (the number's form, newer than the last `vX.Y` tag and not
+  one already made, `RELEASES.md`'s newest being it with notes and the
+  site's current version, `tools/offline.js` up to date);
+  `node tools/release.js notes` prints the notes for the GitHub release.
+  Now: "Release 1.0 is ready: version 720f7406cc4a; tag v1.0 not made
+  yet." No tags in the repository yet.
+- README: a Releases section; and "Hidden Faces" in its first lines
+  corrected to Find the Stars (renamed 2026-10-14).
+
+**Correction:** Claude told the developer "Everything that's live now,
+eleven games": it's ten (nine for young kids and Find the Stars).
+
+**Tests:** `tests/release.test.js` (5: RELEASES.md read with either line
+ends, a bad heading; x.y numbers compared by part, 1.10 after 1.9; ready
+cases, the first release too; each problem reported alone: a tag already
+made, not after the last, another version, no notes, a bad heading, no
+releases, a number not RELEASES.md's newest, not x.y, offline problems;
+the repository's number and newest notes agree), `tests/offline.test.js`
++1 (no release file: none; a new number reported until `tools/offline.js`
+runs, then in `sw.js`; the version line with a release, a next one, and
+an older `sw.js` without), and the worker test now expects the release
+in its reply. **Shown to fail:** a tag already made not caught; numbers
+compared as strings; the version check gone; `sw.js`'s release not
+checked; the release left off the version line; RELEASES.md's newest
+0.9: 1 failed each (2 for the version line: changing a site file also
+made the version stale). `npm test`: 278 pass, 0 fail.
+`tools/offline.js`: release 1.0, version 720f7406cc4a, 82 files.
+
+**Checked in the built-in browser** (local server): the home page
+"Version 1.0 · Oct 16, 2026 · 720f74"; the log "opened in the browser
+{release: 1.0, version: 720f7406cc4a, ...}" and "saved for offline
+{release: 1.0, ...}"; no console errors.
+
+**Not done yet:** publishing 1.0 (the merge, the tag `v1.0` and the
+GitHub release), which waits for the developer's OK.

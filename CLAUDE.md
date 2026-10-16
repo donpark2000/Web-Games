@@ -45,6 +45,12 @@ this is the short version:
   to "no tracking": the anonymous stats counter (DESIGN.md "Stats").
 - Publishing is merging to `main` (once GitHub Pages is on); only with the
   developer's OK. Work happens on branches.
+- Every publish is a release (DESIGN.md "Releases"): propose its number
+  (x.0 a new game, x.y fixes and changes) when asking to publish; set it
+  in `src/core/release.js`, run `node tools/offline.js`, add its notes to
+  `RELEASES.md` with the site's version, and `node tools/release.js` must
+  say ready. After the merge: tag `vX.Y` on `main`, push the tag, and make
+  the GitHub release with `node tools/release.js notes`.
 - Once a publish is live on github.io, stop the localhost servers
   (`tools/serve.js`, the developer's and Claude's) and say so; they
   aren't needed any more and leftovers clash on ports.
