@@ -6010,3 +6010,55 @@ made the version stale). `npm test`: 278 pass, 0 fail.
 
 **Not done yet:** publishing 1.0 (the merge, the tag `v1.0` and the
 GitHub release), which waits for the developer's OK.
+
+## 2026-10-16: Release 1.0 published
+
+Published with the developer's OK ("Publish as 1.0, with the tag and the
+GitHub release."). `node tools/release.js`: "Release 1.0 is ready:
+version 720f7406cc4a; tag v1.0 not made yet"; `npm test` 278 pass. `main`
+fast-forwarded 8fa77c9..16bb72e and pushed; tag `v1.0` (annotated, on
+16bb72e) pushed; GitHub release "1.0" made from the notes
+(https://github.com/donpark2000/Web-Games/releases/tag/v1.0: "Latest",
+not a draft). The Pages build for 16bb72e was "built" at 19:53:20Z
+(about 37 s); the server sends `src/core/release.js` with
+`RELEASE = '1.0'` and version 720f7406cc4a. Afterwards
+`node tools/release.js` says "v1.0 is already a release: every publish
+needs a new number" (exit 1): the guard works.
+
+**Checked live** (built-in browser): the first loads showed the pane's
+older copy, the second with "(new version next time: Oct 16, 2026 ·
+720f74)" (the old page's code has no release on that line), the third
+"Version 1.0 · Oct 16, 2026 · 720f74"; the log "opened in the browser
+{release: 1.0, version: 720f7406cc4a, ...}"; no console errors.
+
+**The GitHub release's text broke mid-sentence:** GitHub shows every line
+break in a release's text (10 `<br>` in the notes' list items, read from
+the page). `tools/release.js notes` now joins each paragraph and list
+item onto one line (`unwrap`: blank lines, headings and new list items
+kept; test +1 in `tests/release.test.js`, shown to fail with list items
+not kept apart and with a line joined onto a heading; `npm test` 279
+pass). The release's text replaced with the joined notes (`gh release
+edit v1.0 --notes-file`: the same words): 0 `<br>`, 6 list items. (The
+first try at the join put a line after a heading onto the heading; the
+test caught it.) `tools/` isn't part of the site, so this is on
+`star-battle` only, for the next release.
+
+The local server (port 8123, this session's) stopped.
+
+## 2026-10-16: Status (start here next session)
+
+**Published: release 1.0** (`main` = 16bb72e, tag `v1.0`, GitHub release
+1.0, site version 720f7406cc4a). Branch `star-battle` = `main` plus
+`tools/release.js`'s joined notes and the journal. `npm test`: 279 of
+279.
+
+**Publishing from now on** (CLAUDE.md): propose the release number when
+asking to publish; `src/core/release.js`, `node tools/offline.js`, the
+notes in `RELEASES.md` with the site's version, `node tools/release.js`
+says ready; after the merge, tag `vX.Y`, push it, `gh release create vX.Y
+--title X.Y --notes-file` with `node tools/release.js notes`.
+
+**Next:** the developer's next request. Open: Q24 (the home page's
+scroll, waiting for it to happen again), Q26 (log.html's Clear uses
+`confirm()`); the proposed skill addition (fit on the target's fonts) to
+review.

@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseReleases, problems, isRelease, after, NOTES_FILE } from '../tools/release.js';
+import { parseReleases, problems, isRelease, after, unwrap, NOTES_FILE } from '../tools/release.js';
 import { RELEASE } from '../src/core/release.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -60,4 +60,14 @@ test('release: the site’s number is x.y and is RELEASES.md’s newest', async 
   const releases = parseReleases(await readFile(path.join(root, NOTES_FILE), 'utf8'));
   assert.equal(releases[0]?.release, RELEASE, `${NOTES_FILE}'s newest release is not src/core/release.js's ${RELEASE}`);
   assert.ok(releases.every(r => r.release && r.notes), 'a release with a bad heading or no notes');
+});
+
+// GitHub shows every line break in a release's text (2026-10-16: 1.0's
+// notes broke mid-sentence), so the notes are joined a paragraph or list
+// item per line.
+test('release: notes for GitHub: one line per paragraph or list item', () => {
+  const notes = 'The first\nrelease.\n\n- **One** thing,\n  wrapped.\n- Two.\n* Three\n  more.\n1. Four\n   lines.\n\n## A heading\nAfter it.';
+  assert.equal(unwrap(notes), 'The first release.\n\n- **One** thing, wrapped.\n- Two.\n* Three more.\n1. Four lines.\n\n## A heading\nAfter it.');
+  assert.equal(unwrap('a\r\nb'), 'a b', 'Windows line ends');
+  assert.equal(unwrap(''), '');
 });

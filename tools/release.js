@@ -5,7 +5,8 @@
 // version>)". Every publish is a new release: a git tag vX.Y on main and
 // a GitHub release with these notes.
 //   node tools/release.js          -> "ready", or what's missing (exit 1)
-//   node tools/release.js notes    -> the newest release's notes
+//   node tools/release.js notes    -> the newest release's notes, one line
+//                                     per paragraph or list item (GitHub)
 
 import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
@@ -24,6 +25,19 @@ export function parseReleases(md) {
     const m = /^(\S+) \((\d{4}-\d\d-\d\d), version ([0-9a-f]{12})\)$/.exec(head.trim());
     return { head: head.trim(), release: m?.[1] ?? null, made: m?.[2] ?? null, version: m?.[3] ?? null, notes: rest.join('\n').trim() };
   });
+}
+
+// Notes for GitHub, which shows every line break in a release's text (2026-10-16:
+// 1.0's notes broke mid-sentence): each paragraph and list item joined onto
+// one line; blank lines, headings and the start of each list item kept.
+export function unwrap(notes) {
+  const out = [];
+  for (const line of notes.replace(/\r\n/g, '\n').split('\n')) {
+    const starts = /^\s*([-*+]|\d+\.)\s|^#/.test(line);
+    if (line.trim() && !starts && out.length && out.at(-1).trim() && !/^#/.test(out.at(-1))) out[out.length - 1] += ` ${line.trim()}`;
+    else out.push(line);
+  }
+  return out.join('\n');
 }
 
 export const isRelease = r => /^\d+\.\d+$/.test(r ?? '');
@@ -64,7 +78,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
   const releases = parseReleases(await readFile(path.join(root, NOTES_FILE), 'utf8'));
   if (process.argv[2] === 'notes') {
-    process.stdout.write(`${releases[0]?.notes ?? ''}\n`);
+    process.stdout.write(`${unwrap(releases[0]?.notes ?? '')}\n`);
   } else {
     const release = await readRelease(root);
     const { version, problems: offline } = await check(root);

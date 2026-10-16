@@ -854,7 +854,8 @@ release number goes in front of it on the version line.
   one already made; `RELEASES.md`'s newest release is that number, with
   notes and the site's current version; `tools/offline.js` is up to
   date. `node tools/release.js notes` gives the notes for the GitHub
-  release. `npm test` checks the number's form and that `RELEASES.md`'s
+  release, a paragraph or list item per line (GitHub shows every line
+  break in a release's text). `npm test` checks the number's form and that `RELEASES.md`'s
   newest is it.
 
 ## Coming back to a game
