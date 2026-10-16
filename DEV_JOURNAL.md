@@ -18,17 +18,34 @@ time, each tried before publishing:
   it was. Unknown: whether the iPhone's app can tell a restart by the
   person from iOS closing it in the background (both open fresh at
   `start_url`); `sessionStorage` might, to be measured on the device.
+  *Developer's answers, 2026-10-15:* no rollback yet ("diagnose and
+  test fixes before back tracking"; no one else plays Find the Stars).
+  "A restart should always start clean. In fact I would suggest that
+  starting any new game clears out any in-progress games. It is one
+  app." And "clicking Home should also wipe out current state of any
+  one game." So at most one game in progress at a time, and only until
+  🏠, another game, or a restart.
 - **Q23. No way out of a Find the Stars puzzle.** The play screen has
   only Undo, Hint and Show until the end, and with resume, 🏠 and back
   carries on the same puzzle. The developer tapped every square and
   "could not figure out a way to get out of it". Follow Me has no
   buttons mid-game either (only on Game over), to check.
+  *Developer's answers, 2026-10-15:* "Every game should have a 'give up'
+  or 'start again' option", and 🏠 wipes the game (Q22). Also: "with
+  Find the Stars I was surprised that filling the grid did not just end
+  the game with 'you lose' or something semantically equivalent." (The
+  other seven games show Play again / New game all through a game; only
+  Follow Me and Find the Stars hide them until the end.)
 - **Q24. The home page wouldn't scroll to the footer** once: it stopped
   "part way through the last game". Device, app or Safari, and what came
-  before not yet known.
+  before not yet known. *Developer, 2026-10-15:* on the iPhone, seen
+  once, not since; the log page couldn't be reached, as its link (the
+  version line) is at the bottom, where the page wouldn't scroll.
 - **Q25. The hint mechanism to be prototyped before publishing again.**
   The developer likes the white hint ✕s but isn't "sure the whole hint
   mechanism is working smoothly". What feels off not yet known.
+  *Developer, 2026-10-15:* not sure, as not being able to start fresh
+  threw everything off; fix Q22-Q24 first, then prototype the hints.
 
 ## Proposed additions to the standards skill
 
