@@ -5726,3 +5726,28 @@ again)" 16 px below the words, centred (its middle 200 px, the bar's 197:
 the bar's 6 px left edge), no scrolling; the longest "all inside" words
 (135 characters) fit too; the squares 35 px, the page 760 px on the
 760 px screen. Test state cleared from `data/hidden-faces.json`.
+
+## 2026-10-16: The tap line at the words' size
+
+The developer: "Almost perfect. The bank line and centre justifaction is
+good. But you use a smaller font that I suspect will be hard to read on
+a phone. I suggest keeping the same font size as the hint text. If you
+agree and have no questions, go ahead and publish so I can try on my
+phone." Claude agreed.
+
+**Built:** `.hintbar .relight` takes the words' size (15px, line height
+1.4: no size of its own), a blank line of `1.4em` (21 px) above it; the
+bar is `calc(5 * 1.4em + 20px)` (114 to 125 px). **Tests:** the bar's
+height, the blank line, no smaller size. **Shown to fail:** 12px put
+back; 4 lines high; no blank line: 1 failed each. `npm test`: 271 pass,
+0 fail. `tools/offline.js`: version fca8e7ca327f.
+
+**Checked in the built-in browser:** at 393 x 760, a real hint put out
+with Got it on 6, 8 and 10: the bar 125 px, the line 15px like the
+words, the gap 21 px, no scrolling; the squares 59, 44 and 35 px as
+before, the page 760 px on the 760 px screen; the longest "all inside"
+words (135 characters) fit with both lines. At 375 x 667: the squares
+46, 34 and 28 px (were 50, 37, 30 before today's bar changes); the 10 x
+10 page is 671 px on the 667 px screen (its squares at the 28 px
+minimum): a 4 px scroll on that size, not the developer's phone. Test
+state cleared from `data/hidden-faces.json`.
