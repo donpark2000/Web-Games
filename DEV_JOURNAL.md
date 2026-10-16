@@ -30,6 +30,7 @@ time, each tried before publishing:
   *Tried by the developer 2026-10-16 on the local server (desktop):
   works (see "Q22-Q24 tried on the desktop"). The iPhone after the
   publish closes it.*
+  *Published 2026-10-16 (8f751b4); the iPhone to try.*
 - **Q23. No way out of a Find the Stars puzzle.** The play screen has
   only Undo, Hint and Show until the end, and with resume, 🏠 and back
   carries on the same puzzle. The developer tapped every square and
@@ -46,6 +47,7 @@ time, each tried before publishing:
   *Tried by the developer 2026-10-16 on the local server (desktop):
   works (see "Q22-Q24 tried on the desktop"). The iPhone after the
   publish closes it.*
+  *Published 2026-10-16 (8f751b4); the iPhone to try.*
 - **Q24. The home page wouldn't scroll to the footer** once: it stopped
   "part way through the last game". Device, app or Safari, and what came
   before not yet known. *Developer, 2026-10-15:* on the iPhone, seen
@@ -69,8 +71,11 @@ time, each tried before publishing:
   (Checked: the words that point at the board are "the lit squares",
   "(lit)", "the ringed square" and "ringed ✕", in `findHint` and
   `explainHint`, `src/core/hidden-faces.js`.) *(a) and (b) built
-  2026-10-16, see "Q25: Got it, and how to light a hint again"; to try
-  on the local server.*
+  2026-10-16, see "Q25: Got it, and how to light a hint again", then
+  changed with the developer to a blank line and a centred "(tap to
+  light this hint again)" at the words' size; tried on the local server
+  ("Almost perfect", then the font size changed) and published
+  2026-10-16 (8f751b4); the iPhone to try.*
 - **Q26. log.html's Clear asks with the browser's `confirm()`.** The
   games' Give up asks in the page itself (as the brief asked: "no
   browser confirm()"), but the log page's Clear, given as the model,
@@ -5751,3 +5756,61 @@ words (135 characters) fit with both lines. At 375 x 667: the squares
 10 page is 671 px on the 667 px screen (its squares at the 28 px
 minimum): a 4 px scroll on that size, not the developer's phone. Test
 state cleared from `data/hidden-faces.json`.
+
+## 2026-10-16: Q22-Q25 published
+
+Published with the developer's OK ("If you agree and have no questions,
+go ahead and publish so I can try on my phone"; Claude agreed with the
+font change and had no questions: the 4 px scroll of a 10 x 10 on a
+375 x 667 phone is not the developer's phone, and is recorded above).
+`main` fast-forwarded de21c8c..8f751b4 (from star-battle, without
+switching branches: `git fetch . star-battle:main`) and pushed at
+12:21. The Pages build for 8f751b4 was "built" at 19:21:57Z (about
+22 s); the server sends version fca8e7ca327f and `src/ui/scrolllog.js`
+(curl, 200).
+
+**Checked live** (built-in browser): the pane first showed its older
+offline copy (d4d04d); the next load saved fca8e7 and the one after
+showed "Version Oct 16, 2026 · fca8e7" (the update path as designed).
+That first new load removed the pane's real old keys: "old kept games
+removed from the device {keys: [web-games-last-page,
+web-games-resume-hidden-faces]}". The home page logged "home page
+{how: opened, cleared: []}" and its scroll room. Find the Stars: the
+tools Undo, 💡 Hint 3, 👁 Show 1, 🏳 Give up; a hint: the row ❓ Why? /
+✓ Got it, the tools hidden; Got it: "💡 Brown is just one square ..."
+greyed, then "(tap to light this hint again)" centred at 15px, the bar
+125 px. No console errors. The browser's test state removed from a page
+with no game script (`data/hidden-faces.json`) and checked after a
+reload: only the debug log. The local server (port 8123, this
+session's) stopped; no `serve.js` running, nothing listening on 8123.
+
+**For the developer to try on the iPhone** (open the app once with wifi
+so it gets the new version: the version line says fca8e7):
+1. Start a game, switch to another app and back: the game is there.
+2. Close the app completely (swipe it away) and open it: the home page,
+   and every game starts fresh.
+3. 🏠 in a game, then the same game: it starts fresh.
+4. Give up in Follow Me and in Find the Stars (No, then Yes).
+5. Find the Stars: ✕ every square: "No squares left".
+6. Find the Stars' tools row (four buttons) fits the screen.
+7. A hint: ❓ Why? / ✓ Got it; Got it: the greyed words with "(tap to
+   light this hint again)"; a tap on them.
+8. To measure (Q22): leave a game, use other apps for a long while (so
+   iOS may close the app on its own), then open it: whether the game is
+   kept. Either fits the rule; the log says which ("kept game found" or
+   not).
+
+## 2026-10-16: Status (start here next session)
+
+**Published** (`main` = 8f751b4, version fca8e7ca327f): Q22-Q24 (one
+game in progress at most, Give up, the full-grid end, the home page's
+scroll-room log lines) and Q25's hint changes (the Why? / Got it row; a
+greyed hint's blank line and "(tap to light this hint again)"). Branch
+`star-battle` = `main` plus this journal entry. `npm test`: 271 of 271.
+
+**Next:** the developer tries it on the iPhone (the list above); then
+close Q22-Q25 with the evidence, or fix what the phone shows. Q24 stays
+open until the home page fails to scroll again and its log is read.
+
+**Open questions:** Q22-Q25 (published, the iPhone to try), Q26
+(log.html's Clear uses `confirm()`). **Proposed skill additions:** none.
