@@ -6158,3 +6158,37 @@ not opened by Claude (the built-in browser isn't signed in to claude.ai).
 **Noticed, for the developer:** the walk-through often ends with a run of
 "only one left" steps (puzzle 17: the last 6), each one tap. Fold the
 easy ones into the step before, or keep every star its own step?
+
+## 2026-10-18: Mockup v2: how the other squares fade
+
+**Developer** on v1: "The mockup is working well." The squares a step
+isn't about are "a bit too dim. In particular, white X cells from
+previous hints are hard to see. Being able to see the whole grid is
+important to understanding." Dim them less, or make the lit squares a
+little bigger, or both?
+
+**Why the white ✕s vanish:** the spotlight fades each whole square
+(`opacity: .35; filter: grayscale(.7)` in `css/hidden-faces.css`), so its
+marks and the lines between colours fade with it; a white ✕ at 35% on a
+pale page is nearly gone. **Claude's view:** fade only the colour and
+keep the marks; making lit squares bigger would cover the neighbours'
+edges (on a 10 x 10 the squares are about 35 px and touch), including
+the thick lines between colours the reasoning needs, so a shadow that
+lifts them at the same size instead. The same spotlight is the 💡 hints'
+too, so the choice changes both.
+
+**Mockup v2** (the same artifact, version 2): a **Fade** switch, bottom
+right, remembered on the device: **A** as now; **B** only the colour
+fades (half way to a pale grey, `color-mix(in srgb, var(--rc) 50%,
+#F1F3F3)`), marks and lines at full strength; **C** B, and the lit
+squares lifted by a shadow. (B was first a 35% mix: the colours were
+nearly lost, and the colours matter to the logic; 50% after one look.)
+
+**Checked** (built-in browser, 393 x 760, the scratch copy served as
+before, the temporary launch entry removed after): each fade's computed
+styles on step 5 of the stuck 10 x 10 (B and C: the other squares at
+full opacity, no filter, their colour mixed; C: the lit squares' shadow,
+above their neighbours). Screenshots weren't reliable with the browser
+pane hidden (frames a click behind, the fade's 0.2 s transition not run),
+so only one full screenshot of B was used to judge it: every ✕, white
+ones too, and every colour's outline readable.
