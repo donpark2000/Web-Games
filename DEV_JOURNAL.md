@@ -6442,3 +6442,16 @@ Local servers stopped: the developer's (`tools/serve.js 8123`, process
 **Next:** the developer's phone test of Show me how, fade E and the
 hint ✕ edge (Safari's fonts in the two new rows; `oklch(from ...)` if
 the build kept it). Open: Q24, Q27.
+
+## 2026-10-18: 1.1 on the phone; status (start here next session)
+
+The developer, after the phone test of release 1.1: "Looks great. No
+further changes at this time." So Show me how, fade E and the thicker
+hint ✕ edge are checked on the real target (the iPhone's Safari,
+including the two new button rows and the faded squares' colours).
+
+**Status:** release 1.1 live (`main` = d7c27ee, tag `v1.1`, site version
+a13d7c8f2673); `star-battle` = `main` + the journal. Nothing in
+progress. **Next:** the developer's next request, in a new session.
+Open: Q24 (the home page's scroll, waiting for it to happen again), Q27
+(the turn line cut at 320 px wide).
