@@ -412,6 +412,35 @@ export function colorsFor(n, reg, seed) {
   return best.map(k => ({ name: COLORS[k][0], c: COLORS[k][1] }));
 }
 
+// A square's colour faded while a hint or step isn't about it (developer,
+// 2026-10-18: fade E of the Give up mockup): the colour at 30% of its
+// chroma (in OKLCH), then 35% of it over `under` (the page's sky), mixed
+// in sRGB, as CSS's color-mix(in srgb, oklch(from c l calc(c * .3) h)
+// 35%, under) would; worked out here, as that needs Safari 16.4 or later.
+// Colours as '#RRGGBB'.
+export function fadedColor(hex, under, { chroma = 0.3, amount = 0.35 } = {}) {
+  const rgb = h => [1, 3, 5].map(k => parseInt(h.trim().slice(k, k + 2), 16) / 255);
+  const lin = v => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  const gam = v => (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
+  const [r, g, b] = rgb(hex).map(lin);
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s;
+  const A = (1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s) * chroma;
+  const B = (0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s) * chroma;
+  const l2 = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3;
+  const m2 = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3;
+  const s2 = (L - 0.0894841775 * A - 1.2914855480 * B) ** 3;
+  const grey = [
+    4.0767416621 * l2 - 3.3077115913 * m2 + 0.2309699292 * s2,
+    -1.2684380046 * l2 + 2.6097574011 * m2 - 0.3413193965 * s2,
+    -0.0041960863 * l2 - 0.7034186147 * m2 + 1.7076147010 * s2,
+  ].map(v => Math.min(1, Math.max(0, gam(Math.min(1, Math.max(0, v))))));
+  const bg = rgb(under);
+  return `#${grey.map((v, k) => Math.round((amount * v + (1 - amount) * bg[k]) * 255).toString(16).padStart(2, '0')).join('').toUpperCase()}`;
+}
+
 /* ---------- a game ---------- */
 
 // Marks: '' (nothing), 'x' (the player's ✕), 'face' (found), 'bad' (a
@@ -434,7 +463,8 @@ export function createGame(p, { auto = true, colorSeed = 0 } = {}) {
                        // for a wrong look; newest last
     told: new Set(),   // squares a hint said to cross out (no star there)
     result: null,      // 'won', 'lost' (out of hearts), 'full' (no squares
-                       // left) or 'gaveup'
+                       // left), 'gaveup' or 'shown' (given up, shown step
+                       // by step to the end)
   };
 }
 
@@ -446,13 +476,16 @@ export const foundCount = g => g.marks.filter(m => m === 'face').length;
 // crossed out can still be put right with Undo or a rub-out.
 export const isFull = g => !g.result && foundCount(g) < g.n && g.marks.every(m => m !== '');
 
-// Ends the game without a win: 'full' (only when isFull) or 'gaveup'
-// (Give up, asked first by the screen). The screen then shows the stars
-// not found, as when out of hearts. Returns { ok } or { ok: false, why }.
+// Ends the game without a win: 'full' (only when isFull), 'gaveup' (Give
+// up, asked first by the screen; the screen then shows the stars not
+// found, as when out of hearts) or 'shown' (Give up's "Show me how",
+// once walkStep has found every star: given up, not a win). Returns
+// { ok } or { ok: false, why }.
 export function endGame(g, how) {
   if (g.result) return { ok: false, why: 'over' };
   if (how === 'full' && !isFull(g)) return { ok: false, why: 'not-full' };
-  if (how !== 'full' && how !== 'gaveup') return { ok: false, why: 'bad-end' };
+  if (how === 'shown' && foundCount(g) < g.n) return { ok: false, why: 'not-shown' };
+  if (!['full', 'gaveup', 'shown'].includes(how)) return { ok: false, why: 'bad-end' };
   g.result = how;
   return { ok: true };
 }
@@ -600,10 +633,11 @@ export function stateOf(g) {
 
 // The next hint, without changing the board (useHint takes its step): a
 // wrong ✕ first, then ✕s a found face already implies, then the solver's
-// next step. Returns
+// next step, using rules up to `maxLevel` (LEVEL; 4, all of them, but
+// for tests). Returns
 // { kind, tgt?: the square it means, why: [squares lit as the reason],
 // out: [squares to cross out], units, text } or { kind: 'none', text }.
-export function findHint(g) {
+export function findHint(g, maxLevel = 4) {
   const { n, reg, marks, sol } = g;
   const sq = i => `row ${rowOf(n, i) + 1}, column ${i % n + 1}`;
   const wrong = marks.findIndex((m, i) => m === 'x' && sol.has(i));
@@ -622,7 +656,7 @@ export function findHint(g) {
       if (out.length) return { kind: 'implied', why: [f], out, text };
     }
   }
-  const st = nextStep(stateOf(g), 4);
+  const st = nextStep(stateOf(g), maxLevel);
   if (!st) return { kind: 'none', why: [], out: [], text: 'No hint here: every star can be found from what is on the board.' };
   const U = st.units;
   const unitName = u => (u.type === 'row' ? `row ${u.idx + 1}` : u.type === 'col' ? `column ${u.idx + 1}` : g.col[u.idx].name);
@@ -730,6 +764,47 @@ export function useHint(g) {
   return { ok: true, ...h, star, hx, won };
 }
 
+/* ---------- Give up: "Show me how" ---------- */
+
+// One step of Give up's walk-through (developer, 2026-10-18: giving up
+// "very unsatisfying since I learn nothing from it"): the next hint's
+// step, taken as useHint takes it, with no hint used. ✕s a found star
+// implies (left over from "I'll do it") go on with the step, not as a
+// step of their own. With no step to explain (it shouldn't happen: the
+// rules up to "try it" solve every puzzle), the next star is shown, as
+// kind 'shown'. `maxLevel`: findHint's. Returns the hint with { star: the
+// square starred or null, hx: [squares given hint ✕s], pre: [the implied
+// squares crossed out first] }; with every star found, { kind: 'none',
+// star: null, hx: [], pre }.
+export function walkStep(g, maxLevel = 4) {
+  const pre = [];
+  let h = findHint(g, maxLevel);
+  while (h.kind === 'implied') {
+    for (const i of h.out) if (g.marks[i] === '') { g.marks[i] = 'hx'; g.told.add(i); pre.push(i); }
+    h = findHint(g, maxLevel);
+  }
+  if (h.kind === 'none') {
+    const i = [...g.sol].sort((a, b) => a - b).find(j => g.marks[j] !== 'face');
+    if (i == null) return { ...h, star: null, hx: [], pre };
+    h = { kind: 'shown', tgt: i, why: [], out: [], text: `No step to explain here: the next star is on the ringed square (row ${rowOf(g.n, i) + 1}, column ${i % g.n + 1}).` };
+  }
+  const star = h.kind === 'single' || h.kind === 'wrong' || h.kind === 'shown' ? h.tgt : null;
+  if (star != null) g.marks[star] = 'face';
+  const hx = (star != null ? seenBy(g.n, g.reg, star) : h.out).filter(i => g.marks[i] === '');
+  for (const i of hx) { g.marks[i] = 'hx'; g.told.add(i); }
+  for (const i of h.out) g.told.add(i);
+  return { ...h, star, hx, pre };
+}
+
+// How many steps the walk-through takes from here (worked out on a copy;
+// g is left as it was).
+export function walkLength(g, maxLevel = 4) {
+  const c = { ...g, marks: g.marks.slice(), told: new Set(g.told) };
+  let k = 0;
+  while (foundCount(c) < c.n && k < c.n * c.n) { walkStep(c, maxLevel); k++; }
+  return k;
+}
+
 /* ---------- a game kept on the device (DESIGN.md "Coming back to a game") ---------- */
 
 const MARKS = ['', 'x', 'face', 'bad', 'ghost', 'hx'];
@@ -756,7 +831,7 @@ export function restoreGame(p, kept, { colorSeed = 0 } = {}) {
   if (k.marks.some((m, i) => m === 'hx' && p.faces.includes(i))) throw new Error('restoreGame: a hint’s ✕ on a star');
   if (!count(k.hearts, HEARTS) || !count(k.hints, HINTS) || !count(k.shows, SHOWS)) throw new Error('restoreGame: bad hearts, hints or shows');
   if (![k.mistakes, k.hintsUsed, k.showsUsed].every(v => count(v, 1e6))) throw new Error('restoreGame: bad counts');
-  if (![null, 'won', 'lost', 'full', 'gaveup'].includes(k.result)) throw new Error(`restoreGame: bad result ${k.result}`);
+  if (![null, 'won', 'lost', 'full', 'gaveup', 'shown'].includes(k.result)) throw new Error(`restoreGame: bad result ${k.result}`);
   const stepOk = st => (st && !Array.isArray(st) ? sq(st.look)
     : Array.isArray(st) && st.every(c => Array.isArray(c) && sq(c[0]) && (c[1] === '' || c[1] === 'x')));
   if (!Array.isArray(k.undo) || !k.undo.every(stepOk)) throw new Error('restoreGame: bad undo steps');

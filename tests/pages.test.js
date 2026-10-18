@@ -192,11 +192,12 @@ test('pages: Hidden Faces’ end buttons replace the tools, hidden until the end
   const end = play.match(/<div class="tools" id="endTools" hidden>([\s\S]*?)<\/div>/)?.[1];
   assert.ok(tools && end, 'no tools, or the end buttons show during a game');
   assert.deepEqual([...tools.matchAll(/<button[^>]*id="(\w+)"/g)].map(m => m[1]), ['undoBtn', 'hintBtn', 'showBtn', 'giveUpBtn']);
-  // Give up asks first, in the page (Q23, 2026-10-15), in place of the tools.
+  // Give up asks first, in the page (Q23, 2026-10-15), in place of the
+  // tools: how (2026-10-18), shown step by step or just the end.
   const ask = play.match(/<div class="tools ask" id="askTools" hidden>([\s\S]*?)<\/div>/)?.[1];
   assert.ok(ask, 'no hidden question row for Give up');
-  assert.match(ask, /Give up this game\?/);
-  assert.deepEqual([...ask.matchAll(/<button[^>]*id="(\w+)"[^>]*>([^<]*)</g)].map(m => `${m[1]}:${m[2]}`), ['giveUpYes:Yes', 'giveUpNo:No']);
+  assert.match(ask, /<span class="askq">Give up\?<\/span>/);
+  assert.deepEqual([...ask.matchAll(/<button[^>]*id="(\w+)"[^>]*>([^<]*)</g)].map(m => `${m[1]}:${m[2]}`), ['giveUpHow:Show me how', 'giveUpYes:Just end it', 'giveUpNo:No']);
   assert.deepEqual([...end.matchAll(/<button[^>]*id="(\w+)"/g)].map(m => m[1]), ['againBtn', 'sameBtn', 'newBtn']);
   assert.match(end, /id="sameBtn" data-play/, 'Same size / Another not counted');
   assert.doesNotMatch(end.match(/<button[^>]*id="newBtn"[^>]*>/)[0], /data-play/, 'New game counted');
@@ -309,7 +310,7 @@ test('pages: Find the Stars draws a hint’s ✕s and wins from a hint’s star'
   const { XMARK, HXMARK } = await import('../src/ui/hfboard.js');
   const d = XMARK.match(/ d="([^"]+)"/)[1];
   const paths = [...HXMARK.matchAll(/<path d="([^"]+)" stroke="([^"]+)" stroke-width="(\d+)"/g)].map(m => m.slice(1).join(' '));
-  assert.deepEqual(paths, [`${d} #2B2B33 23`, `${d} #fff 13`], 'the hint’s ✕ is not dark at 23 under white at 13 on the ✕’s lines');
+  assert.deepEqual(paths, [`${d} #000 33`, `${d} #fff 13`], 'the hint’s ✕ is not black at 33 under white at 13 on the ✕’s lines (edge 3, 2026-10-18)');
   const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
   assert.match(js, /m === 'hx' \? HXMARK/, 'a hint’s ✕ is not drawn');
   const hint = js.match(/\$\('hintBtn'\)\.onclick = [\s\S]*?\n\};/)?.[0] ?? '';
@@ -378,4 +379,44 @@ test('pages: Find the Stars: no button row widens the page; the tools’ words f
   assert.match(js.match(/function hideAsk\(\) \{[\s\S]*?\n\}/)?.[0] ?? '', /fitTools\(\);/, 'the tools aren’t fitted when Give up’s question goes');
   assert.match(js.match(/function hintTool\(\) \{[\s\S]*?\n\}/)?.[0] ?? '', /fitTools\(\);/, 'the tools aren’t fitted when a hint goes out');
   assert.match(js, /mainW: document\.querySelector\('main'\)\.clientWidth, playW:/, 'the fit log doesn’t say the play screen’s width');
+});
+
+// Find the Stars' Give up "Show me how" (developer, 2026-10-18, from the
+// Give Up Walkthrough Mockup v5): its own row (Why?, The rest, Next) in
+// place of the tools, the board taking no taps, the clock stopped, "Step
+// N of M" for the stars found, kept for a reload, and an end that counts
+// as given up (no best time, the puzzle not moved on). The spotlight
+// (hints' too) fades only the squares' colour, worked out in the script
+// (no oklch(from ...), which needs Safari 16.4+), and lifts the lit ones.
+test('pages: Find the Stars: Give up’s Show me how walks through the rest; its end is a give-up', async () => {
+  const play = html['hidden-faces.html'].match(/<section id="play"[\s\S]*?<\/section>/)?.[0] ?? '';
+  const row = play.match(/<div class="tools hinttools" id="walkTools" hidden>([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(row, 'no hidden row for the walk-through');
+  assert.deepEqual([...row.matchAll(/<button[^>]*id="(\w+)"[^>]*>([^<]*)</g)].map(m => `${m[1]}:${m[2]}`), ['walkWhy:❓ Why?', 'walkRest:⏩ The rest', 'walkNext:Next ▸']);
+  const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
+  assert.match(js.match(/\$\('board'\)\.addEventListener\('pointerdown', [\s\S]*?\n\}\);/)?.[0] ?? '', /if \(!G \|\| G\.result \|\| G\.walk\) return;/, 'the board takes taps in the walk-through');
+  const how = js.match(/\$\('giveUpHow'\)\.onclick = [\s\S]*?\n\};/)?.[0] ?? '';
+  assert.match(how, /clearInterval\(clockTimer\);[\s\S]*walkLength\(G\)[\s\S]*L\('give up: show me how'/, 'the clock runs on, or the steps aren’t counted or logged');
+  assert.match(js, /function tick\(\) \{ if \(G && !G\.result && !G\.walk\)/, 'the clock ticks in the walk-through');
+  assert.match(js, /`Step \$\{G\.walk\.step\} of \$\{G\.walk\.total\}`/);
+  const next = js.match(/function walkNext\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(next, /walkStep\(G\)[\s\S]*L\('show me how: step'[\s\S]*explainHint\(G, s\)[\s\S]*paintHint\(\);/, 'a step isn’t shown as a hint, or isn’t logged');
+  assert.doesNotMatch(next, /useHint/, 'a step uses a hint');
+  const end = js.match(/function walkEnd\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(end, /endGame\(G, 'shown'\)[\s\S]*L\('show me how: done'[\s\S]*showEnd\(\);/);
+  assert.doesNotMatch(end, /recordTime|prog\.next|saveProgress|win\(/, 'the walk-through’s end counts as a win');
+  assert.match(js, /\$\('walkRest'\)\.onclick = [\s\S]*?L\('show me how: the rest'[\s\S]*?walkEnd\(\);/);
+  assert.match(js, /shown: 'Shown step by step'/);
+  assert.match(js, /walk: G\.walk && !G\.result \? \{ step: G\.walk\.step, from: G\.walk\.from \} : null,/, 'the walk-through isn’t kept for a reload');
+  assert.match(js, /if \(kept\?\.walk && walkAgain\(kept\)\) return;\s*clockTimer = setInterval/, 'a kept walk-through starts the clock');
+  assert.match(js.match(/function paintBar\(\) \{[\s\S]*?\n\}/)?.[0] ?? '', /'lost', 'shown'\)/, 'the end’s blue edge stays after Try again');
+  assert.match(js.match(/function ending\([\s\S]*?\n\}/)?.[0] ?? '', /\$\('walkTools'\)\.hidden = true;/, 'the walk-through’s row stays at the end');
+  assert.match(js, /--fc:\$\{fc\[g\]\}/, 'no faded colour for the squares');
+  const css = await readFile(path.join(root, 'css/hidden-faces.css'), 'utf8');
+  assert.match(css, /\.hfboard\.spot \.cell:not\(\.why\):not\(\.out\):not\(\.tgt\) \{ background: var\(--fc\); \}/, 'the spotlight doesn’t fade only the colour');
+  assert.doesNotMatch(css, /opacity: \.35; filter: grayscale/, 'the spotlight still fades the marks');
+  assert.doesNotMatch(css, /oklch\(from/, 'a colour only Safari 16.4+ can work out');
+  assert.match(css, /\.hfboard\.spot \.cell\.why, \.hfboard\.spot \.cell\.out, \.hfboard\.spot \.cell\.tgt \{ z-index: 3; box-shadow: inset 0 0 0 2px var\(--thick\), 0 2px 8px 1px #0000008C; \}/, 'the lit squares aren’t lifted');
+  assert.match(css, /\.hintbar\.shown \{ border-left-color: #1F5FD1; \}/);
+  for (const w of [385, 345]) assert.match(css, new RegExp(`@media \\(max-width: ${w}px\\) \\{[^@]*#walkTools \\.tool`), `no narrow-phone size for the rows at ${w} px`);
 });

@@ -4,7 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-15, later): Find the Stars: a look where there's known
+*Status (2026-10-18): Find the Stars: Give up asks how, and **Show me
+how** walks through the rest a step at a time; the spotlight fades only
+the squares' colour and lifts the lit ones; hint ✕s have a thicker black
+edge (built, not yet published). 2026-10-15, later: Find the Stars: a look where there's known
 to be no star costs nothing, and the last hint's words stay in the bar,
 greyed; hints take their own step, with white hint ✕s (published
 2026-10-15). Earlier 2026-10-15: every game carries on where it was left, and the
@@ -557,15 +560,21 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   2026-10-16: on the iPhone the row, wider in Safari's fonts, pushed
   the whole play screen right. No row of buttons can widen the page: a
   button too wide is cut instead). Give up **asks first**, in the tools'
-  place: "Give up this game?" **Yes** / **No** (a touch on the board is
-  No); Yes ends the game (see "The end").
+  place: "Give up?" **Show me how** / **Just end it** / **No** (a touch
+  on the board is No; 2026-10-18, before that "Give up this game?" Yes /
+  No); Just end it ends the game (see "The end"); Show me how walks
+  through the rest (see "Show me how").
 - **✕s are drawn lines**, nearly black, about 60% of a square (developer,
   2026-10-14: the first ✕s, 40% and see-through grey, were hard to see
   on a phone at 10 x 10); a wrong look's red ✕ is bigger (84%). **A
   hint's ✕** is the same ✕, white with a dark edge like the star
   (developer, 2026-10-15, option B of the
   [Hint Colour Mockup](https://claude.ai/artifact/UHCmnZzkkCyGmscpWyDNxK),
-  version 1: the lines dark at 23 under white at 13).
+  version 1: the lines dark at 23 under white at 13); since 2026-10-18
+  the edge is **black and thicker**, 33 under the white 13 (developer:
+  edge 3 of the
+  [Give Up Walkthrough Mockup](https://claude.ai/artifact/PmNc95i5mPVZVPmtnUkDEH),
+  version 5; the old edge was about 1 px on a 10 x 10).
 - **Taps:** an empty square: ✕; a ✕: look under it. A star pops in (with
   Auto ✕, the ✕s around it); a wrong look is a red ✕ that stays, shakes
   and costs a heart; the third ends the game. **Drag** from an empty
@@ -607,7 +616,16 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   next step (one square left; a unit's squares all inside another; a
   star here would rule out all of a unit's squares; k colours in k rows
   or columns; try-a-star). **Spotlight:** squares the hint isn't about
-  fade; those it is about keep their colour with a dark edge; the square
+  fade, **only their colour** (since 2026-10-18, fade E of the Give Up
+  Walkthrough Mockup; developer: the whole square faded and white ✕s
+  were hard to see, "Being able to see the whole grid is important to
+  understanding"): their ✕s, stars and the lines between colours stay at
+  full strength, their colour as the old fade showed it (the colour at
+  30% of its chroma, 35% of it over the page's sky; worked out in the
+  script, `fadedColor`, as CSS's `oklch(from ...)` needs Safari 16.4+);
+  those it is about keep their colour with a dark edge, **lifted by a
+  shadow** above their neighbours (the same size, so no neighbour's
+  edges are covered); the square
   it means has a thick black ring in a white one, named in the text
   ("the ringed square (row 3, column 1)") (developer, 2026-10-13: in v1
   "it is not clear where 'here' is"). The squares it crossed out carry
@@ -656,6 +674,21 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
     star is row 1's: no star in the rest of Brown.").
   - None for a wrong ✕ or ✕s a found star implies: their words are the
     reason.
+- **Show me how** (Give up's walk-through; developer, 2026-10-18: giving
+  up was "very unsatisfying since I learn nothing from it"; agreed from
+  the [Give Up Walkthrough Mockup](https://claude.ai/artifact/PmNc95i5mPVZVPmtnUkDEH),
+  versions 1-5): the rest of the puzzle **from the player's board**, a
+  step at a time, each **shown and taken as a hint is** (its words, the
+  squares lit, ❓ Why?, its star or hint ✕s), with no hint used
+  (`walkStep` in `src/core/hidden-faces.js`). A wrong ✕ comes first, as
+  with hints; ✕s a found star implies go on with the next step, not as
+  steps of their own; each "only one left" is its own step. With no step
+  it can explain (it shouldn't happen) it shows the next star. The tools
+  row is its own: **❓ Why?** (💡 The step in the Why?), **⏩ The rest**
+  (all the steps at once, then the end) and **Next ▸** ("Finish ▸" after
+  the last). **"Step 3 of 18"** in place of "3 of 10 found"; **the clock
+  stops**; the board takes no taps. Kept with the game: a reload comes
+  back on the same step. A whole 10 x 10 takes 16-34 steps.
 - **The end:** the result in the hint bar beside **one big star**, and
   three buttons in place of the tools, so the board stays in view and
   nothing on it moves (developer, 2026-10-14: faces smiling and wiggling
@@ -673,7 +706,11 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   sooner: a row, column or colour all crossed out can still be put right
   with Undo or a rub-out (developer: "OK"). The rule is `isFull` in
   `src/core/hidden-faces.js`; a full grid kept in that 0.4 s ends when
-  picked up again.
+  picked up again. **Shown step by step** (2026-10-18, after Show me
+  how): "Shown step by step / 18 steps · you found 3 of 10" beside a
+  white star, the bar edged blue; Try again (to solve it yourself, now
+  you've seen how) / Another / New game. It counts as given up: no best
+  time, the puzzle not moved on.
 - **Puzzles: 200 per size, made ahead of time** by
   `tools/hidden-faces-puzzles.js` into `data/hidden-faces.json` (works
   offline; 103 KB). One difficulty for now (built 2026-10-13; levels

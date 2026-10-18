@@ -7,7 +7,7 @@
 import {
   SIZES, DEFAULT_SIZE, HEARTS, DEMO, PROGRESS_KEY, decode, createGame, foundCount, tap, startStroke, strokeTo,
   endStroke, undo, canUndo, showOne, useHint, explainHint, readProgress, recordTime, clock, snapshotGame, restoreGame,
-  isFull, endGame,
+  isFull, endGame, walkStep, walkLength, fadedColor,
 } from '../core/hidden-faces.js';
 import { mergeSetup } from '../core/resume.js';
 import { STAR, XMARK, HXMARK, borderStyle, miniBoard } from './hfboard.js';
@@ -47,11 +47,13 @@ let fullTimer = null;
 
 // Kept on the device after every change, and picked up when the page
 // opens (DESIGN.md "Coming back to a game"): the puzzle (size, number and
-// seed), the board, the clock, the hint on show and the result.
+// seed), the board, the clock, the hint on show, Give up's walk-through
+// (its step; the step on show is kept as the hint) and the result.
 const resume = resumable('hidden-faces', 1, () => ({
   screen: G ? 'play' : 'setup', setup,
   game: G && {
-    ...snapshotGame(G), k: G.k, seed: G.seed, ms: G.end?.ms ?? elapsed(), end: G.end,
+    ...snapshotGame(G), k: G.k, seed: G.seed, ms: G.end?.ms ?? G.walk?.ms ?? elapsed(), end: G.end,
+    walk: G.walk && !G.result ? { step: G.walk.step, from: G.walk.from } : null,
     hint: shown && !G.result ? { h: shown.h, deep: shown.deep, lit: shown.lit } : null,
   },
 }));
@@ -124,7 +126,10 @@ function startGame(n, k, kept = null) {
   if (!kept) L('game started', { size: n, puzzle: k + 1, seed: p.seed, auto: G.auto });
   const b = $('board');
   b.style.setProperty('--n', n);
-  b.innerHTML = p.reg.map((g, i) => `<div class="cell" role="gridcell" data-i="${i}" style="--rc:${G.col[g].c};${borderStyle(n, p.reg, i)}"><span class="mk"></span></div>`).join('');
+  // --fc: the colour faded, for the squares a hint or step isn't about.
+  const sky = getComputedStyle(document.documentElement).getPropertyValue('--sky').trim() || '#E4F1EE';
+  const fc = G.col.map(c => fadedColor(c.c, sky));
+  b.innerHTML = p.reg.map((g, i) => `<div class="cell" role="gridcell" data-i="${i}" style="--rc:${G.col[g].c};--fc:${fc[g]};${borderStyle(n, p.reg, i)}"><span class="mk"></span></div>`).join('');
   clearTimeout(fullTimer);
   fullTimer = null;
   hideAsk();
@@ -136,11 +141,13 @@ function startGame(n, k, kept = null) {
   clearInterval(clockTimer);
   if (G.result) {
     G.end ??= G.result === 'won' ? { how: 'solved', title: 'Solved!', line: '', ms: elapsed() }
+      : G.result === 'shown' ? { how: 'shown', title: ENDS.shown, line: '', ms: elapsed() }
       : { how: 'lost', title: ENDS[G.result] ?? ENDS.lost, line: PALE, ms: elapsed() };
     $('clock').textContent = `⏱ ${clock(G.end.ms)}`;
     showEnd();
     return;
   }
+  if (kept?.walk && walkAgain(kept)) return;
   clockTimer = setInterval(tick, 1000);
   tick();
   if (kept?.hint) {
@@ -155,7 +162,7 @@ function startGame(n, k, kept = null) {
 }
 
 const elapsed = () => (G.paused ?? Date.now()) - G.t0;
-function tick() { if (G && !G.result) $('clock').textContent = `⏱ ${clock(elapsed())}`; }
+function tick() { if (G && !G.result && !G.walk) $('clock').textContent = `⏱ ${clock(elapsed())}`; }
 // The clock stops while the page is hidden (another app, the phone locked).
 document.addEventListener('visibilitychange', () => {
   if (!G || G.result) return;
@@ -179,7 +186,7 @@ function draw(pop = -1) {
     cs[i].classList.toggle('ghost', m === 'ghost');
   });
   $('turn').innerHTML = `<span class="chip">${STAR}</span><span>${G.n}×${G.n} · puzzle ${G.k + 1}</span>`;
-  $('found').textContent = `${foundCount(G)} of ${G.n} found`;
+  $('found').textContent = G.walk && !G.result ? `Step ${G.walk.step} of ${G.walk.total}` : `${foundCount(G)} of ${G.n} found`;
   $('hearts').textContent = '❤️'.repeat(Math.max(0, G.hearts)) + '🤍'.repeat(HEARTS - Math.max(0, G.hearts));
   $('hearts').setAttribute('aria-label', `${Math.max(0, G.hearts)} of ${HEARTS} hearts left`);
   $('showsLeft').textContent = G.shows;
@@ -188,7 +195,7 @@ function draw(pop = -1) {
   $('undoBtn').disabled = !canUndo(G);
   $('giveUpBtn').disabled = !!G.result;
   resume.keep();
-  if (isFull(G)) armFull();
+  if (isFull(G) && !G.walk) armFull();
 }
 
 // No square left and stars still hidden (src/core: isFull): the end, as
@@ -248,7 +255,7 @@ function cellAt(x, y) {
 }
 
 $('board').addEventListener('pointerdown', e => {
-  if (!G || G.result) return;
+  if (!G || G.result || G.walk) return;
   const i = cellAt(e.clientX, e.clientY);
   if (i == null) return;
   e.preventDefault();
@@ -347,8 +354,9 @@ $('undoBtn').onclick = () => {
   draw();
 };
 // Give up (developer, 2026-10-15: "Every game should have a 'give up' or
-// 'start again' option"): asks first, in place of the tools; Yes ends the
-// game as out of hearts, No (or a touch on the board) goes back.
+// 'start again' option"): asks first, in place of the tools; Show me how
+// walks through the rest (below), Just end it ends the game as out of
+// hearts, No (or a touch on the board) goes back.
 $('giveUpBtn').onclick = () => {
   if (!G || G.result) return;
   L('give up?', { found: foundCount(G), time: clock(elapsed()) });
@@ -358,16 +366,87 @@ $('giveUpBtn').onclick = () => {
 $('giveUpNo').onclick = () => { L('give up: no'); hideAsk(); };
 $('giveUpYes').onclick = () => {
   if (!G || !endGame(G, 'gaveup').ok) return;
-  L('give up: yes');
+  L('give up: just end it');
   hideAsk();
   lose('gaveup');
 };
 function hideAsk() {
   $('askTools').hidden = true;
+  $('walkTools').hidden = true;
   $('tools').hidden = false;
   $('hintTools').hidden = true;
   fitTools();
 }
+
+// Give up's "Show me how" (developer, 2026-10-18: giving up was "very
+// unsatisfying since I learn nothing from it"): the rest of the puzzle
+// from the player's board, a step at a time, each shown and taken as a
+// hint is (its words, the squares lit, its Why?, its star or hint ✕s),
+// with no hint used (src/core: walkStep). Next ▸ goes on (Finish ▸ after
+// the last), ⏩ The rest does them all. "Step 3 of 18" in place of the
+// stars found; the clock stops; the board takes no taps. The end counts
+// as given up: no best time, the puzzle not moved on.
+$('giveUpHow').onclick = () => {
+  if (!G || G.result) return;
+  hideAsk();
+  clearInterval(clockTimer);
+  clearHint();
+  G.walk = { step: 0, total: walkLength(G), from: foundCount(G), ms: elapsed() };
+  L('give up: show me how', { found: G.walk.from, steps: G.walk.total, time: clock(G.walk.ms) });
+  walkNext();
+};
+function walkNext() {
+  if (!G?.walk || G.result) return;
+  if (foundCount(G) >= G.n) { walkEnd(); return; }
+  const s = walkStep(G);
+  G.walk.step++;
+  L('show me how: step', { step: G.walk.step, of: G.walk.total, kind: s.kind, tgt: s.tgt, star: s.star, hintX: s.hx.length, implied: s.pre.length, text: s.text });
+  shown = { h: s, why: explainHint(G, s), deep: false, lit: true };
+  sound.play(s.star != null ? 'ding' : 'ping');
+  paintHint();
+  draw(s.star ?? -1);
+}
+function walkEnd() {
+  if (!endGame(G, 'shown').ok) return;
+  const { total, from, ms } = G.walk;
+  clearHint();
+  G.end = { how: 'shown', title: ENDS.shown, line: `${plural(total, 'step')} · you found ${from} of ${G.n}`, ms };
+  L('show me how: done', { size: G.n, puzzle: G.k + 1, steps: total, from, time: clock(ms) });
+  draw();
+  showEnd();
+}
+$('walkNext').onclick = () => walkNext();
+$('walkRest').onclick = () => {
+  if (!G?.walk || G.result) return;
+  const kinds = [];
+  while (foundCount(G) < G.n && kinds.length < G.n * G.n) { kinds.push(walkStep(G).kind); G.walk.step++; }
+  L('show me how: the rest', { steps: kinds.length, kinds: kinds.join(' ') });
+  walkEnd();
+};
+$('walkWhy').onclick = () => toggleWhy();
+// A walk-through kept last time (resume's): its step on show again, the
+// clock stopped where it was. False (logged) if it can't be; the game
+// then plays on from its board.
+function walkAgain(kept) {
+  try {
+    const { step, from } = kept.walk;
+    if (![step, from].every(v => Number.isInteger(v) && v >= 0) || !kept.hint?.h) throw new Error('bad walk-through');
+    G.walk = { step, from, ms: kept.ms ?? 0, total: step + walkLength(G) };
+    const why = explainHint(G, kept.hint.h);
+    shown = { h: kept.hint.h, why, deep: !!kept.hint.deep && !!why, lit: true };
+    $('clock').textContent = `⏱ ${clock(G.walk.ms)}`;
+    paintHint();
+    draw();
+    return true;
+  } catch (e) {
+    L('kept walk-through not shown', { error: String(e) });
+    G.walk = null;
+    clearHint();
+    draw();
+    return false;
+  }
+}
+
 $('showBtn').onclick = () => {
   const r = showOne(G);
   if (!r.ok) return;
@@ -393,12 +472,14 @@ let note = null, noteTimer = null;
 // switches with 💡 The hint, and ✓ Got it, which puts it out as a touch on
 // the board does (developer, 2026-10-16: "not clear how to accept it and
 // get back to game play").
-$('whyBtn').onclick = () => {
+$('whyBtn').onclick = () => toggleWhy();
+function toggleWhy() {
   if (!shown?.lit || !shown.why) return;
   shown.deep = !shown.deep;
-  L(shown.deep ? 'why' : 'why: back to the hint', { kind: shown.h.kind, tgt: shown.h.tgt, tags: shown.why.tags.map(t => t[1]).join(' ') });
+  L(shown.deep ? 'why' : 'why: back to the hint', { kind: shown.h.kind, tgt: shown.h.tgt, tags: shown.why.tags.map(t => t[1]).join(' '), step: G.walk?.step });
   paintHint();
-};
+  resume.keep();
+}
 $('gotItBtn').onclick = () => dimHint('Got it');
 $('hintBtn').onclick = () => {
   // The hint takes its step on the board (a star, hint ✕s); its words and
@@ -418,7 +499,7 @@ $('hintBtn').onclick = () => {
   if (h.won) { clearHint(); win(); }
 };
 $('hintbar').addEventListener('click', () => {
-  if (!G || G.result || !shown || shown.lit) return;
+  if (!G || G.result || G.walk || !shown || shown.lit) return;
   L('hint lit again', { kind: shown.h.kind, tgt: shown.h.tgt });
   shown.lit = true;
   stopNote();
@@ -452,7 +533,7 @@ function paintHint() {
 // nothing (hidden, its space kept).
 function paintBar() {
   const bar = $('hintbar');
-  bar.classList.remove('idle', 'past', 'notice', 'result', 'solved', 'lost');
+  bar.classList.remove('idle', 'past', 'notice', 'result', 'solved', 'lost', 'shown');
   bar.removeAttribute('role');
   if (note) {
     bar.textContent = note;
@@ -529,8 +610,23 @@ function drawRings(rings) {
 
 // The buttons under the hint bar: while a hint is lit, its own row (❓
 // Why? if it has one, 💡 The hint in the Why?, and ✓ Got it) in place of
-// the tools; otherwise the tools, with 💡 Hint and the hints left.
+// the tools; otherwise the tools, with 💡 Hint and the hints left. In
+// Give up's walk-through, its own row: ❓ Why? (💡 The step in the Why?),
+// ⏩ The rest and Next ▸ (Finish ▸ after the last step).
 function hintTool() {
+  if (G.walk && !G.result) {
+    $('tools').hidden = true;
+    $('hintTools').hidden = true;
+    $('walkTools').hidden = false;
+    const w = $('walkWhy'), last = foundCount(G) >= G.n;
+    w.disabled = !shown?.why;
+    w.innerHTML = shown?.deep ? '💡 The step' : '❓ Why?';
+    w.classList.toggle('pressed', !!shown?.deep);
+    $('walkNext').textContent = last ? 'Finish ▸' : 'Next ▸';
+    $('walkRest').disabled = last;
+    return;
+  }
+  $('walkTools').hidden = true;
   const lit = !!shown?.lit && !G.result;
   if (!G.result && $('askTools').hidden) {
     $('tools').hidden = lit;
@@ -596,7 +692,7 @@ function win() {
 
 // The ends without a win (G.result), each in its own words; then Try
 // again / Another / New game.
-const ENDS = { lost: 'Out of hearts', full: 'No squares left', gaveup: 'You gave up' };
+const ENDS = { lost: 'Out of hearts', full: 'No squares left', gaveup: 'You gave up', shown: 'Shown step by step' };
 const PALE = 'The pale stars show where they were.';
 
 // Out of hearts, no squares left or given up: the stars not found show
@@ -613,8 +709,9 @@ function lose(how = 'lost') {
   setTimeout(() => { if (G === game) showEnd(); }, LOSE_MS);
 }
 
-// The end's result and buttons (G.end), after a win or a loss, or for a
-// finished game picked up again.
+// The end's result and buttons (G.end), after a win, a loss or Give up's
+// walk-through (as given up: Try again to solve it yourself, now you've
+// seen how), or for a finished game picked up again.
 function showEnd() {
   const { how, title, line } = G.end, { n, k } = G;
   if (how === 'solved') {
@@ -645,6 +742,7 @@ function ending(how, title, line, againText, again, sameText, same) {
   $('sameBtn').onclick = () => { L(sameText); same(); };
   $('tools').hidden = true;
   $('hintTools').hidden = true;
+  $('walkTools').hidden = true;
   $('endTools').hidden = false;
 }
 
@@ -671,7 +769,7 @@ function restore() {
     if (list[g.k % list.length]?.seed !== g.seed) throw new Error('not the same puzzle (the puzzles changed)');
     showPlay();
     startGame(g.n, g.k, g);
-    L('resumed', { size: G.n, puzzle: G.k + 1, seed: G.seed, found: foundCount(G), hearts: G.hearts, time: clock(elapsed()), result: G.result, hint: !!shown });
+    L('resumed', { size: G.n, puzzle: G.k + 1, seed: G.seed, found: foundCount(G), hearts: G.hearts, time: clock(elapsed()), result: G.result, hint: !!shown, walk: G.walk?.step ?? null });
     return true;
   } catch (e) {
     L('resume failed: a new game', { error: String(e) });

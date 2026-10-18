@@ -19,6 +19,11 @@ time, each tried before publishing:
   logs its scroll room. Stays open until it happens again and the log
   shows why.*
 
+- **Q27. Find the Stars' turn line is cut at 320 px wide.** Seen
+  2026-10-18 (see "Show me how built"): "10×10 · puzzle 1" beside the
+  🏠 loses the end of "puzzle 1" at 320 px in the built-in browser. Not
+  yet checked whether it matters on a real phone, or since when.
+
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
@@ -6306,3 +6311,111 @@ journal; nothing built yet; `npm test` not run this session (no code
 changed). The next publish will be a release: propose **1.1** (a change,
 not a new game). **Next:** build the above, try it on the local server,
 then the developer's OK to publish. Open: Q24.
+
+## 2026-10-18: Show me how built
+
+Built on `star-battle` what "Show me how agreed" above lists, from the
+mockup's code (read back from the artifact, version 5, with the Artifact
+tool), less its mockup-only parts (the stuck 10 x 10 button, the Fade
+and ✕ edge switches).
+
+**What changed:**
+- `src/core/hidden-faces.js`: `walkStep` and `walkLength` as in the
+  mockup, with one change: `findHint`, `walkStep` and `walkLength` take
+  the hardest rule allowed (`maxLevel`, 4 by default), so a test can
+  reach the fallback ("No step to explain here: the next star is ...",
+  kind `shown`) with no rules; it can't be reached with all of them.
+  `walkLength` caps at n² steps (the mockup: 500). A new end,
+  `endGame(g, 'shown')`, only once every star is found, and kept and
+  picked up like the others (`restoreGame` accepts it). Claude's choice:
+  a result of its own rather than the mockup's screen-only
+  `G.result = 'shown'`, so a reload at the end comes back to it.
+- `fadedColor(hex, under)`: fade E's colour worked out in the script
+  (OKLab/OKLCH maths, then the sRGB mix), not with CSS's
+  `oklch(from ...)`. **Why:** relative colours need Safari 16.4+, and
+  the iPhone's version wasn't checked; worked out in the script, every
+  browser that ran the game before shows it. The screen gives each
+  square its faded colour as `--fc`; the spotlight's CSS just uses it.
+- The screen (`src/ui/hidden-faces.js`, `hidden-faces.html`): the ask
+  row "Give up?" Show me how / Just end it / No (Just end it keeps
+  Yes's id, `giveUpYes`); the walk-through's row; "Step N of M"; the
+  clock stopped (the walk keeps the time it stopped at); no board taps;
+  the end "Shown step by step / N steps · you found K of n", the bar
+  edged blue, Try again / Another / New game; kept for a reload (the
+  walk's step and stars found at the start; the step on show is kept as
+  the hint; its total worked out again from the board). Debug lines:
+  "give up: show me how", "show me how: step" (step, of, kind, star,
+  hint ✕s, implied, words), "show me how: the rest" (kinds), "show me
+  how: done", "kept walk-through not shown" (a kept walk that can't be
+  shown: the game plays on), "give up: just end it" (was "give up:
+  yes"); Why?'s line says the step.
+- CSS: fade E for hints and steps (the old opacity/greyscale fade and
+  the squares' transition gone); the lit squares' shadow; the blue end
+  edge; the two rows' sizes on narrow phones (385 px and 345 px, the
+  mockup's). `HXMARK` (`src/ui/hfboard.js`): black, stroke 33 under the
+  white 13.
+- DESIGN.md: Give up, the hint ✕, the spotlight, Show me how, the end.
+
+**Tests** (`npm test`: 285 pass, 0 fail; 5 new in
+`tests/hidden-faces.test.js`, 1 new and 2 changed in
+`tests/pages.test.js`): the walk-through from a player's star to the
+end on 7 puzzles (each step right, the count the same as `walkLength`
+said, no win, hints and hearts untouched); a wrong ✕ first; a found
+star's ✕s folded into the next step (and the same count with Auto ✕ on
+or off); the fallback; the 'shown' end only with every star found,
+surviving keeping, and a kept half-way game walking on to the same
+count; `fadedColor('#CFAE86', '#E4F1EE')` is **#D6DBD5 = rgb(214, 219,
+213)**, what Chromium drew for mockup v3's CSS (above). **Each new check
+shown to fail** (a scratch copy, one change at a time): no folding,
+walkLength one too many, chroma .35, the end allowed early, the
+fallback's star not the first, `restoreGame` refusing 'shown': each
+failed the test meant for it.
+
+**Tried** (built-in browser, `tools/serve.js` on 8123, 393 x 760, then
+320, 360 and 375 wide):
+- 10 x 10, I'll do it, 👁 Show (a star found, its ✕s not marked), Give
+  up: the row "Give up? / Show me how / Just end it / No", none cut.
+  Show me how: "Step 1 of 16", the clock stopped, the tools gone for
+  ❓ Why? / ⏩ The rest / Next ▸; the log's step 1: an "inside" step with
+  **24 implied ✕s folded in** (white ✕s round the found star in the
+  screenshot). A faded Brown square **rgb(214, 219, 213)** (its `--fc`
+  #D6DBD5), opacity 1, no filter: the same as the mockup's D/E; a lit
+  square its full colour with the inset edge and the shadow
+  (0 2px 8px 1px at 55% black), z-index 3; a hint ✕'s edge #000 at 33.
+- A tap on the board: nothing changed. Next, then Why?: its words, the
+  outlines, the button "💡 The step". **A reload:** back on "Step 2 of
+  16" with the Why? showing (log: "resumed ... walk: 2").
+- Next twice, ⏩ The rest: 12 steps at once (log: "touch touch touch
+  single x 9"), 4 + 12 = the 16 counted at the start; the end "Shown
+  step by step / 16 steps · you found 1 of 10", the bar's edge
+  rgb(31, 95, 209), 10 stars. Try again: "0 of 10 found", the bar idle
+  (no blue edge left), the tools back.
+- With 3 s on the clock: Show me how, the clock "0:03" before and 2.2 s
+  after; Next 27 times: "Step 27 of 27", "Finish ▸", The rest greyed;
+  the end "27 steps · you found 0 of 10", the clock still 0:03, nothing
+  kept as progress (`web-games-hidden-faces` absent: no best time, the
+  puzzle not moved on). A reload at the end: the same end.
+- 320 x 640: the ask row (13px / 12px) and the walk row (12.5px), none
+  cut, the page 320 wide; No: the tools back; a 💡 hint's spotlight
+  fades the same way (a square's colour its `--fc`, opacity 1); Just
+  end it: "You gave up", 10 pale stars, as before. 360 and 375 wide:
+  both rows at 13.5px, none cut, the page no wider than the screen. No
+  errors in the console.
+
+**Noticed (not changed):** at 320 px wide the turn line "10×10 · puzzle
+1" is cut at its right edge beside the 🏠 (the screenshot shows
+"puzzle" cut off). This change doesn't touch that line; whether it was
+cut before wasn't checked. Raised as Q27.
+
+**Not checked:** the iPhone (Safari's fonts may be wider; the rows are
+cut, not pushed out, if so), and sound.
+
+## 2026-10-18: Status (start here next session)
+
+**Built** on `star-battle` (above), with tests, tried on the local
+server; not published. **Next:** the developer tries it (the local
+server, or the iPhone after a publish), then the OK to publish as
+**release 1.1** (a change, not a new game): set it in
+`src/core/release.js`, `node tools/offline.js`, notes in `RELEASES.md`,
+`node tools/release.js` ready, merge, tag `v1.1`, the GitHub release.
+Open: Q24, Q27 (the turn line cut at 320 px).

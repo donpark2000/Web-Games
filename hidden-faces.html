@@ -78,11 +78,19 @@
       <button type="button" class="tool" id="whyBtn">❓ Why?</button>
       <button type="button" class="tool primary" id="gotItBtn">✓ Got it</button>
     </div>
-    <!-- Give up asks first, in place of the tools (no browser pop-up) -->
+    <!-- Give up asks first, in place of the tools (no browser pop-up):
+         shown the rest step by step, or just the end -->
     <div class="tools ask" id="askTools" hidden>
-      <span class="askq">Give up this game?</span>
-      <button type="button" class="tool primary" id="giveUpYes">Yes</button>
+      <span class="askq">Give up?</span>
+      <button type="button" class="tool primary" id="giveUpHow">Show me how</button>
+      <button type="button" class="tool" id="giveUpYes">Just end it</button>
       <button type="button" class="tool" id="giveUpNo">No</button>
+    </div>
+    <!-- "Show me how", in place of the tools: the rest a step at a time -->
+    <div class="tools hinttools" id="walkTools" hidden>
+      <button type="button" class="tool" id="walkWhy">❓ Why?</button>
+      <button type="button" class="tool" id="walkRest">⏩ The rest</button>
+      <button type="button" class="tool primary" id="walkNext">Next ▸</button>
     </div>
     <!-- at the end, in place of the tools: the board stays in view -->
     <div class="tools" id="endTools" hidden>

@@ -4,7 +4,7 @@ import {
   SIZES, HEARTS, HINTS, SHOWS, LEVEL, MAKE_LEVEL, DEMO, COLORS, PROGRESS_KEY,
   seenBy, units, newState, place, nextStep, solve, generate, connected, hardEnough, problems, colorsFor,
   createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, canUndo, showOne, findHint, useHint,
-  explainHint, snapshotGame, restoreGame, knownEmpty, isFull, endGame,
+  explainHint, snapshotGame, restoreGame, knownEmpty, isFull, endGame, walkStep, walkLength, fadedColor,
   readProgress, recordTime, clock, mulberry32,
 } from '../src/core/hidden-faces.js';
 
@@ -844,4 +844,129 @@ test('hidden faces: Give up ends the game at any point; only once; the end survi
   assert.deepEqual(endGame(g, 'gaveup'), { ok: false, why: 'over' });
   assert.deepEqual(useHint(g), { ok: false, why: 'over' });
   assert.equal(restoreGame(MADE[0], snapshotGame(g)).result, 'gaveup');
+});
+
+// Give up's "Show me how" (developer, 2026-10-18): walkStep takes the next
+// hint's step with no hint used, from the player's board; walkLength says
+// how many steps are left without changing the board. From a blank board
+// each test puzzle is walked to every star found, each step right, no
+// win (it counts as given up), the hints and hearts untouched.
+test('hidden faces walk-through: step by step to every star, no hint used, the count right', () => {
+  let steps = 0;
+  for (const p of [DEMO, TRYIT, GROUP, ...MADE]) {
+    const g = createGame(p, { auto: true });
+    tap(g, p.faces[0]); tap(g, p.faces[0]);   // a star found by the player first
+    assert.equal(foundCount(g), 1);
+    const before = JSON.stringify(snapshotGame(g));
+    const total = walkLength(g);
+    assert.equal(JSON.stringify(snapshotGame(g)), before, 'walkLength changed the board');
+    assert.ok(total >= p.n - 1, `${p.n} x ${p.n}: ${total} steps for ${p.n - 1} stars`);
+    let k = 0;
+    while (foundCount(g) < g.n) {
+      const was = [...g.marks];
+      const s = walkStep(g);
+      k++;
+      assert.ok(['single', 'inside', 'touch', 'group', 'tryit'].includes(s.kind), `${p.n} x ${p.n} step ${k}: ${s.kind}`);
+      assert.ok(s.text.length > 20);
+      if (s.star != null) { assert.ok(g.sol.has(s.star), 'a star where there is none'); assert.equal(g.marks[s.star], 'face'); }
+      for (const i of [...s.hx, ...s.pre]) { assert.ok(!g.sol.has(i), 'a hint ✕ on a star'); assert.equal(was[i], ''); assert.equal(g.marks[i], 'hx'); }
+      assert.ok(s.star != null || s.hx.length, `${p.n} x ${p.n} step ${k}: nothing changed`);
+      assert.ok(k <= total, 'more steps than walkLength said');
+    }
+    assert.equal(k, total, `${p.n} x ${p.n}: walkLength said ${total}, took ${k}`);
+    assert.equal(g.result, null, 'the walk-through won the game');
+    assert.deepEqual([g.hints, g.hintsUsed, g.hearts, g.mistakes], [HINTS, 0, HEARTS, 0]);
+    const after = walkStep(g);
+    assert.deepEqual([after.kind, after.star, after.hx, after.pre], ['none', null, [], []], 'a step after the last');
+    assert.equal(walkLength(g), 0);
+    steps += k;
+  }
+  assert.ok(steps > 40, `${steps} steps`);
+});
+
+// A wrong ✕ comes first, as with hints: the step puts the star under it.
+// ✕s a found star implies (with "I'll do it") aren't steps of their own:
+// they go on with the next step, as its `pre`.
+test('hidden faces walk-through: a wrong ✕ first; a found star’s ✕s folded into the next step', () => {
+  const g = game({ auto: false });
+  const [f, f2] = MADE[0].faces;
+  g.marks[f2] = 'x';
+  const w = walkStep(g);
+  assert.equal(w.kind, 'wrong');
+  assert.equal(w.star, f2);
+  assert.equal(g.marks[f2], 'face');
+  assert.ok(w.hx.length && w.hx.every(i => g.marks[i] === 'hx'), 'the wrong ✕’s star rules nothing out');
+
+  const h = game({ auto: false });
+  look(h, f);
+  assert.equal(findHint(h).kind, 'implied');
+  const implied = MADE[0].reg.map((_, i) => i).filter(i => i !== f && seenBy(MADE[0].n, MADE[0].reg, f).includes(i));
+  const s = walkStep(h);
+  assert.notEqual(s.kind, 'implied');
+  assert.deepEqual(sorted(s.pre), sorted(implied), 'the found star’s ✕s not all folded in');
+  assert.ok(s.pre.every(i => h.marks[i] === 'hx' && h.told.has(i)));
+  assert.ok(!s.pre.some(i => s.hx.includes(i)), 'a square in both');
+  // Counted the same way: implied ✕s add no step.
+  const c = game({ auto: false });
+  look(c, f);
+  const a = game({ auto: true });
+  look(a, f);
+  assert.equal(walkLength(c), walkLength(a));
+});
+
+// With no step it can explain (here: no rules allowed), the walk-through
+// still ends: it shows the next star, as kind 'shown', one per step.
+test('hidden faces walk-through: with no step to explain, the next star is shown', () => {
+  const g = game();
+  assert.equal(findHint(g, 0).kind, 'none');
+  assert.equal(walkLength(g, 0), g.n);
+  const first = Math.min(...g.sol);
+  const s = walkStep(g, 0);
+  assert.equal(s.kind, 'shown');
+  assert.equal(s.tgt, first);
+  assert.equal(s.star, first);
+  assert.equal(g.marks[first], 'face');
+  assert.match(s.text, /^No step to explain here: the next star is on the ringed square \(row \d, column \d\)\.$/);
+  assert.equal(explainHint(g, s), null, 'a Why? for a shown star');
+  while (foundCount(g) < g.n) assert.equal(walkStep(g, 0).kind, 'shown');
+});
+
+// The walk-through's end: given up, shown step by step ('shown'), only
+// once every star is found; kept and picked up again like the other ends.
+test('hidden faces walk-through: its end only once every star is found; it survives keeping', () => {
+  const g = game();
+  assert.deepEqual(endGame(g, 'shown'), { ok: false, why: 'not-shown' });
+  while (foundCount(g) < g.n) walkStep(g);
+  assert.deepEqual(endGame(g, 'shown'), { ok: true });
+  assert.equal(g.result, 'shown');
+  assert.deepEqual(endGame(g, 'shown'), { ok: false, why: 'over' });
+  assert.deepEqual(useHint(g), { ok: false, why: 'over' });
+  assert.ok(!canUndo(g));
+  const back = restoreGame(MADE[0], snapshotGame(g));
+  assert.equal(back.result, 'shown');
+  assert.deepEqual(back.marks, g.marks);
+  // Kept half way through: it goes on from there to the same end.
+  const h = game();
+  for (let k = 0; k < 3; k++) walkStep(h);
+  const left = walkLength(h);
+  const again = restoreGame(MADE[0], snapshotGame(h));
+  assert.equal(walkLength(again), left);
+  assert.ok(left > 0);
+});
+
+// Fade E (developer, 2026-10-18): a square a hint or step isn't about is
+// its colour at 30% chroma, 35% of it over the page's sky. Worked out in
+// the script, as CSS's oklch(from ...) needs Safari 16.4+; the expected
+// value is what Chromium drew for the CSS in mockup v3 (journal: a tan
+// square #CFAE86 dimmed is rgb(214, 219, 213)).
+test('hidden faces: a faded square’s colour is what the browser drew for fade E', () => {
+  assert.equal(fadedColor('#CFAE86', '#E4F1EE'), '#D6DBD5');
+  assert.equal(fadedColor('#CFAE86', '#E4F1EE', { chroma: 1, amount: 1 }), '#CFAE86', 'the colour changed with nothing faded');
+  assert.equal(fadedColor('#CBCBD3', '#CBCBD3', { amount: 0 }), '#CBCBD3');
+  assert.equal(fadedColor('#808080', '#E4F1EE', { amount: 1 }), '#808080', 'a grey isn’t its own grey');
+  for (const [, c] of COLORS) {
+    const f = fadedColor(c, '#E4F1EE');
+    assert.match(f, /^#[0-9A-F]{6}$/);
+    assert.notEqual(f, c);
+  }
 });
