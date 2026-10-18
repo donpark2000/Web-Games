@@ -6259,3 +6259,50 @@ at 88% of a square: about 2.2 px on a 10 x 10, close to 3.)
 stroke and width on a white ✕ (rgb(43, 43, 51) 23; black 29; black 33);
 the two switches side by side, clear of each other and of the buttons
 above; the page no wider than the screen.
+
+## 2026-10-18: Show me how agreed; status (start here next session)
+
+**Developer:** fade **E**, white ✕ edge **3** ("3"), after "E looks
+right" was offered with two defaults that weren't changed: the lines
+between colours stay at full strength, and each "only one left" step
+stays its own step.
+
+**Agreed, to build** (from mockups v1-v5 above,
+[Give Up Walkthrough Mockup](https://claude.ai/artifact/PmNc95i5mPVZVPmtnUkDEH),
+version 5):
+1. **Give up asks how:** "Give up?" **Show me how** / **Just end it** /
+   **No** (Just end it = today's Yes; a touch on the board = No).
+2. **Show me how** walks through the rest from the player's board, one
+   step at a time, each shown and taken as a hint is (words, lit squares,
+   ❓ Why?, its star or white hint ✕s), with no hint used; ✕s a found star
+   implies go on with the star, not as steps. Buttons: **❓ Why?** /
+   **⏩ The rest** / **Next ▸** ("Finish ▸" on the last). "Step 3 of 18"
+   in place of "3 of 10 found"; the clock stops; the board takes no taps.
+3. **The end:** "Shown step by step / 18 steps · you found 3 of 10",
+   the bar edged blue; **Try again / Another / New game**; counts as
+   given up (no best time, the puzzle not moved on).
+4. **Fade E, for hints too** (the same spotlight): the squares a step
+   isn't about keep their marks and lines at full strength, their colour
+   as A dimmed it (35% of the colour at 30% chroma over the sky); the lit
+   squares lifted by a shadow.
+5. **White ✕ edge 3:** black, stroke 33 under the white 13 (was #2B2B33,
+   23), wherever a hint ✕ is drawn.
+
+**For the build** (not in the mockup): kept with the game for a reload
+(resume: the walk-through's step, what's lit); its debug lines as the
+mockup's ("give up: show me how", "show me how: step" with kind and
+words, "the rest", "done"); tests in `tests/` for `walkStep` and
+`walkLength` (the normal case, a wrong ✕ first, implied ✕s folded in,
+the fallback when no step can be explained) and the new end; DESIGN.md
+("Find the Stars": Give up, hints' spotlight and hint ✕); the narrow
+phone sizes of the two new rows (mockup: 385 px and 345 px). Fade D/E's
+`oklch(from ...)` needs Safari 16.4+: check the iPhone, or work the
+colours out in the script. The mockup's code is Claude's scratch copy
+(`patch-mock.mjs` and the files in the artifact; read them with the
+Artifact tool, `path`, if the scratchpad is gone); the repo is untouched.
+
+**Status:** `star-battle` = `main` + `tools/release.js`'s joined notes +
+journal; nothing built yet; `npm test` not run this session (no code
+changed). The next publish will be a release: propose **1.1** (a change,
+not a new game). **Next:** build the above, try it on the local server,
+then the developer's OK to publish. Open: Q24.
