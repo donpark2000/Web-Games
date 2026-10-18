@@ -6236,3 +6236,26 @@ the lit column standing out with every ✕ and star readable.
 
 Open from v3: whether the lines between colours should stay at full
 strength (as in D and E) or fade (as in A).
+
+## 2026-10-18: Mockup v5: the white ✕'s edge
+
+**Developer** on v4: "Very good. Would it be possible to make the black
+outline of the white X's darker or perhaps a little thicker?"
+
+**Now:** `HXMARK` (`src/ui/hfboard.js`) draws the white line (stroke 13)
+over a dark one (stroke 23, #2B2B33) in a 100-unit box, so the edge is 5
+units each side; the ✕ is 58% of a square, so on a 10 x 10's 35 px
+squares the edge is about 1 px. It's already nearly black, so a darker
+edge alone changes little; thicker is what shows.
+
+**Mockup v5** (the same artifact, version 5): a **✕ edge** switch,
+bottom left (the Fade switch bottom right): **1** as now; **2** black,
+8 units each side (stroke 29, about 1.6 px on a 10 x 10); **3** black,
+10 units (stroke 33, about 2 px). The white line stays 13. Opens on 1;
+remembered on the device. (The star's edge is 7 units of a 100-unit box
+at 88% of a square: about 2.2 px on a 10 x 10, close to 3.)
+
+**Checked** (built-in browser, 393 x 760): each setting's computed
+stroke and width on a white ✕ (rgb(43, 43, 51) 23; black 29; black 33);
+the two switches side by side, clear of each other and of the buttons
+above; the page no wider than the screen.
