@@ -6419,3 +6419,26 @@ server, or the iPhone after a publish), then the OK to publish as
 `src/core/release.js`, `node tools/offline.js`, notes in `RELEASES.md`,
 `node tools/release.js` ready, merge, tag `v1.1`, the GitHub release.
 Open: Q24, Q27 (the turn line cut at 320 px).
+
+## 2026-10-18: Release 1.1 published
+
+Published with the developer's OK ("Please publish. It looks great on my
+local server. Next step will be a phone test."), as **1.1**, the number
+proposed in the status entry (a change, not a new game).
+`src/core/release.js` 1.1; `node tools/offline.js`: "release 1.1,
+version a13d7c8f2673 (2026-10-18), 82 files"; notes in `RELEASES.md`;
+`npm test` 285 pass; `node tools/release.js`: "Release 1.1 is ready:
+version a13d7c8f2673; tag v1.1 not made yet". `main` fast-forwarded
+16bb72e..d7c27ee and pushed; tag `v1.1` (annotated) pushed; GitHub
+release "1.1" from `node tools/release.js notes`
+(https://github.com/donpark2000/Web-Games/releases/tag/v1.1: not a
+draft; 5 lines of text, each a paragraph or list item, so no breaks
+mid-sentence). The Pages build for d7c27ee "built" at 20:48:13Z; the
+server then sends `RELEASE = '1.1'` and version a13d7c8f2673.
+
+Local servers stopped: the developer's (`tools/serve.js 8123`, process
+25312); Claude's mockup server was already stopped. None left running.
+
+**Next:** the developer's phone test of Show me how, fade E and the
+hint ✕ edge (Safari's fonts in the two new rows; `oklch(from ...)` if
+the build kept it). Open: Q24, Q27.
