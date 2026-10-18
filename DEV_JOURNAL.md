@@ -6087,3 +6087,74 @@ in "The play screen pushed right on the iPhone".
 
 **Status:** as in the last status entry (release 1.0 live), with no
 skill additions waiting. Open: Q24, Q26.
+
+## 2026-10-18: Q26 closed; Give up "Show me how": mockup v1
+
+Q26 closed: log.html's Clear stays as it is (see Resolved).
+
+**The developer's idea:** on a 10 x 10 they couldn't solve even after 3
+hints and the Show, Give up was the only way out, "very unsatisfying
+since I learn nothing from it". Give up could have two modes: the
+current one, and one "more like a tutorial", stepping through the rest
+of the puzzle with hint-like words for each step, waiting for a confirm
+before the next.
+
+**Claude's five proposals, agreed for a mockup ("Yes, make a mockup with
+those five proposals."):**
+1. Give up asks how: **Show me how**, **Just end it** (as now), **No**.
+2. The walk-through starts from the player's board (the first step is
+   the one they were stuck on); their ✕s count, a wrong ✕ is pointed out
+   first, as hints do.
+3. Each step looks like a hint: words in the bar, the squares lit, ❓ Why?
+   where there's a deeper reason, **Next ▸**, and **⏩ The rest** to finish
+   at once.
+4. ✕s a found star implies aren't steps of their own: they go on with the
+   star.
+5. The end counts as given up (no best time).
+
+**Mockup v1:** [Give Up Walkthrough Mockup](https://claude.ai/artifact/PmNc95i5mPVZVPmtnUkDEH)
+(private Claude artifact, version 1). The real game copied into Claude's
+scratchpad with the walk-through added there, published with its own
+files (page, CSS, modules, puzzles); nothing in the repo changed. In the
+scratch core, `walkStep` takes the next hint's step as `useHint` does,
+with no hint used (and a found star's implied ✕s folded in);
+`walkLength` counts the steps on a copy. Claude's choices, all open:
+- **Each step is taken as it's shown** (as hints have done since
+  2026-10-15): its star or white hint ✕s are on the board while its words
+  and lit squares show. Next goes to the following step; on the last,
+  "Finish ▸".
+- "3 of 10 found" reads **"Step 3 of 18"** during the walk-through; the
+  clock stops when it starts; the board takes no taps.
+- The end: "Shown step by step / 18 steps · you found 3 of 10" beside the
+  star, the bar edged blue; the buttons **Try again / Another / New
+  game**, as after giving up (proposal 5 said Next / Same size; changed
+  because Try again lets you solve the same puzzle yourself, now that
+  you've seen how).
+- The ask row reads "Give up?" (shorter than "Give up this game?", to fit
+  three buttons on a phone).
+- **Mockup only:** a "A stuck 10×10" button on the setup screen: puzzle 17
+  (seed index 16) with its first 5 solver steps done as the player's own ✕s
+  and stars (3 found), hints and the Show used, 14:32 on the clock; its
+  next step is a "would rule out". 🏠 goes back to the setup screen.
+
+**Measured** (`pick-stuck.mjs` in the scratchpad, the first 40 10 x 10
+puzzles; each walk-through 3-28 ms): a whole 10 x 10 takes 16-34 steps;
+none needed "try a star", so every step had a Why? in the stuck game.
+Puzzle 17 from the stuck point: 18 steps (7 "would rule out", 3 "all
+inside", 1 "k in k", 7 "only one left"); from blank, 23.
+
+**Checked** (built-in browser, the scratch copy served by a temporary
+`.claude/launch.json` entry, removed after): all 18 steps with Next at
+393 x 760: every step's words and its Why? fit the bar (none over its
+height), Why? on all 18, "Finish ▸" on the last, the end as above; ⏩ The
+rest from a blank board (23 steps) and Try again (back to 0 of 10, the
+tools back); Give up then No (the tools back). Rows at 320, 375 and 393
+px wide: none of the new buttons cut, the page no wider than the screen
+(narrow-phone sizes added after "Show me how" and "⏩ The rest" were cut
+at 320). Found and fixed: after Try again the hint bar kept the end's
+blue edge (`paintBar` didn't remove the new class). The published copy
+not opened by Claude (the built-in browser isn't signed in to claude.ai).
+
+**Noticed, for the developer:** the walk-through often ends with a run of
+"only one left" steps (puzzle 17: the last 6), each one tap. Fold the
+easy ones into the step before, or keep every star its own step?
