@@ -7,6 +7,22 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 1.1 (2026-10-18, version a13d7c8f2673)
+
+Find the Stars: a way to learn from a puzzle you couldn't solve.
+
+- **Give up asks how:** "Give up?" Show me how, Just end it (as before)
+  or No.
+- **Show me how** walks through the rest of the puzzle from where you
+  are, one step at a time: each step's words, the squares it's about
+  lit, ❓ Why? for the deeper reason, then Next. ⏩ The rest finishes at
+  once. The end says "Shown step by step" and counts as given up (no
+  best time); Try again lets you solve it yourself.
+- **Clearer hints:** the squares a hint isn't about keep their ✕s, stars
+  and lines at full strength (only their colour fades), and the lit
+  squares are lifted by a shadow.
+- **The hints' white ✕s** have a thicker black edge, easier to see.
+
 ## 1.0 (2026-10-16, version 720f7406cc4a)
 
 The first numbered release: everything on the site so far.
