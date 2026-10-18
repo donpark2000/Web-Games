@@ -18,12 +18,6 @@ time, each tried before publishing:
   *Debug output built 2026-10-15 (see "Q22-Q24 built"): the home page
   logs its scroll room. Stays open until it happens again and the log
   shows why.*
-- **Q26. log.html's Clear asks with the browser's `confirm()`.** The
-  games' Give up asks in the page itself (as the brief asked: "no
-  browser confirm()"), but the log page's Clear, given as the model,
-  uses `confirm()` (`src/ui/logpage.js`). Make Clear ask in the page
-  too, or leave it (it's for the developer, not the games)? Raised
-  2026-10-15.
 
 ## Proposed additions to the standards skill
 
@@ -62,6 +56,19 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q26. log.html's Clear asks with the browser's `confirm()`.** The
+  games' Give up asks in the page itself (as the brief asked: "no
+  browser confirm()"), but the log page's Clear, given as the model,
+  uses `confirm()` (`src/ui/logpage.js`). Make Clear ask in the page
+  too, or leave it (it's for the developer, not the games)? Raised
+  2026-10-15.
+  *Resolved 2026-10-18: left as it is.* The developer: "Everything
+  seems to work as it is. Why would I change it?" Claude: nothing is
+  broken; the only reasons are looks and a browser's rarely used "stop
+  this page's pop-ups" box (Clear would then clear without asking),
+  neither of which matters on a page only the developer uses. The
+  developer: "close it."
 
 - **Q22. Restarting the app should be a clean slate.** "If I completely
   stop and restart the app, I would expect it to go to the home page,
