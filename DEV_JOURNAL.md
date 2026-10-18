@@ -6192,3 +6192,26 @@ above their neighbours). Screenshots weren't reliable with the browser
 pane hidden (frames a click behind, the fade's 0.2 s transition not run),
 so only one full screenshot of B was used to judge it: every ✕, white
 ones too, and every colour's outline readable.
+
+## 2026-10-18: Mockup v3: fade D, A's dimming with the marks kept
+
+**Developer:** "What would A look like if you kept the dimming of the
+background cell color but kept the X's and Stars at full brightness?"
+
+**Mockup v3** (the same artifact, version 3): a fourth Fade, **D**: the
+square's colour as A shows it, worked out instead of faded with opacity
+(`color-mix(in srgb, oklch(from var(--rc) l calc(c * .3) h) 35%,
+var(--sky))`: the colour at 30% of its chroma, standing in for A's
+`grayscale(.7)`, then 35% of it over the page's sky), with the ✕s, stars
+**and the lines between colours** at full strength (in A the lines fade
+too; Claude kept them, as they're drawn as the squares' borders and
+the shapes of the colours matter to the reasoning; to say if they should
+fade).
+
+**Checked** (built-in browser, 393 x 760, the pane shown this time): on
+step 5 of the stuck 10 x 10, a tan square (#CFAE86) dimmed is
+rgb(214, 219, 213) in D; A's, worked out from its opacity and greyscale
+over the sky (228, 241, 238), is (214, 219, 212): the same colour. Side
+by side, D's ✕s and stars dark and crisp, A's faint. The relative colour
+syntax (`oklch(from ...)`) needs Safari 16.4 or later; a build could
+work the colours out in the script instead.
