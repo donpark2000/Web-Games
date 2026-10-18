@@ -6215,3 +6215,24 @@ over the sky (228, 241, 238), is (214, 219, 212): the same colour. Side
 by side, D's ✕s and stars dark and crisp, A's faint. The relative colour
 syntax (`oklch(from ...)`) needs Safari 16.4 or later; a build could
 work the colours out in the script instead.
+
+## 2026-10-18: Mockup v4: fade E, D's squares with C's lift
+
+**Developer** on v3: "I like the way the lit cells look in C. But I
+prefer the way the non-lit cells look in D."
+
+**Mockup v4** (the same artifact, version 4): a fifth Fade, **E**: the
+squares a step isn't about as in D (A's dimmed colour, the ✕s, stars and
+lines at full strength), the lit squares as in C (lifted by a shadow,
+`0 2px 8px 1px` at 55% black, above their neighbours). E is what the
+mockup shows first (remembered under a new key, so an earlier pick on
+the device doesn't hide it).
+
+**Checked** (built-in browser, 393 x 760): on step 5 of the stuck
+10 x 10 with E: a faded square rgb(214, 219, 213), the same as D's; the
+lit squares their full colour with the dark edge and the shadow, above
+their neighbours; the page no wider than the screen; a screenshot shows
+the lit column standing out with every ✕ and star readable.
+
+Open from v3: whether the lines between colours should stay at full
+strength (as in D and E) or fade (as in A).
