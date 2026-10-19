@@ -7150,3 +7150,11 @@ Colour Sudoku on the phone: the rest of Q30 (N2 notes against N1,
 Claude's choices in DESIGN.md "As built") and Q31 (does Easy feel too
 hard; if so, start it with about 30 digits). Open: Q24, Q27, Q30, Q31.
 **Proposed skill additions:** none.
+
+## 2026-10-19: 2.1 on the phone
+
+**Developer:** "Looking good on the phone. I will play it a while before
+making more changes." On the build: "You did a good job of carrying
+forward the design lessons from 'find the stars' when it comes to hints
+and quitting." Q30 and Q31 stay open until then. Next changes start in a
+fresh session.
