@@ -7023,3 +7023,28 @@ with `node tools/release.js notes`; once live, stop the localhost
 servers. Then the developer judges it on the phone (Q30).
 
 **Open:** Q24, Q27 (unrelated), Q30. **Proposed skill additions:** none.
+
+## 2026-10-19: Release 2.0 published; status (start here next session)
+
+Published with the developer's OK ("Yes, publish Colour Sudoku as
+release 2.0."): Colour Sudoku, a new game. `src/core/release.js` 2.0;
+`node tools/offline.js`: "release 2.0, version cfd968c6a9f1
+(2026-10-19), 88 files"; notes in `RELEASES.md`; `npm test` 312 pass;
+`node tools/release.js`: "Release 2.0 is ready". `main` fast-forwarded
+b858d8b..6be4477 (`colour-sudoku` = `star-battle` + the game + the
+release commit) and pushed; tag `v2.0` (annotated) pushed; GitHub
+release "2.0" from `node tools/release.js notes`
+(https://github.com/donpark2000/Web-Games/releases/tag/v2.0). The Pages
+build for 6be4477 "built" at 22:36:04Z; the live site then sent
+`RELEASE = '2.0'`, version cfd968c6a9f1, `colour-sudoku.html` (200),
+the home page with the tile, and a `data/colour-sudoku.json` identical
+to the committed one (a first compare against the working copy differed
+only by its Windows line endings). No local servers running (no node
+processes).
+
+**Status:** release 2.0 live (`main` = 6be4477, tag `v2.0`);
+`colour-sudoku` = `main` + this entry. **Next:** the developer plays
+Colour Sudoku on the phone (version line 2.0; the app fetches it in the
+background, so maybe after one more open) and judges Q30: N2 notes
+against N1, and Claude's choices in DESIGN.md "As built". Open: Q24,
+Q27, Q30. **Proposed skill additions:** none.
