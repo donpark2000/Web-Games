@@ -6575,5 +6575,6 @@ keeps its own state as it unloads and overwrote an edit made on its own
 page): "Next" 168 px and "New game" 168 px, Same size hidden, no
 sideways scroll (375); Next started puzzle 2 ("puzzle used" 2, next 3);
 Give up there, Just end it: Try again / Another / New game, the row of
-three. Seen in passing: "10×10 · puzzle 1" cut at 375 px too (Q27 says
-320 px; the 🔊 crowds it). Local server stopped after.
+three. Not Q27 evidence: one half-size screenshot showed a stray "·"
+after "puzzle 1", the next showed the line whole (the turn line is only
+"10×10 · puzzle N"); left as is. Local server stopped after.
