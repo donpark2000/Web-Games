@@ -24,15 +24,6 @@ time, each tried before publishing:
   🏠 loses the end of "puzzle 1" at 320 px in the built-in browser. Not
   yet checked whether it matters on a real phone, or since when.
 
-- **Q29. Which coloured-region Sudoku the developer means.** Raised
-  2026-10-19 (see "A Sudoku with colours: which one?"): the usual rules
-  (1-9 once in every row, column and 3 x 3 box) plus coloured shapes
-  across rows and columns, not bound by the boxes, each colour's digits
-  also all different. Candidates: (1) Killer Sudoku (cages with sums),
-  (2) Extra Regions / "Color Sudoku" (nine coloured 9-square shapes,
-  each also 1-9 once), (3) Disjoint Groups (colour by place in the box).
-  Claude's guess: (2). Open until the developer picks one.
-
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
@@ -70,6 +61,17 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q29. Which coloured-region Sudoku the developer means.** Raised
+  2026-10-19 (see "A Sudoku with colours: which one?"): the usual rules
+  (1-9 once in every row, column and 3 x 3 box) plus coloured shapes
+  across rows and columns, not bound by the boxes, each colour's digits
+  also all different. Candidates: (1) Killer Sudoku (cages with sums),
+  (2) Extra Regions / "Color Sudoku" (nine coloured 9-square shapes,
+  each also 1-9 once), (3) Disjoint Groups (colour by place in the box).
+  Claude's guess: (2). **Resolved 2026-10-19:** (2), Extra Regions
+  (developer: "It's 2, Extra Regions: nine coloured shapes, each also
+  1-9 once.").
 
 - **Q28. Find the Stars seems to repeat puzzles, "especially when I get
   up to 10x10"** (developer, 2026-10-19). Checked in the code: no random
@@ -6649,3 +6651,97 @@ pairs, box/line, and the extra region's own interactions).
 in the Claude desktop app viewer; the agreed choices go in DESIGN.md;
 then build on a branch with debug output and tests. Publishing as
 release 2.0 only with the developer's OK.
+
+## 2026-10-19: Extra Regions chosen; Colour Sudoku mockup v1
+
+**Developer:** "It's 2, Extra Regions: nine coloured shapes, each also
+1-9 once." (Q29 resolved.)
+
+**Puzzle maker** (scratchpad for now, `cs-core.js`; meant for
+`src/core/` when built; free of DOM code). What was tried, in order:
+1. *Colours wandered over a filled grid, starting from the rows*
+   (swap two squares with the same digit between neighbouring colours,
+   keeping both joined): almost no swap is legal from rows (taking a
+   middle square splits a row), so the rows stayed rows.
+2. *Shapes first, digits after:* shapes are easy (from the boxes,
+   swapping squares freely: good spread in 0.2 s), but a grid that
+   fits rows, columns, boxes and colours was found for none of 10
+   layouts (20,000-300,000 tries each, 1.6-8 s). Likely most random
+   layouts have no answer at all: four sets of rules on 81 squares.
+3. *Grown around a filled grid* (each colour takes a neighbouring square
+   whose digit it lacks): about 1 in 200 attempts completes (0.5 s per
+   grid), but the colours stay box-like.
+4. **What works:** grow as in 3, then anneal (simulated annealing) with
+   same-digit swaps, a split colour allowed on the way but costed, aiming
+   for a boundary of about 56 lines (boxes have 36, rows 72) and every
+   colour over 2+ rows, columns and boxes with at most 7 in any one. The
+   stricter aim (3+ of each, at most 5 in one) failed in 23 of 23 runs.
+   A puzzle is then a solution with givens taken out one at a time
+   while the step solver still finishes it, so it has one answer.
+   **Measured:** 14 makes, 0.2-2.2 s each, 14-19 givens. Easy (only
+   "the only place a digit can go" and "the only digit left"): 4 of 4.
+   Harder (also "all inside": a unit's digit confined to another unit):
+   10 of 10 needed it, 6 to 33 times.
+
+A slip on the way: one loop (4 settings x 40 grids) ran past 2 minutes
+with no output before a single run was timed, the case the skill's
+"Time one run before looping over many" covers. No new lesson.
+
+**Mockup v1:** [Colour Sudoku Mockup](https://claude.ai/artifact/D53EsTrxeFeaFpFKwzr7wF)
+(private Claude artifact, version 1). Built from the site's `site.css`,
+`game.css` and `hidden-faces.css` by a script in Claude's scratchpad;
+the solver runs in the page for hints; 4 easy and 4 harder puzzles. A
+mockup bar on top: "Fill all but 3" (to reach the end) and "A harder
+one". Claude's choices, all open:
+- **Name "Colour Sudoku"**; in 🧩 Puzzles for grown-ups (no home page
+  in the mockup).
+- **Setup:** the rules beside a solved puzzle; **How hard?** Easy /
+  Harder; **Your notes:** Auto tidy (a digit placed comes out of the
+  notes it rules out; default) / I'll do it; Play!.
+- **Play:** 🏠 and "Easy · puzzle 1"; hearts, "63 to go", a clock; the
+  board (colour fills, thick box lines, thin lines between squares);
+  the hint bar (3 lines); **a row of digits 1-9** (a digit is greyed
+  once all nine are placed); Undo, ✏️ Notes, 💡 Hint (3), 🏳 Give up.
+- **Entering:** tap a square, then a digit. The square is ringed; every
+  square with the same digit gets a white disc (and that digit in
+  notes). ✏️ Notes on: digits toggle small notes instead. A wrong digit
+  shows red, shakes and costs a heart (three ends it); it stays until
+  replaced; **Undo** takes back notes and wrong digits (the heart comes
+  back, the mistake counts), never a right digit (they're certain, as a
+  found star). Digits typed on a keyboard work too.
+- **Hints, as Find the Stars:** a red digit first (the hint takes it
+  out); else the solver's next placement, with any "all inside" step it
+  needs first (those squares dashed). It takes its step: the digit goes
+  in, white with a black edge (like the hint ✕). Spotlight; the square
+  ringed and named. **While a hint is lit, its words take the digits'
+  row too** (so the bar can be 3 lines, the board never moves, and a
+  harder hint's 4 lines fit). ❓ Why?: each other empty square of the
+  unit labelled with what rules the digit out (row, col, box or the
+  colour's name), the digits doing it ringed in red dots; for "the only
+  digit left", the digits its row, column, box and colour have. ✓ Got
+  it; the last hint stays greyed, "(tap to light it again)".
+- **Give up:** Show me how / Just end it / No; Show me how walks the
+  rest a step at a time ("Step 3 of 63"), with ❓ Why?, ⏩ The rest,
+  Next ▸.
+- **The end:** as Find the Stars (the big star and the result in the
+  bar); Next / Try again / New game. Out of hearts or given up: the rest
+  of the answer pale.
+- No sound, nothing kept on the device, no debug log (a mockup).
+
+**Checked** (scratchpad served on localhost 8130 through the repo's
+`tools/serve.js` `createServer`, built-in browser at 393 x 760; a
+temporary `.claude/launch.json` entry, removed after): the board fits
+with 34 px squares, no page scrolling; an easy hint ("The ringed square
+(row 2, column 2) is the only place for 8 in the top-left box...") and
+its Why? (labels and the 8s ringed); a harder hint with "all inside"
+(dashed squares in Orange) fits the bar with the digits' row, the board
+not moving (its top at 180 px before and after); notes 1, 4, 5 on a
+square; a wrong digit took a heart and Undo gave it back; Show me how
+reached step 3; "Fill all but 3" then the right digits gave "Solved".
+**Found and fixed while checking:** "a 8"; the 4-line hint bar left
+32 px squares and a harder hint still overflowed it (now 3 lines plus
+the digits' row while lit); the dashed squares weren't lit; the clock
+kept the last game's time; same-digit discs stayed on after a win.
+
+**Open questions:** none yet; the mockup choices above are for the
+developer.
