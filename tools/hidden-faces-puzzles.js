@@ -1,7 +1,8 @@
 // Makes Hidden Faces' puzzle stock (DESIGN.md "Hidden Faces"): for each
 // size, the first STOCK seeds from firstSeed(n) on whose puzzle is hard
-// enough (src/core/hidden-faces.js: stockPuzzle), in seed order, so the
-// same code always makes the same file. The work is spread over the
+// enough (src/core/hidden-faces.js: stockPuzzle), in the order stockOrder
+// gives them (seed order, shuffled once with a fixed seed), so the same
+// code always makes the same file. The work is spread over the
 // computer's cores (a 10 x 10 takes about 4 s to make, up to 13 s, and
 // about 1 in 3 is kept).
 //   node tools/hidden-faces-puzzles.js [count] [out]
@@ -15,7 +16,7 @@ import { writeFile } from 'node:fs/promises';
 import { availableParallelism } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SIZES, STOCK, firstSeed, stockPuzzle, encode } from '../src/core/hidden-faces.js';
+import { SIZES, STOCK, firstSeed, stockPuzzle, stockOrder, encode } from '../src/core/hidden-faces.js';
 
 if (!isMainThread) {
   // A worker: makes the puzzle for each seed it's sent.
@@ -64,7 +65,7 @@ if (!isMainThread) {
         feed(w);
       }
     });
-    stock[n] = [...kept.entries()].sort((a, b) => a[0] - b[0]).slice(0, count).map(([, p]) => p);
+    stock[n] = stockOrder(n, [...kept.entries()].sort((a, b) => a[0] - b[0]).slice(0, count).map(([, p]) => p));
     console.log(`${n}x${n}: ${count} puzzles, ${tried} seeds tried, ${Math.round((Date.now() - t) / 1000)} s`);
   }
   await Promise.all(workers.map(w => w.terminate()));

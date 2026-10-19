@@ -4,10 +4,12 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-18): Find the Stars: Give up asks how, and **Show me
+*Status (2026-10-19): Find the Stars: a puzzle counts as used as it
+starts (only Try again plays one again), and the puzzles are shuffled
+once into a new order. 2026-10-18: Find the Stars: Give up asks how, and **Show me
 how** walks through the rest a step at a time; the spotlight fades only
 the squares' colour and lifts the lit ones; hint ✕s have a thicker black
-edge (built, not yet published). 2026-10-15, later: Find the Stars: a look where there's known
+edge (published 2026-10-18, release 1.1). 2026-10-15, later: Find the Stars: a look where there's known
 to be no star costs nothing, and the last hint's words stay in the bar,
 greyed; hints take their own step, with white hint ✕s (published
 2026-10-15). Earlier 2026-10-15: every game carries on where it was left, and the
@@ -718,11 +720,23 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   than "one square left" in at least 60% as many as the size (about 1 in
   3 made puzzles passes). Each is stored with the seed it was made from;
   the first 200 passing seeds from n x 10000 on, so the tool always makes
-  the same file. None needs "try it" (that rule is for hints).
+  the same file. None needs "try it" (that rule is for hints). **Played
+  in a shuffled order** (developer, 2026-10-19: "shuffle the existing
+  order once so I start off seeing new puzzles"; until then seed order):
+  shuffled with a fixed seed (`stockOrder`), the first 50 of the old
+  order last, as a device may have played some of them.
 - **Kept on the device** (built 2026-10-13, Claude's choice): the next
-  puzzle per size ("puzzle 3": a win or Another moves on; Try again and
-  leaving mid-puzzle don't; after 200 they start over) and the best time
-  per size. **The clock stops** while the page is hidden (another app,
+  puzzle per size ("puzzle 3") and the best time per size. **A puzzle
+  counts as used as it starts** (developer, 2026-10-19, Q28: "It is less
+  interesting to have to keep going through the same puzzles before
+  getting to something new"): Play, Next, Same size and Another each
+  bring the next one not yet started; only **Try again** plays one again
+  (and a reload or another app picks up the one under way). Until then
+  only a win or Another moved on, so leaving mid-puzzle, Give up or
+  running out of hearts brought the same puzzle back. **After the 200th
+  they come round again, in the same order** (developer: "By the time I
+  get to the 200th puzzle I will have long forgotten what came first"),
+  the number counting on ("puzzle 201"). **The clock stops** while the page is hidden (another app,
   the phone locked).
 - **Sounds:** a tick per ✕, a ding for a star, "uh-oh" for a wrong look,
   a ping for a hint, the sparkle when solved, "aww" when out of hearts.

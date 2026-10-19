@@ -6,7 +6,7 @@
 
 import {
   SIZES, DEFAULT_SIZE, HEARTS, DEMO, PROGRESS_KEY, decode, createGame, foundCount, tap, startStroke, strokeTo,
-  endStroke, undo, canUndo, showOne, useHint, explainHint, readProgress, recordTime, clock, snapshotGame, restoreGame,
+  endStroke, undo, canUndo, showOne, useHint, explainHint, readProgress, recordTime, takeNext, stockAt, clock, snapshotGame, restoreGame,
   isFull, endGame, walkStep, walkLength, fadedColor,
 } from '../core/hidden-faces.js';
 import { mergeSetup } from '../core/resume.js';
@@ -105,7 +105,7 @@ for (const b of $('autos').children) {
 $('playBtn').onclick = () => {
   if (!stock) return;
   showPlay();
-  startGame(setup.size, prog.next[setup.size] ?? 0);
+  startNext(setup.size);
 };
 function showPlay() {
   $('setup').hidden = true;
@@ -118,12 +118,23 @@ function showPlay() {
 // Puzzle number k (0-based, counting on past the end of the stock: it
 // starts over) of size n. `kept`: that puzzle's game as kept last time
 // (resume's), picked up where it was left.
+// A puzzle of size n not yet started (Play, Next, Same size, Another):
+// counted as used as it starts (developer, 2026-10-19, Q28), so leaving
+// it, giving up or running out of hearts doesn't bring it back; only Try
+// again does. After the last they come round again (stockAt).
+function startNext(n) {
+  const k = takeNext(prog, n);
+  saveProgress();
+  L('puzzle used', { size: n, puzzle: k + 1, of: stock[n].length, round: Math.floor(k / stock[n].length) + 1, next: prog.next[n] + 1 });
+  startGame(n, k);
+}
+
 function startGame(n, k, kept = null) {
   const list = stock[n];
-  const p = list[k % list.length];
+  const p = stockAt(list, k);
   G = kept ? restoreGame(p, kept, { colorSeed: p.seed }) : createGame(p, { auto: setup.auto, colorSeed: p.seed });
   Object.assign(G, { k, seed: p.seed, t0: Date.now() - (kept?.ms ?? 0), paused: null, end: kept?.end ?? null });
-  if (!kept) L('game started', { size: n, puzzle: k + 1, seed: p.seed, auto: G.auto });
+  if (!kept) L('game started', { size: n, puzzle: k + 1, stock: k % list.length + 1, seed: p.seed, auto: G.auto });
   const b = $('board');
   b.style.setProperty('--n', n);
   // --fc: the colour faded, for the squares a hint or step isn't about.
@@ -677,7 +688,6 @@ function win() {
   clearInterval(clockTimer);
   $('clock').textContent = `⏱ ${clock(ms)}`;
   const { best, newBest } = recordTime(prog, G.n, ms);
-  prog.next[G.n] = G.k + 1;
   saveProgress();
   L('solved', { size: G.n, puzzle: G.k + 1, time: clock(ms), mistakes: G.mistakes, hints: G.hintsUsed, shows: G.showsUsed, newBest, best: best && clock(best) });
   sound.play('win');
@@ -717,12 +727,12 @@ function showEnd() {
   if (how === 'solved') {
     const up = Math.min(10, n + 1);
     ending(how, title, line,
-      n < 10 ? `Next: ${up}×${up}` : 'Next', () => startGame(up, prog.next[up] ?? 0),
-      'Same size', () => startGame(n, prog.next[n] ?? 0));
+      n < 10 ? `Next: ${up}×${up}` : 'Next', () => startNext(up),
+      'Same size', () => startNext(n));
   } else {
     ending(how, title, line,
       'Try again', () => startGame(n, k),
-      'Another', () => { prog.next[n] = k + 1; saveProgress(); startGame(n, k + 1); });
+      'Another', () => startNext(n));
   }
 }
 
@@ -766,7 +776,7 @@ function restore() {
     mergeSetup(setup, resume.saved.setup);
     const list = stock[g?.n];
     if (!list) throw new Error(`no ${g?.n} x ${g?.n} puzzles`);
-    if (list[g.k % list.length]?.seed !== g.seed) throw new Error('not the same puzzle (the puzzles changed)');
+    if (stockAt(list, g.k)?.seed !== g.seed) throw new Error('not the same puzzle (the puzzles changed)');
     showPlay();
     startGame(g.n, g.k, g);
     L('resumed', { size: G.n, puzzle: G.k + 1, seed: G.seed, found: foundCount(G), hearts: G.hearts, time: clock(elapsed()), result: G.result, hint: !!shown, walk: G.walk?.step ?? null });

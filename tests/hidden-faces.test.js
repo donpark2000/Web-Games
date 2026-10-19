@@ -5,7 +5,7 @@ import {
   seenBy, units, newState, place, nextStep, solve, generate, connected, hardEnough, problems, colorsFor,
   createGame, foundCount, look, tap, startStroke, strokeTo, endStroke, undo, canUndo, showOne, findHint, useHint,
   explainHint, snapshotGame, restoreGame, knownEmpty, isFull, endGame, walkStep, walkLength, fadedColor,
-  readProgress, recordTime, clock, mulberry32,
+  readProgress, recordTime, takeNext, stockOrder, stockAt, SEEN_BEFORE, STOCK, clock, mulberry32,
 } from '../src/core/hidden-faces.js';
 
 const fromString = (n, s) => [...s].map(Number);
@@ -713,6 +713,39 @@ test('hidden faces progress: read from what was kept; anything unreadable is not
   assert.equal(clock(5999), '0:05');
   assert.equal(clock(-5), '0:00');
   assert.equal(clock(3600000), '60:00');
+});
+
+// Q28 (2026-10-19): a puzzle counts as used as it starts, and after the
+// last of a size they come round again in the same order.
+test('hidden faces progress: each start takes the next puzzle; after the last, the first again', () => {
+  const prog = readProgress(JSON.stringify({ next: { 8: 4 } }));
+  assert.equal(takeNext(prog, 8), 4, 'carries on from the kept number');
+  assert.equal(takeNext(prog, 8), 5);
+  assert.equal(prog.next[8], 6);
+  assert.equal(takeNext(prog, 10), 0, 'a size never played starts at the first');
+  assert.equal(prog.next[10], 1);
+  assert.deepEqual(readProgress(JSON.stringify(prog)).next, { 8: 6, 10: 1 }, 'not kept as read back');
+  prog.next[9] = STOCK - 1;
+  const list = Array.from({ length: STOCK }, (_, i) => `p${i}`);
+  const played = [0, 1, 2].map(() => stockAt(list, takeNext(prog, 9)));
+  assert.deepEqual(played, ['p199', 'p0', 'p1'], 'after the 200th');
+  assert.equal(stockAt(list, 2 * STOCK + 7), 'p7', 'the third time round');
+});
+
+test('hidden faces stock order: shuffled once, the same every time; the old first 50 last', () => {
+  const list = Array.from({ length: STOCK }, (_, i) => i);
+  for (const n of SIZES) {
+    const order = stockOrder(n, list);
+    assert.deepEqual(order, stockOrder(n, list), `${n} x ${n}: not the same twice`);
+    assert.deepEqual([...order].sort((a, b) => a - b), list, `${n} x ${n}: a puzzle lost or twice`);
+    const head = order.slice(0, STOCK - SEEN_BEFORE), tail = order.slice(STOCK - SEEN_BEFORE);
+    assert.ok(head.every(i => i >= SEEN_BEFORE), `${n} x ${n}: an old first-50 puzzle before the last 50`);
+    assert.ok(tail.every(i => i < SEEN_BEFORE), `${n} x ${n}: the last 50 not the old first 50`);
+    // Shuffled, not just moved: few in their old place.
+    const same = order.filter((v, i) => v === (i < STOCK - SEEN_BEFORE ? i + SEEN_BEFORE : i - (STOCK - SEEN_BEFORE))).length;
+    assert.ok(same < 10, `${n} x ${n}: ${same} not moved by the shuffle`);
+  }
+  assert.notDeepEqual(stockOrder(6, list), stockOrder(7, list), 'every size in the same order');
 });
 
 test('hidden faces: a bad puzzle can\'t start a game; the sizes are 6 to 10', () => {

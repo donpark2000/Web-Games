@@ -1,12 +1,13 @@
 // Hidden Faces' puzzle stock (data/hidden-faces.json, made by
 // tools/hidden-faces-puzzles.js): every puzzle sound, and the file what
-// the tool makes now (some puzzles remade from their seeds). Read-only.
+// the tool makes now (some puzzles remade from their seeds, the order
+// stockOrder's). Read-only.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SIZES, STOCK, firstSeed, decode, encode, problems, solve, hardEnough, stockPuzzle, MAKE_LEVEL } from '../src/core/hidden-faces.js';
+import { SIZES, STOCK, firstSeed, stockOrder, decode, encode, problems, solve, hardEnough, stockPuzzle, MAKE_LEVEL } from '../src/core/hidden-faces.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const data = JSON.parse(await readFile(path.join(root, 'data/hidden-faces.json'), 'utf8'));
@@ -18,8 +19,9 @@ test('hidden faces stock: 200 puzzles per size, each with one answer, hard enoug
   for (const n of SIZES) {
     assert.equal(data[n].length, STOCK, `${n} x ${n}`);
     const seeds = data[n].map(e => e[0]);
-    assert.deepEqual(seeds, [...seeds].sort((a, b) => a - b), `${n} x ${n}: not in seed order`);
-    assert.ok(seeds[0] >= firstSeed(n) && seeds.at(-1) < firstSeed(n + 1), `${n} x ${n}: seeds ${seeds[0]}..${seeds.at(-1)}`);
+    const bySeed = [...seeds].sort((a, b) => a - b);
+    assert.deepEqual(seeds, stockOrder(n, bySeed), `${n} x ${n}: not in stockOrder's order: ${REMAKE}`);
+    assert.ok(bySeed[0] >= firstSeed(n) && bySeed.at(-1) < firstSeed(n + 1), `${n} x ${n}: seeds ${bySeed[0]}..${bySeed.at(-1)}`);
     assert.equal(new Set(data[n].map(e => e[1])).size, STOCK, `${n} x ${n}: a puzzle twice`);
     for (const e of data[n]) {
       const p = decode(n, e);
@@ -45,7 +47,7 @@ test('hidden faces stock: the file is what the tool makes now', () => {
       if (p) kept.push(encode(seed, p));
       remade++;
     }
-    assert.deepEqual(kept, data[n].slice(0, want), `${n} x ${n}: ${REMAKE}`);
+    assert.deepEqual(kept, [...data[n]].sort((a, b) => a[0] - b[0]).slice(0, want), `${n} x ${n}: ${REMAKE}`);
   }
   assert.ok(remade > 30, `only ${remade} seeds remade`);
 });

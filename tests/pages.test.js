@@ -388,6 +388,21 @@ test('pages: Find the Stars: no button row widens the page; the tools’ words f
 // as given up (no best time, the puzzle not moved on). The spotlight
 // (hints' too) fades only the squares' colour, worked out in the script
 // (no oklch(from ...), which needs Safari 16.4+), and lifts the lit ones.
+// Q28 (2026-10-19): a puzzle counts as used as it starts; only Try again
+// plays one again; a win no longer moves the number on.
+test('pages: Find the Stars: Play, Next, Same size and Another each start a puzzle not yet started', async () => {
+  const js = await readFile(path.join(root, 'src/ui/hidden-faces.js'), 'utf8');
+  const next = js.match(/function startNext\(n\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(next, /takeNext\(prog, n\);\s*saveProgress\(\);\s*L\('puzzle used'[\s\S]*startGame\(n, k\);/, 'not counted, kept and logged as it starts');
+  assert.match(js, /\$\('playBtn'\)\.onclick = [\s\S]*?startNext\(setup\.size\);/, 'Play');
+  const end = js.match(/function showEnd\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(end, /'Next', \(\) => startNext\(up\),\s*'Same size', \(\) => startNext\(n\)\);/, 'Next / Same size');
+  assert.match(end, /'Try again', \(\) => startGame\(n, k\),\s*'Another', \(\) => startNext\(n\)\);/, 'Try again / Another');
+  assert.doesNotMatch(js, /prog\.next\[[^\]]*\] =/, 'the puzzle number moved on outside takeNext');
+  assert.equal([...js.matchAll(/startGame\(/g)].length, 4, 'a new way to start a puzzle: check it uses startNext');
+  assert.match(js, /const p = stockAt\(list, k\);/, 'no coming round again after the last');
+});
+
 test('pages: Find the Stars: Give up’s Show me how walks through the rest; its end is a give-up', async () => {
   const play = html['hidden-faces.html'].match(/<section id="play"[\s\S]*?<\/section>/)?.[0] ?? '';
   const row = play.match(/<div class="tools hinttools" id="walkTools" hidden>([\s\S]*?)<\/div>/)?.[1];

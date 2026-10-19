@@ -7,6 +7,18 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 1.2 (2026-10-19, version 88b43a849f0b)
+
+Find the Stars: new puzzles more often.
+
+- **A puzzle counts as used once you start it.** Play, Next, Same size
+  and Another each bring one you haven't had; only Try again plays the
+  same one again. Before, leaving a puzzle, giving up or running out of
+  hearts brought it back next time.
+- **The puzzles are in a new, shuffled order**, with the ones played
+  before at the end, so the next ones are new. After the 200th of a size
+  they come round again.
+
 ## 1.1 (2026-10-18, version a13d7c8f2673)
 
 Find the Stars: a way to learn from a puzzle you couldn't solve.

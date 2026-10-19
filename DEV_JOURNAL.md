@@ -24,19 +24,6 @@ time, each tried before publishing:
   🏠 loses the end of "puzzle 1" at 320 px in the built-in browser. Not
   yet checked whether it matters on a real phone, or since when.
 
-- **Q28. Find the Stars seems to repeat puzzles, "especially when I get
-  up to 10x10"** (developer, 2026-10-19). Checked in the code: no random
-  pick. Each size plays its 200 puzzles in a fixed order (the same on
-  every device; `startGame(n, prog.next[n])`), and the puzzle number
-  moves on only after a win or "Another" (`win`, `showEnd` in
-  `src/ui/hidden-faces.js`). Try again, out of hearts, Give up, Show me
-  how and 🏠 mid-puzzle all leave it, so the next Play brings the same
-  puzzle back. The stock itself doesn't repeat: `data/hidden-faces.json`
-  has 200 different region shapes per size (labels renumbered in order),
-  and at 10x10 200 different answers (6x6: 75, so some 6x6s share an
-  answer under different colours). Waiting on the developer: keep it, or
-  change when a puzzle counts as used.
-
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
@@ -74,6 +61,22 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q28. Find the Stars seems to repeat puzzles, "especially when I get
+  up to 10x10"** (developer, 2026-10-19). Checked in the code: no random
+  pick. Each size plays its 200 puzzles in a fixed order (the same on
+  every device; `startGame(n, prog.next[n])`), and the puzzle number
+  moves on only after a win or "Another" (`win`, `showEnd` in
+  `src/ui/hidden-faces.js`). Try again, out of hearts, Give up, Show me
+  how and 🏠 mid-puzzle all leave it, so the next Play brings the same
+  puzzle back. The stock itself doesn't repeat: `data/hidden-faces.json`
+  has 200 different region shapes per size (labels renumbered in order),
+  and at 10x10 200 different answers (6x6: 75, so some 6x6s share an
+  answer under different colours). *Resolved 2026-10-19* (developer: "It
+  is less interesting t[o] have to keep going through the same puzzles
+  before getting to something new"; loop back after 200, no reshuffle;
+  shuffle the existing order once): built and published as release 1.2,
+  see "Q28: a puzzle used as it starts; the stock shuffled once".
 
 - **Q26. log.html's Clear asks with the browser's `confirm()`.** The
   games' Give up asks in the page itself (as the brief asked: "no
@@ -6468,3 +6471,56 @@ a13d7c8f2673); `star-battle` = `main` + the journal. Nothing in
 progress. **Next:** the developer's next request, in a new session.
 Open: Q24 (the home page's scroll, waiting for it to happen again), Q27
 (the turn line cut at 320 px wide).
+
+## 2026-10-19: Q28: a puzzle used as it starts; the stock shuffled once
+
+The developer's question ("I keep seeing the same games in the same
+order - especially when I get up to 10x10") answered from the code (Q28,
+above): a fixed order, moved on only by a win or Another. Claude
+proposed counting a puzzle as used as it starts and a new shuffle after
+each 200; the developer: loop back after 200 ("By the time I get to the
+200th puzzle I will have long forgotten what came first"), and "shuffle
+the existing order once so I start off seeing new puzzles"; build and
+publish, no mockup or local server test.
+
+**Built** (DESIGN.md "Find the Stars", "Puzzles" and "Kept on the
+device"):
+- `takeNext(prog, n)` (core): the number to start, counted at once.
+  `startNext(n)` (screen) uses it for Play, Next, Same size and Another,
+  saves the progress and logs **"puzzle used"** (size, puzzle, of, round,
+  next); Try again is still `startGame(n, k)`. A win no longer moves the
+  number on. "game started" logs `stock` too (the place in the 200).
+- `stockAt(list, k)`: `list[k % list.length]`, as before, now named and
+  tested; after the 200th the first again, the turn line counting on
+  ("puzzle 201").
+- `stockOrder(n, list)`: the kept puzzles in seed order, shuffled with
+  `mulberry32(n*10000 + 1)`; the old first 50 (`SEEN_BEFORE`) shuffled
+  last. **No progress reset**: a device keeps its puzzle number, and
+  since every device played the old order from puzzle 1, any number up
+  to 150 now brings a puzzle it hasn't had (assumes no device has played
+  more than 50 of one size; the game has been out since 2026-10-13).
+  A game kept in the same browser session over the update is dropped
+  (its seed isn't at its number any more: "resume failed", logged), as
+  for any changed stock.
+- `tools/hidden-faces-puzzles.js` writes `stockOrder`'s order. **Full
+  run: 298 s**; seeds tried 613, 590, 499, 550, 428 (2026-10-13: 606,
+  594, 497, 553, 427; the workers overshoot a little differently each
+  run, the kept set doesn't depend on it). **Checked against the old
+  file** (a copy in Claude's scratchpad): every size the same 200
+  puzzles; none of the old first 50 among the new first 150; 0-1 per
+  size in its old place; the new puzzle 1 was the old 142, 174, 168, 86,
+  181 (6x6 to 10x10).
+
+**Tests** (288 pass, 285 before): progress, each start takes the next
+puzzle, the 200th then the first, the third time round; the stock
+order, the same twice, nothing lost or doubled, the old first 50 last,
+shuffled (under 10 in place), sizes differ; the stock file in
+`stockOrder`'s order (`hidden-faces-stock.test.js`, its remake check now
+by seed); the screen: Play, Next, Same size, Another use `startNext`,
+Try again `startGame(n, k)`, nothing else moves `prog.next`, four
+`startGame(` calls. **Each shown to fail:** Another back to
+`startGame(n, k + 1)`, `stockAt` without `%`, `stockOrder` a plain
+shuffle: the three new tests failed, naming the check ("6 x 6: an old
+first-50 puzzle before the last 50", "Try again / Another"). No local
+server test (the developer's call); `node --check` on the screen file
+and its 29 imports all found in the core.

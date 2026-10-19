@@ -336,9 +336,24 @@ export const hardEnough = (n, hard) => hard >= Math.ceil(HARD_SHARE * n);
 // faces], ...], ... }; seed the one generate() made it from, reg a string
 // of region digits (0-9), faces the answer's squares, top to bottom. The
 // puzzles of a size are the first STOCK seeds from n*10000 on whose
-// puzzle is hardEnough.
+// puzzle is hardEnough, in the order stockOrder gives them.
 export const STOCK = 200;
 export const firstSeed = n => n * 10000;
+// The order the stock is played in (developer, 2026-10-19, Q28: shuffle
+// it once, "so I start off seeing new puzzles"): the kept puzzles, in
+// seed order, shuffled with a fixed seed, so the tool always makes the
+// same file. Until then they were played in seed order, so the first
+// SEEN_BEFORE of that order (the ones a device may have played already)
+// go last: a device carrying on from its puzzle number meets new ones.
+export const SEEN_BEFORE = 50;
+export function stockOrder(n, list) {
+  const rnd = mulberry32(firstSeed(n) + 1);
+  return [...shuffled(list.slice(SEEN_BEFORE), rnd), ...shuffled(list.slice(0, SEEN_BEFORE), rnd)];
+}
+// The puzzle numbered k (0-based) of a size's list: after the last, they
+// come round again in the same order (developer, 2026-10-19: "By the time
+// I get to the 200th puzzle I will have long forgotten what came first").
+export const stockAt = (list, k) => list[k % list.length];
 export const encode = (seed, p) => [seed, p.reg.join(''), p.faces];
 export function decode(n, [seed, reg, faces]) {
   return { n, seed, reg: [...reg].map(Number), faces: [...faces] };
@@ -863,6 +878,16 @@ export function readProgress(text) {
     if (Number.isFinite(b) && b > 0) out.best[n] = b;
   }
   return out;
+}
+
+// The puzzle number (0-based) to start for size n, counted as used at
+// once (developer, 2026-10-19, Q28: Play, Next, Same size and Another
+// each bring one not yet started; only Try again plays one again).
+// Updates prog.next.
+export function takeNext(prog, n) {
+  const k = prog.next[n] ?? 0;
+  prog.next[n] = k + 1;
+  return k;
 }
 
 // After a win in `ms` on size n: { best: the best before (or null),
