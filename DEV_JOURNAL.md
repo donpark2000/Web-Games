@@ -6783,3 +6783,34 @@ notes 1 4 7 8 and 2 3 5 6 9 written from the notes row; a right digit
 from the big row. The built-in browser's pane was too small for a sharp
 screenshot, so how A, B and C look is for the developer to judge in the
 viewer.
+
+## 2026-10-19: Colour Sudoku mockup v3: the ring; notes bigger again
+
+**Developer** (after v2): "The ring shows up better on light colors like
+yellow." The two rows of digits "is good (I always found online games
+that have the toggle feature annoying)". Not sure what "A harder one
+(needs 'all inside')" meant. "I still find the notes hard to see."
+
+**Decided:** same digits get **the ring** (B); **two rows of digits**,
+no Notes toggle.
+
+**"A harder one"** was a mockup-bar shortcut to a Harder puzzle, named
+after the step only Harder puzzles need ("all inside": all the squares
+where one unit's digit can go are inside another unit, so that other
+unit has its digit there and nowhere else). Now "Play a Harder puzzle".
+
+**v3** ([Colour Sudoku Mockup](https://claude.ai/artifact/D53EsTrxeFeaFpFKwzr7wF),
+version 3):
+- **Bigger squares:** hearts, "to go" and the clock moved beside the 🏠,
+  under "Easy · puzzle 1", giving their row to the board: 38 px squares
+  at 393 x 760 (v2 35 px; 39 px is the most the width allows).
+- **Notes:** 37% of a square, nearly black (#10202C), heaviest weight:
+  14 px on a 38 px square (v2 11.5 px, v1 9 px). The 3 x 3 places limit
+  them: at 40% (15.2 px) the rows overflowed the square (each place is
+  11.7 px). Two to compare in the mockup bar: **N1** as is, **N2** with
+  a white edge round each note, to stand off darker colours.
+
+**Checked** (built-in browser, 393 x 760, the temporary server again,
+`.claude/launch.json` restored after): 38 px squares, the status row
+273 px wide with nothing cut, the page 393 px wide; all nine notes on one
+square stay inside it (the last place ends 36 px down a 38 px square).
