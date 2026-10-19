@@ -6838,3 +6838,51 @@ Sudoku (being designed)".
 
 **Mockup v3.1** = [Colour Sudoku Mockup](https://claude.ai/artifact/D53EsTrxeFeaFpFKwzr7wF)
 version 4.
+
+## 2026-10-19: Colour Sudoku: build next; status (start here next session)
+
+**Developer:** "I can't try it on my phone until you build and publish
+it. Right now it is all on my desktop." So the next step is the build,
+as mockup v3.1 stands; N1 against N2 (and anything else) is judged on
+the phone after it's published.
+
+**Branch `star-battle`** = `main` (release 1.3) + journal and DESIGN.md
+commits; no code changed this session. `npm test` not run (docs only).
+No local servers running.
+
+**The prototype** (Claude's scratchpad belongs to this session): copied
+to the session notes folder
+`C:\Users\dpark\AppData\Roaming\Claude\side-session-notes\local_aeff828a-3e04-405f-a08a-efa7ebc2a94b\colour-sudoku-prototype\`
+(`cs-core.js`, `ui.js`, `template.html`, `build.js`, `gen.js`,
+`puzzles.json`, a README). The same code is inside the published mockup
+(https://claude.ai/artifact/D53EsTrxeFeaFpFKwzr7wF, version 4): read it
+with the Artifact tool's `read` action.
+
+**Plan** (standards: debug log, a test with each part, `npm test`), on a
+new branch `colour-sudoku` from `star-battle`:
+1. `src/core/colour-sudoku.js` from `cs-core.js`: the maker
+   (`randomSolution`, `growRegions`, `makeRegions`, `generate`), the step
+   solver (`nextStep`: hidden single, naked single, "all inside", pair),
+   `hintFor`, `blockers`. Tests: each step kind on a known grid; a
+   generated puzzle's colours joined, spread (`regionsOk`), holding 1-9;
+   the solver reaching the stored answer; a puzzle missing too many
+   givens not finished (one answer only); a broken stock entry caught.
+2. `tools/colour-sudoku-puzzles.js` writing `data/colour-sudoku.json`:
+   200 per level (Easy: singles only; Harder: needs "all inside" at
+   least once), from fixed seeds, so the tool always makes the same
+   file; one line per make and a per-make cap (time one make first:
+   0.2-2.2 s each here). A test that the stock is valid. Played in a
+   shuffled order per level (as Find the Stars' `stockOrder`), each
+   counting as used as it starts, the next per level kept on the device
+   (DESIGN.md "Colour Sudoku").
+3. `colour-sudoku.html`, `css/colour-sudoku.css`, `src/ui/colour-sudoku.js`
+   from the mockup (drop the mockup bar; keep N2 notes); logging into the
+   site's debug log (taps, digits, notes, hints, ends, the fit); "Coming
+   back to a game" (sessionStorage); best time per level; sounds from
+   `src/ui/sounds.js`; the home page tile in 🧩 Puzzles for grown-ups;
+   `node tools/offline.js`; stats.
+4. Check at 393 x 760 and 320 px wide in the built-in browser; `npm
+   test`; then ask to publish as **release 2.0** (a new game) with the
+   release steps in CLAUDE.md.
+
+**Open:** Q24, Q27 (unrelated). **Proposed skill additions:** none.
