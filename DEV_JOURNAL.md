@@ -6745,3 +6745,41 @@ kept the last game's time; same-digit discs stayed on after a win.
 
 **Open questions:** none yet; the mockup choices above are for the
 developer.
+
+## 2026-10-19: Colour Sudoku mockup v2: notes, a notes row, same digits
+
+**Developer** (after v1): "Good start." The notes are "quite small and
+light", could be bolder and/or bigger; "We have enough room for a row of
+both 'notes' digits and 'solid' digits, so we don't need the button to
+toggle"; the white disc behind digits the same as the selected one is
+"almost the same diameter [as] the cell height, possibly obscuring the
+color. So a slightly smaller circle would be better. Or no circle - just
+a number. Thoughts?"
+
+**v2** ([Colour Sudoku Mockup](https://claude.ai/artifact/D53EsTrxeFeaFpFKwzr7wF),
+version 2):
+- **Notes:** 33% of a square (was 26%), the heaviest weight, the page's
+  ink (was 80% ink, a lighter weight): 11.5 px on a 35 px square (was
+  9 px).
+- **Two rows of digits:** big digits, and under them a row of smaller
+  dashed buttons, the digit in a corner like a note, which write notes.
+  ✏️ Notes is gone; the tools are Undo, Hint, Give up. Shift+digit on a
+  keyboard writes a note. A lit hint's words take both rows' place.
+- **Same digits, three to compare** (the mockup bar): **A** a disc 66%
+  of the square (23 px of 35; v1's was about the square's height), **B**
+  a ring only, so the square's colour shows inside it, **C** no mark.
+  The same mark on matching notes. Claude's view: B keeps the colour,
+  which the puzzle needs, and still stands out; C leaves the same digits
+  hard to pick out at a glance.
+- **The mockup bar moved under the footer** (scroll down for it), so the
+  screen above is the real fit: with it on top (two lines once it held
+  the A/B/C buttons) the squares fell to 26 px.
+
+**Checked** (built-in browser, 393 x 760, the same temporary server and
+`.claude/launch.json` entry, removed after): 35 px squares with both
+digit rows (v1 had 34 px with the bar on top and one row), no sideways
+scroll (page 393 px wide); notes 11.55 px, weight 900; the disc 23 px;
+notes 1 4 7 8 and 2 3 5 6 9 written from the notes row; a right digit
+from the big row. The built-in browser's pane was too small for a sharp
+screenshot, so how A, B and C look is for the developer to judge in the
+viewer.
