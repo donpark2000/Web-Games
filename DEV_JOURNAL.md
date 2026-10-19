@@ -24,6 +24,15 @@ time, each tried before publishing:
   🏠 loses the end of "puzzle 1" at 320 px in the built-in browser. Not
   yet checked whether it matters on a real phone, or since when.
 
+- **Q29. Which coloured-region Sudoku the developer means.** Raised
+  2026-10-19 (see "A Sudoku with colours: which one?"): the usual rules
+  (1-9 once in every row, column and 3 x 3 box) plus coloured shapes
+  across rows and columns, not bound by the boxes, each colour's digits
+  also all different. Candidates: (1) Killer Sudoku (cages with sums),
+  (2) Extra Regions / "Color Sudoku" (nine coloured 9-square shapes,
+  each also 1-9 once), (3) Disjoint Groups (colour by place in the box).
+  Claude's guess: (2). Open until the developer picks one.
+
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
@@ -6598,3 +6607,45 @@ stopped after its check; no node processes).
 `star-battle` = `main` + the journal. Nothing in progress. **Next:** the
 developer plays on the phone (version line 1.3). Open: Q24, Q27.
 **Proposed skill additions:** none.
+
+## 2026-10-19: A Sudoku with colours: which one?
+
+**The idea** (developer, relayed by the session that started this one):
+a new grown-ups' puzzle after Find the Stars ("a polished and
+professional experience"). A Sudoku remembered as: the usual rules (each
+row, column and 3 x 3 box holds 1-9 once) plus an overlay of colours
+spanning rows and columns, not bound by the boxes, where each colour's
+digits must also all be different.
+
+**Claude: it's real, and probably one of three variants** (rules can be
+copied, not other games' names or art):
+1. **Killer Sudoku:** small cages (2-5 squares, dashed outline or a
+   colour each) that cross box lines; no repeats in a cage, and **each
+   cage shows its sum**. The developer didn't mention sums.
+2. **Extra Regions** (sold as "Color Sudoku", "Jigsaw overlay"): **nine
+   coloured shapes of 9 squares each**, wandering over rows, columns and
+   boxes; each colour also holds 1-9 once. No numbers beyond the givens.
+   Claude's best guess, as it matches "each colour must have unique
+   digits" with nothing else added.
+3. **Disjoint Groups** ("Color Sudoku" in some books): every square
+   coloured by its place in its box (all top-left corners one colour,
+   and so on), so each colour is 9 squares spread one per box, also 1-9
+   once. The colours form a regular pattern, not shapes.
+
+Recorded as **Q29** until the developer picks. Shown to the developer as
+three small pictures side by side.
+
+**What carries over from Find the Stars** (once the variant is known):
+coloured regions with thick borders (`src/ui/hfboard.js`); a solver
+using only steps a person can see, making puzzles ahead of time with one
+answer each (`src/core/hidden-faces.js`, `tools/hidden-faces-puzzles.js`);
+hints that take their own step, with the spotlight and ❓ Why?; Give
+up's Show me how; progress kept on the device; the game-state keeping
+of "Coming back to a game". **New:** entering digits on a phone (a 1-9
+keypad, perhaps pencil marks) and a new set of solver steps (singles,
+pairs, box/line, and the extra region's own interactions).
+
+**Next:** the developer picks the variant (Q29); then a mockup, clicked
+in the Claude desktop app viewer; the agreed choices go in DESIGN.md;
+then build on a branch with debug output and tests. Publishing as
+release 2.0 only with the developer's OK.
