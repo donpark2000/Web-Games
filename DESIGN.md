@@ -4,9 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-19): Find the Stars: a puzzle counts as used as it
+*Status (2026-10-19): Find the Stars: no Same size after a 10 x 10 win
+(built, not yet published). Earlier 2026-10-19: a puzzle counts as used as it
 starts (only Try again plays one again), and the puzzles are shuffled
-once into a new order. 2026-10-18: Find the Stars: Give up asks how, and **Show me
+once into a new order (published, release 1.2). 2026-10-18: Find the Stars: Give up asks how, and **Show me
 how** walks through the rest a step at a time; the spotlight fades only
 the squares' colour and lifts the lit ones; hint ✕s have a thicker black
 edge (published 2026-10-18, release 1.1). 2026-10-15, later: Find the Stars: a look where there's known
@@ -698,7 +699,9 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   a gold star pops in, bobs and throws sparkles; "Solved in 4:12!" over
   "1 mistake · 0 hints · Best 3:50" ("· 1 shown" after a Show; "New
   best!" for a best time per size); **Next** (one size up, to 10 x 10) /
-  Same size / New game. Out of hearts: a big grey star, "Out of hearts /
+  Same size / New game; **after a 10 x 10, Next / New game**, each half
+  the row (developer, 2026-10-19: Next and Same size are the same thing
+  there; "leave the next button and remove the same size button"). Out of hearts: a big grey star, "Out of hearts /
   The pale stars show where they were", the stars not found pale on the
   board; Try again / Another / New game. Two more ends, the same but for
   the words (2026-10-15, Q23): **given up** ("You gave up") and **no

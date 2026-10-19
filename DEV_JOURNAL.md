@@ -6548,3 +6548,32 @@ then: "puzzle used" lines, the puzzle number going up on each start.
 Open: Q24, Q27. **Proposed skill additions:** none (a derived file's
 order changed in its tool and checked against the old file is §3's
 "Derived files come from a tool" already).
+
+## 2026-10-19: No Same size after a 10 x 10 win
+
+The developer, after 1.2 ("Nive to see new games"): "When I get to
+10x10 is there any difference between next and same size buttons?" None:
+since 1.2 both are `startNext(10)` (before 1.2 both were
+`startGame(10, prog.next[10])`, the same too). The developer: "leave the
+next button and remove the same size button".
+
+**Built:** `showEnd` passes no Same size after a 10 x 10 win; `ending`
+hides `#sameBtn` and gives `#endTools` the class `two` (two columns,
+Claude's choice: Next and New game each half the row, as ❓ Why? and ✓
+Got it share theirs, rather than a gap on the right). Logged: **"end
+buttons"** (size and the buttons shown) at every end. Every other end
+keeps its three buttons.
+
+**Tests** (289 pass): `ending` hides Same size and halves the row, gives
+it no job without words, logs; the CSS rule; Try again / Another
+unchanged. Shown to fail: without the `toggle('two', ...)` line, "Same
+size not hidden, or the row not halved".
+
+**Tried in the built-in browser** (local server, 375 x 812): a 10 x 10
+made solved in the kept state (edited from log.html, since the game
+keeps its own state as it unloads and overwrote an edit made on its own
+page): "Next" 168 px and "New game" 168 px, Same size hidden, no
+sideways scroll (375); Next started puzzle 2 ("puzzle used" 2, next 3);
+Give up there, Just end it: Try again / Another / New game, the row of
+three. Seen in passing: "10×10 · puzzle 1" cut at 375 px too (Q27 says
+320 px; the 🔊 crowds it). Local server stopped after.

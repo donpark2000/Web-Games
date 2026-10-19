@@ -725,10 +725,12 @@ function lose(how = 'lost') {
 function showEnd() {
   const { how, title, line } = G.end, { n, k } = G;
   if (how === 'solved') {
+    // At 10 x 10, no Same size: Next is the same thing there (developer,
+    // 2026-10-19: "leave the next button and remove the same size button").
     const up = Math.min(10, n + 1);
     ending(how, title, line,
       n < 10 ? `Next: ${up}×${up}` : 'Next', () => startNext(up),
-      'Same size', () => startNext(n));
+      ...(n < 10 ? ['Same size', () => startNext(n)] : []));
   } else {
     ending(how, title, line,
       'Try again', () => startGame(n, k),
@@ -738,7 +740,7 @@ function showEnd() {
 
 // The result in the hint bar, beside one big star (with sparkles for a
 // win, pale when out of hearts), and the end buttons in place of the
-// tools.
+// tools (with no sameText, two buttons, each half the row).
 function ending(how, title, line, againText, again, sameText, same) {
   const sparks = how === 'solved' ? [0, 60, 120, 180, 240, 300].map((a, k) => `<i class="spark" style="--a:${a}deg;--d:${k * 60}ms">${STAR}</i>`).join('') : '';
   stopNote();
@@ -748,8 +750,13 @@ function ending(how, title, line, againText, again, sameText, same) {
   $('hintbar').classList.add('result', how);
   $('againBtn').textContent = againText;
   $('againBtn').onclick = () => { L(againText); again(); };
-  $('sameBtn').textContent = sameText;
-  $('sameBtn').onclick = () => { L(sameText); same(); };
+  $('sameBtn').hidden = !sameText;
+  $('endTools').classList.toggle('two', !sameText);
+  if (sameText) {
+    $('sameBtn').textContent = sameText;
+    $('sameBtn').onclick = () => { L(sameText); same(); };
+  }
+  L('end buttons', { size: G.n, buttons: [againText, sameText, 'New game'].filter(Boolean).join(' / ') });
   $('tools').hidden = true;
   $('hintTools').hidden = true;
   $('walkTools').hidden = true;

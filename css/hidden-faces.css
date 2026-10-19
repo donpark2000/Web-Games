@@ -150,6 +150,7 @@
 @media (max-width: 385px) { #tools { --tf0: 12.5px; } #tools .tool { padding: 9px 3px; } }
 @media (max-width: 329px) { #tools { --tf0: 11.5px; } #tools .tool { padding: 9px 2px; gap: 2px; } }
 .tools.hinttools { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; } /* ❓ Why? and ✓ Got it (or Got it alone) */
+#endTools.two { grid-template-columns: repeat(2, 1fr); } /* after a 10 x 10 win: Next and New game, no Same size */
 .tools.ask { grid-template-columns: auto 1fr auto auto; align-items: center; gap: 6px; } /* "Give up?" Show me how, Just end it, No: the tools' height */
 .tools.ask .tool { padding: 9px 10px; white-space: nowrap; font-size: 15px; }
 .askq { font-size: 16px; font-weight: 800; text-align: center; }
