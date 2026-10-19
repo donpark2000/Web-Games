@@ -19,9 +19,9 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '33bb312c7679';
+const VERSION = 'bc4971605fea';
 const MADE = '2026-10-19';
-const RELEASE = '2.0';
+const RELEASE = '2.1';
 const FILES = [
   'colour-sudoku.html',
   'connect-four.html',

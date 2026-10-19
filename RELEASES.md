@@ -7,6 +7,17 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 2.1 (2026-10-19, version bc4971605fea)
+
+Colour Sudoku, after a first go on the phone:
+
+- **The selected square's notes stay clear:** the square is marked by a
+  ring outside it, over the lines around it, instead of a band inside
+  it that hid the notes.
+- **Plainer words for How hard?** Easy: "each digit can be found from
+  one row, column, box or colour". Harder: "some digits need two of
+  those looked at together".
+
 ## 2.0 (2026-10-19, version cfd968c6a9f1)
 
 A new game in 🧩 Puzzles for grown-ups: **Colour Sudoku**.
