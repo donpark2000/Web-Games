@@ -24,6 +24,19 @@ time, each tried before publishing:
   🏠 loses the end of "puzzle 1" at 320 px in the built-in browser. Not
   yet checked whether it matters on a real phone, or since when.
 
+- **Q28. Find the Stars seems to repeat puzzles, "especially when I get
+  up to 10x10"** (developer, 2026-10-19). Checked in the code: no random
+  pick. Each size plays its 200 puzzles in a fixed order (the same on
+  every device; `startGame(n, prog.next[n])`), and the puzzle number
+  moves on only after a win or "Another" (`win`, `showEnd` in
+  `src/ui/hidden-faces.js`). Try again, out of hearts, Give up, Show me
+  how and 🏠 mid-puzzle all leave it, so the next Play brings the same
+  puzzle back. The stock itself doesn't repeat: `data/hidden-faces.json`
+  has 200 different region shapes per size (labels renumbered in order),
+  and at 10x10 200 different answers (6x6: 75, so some 6x6s share an
+  answer under different colours). Waiting on the developer: keep it, or
+  change when a puzzle counts as used.
+
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
