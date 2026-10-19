@@ -6578,3 +6578,23 @@ Give up there, Just end it: Try again / Another / New game, the row of
 three. Not Q27 evidence: one half-size screenshot showed a stray "·"
 after "puzzle 1", the next showed the line whole (the turn line is only
 "10×10 · puzzle N"); left as is. Local server stopped after.
+
+## 2026-10-19: Release 1.3 published; status (start here next session)
+
+Published with the developer's OK ("Yes, publish as 1.3."): no Same
+size after a 10 x 10 win. `src/core/release.js` 1.3;
+`node tools/offline.js`: "release 1.3, version 9a99095f131b
+(2026-10-19), 82 files"; notes in `RELEASES.md`; `npm test` 289 pass;
+`node tools/release.js`: "Release 1.3 is ready". `main` fast-forwarded
+to b858d8b and pushed; tag `v1.3` (annotated) pushed; GitHub release
+"1.3" from `node tools/release.js notes`
+(https://github.com/donpark2000/Web-Games/releases/tag/v1.3, not a
+draft). The Pages build for b858d8b "built" at 19:04:21Z; the live site
+then sent `RELEASE = '1.3'`, version 9a99095f131b, and the CSS with
+`#endTools.two`. No local servers running (Claude's preview server was
+stopped after its check; no node processes).
+
+**Status:** release 1.3 live (`main` = b858d8b, tag `v1.3`);
+`star-battle` = `main` + the journal. Nothing in progress. **Next:** the
+developer plays on the phone (version line 1.3). Open: Q24, Q27.
+**Proposed skill additions:** none.
