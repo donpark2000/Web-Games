@@ -789,9 +789,12 @@ mockup, to be judged on the phone (journal, "Colour Sudoku mockup v1" to
 
 As built (Claude's choices from the mockup, unless marked):
 - **Setup:** the rules beside a solved puzzle; **How hard?** Easy
-  ("each step: the only place a digit can go") / Harder ("some steps
-  need two units at once": "all inside", a unit's digit confined to
-  another unit); **Your notes:** Auto tidy (a digit placed comes out of
+  ("each digit can be found from one row, column, box or colour") /
+  Harder ("some digits need two of those looked at together": "all
+  inside", a unit's digit confined to another unit; words agreed with
+  the developer 2026-10-19, after 2.0: the first ones' "meaning ... is
+  not clear"; both levels start with about as many digits, journal Q31);
+  **Your notes:** Auto tidy (a digit placed comes out of
   the notes it rules out; default) / I'll do it; Play!.
 - **Play:** 🏠, "Easy · puzzle 3" over ❤️❤️❤️, "52 to go" and the
   clock (beside the 🏠, so the board gets their row; as big as fit,

@@ -19,7 +19,7 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '951b39d94338';
+const VERSION = '33bb312c7679';
 const MADE = '2026-10-19';
 const RELEASE = '2.0';
 const FILES = [

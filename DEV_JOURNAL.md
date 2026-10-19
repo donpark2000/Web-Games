@@ -33,7 +33,17 @@ time, each tried before publishing:
   and Claude's choices from the mockup (DESIGN.md "Colour Sudoku", "As
   built"), e.g. a thud per right digit, Next / Try again / New game at
   every end, the turn line and status as small as 12 px on a 320 px
-  phone.
+  phone. *2026-10-19:* first report: the selected square's band hid its
+  notes; fixed with a ring outside (see "the selected square's ring").
+
+- **Q31. Should Easy start with more digits?** Raised 2026-10-19 by the
+  developer: in other Sudoku games the level mostly sets how many digits
+  are filled in at the start. Ours differ by the steps needed; Easy
+  starts with 13-20 (median 17), Harder 12-20 (median 16). Digits added
+  from the answer keep one answer and only make a puzzle easier, so Easy
+  could start with about 30. *Developer:* "Maybe just change the words
+  for now. I'll play it a bit and see if it feels too hard." Open until
+  the developer has played it.
 
 ## Proposed additions to the standards skill
 
@@ -7083,3 +7093,37 @@ refit; worth a look if it shows on a phone turned on its side.
 
 **Next, also from the developer:** "when selecting game play as easy or
 harder, the meaning of the descriptions or impact is not clear to me."
+
+## 2026-10-19: Colour Sudoku: How hard? in plainer words; Q31
+
+**Developer:** "when selecting game play as easy or harder, the meaning
+of the descriptions or impact is not clear to me." The words were
+solver terms: Easy "each step: the only place a digit can go", Harder
+"some steps need two units at once".
+
+**Explained in the chat:** the levels differ only in the steps a puzzle
+needs. Easy: every digit can be found from one row, column, box or
+colour (the only square left there for a digit, or the only digit left
+for a square). Harder: at least once, an "all inside" step first (e.g.
+the yellow shape's 4 can only be on squares all in one box, so no other
+square of that box is a 4). **Proposed and agreed** ("This wording is
+more understandable"): Easy "each digit can be found from one row,
+column, box or colour"; Harder "some digits need two of those looked at
+together".
+
+**The developer asked** whether the level isn't mostly how many digits
+start filled in, as in other Sudoku games. Claude: many apps do that,
+but it's a rough measure (some of the hardest known Sudokus start with
+21-25 digits; plenty with 17 fall to the simplest steps), and ours
+barely differ in it. Counted from `data/colour-sudoku.json`: Easy
+13-20 starting digits (median 17, mean 16.8), Harder 12-20 (median 16,
+mean 15.5); a typical easy Sudoku elsewhere starts with 36-40. Offered:
+Easy also starting with about 30 (digits from the answer only make a
+puzzle easier, one answer kept). **Developer:** "Maybe just change the
+words for now. I'll play it a bit and see if it feels too hard and we
+need to add the other concept." Kept as Q31.
+
+**Built:** the two `<small>` lines in `colour-sudoku.html`; DESIGN.md
+"As built". At 320 x 640 each fits its button in 4 lines (Auto tidy's
+3), nothing cut. **Test:** `tests/colour-sudoku-page.test.js`, "the
+levels say what they ask of you" (the exact words).

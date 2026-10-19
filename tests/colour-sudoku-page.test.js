@@ -53,6 +53,14 @@ test('colour sudoku page: same digits ringed (not a disc); N2 notes, big and dar
   assert.match(notes, /text-shadow: 0 0 2px #fff/, 'no white edge (N2)');
 });
 
+// How hard?: words that say what each level asks of you (developer,
+// 2026-10-19, after 2.0: the first ones' "meaning ... is not clear").
+test('colour sudoku page: the levels say what they ask of you', () => {
+  const lv = d => page.match(new RegExp(`data-level="${d}"[^>]*>\\w+<small>([^<]*)</small>`))?.[1];
+  assert.equal(lv('easy'), 'each digit can be found from one row, column, box or colour');
+  assert.equal(lv('harder'), 'some digits need two of those looked at together');
+});
+
 // The selected square: a ring outside it, over the lines round it, not a
 // band inside it (developer, 2026-10-19, after 2.0: the band hid the
 // notes; option C).
