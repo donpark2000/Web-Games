@@ -7,6 +7,24 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 2.0 (2026-10-19, version cfd968c6a9f1)
+
+A new game in 🧩 Puzzles for grown-ups: **Colour Sudoku**.
+
+- **The rules:** a 9×9 Sudoku whose squares are also split into nine
+  coloured shapes, each holding 1 to 9 once too.
+- **Easy or Harder:** Easy needs only "the only place a digit can go";
+  Harder needs, at least once, a step using two units at once.
+- **Two rows of digits:** big ones put a digit in, small dashed ones
+  write notes, so there's no Notes button to switch. Digits the same as
+  the selected square's are ringed. Auto tidy takes a placed digit out
+  of the notes it rules out (or turn it off).
+- **Three hearts, three hints, Undo and Give up**, as in Find the Stars;
+  a hint puts the digit in and ❓ Why? shows the reason. Show me how
+  walks through the rest one step at a time.
+- **200 puzzles per level**, each counting as used once you start it,
+  so they don't repeat until all 200 are played.
+
 ## 1.3 (2026-10-19, version 9a99095f131b)
 
 Find the Stars: after a 10×10 is solved, the buttons are **Next** and
