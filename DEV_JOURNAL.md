@@ -6524,3 +6524,27 @@ shuffle: the three new tests failed, naming the check ("6 x 6: an old
 first-50 puzzle before the last 50", "Try again / Another"). No local
 server test (the developer's call); `node --check` on the screen file
 and its 29 imports all found in the core.
+
+## 2026-10-19: Release 1.2 published; status (start here next session)
+
+Published with the developer's OK ("go ahead and build, and publish. No
+need for a mockup or a local server test"), as **1.2**, the number
+given in the proposal (a change, not a new game). `node tools/offline.js`:
+"release 1.2, version 88b43a849f0b (2026-10-19), 82 files"; `npm test`
+288 pass; `node tools/release.js`: "Release 1.2 is ready". `main`
+fast-forwarded d7c27ee..7e3b519 and pushed; tag `v1.2` (annotated)
+pushed; GitHub release "1.2" from `node tools/release.js notes`
+(https://github.com/donpark2000/Web-Games/releases/tag/v1.2, not a
+draft). The Pages build for 7e3b519 "built" at 16:47:08Z; the live site
+then sent `RELEASE = '1.2'`, version 88b43a849f0b, and a
+`data/hidden-faces.json` identical to the repo's (10x10 puzzle 1: seed
+100349). No local servers were running (no node processes).
+
+**Status:** release 1.2 live (`main` = 7e3b519, tag `v1.2`);
+`star-battle` = `main` + the journal. **Next:** the developer plays on;
+on the phone the version line should say 1.2 (the app fetches it in the
+background, so maybe after one more open). Worth a look in `log.html`
+then: "puzzle used" lines, the puzzle number going up on each start.
+Open: Q24, Q27. **Proposed skill additions:** none (a derived file's
+order changed in its tool and checked against the old file is §3's
+"Derived files come from a tool" already).
