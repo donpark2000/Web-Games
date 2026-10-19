@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Colour Sudoku</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#E4F1EE">
+<meta name="apple-mobile-web-app-title" content="Let's Play!">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/game.css">
+<!-- Find the Stars' sheet for what the two puzzles share (the rules box,
+     the status line, the hint bar, the tools and the end), as in the
+     mockup; then this game's own -->
+<link rel="stylesheet" href="css/hidden-faces.css">
+<link rel="stylesheet" href="css/colour-sudoku.css">
+</head>
+<body>
+<main class="app">
+  <!-- SETUP ("New game") -->
+  <section id="setup" class="app" aria-label="New game">
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <h1>Colour Sudoku</h1>
+    </div>
+
+    <div class="panel rulesbox">
+      <div id="rulesPic" aria-hidden="true"></div>
+      <div class="rules">
+        <p>Put 1 to 9 in every <b>row</b>, every <b>column</b>, every <b>3×3 box</b> and every <b>colour</b>: each holds each digit once.</p>
+        <p class="how">Tap a square, then a digit. A wrong digit costs a ❤️; lose all three and the game is over. The row of small dashed digits writes notes instead, to keep track of what could go where.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>How hard?</h2>
+      <div class="levels" id="levels">
+        <button type="button" class="level" data-level="easy" aria-pressed="true">Easy<small>each step: the only place a digit can go</small></button>
+        <button type="button" class="level" data-level="harder" aria-pressed="false">Harder<small>some steps need two units at once</small></button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Your notes</h2>
+      <div class="levels" id="tidies">
+        <button type="button" class="level" data-tidy="on" aria-pressed="true">Auto tidy<small>a digit you place comes out of the notes it rules out</small></button>
+        <button type="button" class="level" data-tidy="off" aria-pressed="false">I'll do it<small>notes change only when you change them</small></button>
+      </div>
+    </div>
+
+    <div class="go">
+      <button type="button" class="big" id="playBtn" disabled>Play!</button>
+      <div class="why" id="why"></div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="app" aria-label="Game" hidden>
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <!-- the status beside the 🏠, under the turn line, so the squares
+           get its row (mockup v3) -->
+      <div class="topinfo">
+        <div class="turn" id="turn"></div>
+        <div class="status">
+          <span class="hearts" id="hearts"></span>
+          <span class="found" id="found"></span>
+          <span class="clock" id="clock">0:00</span>
+        </div>
+      </div>
+    </div>
+    <div class="boardwrap"><div class="csboard" id="board" role="grid" aria-label="Puzzle"></div></div>
+    <!-- the hint bar and the two rows of digits (big ones, then the
+         smaller dashed ones for notes): a lit hint takes the digits' place
+         too, so its words have room and the board never moves -->
+    <div class="dock" id="dock">
+      <div class="hintbar idle" id="hintbar" aria-live="polite"></div>
+      <div class="keys" id="keys" aria-label="Digits"></div>
+      <div class="keys notekeys" id="noteKeys" aria-label="Notes"></div>
+    </div>
+    <div class="tools" id="tools">
+      <button type="button" class="tool" id="undoBtn">↩ Undo</button>
+      <button type="button" class="tool" id="hintBtn">💡 Hint <span class="left" id="hintsLeft">3</span></button>
+      <button type="button" class="tool" id="giveUpBtn">🏳 Give up</button>
+    </div>
+    <!-- While a hint is lit, in place of the tools: its Why? and Got it -->
+    <div class="tools hinttools" id="hintTools" hidden>
+      <button type="button" class="tool" id="whyBtn">❓ Why?</button>
+      <button type="button" class="tool primary" id="gotItBtn">✓ Got it</button>
+    </div>
+    <!-- Give up asks first, in place of the tools -->
+    <div class="tools ask" id="askTools" hidden>
+      <span class="askq">Give up?</span>
+      <button type="button" class="tool primary" id="giveUpHow">Show me how</button>
+      <button type="button" class="tool" id="giveUpYes">Just end it</button>
+      <button type="button" class="tool" id="giveUpNo">No</button>
+    </div>
+    <!-- "Show me how", in place of the tools: the rest a step at a time -->
+    <div class="tools hinttools" id="walkTools" hidden>
+      <button type="button" class="tool" id="walkWhy">❓ Why?</button>
+      <button type="button" class="tool" id="walkRest">⏩ The rest</button>
+      <button type="button" class="tool primary" id="walkNext">Next ▸</button>
+    </div>
+    <!-- at the end, in place of the tools: the board stays in view -->
+    <div class="tools" id="endTools" hidden>
+      <button type="button" class="tool primary" id="nextBtn" data-play>Next</button>
+      <button type="button" class="tool" id="againBtn">Try again</button>
+      <button type="button" class="tool" id="newBtn">New game</button>
+    </div>
+  </section>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a></footer>
+<script type="module" src="src/ui/colour-sudoku.js"></script>
+<script type="module" src="src/ui/stats.js"></script>
+<script type="module" src="src/ui/offline.js"></script>
+</body>
+</html>

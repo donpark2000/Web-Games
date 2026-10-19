@@ -19,13 +19,15 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '9a99095f131b';
+const VERSION = 'bbbd1a343c84';
 const MADE = '2026-10-19';
 const RELEASE = '1.3';
 const FILES = [
+  'colour-sudoku.html',
   'connect-four.html',
   'count-to-9.html',
   'css/cards.css',
+  'css/colour-sudoku.css',
   'css/connect-four.css',
   'css/count-to-9.css',
   'css/five-dice.css',
@@ -39,6 +41,7 @@ const FILES = [
   'css/site.css',
   'css/snakes-ladders.css',
   'css/tic-tac-toe.css',
+  'data/colour-sudoku.json',
   'data/five-dice-long.bin',
   'data/hidden-faces.json',
   'five-dice.html',
@@ -56,6 +59,7 @@ const FILES = [
   'rock-paper-scissors.html',
   'snakes-ladders.html',
   'src/core/appversion.js',
+  'src/core/colour-sudoku.js',
   'src/core/connect-four.js',
   'src/core/count-to-9.js',
   'src/core/fit.js',
@@ -76,8 +80,10 @@ const FILES = [
   'src/core/tic-tac-toe.js',
   'src/core/version.js',
   'src/ui/cardback.js',
+  'src/ui/colour-sudoku.js',
   'src/ui/connect-four.js',
   'src/ui/count-to-9.js',
+  'src/ui/csboard.js',
   'src/ui/debuglog.js',
   'src/ui/faces.js',
   'src/ui/fit.js',

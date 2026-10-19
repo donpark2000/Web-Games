@@ -71,6 +71,10 @@
         <span class="pic hf" id="hfPic" aria-hidden="true"></span>
         Find the Stars
       </a>
+      <a class="game" id="csLink" href="colour-sudoku.html">
+        <span class="pic cs" id="csPic" aria-hidden="true"></span>
+        Colour Sudoku
+      </a>
     </div>
   </section>
 </main>
@@ -86,6 +90,8 @@
   import { padStyle } from './src/ui/fmpads.js';
   import { DEMO, seenBy } from './src/core/hidden-faces.js';
   import { miniBoard } from './src/ui/hfboard.js';
+  import { DEMO as CS_DEMO } from './src/core/colour-sudoku.js';
+  import { miniBoard as csMini } from './src/ui/csboard.js';
   import { log, startLog } from './src/ui/debuglog.js';
   import { homePage } from './src/ui/resume.js';
   import { logScrollRoom } from './src/ui/scrolllog.js';
@@ -138,6 +144,8 @@
   // them in the top three rows.
   const two = DEMO.faces.slice(0, 2);
   document.getElementById('hfPic').innerHTML = miniBoard(DEMO, two, two.flatMap(f => seenBy(5, DEMO.reg, f)).filter(i => i < 15));
+  // Colour Sudoku: a puzzle under way, about half its digits in.
+  document.getElementById('csPic').innerHTML = csMini(CS_DEMO, CS_DEMO.sol.map((d, i) => ((i * 7) % 11 < 6 ? d : 0)));
   startLog('home');
   // Back on the home page: no game in progress any more (DESIGN.md
   // "Coming back to a game").

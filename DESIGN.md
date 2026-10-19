@@ -4,8 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-19): **Colour Sudoku** being designed (mockup v3.1;
-see below). Find the Stars: no Same size after a 10 x 10 win
+*Status (2026-10-19): **Colour Sudoku** built from mockup v3.1 on the
+branch `colour-sudoku`, to be judged on the developer's phone once
+published (as release 2.0; see below). Earlier: Colour Sudoku designed
+(mockups v1-v3.1). Find the Stars: no Same size after a 10 x 10 win
 (published, release 1.3). Earlier 2026-10-19: a puzzle counts as used as it
 starts (only Try again plays one again), and the puzzles are shuffled
 once into a new order (published, release 1.2). 2026-10-18: Find the Stars: Give up asks how, and **Show me
@@ -52,6 +54,8 @@ And one for the developer (2026-10-13: "I wanted it for me"):
 
 - **Find the Stars** (called Hidden Faces until 2026-10-14; a logic
   puzzle: one star per row, column and colour, none touching)
+- **Colour Sudoku** (2026-10-19; a Sudoku whose squares are also split
+  into nine coloured shapes, each holding 1-9 once)
 
 ## Players
 
@@ -85,8 +89,8 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   the second player a person or the robot: tic-tac-toe, matching cards,
   Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim), then **👤 One player** (no way to play
   another person: rock paper scissors, Follow Me), then **🧩 Puzzles for
-  grown-ups** (Find the Stars; developer, 2026-10-13: one site, kept
-  apart). Each game in one group only; a
+  grown-ups** (Find the Stars, Colour Sudoku; developer, 2026-10-13: one
+  site, kept apart). Each game in one group only; a
   group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
   the home page to change games, **80 px in every game** (developer,
@@ -745,13 +749,16 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
 - **Sounds:** a tick per ✕, a ding for a star, "uh-oh" for a wrong look,
   a ping for a hint, the sparkle when solved, "aww" when out of hearts.
 
-### Colour Sudoku (being designed)
+### Colour Sudoku
 
 A second puzzle for the developer (2026-10-19), in 🧩 Puzzles for
-grown-ups. Decided so far; the rest of
-[Colour Sudoku Mockup](https://claude.ai/artifact/D53EsTrxeFeaFpFKwzr7wF)
-(private Claude artifact, version 4 = mockup v3.1) is still to be
-agreed (journal, "Colour Sudoku mockup v1" to "v3.1").
+grown-ups. **Built 2026-10-19 from
+[Colour Sudoku Mockup](https://claude.ai/artifact/D53EsTrxeFeaFpFKwzr7wF)**
+(private Claude artifact, version 4 = mockup v3.1) as it stood
+(developer: "I can't try it on my phone until you build and publish
+it"); what isn't marked as decided below is Claude's choice from the
+mockup, to be judged on the phone (journal, "Colour Sudoku mockup v1" to
+"Colour Sudoku built").
 
 - **The rules (Extra Regions):** a 9 x 9 Sudoku (1 to 9 once in every
   row, column and 3 x 3 box) whose squares are also split into **nine
@@ -774,6 +781,53 @@ agreed (journal, "Colour Sudoku mockup v1" to "v3.1").
   of time, played in an order shuffled once, **each counting as used as
   it starts**, the next one per level kept on the device, and the stock
   coming round again only after the last.
+
+As built (Claude's choices from the mockup, unless marked):
+- **Setup:** the rules beside a solved puzzle; **How hard?** Easy
+  ("each step: the only place a digit can go") / Harder ("some steps
+  need two units at once": "all inside", a unit's digit confined to
+  another unit); **Your notes:** Auto tidy (a digit placed comes out of
+  the notes it rules out; default) / I'll do it; Play!.
+- **Play:** 🏠, "Easy · puzzle 3" over ❤️❤️❤️, "52 to go" and the
+  clock (beside the 🏠, so the board gets their row; as big as fit,
+  smaller on narrow phones: about 12 px at 320 px wide), 🔊; the board
+  as big as fits with no scrolling (38 px squares on a 393 x 760 phone,
+  at least 24 px), colour fills, thick lines round the boxes; the hint
+  bar (3 lines, hidden until a hint); the two rows of digits; **Undo**,
+  **💡 Hint** (3 per puzzle), **🏳 Give up**.
+- **Entering:** tap a square (any: one with a digit rings the same
+  digits), then a digit; a digit all nine of which are placed is
+  greyed. A wrong digit is red, shakes and costs a heart (the third ends
+  the game); the same wrong digit again costs nothing. **Undo** takes
+  back notes and wrong digits (the heart back, the mistake counted),
+  never a right digit (certain, like a found star). Digits typed on a
+  keyboard work too (Shift: a note).
+- **Hints, as Find the Stars':** a wrong digit first (the hint takes it
+  out; its heart stays lost), then the solver's next digit, with any
+  "all inside" steps it needs first (their squares dashed); the hint
+  **puts the digit in**, white with a black edge. The spotlight, the
+  ringed square named in the words, ❓ Why? (each other empty square of
+  the unit labelled with what rules the digit out, those digits ringed
+  in red dots; for "the only digit left", what its row, column, box and
+  colour have), ✓ Got it; a lit hint's words take the digits' rows too,
+  so the board never moves; put out, its words stay greyed, "(tap to
+  light it again)".
+- **Give up:** Show me how / Just end it / No, as Find the Stars; Show
+  me how walks the rest a step at a time ("Step 3 of 62"), with ❓ Why?,
+  ⏩ The rest, Next ▸; no best time.
+- **The end:** the result in the hint bar beside one big star ("Solved
+  in 4:12!" over "1 mistake · 0 hints · Best 3:50" or "New best!"; "Out
+  of hearts" / "You gave up" with the rest of the answer pale; "Shown
+  step by step"); **Next** / **Try again** / **New game**.
+- **Puzzles:** 200 per level, made ahead of time by
+  `tools/colour-sudoku-puzzles.js` into `data/colour-sudoku.json` (71 KB;
+  12-20 givens), each with one answer the level's steps reach; Harder
+  ones need "all inside" at least once. The first 200 kept seeds from
+  100000 (Easy) and 200000 (Harder), shuffled once with a fixed seed.
+- **Kept on the device:** the next puzzle and the best time per level.
+- **Sounds:** a tick per note, a thud per right digit, "uh-oh" for a
+  wrong one, a ping for a hint or step, the sparkle when solved, "aww"
+  when out of hearts.
 
 ## Face names
 
@@ -849,7 +903,8 @@ Which games are opened and played, from where, over time (developer,
   home page `/Web-Games/`), with its title, the screen size and the
   referrer when another site sent the visitor; and each **game started**
   (Play! or Play again) as an event, `play-<game>` (e.g. `play-nim`);
-  in Find the Stars also "Same size" and "Another" (`data-play`).
+  in Find the Stars also "Same size" and "Another", in Colour Sudoku
+  "Next" (`data-play`).
 - **Only the live site counts** (donpark2000.github.io), not localhost or
   an automated browser, so testing doesn't add to the numbers. **Nothing
   is sent with no connection** (2026-10-11: an iPhone in airplane mode
@@ -978,7 +1033,11 @@ finished, and the app's icon going back to the last game).
   Undo, the clock and the hint on show (with its Why?); a finished
   puzzle shows its result.
 - **Find the Stars' progress stays on the device** (`web-games-hidden-faces`:
-  the next puzzle per size and the best times), as before.
+  the next puzzle per size and the best times), as before; Colour
+  Sudoku's too (`web-games-colour-sudoku`: per level). Colour Sudoku
+  comes back with its puzzle, board, notes, hearts, hints, the selected
+  square, Undo, the clock, the hint on show (with its Why?) and Show me
+  how's step.
 - **Old keys removed:** on the first load after the update, the games
   kept on the device before (`web-games-resume-<game>` in localStorage)
   and the last page (`web-games-last-page`) are removed.

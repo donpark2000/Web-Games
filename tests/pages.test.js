@@ -18,9 +18,9 @@ const html = Object.fromEntries(await Promise.all(pages.map(async p => [p, await
 const localRefs = s => [...s.matchAll(/(?:href|src)="([^"]+)"|from '(\.\/[^']+)'/g)]
   .map(m => m[1] ?? m[2]).filter(u => !/^(https?:|mailto:|#)/.test(u)).map(u => u.replace(/[?#].*$/, ''));
 
-test('pages: the home page and the ten games exist', () => {
+test('pages: the home page and the eleven games exist', () => {
   assert.ok(pages.includes('index.html'));
-  for (const g of ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html', 'nim.html', 'rock-paper-scissors.html', 'follow-me.html', 'hidden-faces.html']) assert.ok(games.includes(g), `${g} missing: ${games.join()}`);
+  for (const g of ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html', 'nim.html', 'rock-paper-scissors.html', 'follow-me.html', 'hidden-faces.html', 'colour-sudoku.html']) assert.ok(games.includes(g), `${g} missing: ${games.join()}`);
 });
 
 test('pages: every page has the footer, and "Source code" opens in a new tab', () => {
@@ -101,7 +101,7 @@ test('pages: the home page groups the games: two players, one player, puzzles', 
   assert.deepEqual(groups.map(g => [g.id, g.title]), [['twoGroup', '👥 Two players'], ['oneGroup', '👤 One player'], ['puzGroup', '🧩 Puzzles for grown-ups']]);
   assert.deepEqual(groups[0].games, ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html', 'nim.html']);
   assert.deepEqual(groups[1].games, ['rock-paper-scissors.html', 'follow-me.html']);
-  assert.deepEqual(groups[2].games, ['hidden-faces.html']);
+  assert.deepEqual(groups[2].games, ['hidden-faces.html', 'colour-sudoku.html']);
   const all = groups.flatMap(g => g.games);
   assert.deepEqual([...all].sort(), [...games].sort(), 'every game in exactly one group');
   assert.equal((html['index.html'].match(/<a class="game"/g) || []).length, all.length, 'a game button outside the groups');

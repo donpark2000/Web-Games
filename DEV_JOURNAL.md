@@ -23,6 +23,17 @@ time, each tried before publishing:
   2026-10-18 (see "Show me how built"): "10×10 · puzzle 1" beside the
   🏠 loses the end of "puzzle 1" at 320 px in the built-in browser. Not
   yet checked whether it matters on a real phone, or since when.
+  *2026-10-19:* Colour Sudoku had the same problem and fits its line at
+  run time (`fitInfo`, see "Colour Sudoku built"); the same would fix
+  this one, if it matters.
+
+- **Q30. Colour Sudoku on the phone.** Built from mockup v3.1 as it
+  stood (2026-10-19); to judge on the developer's phone once published:
+  N2 notes (white edge) against N1 (DESIGN.md: "We can start with N2"),
+  and Claude's choices from the mockup (DESIGN.md "Colour Sudoku", "As
+  built"), e.g. a thud per right digit, Next / Try again / New game at
+  every end, the turn line and status as small as 12 px on a 320 px
+  phone.
 
 ## Proposed additions to the standards skill
 
@@ -6886,3 +6897,129 @@ new branch `colour-sudoku` from `star-battle`:
    release steps in CLAUDE.md.
 
 **Open:** Q24, Q27 (unrelated). **Proposed skill additions:** none.
+
+## 2026-10-19: Colour Sudoku built
+
+Built on the branch `colour-sudoku` (from `star-battle`) by a session
+started from the design session, following the plan in "Colour Sudoku:
+build next".
+
+**1. The core** (`src/core/colour-sudoku.js`, no DOM): the mockup's
+`cs-core.js` as an ES module (Find the Stars' `mulberry32`, `colorsFor`,
+`fadedColor` and `clock` reused), plus the game's rules moved out of the
+mockup's screen code so they can be tested: `enter`, `toggleNote`,
+`undo`, `findHint` (plain data, kept with the game), `useHint`,
+`walkStep`, `fillRest`, `endGame`, snapshot/restore, progress per level.
+**The port makes the same puzzles:** `generate` on seeds 100 (Easy), 200
+and 201 (Harder) gave byte-identical colours, givens and answers to the
+mockup's core, run side by side (0.36 s, 1.4 s, 1.8 s each).
+**Fixed on the way** (mockup behaviour):
+- A hint that took out a wrong digit left that digit's Undo step, so
+  Undo afterwards gave the heart back for free. Now the hint drops it.
+- Every redraw re-shook every red digit on the board; now only the one
+  just entered shakes.
+- The same wrong digit entered again on its square cost another heart;
+  now it does nothing.
+
+**2. The stock** (`tools/colour-sudoku-puzzles.js` ->
+`data/colour-sudoku.json`, 71 KB). Timed one make first (above), then a
+trial of 3 per level (8 s), then the whole: 55 s on 15 worker threads,
+one line per make, a 60 s cap per make. Easy: seeds 100000-100199, every
+one kept (13-20 givens). Harder: 200000-200211, 12 not kept (no step
+needed "all inside"), 12-20 givens. Slowest make 7.1 s, median 0.76 s.
+Shuffled once per level (`stockOrder`, seed firstSeed + 1).
+
+**3. The page** (`colour-sudoku.html`, `css/colour-sudoku.css`,
+`src/ui/colour-sudoku.js`, `src/ui/csboard.js`): the mockup's screens
+without the mockup bar, N2 notes, the ring, the two digit rows; it loads
+`css/hidden-faces.css` before its own sheet, as the mockup did (the
+rules box, status, hint bar, tools and end are Find the Stars'). Hooked
+into the debug log ("colour-sudoku": puzzle used, game started, digit,
+wrong digit, note, undo, hint, why, give up, Show me how steps, ends,
+fit, turn line fit, tools fit, resumed, clock paused), "Coming back to a
+game" (`resumable('colour-sudoku', 1, ...)`), progress and best times
+(`web-games-colour-sudoku`), sounds, stats (Next is `data-play`), the
+home tile in 🧩 Puzzles for grown-ups (a puzzle under way, from
+`DEMO` = stock Easy seed 100003), `GAME_PAGES`, and `node tools/offline.js`
+(88 files). Taps on the board and digits use pointer events, and the
+touch's end is cancelled there (Find the Stars' double-tap zoom fix).
+
+**Tests:** `tests/colour-sudoku.test.js` (16: units; made puzzles' colours
+joined and spread, answers fitting; every solver step right against the
+answer, hidden/naked/inside all used; a hand-built pair; no given can go;
+`problems` catching a changed given, a removed one, a colour of 10, a
+short row, five neighbour swaps, a Harder that doesn't need "inside",
+another answer; stock order; colours; the game: digits, tidy, notes,
+Undo, losing, hints, Show me how to the answer, keeping; progress),
+`tests/colour-sudoku-stock.test.js` (2: all 400 sound, order, seeds,
+none twice; the first 2 per level remade, 1.2 s), and
+`tests/colour-sudoku-page.test.js` (5: the decisions and the wiring, as
+files). **Shown to fail:** three bugs put in the core one at a time
+(Undo not giving the heart back; "all inside" ruling out its own squares;
+a right digit keeping its Undo steps) each failed 1-3 tests; a given
+taken out of a stock puzzle failed the stock test ("can't finish"); a
+log line renamed and the N2 edge removed each failed the page test. Two
+page-test failures on the first run were the test's own patterns
+("Mockup v" matched the comments crediting the mockup; Undo logs
+"undo: ..."), fixed in the test. `npm test`: 312 pass. **Clean room:**
+the repo copied to the scratchpad, the suite run twice (312/312 both),
+the file listing before and after identical (135 files), 25 s.
+
+**Checked in the built-in browser** (`tools/serve.js` on 8123):
+- **393 x 760:** 38 px squares (as mockup v3), the page exactly the
+  screen (fit: page 755 of 760); setup as the mockup.
+- **Play:** notes 1 and 7 written; a right 1 tidied the 1 out (Auto
+  tidy); same digits ringed (2). A wrong 6 cost a heart and Undo gave it
+  back. A given square then a digit: "That square is done...".
+- **A hint:** "The ringed square (row 3, column 2) is the only place for
+  6 in the top-left box...", 11 squares lit, the dock lit (178 px), the
+  page still 760. Its Why?: 5 labels, 2 red-dot rings. Got it greyed the
+  words; a tap lit it again.
+- **Reload:** picked up the game with the hint lit, hearts and the clock
+  (paused at 0:28 while hidden). Show me how: "Step 1 of 62", Why?, the
+  board taking no taps, ⏩ The rest: "Shown step by step / 62 steps".
+  Try again: the same puzzle at 0:00.
+- **The ends:** every digit entered gave "Solved in 0:09! / 0 mistakes ·
+  0 hints · New best!" with 6 sparkles, the best kept on the device;
+  Next brought puzzle 2; three wrong digits gave "Out of hearts", the
+  answer pale. No console errors.
+- **Home:** the tile at 150 px with 44 digits shown; the kept game
+  cleared.
+- **320 px wide: found and fixed.** The column beside the 🏠 is 144 px
+  there, and "Harder · puzzle 200" (187 px at 20 px) ran under the 🔊,
+  as did the status (hearts, "64 to go", the clock). The fix,
+  `fitInfo`, is the same idea as Find the Stars' `fitTools`: the line
+  and status shrink in half pixels until nothing is cut, measured with
+  the widest status the game will show ("Step 64 of 64" in Show me how).
+  Now nothing is cut and the page is 320 px wide: 12.5 px words (status
+  10.6 px) for "Harder · puzzle 200" at 320; at 393 they stay at
+  19.5 px (16.5 px in Show me how). The ask, walk and end rows had
+  nothing cut at 320. At 320 x 640 the squares stop at the 24 px floor
+  and the page scrolls 3 px (6 px while a hint is lit: the hint's row of
+  buttons is 3 px taller than the tools at the small font); a short
+  screen scrolls, as Find the Stars' 10 x 10 does.
+
+**Claude's choices** (in DESIGN.md "As built", all for the phone, Q30):
+sounds (thud per right digit, ding for the last); Next / Try again /
+New game at every end, as the mockup had; "0 to go" after a loss. A
+slip: a shell heredoc misfired, so three registration edits ran twice.
+The duplicate lines were caught by counting, the three files restored
+from git (they were clean before) and the edits applied once, by a
+script that refuses to run twice.
+
+**Open questions:** Q30 (new). **Proposed skill additions:** none.
+
+## 2026-10-19: Colour Sudoku: publish next; status (start here next session)
+
+**Branch `colour-sudoku`** = `star-battle` + Colour Sudoku (core, stock,
+page, tests, DESIGN.md, this journal), pushed. `npm test` 312 pass.
+Release still 1.3 in `src/core/release.js`; nothing merged to `main`.
+
+**Next:** the developer's OK to publish as **release 2.0** (a new game).
+Then, by CLAUDE.md: set 2.0 in `src/core/release.js`, `node
+tools/offline.js`, notes in `RELEASES.md`, `node tools/release.js` says
+ready, merge to `main`, tag `v2.0`, push the tag, the GitHub release
+with `node tools/release.js notes`; once live, stop the localhost
+servers. Then the developer judges it on the phone (Q30).
+
+**Open:** Q24, Q27 (unrelated), Q30. **Proposed skill additions:** none.

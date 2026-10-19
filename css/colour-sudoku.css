@@ -1,0 +1,99 @@
+/* Colour Sudoku screens, from the mockup v3.1 (2026-10-19). Loaded after
+   hidden-faces.css, which holds what the two puzzles share (the rules
+   box, the status line, the hint bar, the tools, the end's big star);
+   what differs is overridden here. */
+
+/* --cell is one square's size; src/ui/colour-sudoku.js sets it on the
+   board from a fitted size, so the whole page fits the screen with no
+   scrolling. The default is small, so the board can't widen the page the
+   fit measures. */
+.csboard { --cell: 24px; --given: #1E3445; --mine: #1F5FD1; }
+
+/* setup: the rules beside a solved puzzle */
+#rulesPic .csmini { width: 144px; }
+
+/* play: the status beside the 🏠, under the turn line (mockup v3: the
+   squares get its row) */
+.topinfo { display: grid; gap: 6px; min-width: 0; }
+.topinfo > * { min-width: 0; }
+/* Their words as big as fit, none cut (--tif, src/ui/colour-sudoku.js:
+   fitInfo; at 320 px wide "Harder · puzzle 200" ran under the 🔊). The
+   status at Find the Stars' 17 px to the turn line's 20. */
+.topinfo .turn { min-height: 0; font-size: var(--tif, 20px); overflow: hidden; }
+.topinfo .status { font-size: calc(var(--tif, 20px) * .85); grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 4px; }
+.topinfo .status > span { overflow: hidden; white-space: nowrap; }
+
+.csboard {
+  display: grid; grid-template-columns: repeat(9, var(--cell)); width: max-content;
+  border: 3px solid var(--thick); border-radius: 8px; overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+.sq {
+  width: var(--cell); height: var(--cell); background: var(--rc); position: relative; display: grid; place-items: center; cursor: pointer;
+  font-size: calc(var(--cell) * .62); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; -webkit-tap-highlight-color: transparent;
+}
+.sq.given { color: var(--given); }
+.sq.mine { color: var(--mine); font-weight: 700; }
+/* a hint's digit: white with a black edge, like Find the Stars' hint ✕ */
+.sq.hinted { color: #fff; paint-order: stroke; -webkit-text-stroke: calc(var(--cell) * .09) #000; }
+.sq.bad { color: var(--bad); }
+.sq.oops .d { animation: shake .45s ease; }
+/* the rest of the answer, after giving up or running out of hearts */
+.sq.pale { color: #1E344566; font-weight: 600; }
+.sq .d { position: relative; z-index: 2; }
+/* Digits the same as the selected square's: a ring, so the square's
+   colour shows inside it (developer, mockup v2: "The ring shows up better
+   on light colors like yellow"). */
+.sq.same .d::before { content: ''; position: absolute; left: 50%; top: 50%; width: calc(var(--cell) * .66); height: calc(var(--cell) * .66);
+  transform: translate(-50%, -50%); border-radius: 50%; z-index: -1; box-shadow: inset 0 0 0 2.5px var(--ink); }
+.sq.sel::after { content: ''; position: absolute; inset: 1px; border-radius: 4px; box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 5px #fff; pointer-events: none; z-index: 3; }
+/* Notes: as big and dark as a 3 x 3 place allows (37% of a square,
+   near-black; mockup v3: at 40% the rows overflowed the square), with a
+   white edge so they stand off any colour (N2; developer, 2026-10-19: to
+   judge against N1, no edge, on a phone). */
+.sq .notes {
+  position: absolute; inset: 1px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr));
+  font-size: calc(var(--cell) * .37); font-weight: 900; color: #10202C; line-height: 1; pointer-events: none;
+  text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff, 0 0 3px #fff;
+}
+.sq .notes span { display: grid; place-items: center; min-height: 0; overflow: visible; position: relative; z-index: 0; }
+/* a note the same as the selected digit: ringed too (only a note that is
+   there: mockup v3.1) */
+.sq .notes span.hl::before { content: ''; position: absolute; left: 50%; top: 50%; width: 1.25em; height: 1.25em; transform: translate(-50%, -50%);
+  border-radius: 50%; z-index: -1; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.sq.pop .d { animation: bounce .4s ease; }
+/* The spotlight, as Find the Stars: only the colour of the squares a hint
+   isn't about fades (to --fc); the lit ones lifted by a shadow. The
+   square it means is ringed; the squares of a step it needed first are
+   dashed; in the Why?, the digits doing the ruling out are ringed in red
+   dots and each lit empty square says why. */
+.csboard.spot .sq:not(.lit):not(.tgt) { background: var(--fc); }
+.csboard.spot .sq.lit, .csboard.spot .sq.tgt { z-index: 3; box-shadow: inset 0 0 0 2px var(--thick), 0 2px 8px 1px #0000008C; }
+.sq.tgt::before { content: ''; position: absolute; inset: 2px; border-radius: 50%; box-shadow: inset 0 0 0 3px var(--thick), inset 0 0 0 5px #fff, 0 0 0 2px #fff;
+  animation: pulse 1.1s ease-in-out infinite; pointer-events: none; z-index: 1; }
+.sq.tgt .d { z-index: 2; }
+.sq.pre::before { content: ''; position: absolute; inset: 3px; border-radius: 6px; border: 3px dashed #1F5FD1; pointer-events: none; z-index: 1; }
+.sq.blocker::before { content: ''; position: absolute; inset: 2px; border-radius: 50%; border: 3px dotted var(--bad); pointer-events: none; z-index: 1; }
+.sq .tag { position: absolute; left: 1px; right: 1px; bottom: 2px; text-align: center; font-size: max(8px, calc(var(--cell) * .22)); font-weight: 900; line-height: 1.15;
+  color: #fff; background: #2B2B33E6; border-radius: 4px; pointer-events: none; z-index: 4; white-space: nowrap; overflow: hidden; }
+
+/* The hint bar and the digits: a lit hint's words take the digits' rows
+   too (--dockH, the dock's height without it), so a harder hint's 4
+   lines fit and the board never moves. */
+.dock { display: grid; gap: 8px; }
+.dock.lit .keys { display: none; }
+.dock.lit .hintbar { height: var(--dockH, auto); }
+.hintbar { height: calc(3 * 1.4em + 20px); }
+.hintbar .relight { display: inline; margin: 0 0 0 .4em; }
+
+/* Two rows of digits (developer, mockup v2: no Notes toggle, "I always
+   found online games that have the toggle feature annoying"): big ones
+   put a digit, smaller dashed ones (the digit in a corner, like a note)
+   write notes. A digit all nine of which are placed is greyed. */
+.keys { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; touch-action: manipulation; }
+.key { border: 3px solid var(--ink); background: var(--card); color: var(--ink); border-radius: 12px; padding: 6px 0; font-size: 24px; font-weight: 800;
+  cursor: pointer; min-width: 0; line-height: 1.1; font-variant-numeric: tabular-nums; -webkit-tap-highlight-color: transparent; }
+.key:disabled { opacity: .25; cursor: default; }
+.notekeys .key { border-style: dashed; border-width: 2px; font-size: 15px; font-weight: 900; padding: 2px 0 12px 6px; text-align: left; }
+
+/* Undo, Hint, Give up: three, each a third of the row */
+#tools { grid-template-columns: repeat(3, minmax(0, 1fr)); justify-content: stretch; }
