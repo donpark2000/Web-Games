@@ -7048,3 +7048,38 @@ Colour Sudoku on the phone (version line 2.0; the app fetches it in the
 background, so maybe after one more open) and judges Q30: N2 notes
 against N1, and Claude's choices in DESIGN.md "As built". Open: Q24,
 Q27, Q30. **Proposed skill additions:** none.
+
+## 2026-10-19: Colour Sudoku on the phone: the selected square's ring
+
+**Developer, after 2.0 on the phone (Q30):** "Once a note is made in a
+cell its visibility is good when the cell is not selected. But when a
+cell is selected that extra black and white outline around the selected
+cell obscures the note."
+
+**Seen in the built-in browser** (393 x 760, 38 px squares): with notes
+1-9 in a square, selecting it put the band (3 px ink, then 2 px white,
+1 px in from the edge, drawn over the notes) across the eight outer
+notes; only the 5 stayed clear.
+
+**Four shown** (an inline mockup in the chat, squares in five colours at
+38 px and twice that, tap to move the selection): now; A, the same band
+under the notes; B, a 2.5 px dark edge only, notes on top; C, a ring
+outside the square, over the lines round it. **Developer: "I like C."**
+
+**Built:** `.sq.sel::after` at `inset: -3px` (3 px ink, a 1.5 px white
+edge outside it) in `css/colour-sudoku.css`. Checked at 393 x 760 and
+320 x 640: every note of the selected square shows, at the board's edge
+too (the frame takes that side of the ring); the notes of the squares
+beside it stay readable; a given 7 selected rings its square and the
+other 7s as before. **Test:** `tests/colour-sudoku-page.test.js`, "the
+selected square ringed outside it"; shown to fail on the old rule ("the
+ring is not outside the square"). `node tools/offline.js`: version
+951b39d94338. `npm test` 313 pass.
+
+Seen on the way, not followed up: right after the browser's viewport
+went from 393 to 320 wide, a screenshot showed two hearts and a smaller
+board, fine after a reload. Probably the screenshot came before the
+refit; worth a look if it shows on a phone turned on its side.
+
+**Next, also from the developer:** "when selecting game play as easy or
+harder, the meaning of the descriptions or impact is not clear to me."

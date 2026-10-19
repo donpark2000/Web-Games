@@ -45,7 +45,10 @@
    on light colors like yellow"). */
 .sq.same .d::before { content: ''; position: absolute; left: 50%; top: 50%; width: calc(var(--cell) * .66); height: calc(var(--cell) * .66);
   transform: translate(-50%, -50%); border-radius: 50%; z-index: -1; box-shadow: inset 0 0 0 2.5px var(--ink); }
-.sq.sel::after { content: ''; position: absolute; inset: 1px; border-radius: 4px; box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 5px #fff; pointer-events: none; z-index: 3; }
+/* The selected square: a ring outside it, over the grid lines round it,
+   so it covers none of the square's notes (developer, 2026-10-19: the
+   band inside the square hid them; option C of four). */
+.sq.sel::after { content: ''; position: absolute; inset: -3px; border-radius: 6px; box-shadow: inset 0 0 0 3px var(--ink), 0 0 0 1.5px #fff; pointer-events: none; z-index: 3; }
 /* Notes: as big and dark as a 3 x 3 place allows (37% of a square,
    near-black; mockup v3: at 40% the rows overflowed the square), with a
    white edge so they stand off any colour (N2; developer, 2026-10-19: to

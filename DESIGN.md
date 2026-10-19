@@ -776,6 +776,11 @@ mockup, to be judged on the phone (journal, "Colour Sudoku mockup v1" to
 - **Notes** as big and dark as a 3 x 3 place allows (37% of a square,
   near-black), **with a white edge** to start with (N2; developer: to
   judge N1 against N2 on a phone).
+- **The selected square: a ring outside it**, over the lines round it,
+  so it covers none of the square's notes (developer, 2026-10-19, after
+  2.0 on the phone: the band inside the square "obscures the note";
+  option C of four, journal "Colour Sudoku on the phone: the selected
+  square's ring").
 - **No repeats when you start again** (developer, 2026-10-19, the lesson
   of Find the Stars, journal Q28): the puzzles of each level made ahead
   of time, played in an order shuffled once, **each counting as used as

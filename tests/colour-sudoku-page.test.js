@@ -53,6 +53,16 @@ test('colour sudoku page: same digits ringed (not a disc); N2 notes, big and dar
   assert.match(notes, /text-shadow: 0 0 2px #fff/, 'no white edge (N2)');
 });
 
+// The selected square: a ring outside it, over the lines round it, not a
+// band inside it (developer, 2026-10-19, after 2.0: the band hid the
+// notes; option C).
+test('colour sudoku page: the selected square ringed outside it, covering none of its notes', () => {
+  const sel = rule('.sq.sel::after');
+  assert.match(sel, /inset: -3px/, 'the ring is not outside the square');
+  assert.match(sel, /box-shadow: inset 0 0 0 3px var\(--ink\), 0 0 0 1\.5px #fff/);
+  assert.doesNotMatch(sel, /inset 0 0 0 5px #fff/, 'the white band inside the square is back');
+});
+
 test('colour sudoku page: give up, Show me how, the end; the buttons that start a puzzle count', () => {
   const ask = play.match(/<div class="tools ask" id="askTools" hidden>([\s\S]*?)<\/div>/)?.[1] ?? '';
   assert.deepEqual([...ask.matchAll(/<button[^>]*id="(\w+)"[^>]*>([^<]*)</g)].map(m => `${m[1]}:${m[2]}`), ['giveUpHow:Show me how', 'giveUpYes:Just end it', 'giveUpNo:No']);
