@@ -19,9 +19,9 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '2f61a8b22544';
+const VERSION = '9a99095f131b';
 const MADE = '2026-10-19';
-const RELEASE = '1.2';
+const RELEASE = '1.3';
 const FILES = [
   'connect-four.html',
   'count-to-9.html',

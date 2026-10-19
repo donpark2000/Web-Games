@@ -7,6 +7,11 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 1.3 (2026-10-19, version 9a99095f131b)
+
+Find the Stars: after a 10×10 is solved, the buttons are **Next** and
+**New game**. Same size is gone there, as it did the same as Next.
+
 ## 1.2 (2026-10-19, version 88b43a849f0b)
 
 Find the Stars: new puzzles more often.

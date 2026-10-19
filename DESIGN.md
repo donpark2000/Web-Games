@@ -5,7 +5,7 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-19): Find the Stars: no Same size after a 10 x 10 win
-(built, not yet published). Earlier 2026-10-19: a puzzle counts as used as it
+(published, release 1.3). Earlier 2026-10-19: a puzzle counts as used as it
 starts (only Try again plays one again), and the puzzles are shuffled
 once into a new order (published, release 1.2). 2026-10-18: Find the Stars: Give up asks how, and **Show me
 how** walks through the rest a step at a time; the spotlight fades only
