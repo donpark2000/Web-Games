@@ -7127,3 +7127,26 @@ need to add the other concept." Kept as Q31.
 "As built". At 320 x 640 each fits its button in 4 lines (Auto tidy's
 3), nothing cut. **Test:** `tests/colour-sudoku-page.test.js`, "the
 levels say what they ask of you" (the exact words).
+
+## 2026-10-19: Release 2.1 published; status (start here next session)
+
+Published with the developer's OK ("Yes, publish as 2.1."): Colour
+Sudoku's selected square ringed outside it, and the plainer How hard?
+words. `src/core/release.js` 2.1; `node tools/offline.js`: "release 2.1,
+version bc4971605fea (2026-10-19), 88 files"; notes in `RELEASES.md`;
+`npm test` 314 pass; `node tools/release.js`: "Release 2.1 is ready".
+`main` fast-forwarded 6be4477..fa50e98 and pushed; tag `v2.1`
+(annotated) pushed; GitHub release "2.1" from `node tools/release.js
+notes` (https://github.com/donpark2000/Web-Games/releases/tag/v2.1).
+The Pages build for fa50e98 "built" at 23:10:23Z; the live site then
+sent `RELEASE = '2.1'`, version bc4971605fea, the CSS with the ring
+(`inset: -3px`) and the page with the new Harder words. Claude's
+preview server (`tools/serve.js` on 8123) stopped; no node processes
+left.
+
+**Status:** release 2.1 live (`main` = fa50e98, tag `v2.1`);
+`colour-sudoku` = `main` + this entry. **Next:** the developer plays
+Colour Sudoku on the phone: the rest of Q30 (N2 notes against N1,
+Claude's choices in DESIGN.md "As built") and Q31 (does Easy feel too
+hard; if so, start it with about 30 digits). Open: Q24, Q27, Q30, Q31.
+**Proposed skill additions:** none.
