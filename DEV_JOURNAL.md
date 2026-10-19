@@ -6814,3 +6814,27 @@ version 3):
 `.claude/launch.json` restored after): 38 px squares, the status row
 273 px wide with nothing cut, the page 393 px wide; all nine notes on one
 square stay inside it (the last place ends 36 px down a 38 px square).
+
+## 2026-10-19: Mockup v3.1: rings only on notes that are there; DESIGN.md
+
+**Developer** (after v3): "After adding a note and then moving on to
+the next number, I see empty circles showing up in cells. ... It feels
+confusing." **Cause:** with a square selected, every note place for its
+digit got the ring, written or not (`render` in the mockup marked the
+place, not the note). **Fixed:** only a note that is there is ringed.
+**Checked** (built-in browser, the temporary server again,
+`.claude/launch.json` restored after): with notes 2, 5 and 3 written and
+a 7 selected, no empty place was ringed (0); after a note 7, one ring,
+on it.
+
+N1 or N2: "I think I need to see it on a phone. We can start with N2."
+N2 is now first and the default.
+
+**Puzzles not repeating** (developer: "for however many unique puzzles
+we have, we should rotate through them so every time I start the game I
+don't repeat the same puzzles"): Find the Stars' rule since Q28, for
+each level. In DESIGN.md with the other decisions so far, under "Colour
+Sudoku (being designed)".
+
+**Mockup v3.1** = [Colour Sudoku Mockup](https://claude.ai/artifact/D53EsTrxeFeaFpFKwzr7wF)
+version 4.

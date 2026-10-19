@@ -4,7 +4,8 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-19): Find the Stars: no Same size after a 10 x 10 win
+*Status (2026-10-19): **Colour Sudoku** being designed (mockup v3.1;
+see below). Find the Stars: no Same size after a 10 x 10 win
 (published, release 1.3). Earlier 2026-10-19: a puzzle counts as used as it
 starts (only Try again plays one again), and the puzzles are shuffled
 once into a new order (published, release 1.2). 2026-10-18: Find the Stars: Give up asks how, and **Show me
@@ -743,6 +744,36 @@ Auto ✕ on by default accepted as proposed; rubbing out kept (developer).
   the phone locked).
 - **Sounds:** a tick per ✕, a ding for a star, "uh-oh" for a wrong look,
   a ping for a hint, the sparkle when solved, "aww" when out of hearts.
+
+### Colour Sudoku (being designed)
+
+A second puzzle for the developer (2026-10-19), in 🧩 Puzzles for
+grown-ups. Decided so far; the rest of
+[Colour Sudoku Mockup](https://claude.ai/artifact/D53EsTrxeFeaFpFKwzr7wF)
+(private Claude artifact, version 4 = mockup v3.1) is still to be
+agreed (journal, "Colour Sudoku mockup v1" to "v3.1").
+
+- **The rules (Extra Regions):** a 9 x 9 Sudoku (1 to 9 once in every
+  row, column and 3 x 3 box) whose squares are also split into **nine
+  coloured shapes of 9 squares**, each also holding 1 to 9 once
+  (developer, 2026-10-19, journal Q29). Every puzzle has exactly one
+  answer, reachable by reasoning alone.
+- **Two rows of digits** under the board: big digits put a digit in the
+  selected square, a row of smaller dashed ones write notes (developer:
+  "I always found online games that have the toggle feature
+  annoying"). No Notes button.
+- **Digits the same as the selected square's are ringed** (a ring, not
+  a disc, so the square's colour shows; developer: "The ring shows up
+  better on light colors like yellow"); a note that matches is ringed
+  too, and only a note that is there.
+- **Notes** as big and dark as a 3 x 3 place allows (37% of a square,
+  near-black), **with a white edge** to start with (N2; developer: to
+  judge N1 against N2 on a phone).
+- **No repeats when you start again** (developer, 2026-10-19, the lesson
+  of Find the Stars, journal Q28): the puzzles of each level made ahead
+  of time, played in an order shuffled once, **each counting as used as
+  it starts**, the next one per level kept on the device, and the stock
+  coming round again only after the last.
 
 ## Face names
 
