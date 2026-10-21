@@ -7355,3 +7355,15 @@ do) is the natural second splitter; suggested for the step after two
 lamps, so each new rule's effect on difficulty can be seen alone. Size
 as a setup choice, as Find the Stars has, with lamps (one or two) as
 the other choice in place of Easy / Harder.
+
+**Developer, more:** "Maybe the lamps are not occupying cells on the
+board - maybe they are beside the board. Whether we have different
+colors of lamps or several of the same or a mix) you could probably
+have a max of one per side (implying a max of 4 lamps). I suppose you
+could also make lamp placement an option of gameplay too." **Claude:**
+beside the board, yes: every square is usable, and light leaving the
+board where a lamp stands hits it, which fits the "lamp breaks" rule.
+One simple rule for all mixes: no light may shine into a lamp, its own
+colour or not. One lamp per side, up to 4. Placing the lamps as part of
+play: a good later level (the lamps go in the tray; the solver tries
+each spot on the edge), not in v3, one new rule at a time.
