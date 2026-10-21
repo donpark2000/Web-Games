@@ -7367,3 +7367,16 @@ One simple rule for all mixes: no light may shine into a lamp, its own
 colour or not. One lamp per side, up to 4. Placing the lamps as part of
 play: a good later level (the lamps go in the tray; the solver tries
 each spot on the edge), not in v3, one new rule at a time.
+
+**Developer, one more idea before v3:** "The inner edge of the board is
+all mirrors EXCEPT for where you position a light." **Claude:** the
+light only runs along rows and columns, so it always meets an edge
+mirror head-on and goes straight back the way it came, through the same
+mirrors and splitters, to its own lamp (reflection runs both ways).
+Mirrored edges therefore mean "the light must never reach the edge",
+with the lamp breaking if it does: a strong "mustn't" rule, and a good
+animation. Its effect on difficulty is unclear, as with the dark
+squares the developer turned down: it rules things out (which can make
+it easier) but also lets the maker use fewer walls (which can make it
+harder). Cheap to try: a switch in the v3 mockup bar, Edges open /
+mirrored, each with its own puzzles.
