@@ -4,9 +4,12 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-19): **Colour Sudoku** built from mockup v3.1 on the
-branch `colour-sudoku`, to be judged on the developer's phone once
-published (as release 2.0; see below). Earlier: Colour Sudoku designed
+*Status (2026-10-21): a new grown-ups' puzzle, **Mirror Light** (place
+mirrors and splitters so a lamp's light reaches every gem), in mockups
+on the branch `light-puzzle`; nothing agreed here yet (journal, from
+"A physics-and-logic puzzle"). Release 2.1 live. 2026-10-19: **Colour
+Sudoku** built from mockup v3.1 and published (releases 2.0, 2.1; see
+below). Earlier: Colour Sudoku designed
 (mockups v1-v3.1). Find the Stars: no Same size after a 10 x 10 win
 (published, release 1.3). Earlier 2026-10-19: a puzzle counts as used as it
 starts (only Try again plays one again), and the puzzles are shuffled

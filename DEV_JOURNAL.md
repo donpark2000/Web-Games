@@ -7380,3 +7380,78 @@ squares the developer turned down: it rules things out (which can make
 it easier) but also lets the maker use fewer walls (which can make it
 harder). Cheap to try: a switch in the v3 mockup bar, Edges open /
 mirrored, each with its own puzzles.
+
+## 2026-10-21: Mirror Light: v3 next; status (start here next session)
+
+**Developer:** "I'll start a new session. In that we can start with
+building V3 with the edges switch."
+
+**Where it stands:** branch `light-puzzle` (from `colour-sudoku`, i.e.
+`main` + journal; nothing of the game in `src/` yet). Release 2.1 live,
+`main` = fa50e98. Mockup v2 is the latest:
+[Mirror Light Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN)
+(private, version 2).
+
+**The mockup's source** was in this session's scratchpad, which the
+next session can't see. The whole of it is inside the published page:
+read the artifact (Artifact tool, `action: "read"`) and take the inlined
+`<style>` (the site's `site.css`, `game.css`, `hidden-faces.css`, then
+the mockup's own rules after `/* Mirror Light (mockup v2)`) and
+`<script>` (`window.PUZZLES`, then the core: `boardOf`, `trace`,
+`check`, `solve`, `rng`, `make`; then the page code). Rebuild from those
+as scratchpad files again (core, page code, CSS, a page template and a
+build script that inlines them, a puzzle-picking script). To check it
+locally: serve the scratchpad through the repo's `tools/serve.js`
+`createServer` on 8130 from a small script, with a temporary
+`.claude/launch.json` entry whose `runtimeArgs` give that script's full
+path (a `cwd` outside the repo is refused), removed after; and a local
+copy with a viewport line, which the viewer adds only when publishing.
+
+**Agreed so far** (all from the entries since "A physics-and-logic
+puzzle"):
+- Light on a grid: mirrors (white, `/` or `\`, both sides) turn it; the
+  splitter (green, dark stripes) lets it through and turns a copy;
+  walls, gems, lamps and the edge stop it. Solved: every gem lit, every
+  piece used, the light touching each. Tap a square to place, again to
+  turn, again to take off.
+- ▶ Shine only (no "always on"): the light runs out square by square; a
+  miss costs a ❤️ (3), the misses ringed in red. Hints (3), Give up
+  (Show the answer), the end as Find the Stars.
+- v2's Harder (7×7, 2 splitters, 3 gems) is "fairly easy" for the
+  developer; Easy (6×6) easier still.
+
+**v3 to build** (a mockup update, same artifact):
+- **Lamps beside the board**, not on a square; at most one per side
+  (up to 4). Light leaving the board where a lamp stands hits it.
+- **No light may shine into a lamp** (any colour): the lamp breaks (a
+  small burst) and the puzzle fails. (Claude's proposal; the developer
+  was offered "only the other colour breaks it" and picked neither
+  explicitly, then said start v3: confirm on the way.)
+- **Setup:** **Size** 6×6 / 7×7 / 8×8 (small grid pictures, as Find the
+  Stars' size buttons; pieces grow with the board) and **Lamps** One /
+  Two, in place of Easy / Harder.
+- **Two lamps:** red and blue; red, blue and **purple** gems (purple
+  needs both colours; a red or blue gem must be lit by its own colour
+  and not the other). The two lights share the tray and pass through
+  each other where they cross.
+- **Edges switch** in the mockup bar: **open** (as now) / **mirrored**.
+  Mirrored: the light meets the edge head-on and goes straight back
+  along its path to its own lamp, so in effect "the light must never
+  reach the edge". Puzzles made for each setting.
+- **Time one make first** for 8×8 with two lamps (and mirrored edges)
+  before any batch; if too slow, 8×8 may start with one lamp.
+- The plain-green splitter switch goes (the striped one was chosen).
+
+**Later, in order:** colour mirrors (reflect their own colour, let the
+other through), one new rule at a time to see its effect; lamps the
+player places (in the tray; the solver tries each edge spot); filters
+and prisms. Turned down: squares that must stay dark (might make it
+easier).
+
+**Not yet known:** how hard a puzzle is for a person. The solver counts
+its search, not reasoning; a solver that reasons like a person (as
+Colour Sudoku's) could later sort puzzles into levels. Then the agreed
+choices go in DESIGN.md, and the build (src/core, tests, debug log).
+
+**Open questions:** Q24, Q27, Q30, Q31 (unchanged). **Proposed skill
+additions:** none.
