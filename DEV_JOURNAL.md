@@ -7267,3 +7267,12 @@ viewer adds one on publishing), so it first showed at desktop width; at
 
 **Open questions:** none yet; the mockup choices above are for the
 developer, the first being Shine or Always on.
+
+## 2026-10-21: Mockup v1 played: Easy too easy
+
+**Developer:** "Its pretty good. I find easy too easy. Adding the
+splitter makes it more interesting. Do all games have 3 mirrors and one
+splitter or does it change?" **Claude:** in v1 each level is one fixed
+mix: all 8 Easy are 5×5, 3 mirrors, 1 gem (4-6 walls); all 8 Harder are
+6×6, 3 mirrors and a splitter, 2 gems (5-13 walls). The maker takes any
+size and mix, so the levels can change.
