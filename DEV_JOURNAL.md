@@ -7325,3 +7325,20 @@ the pieces look at phone size is for the developer to judge.
 
 **Open questions:** none yet; the striped or plain splitter, and
 whether the new levels are hard enough, are for the developer.
+
+## 2026-10-21: Mockup v2 played: striped splitter; Harder still easy
+
+**Developer:** "I like the new dashed green splitter and the animation
+is good. Even hard mode seems fairly easy. I'm not sure what would make
+it more challenging. Other types of devices besides splitters and
+mirrors? Maybe a second light? Or maybe 2 types of lights - that blow
+each other up if they shine on each other?" So: the striped green
+splitter stays (plain dropped); the light's square-by-square run stays.
+
+**Claude, on why it's easy:** each gem can only be reached along a few
+lines, so working back from the gems finds the pieces with little
+doubt, and every rule says what must happen, none what mustn't. More
+pieces or a bigger board make more of the same. What adds reasoning is
+rules that pull against each other: two coloured lamps sharing the
+mirrors (the developer's idea), gems of a colour, a lamp broken by the
+other colour's light, and squares that must stay dark.
