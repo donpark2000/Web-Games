@@ -7158,3 +7158,112 @@ making more changes." On the build: "You did a good job of carrying
 forward the design lessons from 'find the stars' when it comes to hints
 and quitting." Q30 and Q31 stay open until then. Next changes start in a
 fresh session.
+
+## 2026-10-21: A physics-and-logic puzzle; Mirror Light mockup v1
+
+**The idea** (developer): "Physics Sudoku". Each puzzle has a goal
+("make the ball land in the red cup"), a set of parts (ramp, spring,
+magnet, fan, weight, pulley), each usable a limited number of times, and
+one logical answer. "Most physics games are trial-and-error. Most logic
+games have no physics." Just a concept so far, open to better ideas.
+
+**Claude:** real physics (smooth motion, bounces) and "one logical
+answer" don't mix: a pixel or a rounding difference changes where the
+ball lands, so it turns into trial and error, can differ from phone to
+tablet, and no solver can prove an answer is the only one. The fix is
+"physics on a grid": square by square, each part a fixed rule. Three ways
+offered: **A** a ball run (closest to the idea; ThinkFun's *Gravity
+Maze* is this kind of puzzle), **B** hidden parts found from where
+dropped balls come out, **C** light and mirrors (the simplest to make
+fully logical). Advice: start with three parts, not six.
+
+**Developer:** A and C sound interesting; "more for me than kids I
+think, but until I see how hard they are I am not sure. If C is
+simplest, maybe we should start with that. Even if it is simple, it
+could possibly provide some useful learnings or ideas for harder games."
+So: C first, on the branch `light-puzzle` (from `colour-sudoku`, i.e.
+`main` + journal).
+
+**Rules (Claude's, for the mockup):** a square grid; a lamp on the edge
+facing in; walls; gems (💎). Mirrors (double-sided, `/` or `\`) turn the
+light a quarter turn; a splitter lets it through and turns a copy. Walls,
+gems, the lamp and the board's edge stop it. Solved: every gem lit,
+every tray piece placed, and the light touches each one. That last rule
+is what makes one answer possible: without it a spare piece could go on
+any dark square.
+
+**Puzzle maker** (scratchpad `lp-core.js`, no DOM, meant for
+`src/core/`): a lamp on a random edge square, a few random walls, the
+pieces dropped one at a time on random squares the light crosses, a gem
+where each beam ends inside the board. Then a solver counts answers: the
+pieces only matter where the light goes, so it follows the light and, at
+each empty square reached for the first time, tries "empty" and each
+piece left, both ways round. While there's a second answer, a wall goes
+on a square that answer's light crosses and the real one's doesn't. A
+seeded random source, so a puzzle can be made again from its number.
+**Measured** (2000 seeds each, one timed first): 5×5 with 3 mirrors and
+2 walls, 134 made in 94 ms in all; 6×6 with 3 mirrors and a splitter,
+108 in 1.2 s; 7×7 with 4 mirrors and a splitter, 56 in 3.8 s. Most
+seeds fail at once (the light too short, a gem in the way of another
+beam, too few gems); 3-7% end with a second answer on the same squares.
+Searched choices per puzzle: 15-147 for 5×5, 328-5,770 for 6×6 with a
+splitter. **Not yet known:** whether a person can reason these out step
+by step or ends up guessing. The solver measures search size, not
+reasoning; Colour Sudoku's levels came from a solver that uses only the
+steps a person would.
+
+Two puzzles checked by hand (seed 14, 5×5: the light turns at three
+mirrors into the corner gem; seed 13, 6×6: the splitter sends one beam
+to each gem).
+
+**Mockup v1:** [Mirror Light Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN)
+(private Claude artifact, version 1), built from the site's `site.css`,
+`game.css` and `hidden-faces.css` plus its own sheet by a script in
+Claude's scratchpad; 8 Easy (5×5, 3 mirrors, 1 gem) and 8 Harder (6×6,
+3 mirrors and a splitter, 2 gems). Claude's choices, all open:
+- **Name "Mirror Light"**, in 🧩 Puzzles for grown-ups (no home page in
+  the mockup).
+- **Setup:** the rules beside a solved puzzle with its light; the
+  pieces explained; **How hard?** Easy / Harder; Play!.
+- **Play:** 🏠, "Easy · puzzle 1", hearts, "1 of 3 placed", a clock. A
+  night-dark board so the light shows, everything round it the site's
+  look. Under it the tray ("2 left" per piece; tap one to choose it).
+  **Tap a square** to put the chosen piece there, again to turn it, once
+  more to take it off.
+- **The light** (to compare, in the mockup bar under the footer):
+  **Only on ▶ Shine**: the light runs out from the lamp square by
+  square; a miss costs a ❤️ (three and it's over) and stays lit, the
+  unlit gems and untouched pieces ringed in red, until a piece moves.
+  **Always on**: the light follows every change, no hearts or Shine;
+  solved as soon as it's right. Claude's view: always-on is
+  trial-and-error, the thing the idea wanted to avoid; Shine keeps it a
+  puzzle, as Find the Stars' looks do.
+- **Hint (3):** a wrong piece first (taken off, or turned if only its
+  way round is wrong); else the next piece along the answer's light,
+  put down with a white edge and fixed. No ❓ Why? yet: that needs a
+  solver that reasons like a person.
+- **Give up:** "Show the answer" / No: the answer and its light. **The
+  end:** the big star and the result in the bar; Next / Try again / New
+  game.
+- No sound, nothing kept on the device, no debug log (a mockup).
+
+**Checked** (scratchpad served on localhost 8130 through the repo's
+`tools/serve.js` `createServer`, built-in browser; a temporary
+`.claude/launch.json` entry, removed after): at 393 × 760, 71 px squares
+for 5×5, no page scrolling or sideways scroll; three mirrors placed with
+the last one the wrong way, ▶ Shine: "Not yet: 1 💎 not lit", ❤️ 3 → 2,
+the gem ringed; Hint turned that mirror ("in the right place but faces
+the wrong way"); ▶ Shine: "Solved! · 1 ❤️ lost · 2 hints". Harder with
+the light always on: the light followed the first piece, no Shine
+button. Give up showed the answer, which `check` passes. At 320 × 640:
+52 px squares for 5×5, the footer on screen; a Harder win with "Place
+all but one piece" and the last piece by hand. No console errors.
+**Found and fixed while checking:** the light drawn 6/5 too big (its
+size used the board's `--n` from a sibling element, falling back to
+Find the Stars' 6); darker blobs where the glow's segments overlapped
+(now one see-through group); the local copy had no viewport line (the
+viewer adds one on publishing), so it first showed at desktop width; at
+320 px the hearts wrapped to three lines and the tray's words to two.
+
+**Open questions:** none yet; the mockup choices above are for the
+developer, the first being Shine or Always on.
