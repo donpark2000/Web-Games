@@ -7276,3 +7276,52 @@ splitter or does it change?" **Claude:** in v1 each level is one fixed
 mix: all 8 Easy are 5×5, 3 mirrors, 1 gem (4-6 walls); all 8 Harder are
 6×6, 3 mirrors and a splitter, 2 gems (5-13 walls). The maker takes any
 size and mix, so the levels can change.
+
+## 2026-10-21: Mirror Light mockup v2: a green splitter, Shine only, harder levels
+
+**Developer** (after v1): "I did not play with the light always on. I'm
+not sure that is a good option." And: "it is a bit hard to see the
+difference between a mirror and a splitter and I expect it is even
+harder on a phone. Maybe keep them both bright but make one white and
+the other a different color (light blue or green)." **Claude:** green
+rather than light blue, which is close to the lit gems' pale cyan; and a
+second cue besides colour, dark stripes across the splitter ("glass the
+light gets through"), for anyone who finds the colours hard to tell
+apart or a dim screen. **Developer:** "Yes: build v2 with the white
+mirror, the green striped splitter (and a plain green to compare), Shine
+only, and the new levels."
+
+**v2** ([Mirror Light Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN),
+version 2):
+- **Pieces:** the same bar for both (a dark edge, then the colour). The
+  mirror solid white (was a pale grey-white); the splitter solid green
+  (#4BE07F), with dark stripes across it (a dashed dark line over the
+  green, dark 4 to green 8 of the 100-unit square). The mockup bar now
+  compares **Green, striped** and **Plain green**.
+- **Shine only:** the "Always on" light is gone (code and bar button).
+- **Levels**, each puzzle in turn from one of two mixes:
+  **Easy** 6×6, 3 or 4 mirrors and a splitter, 2 gems (v1's Harder);
+  **Harder** 7×7, 3 or 4 mirrors and 2 splitters, 3 gems.
+  The rules picture is now Easy puzzle 1, so it shows a splitter.
+
+**Measured** (2000 seeds each, one timed first): 7×7 with 4 mirrors and
+2 splitters, 3+ gems: 19 made in 34 s, the slowest seed 2.6 s, searched
+choices 4,027-243,225 (median 47,782); 6×6 with 4 mirrors and a
+splitter: 40 in 1.5 s. Picking the mockup's 8 + 8 took 0.4 s (Easy) and
+13.5 s (Harder). Fine made ahead of time, as Find the Stars' and Colour
+Sudoku's puzzles are; too slow to make while a player waits.
+
+**Checked** (the same temporary server and `.claude/launch.json` entry,
+removed after): the two pieces drawn 160 px wide side by side, white
+against green with stripes, clearly different; an Easy 6×6 solved
+("Solved! · no ❤️ lost · no hints"); a Harder 7×7 with one piece wrong:
+"Not yet: 1 💎 not lit, and 1 piece the light didn't touch", ❤️ 3 → 2;
+Plain green hid both splitters' stripes and Green, striped brought them
+back. At 320 × 640, 37 px squares for 7×7, the footer on screen, no
+sideways scroll. No console errors from the page (one 404 was the
+preview opening the server's root, which has no page). The built-in
+browser's pane was too small for a sharp phone-sized screenshot, so how
+the pieces look at phone size is for the developer to judge.
+
+**Open questions:** none yet; the striped or plain splitter, and
+whether the new levels are hard enough, are for the developer.
