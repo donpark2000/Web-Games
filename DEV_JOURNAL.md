@@ -7342,3 +7342,16 @@ pieces or a bigger board make more of the same. What adds reasoning is
 rules that pull against each other: two coloured lamps sharing the
 mirrors (the developer's idea), gems of a colour, a lamp broken by the
 other colour's light, and squares that must stay dark.
+
+**Developer, on Claude's list:** "Or if there was more than one kind of
+light, maybe there are also different kinds of splitters?" Squares that
+must stay dark: "I don't think so - it might actually make it easier."
+A purple gem lit by both: "Love it." Filters and prisms: "sounds good
+but lets hold that idea for a future iteration." More pieces or a bigger
+board: "probably a good idea. Maybe board size becomes a parameter to
+pick before starting a game." **Claude:** a colour mirror (reflects its
+own colour, lets the other straight through, as real dichroic mirrors
+do) is the natural second splitter; suggested for the step after two
+lamps, so each new rule's effect on difficulty can be seen alone. Size
+as a setup choice, as Find the Stars has, with lamps (one or two) as
+the other choice in place of Easy / Harder.
