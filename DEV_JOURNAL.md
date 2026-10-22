@@ -7952,3 +7952,113 @@ the developer's OK.
 **Developer:** "Regarding the name of the game, I'm thinking something
 like Laser Lab or Laserdoku. Thoughts?" (Claude's answer in the next
 entry.)
+
+## 2026-10-22: Mirror Light mockup v6: a budget in place of the tray
+
+**Built** ([Mirror Light Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN),
+version 6), as agreed in the last three entries:
+- **No tray.** Tap a square to buy the piece picked under the board:
+  mirror **1 🪙**, splitter **2 🪙**; tap again to turn it, again to take
+  it off (its price back). Paid for only while on the board. No "use
+  every piece", no "the light must touch each one": an unused piece is
+  only money wasted (`check` and `checkLamp` skip both when a puzzle has
+  no tray; the v5 rules still hold for tray puzzles).
+- **Each puzzle's budget** is its cheapest cost + 3. The status row shows
+  "🪙 3 of 9 left" (red "4 over" past it) and the savings "🏦 12" (red
+  below 0, the overspend shown coming out of them live). The hearts and
+  "placed" count are gone.
+- **A wrong lamp costs 1 🪙** (in place of a ❤️; no game over). **Hints
+  cost 1, then 2, then 3...** (the button shows the next price, no
+  limit). **Give up** asks "Give up: −9 🪙" / No and costs the whole
+  budget from the savings.
+- **Hints and Give up follow the cheapest answer closest to the
+  player's board** (fewest pieces to take off, turn or put down, keeping
+  every hint's piece). A hint takes off a piece not in it (price back),
+  turns one facing the wrong way, or puts down the next piece along the
+  light, fixed there. Every piece right already: no charge, "switch the
+  lamps on".
+- **A run of 10 puzzles** per size and lamps, kept on the device
+  (localStorage; the next puzzle, the savings, the best run). The end:
+  "Solved! Saved 3 🪙" over "Pieces 6, cheapest 6 ✓ · hints 1"; given
+  up, "You gave up: −9 🪙" and a cheapest way with its light; after the
+  10th, "Run over! Savings 17 🪙" over "This one: saved 3 🪙 · Best run!".
+  End buttons **Next ▸** (or **New run**) and **New game**; no Try again
+  (it would let a puzzle be played again for more savings). Under Play!:
+  "Puzzle 4 of 10 · savings 7 🪙 · best run 17 🪙".
+- **8×8 with two lamps** is open now (see below).
+- The rules picture is a v5 puzzle, solved the cheapest way, so it gives
+  away none of the run's answers (it had shown puzzle 1's).
+- Mockup bar: "Place a cheapest way but one piece", "Start the run
+  again".
+
+**The maker** (scratchpad `lp-core.js`: `solveCheap`, `cheapest`,
+`makeCheap`; `make`'s first half split out as `layout`, shared):
+- `solveCheap(p, cap)`: the solver with money in place of the tray.
+  `cheapest(p)` tries caps 0, 1, 2... so the first cap with an answer is
+  the cheapest cost, proved (every smaller cap searched, none found).
+- **Checked against last session's count first:** on the 40 v5 puzzles
+  it finds the same 22 cheaper than their tray ("Solutions with fewer
+  pieces"), in 1.6 s for all 40, the slowest 624 ms (a 7×7 two-lamp).
+- **First try:** keep a puzzle only if nothing beats the cost of the
+  layout's own pieces (walls added on cheaper answers' paths). Timed
+  first, 400 seeds per setup, 20 s cap: 6×6 3 made each, 7×7 one lamp 2,
+  7×7 two lamps, 8×8 one and two lamps 0. Too strict.
+- **As built:** walls are added only against answers under a floor
+  (`minCost`), then the cheapest is proved; it may come in under the
+  layout's own cost. Floors 6×6 **6**, 7×7 **7**, 8×8 **8** (one above
+  a first try at 5/6/7, which also worked). 2 minutes on one core each,
+  up to 40: 6×6 one lamp 40 in 0.8 s, two lamps 40 in 7.8 s; 7×7 one
+  lamp 40 in 15 s, two lamps 20 in 120 s; 8×8 one lamp 36 in 120 s; 8×8
+  two lamps 1 in 120 s, then 14 cores for 3 minutes: 5 more (6 in all).
+  At floor 7, 8×8 two lamps made 6 in 120 s on one core. Most seeds fail
+  in the layout (too few gems, a gem in another beam's way), as in v3.
+  **So no unique answer did make 8×8 with two lamps possible** (v5: 2 in
+  12 minutes on 3 cores, with one answer), though it is still the rare
+  one.
+- **Picked** (`pick6.js`): 12 per setup, two lamps both lights using
+  pieces first (all 12 at 6×6 and 7×7; 5 of 12 at 8×8), then a purple
+  gem (5 at 6×6 and 7×7, none at 8×8). 8×8 two lamps: the 6 at floor 8
+  and 6 at floor 7. Cheapest costs: 6×6 all 6; 7×7 7 (two at 8); 8×8 8
+  (7 for six two-lamp ones). Answers at the cheapest cost: 1 to 50,
+  most 2-20. Each picked puzzle checked again: its answer is right, the
+  cheapest proved again the same, every kept answer costs it.
+
+**Checks:** `check-core.js` 104 passed (66 before, plus 38 for v6: a
+5×5 by hand with the cheapest 1 (one mirror) and 6 answers at 2; an
+untouched piece allowed with no tray; 10 made budget puzzles: answer
+right and at the cheapest, nothing cheaper, every kept answer right at
+the cheapest, a turned piece fails in at least 8 of 10). One of the new
+checks failed first: I had expected 2 answers at cost 2 (the mirror and
+the splitter); the solver found 6, and it was right: four two-mirror
+routes (up, then along the top row) also cost 2. The expectation was
+fixed, not the solver.
+
+**Checked in the browser** (served on 8131 as before, a temporary
+`.claude/launch.json` entry `mirror-light-v6`, removed after): 393 × 760.
+Puzzle 1 of 10 (6×6, budget 9): a cheapest way but one piece placed (4
+left), a hint (1 🪙: places the last mirror, 2 left), the lamp: "Solved!
+Saved 2 🪙", savings 2. Puzzle 2: a mirror off the answer (8 left), the
+lamp: "Not yet: 2 💎 not lit. That cost 1 🪙." (7 left); the lamp again:
+"Nothing has moved since that light"; hint 1 took the mirror off (1
+back, 7 left); hint 2 (2 🪙) put a mirror down (4 left); 4 splitters
+more: "4 over", savings shown −2; Give up −9: savings −7, red. 8×8 two
+lamps, the run at puzzle 10 with savings 14 and a best of 10: the
+answer, red then blue: "Run over! Savings 17 🪙 · Best run!", New run,
+the store's next run at 0. 320 × 640: no sideways scroll. Fixed on the
+way: the result's third line (the savings) was cut in the 3-line bar
+(now only at a run's end, in the head); after Give up the budget showed
+"1 over" (now the puzzle's result, "−9"). One console 404: the server's
+root, opened before the page, as with v5.
+
+**Developer's naming question** ("Laser Lab or Laserdoku"). Claude's
+view: **Laser Lab**. It says what the game is, the beams already look
+like lasers, red and blue suit lasers, and "lab" fits trying things and
+the budget (a lab's funding). "-doku" tells puzzle players "Sudoku-like,
+one answer, by logic", and this game has no numbers and, since v6, no
+single answer; beside Colour Sudoku on the home page the two would
+blur. If Laser Lab, the lamps could become laser boxes in a mockup.
+Better decided before the build: a rename after it breaks bookmarks
+and kept progress (Find the Stars kept `hidden-faces` for that reason).
+
+**Open questions:** none new. Q24, Q27, Q30, Q31 unchanged.
+**Proposed skill additions:** none.

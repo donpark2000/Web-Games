@@ -6,7 +6,8 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-10-21): a new grown-ups' puzzle, **Mirror Light** (place
 mirrors and splitters so a lamp's light reaches every gem), in mockups
-(v5: open edges only, brighter lamps; v4: each lamp an on/off switch in
+(v6: a budget in place of the tray, savings over a run of 10; v5: open
+edges only, brighter lamps; v4: each lamp an on/off switch in
 place of Shine; v3: lamps beside the board, two colours) on the branch
 `light-puzzle`;
 nothing agreed here yet (journal, from
