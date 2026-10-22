@@ -7938,3 +7938,17 @@ for the budget.
 
 **Open questions:** Q24, Q27, Q30, Q31 (unchanged). **Proposed skill
 additions:** none.
+
+## 2026-10-22: v6 go-ahead; a name
+
+**Developer:** the hints and Give up proposal: "Yes - lets try that."
+So v6 is built with: pieces paid for only while on the board; hints 1,
+then 2, then 3 (no fixed limit); a wrong lamp 1; Give up costs the
+puzzle's budget from the savings; savings may go into debt (red).
+The leftover `mirror-light-mockup` entry in `.claude/launch.json` (an
+older session's, its server on 8130 no longer running) removed with
+the developer's OK.
+
+**Developer:** "Regarding the name of the game, I'm thinking something
+like Laser Lab or Laserdoku. Thoughts?" (Claude's answer in the next
+entry.)
