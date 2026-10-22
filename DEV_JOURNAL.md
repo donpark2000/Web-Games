@@ -7731,3 +7731,41 @@ and was removed after; the other entry and server were left alone.
 Mirrored edges: still to play. Q24, Q27, Q30, Q31 unchanged.
 **Proposed skill additions:** none (the comparison that missed the
 colour fault is a case of "Prove every check can fail").
+
+## 2026-10-22: Mockup v4 played; Mirror Light mockup v5
+
+**Developer**, after playing v4: "I like it. Complexity is good."
+- **Mirrored edges: not needed.** Dropped: open edges only.
+- **"The colors are subdued. The lamps colors should be brighter."**
+- **The purple gem:** "the same outline thickness as the red jewel but
+  half in red and half in blue. Interior shading can stay the same."
+- (Lamp switches with the stricter rule, from v4: kept.)
+
+**Mockup v5** ([Mirror Light Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN),
+version 5):
+- **Open edges only:** the edges switch, the silver edge and the
+  mirrored rule's words are gone; the page carries only the open sets
+  (the build leaves out the `-mirror` sets; the scratchpad keeps them).
+- **Brighter lamps** (Claude's reading: the lamps, not the beams or
+  gems). In v4 an off lamp was its colour dimmed, which is what made
+  them look dull. Now the lamp's body is always its full colour (yellow
+  #FFC21A, red #FF2E46, blue #1F86FF) and on/off shows in the lens: dark
+  when off, nearly white with a glow of its colour when on.
+- **Purple gem outline:** v4's two coloured halves were drawn over the
+  outline and hid its inner half, so it looked thinner than the red
+  gem's. Now the outline is drawn over the halves, in two halves (red
+  left, blue right), at the red gem's thickness; it turns white where
+  that colour has lit it, as the other gems' outlines do.
+
+**Checked** (served on 8131 as before, a temporary `.claude/launch.json`
+entry `mirror-light-v5`, removed after): at 393 × 760, 7×7 two lamps:
+red on (bright body, glowing lens, the purple gem's red half and
+outline lit), blue off (dark lens); the three gems drawn side by side,
+large: the purple outline the same thickness as the red and blue ones;
+blue switched on: Solved. 8×8 one lamp: yellow lamp, off. No edges
+switch; sets 6-1, 6-2, 7-1, 7-2, 8-1, all open. `check-core.js`: 66
+passed. One console error, a 404: the preview first opened the server's
+root, which has no page; the mockup loads nothing from elsewhere.
+
+**Open questions:** none new. Q24, Q27, Q30, Q31 unchanged.
+**Proposed skill additions:** none.
