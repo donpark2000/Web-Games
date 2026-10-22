@@ -8352,3 +8352,65 @@ home page links it. The localhost server (`tools/serve.js 8123`)
 stopped; no node processes left.
 
 **Next:** the developer tries Laser Lab on the phone.
+
+## 2026-10-22: 3.0 on the phone; release 3.1 (Next ▸ lost the tools)
+
+**Developer**, on the iPhone 16 (the installed app): "The graphics and
+layout on the phone look good." Then: no quit and no new game button;
+"the only controls I see once a game starts are the selection of
+either a mirror or a splitter"; scrolling showed nothing more.
+
+**Found:** in the built-in browser at 393 × 660 the live 3.0's first
+puzzle had Clear, Hint and Give up (the tools row 549-592 px, visible).
+Reading `src/ui/laser-lab.js`: `showEnd` hides `#tools` for Next ▸ / New
+game; `startGame` hid `#endTools` but never showed `#tools` again (only
+New game's handler did). On the live 3.0: puzzle 1 given up, Next ▸:
+"puzzle 2 of 10", tools hidden, end buttons hidden, nothing but the
+shop. So every puzzle after the first, on any device; not the phone or
+the installed app. Missed because the tests read the page's code as
+text and no check went past one puzzle's end by Next ▸ (the build
+session's browser checks went back through New game, which shows them).
+
+**Fixed** (the developer: "fix the missing buttons now and publish it
+as 3.1. The other changes go in 3.2 in a new session"): `startGame`
+shows `#tools` for every puzzle not over, logged ("play buttons").
+Test `a puzzle started by Next ▸ (or any way) shows Clear, Hint and
+Give up` (tests/laser-lab-page.test.js): fails without the fix ("an
+unfinished puzzle starts without its tools"), passes with it. It first
+failed for the wrong reasons twice (the file's CRLF line ends, then a
+regex stopped by the braces in Next's handler); both fixed in the test
+before trusting it. Local server, 393 × 760: puzzle 3 given up, Next ▸,
+puzzle 4 had the tools; again for puzzle 5; the log "play buttons
+{tools: true, end: false}" each time. `npm test` 340 passed.
+
+**Published 3.1** (version 0c4447ecb657): `main` fast-forwarded to
+8af660a, tag `v3.1`,
+[GitHub release 3.1](https://github.com/donpark2000/Web-Games/releases/tag/v3.1);
+live after about 20 s (`version.js`, the fix in `laser-lab.js`, `sw.js`
+release 3.1). Local server stopped.
+
+**Also from the phone, for 3.2** (a new session; answers so far):
+- **New game during play**, back to setup; the run kept.
+- **Try again with ❤️❤️❤️ per run** ("lets try per run first"): clears
+  the board (hint pieces too) and gives back all that puzzle's spending,
+  so budget and savings are as at its start.
+- **The top line just "Puzzle 4 of 10"**, full size ("OK"); developer:
+  the turn line's font was very small (the fit shrinks it beside the 🏠
+  and 🔊).
+- **Words instead of 🪙 and 🏦:** developer: "an icon that looks like a
+  ball - not meaningful. And an icon of a house with a number beside
+  it - not idea what that means." Claude's proposal: "Budget 4 of 9
+  left · Savings 12" on a row of its own at a steady 17 px, and "coin"
+  in words elsewhere ("Mirror · 1 coin", "Hint · 1 coin").
+- **Quit:** developer: "Maybe Quit could solve the existing puzzle and
+  deduct the cost of the pieces plus a penalty." Claude: that is what
+  Give up already does (the cheapest way shown, the whole budget =
+  cheapest + 3 taken); offered A, rename Give up to Quit, or B,
+  something different. The developer hadn't seen Give up (the bug
+  above) when asking. **Open: A or B.**
+
+**Open questions:** none new besides Quit (above). Q24, Q27, Q30, Q31
+unchanged. **Proposed skill additions:** "Check a screen's controls
+after every way into it, not only the first": a state set on one path
+(the end hiding the tools) stuck because only the first entry was
+checked. To review with the developer.
