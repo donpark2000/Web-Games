@@ -15,7 +15,7 @@ export const HOME = 'index.html';
 export const GAME_PAGES = [
   'tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html',
   'five-dice.html', 'nim.html', 'rock-paper-scissors.html', 'follow-me.html', 'hidden-faces.html',
-  'colour-sudoku.html',
+  'colour-sudoku.html', 'laser-lab.html',
 ];
 export const GAMES = GAME_PAGES.map(p => p.replace(/\.html$/, ''));
 export const gameKey = game => `web-games-resume-${game}`;

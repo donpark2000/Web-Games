@@ -19,8 +19,8 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'bc4971605fea';
-const MADE = '2026-10-19';
+const VERSION = '8056c91520e3';
+const MADE = '2026-10-22';
 const RELEASE = '2.1';
 const FILES = [
   'colour-sudoku.html',
@@ -34,6 +34,7 @@ const FILES = [
   'css/follow-me.css',
   'css/game.css',
   'css/hidden-faces.css',
+  'css/laser-lab.css',
   'css/log.css',
   'css/matching.css',
   'css/nim.css',
@@ -44,6 +45,7 @@ const FILES = [
   'data/colour-sudoku.json',
   'data/five-dice-long.bin',
   'data/hidden-faces.json',
+  'data/laser-lab.json',
   'five-dice.html',
   'follow-me.html',
   'hidden-faces.html',
@@ -52,6 +54,7 @@ const FILES = [
   'icons/icon-512.png',
   'icons/icon.svg',
   'index.html',
+  'laser-lab.html',
   'log.html',
   'manifest.webmanifest',
   'matching.html',
@@ -67,6 +70,7 @@ const FILES = [
   'src/core/five-dice.js',
   'src/core/follow-me.js',
   'src/core/hidden-faces.js',
+  'src/core/laser-lab.js',
   'src/core/log.js',
   'src/core/matching.js',
   'src/core/net.js',
@@ -93,6 +97,8 @@ const FILES = [
   'src/ui/follow-me.js',
   'src/ui/hfboard.js',
   'src/ui/hidden-faces.js',
+  'src/ui/laser-lab.js',
+  'src/ui/llboard.js',
   'src/ui/logpage.js',
   'src/ui/matching.js',
   'src/ui/matchstick.js',

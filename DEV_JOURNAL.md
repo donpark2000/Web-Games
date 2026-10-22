@@ -45,6 +45,16 @@ time, each tried before publishing:
   for now. I'll play it a bit and see if it feels too hard." Open until
   the developer has played it.
 
+- **Q32. Laser Lab on the phone.** Built 2026-10-22 from mockup v7 as
+  it stood (see "Laser Lab built"); to judge on the developer's phone
+  once published (3.0): Claude's choices (DESIGN.md "Laser Lab": the
+  budget = cheapest + 3, cost floors 6/7/8, no Try again, the end's
+  words, the laser drawing), and the build's: a puzzle left unfinished
+  waits in its run, the status stacking on narrow phones, purple gems in
+  about 1 in 7 two-laser puzzles (3 of 50 at 8×8), 50 puzzles for 8×8 with two lasers,
+  and how long the first hint takes (the log's "cheapest ways worked
+  out").
+
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
@@ -8155,3 +8165,149 @@ file and storage names as `laser-lab` before building.
 
 **Open questions:** Q24, Q27, Q30, Q31 (unchanged). **Proposed skill
 additions:** none.
+
+## 2026-10-22: Laser Lab built
+
+**Task** (from the session that made mockup v7): build Laser Lab into
+the site from mockup v7 so the developer can try it on the phone, then
+publish it as release 3.0 once the developer says so. Branch
+`light-puzzle`. DESIGN.md first got a "Laser Lab" section (commit
+baf67ac): what was agreed with the developer, and what is Claude's
+choice from the mockup, to be judged on the phone.
+
+**Built** (the way Colour Sudoku is):
+- `src/core/laser-lab.js` (no DOM): the tracer, `check`, `checkLamp`,
+  `solveCheap`, `cheapest`, the maker (`layout`, `makeCheap`), the stock
+  (`stockPuzzle`, `encode`/`decode`/`problems`, `stockOrder`), a game
+  (`tapSquare`, `clearBoard`, `switchLamp`, `useHint`, `giveUp`,
+  `closest`, the words), and runs kept on the device (`readProgress`,
+  `keepCurrent`, `finishPuzzle`). Mirrored edges, the fixed tray and the
+  unique-answer maker are left out (dropped in v5-v6).
+- `tools/laser-lab-puzzles.js` into `data/laser-lab.json`;
+  `laser-lab.html`, `src/ui/laser-lab.js`, `src/ui/llboard.js` (the
+  pictures, with their colours as attributes so the home page's tile
+  needs no game sheet), `css/laser-lab.css`; the home tile in 🧩 Puzzles
+  for grown-ups; the game in `GAME_PAGES` (cleared by the home page and
+  other games).
+- Wired as the other puzzles: the debug log ("laser-lab": every piece,
+  laser, hint, Give up, the end, the fits, the cheapest ways worked out
+  with their time), the game kept for a reload (sessionStorage), the run
+  kept on the device (`web-games-laser-lab`), sounds (tick, ding, uh-oh,
+  ping, sparkle), stats (`data-play` on Next / New run), the fit, the
+  iPhone's double-tap zoom blocked on the board, lasers and shop.
+- **A puzzle left unfinished waits** (Claude's choice, DESIGN.md "As
+  built"): the run keeps it as left, and Play! brings it back, even after
+  a restart. The mockup brought it back with a clean board, which undid
+  the coins spent on wrong lasers and hints: leaving would have been a
+  free way out.
+
+**The port checked against the reference** (the mockup's `lp-core.js`):
+the same puzzles from the same seeds and options, 1,500 seeds over 6×6
+one and two lasers and 7×7 one laser. The first run differed on 5 seeds
+(7×7): the mockup's layout still checked its tray (every dropped piece
+touched by a beam), which the port had dropped as v6 did for play. Put
+back in the maker only, so the puzzles are the ones the mockup made:
+1,500 of 1,500 the same.
+
+**Tests** (`tests/laser-lab*.test.js`): the rules on hand-made boards
+(a straight beam, a turn off an open edge, a laser broken, purple and
+red gems, each laser judged alone), the cheapest cost and every answer
+up to a cap, made puzzles (floor, proved, answers right), lasers in
+turn against `check` on 300+ boards, encode/decode and seven broken
+entries each refused with its reason, the game (taps and prices, a
+wrong laser and the refused second tap, a broken laser, hints 1-2-3
+taking off / putting down / turning / free when all is right, Give up),
+a game kept as JSON and refused for another puzzle, runs (10 puzzles,
+savings below 0, the best kept, unreadable progress); the page and the
+stock. **Broken on purpose:** the wrong-colour rule in `checkLamp`, a
+wrong laser free, hints always 1: each caught by one test. A solver
+that never tries a `\` splitter was **not** caught (no answer in the
+made puzzles needed it); added a hand board that only a `\` splitter
+solves, which then caught it.
+
+**Timing, one make first** (one core, from each setup's first seed):
+6×6 one laser 10-66 ms a puzzle, two 110-240 ms; 7×7 one 0.2-0.3 s,
+two 0.3-3.4 s; 8×8 one 0.8-1.9 s; 8×8 two lasers **1 puzzle in 400 s**
+(7,123 seeds; the mockup had seen one per 2-3 core-minutes).
+
+**Both beams must use a piece.** At 7×7 with two lasers none of the
+first puzzles had a purple gem. The mockup had *picked* its 12 per
+setup (both lasers using pieces first, then purple); the tool takes the
+first made. Measured on 60 6×6 two-laser puzzles: both beams use pieces
+in 58, a purple gem in 8. So the stock now keeps a two-laser puzzle only
+when both beams pass through a piece of its cheapest way
+(`bothUsePieces`; otherwise one laser just shines straight at its
+gems), and leaves purple to chance (14 of 100 at 6×6, 15 of 100 at
+7×7): open for the developer. At 8×8 the rule turns most away (93 of the 143
+made in the end), and the make went to about 2 minutes of one core a
+puzzle, so **8×8 with two lasers has 50** (5 runs) and the rest 100
+(`stockSize`).
+
+**The stock** (15 worker threads): 6×6 one laser 100 from 15,315 seeds
+in 1 s; two 100 from 6,752 in 2 s; 7×7 one 100 from 9,448 in 5 s; two
+100 from 17,289 in 104 s; 8×8 one 100 from 38,145 in 56 s; two
+50 from 664,569 in 102 minutes (93 more made but turned away by the
+two-laser rule). Cheapest costs: 6×6 all 6; 7×7 7 (one laser: some 8); 8×8 8
+(some 9). Purple gems: 14 of 100 at 6×6, 15 of 100 at 7×7, 3 of 50 at
+8×8. 57 KB in all.
+
+**The cheapest ways on the device** (`answersFor`: one search at the
+known cost, up to 50 ways, at the first hint or Give up). Over the whole
+stock, choices median / max: 6×6 one laser 7k / 89k, two 112k / 434k;
+7×7 one 194k / 1.35M, two 826k / 1.66M; 8×8 one 702k / 1.53M, two 930k / 1.59M. With nothing else running, in
+Node: at most 283 ms (7×7 two lasers), medians 1-137 ms by setup;
+in the built-in browser, an 8×8 two-laser hint: 846k choices, 304 ms.
+(Measured during the make, with every core busy: 2-6 times that; one
+browser hint then took 2.8 s for 35k choices.) Whether a
+phone's first hint waits too long is for the phone (the log has
+"cheapest ways worked out" with its ms); a worker thread could do it in
+the background if so. Not built before it's measured (the standards'
+"measure a worry before designing around it").
+
+**Checked in the built-in browser** (`tools/serve.js` on 8123, the
+`web-games` entry; a small stock made by a scratch script first, then
+the real one):
+- 393 × 760: 6×6 one laser, 47 px squares, page 730 of 760, no
+  sideways scroll. The answer but one piece, a hint (1 🪙: "A mirror
+  (1 🪙) goes at row 6, column 6, facing ⟍ ..."), the laser: "Solved!
+  Saved 2 🪙 / Pieces 6, cheapest 6 ✓ · hints 1", savings 2. A reload:
+  the same end. Next: puzzle 2 of 10. A piece turned, the laser: "Not
+  yet: 1 💎 not lit. That cost 1 🪙.", the gem ringed, the beam faint;
+  the laser again: "Nothing has moved since that beam", free. A reload:
+  the faint beam, the ring and the words back. Via the home page (which
+  clears the kept game, like a restart): setup says "Puzzle 2 of 10
+  (under way) · savings 2 🪙"; Play! brought the 5 pieces and the spent
+  coin back, lasers off and pulsing, the clock at 1:17 (77.4 s kept).
+  Give up: "Give up: −9 🪙", savings 2 → −7 (red), "You gave up: −9 🪙 /
+  A cheapest way (6 🪙), with its beams", the pieces fixed. 7×7 two
+  lasers: red on: "The red beam is right. Now the blue laser."; blue:
+  "Solved! Saved 3 🪙". The home tile: the 6×6 picture, 150 px.
+- 320 × 640, 8×8 two lasers: 26 px squares, page 634 of 640, no
+  sideways scroll. Every piece turned: "The red beam isn't right: no red
+  on 2 💎", "The blue beam isn't right: no blue on 1 💎, blue on 1 red
+  💎"; Clear: 9 of 11 left (the pieces' prices back, the 2 coins not);
+  the answer: red right, blue: "Solved! Saved 1 🪙 / Pieces 8, cheapest
+  8 ✓ · lasers 2". A `/` turning red into the blue laser: "it broke the
+  blue laser", cracked; tapped: "That laser is broken. Move a piece and
+  it's mended."
+- **Found and fixed:** at 320 px the turn line and status fitted only at
+  10.5 px beside the 🏠 (144 px for "8×8 · puzzle 1 of 10" and "🪙 11 of
+  11 left 🏦 −99 59:59"). Now under 15 px the status stacks (the budget
+  on its own line): 15 px. The class `.go` (the purple gem's outline
+  halves) clashed with the site's Play row (`tests/css.test.js`):
+  renamed `gho`.
+- **Classified, not bugs:** Play! seemed dead once: the puzzles took
+  8.7 s to load while every core was making the stock, and Play! stays
+  greyed until they're in. The clock seemed to jump 7 s on picking up a
+  puzzle: my tool calls' own delay (checked: 77,390 ms kept, 1:17 shown
+  at once). No console errors.
+
+**Suite:** `npm test` 339 passed (25 of them Laser Lab's). Clean-room: the tracked
+and new files copied to an empty folder, the suite run twice (339
+passed both times), the file listing the same before and after (145
+files).
+
+**Open questions:** Q32 (new). Q24, Q27, Q30, Q31 unchanged.
+**Proposed skill additions:** none (the missed `\` splitter is "Prove
+every check can fail"; the 10.5 px line is this site's fit lesson,
+kept here).

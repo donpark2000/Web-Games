@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Laser Lab</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#E4F1EE">
+<meta name="apple-mobile-web-app-title" content="Let's Play!">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/game.css">
+<!-- Find the Stars' sheet for what the puzzles share (the rules box, the
+     status line, the hint bar, the tools and the end), as in the mockup;
+     then this game's own -->
+<link rel="stylesheet" href="css/hidden-faces.css">
+<link rel="stylesheet" href="css/laser-lab.css">
+</head>
+<body>
+<main class="app">
+  <!-- SETUP ("New game") -->
+  <section id="setup" class="app" aria-label="New game">
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <h1>Laser Lab</h1>
+    </div>
+
+    <div class="panel rulesbox">
+      <div id="rulesPic" aria-hidden="true"></div>
+      <div class="rules">
+        <p>Buy mirrors and splitters so the laser reaches every <b>💎</b>, for as little as you can. A beam must never shine into a laser: it breaks.</p>
+        <p class="how">Use as many pieces as you like: each one on the board costs its price, and taking it off gives the price back. Each puzzle has a budget; what's left of it when you solve it goes into your savings, over a run of 10 puzzles. Spend more and your savings pay. Tap a square to put the piece picked below the board there; tap it again to turn it, and once more to take it off. Tap a laser to switch it on: if its beam isn't right, it goes off and costs 1 🪙. Moving a piece switches the lasers off.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>The pieces</h2>
+      <div class="pieces">
+        <div class="pdesc"><span class="pico" id="mirrorIco"></span><span><b>Mirror</b> (1 🪙 each) turns the beam a quarter turn. Both sides reflect.</span></div>
+        <div class="pdesc"><span class="pico" id="splitIco"></span><span><b>Splitter</b> (2 🪙 each) lets the beam through and turns a copy of it, so one beam becomes two.</span></div>
+        <div class="pdesc"><span class="pico" id="wallIco"></span><span><b>Walls</b> and <b>💎</b> stop a beam. Beams of two colours pass through each other.</span></div>
+        <div class="pdesc"><span class="gemrow" id="gemIcos"></span><span>With two lasers, red and blue, a <b>💎</b> wants only its own colour; a purple one, half and half, wants both. Switch the lasers on one at a time: each beam must reach every <b>💎</b> of its colour, and no other.</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Size</h2>
+      <div class="sizes" id="sizes">
+        <button type="button" class="size" data-n="6" aria-pressed="true"><span class="sg" style="--sn:6"></span>6×6</button>
+        <button type="button" class="size" data-n="7" aria-pressed="false"><span class="sg" style="--sn:7"></span>7×7</button>
+        <button type="button" class="size" data-n="8" aria-pressed="false"><span class="sg" style="--sn:8"></span>8×8</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Lasers</h2>
+      <div class="levels" id="lampBtns">
+        <button type="button" class="level" data-l="1" aria-pressed="true"><span class="licos" id="oneIco"></span>One</button>
+        <button type="button" class="level" data-l="2" aria-pressed="false"><span class="licos" id="twoIco"></span>Two<small>red and blue</small></button>
+      </div>
+    </div>
+
+    <div class="go">
+      <button type="button" class="big" id="playBtn" disabled>Play!</button>
+      <p class="runline" id="runLine"></p>
+      <div class="why" id="why"></div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="app" aria-label="Game" hidden>
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <div class="topinfo">
+        <div class="turn" id="turn"></div>
+        <div class="status">
+          <span class="budget" id="budget"></span>
+          <span class="savings" id="savings"></span>
+          <span class="clock" id="clock">0:00</span>
+        </div>
+      </div>
+    </div>
+    <!-- the board, the beams over it and the lasers in a rim round it -->
+    <div class="boardwrap" id="boardwrap"><div class="llboard" id="board" role="grid" aria-label="Puzzle"></div><svg class="beam" id="beam" aria-hidden="true"></svg><div class="lamps" id="lamps"></div></div>
+    <!-- the shop: the piece a tap puts down, and its price -->
+    <div class="tray" id="tray" aria-label="Pieces"></div>
+    <div class="hintbar idle" id="hintbar" aria-live="polite"></div>
+    <div class="tools" id="tools">
+      <button type="button" class="tool" id="clearBtn">↺ Clear</button>
+      <button type="button" class="tool" id="hintBtn">💡 Hint <span class="price"><span id="hintPrice">1</span> 🪙</span></button>
+      <button type="button" class="tool" id="giveUpBtn">🏳 Give up</button>
+    </div>
+    <!-- Give up asks first, in place of the tools -->
+    <div class="tools ask" id="askTools" hidden>
+      <span class="askq">Give up?</span>
+      <button type="button" class="tool primary" id="giveUpYes">Give up</button>
+      <button type="button" class="tool" id="giveUpNo">No</button>
+    </div>
+    <!-- at the end, in place of the tools: the board stays in view. No Try
+         again (it would let a puzzle be played again for more savings) -->
+    <div class="tools" id="endTools" hidden>
+      <button type="button" class="tool primary" id="nextBtn" data-play>Next ▸</button>
+      <button type="button" class="tool" id="newBtn">New game</button>
+    </div>
+  </section>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a></footer>
+<script type="module" src="src/ui/laser-lab.js"></script>
+<script type="module" src="src/ui/stats.js"></script>
+<script type="module" src="src/ui/offline.js"></script>
+</body>
+</html>

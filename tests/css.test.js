@@ -27,7 +27,7 @@ function classesIn(css) {
 // (its own, styled in site.css for the home page too). A new name here
 // is a decision, not a fix for a failing test.
 const MEANT_SHARED = new Set([
-  'app', 'av', 'big', 'c1', 'c2', 'chip', 'controls', 'csmini', 'die', 'hfmini', 'ico', 'level', 'lit', 'n', 'nm', 'now',
+  'app', 'av', 'big', 'c1', 'c2', 'chip', 'controls', 'csmini', 'die', 'hfmini', 'ico', 'level', 'lit', 'llmini', 'n', 'nm', 'now',
   'num', 'o1', 'o2', 'p1', 'p2', 'pic', 'pill', 'primary', 'side', 'turn', 'who', 'why', 'with-sound',
 ]);
 

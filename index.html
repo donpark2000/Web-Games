@@ -75,6 +75,10 @@
         <span class="pic cs" id="csPic" aria-hidden="true"></span>
         Colour Sudoku
       </a>
+      <a class="game" id="llLink" href="laser-lab.html">
+        <span class="pic ll" id="llPic" aria-hidden="true"></span>
+        Laser Lab
+      </a>
     </div>
   </section>
 </main>
@@ -92,6 +96,8 @@
   import { miniBoard } from './src/ui/hfboard.js';
   import { DEMO as CS_DEMO } from './src/core/colour-sudoku.js';
   import { miniBoard as csMini } from './src/ui/csboard.js';
+  import { DEMO as LL_DEMO } from './src/core/laser-lab.js';
+  import { miniSvg as llMini } from './src/ui/llboard.js';
   import { log, startLog } from './src/ui/debuglog.js';
   import { homePage } from './src/ui/resume.js';
   import { logScrollRoom } from './src/ui/scrolllog.js';
@@ -146,6 +152,8 @@
   document.getElementById('hfPic').innerHTML = miniBoard(DEMO, two, two.flatMap(f => seenBy(5, DEMO.reg, f)).filter(i => i < 15));
   // Colour Sudoku: a puzzle under way, about half its digits in.
   document.getElementById('csPic').innerHTML = csMini(CS_DEMO, CS_DEMO.sol.map((d, i) => ((i * 7) % 11 < 6 ? d : 0)));
+  // Laser Lab: the rules picture's 6 x 6 solved, its laser on.
+  document.getElementById('llPic').innerHTML = llMini(LL_DEMO);
   startLog('home');
   // Back on the home page: no game in progress any more (DESIGN.md
   // "Coming back to a game").

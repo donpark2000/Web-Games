@@ -945,12 +945,21 @@ As built (Claude's, not in the mockup):
   would have undone what was spent.) A reload or a trip to another app
   also comes back to the lasers that were on and the bar's words.
 - **Puzzles made ahead of time** by `tools/laser-lab-puzzles.js` into
-  `data/laser-lab.json`, per size and lasers; each stored with its seed,
-  board, lasers, cheapest cost and one cheapest way. The cheapest ways
-  that hints and Give up choose from (up to 50) are worked out on the
-  device at the first hint or Give up. Run k's puzzles are the stock's
-  from 10k on, in an order shuffled once with a fixed seed; after the
-  last they come round again.
+  `data/laser-lab.json`: **100 per size and lasers, 50 for 8×8 with two**
+  (about 2 minutes of one core each; more can follow), the first made from a
+  fixed seed on; each stored with its seed, board, lasers, cheapest cost
+  and one cheapest way. **With two lasers, both beams pass through a
+  piece** of that way (the mockup's first pick rule; at 8×8 it turns
+  most puzzles away). A purple gem in about 1 in 7 two-laser puzzles
+  at 6×6 and 7×7, 3 of 50 at 8×8 (the mockup's hand-picked sets had
+  more). The cheapest ways that hints
+  and Give up choose from (up to 50) are worked out on the device at the
+  first hint or Give up. Run k's puzzles are the stock's from 10k on, in
+  an order shuffled once with a fixed seed; after the last they come
+  round again.
+- **The status beside the 🏠 stacks** when one row would be under 15
+  px (8×8 on a 320 px phone): the budget on its own line, the savings
+  and the clock under it.
 - **Kept on the device** (`web-games-laser-lab`): per size and lasers,
   the run under way (its number, the next puzzle, the savings, the
   puzzle under way) and the best run.

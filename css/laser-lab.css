@@ -1,0 +1,145 @@
+/* Laser Lab (mockup v7; Mirror Light until v6). Loaded after Find the
+   Stars' sheet, for what the puzzles share (the rules box, the status
+   line, the hint bar, the tools and the end). The board is night-dark so
+   the beams show; everything round it is the site's look. --cell is set
+   by the fit. The lasers stand in a rim round the board, .7 of a square
+   wide; each is a switch (v4). */
+:root { --night: #22313F; }
+#rulesPic .llmini { display: block; width: 150px; height: 150px; }
+.pieces { display: grid; gap: 8px; }
+.pdesc { display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; font-size: 15px; line-height: 1.35; }
+.pico { width: 40px; height: 40px; border-radius: 8px; background: var(--night); display: block; padding: 2px; }
+.pico svg { display: block; width: 100%; height: 100%; }
+.gemrow { display: flex; gap: 2px; padding: 4px 2px; background: var(--night); border-radius: 8px; width: 40px; flex-wrap: wrap; justify-content: center; }
+.gico { width: 17px; height: 17px; }
+.gico svg { display: block; width: 100%; height: 100%; }
+
+/* setup: size and lasers */
+.sizes { grid-template-columns: repeat(3, 1fr); }
+.size .sg { background-size: calc(100% / var(--sn)) calc(100% / var(--sn)); }
+.level .licos { display: flex; gap: 4px; justify-content: center; height: 30px; align-items: center; }
+.lico { width: 34px; height: 24px; display: block; }
+.lico svg { display: block; width: 100%; height: 100%; }
+.runline { margin: 8px 0 0; text-align: center; font-size: 15px; font-weight: 700; color: var(--muted); }
+.runline b { color: var(--ink); } .runline b.neg { color: #D2283C; }
+
+.topinfo { display: grid; gap: 2px; min-width: 0; }
+.topinfo > * { min-width: 0; }
+/* their words as big as fit, none cut (--tif, src/ui/laser-lab.js:
+   fitInfo; as Colour Sudoku's) */
+.topinfo .turn { font-size: var(--tif, 20px); overflow: hidden; }
+.boardwrap { --cell: 20px; position: relative; justify-self: center; padding: var(--rim);
+  --rim: calc(var(--cell) * .7); --S: calc(var(--n) * var(--cell) + 6px); --h: calc(var(--rim) + 3px); }
+.llboard { display: grid; grid-template-columns: repeat(var(--n), var(--cell)); width: max-content; background: var(--night);
+  border: 3px solid #2B2B33; border-radius: 8px; overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.llcell { width: var(--cell); height: var(--cell); box-shadow: inset 0 0 0 .5px #FFFFFF1C; cursor: pointer; position: relative; }
+.llcell svg { display: block; width: 100%; height: 100%; }
+
+/* gems: one laser, pale blue; two lasers, the colours they want (k1 red,
+   k2 blue, k3 purple: both), dim until lit (the dim colours are the
+   pictures' own, src/ui/llboard.js) */
+.lit .gem .gm { fill: #9BF0FF; stroke: #fff; }
+.lit .gem .gf { stroke: #3BA9C7; }
+.llcell.lit svg { filter: drop-shadow(0 0 calc(var(--cell) * .12) #9BF0FF); animation: bounce .4s ease; }
+.two .lit .gem.k1 .gm { fill: #FF7484; stroke: #fff; }
+.two .lit .gem.k2 .gm { fill: #6DB6FF; stroke: #fff; }
+.two .lit .gem.k3 .gm { fill: #C58FFF; stroke: #fff; }
+.two .lit .gem .gf { stroke: #FFFFFF99; }
+.two .llcell.lit svg.k1 { filter: drop-shadow(0 0 calc(var(--cell) * .12) #FF7484); }
+.two .llcell.lit svg.k2 { filter: drop-shadow(0 0 calc(var(--cell) * .12) #6DB6FF); }
+.two .llcell.lit svg.k3 { filter: drop-shadow(0 0 calc(var(--cell) * .12) #C58FFF); }
+/* the purple gem: half red, half blue (developer, 2026-10-21); with one
+   colour on it, that half lights (lit1 red, lit2 blue) */
+.lit .gem .gl, .lit1 .gem .gl { fill: #FF7484; } .lit .gem .gr, .lit2 .gem .gr { fill: #6DB6FF; }
+.lit .gem .gho, .lit1 .gem .gol, .lit2 .gem .gor { stroke: #fff; }
+.llcell.lit1 svg, .llcell.lit2 svg { animation: bounce .4s ease; }
+.two .llcell.lit1 svg { filter: drop-shadow(0 0 calc(var(--cell) * .1) #FF7484); }
+.two .llcell.lit2 svg { filter: drop-shadow(0 0 calc(var(--cell) * .1) #6DB6FF); }
+
+.llcell.unlit::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; border: 3px dashed #FF5A6E; animation: pulse 1.1s ease-in-out infinite; }
+.llcell.hinted::after { content: ''; position: absolute; inset: 1px; border-radius: 50%; box-shadow: inset 0 0 0 3px #fff, 0 0 0 2px #fff; animation: pulse 1.1s ease-in-out infinite; }
+.llcell.nope svg { animation: nope .4s ease; }
+
+/* the beams, over the board; they start at the board's edge */
+.beam { position: absolute; left: calc(var(--rim) + 3px); top: calc(var(--rim) + 3px); width: calc(var(--n) * var(--cell)); height: calc(var(--n) * var(--cell)); pointer-events: none; overflow: visible; }
+.beam line { fill: none; stroke-linecap: round; }
+.beam .glow { stroke-width: .26; opacity: .32; }
+.beam .core { stroke-width: .08; }
+.two .beam .glow { stroke-width: .2; opacity: .4; }
+.two .beam .core { stroke-width: .07; }
+.beam .glow.c0 { stroke: #FFD54A; } .beam .core.c0 { stroke: #FFF3B8; }
+.beam .glow.c1 { stroke: #FF4D5E; } .beam .core.c1 { stroke: #FFC9CF; }
+.beam .glow.c2 { stroke: #3D9BFF; } .beam .core.c2 { stroke: #C4E2FF; }
+.beam .grow { stroke-dasharray: 1; stroke-dashoffset: 1; animation: grow .09s linear forwards; }
+@keyframes grow { to { stroke-dashoffset: 0; } }
+.beam .ghost { opacity: .22; } /* a beam that wasn't right, after its laser went off */
+
+/* the lasers, in the rim beside the board, each facing in; drawn shining
+   down and turned (s0 top, s1 right, s2 bottom, s3 left) */
+.lamps { position: absolute; inset: 0; pointer-events: none; }
+.lampbox { position: absolute; width: var(--cell); height: var(--h);
+  left: calc(var(--cx) - var(--cell) / 2); top: calc(var(--cy) - var(--h) / 2); transform: rotate(var(--rot)); }
+.lampbox.s0, .lampbox.s2 { --cx: calc(var(--rim) + 3px + (var(--k) + .5) * var(--cell)); }
+.lampbox.s1, .lampbox.s3 { --cy: calc(var(--rim) + 3px + (var(--k) + .5) * var(--cell)); }
+.lampbox.s0 { --cy: calc(var(--h) / 2); --rot: 0deg; }
+.lampbox.s2 { --cy: calc(var(--rim) + var(--S) - 3px + var(--h) / 2); --rot: 180deg; }
+.lampbox.s1 { --cx: calc(var(--rim) + var(--S) - 3px + var(--h) / 2); --rot: 90deg; }
+.lampbox.s3 { --cx: calc(var(--h) / 2); --rot: 270deg; }
+.lampbox > svg { display: block; width: 100%; height: calc(100% - 3px); }
+.lampbox::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: 0; height: 3px; background: var(--night); } /* the gap in the edge */
+/* v5 (developer: brighter): the body always in its full colour; off, the
+   aperture is dark; on, it shines nearly white, with a glow of its colour */
+.on.k0 .lamp .lh { fill: #FFF6C2; } .on.k1 .lamp .lh { fill: #FFD6DB; } .on.k2 .lamp .lh { fill: #D2E8FF; }
+.lampbox.on.k0 > svg { filter: drop-shadow(0 0 2px #FFC21A) drop-shadow(0 0 7px #FFC21A); }
+.lampbox.on.k1 > svg { filter: drop-shadow(0 0 2px #FF2E46) drop-shadow(0 0 7px #FF2E46); }
+.lampbox.on.k2 > svg { filter: drop-shadow(0 0 2px #1F86FF) drop-shadow(0 0 7px #1F86FF); }
+.broken .lamp .lh { fill: #59636B; }
+.broken .lamp .crack { display: inline; }
+/* a switch: tapped anywhere in a square a little wider than a square (at
+   least 44 px) from the board's edge out past the rim; ready (a piece on
+   the board, the laser off and not yet judged) it pulses */
+.lamps .lampbox { pointer-events: auto; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.lampbox::before { content: ''; position: absolute; left: 50%; bottom: 0; --tw: max(44px, calc(var(--cell) * 1.5));
+  width: var(--tw); margin-left: calc(var(--tw) / -2); height: calc(var(--h) + 10px); }
+.lampbox.ready > svg { animation: lampready 1.4s ease-in-out infinite; }
+@keyframes lampready { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14) translateY(-4%); } }
+.lampbox.nope > svg { animation: nope .4s ease; }
+.lampbox.burst > svg { animation: lampburst .5s ease-out; }
+@keyframes lampburst { 0% { transform: scale(1); filter: brightness(1); } 30% { transform: scale(1.35); filter: brightness(2.2); } 100% { transform: scale(1); filter: brightness(1); } }
+.shard { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; background: #FFE9A8; border-radius: 1px;
+  transform: rotate(var(--a)) translateY(0); animation: shard .8s ease-out forwards; }
+@keyframes shard { 0% { transform: rotate(var(--a)) translateY(0); opacity: 1; } 100% { transform: rotate(var(--a)) translateY(calc(var(--cell) * -1.1)); opacity: 0; } }
+
+/* the shop, under the board: the piece a tap puts down, and its price
+   (v7: the name over the price, so the number reads as a price) */
+.tray { display: flex; justify-content: center; gap: 10px; min-height: 52px; touch-action: manipulation; }
+.piecebtn { display: flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; border: 3px solid var(--line); border-radius: 14px; background: var(--card); cursor: pointer; font-size: 15px; font-weight: 700; color: var(--ink); }
+.piecebtn[aria-pressed="true"] { border-color: var(--sun); background: var(--sun-soft); }
+.piecebtn .pn { display: grid; text-align: left; line-height: 1.2; }
+.piecebtn .pn b { font-size: 16px; }
+.piecebtn .pn span { font-size: 14px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.piecebtn:disabled { opacity: .5; cursor: default; }
+
+/* the bar: 3 lines */
+#play .hintbar { height: calc(3 * 1.4em + 20px); }
+.hintbar.hint { border-left-color: var(--sun); }
+.hintbar.wrong { border-left-color: var(--p1); }
+.hintbar.result .bigstar { width: 3.6em; height: 3.6em; }
+#endTools { grid-template-columns: repeat(2, 1fr); }
+#endTools .tool { white-space: nowrap; }
+#tools { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } /* Clear, Hint, Give up (no ▶ Shine since v4) */
+.tools.ask { grid-template-columns: auto 1fr auto; }
+.tool .price { font-size: .85em; font-weight: 700; white-space: nowrap; }
+@media (max-width: 345px) { #endTools .tool { font-size: 14px; } .piecebtn .pico { width: 34px; height: 34px; } }
+
+/* the budget and the savings (v6) in place of hearts and a count; the
+   budget can be wide ("11 of 11 left"): it takes what it needs (v7) */
+#play .status { grid-template-columns: auto 1fr auto; gap: 10px; font-size: calc(var(--tif, 20px) * .85); }
+#play .status > span { overflow: hidden; }
+/* too narrow for one row (fitInfo): the budget on its own line */
+#play .topinfo.stack .status { grid-template-columns: 1fr auto; row-gap: 2px; }
+#play .topinfo.stack .status .budget { grid-column: 1 / -1; }
+#play .topinfo.stack .status .savings { text-align: left; }
+.status .budget, .status .savings { white-space: nowrap; }
+.status .savings { text-align: center; }
+.neg { color: #D2283C; }
