@@ -8062,3 +8062,22 @@ and kept progress (Find the Stars kept `hidden-faces` for that reason).
 
 **Open questions:** none new. Q24, Q27, Q30, Q31 unchanged.
 **Proposed skill additions:** none.
+
+## 2026-10-22: Named Laser Lab; "a fixed number of pieces"?
+
+**Developer:** "Laser Lab is good." So the game is **Laser Lab** (the
+mockup keeps its old title until its next version).
+
+**Developer:** "I see you are still starting with a fixed number of
+mirrors or splitters. I was thinking of dropping that and just use the
+budget to pay for what you use."
+
+**Claude:** v6 already has no fixed number: any number of either piece,
+each paid for from the budget. Most likely misreading: the piece
+buttons under the board show a big bold "1" and "2" beside the mirror
+and splitter, where v5 showed "4 left"; they are the prices (with a
+small 🪙) but read like counts. (Or the viewer still showed v5.) The
+maker does start each puzzle from a few pieces dropped along the light
+to place the gems, but the player never sees that, and the cheapest way
+may use fewer. Proposed: make the price read as a price ("1 🪙 each"
+or a price tag), with the name, in v7. Waiting on the developer.
