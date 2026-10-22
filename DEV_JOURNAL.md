@@ -7846,3 +7846,29 @@ two lamps. What it still needs: the cheapest cost, proved (every
 cheaper tray searched and failing), to set the budget; hints and Give
 up then show one of the cheapest solutions, fitted to the player's
 pieces where possible.
+
+**Developer:** "I like your suggestions. How do hints and 'giving up'
+impact this budget idea?"
+
+**Claude's proposal** (for the developer to decide):
+- **Pieces are paid for while on the board:** taking one off gives its
+  price back; what's on the board at the solve is what's spent. (The
+  other reading, a piece paid for once and gone even if taken off,
+  makes every try cost money: more tension, but trying ideas is the
+  game.)
+- **Hints cost from the budget, more each time:** 1, then 2, then 3 in
+  one puzzle (no fixed limit; the price is the limit). A hint takes off
+  a piece that isn't in a cheapest solution (its price comes back) or
+  places one that is, fixed there; a placed piece costs its own price as
+  usual. With several cheapest solutions, the hint follows the one
+  closest to the player's pieces.
+- **Give up costs the puzzle's whole budget from the savings,** and
+  shows a cheapest solution. Without a cost, giving up early would beat
+  finishing a hard puzzle expensively. With it, giving up is only worth
+  it once a puzzle has gone badly wrong.
+- **A wrong lamp costs 1** (in place of a ❤️).
+- Example, the cheapest solution costing 6 and a budget of 9: a perfect
+  solve saves 3; a cost-7 solve with one wrong lamp saves 1; one hint
+  then perfect saves 2; give up: -9.
+- Open: what if the savings run out too (debt, shown in red, or the run
+  ends)? Claude would allow debt: no dead end.
