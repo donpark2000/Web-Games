@@ -7802,3 +7802,38 @@ the answer, "use every piece" is never arbitrary, and the rule could
 even go from the words. Cost: about half of today's puzzles would pass
 (18 of 40; 7×7 two lamps 2 of 8), so making gets slower; to measure
 before deciding. Waiting on the developer.
+
+## 2026-10-22: Mirror Light: a budget in place of a fixed tray?
+
+**Developer** (another thought, before answering the last entry's
+question): "Maybe you start the game with a budget, and each piece you
+select (mirror or splitter) costs you something. You can spend it anyway
+you want but you can't spend more that you have. At the end, when you
+solve a puzzle the left over budget goes into a saving account. You
+start the next puzzle with a new budget. If you run out you can withdraw
+funds from your savings account. But at the end of solving a number of
+puzzles, the size of your remaining savings account is a measure of
+your total wins."
+
+**Claude's view:**
+- It answers the last entry's frustration from the other side: fewer
+  pieces is rewarded (more saved) rather than refused. No fixed tray,
+  so no "use every piece" and no "the light must touch every piece"; an
+  unused piece is only money wasted.
+- What changes for the maker: no longer "exactly one answer with this
+  tray" but "the cheapest way to light every gem", which sets the
+  budget (the cheapest cost plus a margin, so a best solve saves the
+  margin). The solver can find the cheapest by trying trays in order of
+  cost, as `fewer.js` did; with any number of pieces allowed the search
+  is bigger, so to time first, 8×8 most of all. The cheapest way should
+  need several pieces and be the only one at that cost, or puzzles get
+  easy.
+- Prices matter: a splitter does more than a mirror, so it should cost
+  more (e.g. 1 and 2).
+- One currency rather than two: a wrong lamp and a hint could cost from
+  the budget instead of hearts, so everything a player does shows in
+  the savings.
+- The savings carry across puzzles (a run of, say, 10), kept on the
+  device like a game in progress.
+- Proposed: try it in the mockup as v6 before deciding the maker
+  change. Waiting on the developer.
