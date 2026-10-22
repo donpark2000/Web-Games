@@ -57,7 +57,14 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
+- **Check a screen after every way into it, not only the first.**
+  (2026-10-22, "3.0 on the phone; release 3.1".) Evidence: Laser Lab's
+  first puzzle had its Clear, Hint and Give up; one reached by Next ▸
+  didn't (the end had hidden them), and every check had started fresh
+  or gone back through New game. Possibly a case of section 3's "Check
+  the end state" already. Waiting on the developer.
+
+Earlier: none waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
 run time" (from "The play screen pushed right on the iPhone") dropped by
 the developer: "Drop it: keep the lesson in the journal only." Claude's
 view, asked how general it is: a web case as written; the general part
