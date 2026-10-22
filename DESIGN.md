@@ -6,14 +6,9 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-10-22): a new grown-ups' puzzle, **Laser Lab** (called
 Mirror Light until 2026-10-22; buy mirrors and splitters so a laser's
-beam reaches every gem), in mockups (v7: the name, lasers, prices that
-read as prices; v6: a budget in place of the tray, savings over a run
-of 10; v5: open
-edges only, brighter lamps; v4: each lamp an on/off switch in
-place of Shine; v3: lamps beside the board, two colours) on the branch
-`light-puzzle`;
-nothing agreed here yet (journal, from
-"A physics-and-logic puzzle"). Release 2.1 live. 2026-10-19: **Colour
+beam reaches every gem), built from mockup v7 on the branch
+`light-puzzle` (see "Laser Lab"), to try on the phone once published
+(release 3.0). Release 2.1 live. 2026-10-19: **Colour
 Sudoku** built from mockup v3.1 and published (releases 2.0, 2.1; see
 below). Earlier: Colour Sudoku designed
 (mockups v1-v3.1). Find the Stars: no Same size after a 10 x 10 win
@@ -65,6 +60,8 @@ And one for the developer (2026-10-13: "I wanted it for me"):
   puzzle: one star per row, column and colour, none touching)
 - **Colour Sudoku** (2026-10-19; a Sudoku whose squares are also split
   into nine coloured shapes, each holding 1-9 once)
+- **Laser Lab** (2026-10-22; buy mirrors and splitters so a laser's beam
+  reaches every gem, for as little as you can)
 
 ## Players
 
@@ -98,7 +95,7 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   the second player a person or the robot: tic-tac-toe, matching cards,
   Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim), then **👤 One player** (no way to play
   another person: rock paper scissors, Follow Me), then **🧩 Puzzles for
-  grown-ups** (Find the Stars, Colour Sudoku; developer, 2026-10-13: one
+  grown-ups** (Find the Stars, Colour Sudoku, Laser Lab; developer, 2026-10-13: one
   site, kept apart). Each game in one group only; a
   group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
@@ -846,6 +843,121 @@ As built (Claude's choices from the mockup, unless marked):
   wrong one, a ping for a hint or step, the sparkle when solved, "aww"
   when out of hearts.
 
+### Laser Lab
+
+A third puzzle for the developer (2026-10-21, "Physics Sudoku": physics
+on a grid, so it stays logical), in 🧩 Puzzles for grown-ups. Called
+**Mirror Light** until 2026-10-22 (developer: "Laser Lab is good").
+Designed in mockups v1-v7 (journal, "A physics-and-logic puzzle" to
+"Laser Lab mockup v7"):
+[Laser Lab Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN)
+(private Claude artifact, version 7). **Built from v7 as it stood**, so
+the developer can try it on the phone (a mockup can't be opened there);
+what isn't marked as agreed below is Claude's choice, to be judged on
+the phone. Files and storage: `laser-lab` (`laser-lab.html`,
+`src/core/laser-lab.js`, `web-games-laser-lab`); the code says "lamp"
+where the words say "laser".
+
+Agreed with the developer:
+- **The board:** a square grid, night-dark so the beams show, with walls
+  and gems (💎). **Lasers stand beside the board**, at most one per side,
+  each shining in along its row or column. **Mirrors** (white, `/` or `\`,
+  both sides) turn a beam a quarter turn; **splitters** (green with dark
+  stripes) let it through and turn a copy. Walls and gems stop a beam;
+  **open edges** (a beam leaving the board is gone; mirrored edges were
+  tried in v3-v4 and dropped: "not needed"). **A beam shining into a
+  laser breaks it** (any colour; it costs as a wrong laser does, and a
+  piece moved mends it).
+- **Size** 6×6, 7×7 or 8×8 and **Lasers** One (yellow) or Two (red and
+  blue), picked on the setup screen. With two, gems are red, blue or
+  **purple** (purple wants both): each beam must reach every gem of its
+  colour and no other. The two beams pass through each other. **The
+  purple gem is half red, half blue**, its outline in two halves at the
+  red gem's thickness (developer, v5). Lasers bright: the body always
+  its full colour, on/off shown in the nozzle's aperture.
+- **Each laser is an on/off switch** (developer, v4, in place of a
+  ▶ Shine button): tapped on, its beam runs out square by square. Right
+  (every gem of its colour lit by it, none other, no laser hit) it stays
+  on; the last one right solves the puzzle. Not right: it **costs**, goes
+  off, and its beam stays faint with the misses ringed. **Moving a
+  piece switches every laser off.** Tapping a laser that's on switches
+  it off, free.
+- **A budget in place of a fixed tray** (developer, v6): pieces are
+  bought, **mirror 1 🪙, splitter 2 🪙**, as many as you like, **paid for
+  only while on the board** (taking one off gives its price back). **A
+  wrong laser costs 1 🪙. Hints cost 1, then 2, then 3...** in one
+  puzzle (no limit but the price). **Give up costs the puzzle's whole
+  budget.** What's left of the budget when the puzzle is solved goes
+  into the **savings**, kept over **a run of 10 puzzles**; spending past
+  the budget comes out of the savings, which **may go below 0** (red).
+  The savings at the end of a run are the score. No fixed tray, so no
+  "use every piece"; a piece the beams don't touch is only money
+  wasted. The puzzles need no single answer: a cheapest way is enough.
+- **Hints and Give up follow the cheapest way closest to the player's
+  board** (fewest pieces to take off, turn or put down, keeping every
+  hint's piece). A hint takes off a piece not in it (price back), turns
+  one facing the wrong way, or puts down the next piece along the beam;
+  a piece a hint leaves is fixed there. Give up shows a cheapest way
+  with its beams.
+- **Prices read as prices:** each piece button shows the piece over "1
+  🪙 each" / "2 🪙 each" (developer, v7: v6's big "1" read as a count).
+
+Claude's choices from the mockup, to be judged on the phone:
+- **The budget is the cheapest cost + 3**, so a best solve saves 3.
+- **The cheapest cost is at least 6 (6×6), 7 (7×7) or 8 (8×8)**: the
+  maker walls off cheaper ways until none is left under that floor.
+- **No Try again** (it would let a puzzle be played again for more
+  savings): the end's buttons are **Next ▸** (**New run** after the
+  10th) and **New game**.
+- **The end's words**, in the hint bar beside one big star: "Solved!
+  Saved 3 🪙" over "Pieces 6, cheapest 6 ✓ · hints 1 · lasers 1"
+  ("Solved, 2 🪙 over" when it cost more than the budget); "You gave
+  up: −9 🪙" over "A cheapest way (6 🪙), with its beams"; after the
+  10th, "Run over! Savings 17 🪙" over "This one: saved 3 🪙 · Best
+  run!".
+- **The laser drawing:** an emitter box in its colour with three vents
+  and a highlight, a dark nozzle and a small aperture, dark when off,
+  glowing when on; a small burst and a crack when broken.
+- **Setup:** the rules beside a solved 6×6 with one laser (not one of
+  the run's puzzles); the pieces explained, with prices; **Size**;
+  **Lasers**; Play!, and under it "Puzzle 4 of 10 · savings 7 🪙 · best
+  run 17 🪙" (or "A run of 10 puzzles").
+- **Play:** 🏠, "7×7 · puzzle 4 of 10" over "🪙 3 of 10 left" (red "4
+  over" past it), the savings "🏦 12" (the overspend shown coming out
+  of them as it happens) and a clock; the board with its lasers, as big
+  as fits with no scrolling; the two piece buttons (the one picked
+  lights; tap a square to put it there, again to turn it, once more to
+  take it off); the hint bar (3 lines, hidden until needed); **↺ Clear**
+  (every piece off but a hint's), **💡 Hint** with its price, **🏳 Give
+  up** (asks first: "Give up: −9 🪙" / No). Once a piece is on, the
+  lasers that can be switched on pulse.
+- **A laser tapped again with nothing moved** since it wasn't right
+  says "Nothing has moved since that beam: move a piece first" and costs
+  nothing; a broken one says "Move a piece and it's mended".
+- **The tap area** for a laser: at least 44 px along the edge (1.5
+  squares when bigger), from the board's edge out past the rim.
+
+As built (Claude's, not in the mockup):
+- **A puzzle left unfinished waits:** the run keeps it on the device as
+  it was left (pieces, coins spent, hints, clock), and Play! brings it
+  back, even after a restart, so leaving neither costs nor saves
+  anything. (The mockup brought it back with a clean board, which
+  would have undone what was spent.) A reload or a trip to another app
+  also comes back to the lasers that were on and the bar's words.
+- **Puzzles made ahead of time** by `tools/laser-lab-puzzles.js` into
+  `data/laser-lab.json`, per size and lasers; each stored with its seed,
+  board, lasers, cheapest cost and one cheapest way. The cheapest ways
+  that hints and Give up choose from (up to 50) are worked out on the
+  device at the first hint or Give up. Run k's puzzles are the stock's
+  from 10k on, in an order shuffled once with a fixed seed; after the
+  last they come round again.
+- **Kept on the device** (`web-games-laser-lab`): per size and lasers,
+  the run under way (its number, the next puzzle, the savings, the
+  puzzle under way) and the best run.
+- **Sounds:** a tick per piece put down, turned or taken off; a ding
+  for a beam that's right, "uh-oh" for one that isn't (or breaks a
+  laser), a ping for a hint, the sparkle when solved.
+
 ## Face names
 
 Each face has a **fixed name** (developer, 2026-10-08), with **no
@@ -921,7 +1033,8 @@ Which games are opened and played, from where, over time (developer,
   referrer when another site sent the visitor; and each **game started**
   (Play! or Play again) as an event, `play-<game>` (e.g. `play-nim`);
   in Find the Stars also "Same size" and "Another", in Colour Sudoku
-  "Next" (`data-play`).
+  and Laser Lab "Next" (`data-play`; Laser Lab's is "New run" after a
+  run's 10th puzzle).
 - **Only the live site counts** (donpark2000.github.io), not localhost or
   an automated browser, so testing doesn't add to the numbers. **Nothing
   is sent with no connection** (2026-10-11: an iPhone in airplane mode
@@ -1051,7 +1164,9 @@ finished, and the app's icon going back to the last game).
   puzzle shows its result.
 - **Find the Stars' progress stays on the device** (`web-games-hidden-faces`:
   the next puzzle per size and the best times), as before; Colour
-  Sudoku's too (`web-games-colour-sudoku`: per level). Colour Sudoku
+  Sudoku's too (`web-games-colour-sudoku`: per level), and Laser Lab's
+  (`web-games-laser-lab`: the run per size and lasers, with the puzzle
+  under way). Colour Sudoku
   comes back with its puzzle, board, notes, hearts, hints, the selected
   square, Undo, the clock, the hint on show (with its Why?) and Show me
   how's step.
