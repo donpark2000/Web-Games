@@ -7837,3 +7837,12 @@ your total wins."
   device like a game in progress.
 - Proposed: try it in the mockup as v6 before deciding the maker
   change. Waiting on the developer.
+
+**Developer** (added): "And this way it does not matter if there is
+only one unique solution per puzzle." *Claude:* right, and that is most
+of the maker's time today (searches proving a second answer doesn't
+exist), so making should get much faster, perhaps enough for 8×8 with
+two lamps. What it still needs: the cheapest cost, proved (every
+cheaper tray searched and failing), to set the budget; hints and Give
+up then show one of the cheapest solutions, fitted to the player's
+pieces where possible.
