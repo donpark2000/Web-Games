@@ -7641,3 +7641,93 @@ reference" and "prove every check can fail").
 
 **Open questions:** none new (lamp switches wait on the developer).
 Q24, Q27, Q30, Q31 unchanged. **Proposed skill additions:** none.
+
+## 2026-10-21: Mirror Light mockup v4: lamp switches
+
+**Developer:** "Use the stricter rule: a lamp turned on costs a heart
+unless its colour is all right. Lamps go off when a piece moves. Build
+it into the mockup as v4."
+
+**Source:** the previous session's scratchpad (`ml/`) was still on disk.
+Copied into this session's scratchpad; its built page matched the
+published v3 exactly (the whole page found inside the artifact read
+back), so v4 is built on what was published.
+
+**The core** (`lp-core.js`):
+- `trace(p, placed, only)`: only the lamps that are on shine.
+- `checkLamp(p, placed, li, others)`: lamp `li` switched on with
+  `others` already on. Right when every gem wanting its colour gets it,
+  no gem that doesn't want it gets it, and it shines into no lamp. When
+  it is the last lamp, the light of them all must also touch every piece,
+  all placed; then `solved`.
+- Checked (`check-core.js`, 66 checks, 9 new): hand-made boards (red then
+  blue on a purple gem; each colour on a gem of the other; a piece out
+  of the light; red turned into the blue lamp, not the last). And
+  against `check` on 9,600 boards (the answers of five sets with 0-3
+  pieces moved or turned, both lamp orders): switching the lamps on one
+  by one, each right, agrees with `check` on all 9,600 (2,513 right).
+- Broken on purpose: dropping the "touched" rule made the comparison
+  disagree on 317 boards and a hand-made case fail. Dropping the
+  wrong-colour rule was caught only by the two hand-made colour cases,
+  not by the comparison: random moves seldom light a gem the wrong
+  colour while all else is right. So the hand-made cases are needed too.
+
+**Mockup v4** ([Mirror Light Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN),
+version 4):
+- **No ▶ Shine**; the tools are Clear, Hint, Give up. **Each lamp is a
+  switch**: off it is a dim colour; on it glows. Once every piece is on,
+  the bar says "Every piece is on: tap a lamp to switch it on" and lamps
+  that can be switched on pulse.
+- **Switched on:** its light runs out square by square. Right: it stays
+  on ("The red light is right. Now the blue lamp."); the last one right
+  is Solved. Not right: a ❤️, the lamp goes off, its light stays faint
+  with the misses ringed, e.g. "The blue light isn't right: no blue on
+  1 💎. That cost a ❤️." A lamp it shone into breaks (and goes off).
+- **Moving a piece** (a tap, Clear, a hint) switches every lamp off,
+  mends a broken one and clears the faint light. Tapping a lamp that is
+  on switches it off, free.
+- **Claude's choices (for the developer):** a lamp with pieces still to
+  place says so and costs nothing. A lamp that wasn't right, tapped
+  again with nothing moved, says "Nothing has moved since that light:
+  move a piece first" and costs nothing (it would only lose another
+  ❤️). For a colour fault this holds even if the other lamp is switched
+  on or off; for pieces the light didn't touch (the last lamp only) it
+  is free to try again with other lamps on. A broken lamp says "move a
+  piece and it's mended".
+- **Purple gem: half red, half blue** always (agreed); with one colour
+  on it, that half lights.
+- **The tap area** for a lamp: at least 44 px along the edge (1.5
+  squares when bigger) and from the board's edge out past the rim, 10 px
+  beyond. Measured at 320 × 640, 8×8: 27 px squares, the drawn lamp 22 ×
+  19 px, the tap area 45 × 28 px.
+- Debug output: with `?debug` in the address, each lamp switched on is
+  logged to the console with its result.
+- The mockup bar: Mockup v4; the edges switch and "Place all but one
+  piece" stay; the purple choice is gone.
+
+**Checked** (scratchpad served on 8131 through the repo's
+`tools/serve.js` `createServer`, built-in browser; a temporary
+`.claude/launch.json` entry, removed after): at 393 × 760, 7×7 two
+lamps: red right and on, then blue: Solved, the purple gem lit both
+halves. One piece turned: blue first, not right (2 ❤️, faint light, the
+gem ringed); red right; red off (free); blue again with nothing moved:
+refused, no ❤️. 6×6 two lamps mirrored, one piece turned: blue shone
+back into its own lamp (cracked; "That lamp is broken" when tapped);
+red still right. One lamp: "Not yet: 1 💎 not lit", then Solved. Out of
+hearts: the answer with both lamps on. A piece turned or taken off
+switches the lamps off; a lamp with a piece missing asks for it. At 320
+× 640, 8×8: tapped at the tap area's edge, off the drawn lamp: Solved;
+no sideways scroll; the footer on screen. No console errors.
+**Found and fixed while checking:** switching red off left "The red
+light is right" in the bar.
+
+**Another session's server:** the uncommitted `.claude/launch.json`
+entry `mirror-light-mockup` (port 8130) belongs to another session, and
+its server still runs (serving v3). `preview_start` by that name reused
+it, so this session's server had its own name (`mirror-light-v4`, 8131)
+and was removed after; the other entry and server were left alone.
+
+**Open questions:** none new; v4's choices above are for the developer.
+Mirrored edges: still to play. Q24, Q27, Q30, Q31 unchanged.
+**Proposed skill additions:** none (the comparison that missed the
+colour fault is a case of "Prove every check can fail").
