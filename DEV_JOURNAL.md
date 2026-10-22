@@ -8311,3 +8311,20 @@ files).
 **Proposed skill additions:** none (the missed `\` splitter is "Prove
 every check can fail"; the 10.5 px line is this site's fit lesson,
 kept here).
+
+## 2026-10-22: Laser Lab: publish as 3.0 next; status (start here next session)
+
+**Where it stands:** branch `light-puzzle`, pushed. Laser Lab is built
+and checked (see "Laser Lab built"); release 3.0 is prepared on the
+branch: `src/core/release.js` 3.0, `tools/offline.js` run (version
+7a1e35302c27, 94 files), its notes in `RELEASES.md`, and
+`node tools/release.js` says ready. `npm test` 339 passed.
+
+**Next:** the developer's OK to publish. Then merge `light-puzzle` into
+`main`, push, tag `v3.0` on `main` and push the tag, make the GitHub
+release with `node tools/release.js notes`, and once it's live on
+github.io stop the localhost servers (`tools/serve.js` on 8123). Then
+the developer tries it on the phone (Q32).
+
+**Open questions:** Q24, Q27, Q30, Q31, Q32. **Proposed skill
+additions:** none.

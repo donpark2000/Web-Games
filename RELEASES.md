@@ -7,6 +7,24 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.0 (2026-10-22, version 7a1e35302c27)
+
+A new game in 🧩 Puzzles for grown-ups: **Laser Lab**.
+
+- **The puzzle:** buy mirrors (1 🪙) and splitters (2 🪙) and put them
+  on the board so a laser's beam reaches every 💎, for as little as you
+  can. A beam that shines into a laser breaks it.
+- **Each laser is a switch:** tap it on and its beam runs out. Right, it
+  stays on; not, it goes off and costs 1 🪙. Moving a piece switches the
+  lasers off.
+- **Size and lasers:** 6×6, 7×7 or 8×8, with one laser or two (red and
+  blue, with red, blue and purple gems).
+- **A budget per puzzle:** what's left goes into your savings over a run
+  of 10 puzzles. Hints cost 1, then 2, then 3 🪙; Give up costs the
+  whole budget.
+- **Kept on the device:** the run under way, with the puzzle you left,
+  and your best run for each size and lasers.
+
 ## 2.1 (2026-10-19, version bc4971605fea)
 
 Colour Sudoku, after a first go on the phone:
