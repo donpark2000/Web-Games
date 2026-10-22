@@ -8328,3 +8328,27 @@ the developer tries it on the phone (Q32).
 
 **Open questions:** Q24, Q27, Q30, Q31, Q32. **Proposed skill
 additions:** none.
+
+## 2026-10-22: Release 3.0 published (Laser Lab)
+
+**Developer** (in the parent session, to Claude there): "OK to publish
+when ready", then "OK to publish". The build session had prepared 3.0
+(46bf29f) but its auto mode refused publish steps on an OK relayed
+from another session, so the parent session, which had the developer's
+OK first-hand, published it.
+
+**Checked first:** `light-puzzle` level with GitHub at 46bf29f;
+`src/core/release.js` 3.0; `RELEASES.md` 3.0 with version
+7a1e35302c27; `node tools/release.js`: "Release 3.0 is ready";
+`npm test`: 339 passed, 0 failed.
+
+**Published:** `main` fast-forwarded to 46bf29f (as earlier releases:
+no merge commits) and pushed; tag `v3.0` pushed;
+[GitHub release 3.0](https://github.com/donpark2000/Web-Games/releases/tag/v3.0)
+from `node tools/release.js notes`, titled "3.0" as 2.1 was. Live on
+github.io within about 10 s of the check starting:
+`src/core/version.js` serves 7a1e35302c27, `laser-lab.html` 200, the
+home page links it. The localhost server (`tools/serve.js 8123`)
+stopped; no node processes left.
+
+**Next:** the developer tries Laser Lab on the phone.
