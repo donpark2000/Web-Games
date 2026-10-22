@@ -6,7 +6,8 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-10-21): a new grown-ups' puzzle, **Mirror Light** (place
 mirrors and splitters so a lamp's light reaches every gem), in mockups
-on the branch `light-puzzle`; nothing agreed here yet (journal, from
+(v3: lamps beside the board, two colours, mirrored edges) on the branch
+`light-puzzle`; nothing agreed here yet (journal, from
 "A physics-and-logic puzzle"). Release 2.1 live. 2026-10-19: **Colour
 Sudoku** built from mockup v3.1 and published (releases 2.0, 2.1; see
 below). Earlier: Colour Sudoku designed

@@ -7455,3 +7455,157 @@ choices go in DESIGN.md, and the build (src/core, tests, debug log).
 
 **Open questions:** Q24, Q27, Q30, Q31 (unchanged). **Proposed skill
 additions:** none.
+
+## 2026-10-21: Mirror Light mockup v3: lamps beside the board, two colours, mirrored edges
+
+**Developer:** "Any colour breaks a lamp. Go ahead and build v3." (the
+choice left open in the status entry: light of either colour shining
+into either lamp breaks it).
+
+**Rebuilt from v2's published page**, as the status entry described, as
+scratchpad files again (`ml/`): `lp-core.js` (no DOM), `lp-page.js`,
+`lp.css`, `body.html`, `build.js` (inlines the repo's `site.css`,
+`game.css`, `hidden-faces.css` and the mockup's own), and scripts to
+make, time and pick puzzles.
+
+**The core, v3:**
+- A lamp is `{side, k, c}`: beside the board on side 0-3 at row or
+  column k, colour c. Its light starts at the board's edge. Light
+  leaving the board where a lamp stands hits that lamp (`hits`).
+- Mirrored edges: `trace` follows the light back from the edge (end
+  `bounce`), for the picture. The light only runs along rows and
+  columns, so it meets the edge head-on, and each step can be run
+  backwards (a mirror's turn both ways; a splitter's straight-on copy
+  goes back along the way in). So bounced light always gets back to its
+  own lamp. The solver uses that and stops a branch at the edge at once.
+- Colours are bits (red 1, blue 2); a gem is the bits it wants (3:
+  purple). Solved: each gem got exactly its bits, no lamp hit, every
+  piece used and touched. The solver also stops a branch when a gem gets
+  a colour it doesn't want.
+- Checked (`check-core.js`, 57 checks): hand-made boards (straight in,
+  turned off an open edge, two lamps lighting each other, a bounce into
+  its own lamp, a purple gem from both, a red gem lit by both); made
+  puzzles of five setups, each answer checking and the solver finding
+  only it.
+
+**Making puzzles was the slow part.**
+- The first loop over 8×8 with two lamps printed nothing for over 100 s:
+  one seed's search had no cap (the skill's "cap each run"). Added a
+  search budget.
+- The solver copied its state at every choice. It now keeps one state
+  and undoes each branch's changes. Compared with the old one on 600
+  searches of random boards of every setup: the same answers and the
+  same number of choices; 166 ms against 1006 ms. Broken once on
+  purpose (a splitter one way round never tried): 280 of 600 differed.
+- One minute on one core each, search capped at 500,000 choices; pieces
+  4 mirrors with 1 splitter at 6×6, 2 splitters at 7×7 and 8×8:
+
+  | Puzzles made in 1 min | 1 lamp, open | 1 lamp, mirrored | 2 lamps, open | 2 lamps, mirrored |
+  |---|---|---|---|---|
+  | 6×6 | 2920 | 3624 | 157 | 414 |
+  | 7×7 | 44 | 86 | 1 | 7 |
+  | 8×8 (4 mirrors) | 9 | 20 | 0 | 1 |
+  | 8×8 (5 mirrors) | 2 | 2 | 0 | 0 |
+
+  Most seeds fail at once (too few gems, a gem in another beam's way);
+  the time goes on searches that end over the cap.
+- Then 12 minutes on all 16 cores (cap 2,000,000 choices; 8×8 with 5
+  mirrors). 8×8 with two lamps, 3 cores each: **2 puzzles (open edges)
+  and 5 (mirrored)**. So, as agreed beforehand: **8×8 is one lamp only
+  for now**; in the mockup, Two is greyed for 8×8 ("not for 8×8 yet").
+
+**Mirrored edges, measured.** The maker builds every puzzle with open
+edges and puts a gem where each beam ends, including just inside the
+edge; with mirrored edges only the uniqueness check differs.
+- The hope (last entry) that mirrored edges let the maker use fewer
+  walls: **not seen.** On the 384 seeds that made a puzzle both ways,
+  the mirrored one was the same board, walls and all, every time.
+- Of 450 mirrored puzzles, **2** would have had a second answer with open
+  edges. With a gem at every beam end, the answer's light never reaches
+  the edge anyway, so the mirror only rules out wrong tries: it can only
+  make a puzzle easier. (The extra mirrored puzzles in the table are
+  seeds whose open search ran over the cap.)
+- So mirrored puzzles are now made differently: gems at only half the
+  beam ends (the other beams just stop at a wall) and no beam may end at
+  the edge, so "never reach the edge" does the work the missing gems
+  did. 6×6, one lamp, 30 s each: a gem at every end, 31 of 2092 need the
+  mirrored edges (2.0 gems, 9.5 walls on average); half the ends, 93 of
+  93 (1.0 gem, 11.5 walls). Rarer to make (93 against 2092).
+- Remade the mirrored sets this way (5 minutes on 15 cores, then 3 more
+  for 7×7 and 8×8 one lamp). With 3-4 starting walls, 7×7 one lamp and
+  8×8 made none: almost every seed had a beam reaching the edge. 7×7 one
+  lamp needed 12 starting walls (16 in 30 s); 8×8 with 5 mirrors made
+  none even with 14 walls, with **4 mirrors** and 14 walls 6 in 25 s.
+  Made: 6×6 40 (one lamp) and 120 (two), 7×7 63 and 15, 8×8 80. Picked:
+  every mirrored puzzle needs the mirrored edges except one of 7×7 two
+  lamps (7 of its 15 do).
+- What the mirrored puzzles look like now: one gem (6×6) or two (7×7,
+  8×8 one lamp) where open puzzles have two or three; more walls (7×7
+  one lamp 14-22, open 7-14; 8×8 15-25, open 13-15); and much smaller
+  searches by the solver's count (median choices 6×6 259 against 1379,
+  7×7 1374 against 31281, 8×8 1175 against 83269): the edge rule cuts
+  off most tries. Whether that makes them easier or harder for a person
+  is for the developer to play.
+
+**Picking the two-lamp puzzles.** The first picks for 6×6 had only
+purple gems: the two lights met at a splitter on their crossing and went
+everywhere together. And one 8×8 had a lamp shining straight into a gem
+with no piece. Now first: both lamps use pieces; then purple gems with
+red or blue ones too; then the most pieces both lights touch. Mirrored
+sets take the puzzles that need the mirrored edges first, and leave out
+the seeds their open set picked (the same seed makes the same board).
+
+**Mockup v3** ([Mirror Light Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN),
+version 3):
+- **Setup:** the rules beside a solved 6×6 (lamp beside it); "Light
+  must never shine into a lamp: it breaks"; the pieces, and a line on
+  red, blue and purple gems; **Size** 6×6 / 7×7 / 8×8 (grid pictures);
+  **Lamps** One (yellow) / Two (red and blue).
+- **Play:** the lamps in a rim .7 of a square wide round the board,
+  facing in. One lamp: yellow light and pale blue gems, as v2. Two:
+  red and blue light, red, blue and purple gems, dim until lit, so the
+  colour a gem wants shows from the start; where both colours share a
+  line they run side by side.
+- **A lamp the light shines into:** a small burst of sparks, then dark
+  and cracked until a piece moves. It counts as a miss: a ❤️ and the
+  red rings, like any other (Claude's choice; "the puzzle fails" could
+  also mean the game ends).
+- **Mirrored edges:** a silver edge round the board with a gap at each
+  lamp; light reaching it comes back along its way into its lamp.
+- **The mockup bar:** edges Open / Mirrored (puzzles made for each; a
+  game under way starts again with the other set); purple gem plain or
+  half red, half blue (a second cue besides colour); "Place all but one
+  piece".
+- 8 puzzles per setup except 8×8 two lamps (not offered).
+
+**Checked** (scratchpad served on localhost through the repo's
+`tools/serve.js` `createServer`, built-in browser; a temporary
+`.claude/launch.json` entry, removed after; port 8131, as 8130 was
+held by another Claude session's server, process 7152,
+`serve-scratch.mjs`, which also added its own entry to the uncommitted
+`.claude/launch.json` while this session ran; both left alone): at
+393 × 760, 7×7 two lamps, one
+mirror turned: "Not yet: 1 💎 not lit. That cost a ❤️", the gem ringed,
+2 ❤️ left; 6×6 two lamps mirrored, one mirror turned: both beams
+bounced off the top edge and broke both lamps (cracked, grey), the
+message "light broke both lamps, 1 💎 not lit, 1 piece the light didn't
+touch"; taps place, turn, take off, a wall shakes; Hint takes off a
+wrong piece, then places the next; Shine with pieces left asks for
+them; Give up shows the answer, which `check` passes; the edges switch
+mid-game starts the open set. At 320 × 640, 8×8 two lamps (before 8×8
+was one lamp only): 27 px squares, the footer on screen, no sideways
+scroll, "Solved!". No console errors.
+**Found and fixed while checking:** the rules picture's lamp drawn black
+(its class lost when inlined into the picture); a miss message four
+lines long in a three-line bar (shorter words; "Move a piece..." only
+with one reason); "1 💎 not lit by all its colours" for a gem lit by
+nothing. The built-in browser's screenshots came out cropped to part of
+the page for a while (after screenshots at a reduced scale); setting the
+size again fixed it.
+
+**Open questions:** none new; the mockup's choices above are for the
+developer, first whether two lamps and mirrored edges make it harder.
+Q24, Q27, Q30, Q31 unchanged. **Proposed skill additions:** none (the
+uncapped loop is a case of "Time one run before looping over many";
+the solver comparison, of "make the expected outputs by running the
+reference" and "prove every check can fail").
