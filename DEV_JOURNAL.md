@@ -53,7 +53,9 @@ time, each tried before publishing:
   waits in its run, the status stacking on narrow phones, purple gems in
   about 1 in 7 two-laser puzzles (3 of 50 at 8×8), 50 puzzles for 8×8 with two lasers,
   and how long the first hint takes (the log's "cheapest ways worked
-  out").
+  out"). *2026-10-22:* 3.2 adds a budget row and a second tools row,
+  so the board is smaller (6×6 at 393 × 760: 40 px squares, 3.0 47 px;
+  see "Laser Lab 3.2 built"): to judge on the phone.
 
 ## Proposed additions to the standards skill
 
@@ -62,7 +64,10 @@ time, each tried before publishing:
   first puzzle had its Clear, Hint and Give up; one reached by Next ▸
   didn't (the end had hidden them), and every check had started fresh
   or gone back through New game. Possibly a case of section 3's "Check
-  the end state" already. Waiting on the developer.
+  the end state" already. More evidence (2026-10-22, "Laser Lab 3.2
+  built"): Next ▸ also fitted the board while the end's row showed, so
+  the page ran 41 px past the screen on that path only. Waiting on the
+  developer.
 
 Earlier: none waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
 run time" (from "The play screen pushed right on the iPhone") dropped by
@@ -8421,3 +8426,116 @@ unchanged. **Proposed skill additions:** "Check a screen's controls
 after every way into it, not only the first": a state set on one path
 (the end hiding the tools) stuck because only the first entry was
 checked. To review with the developer.
+
+## 2026-10-22: Laser Lab 3.2 built; status (start here next session)
+
+**Quit settled** (developer, in the parent session, relayed here): "Yes:
+no Quit button (New game is the quit), Give up renamed to Show answer
+and working as now, Try again with hearts is the retry, keep Clear
+free." What led to it: they had never seen the buttons (the 3.1 bug),
+felt "quit" meant the same as New game, and "give up" sounded like a
+retry. DESIGN.md "Laser Lab" has a new block, "Agreed after 3.0 on the
+phone (release 3.2)", written before the code.
+
+**Built** (branch `light-puzzle`):
+- **Words for 🪙 and 🏦:** `coins()` says "1 coin", "3 coins", "−9
+  coins"; the shop "1 coin each"; the hint "Hint 1 coin"; a row of its
+  own under the top, "Budget 4 of 9 left · Savings 12", a steady 17 px
+  (`.money`, not `--tif`); "Budget 2 over" with "over" and minus amounts
+  red; at the end "Saved 3 · Savings 15", "Over 2 · ...", "Answer −9 ·
+  ...". It goes on two lines without its dot if one is too narrow
+  (measured with its widest words; never needed: 249 px of 361 at 393,
+  of 294 at 320).
+- **Top line "Puzzle 4 of 10"**, no board size: 20 px at 393 and at 320
+  (the log's "turn line fit"); beside the 🏠 under it the hearts and the
+  clock. The status no longer stacks (3.0-3.1's `stack` gone).
+- **❤️ Try again, 3 per run** (`tryAgain` in src/core): the board
+  cleared, hint pieces too, `fees`, `wrongLamps`, `hintsUsed` back to 0,
+  so the budget is whole and the next hint costs 1; the clock runs on.
+  The heart is kept in the run (`hearts`, 3 again in a new run; a run
+  kept by 3.1 reads as 3). Asks first ("Try again: uses a ❤️?"); with
+  nothing to give back it uses no heart and says so; greyed with none
+  left. Not at the end (DESIGN.md: a solved puzzle replayed for more
+  savings).
+- **Show answer** (Give up renamed): asks "Show answer: −9 coins?" / Yes
+  / No; works as before. The code keeps `giveUp` and `'gaveup'`, so a
+  puzzle kept under 3.1 still reads. End words "Answer shown: −9 coins"
+  over "A cheapest way: 6 coins".
+- **New game during play**: the tools in two rows, Clear · Hint · Try
+  again over Show answer · New game. It keeps the puzzle under way in
+  the run (as 🏠 always did), so Play! brings it back as left. **Open:**
+  the brief said "the puzzle left starts fresh when they come back";
+  asked the parent session (a fresh start would give back what Try again
+  gives back, free, making the hearts pointless). No answer yet; built
+  as "as left" (option 1 of 3 offered).
+- **Debug log** (`laser-lab`): "answer?", "answer shown", "again?", "try
+  again" (back, pieces, fees, hearts left, savings), "try again refused"
+  (why), "<asked>: no", "new game" (during, puzzle, kept), "turn line
+  fit" with the budget row's font, need and width, "end words fit",
+  "play buttons" with the page and screen heights, "puzzle done"/"run
+  over" with the hearts.
+
+**Tests, each shown to fail without its change:** core tests (coins in
+words; Try again gives everything back; refused with no hearts, nothing
+spent, or over; hearts per run, kept, 3 in a new run, 3.1's runs read
+as 3) and the three existing ones whose words changed: 7 failed against
+stubs, 21 pass with the code. Page tests (tools and asks; top line and
+budget row, no 🪙/🏦 outside comments; Try again wired; New game keeps
+the run; prices "coin"; log names): 6 of 9 failed run against 3.1's
+files (a `git archive HEAD` copy with the new test file), all pass now.
+Then two found in the browser (below), each with a test failing first.
+`npm test` 348 passed, 0 failed; clean room (a fresh copy, run twice):
+348 and 348, file listing identical (145 files).
+
+**Browser checks** (local server, built-in browser, every way into a
+puzzle, as 3.1's lesson says):
+- 393 × 760, 6×6 one laser: Play!, a piece, a wrong laser, a hint
+  (budget 5 of 9), Try again → "Started over: 4 coins back. 2 ❤️ left",
+  budget 9 of 9, no pieces, ❤️❤️🤍; Show answer → "Answer −9 · Savings
+  −9", end buttons; Next ▸ → puzzle 2 with its tools and ❤️❤️🤍; New game
+  during play → setup "Puzzle 2 of 10 (under way) · savings −9 coins ·
+  ❤️❤️🤍" → Play! → as left; a reload mid-puzzle → as left with its
+  tools; the last two hearts used → Try again greyed; Try again with
+  nothing spent → refused, no heart. 12 mirrors → "Budget 2 over ·
+  Savings −11" in red. No console errors.
+- **Found: Next ▸ fitted the board before the tools were back.**
+  `startGame` fitted while the end's one row showed, then showed the two
+  tool rows: page 801 px on a 760 px screen (8×8 two lasers). In 3.1
+  both rows were the same height, so it never showed; the tools' font fit
+  was also skipped on that path. Fixed: the tools shown before the fit.
+  After: every path (Play!, Next ▸, Try again, New game then Play!, a
+  reload, Show answer) page 760 of 760, 31 px squares, nothing cut.
+- **Found: the end's words cut at 320 px.** The bar holds 3 lines; in
+  coins every end overflowed by 33 px. 3.1's did too: measured with its
+  words, "You gave up: −11 🪙" over its line by 33 px, a solve with fees
+  by 5. Fixed: `fitEnd` shrinks the head and line together until they
+  fit (75% at 320 for the answer's words), and the two longest lines
+  were shortened ("A cheapest way: 8 coins", "This one: −9 coins"):
+  82.5%. At 393: 92.5%.
+- 320 × 640, 8×8 two lasers: every path the same (tools showing,
+  nothing cut, the asks and end rows not cut).
+
+**The cost: a smaller board.** The second tools row (+48 px) and the
+budget row (+28 px) come out of the board. 393 × 760: 6×6 squares 40 px
+(3.0: 47, journal "Laser Lab built"), 8×8 two lasers 31 px, no
+scrolling. 375 × 667: 6×6 28 px, 7×7 25 px, 8×8 24 px and 16 px of
+scroll. 320 × 640: 6×6 25 px, 7×7 and 8×8 at the 24 px floor with 15 and
+39 px of scroll (3.0: 8×8 26 px, none). Tighter buttons would save only
+15 px and make them about 33 px tall (under the 44 px tap size); one
+tools row would still leave 8×8 at 24 px at 320 × 640. To judge on the
+phone; if the board feels small, New game could move to the top row.
+
+**Release 3.2 prepared** (not published): `src/core/release.js` 3.2,
+`node tools/offline.js` (version d82d45d7fa31, 94 files), RELEASES.md
+3.2, `node tools/release.js`: "Release 3.2 is ready". The local server
+(`tools/serve.js 8123`) is running for checks.
+
+**Open questions:** New game's puzzle left: as left or fresh (above).
+Q32 (Laser Lab on the phone) now also covers 3.2's layout cost. Q24,
+Q27, Q30, Q31 unchanged. **Proposed skill additions:** more evidence
+for "Check a screen after every way into it": the Next ▸ path also
+fitted the board to the wrong row (added there).
+
+**Next:** the developer's OK to publish as 3.2 (with the New game answer
+first, if it changes the build); then the release steps in CLAUDE.md,
+and stop the local server.

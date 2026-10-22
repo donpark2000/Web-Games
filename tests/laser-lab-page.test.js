@@ -28,31 +28,41 @@ test('laser lab page: its name, the home tile in Puzzles for grown-ups, no mocku
   assert.doesNotMatch(page.replace(/<!--[\s\S]*?-->/g, ''), /Mirror Light/, 'the old name on the page');
 });
 
-// Size and lasers to pick (v3); prices that read as prices (v7: "1 🪙
-// each", the name over it); the setup's words say laser, not lamp.
+// Size and lasers to pick (v3); prices that read as prices (v7: "1 coin
+// each", the name over it; the word since 3.2); the setup's words say
+// laser, not lamp.
 test('laser lab page: Size and Lasers; the pieces priced "each"; laser in the words', () => {
   assert.deepEqual([...page.matchAll(/class="size" data-n="(\d)"/g)].map(m => m[1]), ['6', '7', '8']);
   assert.deepEqual([...page.matchAll(/class="level" data-l="(\d)"/g)].map(m => m[1]), ['1', '2']);
-  assert.match(page, /<b>Mirror<\/b> \(1 🪙 each\)/);
-  assert.match(page, /<b>Splitter<\/b> \(2 🪙 each\)/);
-  assert.match(js, /<span>\$\{PRICE\[t\]\} 🪙 each<\/span>/, 'the shop’s price doesn’t read as a price');
+  assert.match(page, /<b>Mirror<\/b> \(1 coin each\)/);
+  assert.match(page, /<b>Splitter<\/b> \(2 coins each\)/);
+  assert.match(js, /<span>\$\{coins\(PRICE\[t\]\)\} each<\/span>/, 'the shop’s price doesn’t read as a price');
   assert.doesNotMatch(page.replace(/<!--[\s\S]*?-->/g, ''), /\blamp\b/i, 'the page says lamp');
 });
 
 // Each laser a switch (v4, no ▶ Shine); a budget (v6): Clear, Hint with
-// its price, Give up asking with its cost; the end: Next / New game, no
-// Try again (DESIGN.md: it would let a puzzle be played again for more
-// savings).
-test('laser lab page: tools Clear, Hint (priced), Give up; no Shine; the end Next and New game, no Try again', () => {
-  assert.deepEqual(ids(play.match(/<div class="tools" id="tools">([\s\S]*?)<\/div>/)?.[1] ?? ''), ['clearBtn', 'hintBtn', 'giveUpBtn']);
-  assert.match(play, /id="hintPrice"/);
-  assert.doesNotMatch(page + js, /Shine|shineBtn/);
-  assert.deepEqual(ids(play.match(/<div class="tools ask" id="askTools" hidden>([\s\S]*?)<\/div>/)?.[1] ?? ''), ['giveUpYes', 'giveUpNo']);
-  assert.match(js, /\$\('giveUpYes'\)\.textContent = `Give up: \$\{coins\(-P\.budget\)\}`/);
+// its price; 3.2 (developer, after 3.0 on the phone): ❤️ Try again, Show
+// answer (Give up renamed: it "sounded like a retry") and New game during
+// play ("New game is the quit": no Quit). Show answer and Try again ask
+// first. The end: Next / New game, no Try again there (DESIGN.md: it
+// would let a solved puzzle be played again for more savings).
+test('laser lab page: tools Clear, Hint (priced), Try again; Show answer, New game; no Quit or Give up; the end Next and New game', () => {
+  assert.deepEqual(ids(play.match(/<div class="tools" id="tools">([\s\S]*?)<\/div>/)?.[1] ?? ''), ['clearBtn', 'hintBtn', 'againBtn', 'answerBtn', 'playNewBtn']);
+  assert.match(play, /id="againBtn">❤️ Try again</);
+  assert.match(play, /id="answerBtn">🔑 Show answer</);
+  assert.match(play, /id="playNewBtn">New game</);
+  assert.match(js, /\$\('hintPrice'\)\.textContent = coins\(nextHintPrice\(G\)\)/, 'the hint’s price not in words');
+  assert.doesNotMatch(page.replace(/<!--[\s\S]*?-->/g, '') + js.replace(/\/\/.*$/gm, ''), /Shine|shineBtn|Quit|quitBtn|giveUpBtn/);
+  assert.doesNotMatch(page.replace(/<!--[\s\S]*?-->/g, ''), /Give up/, 'Give up still on the page');
+  assert.doesNotMatch(js.replace(/\/\/.*$/gm, ''), /'[^'\n]*[Gg]ave up[^'\n]*'|`[^`\n]*[Gg]ave up[^`\n]*`/, 'giving up still in the words');
+  assert.deepEqual(ids(play.match(/<div class="tools ask" id="askTools" hidden>([\s\S]*?)<\/div>/)?.[1] ?? ''), ['askYes', 'askNo']);
+  assert.match(js, /ask\('answer', `Show answer: \$\{coins\(-P\.budget\)\}\?`\)/);
+  assert.match(js, /ask\('again', 'Try again: uses a ❤️\?'\)/);
+  assert.match(js, /if \(what === 'answer'\) showAnswer\(\);\s*if \(what === 'again'\) again\(\);/, 'Yes doesn’t do what was asked');
+  assert.match(js, /head = `Answer shown: \$\{coins\(saved\)\}`/);
   const end = play.match(/<div class="tools" id="endTools" hidden>([\s\S]*?)<\/div>/)?.[1] ?? '';
   assert.deepEqual(ids(end), ['nextBtn', 'newBtn']);
   assert.match(end, /id="nextBtn" data-play/, 'Next not counted as a game started');
-  assert.doesNotMatch(page + js, /againBtn|Try again/);
   assert.match(js, /e\.done \? 'New run' : 'Next ▸'/);
   const at = id => play.indexOf(`id="${id}"`);
   assert.ok(at('board') < at('lamps') && at('lamps') < at('tray') && at('tray') < at('hintbar') && at('hintbar') < at('tools'));
@@ -61,15 +71,78 @@ test('laser lab page: tools Clear, Hint (priced), Give up; no Shine; the end Nex
 // 3.0 on the phone (developer, 2026-10-22): after a puzzle's end hid the
 // tools, Next ▸ started the next puzzle with no Clear, Hint or Give up
 // (only New game showed them again). Every puzzle not yet over starts
-// with the tools showing and the end's buttons hidden.
-test('laser lab page: a puzzle started by Next ▸ (or any way) shows Clear, Hint and Give up', () => {
+// with the tools showing and the end's buttons hidden. 3.2: before the
+// fit, since the tools' two rows are taller than the end's one (Next ▸
+// fitted the board to the end's row: the page 801 px on a 760 px screen).
+test('laser lab page: a puzzle started by Next ▸ (or any way) shows its tools, before the fit', () => {
   const start = js.match(/function startGame\([\s\S]*?\r?\n}\r?\n/)?.[0] ?? '';
   assert.ok(start, 'startGame not found');
-  const open = start.slice(start.indexOf('if (G.result)'));
-  assert.match(open, /\$\('tools'\)\.hidden = false;/, 'an unfinished puzzle starts without its tools');
-  assert.match(open, /\$\('endTools'\)\.hidden = true;/, 'an unfinished puzzle starts with the end buttons');
+  assert.match(start, /const over = !!G\.result;\s*\$\('tools'\)\.hidden = over;\s*\$\('endTools'\)\.hidden = !over;/, 'an unfinished puzzle starts without its tools, or with the end buttons');
+  assert.ok(start.indexOf("$('tools').hidden = over;") < start.indexOf('fit();'), 'the board fitted before the tools are in place');
   assert.match(js, /\$\('nextBtn'\)\.onclick = \(\) => \{[^\n]*startRun\(/,'Next ▸ no longer starts the next puzzle through startRun');
   assert.match(js, /function startRun\([\s\S]*?startGame\(/, 'startRun no longer starts the puzzle with startGame');
+});
+
+// 3.2: words in place of 🪙 and 🏦 (developer: the coin "looks like a ball
+// - not meaningful", the bank "not idea what that means"): the budget and
+// savings on a row of their own at a steady 17px, not shrunk with the top
+// line; the top line just "Puzzle 4 of 10" (no board size); the hearts
+// beside it with the clock.
+test('laser lab page: "Puzzle 4 of 10" alone on top; hearts and clock; "Budget … · Savings …" a row of its own at 17px; no 🪙 or 🏦', () => {
+  const top = play.match(/<div class="topinfo">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/)?.[0] ?? '';
+  assert.match(top, /<div class="turn" id="turn"><\/div>/);
+  assert.deepEqual([...top.matchAll(/<span class="\w+" id="(\w+)"/g)].map(m => m[1]), ['hearts', 'clock'], 'beside the 🏠: the hearts and the clock');
+  assert.match(play, /<div class="money" id="money"><span class="budget" id="budget"><\/span><span class="dot"> · <\/span><span class="savings" id="savings"><\/span><\/div>/);
+  assert.ok(play.indexOf('id="money"') > play.indexOf('id="clock"') && play.indexOf('id="money"') < play.indexOf('id="boardwrap"'), 'the budget row not between the top and the board');
+  assert.match(js, /\$\('turn'\)\.textContent = `Puzzle \$\{/, 'the top line isn’t "Puzzle 4 of 10"');
+  assert.doesNotMatch(js, /\$\{n\}×\$\{n\}/, 'the board size still on top');
+  assert.match(js, /`Budget <b>\$\{k\}<\/b> of \$\{P\.budget\} left`/);
+  assert.match(js, /`Budget <b class="neg">\$\{-k\}<\/b> <span class="neg">over<\/span>`/, '"over" not red');
+  assert.match(js, /\$\('savings'\)\.innerHTML = `Savings \$\{sv < 0 \? neg\(sv\)/, 'minus savings not red');
+  const money = css.match(/^\.money \{[^}]*\}/m)?.[0] ?? '';
+  assert.match(money, /font-size: 17px;/, 'the budget row not a steady 17px');
+  assert.doesNotMatch(money, /--tif/);
+  const strip = t => t.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+  assert.doesNotMatch(strip(page) + strip(js) + strip(css), /🪙|🏦/, 'an icon left in place of the words');
+});
+
+// 3.2: ❤️ Try again (3 per run, src/core tryAgain) wired to the screen:
+// asks first, then the run's heart used and kept on the device; greyed with
+// none left; the hearts drawn from the run (or, at the end, as they were).
+test('laser lab page: Try again wired to the run’s hearts, kept on the device; greyed with none left', () => {
+  const again = js.match(/function again\(\) \{[\s\S]*?\r?\n}\r?\n/)?.[0] ?? '';
+  assert.match(again, /const r = tryAgain\(prog, G\);/);
+  assert.match(again, /keep\(\);/, 'the heart used not kept on the device');
+  assert.match(again, /render\(\);/);
+  assert.match(js, /\$\('againBtn'\)\.disabled = !!G\.result \|\| hearts <= 0;/);
+  assert.match(js, /const hearts = G\.result \? \(ui\.end\?\.hearts \?\? r\.hearts\) : r\.hearts;/);
+  assert.match(js, /\$\('hearts'\)\.textContent = heartsOf\(hearts\);/);
+  assert.match(js, /if \(!back\) \{ refuseAgain\('nothing spent'\); return; \}/, 'Try again asks for a heart with nothing to give back');
+});
+
+// 3.2: New game during play (developer: "New game is the quit"): back to
+// setup with the run kept, the puzzle under way kept in it first.
+test('laser lab page: New game during play keeps the run and the puzzle under way', () => {
+  assert.match(js, /\$\('playNewBtn'\)\.onclick = \(\) => \{ if \(G && !G\.result && !ui\.busy\) newGame\(\); \};/);
+  assert.match(js, /\$\('newBtn'\)\.onclick = \(\) => newGame\(\);/);
+  const ng = js.match(/function newGame\(\) \{[\s\S]*?\r?\n}\r?\n/)?.[0] ?? '';
+  assert.match(ng, /if \(during\) keep\(\);/, 'the puzzle under way not kept in its run');
+  assert.match(ng, /\$\('setup'\)\.hidden = false;/);
+  assert.match(ng, /renderSetup\(\);/);
+  assert.doesNotMatch(ng, /finishPuzzle|runs\[[^\]]*\] = /, 'New game changes the run');
+});
+
+// 3.2: the end's words in the bar's 3 lines, shrunk to fit (in coins they
+// were cut at 320 px; so were 3.1's gave-up words): every end fits them,
+// on a reload too (startGame shows the end through showEnd), and again
+// when the screen changes size.
+test('laser lab page: the end’s words fitted to the bar at every end, and on a resize', () => {
+  const show = js.match(/function showEnd\(\) \{[\s\S]*?\r?\n}\r?\n/)?.[0] ?? '';
+  assert.match(show, /endFitFor = null;\s*fitEnd\(\);/, 'an end shown without fitting its words');
+  assert.match(js, /function fitEnd\(\) \{[\s\S]*?largestFitting\([\s\S]*?--rf/);
+  assert.match(js, /if \(G\.result\) fitEnd\(\);/, 'not fitted again on a resize');
+  assert.match(css, /#play \.res b \{ font-size: calc\(21px \* var\(--rf, 1\)\); \}/);
+  assert.match(css, /#play \.res span \{ font-size: calc\(15px \* var\(--rf, 1\)\); \}/);
 });
 
 // The look agreed: the purple gem half red, half blue with its outline in
@@ -89,7 +162,7 @@ test('laser lab page: purple gem in halves, striped green splitter, bright laser
 test('laser lab page: wired to the log, game keeping, runs, sound and fit', () => {
   assert.match(js, /log\.add\('laser-lab', msg, data\)/);
   assert.match(js, /startLog\('laser-lab'\)/);
-  for (const what of ['puzzles loaded', 'puzzle started', 'puzzle picked up', 'piece', 'square refused', 'piece picked', 'clear', 'laser on', 'laser off', 'laser refused', 'hint', 'cheapest ways worked out', 'give up?', 'give up: no', 'gave up', 'solved', 'run over', 'puzzle done', 'next', 'new game', 'resumed', 'fit', 'turn line fit', 'tools fit', 'clock paused']) {
+  for (const what of ['puzzles loaded', 'puzzle started', 'puzzle picked up', 'piece', 'square refused', 'piece picked', 'clear', 'laser on', 'laser off', 'laser refused', 'hint', 'cheapest ways worked out', 'answer?', 'answer shown', 'again?', 'try again', 'try again refused', 'end words fit', 'solved', 'run over', 'puzzle done', 'next', 'new game', 'resumed', 'fit', 'turn line fit', 'tools fit', 'clock paused']) {
     const esc = what.replace(/[?]/g, '\\?');
     // L('what' ...), or either word of L(x ? 'what' : 'other' ...)
     assert.ok(new RegExp(`L\\((?:[\\w.]+ \\? (?:'[^']*' : )?)?'${esc}'`).test(js), `not logged: ${what}`);

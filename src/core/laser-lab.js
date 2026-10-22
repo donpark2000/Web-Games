@@ -37,6 +37,7 @@ export const RUN = 10;          // puzzles in a run
 export const MARGIN = 3;        // the budget over the cheapest cost
 export const PRICE = { m: 1, s: 2 };
 export const WRONG_LAMP = 1;    // a laser switched on that isn't right
+export const HEARTS = 3;        // ❤️ Try again, per run (3.2)
 export const ANSWERS = 50;      // the cheapest ways hints and Give up choose from
 
 export const DR = [-1, 0, 1, 0], DC = [0, 1, 0, -1];
@@ -563,7 +564,9 @@ export function rightWords(g, p, li) {
   const rest = p.lamps.map((l, j) => j).filter(j => !g.on.includes(j));
   return `The ${lampName(p, li)} beam is right. Now the ${rest.map(j => lampName(p, j)).join(' and ')} laser.`;
 }
-export const coins = k => `${k < 0 ? '−' : ''}${Math.abs(k)} 🪙`;
+// In words (3.2; the developer on the 🪙: "looks like a ball - not
+// meaningful").
+export const coins = k => `${k < 0 ? '−' : ''}${Math.abs(k)} coin${Math.abs(k) === 1 ? '' : 's'}`;
 
 // The cheapest answer closest to the player's board: of those that keep
 // every hint's piece, the one fewest steps away (a piece to take off,
@@ -624,8 +627,10 @@ export function useHint(g, p, answers) {
   return take('put', i, `A ${NAME[a.t]} (${coins(PRICE[a.t])}) goes at ${at(i)}, facing ${a.o ? '⟍' : '⟋'}: it ${does}. The hint puts it there.`);
 }
 
-// 🏳 Give up: a cheapest answer, the one closest to the player's pieces,
-// with every laser on; the whole budget comes off the savings.
+// Show answer (🏳 Give up until 3.2; the code keeps its name, so games
+// kept under 3.1 still read): a cheapest answer, the one closest to the
+// player's pieces, with every laser on; the whole budget comes off the
+// savings.
 export function giveUp(g, p, answers) {
   if (g.result) return false;
   const a = answers?.length ? closest(g, p, answers) : p.answer;
@@ -636,6 +641,24 @@ export function giveUp(g, p, answers) {
   g.result = 'gaveup';
   g.saved = -p.budget;
   return true;
+}
+
+// ❤️ Try again (3.2): the board cleared, a hint's pieces too, and all the
+// puzzle cost given back (pieces, wrong lasers, hints), so the budget and
+// savings are as at its start; the clock runs on. It uses one of the run's
+// hearts. Refused, with no heart used: the puzzle over, no hearts left, or
+// nothing to give back. Returns { ok, why } or { ok, back, pieces, fees,
+// hearts (left) }.
+export function tryAgain(prog, g) {
+  if (g.result) return { ok: false, why: 'over' };
+  const r = runOf(prog, g.setup), pieces = spent(g), fees = g.fees;
+  if (!pieces && !fees) return { ok: false, why: 'nothing spent' };
+  if (r.hearts <= 0) return { ok: false, why: 'no hearts' };
+  g.pieces = g.pieces.map(() => '');
+  Object.assign(g, { fixed: [], fees: 0, wrongLamps: 0, hintsUsed: 0 });
+  lightsOff(g);
+  prog.runs[g.setup] = { ...r, hearts: r.hearts - 1 };
+  return { ok: true, back: pieces + fees, pieces, fees, hearts: r.hearts - 1 };
 }
 
 // The game as kept (a copy), and a kept game picked up again: null when it
@@ -655,9 +678,11 @@ export function restoreGame(p, kept) {
 
 export const PROGRESS_KEY = 'web-games-laser-lab';
 
-// { runs: { setup: { no, at, savings, cur } }, best: { setup: savings } }:
-// run `no`'s next puzzle is `at` (0-9); `cur` the puzzle under way, as
-// left (a kept game), or null. Anything unreadable counts as nothing.
+// { runs: { setup: { no, at, savings, hearts, cur } }, best: { setup:
+// savings } }: run `no`'s next puzzle is `at` (0-9); `hearts` the Try
+// agains left (3.2: a run kept before has HEARTS); `cur` the puzzle under
+// way, as left (a kept game), or null. Anything unreadable counts as
+// nothing.
 export function readProgress(text) {
   const out = { runs: {}, best: {} };
   let v = null;
@@ -665,13 +690,14 @@ export function readProgress(text) {
   for (const s of SETUPS) {
     const r = v?.runs?.[s], b = v?.best?.[s];
     if (r && Number.isInteger(r.no) && r.no >= 0 && Number.isInteger(r.at) && r.at >= 0 && r.at < RUN && Number.isFinite(r.savings)) {
-      out.runs[s] = { no: r.no, at: r.at, savings: r.savings, cur: r.cur && typeof r.cur === 'object' ? r.cur : null };
+      const hearts = Number.isInteger(r.hearts) && r.hearts >= 0 && r.hearts <= HEARTS ? r.hearts : HEARTS;
+      out.runs[s] = { no: r.no, at: r.at, savings: r.savings, hearts, cur: r.cur && typeof r.cur === 'object' ? r.cur : null };
     }
     if (Number.isFinite(b)) out.best[s] = b;
   }
   return out;
 }
-export const runOf = (prog, setup) => prog.runs[setup] ?? { no: 0, at: 0, savings: 0, cur: null };
+export const runOf = (prog, setup) => prog.runs[setup] ?? { no: 0, at: 0, savings: 0, hearts: HEARTS, cur: null };
 
 // Keeps the puzzle under way in its run (after every change), so it comes
 // back as left.
@@ -680,8 +706,8 @@ export function keepCurrent(prog, setup, g) {
 }
 
 // The puzzle's end: `saved` (what's left of its budget, or minus all of
-// it) goes into the savings and the run moves on; after the RUN-th a new
-// run starts at 0 and the best is kept. Returns { savings, done, best
+// it) goes into the savings and the run moves on, its hearts kept; after
+// the RUN-th a new run starts at 0 with HEARTS and the best is kept. Returns { savings, done, best
 // (a new best run), run (the next) }.
 export function finishPuzzle(prog, setup, saved) {
   const r = runOf(prog, setup);
@@ -690,7 +716,7 @@ export function finishPuzzle(prog, setup, saved) {
   if (done) {
     best = prog.best[setup] === undefined || savings > prog.best[setup];
     if (best) prog.best[setup] = savings;
-    prog.runs[setup] = { no: r.no + 1, at: 0, savings: 0, cur: null };
-  } else prog.runs[setup] = { no: r.no, at: r.at + 1, savings, cur: null };
+    prog.runs[setup] = { no: r.no + 1, at: 0, savings: 0, hearts: HEARTS, cur: null };
+  } else prog.runs[setup] = { ...r, at: r.at + 1, savings, cur: null };
   return { savings, done, best, run: prog.runs[setup] };
 }

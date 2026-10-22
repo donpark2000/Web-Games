@@ -5,9 +5,9 @@
 // (tools/laser-lab-puzzles.js).
 
 import {
-  SETUPS, RUN, PRICE, setupOf, parseSetup, decode, stockAt, puzzleNumber, trace, boardOf, gemColours, checkLamp,
+  SETUPS, RUN, PRICE, HEARTS, setupOf, parseSetup, decode, stockAt, puzzleNumber, trace, boardOf, gemColours, checkLamp,
   createGame, placedOf, budgetLeft, nextHintPrice, tapSquare, clearBoard, switchLamp, readyLamps, failedBefore,
-  missWords, rightWords, lampName, coins, answersFor, useHint, giveUp, snapshotGame, restoreGame, spent,
+  missWords, rightWords, lampName, coins, answersFor, useHint, giveUp, tryAgain, snapshotGame, restoreGame, spent,
   PROGRESS_KEY, readProgress, runOf, keepCurrent, finishPuzzle, DEMO, clock,
 } from '../core/laser-lab.js';
 import { mergeSetup } from '../core/resume.js';
@@ -24,7 +24,6 @@ const STEP_MS = 90;      // a beam runs out a square per step
 const HINTED_MS = 3300;  // the ring round a hint's square
 const MIN_CELL = 24, MAX_CELL = 72;
 const RIM = .7;          // the lasers' rim, in squares, each side
-const STACK_BELOW = 15;  // px: a turn line smaller than this stacks the status
 const NAME = { m: 'Mirror', s: 'Splitter' };
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('laser-lab', msg, data);
@@ -47,9 +46,10 @@ let stock = null;     // { setup: [entry, ...] } (decoded as each is played)
 let P = null;         // the puzzle being played
 let G = null;         // its game (src/core), kept as JSON
 // The screen's own: the piece a tap puts down, a beam running out, the
-// bar's words, the end's words, the clock, and the cheapest ways (worked
-// out at the first hint or Give up).
-const ui = { sel: 'm', busy: false, lighting: null, bar: { kind: 'idle', words: '' }, end: null, t0: 0, paused: null, answers: null, hinted: -1 };
+// bar's words, the end's words, the clock, the cheapest ways (worked out
+// at the first hint or Show answer), and the question asked in place of
+// the tools ('answer' or 'again').
+const ui = { sel: 'm', busy: false, lighting: null, bar: { kind: 'idle', words: '' }, end: null, t0: 0, paused: null, answers: null, hinted: -1, asking: null };
 let clockTimer = null;
 let lastFit = '';
 
@@ -97,13 +97,15 @@ function renderSetup() {
   // under Play!: the run under way for this size and lasers
   const r = runOf(prog, setupKey()), best = prog.best[setupKey()];
   const savings = k => `<b class="${k < 0 ? 'neg' : ''}">${coins(k)}</b>`;
-  $('runLine').innerHTML = (r.at || r.cur ? `Puzzle ${r.at + 1} of ${RUN}${r.cur ? ' (under way)' : ''} · savings ${savings(r.savings)}` : `A run of ${RUN} puzzles`)
+  $('runLine').innerHTML = (r.at || r.cur || r.hearts < HEARTS ? `Puzzle ${r.at + 1} of ${RUN}${r.cur ? ' (under way)' : ''} · savings ${savings(r.savings)} · ${heartsOf(r.hearts)}` : `A run of ${RUN} puzzles`)
     + (best !== undefined ? ` · best run ${savings(best)}` : '');
   $('playBtn').disabled = !stock;
   if (!stock && !$('why').textContent) $('why').textContent = 'Getting the puzzles…';
   if (stock) $('why').textContent = '';
   if (!resuming) resume.keep();
 }
+// ❤️ for the run's Try agains left, 🤍 for those used
+const heartsOf = h => '❤️'.repeat(h) + '🤍'.repeat(HEARTS - h);
 for (const b of $('sizes').children) b.onclick = () => { setup.size = Number(b.dataset.n); L('size', { size: setup.size }); renderSetup(); };
 for (const b of $('lampBtns').children) b.onclick = () => { setup.lasers = Number(b.dataset.l); L('lasers', { lasers: setup.lasers }); renderSetup(); };
 $('playBtn').onclick = () => {
@@ -145,9 +147,16 @@ function startGame(s, k, p, kept, saved) {
   ui.end = saved?.end ?? null;
   ui.t0 = Date.now() - (G.ms ?? 0);
   $('askTools').hidden = true;
+  ui.asking = null;
   clearInterval(clockTimer);
   buildBoard();
   render();
+  // The tools back in place of the end's buttons (3.0: Next ▸ started the
+  // next puzzle with them still hidden; only New game showed them), before
+  // the fit (3.2: their two rows are taller than the end's one).
+  const over = !!G.result;
+  $('tools').hidden = over;
+  $('endTools').hidden = !over;
   lastFit = '';
   fit();
   if (G.result) {
@@ -155,11 +164,7 @@ function startGame(s, k, p, kept, saved) {
     showEnd();
     return;
   }
-  // The tools back in place of the end's buttons (3.0: Next ▸ started the
-  // next puzzle with them still hidden; only New game showed them).
-  $('tools').hidden = false;
-  $('endTools').hidden = true;
-  L('play buttons', { tools: !$('tools').hidden, end: !$('endTools').hidden });
+  L('play buttons', { tools: !$('tools').hidden, end: !$('endTools').hidden, page: document.documentElement.scrollHeight, screen: innerHeight });
   clockTimer = setInterval(tick, 1000);
   tick();
 }
@@ -221,18 +226,27 @@ function render() {
     const nm = lampName(P, li);
     e.setAttribute('aria-label', `${nm ? `${nm[0].toUpperCase()}${nm.slice(1)} laser` : 'Laser'}: ${broken ? 'broken' : on ? 'on' : 'off'}`);
   }
-  $('tray').innerHTML = ['m', 's'].map(t => `<button type="button" class="piecebtn" data-t="${t}" aria-pressed="${ui.sel === t}" aria-label="${NAME[t]}: ${PRICE[t]} coin${PRICE[t] > 1 ? 's' : ''} each"${G.result ? ' disabled' : ''}>`
-    + `<span class="pico">${pieceSvg(t, 0)}</span><span class="pn"><b>${NAME[t]}</b><span>${PRICE[t]} 🪙 each</span></span></button>`).join('');
+  $('tray').innerHTML = ['m', 's'].map(t => `<button type="button" class="piecebtn" data-t="${t}" aria-pressed="${ui.sel === t}" aria-label="${NAME[t]}: ${coins(PRICE[t])} each"${G.result ? ' disabled' : ''}>`
+    + `<span class="pico">${pieceSvg(t, 0)}</span><span class="pn"><b>${NAME[t]}</b><span>${coins(PRICE[t])} each</span></span></button>`).join('');
   const r = runOf(prog, G.setup);
-  $('turn').textContent = `${n}×${n} · puzzle ${(G.result ? (ui.end?.at ?? r.at) : r.at) + 1} of ${RUN}`;
-  // the budget and the savings (the puzzle's overspend shown coming out of
-  // them); at the end, what the puzzle put into the savings (or took out)
+  // just the puzzle's place in the run (3.2: no board size, so it isn't
+  // shrunk), the run's hearts under it
+  $('turn').textContent = `Puzzle ${(G.result ? (ui.end?.at ?? r.at) : r.at) + 1} of ${RUN}`;
+  const hearts = G.result ? (ui.end?.hearts ?? r.hearts) : r.hearts;
+  $('hearts').textContent = heartsOf(hearts);
+  $('hearts').setAttribute('aria-label', `${hearts} of ${HEARTS} hearts left for Try again`);
+  // the budget and the savings in words (the puzzle's overspend shown
+  // coming out of the savings); at the end, what the puzzle put into the
+  // savings (or took out)
   const k = G.result ? G.saved : budgetLeft(G, P), sv = G.result ? (ui.end?.savings ?? r.savings) : r.savings + Math.min(0, k);
-  $('budget').innerHTML = G.result ? `🪙 <b class="${k < 0 ? 'neg' : ''}">${k < 0 ? '−' : '+'}${Math.abs(k)}</b>`
-    : k >= 0 ? `🪙 <b>${k}</b> of ${P.budget} left` : `🪙 <b class="neg">${-k}</b> over`;
-  $('savings').innerHTML = `🏦 <b class="${sv < 0 ? 'neg' : ''}">${sv < 0 ? '−' : ''}${Math.abs(sv)}</b>`;
-  $('hintPrice').textContent = nextHintPrice(G);
-  for (const id of ['hintBtn', 'clearBtn', 'giveUpBtn']) $(id).disabled = !!G.result;
+  const neg = v => `<b class="neg">−${Math.abs(v)}</b>`;
+  $('budget').innerHTML = G.result === 'gaveup' ? `Answer ${neg(k)}`
+    : G.result ? (k >= 0 ? `Saved <b>${k}</b>` : `<span class="neg">Over</span> <b class="neg">${-k}</b>`)
+      : k >= 0 ? `Budget <b>${k}</b> of ${P.budget} left` : `Budget <b class="neg">${-k}</b> <span class="neg">over</span>`;
+  $('savings').innerHTML = `Savings ${sv < 0 ? neg(sv) : `<b>${sv}</b>`}`;
+  $('hintPrice').textContent = coins(nextHintPrice(G));
+  for (const id of ['hintBtn', 'clearBtn', 'answerBtn', 'playNewBtn']) $(id).disabled = !!G.result;
+  $('againBtn').disabled = !!G.result || hearts <= 0;
   const t = G.on.length ? trace(P, placed, G.on) : null;
   const miss = G.miss && !G.result ? checkLamp(P, placed, G.miss.li, G.miss.others) : null;
   drawSegs(t ? t.segs : [], miss ? miss.segs : []);
@@ -310,33 +324,35 @@ function fitTools() {
   L('tools fit', { font: r.size / 2, base, cutAtBase: before, fitted: r.fitted, row: t.clientWidth, screen: innerWidth });
 }
 
-// The turn line and the status beside the 🏠 as big as fit, none cut
-// (Colour Sudoku's fitInfo; journal Q27): from 20px down to 10px, in half
-// pixels. Measured with the widest status it will show ("🪙 11 of 11
-// left", "🏦 −99", "59:59"), once per puzzle and screen width.
+// The turn line and the status beside the 🏠 (the hearts and the clock)
+// as big as fit, none cut (Colour Sudoku's fitInfo; journal Q27): from
+// 20px down to 10px, in half pixels. Measured with the widest they will
+// show ("Puzzle 10 of 10", "59:59"), once per screen width. The budget
+// row under them stays at 17px (3.2); measured with its widest words, it
+// goes on two lines, without its dot, when one is too narrow.
 let infoFitFor = null;
 function fitInfo() {
-  const info = document.querySelector('.topinfo'), b = $('budget'), s = $('savings'), c = $('clock');
-  const key = `${$('turn').textContent}|${P.budget}|${innerWidth}`;
-  if (!info.offsetParent || infoFitFor === key) return;
-  infoFitFor = key;
-  const keep = [b.innerHTML, s.innerHTML, c.textContent];
-  b.innerHTML = `🪙 <b>${P.budget}</b> of ${P.budget} left`;
-  s.innerHTML = '🏦 <b>−99</b>';
+  const info = document.querySelector('.topinfo'), t = $('turn'), c = $('clock'), money = $('money');
+  if (!info.offsetParent || infoFitFor === innerWidth) return;
+  infoFitFor = innerWidth;
+  const keep = [t.textContent, c.textContent];
+  t.textContent = `Puzzle ${RUN} of ${RUN}`;
   c.textContent = '59:59';
-  const parts = [$('turn'), b, s, c];
+  const parts = [t, $('hearts'), c];
   const cut = () => parts.filter(e => e.scrollWidth > e.clientWidth + 0.5).map(e => e.id);
-  const fitAll = () => largestFitting(h => { info.style.setProperty('--tif', `${h / 2}px`); return cut().length === 0 && info.scrollWidth <= info.clientWidth + 0.5; }, 20, 40);
-  info.classList.remove('stack');
   info.style.removeProperty('--tif');
   const before = cut();
-  let r = fitAll();
-  // Too small on one row (8 x 8 at 320 px wide: 10.5 px): the budget on a
-  // line of its own, the savings and the clock under it.
-  const oneRow = r.size / 2;
-  if (oneRow < STACK_BELOW) { info.classList.add('stack'); r = fitAll(); }
-  [b.innerHTML, s.innerHTML, c.textContent] = keep;
-  L('turn line fit', { font: r.size / 2, cutAt20: before, oneRow, stacked: info.classList.contains('stack'), fitted: r.fitted, width: info.clientWidth, screen: innerWidth });
+  const r = largestFitting(h => { info.style.setProperty('--tif', `${h / 2}px`); return cut().length === 0 && info.scrollWidth <= info.clientWidth + 0.5; }, 20, 40);
+  [t.textContent, c.textContent] = keep;
+  const b = $('budget'), s = $('savings'), mk = [b.innerHTML, s.innerHTML];
+  b.innerHTML = `Budget <b>${P.budget}</b> of ${P.budget} left`;
+  s.innerHTML = 'Savings <b class="neg">−99</b>';
+  money.classList.remove('wrap');
+  const need = [...money.children].reduce((w, e) => w + e.getBoundingClientRect().width, 0);
+  money.classList.toggle('wrap', need > money.clientWidth + 0.5);
+  [b.innerHTML, s.innerHTML] = mk;
+  L('turn line fit', { font: r.size / 2, cutAt20: before, fitted: r.fitted, width: info.clientWidth, screen: innerWidth,
+    budgetRow: { font: parseFloat(getComputedStyle(money).fontSize), need: Math.round(need), width: money.clientWidth, wrapped: money.classList.contains('wrap') } });
 }
 
 // The board as big as fits: the whole page on the screen, no scrolling.
@@ -345,6 +361,7 @@ function fit() {
   if (!G || $('play').hidden) return;
   fitInfo();
   fitTools();
+  if (G.result) fitEnd();
   const wrap = $('boardwrap'), main = document.querySelector('main'), n = P.n;
   const widest = Math.max(MIN_CELL, Math.min(MAX_CELL, Math.floor((main.clientWidth - 6) / (n + 2 * RIM))));
   const r = fitPlayScreen(px => wrap.style.setProperty('--cell', `${px}px`), MIN_CELL, widest);
@@ -379,7 +396,7 @@ $('board').addEventListener('pointerdown', e => {
   const c = e.target.closest('.llcell');
   if (!c || !G || G.result || ui.busy) return;
   e.preventDefault();
-  if (!$('askTools').hidden) { L('give up: no (the board touched)'); hideAsk(); }
+  if (!$('askTools').hidden) { L(`${ui.asking}: no (the board touched)`); hideAsk(); }
   const i = Number(c.dataset.i), r = tapSquare(G, P, i, ui.sel);
   if (!r.ok) { shake(c); L('square refused', { ...at(P, i), why: r.why }); return; }
   sound.play('tick');
@@ -391,7 +408,7 @@ $('board').addEventListener('pointerdown', e => {
 });
 
 // A laser: on goes off (free); off goes on, and its beam runs out. Right,
-// it stays on; not, it costs 1 🪙 and goes off, its beam left faint.
+// it stays on; not, it costs 1 coin and goes off, its beam left faint.
 $('lamps').addEventListener('pointerdown', e => {
   const box = e.target.closest('.lampbox');
   if (!box || !G || G.result || ui.busy) return;
@@ -488,9 +505,9 @@ $('clearBtn').onclick = () => {
   keep();
 };
 
-/* ---------- hints and Give up ---------- */
+/* ---------- hints, Try again, Show answer, New game ---------- */
 
-// The cheapest ways hints and Give up choose from, worked out on the
+// The cheapest ways hints and Show answer choose from, worked out on the
 // device the first time one is needed (a search of up to 2,000,000
 // choices: about a quarter of a second on a computer).
 function ensureAnswers() {
@@ -519,45 +536,84 @@ $('hintBtn').onclick = () => {
   keep();
 };
 
-// 🏳 Give up asks first, in place of the tools: the whole budget off the
-// savings, or No (or a touch on the board).
-$('giveUpBtn').onclick = () => {
-  if (!G || G.result || ui.busy) return;
-  L('give up?', { left: budgetLeft(G, P), budget: P.budget, time: clock(elapsed()) });
-  $('giveUpYes').textContent = `Give up: ${coins(-P.budget)}`;
+// Show answer and Try again ask first, in place of the tools: Yes, or No
+// (or a touch on the board).
+function ask(what, q) {
+  ui.asking = what;
+  $('askQ').textContent = q;
   $('tools').hidden = true;
   $('askTools').hidden = false;
-};
-$('giveUpNo').onclick = () => { L('give up: no'); hideAsk(); };
+}
 function hideAsk() {
+  ui.asking = null;
   $('askTools').hidden = true;
   if (G && !G.result) $('tools').hidden = false;
 }
-$('giveUpYes').onclick = () => {
+$('askNo').onclick = () => { L(`${ui.asking}: no`); hideAsk(); };
+$('askYes').onclick = () => {
   if (!G || G.result || ui.busy) return;
-  $('askTools').hidden = true;
+  const what = ui.asking;
+  hideAsk();
+  if (what === 'answer') showAnswer();
+  if (what === 'again') again();
+};
+
+// 🔑 Show answer (🏳 Give up until 3.2; developer: "give up" sounded like
+// a retry): a cheapest way with its beams; the whole budget off the
+// savings.
+$('answerBtn').onclick = () => {
+  if (!G || G.result || ui.busy) return;
+  L('answer?', { left: budgetLeft(G, P), budget: P.budget, time: clock(elapsed()) });
+  ask('answer', `Show answer: ${coins(-P.budget)}?`);
+};
+function showAnswer() {
   const answers = ensureAnswers();
   G.ms = elapsed();
   giveUp(G, P, answers);
   clearInterval(clockTimer);
   const f = finish();
-  L('gave up', { setup: G.setup, seed: P.seed, cost: G.saved, savings: f.savings, runDone: f.done, time: clock(G.ms) });
-  ui.end = { ...endOf(f), at: f.at, savings: f.savings, done: f.done };
+  L('answer shown', { setup: G.setup, seed: P.seed, cost: G.saved, savings: f.savings, runDone: f.done, time: clock(G.ms) });
+  ui.end = { ...endOf(f), at: f.at, savings: f.savings, done: f.done, hearts: f.hearts };
   ui.hinted = -1;
   render();
   showEnd();
   keep();
+}
+
+// ❤️ Try again (3.2, 3 per run): the board cleared, hint pieces too, and
+// everything the puzzle cost given back, for one of the run's hearts.
+// Nothing to give back: no heart used, and the bar says so.
+$('againBtn').onclick = () => {
+  if (!G || G.result || ui.busy) return;
+  const r = runOf(prog, G.setup), back = spent(G) + G.fees;
+  if (!back) { refuseAgain('nothing spent'); return; }
+  L('again?', { hearts: r.hearts, back, left: budgetLeft(G, P) });
+  ask('again', 'Try again: uses a ❤️?');
 };
+function refuseAgain(why) {
+  L('try again refused', { why, hearts: runOf(prog, G.setup).hearts });
+  setBar('notice', why === 'no hearts' ? 'No ❤️ left in this run.' : 'Nothing to give back yet: Try again starts the puzzle over with all it cost given back.');
+}
+function again() {
+  const r = tryAgain(prog, G);
+  if (!r.ok) { refuseAgain(r.why); return; }
+  sound.play('tick');
+  L('try again', { back: r.back, pieces: r.pieces, fees: r.fees, hearts: r.hearts, left: budgetLeft(G, P), savings: runOf(prog, G.setup).savings });
+  ui.hinted = -1;
+  setBar('notice', `Started over: ${coins(r.back)} back. ${r.hearts ? `${r.hearts} ❤️ left in this run.` : 'No ❤️ left in this run.'}`);
+  render();
+  keep();
+}
 
 /* ---------- the end ---------- */
 
-// The puzzle's end in the run: what's left of its budget (or, given up,
-// minus all of it) into the savings; the run moves on.
+// The puzzle's end in the run: what's left of its budget (or, its answer
+// shown, minus all of it) into the savings; the run moves on.
 function finish() {
   const r = runOf(prog, G.setup), f = finishPuzzle(prog, G.setup, G.saved);
   saveProgress();
-  L(f.done ? 'run over' : 'puzzle done', { setup: G.setup, run: r.no + 1, puzzle: r.at + 1, saved: G.saved, savings: f.savings, best: f.best });
-  return { ...f, at: r.at };
+  L(f.done ? 'run over' : 'puzzle done', { setup: G.setup, run: r.no + 1, puzzle: r.at + 1, saved: G.saved, savings: f.savings, best: f.best, hearts: r.hearts });
+  return { ...f, at: r.at, hearts: r.hearts };
 }
 
 // The end's words: the bar has room for a head and one line; at the end
@@ -573,9 +629,9 @@ function endOf(f) {
     short = saved >= 0 ? `This one: saved ${coins(saved)}` : `This one: ${coins(-saved)} over`;
   } else {
     how = 'lost';
-    head = `You gave up: ${coins(saved)}`;
-    line = `A cheapest way (${P.cheapest} 🪙), with its beams`;
-    short = `Gave this one up: ${coins(saved)}`;
+    head = `Answer shown: ${coins(saved)}`;
+    line = `A cheapest way: ${coins(P.cheapest)}`;
+    short = `This one: ${coins(saved)}`;
   }
   if (f.done) { head = `Run over! Savings ${coins(f.savings)}`; line = `${short}${f.best ? ' · Best run!' : ''}`; }
   return { how, head, line };
@@ -588,7 +644,7 @@ function win() {
   $('clock').textContent = clock(G.ms);
   const f = finish();
   L('solved', { setup: G.setup, seed: P.seed, pieces: spent(G), cheapest: P.cheapest, hints: G.hintsUsed, wrongLasers: G.wrongLamps, saved: G.saved, savings: f.savings, time: clock(G.ms) });
-  ui.end = { ...endOf(f), at: f.at, savings: f.savings, done: f.done };
+  ui.end = { ...endOf(f), at: f.at, savings: f.savings, done: f.done, hearts: f.hearts };
   sound.play('win');
   render();
   showEnd();
@@ -596,10 +652,10 @@ function win() {
 }
 
 // The result in the hint bar beside one big star (sparkles for a solve,
-// grey for giving up), and Next ▸ (New run after a run's 10th) / New game
+// grey for an answer shown), and Next ▸ (New run after a run's 10th) / New game
 // in place of the tools.
 function showEnd() {
-  const e = ui.end ?? { how: G.result === 'solved' ? 'solved' : 'lost', head: G.result === 'solved' ? 'Solved!' : 'You gave up', line: '' };
+  const e = ui.end ?? { how: G.result === 'solved' ? 'solved' : 'lost', head: G.result === 'solved' ? 'Solved!' : 'Answer shown', line: '' };
   const sparks = e.how === 'solved' ? [0, 60, 120, 180, 240, 300].map((a, k) => `<i class="spark" style="--a:${a}deg;--d:${k * 60}ms">${STAR}</i>`).join('') : '';
   const bar = $('hintbar');
   bar.className = `hintbar result ${e.how}`;
@@ -609,11 +665,34 @@ function showEnd() {
   $('endTools').hidden = false;
   $('nextBtn').textContent = e.done ? 'New run' : 'Next ▸';
   L('end buttons', { how: e.how, next: $('nextBtn').textContent });
+  endFitFor = null;
+  fitEnd();
+}
+
+// The end's words as big as fit in the bar's 3 lines (3.2: in coins they
+// were cut at 320 px wide; so were 3.1's gave-up words, by 33 px): the
+// head and the line shrink together, from their full size to 60%, in
+// 2.5% steps. Once per end and screen width.
+let endFitFor = null;
+function fitEnd() {
+  const bar = $('hintbar'), res = bar.querySelector('.res');
+  if (!res || !bar.offsetParent || endFitFor === innerWidth) return;
+  endFitFor = innerWidth;
+  const cs = getComputedStyle(bar), room = bar.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const r = largestFitting(k => { res.style.setProperty('--rf', k / 40); return res.getBoundingClientRect().height <= room + 0.5; }, 24, 40);
+  L('end words fit', { scale: r.size / 40, fitted: r.fitted, height: Math.round(res.getBoundingClientRect().height), room: Math.round(room), screen: innerWidth });
 }
 $('nextBtn').onclick = () => { L('next', { run: runOf(prog, G.setup).no + 1 }); startRun(G.setup); };
-$('newBtn').onclick = () => {
+// New game, at the end or during play (3.2; developer: "New game is the
+// quit"): back to setup, the run kept.
+$('newBtn').onclick = () => newGame();
+$('playNewBtn').onclick = () => { if (G && !G.result && !ui.busy) newGame(); };
+function newGame() {
   clearInterval(clockTimer);
-  L('new game');
+  const during = !G.result;
+  if (during) keep();
+  L('new game', { during, setup: G.setup, puzzle: runOf(prog, G.setup).at + 1, kept: !!runOf(prog, G.setup).cur });
+  hideAsk();
   G = null;
   P = null;
   $('play').hidden = true;
@@ -622,7 +701,7 @@ $('newBtn').onclick = () => {
   $('endTools').hidden = true;
   renderSetup();
   scrollTo(0, 0);
-};
+}
 
 // The game kept last time (once the puzzles are in): the same puzzle, if
 // it's still there, as it was left.

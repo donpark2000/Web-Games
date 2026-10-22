@@ -7,6 +7,21 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.2 (2026-10-22, version d82d45d7fa31)
+
+Laser Lab, from a first go on the phone:
+
+- **Words in place of 🪙 and 🏦:** "Budget 4 of 9 left · Savings 12" on
+  a row of its own, "over" and minus amounts in red; prices say "coin"
+  ("1 coin each", "Hint 1 coin").
+- **The top line just "Puzzle 4 of 10"**, full size.
+- **❤️ Try again, 3 per run:** starts the puzzle over with everything it
+  cost given back (pieces, wrong lasers, hints). The hearts show beside
+  the clock.
+- **Give up is now Show answer**, working as before.
+- **New game during play:** back to the setup screen, the run kept.
+- **The end's words fit** on small phones (they were cut at 320 px).
+
 ## 3.1 (2026-10-22, version 0c4447ecb657)
 
 Laser Lab, after a first go on the phone:

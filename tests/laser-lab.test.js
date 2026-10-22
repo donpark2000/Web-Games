@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import {
   RUN, MARGIN, PRICE, SETUPS, trace, check, checkLamp, solveCheap, cheapest, answersFor, costOf, answerCost, answerMap,
   makeCheap, makeOptions, stockPuzzle, bothUsePieces, firstSeed, stockOrder, encode, decode, DEMO, MAKE,
-  createGame, placedOf, budgetLeft, tapSquare, clearBoard, switchLamp, readyLamps, missWords, rightWords, useHint, giveUp,
+  createGame, placedOf, budgetLeft, tapSquare, clearBoard, switchLamp, readyLamps, missWords, rightWords, useHint, giveUp, tryAgain, coins, HEARTS,
   closest, snapshotGame, restoreGame, readProgress, runOf, keepCurrent, finishPuzzle, boardOf,
 } from '../src/core/laser-lab.js';
 import { mulberry32 } from '../src/core/hidden-faces.js';
@@ -217,7 +217,7 @@ test('laser lab game: a laser wrong costs 1 and goes off; tapped again with noth
   assert.deepEqual(readyLamps(g, p), [0]);
   let r = switchLamp(g, p, 0);
   assert.ok(!r.res.ok && g.fees === 1 && g.wrongLamps === 1 && g.on.length === 0 && g.miss.li === 0);
-  assert.equal(missWords(p, r.res, 0), 'Not yet: 1 💎 not lit. That cost 1 🪙.');
+  assert.equal(missWords(p, r.res, 0), 'Not yet: 1 💎 not lit. That cost 1 coin.');
   assert.deepEqual(switchLamp(g, p, 0), { refused: 'nothing moved' });
   assert.equal(g.fees, 1, 'refused for free');
   assert.deepEqual(readyLamps(g, p), []);
@@ -261,7 +261,7 @@ test('laser lab game: hints cost 1, 2, 3; take off, turn, put down along the bea
   let h = useHint(g, p, answers);
   assert.equal(h.kind, 'off');
   assert.equal(h.price, 1);
-  assert.match(h.text, /The splitter at row 5, column 5 isn't in a cheapest way: the hint takes it off \(2 🪙 back\)\. That hint cost 1 🪙\./);
+  assert.match(h.text, /The splitter at row 5, column 5 isn't in a cheapest way: the hint takes it off \(2 coins back\)\. That hint cost 1 coin\./);
   assert.equal(g.pieces[24], '');
   h = useHint(g, p, answers);
   assert.ok(h.kind === 'put' && h.price === 2 && g.fixed.includes(h.i));
@@ -307,7 +307,7 @@ test('laser lab game: kept as JSON and picked up again; refused for another puzz
 
 test('laser lab runs: savings over 10 puzzles, below 0 allowed; the best run kept; anything unreadable is nothing', () => {
   const prog = readProgress(null);
-  assert.deepEqual(runOf(prog, '7-2'), { no: 0, at: 0, savings: 0, cur: null });
+  assert.deepEqual(runOf(prog, '7-2'), { no: 0, at: 0, savings: 0, hearts: HEARTS, cur: null });
   let f;
   for (let k = 0; k < RUN - 1; k++) f = finishPuzzle(prog, '7-2', k === 4 ? -10 : 2);
   assert.deepEqual([f.done, f.savings, runOf(prog, '7-2').at], [false, 6, 9]);
@@ -316,12 +316,68 @@ test('laser lab runs: savings over 10 puzzles, below 0 allowed; the best run kep
   assert.equal(runOf(prog, '7-2').cur.seed, 5, 'the puzzle under way kept');
   f = finishPuzzle(prog, '7-2', 3);
   assert.deepEqual([f.done, f.best, f.savings], [true, true, 9]);
-  assert.deepEqual(runOf(prog, '7-2'), { no: 1, at: 0, savings: 0, cur: null }, 'a new run');
+  assert.deepEqual(runOf(prog, '7-2'), { no: 1, at: 0, savings: 0, hearts: HEARTS, cur: null }, 'a new run');
   for (let k = 0; k < RUN; k++) f = finishPuzzle(prog, '7-2', -1);
   assert.deepEqual([f.done, f.best, f.savings, prog.best['7-2']], [true, false, -10, 9], 'a worse run: the best kept');
   const back = readProgress(JSON.stringify(prog));
   assert.deepEqual(back.best, { '7-2': 9 });
-  assert.deepEqual(runOf(back, '7-2'), { no: 2, at: 0, savings: 0, cur: null });
+  assert.deepEqual(runOf(back, '7-2'), { no: 2, at: 0, savings: 0, hearts: HEARTS, cur: null });
   assert.deepEqual(readProgress('{"runs":{"6-1":{"no":0,"at":12,"savings":1},"9-9":{"no":0,"at":1,"savings":1}},"best":{"6-1":"x"}}'), { runs: {}, best: {} });
   assert.deepEqual(readProgress('not json'), { runs: {}, best: {} });
+});
+
+// 3.2 (developer, on the phone: the 🪙 "looks like a ball - not
+// meaningful"): prices and costs in words.
+test('laser lab: coins in words, one coin or more, minus in front', () => {
+  assert.deepEqual([coins(1), coins(3), coins(0), coins(-9), coins(-1)], ['1 coin', '3 coins', '0 coins', '−9 coins', '−1 coin']);
+  assert.doesNotMatch(coins(2), /🪙/);
+});
+
+// 3.2: ❤️ Try again, 3 hearts per run (developer: "lets try per run
+// first"): the board cleared, hint pieces too, and everything spent on the
+// puzzle given back (pieces, wrong lasers, hints), for a heart.
+test('laser lab game: Try again gives back all the puzzle cost, hint pieces too, for a heart of the run', () => {
+  const p = { n: 5, seed: 3, lamps: [{ side: 3, k: 2, c: 1 }], walls: [[1, 0]], gems: [[0, 0, 1]], cheapest: 2, budget: 5 };
+  const { answers } = cheapest(p), prog = readProgress(null), g = createGame(p, '5-1', 0);
+  tapSquare(g, p, 24, 's');
+  switchLamp(g, p, 0);                 // wrong: 1
+  useHint(g, p, answers);              // the splitter off: 1
+  useHint(g, p, answers);              // a piece put down and fixed: 2
+  g.ms = 7000;
+  assert.ok(g.fixed.length === 1 && g.fees === 4 && budgetLeft(g, p) === 0, 'the whole budget spent first');
+  const r = tryAgain(prog, g);
+  assert.deepEqual(r, { ok: true, back: 5, pieces: 1, fees: 4, hearts: HEARTS - 1 });
+  assert.deepEqual([g.pieces.filter(Boolean).length, g.fixed, g.fees, g.wrongLamps, g.hintsUsed, g.on, g.miss, g.failed, g.result], [0, [], 0, 0, 0, [], null, [], null]);
+  assert.equal(budgetLeft(g, p), p.budget, 'the budget as at the start');
+  assert.equal(g.ms, 7000, 'the clock keeps running');
+  assert.equal(runOf(prog, '5-1').hearts, HEARTS - 1, 'the heart kept with the run');
+  assert.equal(runOf(prog, '5-1').savings, 0, 'the savings untouched');
+});
+
+test('laser lab game: Try again refused with no hearts, with nothing to give back, or at the end; no heart used', () => {
+  const p = gp(), prog = readProgress(null), g = createGame(p, '5-1', 0);
+  assert.deepEqual(tryAgain(prog, g), { ok: false, why: 'nothing spent' });
+  assert.equal(runOf(prog, '5-1').hearts, HEARTS, 'no heart for nothing');
+  tapSquare(g, p, 12, 'm');
+  for (let k = HEARTS; k > 0; k--) { assert.equal(tryAgain(prog, g).hearts, k - 1); tapSquare(g, p, 12, 'm'); }
+  assert.deepEqual(tryAgain(prog, g), { ok: false, why: 'no hearts' });
+  assert.equal(g.pieces[12], 'm0', 'refused: the board as it was');
+  switchLamp(g, p, 0);
+  assert.equal(g.result, 'solved');
+  assert.deepEqual(tryAgain({ runs: { '5-1': { ...runOf(prog, '5-1'), hearts: 2 } }, best: {} }, g), { ok: false, why: 'over' });
+});
+
+test('laser lab runs: 3 hearts per run, kept over its puzzles, 3 again in a new run; a run kept before 3.2 has 3', () => {
+  const prog = readProgress(null), p = gp(), g = createGame(p, '6-1', 0);
+  tapSquare(g, p, 12, 'm');
+  tryAgain(prog, g);
+  assert.equal(finishPuzzle(prog, '6-1', 3).run.hearts, HEARTS - 1, 'kept to the next puzzle');
+  keepCurrent(prog, '6-1', g);
+  assert.equal(readProgress(JSON.stringify(prog)).runs['6-1'].hearts, HEARTS - 1, 'kept on the device');
+  for (let k = 1; k < RUN; k++) finishPuzzle(prog, '6-1', 1);
+  assert.equal(runOf(prog, '6-1').hearts, HEARTS, 'a new run: 3 again');
+  const old = readProgress('{"runs":{"6-1":{"no":0,"at":4,"savings":7,"cur":null}},"best":{}}');
+  assert.equal(runOf(old, '6-1').hearts, HEARTS, 'kept by 3.1: 3 hearts');
+  for (const bad of [-1, 4, 1.5, 'x']) assert.equal(readProgress(`{"runs":{"6-1":{"no":0,"at":4,"savings":7,"hearts":${JSON.stringify(bad)}}}}`).runs['6-1'].hearts, HEARTS, `hearts ${bad}`);
+  assert.equal(readProgress('{"runs":{"6-1":{"no":0,"at":4,"savings":7,"hearts":0}}}').runs['6-1'].hearts, 0);
 });

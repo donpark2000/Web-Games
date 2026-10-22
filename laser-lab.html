@@ -30,15 +30,15 @@
       <div id="rulesPic" aria-hidden="true"></div>
       <div class="rules">
         <p>Buy mirrors and splitters so the laser reaches every <b>💎</b>, for as little as you can. A beam must never shine into a laser: it breaks.</p>
-        <p class="how">Use as many pieces as you like: each one on the board costs its price, and taking it off gives the price back. Each puzzle has a budget; what's left of it when you solve it goes into your savings, over a run of 10 puzzles. Spend more and your savings pay. Tap a square to put the piece picked below the board there; tap it again to turn it, and once more to take it off. Tap a laser to switch it on: if its beam isn't right, it goes off and costs 1 🪙. Moving a piece switches the lasers off.</p>
+        <p class="how">Use as many pieces as you like: each one on the board costs its price, and taking it off gives the price back. Each puzzle has a budget; what's left of it when you solve it goes into your savings, over a run of 10 puzzles. Spend more and your savings pay. Tap a square to put the piece picked below the board there; tap it again to turn it, and once more to take it off. Tap a laser to switch it on: if its beam isn't right, it goes off and costs 1 coin. Moving a piece switches the lasers off. ❤️ Try again (3 in a run) starts a puzzle over with everything it cost given back; Show answer costs its whole budget.</p>
       </div>
     </div>
 
     <div class="panel">
       <h2>The pieces</h2>
       <div class="pieces">
-        <div class="pdesc"><span class="pico" id="mirrorIco"></span><span><b>Mirror</b> (1 🪙 each) turns the beam a quarter turn. Both sides reflect.</span></div>
-        <div class="pdesc"><span class="pico" id="splitIco"></span><span><b>Splitter</b> (2 🪙 each) lets the beam through and turns a copy of it, so one beam becomes two.</span></div>
+        <div class="pdesc"><span class="pico" id="mirrorIco"></span><span><b>Mirror</b> (1 coin each) turns the beam a quarter turn. Both sides reflect.</span></div>
+        <div class="pdesc"><span class="pico" id="splitIco"></span><span><b>Splitter</b> (2 coins each) lets the beam through and turns a copy of it, so one beam becomes two.</span></div>
         <div class="pdesc"><span class="pico" id="wallIco"></span><span><b>Walls</b> and <b>💎</b> stop a beam. Beams of two colours pass through each other.</span></div>
         <div class="pdesc"><span class="gemrow" id="gemIcos"></span><span>With two lasers, red and blue, a <b>💎</b> wants only its own colour; a purple one, half and half, wants both. Switch the lasers on one at a time: each beam must reach every <b>💎</b> of its colour, and no other.</span></div>
       </div>
@@ -75,30 +75,37 @@
       <div class="topinfo">
         <div class="turn" id="turn"></div>
         <div class="status">
-          <span class="budget" id="budget"></span>
-          <span class="savings" id="savings"></span>
+          <span class="hearts" id="hearts"></span>
           <span class="clock" id="clock">0:00</span>
         </div>
       </div>
     </div>
+    <!-- the budget and the savings in words, a row of their own (3.2: the
+         developer read 🪙 as a ball and 🏦 as a house) -->
+    <div class="money" id="money"><span class="budget" id="budget"></span><span class="dot"> · </span><span class="savings" id="savings"></span></div>
     <!-- the board, the beams over it and the lasers in a rim round it -->
     <div class="boardwrap" id="boardwrap"><div class="llboard" id="board" role="grid" aria-label="Puzzle"></div><svg class="beam" id="beam" aria-hidden="true"></svg><div class="lamps" id="lamps"></div></div>
     <!-- the shop: the piece a tap puts down, and its price -->
     <div class="tray" id="tray" aria-label="Pieces"></div>
     <div class="hintbar idle" id="hintbar" aria-live="polite"></div>
+    <!-- two rows (3.2): Clear, Hint, Try again; Show answer, New game (no
+         Quit: the developer, "New game is the quit") -->
     <div class="tools" id="tools">
       <button type="button" class="tool" id="clearBtn">↺ Clear</button>
-      <button type="button" class="tool" id="hintBtn">💡 Hint <span class="price"><span id="hintPrice">1</span> 🪙</span></button>
-      <button type="button" class="tool" id="giveUpBtn">🏳 Give up</button>
+      <button type="button" class="tool" id="hintBtn">💡 Hint <span class="price" id="hintPrice">1 coin</span></button>
+      <button type="button" class="tool" id="againBtn">❤️ Try again</button>
+      <button type="button" class="tool wide" id="answerBtn">🔑 Show answer</button>
+      <button type="button" class="tool wide" id="playNewBtn">New game</button>
     </div>
-    <!-- Give up asks first, in place of the tools -->
+    <!-- Show answer and Try again ask first, in place of the tools -->
     <div class="tools ask" id="askTools" hidden>
-      <span class="askq">Give up?</span>
-      <button type="button" class="tool primary" id="giveUpYes">Give up</button>
-      <button type="button" class="tool" id="giveUpNo">No</button>
+      <span class="askq" id="askQ"></span>
+      <button type="button" class="tool primary" id="askYes">Yes</button>
+      <button type="button" class="tool" id="askNo">No</button>
     </div>
     <!-- at the end, in place of the tools: the board stays in view. No Try
-         again (it would let a puzzle be played again for more savings) -->
+         again here (it would let a puzzle be played again for more savings);
+         ❤️ Try again is for a puzzle under way -->
     <div class="tools" id="endTools" hidden>
       <button type="button" class="tool primary" id="nextBtn" data-play>Next ▸</button>
       <button type="button" class="tool" id="newBtn">New game</button>

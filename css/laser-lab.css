@@ -125,21 +125,30 @@
 .hintbar.hint { border-left-color: var(--sun); }
 .hintbar.wrong { border-left-color: var(--p1); }
 .hintbar.result .bigstar { width: 3.6em; height: 3.6em; }
+/* the end's words as big as fit in the 3 lines (--rf, src/ui/laser-lab.js:
+   fitEnd; 3.2) */
+#play .res b { font-size: calc(21px * var(--rf, 1)); }
+#play .res span { font-size: calc(15px * var(--rf, 1)); }
 #endTools { grid-template-columns: repeat(2, 1fr); }
 #endTools .tool { white-space: nowrap; }
-#tools { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } /* Clear, Hint, Give up (no ▶ Shine since v4) */
+/* two rows (3.2): Clear, Hint, Try again over Show answer, New game */
+#tools { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+#tools .tool { grid-column: span 2; }
+#tools .tool.wide { grid-column: span 3; }
+#tools .tool:disabled { opacity: .45; cursor: default; }
 .tools.ask { grid-template-columns: auto 1fr auto; }
 .tool .price { font-size: .85em; font-weight: 700; white-space: nowrap; }
 @media (max-width: 345px) { #endTools .tool { font-size: 14px; } .piecebtn .pico { width: 34px; height: 34px; } }
 
-/* the budget and the savings (v6) in place of hearts and a count; the
-   budget can be wide ("11 of 11 left"): it takes what it needs (v7) */
-#play .status { grid-template-columns: auto 1fr auto; gap: 10px; font-size: calc(var(--tif, 20px) * .85); }
-#play .status > span { overflow: hidden; }
-/* too narrow for one row (fitInfo): the budget on its own line */
-#play .topinfo.stack .status { grid-template-columns: 1fr auto; row-gap: 2px; }
-#play .topinfo.stack .status .budget { grid-column: 1 / -1; }
-#play .topinfo.stack .status .savings { text-align: left; }
-.status .budget, .status .savings { white-space: nowrap; }
-.status .savings { text-align: center; }
+/* beside the 🏠: the run's hearts for Try again and the clock (3.2) */
+#play .status { grid-template-columns: 1fr auto; gap: 10px; font-size: calc(var(--tif, 20px) * .85); }
+#play .status > span { overflow: hidden; white-space: nowrap; }
+/* the budget and the savings in words, a row of their own at a steady
+   17px (3.2; v6-3.1: 🪙 and 🏦 beside the 🏠, shrunk with the turn
+   line); two lines, without the dot, when one is too narrow (fitInfo) */
+.money { display: flex; flex-wrap: wrap; justify-content: center; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.money > span { white-space: nowrap; }
+.money .dot { white-space: pre; }
+.money.wrap { flex-direction: column; align-items: center; }
+.money.wrap .dot { display: none; }
 .neg { color: #D2283C; }

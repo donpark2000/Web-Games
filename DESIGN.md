@@ -883,54 +883,91 @@ Agreed with the developer:
   piece switches every laser off.** Tapping a laser that's on switches
   it off, free.
 - **A budget in place of a fixed tray** (developer, v6): pieces are
-  bought, **mirror 1 🪙, splitter 2 🪙**, as many as you like, **paid for
+  bought, **mirror 1 coin, splitter 2 coins**, as many as you like, **paid for
   only while on the board** (taking one off gives its price back). **A
-  wrong laser costs 1 🪙. Hints cost 1, then 2, then 3...** in one
-  puzzle (no limit but the price). **Give up costs the puzzle's whole
-  budget.** What's left of the budget when the puzzle is solved goes
+  wrong laser costs 1 coin. Hints cost 1, then 2, then 3...** in one
+  puzzle (no limit but the price). **Show answer (Give up until 3.2)
+  costs the puzzle's whole budget.** What's left of the budget when the puzzle is solved goes
   into the **savings**, kept over **a run of 10 puzzles**; spending past
   the budget comes out of the savings, which **may go below 0** (red).
   The savings at the end of a run are the score. No fixed tray, so no
   "use every piece"; a piece the beams don't touch is only money
   wasted. The puzzles need no single answer: a cheapest way is enough.
-- **Hints and Give up follow the cheapest way closest to the player's
+- **Hints and Show answer follow the cheapest way closest to the player's
   board** (fewest pieces to take off, turn or put down, keeping every
   hint's piece). A hint takes off a piece not in it (price back), turns
   one facing the wrong way, or puts down the next piece along the beam;
-  a piece a hint leaves is fixed there. Give up shows a cheapest way
+  a piece a hint leaves is fixed there. Show answer shows a cheapest way
   with its beams.
 - **Prices read as prices:** each piece button shows the piece over "1
-  🪙 each" / "2 🪙 each" (developer, v7: v6's big "1" read as a count).
+  coin each" / "2 coins each" (developer, v7: v6's big "1" read as a
+  count; the word since 3.2).
+
+Agreed after 3.0 on the phone (release 3.2; journal "3.0 on the phone;
+release 3.1" and "Laser Lab 3.2"):
+- **Words, not 🪙 and 🏦** (developer: the coin "looks like a ball - not
+  meaningful", the bank "a house with a number beside it - not idea
+  what that means"): **"Budget 4 of 9 left · Savings 12"** on a row of
+  its own under the top, at a steady 17 px (not shrunk with the top
+  line); "Budget 2 over" past it, "over" and minus amounts in red. Prices
+  and costs say "coin": "1 coin each", "Hint 1 coin", "Saved 3 coins".
+- **The top line just "Puzzle 4 of 10"**, at full size (no board size;
+  developer: the turn line was very small, shrunk beside the 🏠 and 🔊).
+- **No Quit button** (developer: "New game is the quit"); **New game
+  during play** goes back to setup with the run kept.
+- **🏳 Give up renamed Show answer**, working as before (developer:
+  "give up" sounded like a retry): it asks first, "Show answer: −9
+  coins?" / No; then a cheapest way with its beams, the whole budget
+  off the savings, and Next ▸.
+- **❤️ Try again, 3 hearts per run** (developer: "lets try per run
+  first"): the board cleared, hint pieces too, and everything spent on
+  the puzzle given back (pieces, wrong lasers, hints, so the next hint
+  costs 1 again): the budget and savings as at the puzzle's start. It
+  uses a heart; the hearts show in the status row beside the 🏠 and are
+  kept with the run (a new run has 3 again).
+- **↺ Clear stays free**: the pieces off but a hint's, their prices back;
+  wrong lasers and hints already paid stay paid.
 
 Claude's choices from the mockup, to be judged on the phone:
 - **The budget is the cheapest cost + 3**, so a best solve saves 3.
 - **The cheapest cost is at least 6 (6×6), 7 (7×7) or 8 (8×8)**: the
   maker walls off cheaper ways until none is left under that floor.
-- **No Try again** (it would let a puzzle be played again for more
-  savings): the end's buttons are **Next ▸** (**New run** after the
-  10th) and **New game**.
+- **No Try again at the end** (it would let a solved puzzle be played
+  again for more savings, and a shown answer be copied): the end's
+  buttons are **Next ▸** (**New run** after the 10th) and **New game**.
+  ❤️ Try again (3.2) is for a puzzle under way.
 - **The end's words**, in the hint bar beside one big star: "Solved!
-  Saved 3 🪙" over "Pieces 6, cheapest 6 ✓ · hints 1 · lasers 1"
-  ("Solved, 2 🪙 over" when it cost more than the budget); "You gave
-  up: −9 🪙" over "A cheapest way (6 🪙), with its beams"; after the
-  10th, "Run over! Savings 17 🪙" over "This one: saved 3 🪙 · Best
-  run!".
+  Saved 3 coins" over "Pieces 6, cheapest 6 ✓ · hints 1 · lasers 1"
+  ("Solved, 2 coins over" when it cost more than the budget); "Answer
+  shown: −9 coins" over "A cheapest way: 6 coins" (3.0-3.1: "You gave
+  up", "..., with its beams"); after the
+  10th, "Run over! Savings 17 coins" over "This one: saved 3 coins · Best
+  run!" (or "This one: −9 coins"). The budget row says what the puzzle
+  did: "Saved 3 · Savings 15", "Over 2 · Savings 10", "Answer −9 ·
+  Savings 6". **The end's words shrink to fit the bar's 3 lines** (3.2:
+  at 320 px wide, to about 80%; 3.1's were cut there).
 - **The laser drawing:** an emitter box in its colour with three vents
   and a highlight, a dark nozzle and a small aperture, dark when off,
   glowing when on; a small burst and a crack when broken.
 - **Setup:** the rules beside a solved 6×6 with one laser (not one of
   the run's puzzles); the pieces explained, with prices; **Size**;
-  **Lasers**; Play!, and under it "Puzzle 4 of 10 · savings 7 🪙 · best
-  run 17 🪙" (or "A run of 10 puzzles").
-- **Play:** 🏠, "7×7 · puzzle 4 of 10" over "🪙 3 of 10 left" (red "4
-  over" past it), the savings "🏦 12" (the overspend shown coming out
-  of them as it happens) and a clock; the board with its lasers, as big
+  **Lasers**; Play!, and under it "Puzzle 4 of 10 · savings 7 coins ·
+  ❤️❤️🤍 · best run 17 coins" (or "A run of 10 puzzles").
+- **Play** (as 3.2): 🏠, "Puzzle 4 of 10" over the hearts (❤️ left, 🤍
+  used) and a clock; under them the budget row, "Budget 3 of 10 left ·
+  Savings 12" (red "Budget 4 over", the overspend shown coming out of the
+  savings as it happens); the board with its lasers, as big
   as fits with no scrolling; the two piece buttons (the one picked
   lights; tap a square to put it there, again to turn it, once more to
-  take it off); the hint bar (3 lines, hidden until needed); **↺ Clear**
-  (every piece off but a hint's), **💡 Hint** with its price, **🏳 Give
-  up** (asks first: "Give up: −9 🪙" / No). Once a piece is on, the
+  take it off); the hint bar (3 lines, hidden until needed); the tools
+  in two rows: **↺ Clear**, **💡 Hint** with its price, **❤️ Try
+  again**; **🔑 Show answer**, **New game**. Once a piece is on, the
   lasers that can be switched on pulse.
+- **Try again asks first**, as Show answer does ("Try again: uses a ❤️?"
+  / No), since a heart is worth more than a tap; with nothing to give
+  back (no piece on, nothing paid) it uses no heart and says so; with no
+  hearts left it is greyed. **The clock keeps running** through it (the
+  clock is the puzzle's time, not a cost).
 - **A laser tapped again with nothing moved** since it wasn't right
   says "Nothing has moved since that beam: move a piece first" and costs
   nothing; a broken one says "Move a piece and it's mended".
@@ -953,16 +990,17 @@ As built (Claude's, not in the mockup):
   most puzzles away). A purple gem in about 1 in 7 two-laser puzzles
   at 6×6 and 7×7, 3 of 50 at 8×8 (the mockup's hand-picked sets had
   more). The cheapest ways that hints
-  and Give up choose from (up to 50) are worked out on the device at the
-  first hint or Give up. Run k's puzzles are the stock's from 10k on, in
+  and Show answer choose from (up to 50) are worked out on the device at the
+  first hint or Show answer. Run k's puzzles are the stock's from 10k on, in
   an order shuffled once with a fixed seed; after the last they come
   round again.
-- **The status beside the 🏠 stacks** when one row would be under 15
-  px (8×8 on a 320 px phone): the budget on its own line, the savings
-  and the clock under it.
 - **Kept on the device** (`web-games-laser-lab`): per size and lasers,
   the run under way (its number, the next puzzle, the savings, the
-  puzzle under way) and the best run.
+  hearts left (3.2; a run kept before 3.2 has 3), the puzzle under way)
+  and the best run. The code keeps its 3.0 names for Show answer
+  (`giveUp`, result `'gaveup'`), so puzzles kept under 3.1 still read.
+- (3.0-3.1: the status beside the 🏠 stacked when one row would be under
+  15 px. Gone in 3.2: the budget has its own row.)
 - **Sounds:** a tick per piece put down, turned or taken off; a ding
   for a beam that's right, "uh-oh" for one that isn't (or breaks a
   laser), a ping for a hint, the sparkle when solved.
