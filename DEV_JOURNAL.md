@@ -8081,3 +8081,77 @@ maker does start each puzzle from a few pieces dropped along the light
 to place the gems, but the player never sees that, and the cheapest way
 may use fewer. Proposed: make the price read as a price ("1 🪙 each"
 or a price tag), with the name, in v7. Waiting on the developer.
+
+## 2026-10-22: Laser Lab mockup v7: the name, lasers, prices
+
+**Developer:** "Yes for all" (v7 with clearer prices, the Laser Lab
+name, the lamps as lasers) "go ahead and publish V7 so I can try it on
+my phone."
+
+**Built** ([Laser Lab Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN),
+version 7; the same link, its title now "Laser Lab Mockup"):
+- **The name** in the title and heading. The words say laser and beam
+  where they said lamp and light ("Tap a laser to switch it on", "The
+  red beam isn't right", setup "Lasers"). The code keeps "lamp".
+- **Lasers:** the lamp is drawn as an emitter box (its colour, three
+  vents, a highlight) with a dark nozzle and a small aperture at the
+  end, dark when off and glowing when on; the same size, place, colours
+  and crack as the lamp.
+- **Prices that read as prices:** each piece button shows the piece's
+  name over "1 🪙 each" / "2 🪙 each" (v6: a big "1" or "2" beside the
+  piece, read as a count). The rules: "Use as many pieces as you like:
+  each one on the board costs its price, and taking it off gives the
+  price back"; the pieces panel "Mirror (1 🪙 each)", "Splitter (2 🪙
+  each)".
+- The run is kept under a new key (`laser-lab-mockup-v7`), so a v6 run
+  on the device doesn't carry over.
+
+**Checked** (served on 8131, a temporary `.claude/launch.json` entry
+`laser-lab-v7`, removed after; the mockup's source moved to this
+session's new scratchpad, `...\C--Users-dpark-Documents-Web-Games\fd6c3904-...\scratchpad\ml\`):
+393 × 760, 7×7 two lasers: the lasers drawn and switching, "The red beam
+isn't right: no red on 3 💎. That cost 1 🪙." Found: the status row's
+"3 of 10 left" ran into the savings (7×7 and 8×8 budgets are two
+digits); fixed by giving the budget its own width (widest seen, "11 of
+11 left", 104-231 px, the savings from 241 px). 320 × 640, 8×8, 5 over
+with savings −17: no sideways scroll, the piece buttons inside 296 px.
+
+**Open questions:** none new. Q24, Q27, Q30, Q31 unchanged.
+**Proposed skill additions:** none.
+
+## 2026-10-22: Laser Lab: v7 on the phone next; status (start here next session)
+
+**Where it stands:** branch `light-puzzle` (`main` + journal, DESIGN
+status line; nothing of the game in `src/` yet). Release 2.1 live.
+Mockup v7 is the latest:
+[Laser Lab Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN)
+(private, version 7), for the developer to try on the phone.
+
+**The mockup's source:**
+`C:\Users\dpark\AppData\Local\Temp\claude\C--Users-dpark-Documents-Web-Games\fd6c3904-b347-46b0-add8-15bb1b794a4e\scratchpad\ml\`
+(copy it to the new session's scratchpad). As before ("Mirror Light: v6
+next"), plus: `lp-core.js` now also has `layout`, `PRICE`, `costOf`,
+`solveCheap`, `cheapest`, `makeCheap`; `make-cheap-set.js` (one setup
+into `sets6/`), `pick6.js` (writes `puzzles6.json`, 12 per setup, which
+`build.js` uses; it reads `puzzles.json` only for the rules picture),
+`time-cheap.js`; `check-core.js` 104 checks; `build.js` writes
+`laser-lab.html` (to publish) and `local.html`. Earlier versions' files
+kept as `*-v5.*` and `*-v6.*`.
+
+**Agreed so far** (journal from "Mockup v3 played"): lasers beside the
+board (one per side), each an on/off switch; open edges; red and blue
+with a purple gem; **v6's budget** (pieces bought, 1 and 2, paid while
+on the board; a wrong laser 1; hints 1, 2, 3...; Give up the whole
+budget; savings over a run of 10, may go below 0); **the name Laser
+Lab**. Still Claude's choices, to judge on the phone: margin 3 over the
+cheapest; cost floors 6/7/8 by size; no Try again; the end words; the
+laser drawing.
+
+**Next:** the developer's verdict on v7 from the phone; then either
+v8 or agreeing the design in DESIGN.md and building (`src/core/` for
+the rules and the cheapest-cost maker, a tool making the puzzles ahead
+of time as for the other puzzles, a test per feature). Decide the
+file and storage names as `laser-lab` before building.
+
+**Open questions:** Q24, Q27, Q30, Q31 (unchanged). **Proposed skill
+additions:** none.
