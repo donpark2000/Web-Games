@@ -914,7 +914,10 @@ release 3.1" and "Laser Lab 3.2"):
 - **The top line just "Puzzle 4 of 10"**, at full size (no board size;
   developer: the turn line was very small, shrunk beside the 🏠 and 🔊).
 - **No Quit button** (developer: "New game is the quit"); **New game
-  during play** goes back to setup with the run kept.
+  during play** goes back to setup with the run kept, and **the puzzle
+  left comes back as it was left** (developer: "Option 1: the puzzle
+  comes back as it was left: pieces, coins spent, hints and clock"; a
+  fresh start would be a free Try again).
 - **🏳 Give up renamed Show answer**, working as before (developer:
   "give up" sounded like a retry): it asks first, "Show answer: −9
   coins?" / No; then a cheapest way with its beams, the whole budget

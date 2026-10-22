@@ -8463,11 +8463,14 @@ phone (release 3.2)", written before the code.
   over "A cheapest way: 6 coins".
 - **New game during play**: the tools in two rows, Clear · Hint · Try
   again over Show answer · New game. It keeps the puzzle under way in
-  the run (as 🏠 always did), so Play! brings it back as left. **Open:**
-  the brief said "the puzzle left starts fresh when they come back";
-  asked the parent session (a fresh start would give back what Try again
-  gives back, free, making the hearts pointless). No answer yet; built
-  as "as left" (option 1 of 3 offered).
+  the run (as 🏠 always did), so Play! brings it back as left. The
+  brief said "the puzzle left starts fresh when they come back"; asked
+  the parent session (a fresh start would give back what Try again gives
+  back, free, making the hearts pointless). Built as "as left" (option 1
+  of 3 offered). **Settled** (developer, relayed from the parent
+  session): "Option 1: the puzzle comes back as it was left: pieces,
+  coins spent, hints and clock." No code change; DESIGN.md records it as
+  the developer's.
 - **Debug log** (`laser-lab`): "answer?", "answer shown", "again?", "try
   again" (back, pieces, fees, hearts left, savings), "try again refused"
   (why), "<asked>: no", "new game" (during, puzzle, kept), "turn line
@@ -8530,12 +8533,11 @@ phone; if the board feels small, New game could move to the top row.
 3.2, `node tools/release.js`: "Release 3.2 is ready". The local server
 (`tools/serve.js 8123`) is running for checks.
 
-**Open questions:** New game's puzzle left: as left or fresh (above).
+**Open questions:** none new (New game's puzzle left: settled, above).
 Q32 (Laser Lab on the phone) now also covers 3.2's layout cost. Q24,
 Q27, Q30, Q31 unchanged. **Proposed skill additions:** more evidence
 for "Check a screen after every way into it": the Next ▸ path also
 fitted the board to the wrong row (added there).
 
-**Next:** the developer's OK to publish as 3.2 (with the New game answer
-first, if it changes the build); then the release steps in CLAUDE.md,
+**Next:** the developer's OK to publish as 3.2; then the release steps in CLAUDE.md,
 and stop the local server.
