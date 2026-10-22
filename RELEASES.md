@@ -7,6 +7,14 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.1 (2026-10-22, version 0c4447ecb657)
+
+Laser Lab, after a first go on the phone:
+
+- **Clear, Hint and Give up on every puzzle:** after a puzzle ended,
+  Next ▸ started the next one without them (only New game brought
+  them back).
+
 ## 3.0 (2026-10-22, version 7a1e35302c27)
 
 A new game in 🧩 Puzzles for grown-ups: **Laser Lab**.

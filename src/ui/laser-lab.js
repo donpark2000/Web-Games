@@ -155,7 +155,11 @@ function startGame(s, k, p, kept, saved) {
     showEnd();
     return;
   }
+  // The tools back in place of the end's buttons (3.0: Next ▸ started the
+  // next puzzle with them still hidden; only New game showed them).
+  $('tools').hidden = false;
   $('endTools').hidden = true;
+  L('play buttons', { tools: !$('tools').hidden, end: !$('endTools').hidden });
   clockTimer = setInterval(tick, 1000);
   tick();
 }

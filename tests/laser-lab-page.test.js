@@ -58,6 +58,20 @@ test('laser lab page: tools Clear, Hint (priced), Give up; no Shine; the end Nex
   assert.ok(at('board') < at('lamps') && at('lamps') < at('tray') && at('tray') < at('hintbar') && at('hintbar') < at('tools'));
 });
 
+// 3.0 on the phone (developer, 2026-10-22): after a puzzle's end hid the
+// tools, Next ▸ started the next puzzle with no Clear, Hint or Give up
+// (only New game showed them again). Every puzzle not yet over starts
+// with the tools showing and the end's buttons hidden.
+test('laser lab page: a puzzle started by Next ▸ (or any way) shows Clear, Hint and Give up', () => {
+  const start = js.match(/function startGame\([\s\S]*?\r?\n}\r?\n/)?.[0] ?? '';
+  assert.ok(start, 'startGame not found');
+  const open = start.slice(start.indexOf('if (G.result)'));
+  assert.match(open, /\$\('tools'\)\.hidden = false;/, 'an unfinished puzzle starts without its tools');
+  assert.match(open, /\$\('endTools'\)\.hidden = true;/, 'an unfinished puzzle starts with the end buttons');
+  assert.match(js, /\$\('nextBtn'\)\.onclick = \(\) => \{[^\n]*startRun\(/,'Next ▸ no longer starts the next puzzle through startRun');
+  assert.match(js, /function startRun\([\s\S]*?startGame\(/, 'startRun no longer starts the puzzle with startGame');
+});
+
 // The look agreed: the purple gem half red, half blue with its outline in
 // two halves (v5); the splitter green and striped (v2); lasers bright, on
 // shown in the aperture (v5).
