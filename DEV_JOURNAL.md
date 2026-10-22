@@ -7609,3 +7609,35 @@ Q24, Q27, Q30, Q31 unchanged. **Proposed skill additions:** none (the
 uncapped loop is a case of "Time one run before looping over many";
 the solver comparison, of "make the expected outputs by running the
 reference" and "prove every check can fail").
+
+## 2026-10-21: Mockup v3 played: first verdicts; lamp switches
+
+**Developer**, after a first play of v3:
+- **Purple gem: half red, half blue** (the mockup bar's second choice).
+- **A broken lamp costs a ❤️** (as the mockup has it; the game goes on).
+- **Two lamps: keep them.** "I think it adds a dimension, especially if
+  they are different color."
+- **Mirrored edges: not sure yet**, needs more play.
+- **An idea:** in place of ▶ Shine, an on/off switch on each lamp. "If
+  the lamp is turned on and no gem is lit up, it loses a heart and turns
+  off."
+
+**Claude's view on lamp switches** (for the developer to decide):
+- With one lamp it is ▶ Shine moved onto the lamp: the same game, and
+  tapping the lamp itself is direct.
+- With two, each colour can be tried alone. That gives more to go on
+  than one Shine judging both, so it makes the puzzle somewhat easier.
+- "No gem lit" as the only cost would let a beam that lights any one gem
+  be looked at for free, for as long as it does: close to the "always
+  on" turned down in v2 as too easy. A stricter rule: a lamp turned on
+  costs a ❤️ (and turns off) unless its colour is all right: every gem
+  wanting that colour lit by it, no gem lit that doesn't want it, no
+  lamp hit.
+- A lamp that's on goes off when a piece moves, or the light would show
+  every change as it's made (again "always on").
+- Tap size: the rim is .7 of a square, about 19 px at 8×8 on a 320 px
+  phone, too small to tap reliably; the switch may need a bigger tap
+  area than the drawn lamp, or a switch below the board.
+
+**Open questions:** none new (lamp switches wait on the developer).
+Q24, Q27, Q30, Q31 unchanged. **Proposed skill additions:** none.
