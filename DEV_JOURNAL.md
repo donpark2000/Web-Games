@@ -7769,3 +7769,36 @@ root, which has no page; the mockup loads nothing from elsewhere.
 
 **Open questions:** none new. Q24, Q27, Q30, Q31 unchanged.
 **Proposed skill additions:** none.
+
+## 2026-10-22: Solutions with fewer pieces
+
+**Developer**, after playing v5: "I like the look and play. One aspect
+that seems frustrating is that I can see solutions that do not use all
+the mirrors. In some ways, solving the problem with less seems like a
+better solution but I suppose this is also a key part of making the
+game challenging. Thoughts?"
+
+**Measured** (scratchpad `fewer.js`): each of the mockup's 40 puzzles
+(open edges) solved again with every smaller tray. The solver accepts
+only answers with every piece it is given placed and touched, so an
+answer with a smaller tray is a way to light every gem right with fewer
+pieces. All 40 in 0.4 s, none over the search cap.
+
+| Set | Solvable with fewer | Fewest pieces needed (of the tray) |
+|---|---|---|
+| 6×6, 1 lamp | 6 of 8 | 2/5, 2/5, 3/5, 4/5 ×3 |
+| 6×6, 2 lamps | 5 of 8 | 3/5 ×4, 4/5 |
+| 7×7, 1 lamp | 2 of 8 | 4/6, 5/6 |
+| 7×7, 2 lamps | 6 of 8 | 4/6, 5/6 ×5 |
+| 8×8, 1 lamp | 3 of 8 | 6/7 ×3 |
+
+So 22 of 40 can be done with fewer pieces, two 6×6 ones with 2 of 5:
+there "use every piece" means finding somewhere to put the other three.
+The maker checks only that the answer with the whole tray is unique.
+
+**Claude's view:** the maker should keep only puzzles where every piece
+is needed (no answer with any smaller tray). Then the shortest way is
+the answer, "use every piece" is never arbitrary, and the rule could
+even go from the words. Cost: about half of today's puzzles would pass
+(18 of 40; 7×7 two lamps 2 of 8), so making gets slower; to measure
+before deciding. Waiting on the developer.
