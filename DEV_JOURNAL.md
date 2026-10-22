@@ -7872,3 +7872,69 @@ impact this budget idea?"
   then perfect saves 2; give up: -9.
 - Open: what if the savings run out too (debt, shown in red, or the run
   ends)? Claude would allow debt: no dead end.
+
+## 2026-10-22: Mirror Light: v6 (budget) next; status (start here next session)
+
+**Developer:** "Should I start a new session before building v6?"
+(Claude: yes; this entry is the handoff.)
+
+**Where it stands:** branch `light-puzzle` (`main` + journal; nothing
+of the game in `src/` yet). Release 2.1 live. Mockup v5 is the latest:
+[Mirror Light Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN)
+(private, version 5). The developer likes its look and play.
+
+**The mockup's source** is in this session's scratchpad, which should
+still be on disk:
+`C:\Users\dpark\AppData\Local\Temp\claude\C--Users-dpark--claude-spares-spare-TrWCVP\95a52b30-9896-41b0-bf36-410ac644d745\scratchpad\ml\`
+(copy it to the new session's scratchpad; if it's gone, rebuild from
+the published page as in "Mirror Light: v3 next"). In it:
+`lp-core.js` (no DOM: `trace`, `check`, `checkLamp`, `solve`, `make`),
+`lp-page.js`, `lp.css`, `body.html`, `build.js` (inlines the repo's
+CSS; writes `mirror-light.html` to publish and `local.html` with a
+viewport line and a hash hook, e.g.
+`#set=7-2-open&i=0&pieces=all|but1|wrong&on=0,1&tap=0`), `puzzles.json`
+(the sets; the build keeps the `-open` ones), `check-core.js` (66
+checks), `fewer.js` (solutions with fewer pieces), `serve.mjs` (serves
+the folder on 8131 through the repo's `tools/serve.js`).
+**Checking locally:** a temporary `.claude/launch.json` entry with its
+own name (not `mirror-light-mockup`: that entry, uncommitted, belongs
+to another session whose server still runs on 8130 serving v3; leave
+it), `runtimeArgs` the full path of `serve.mjs`; remove it after. After
+changing the address's hash, reload the page (a hash change alone
+doesn't).
+
+**Agreed** (entries from "Mockup v3 played" on):
+- Lamps beside the board (one per side), each an **on/off switch** in
+  place of ▶ Shine. A lamp switched on stays on if its light is right
+  (every gem of its colour lit, none other, no lamp hit), else it
+  costs and goes off, its light left faint. Moving a piece switches all
+  lamps off. A lamp shone into breaks.
+- **Two lamps** (red, blue) kept; **purple gem** half red, half blue,
+  outlined in two halves at the red gem's thickness. **Open edges
+  only.** Lamps bright, on/off shown in the lens.
+
+**v6 to build: a budget in place of the fixed tray** (developer's idea;
+"Mirror Light: a budget in place of a fixed tray?" and the two entries
+after). The developer liked Claude's suggestions (mirror 1, splitter 2;
+one currency, no ❤️; savings over a run of 10 kept on the device).
+**Not yet confirmed by the developer, ask first:** the hints and Give
+up proposal: pieces paid for only while on the board; hints 1, then 2,
+then 3; a wrong lamp 1; Give up costs the puzzle's budget from the
+savings; savings may go into debt (red) rather than end the run.
+- No unique answer needed: the maker finds the **cheapest cost**
+  (proved: every cheaper tray searched, failing), budget = cheapest +
+  a margin (say 3). Aim for puzzles whose cheapest solution needs
+  several pieces.
+- **Time one make first** (cheapest-cost search with any number of
+  pieces, 6×6 to 8×8, one and two lamps), capped, a line per run,
+  before any batch. Hope: much faster than now, maybe enough for 8×8
+  two lamps.
+- Hints and Give up follow the cheapest solution closest to the
+  player's pieces.
+
+**Found this session:** 22 of the 40 mockup puzzles can be solved with
+fewer pieces than the tray ("Solutions with fewer pieces"), the reason
+for the budget.
+
+**Open questions:** Q24, Q27, Q30, Q31 (unchanged). **Proposed skill
+additions:** none.
