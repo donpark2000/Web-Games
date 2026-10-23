@@ -8,7 +8,7 @@ import {
   RUN, MARGIN, PRICE, SETUPS, trace, check, checkLamp, solveCheap, cheapest, answersFor, costOf, answerCost, answerMap,
   makeCheap, makeOptions, stockPuzzle, bothUsePieces, firstSeed, stockOrder, isPurple, encode, decode, DEMO, MAKE,
   createGame, placedOf, budgetLeft, tapSquare, clearBoard, switchLamp, readyLamps, missWords, rightWords, useHint, giveUp, tryAgain, coins, HEARTS,
-  closest, snapshotGame, restoreGame, readProgress, runOf, keepCurrent, finishPuzzle, boardOf,
+  closest, snapshotGame, restoreGame, readProgress, runOf, keepCurrent, finishPuzzle, boardOf, endWords, bestView, spent,
 } from '../src/core/laser-lab.js';
 import { mulberry32 } from '../src/core/hidden-faces.js';
 
@@ -337,6 +337,50 @@ test('laser lab runs: savings over 10 puzzles, below 0 allowed; the best run kep
 
 // 3.2 (developer, on the phone: the 🪙 "looks like a ball - not
 // meaningful"): prices and costs in words.
+// 3.5 (developer: "Pieces 7, cheapest 6" read as pieces, though both were
+// coins; "You used 7 pieces and 9 coins. Best solution used 6 pieces and
+// 7 coins"): the player's pieces and their cost, the best way's.
+test('laser lab end: the words say pieces and coins, yours and the best way’s', () => {
+  const p = gp(), best = p.answer;   // one mirror, 1 coin
+  // solved with a splitter (2 coins), a hint first (1) and a wrong laser (1)
+  let g = createGame(p, '5-1', 0);
+  Object.assign(g, { result: 'solved', hintsUsed: 1, wrongLamps: 1, fees: 2 });
+  g.pieces[12] = 's0';
+  g.saved = p.budget - spent(g) - g.fees;
+  let w = endWords(g, p, best);
+  assert.deepEqual(w, { how: 'solved', head: 'Solved! Saved 0 coins', lines: ['You used 1 piece (2 coins) · hints 1 coin · lasers 1 coin', 'Best: 1 piece (1 coin)'], isBest: false });
+  // the best: one line, ticked
+  g = createGame(p, '5-1', 0);
+  Object.assign(g, { result: 'solved' });
+  g.pieces[12] = 'm0';
+  g.saved = p.budget - 1;
+  w = endWords(g, p, best);
+  assert.deepEqual(w.lines, ['You used 1 piece (1 coin): the best ✓']);
+  assert.ok(w.isBest);
+  // over the budget: two splitters and a mirror (5 coins), budget 4
+  g.pieces[12] = 's0'; g.pieces[7] = 's0'; g.pieces[0] = 'm0';
+  g.saved = p.budget - spent(g);
+  w = endWords(g, p, [{ r: 2, c: 2, t: 'm', o: 0 }, { r: 1, c: 2, t: 'm', o: 0 }]);
+  assert.equal(w.head, 'Solved, 1 coin over');
+  assert.deepEqual(w.lines, ['You used 3 pieces (5 coins)', 'Best: 2 pieces (1 coin)'], 'the best way counted is the one given');
+  // the answer shown, and a run's end
+  g = createGame(p, '5-1', 0);
+  giveUp(g, p, [best]);
+  assert.deepEqual(endWords(g, p, best), { how: 'lost', head: 'Answer shown: −4 coins', lines: ['Best: 1 piece (1 coin)'], isBest: false });
+  assert.deepEqual(endWords(g, p, best, { done: true, savings: 17, best: true }).lines, ['This one: −4 coins · Best run!', 'Best: 1 piece (1 coin)']);
+  assert.equal(endWords(g, p, best, { done: true, savings: -3 }).head, 'Run over! Savings −3 coins');
+});
+
+test('laser lab end: See best draws the best way with every laser on, the game itself untouched', () => {
+  const p = { ...p2, seed: 7, cheapest: 1, budget: 4, answer: [] }, g = createGame(p, '5-2', 0);
+  g.pieces[3] = 's1'; g.fixed = [3]; g.miss = { li: 0, others: [] }; g.result = 'solved';
+  const before = JSON.stringify(g), v = bestView(g, p, [{ r: 1, c: 1, t: 'm', o: 1 }]);
+  assert.equal(v.pieces[6], 'm1');
+  assert.equal(v.pieces.filter(Boolean).length, 1, 'the player’s pieces drawn too');
+  assert.deepEqual([v.on, v.fixed, v.miss, v.result], [[0, 1], [], null, 'solved']);
+  assert.equal(JSON.stringify(g), before, 'the game changed');
+});
+
 test('laser lab: coins in words, one coin or more, minus in front', () => {
   assert.deepEqual([coins(1), coins(3), coins(0), coins(-9), coins(-1)], ['1 coin', '3 coins', '0 coins', '−9 coins', '−1 coin']);
   assert.doesNotMatch(coins(2), /🪙/);

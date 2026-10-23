@@ -39,6 +39,16 @@ test('pages: every page has the footer, and "Source code" opens in a new tab', (
 // The stats (DESIGN.md "Stats", developer 2026-10-10): every footer links
 // to the public dashboard, in a new tab like "Source code"; every page but
 // log.html (the developer's) sends the counts.
+// 3.5 (developer: the board "seems to zoom in" from a two-finger touch):
+// every game page blocks the pinch; the home page and log.html keep zoom.
+test('pages: every game blocks pinch zoom; the home and log pages don’t', () => {
+  for (const p of pages) {
+    const loads = html[p].includes('<script type="module" src="src/ui/nozoom.js"></script>');
+    assert.equal(loads, games.includes(p), `${p}: ${loads ? 'blocks' : 'doesn’t block'} pinch zoom`);
+  }
+  assert.ok(games.length >= 12, `only ${games.length} games checked`);
+});
+
 test('pages: every footer links to the stats; every page but log.html counts', () => {
   for (const p of pages) {
     const foot = html[p].match(/<footer class="site-foot">([\s\S]*?)<\/footer>/)[1];

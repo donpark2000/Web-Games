@@ -29,8 +29,10 @@
     <div class="panel rulesbox">
       <div id="rulesPic" aria-hidden="true"></div>
       <div class="rules">
-        <p>Buy mirrors and splitters so the laser reaches every <b>💎</b>, for as little as you can. A beam must never shine into a laser: it breaks.</p>
-        <p class="how">Use as many pieces as you like: each one on the board costs its price, and taking it off gives the price back. Each puzzle has a budget; what's left of it when you solve it goes into your savings, over a run of 10 puzzles. Spend more and your savings pay. Tap a square to put the piece picked below the board there; tap it again to turn it, and once more to take it off. Tap a laser to switch it on: if its beam isn't right, it goes off and costs 1 coin. Moving a piece switches the lasers off. ❤️ Try again (3 in a run) starts a puzzle over with everything it cost given back; Show answer costs its whole budget.</p>
+        <!-- the developer's words (3.5) -->
+        <p>Buy mirrors and splitters so the laser reaches every <b>💎</b>. A beam must never shine into a laser: it breaks.</p>
+        <p class="how">Use as many pieces as you need, but each piece has a cost. Each puzzle has a budget for buying pieces and what's left after solving the puzzle goes into your savings. Go over the budget and the rest comes out of your savings. Your goal is to maximize your savings over a run of 10 puzzles.</p>
+        <p class="how">Select a mirror or a splitter and place it on the board by tapping a square. Tap it again to turn it, and once more to take it off. Tap a laser to switch it on: if its beam isn't right, it goes off and costs 1 coin. Moving a piece switches the lasers off. ❤️ Try again (3 in a run) starts a puzzle over and restores your budget. Show answer costs its whole budget.</p>
       </div>
     </div>
 
@@ -105,8 +107,10 @@
     </div>
     <!-- at the end, in place of the tools: the board stays in view. No Try
          again here (it would let a puzzle be played again for more savings);
-         ❤️ Try again is for a puzzle under way -->
+         ❤️ Try again is for a puzzle under way. See best (3.5) when solved
+         for more than the cheapest -->
     <div class="tools" id="endTools" hidden>
+      <button type="button" class="tool" id="bestBtn" hidden>See best</button>
       <button type="button" class="tool primary" id="nextBtn" data-play>Next ▸</button>
       <button type="button" class="tool" id="newBtn">New game</button>
     </div>
@@ -114,6 +118,7 @@
 </main>
 <footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a></footer>
 <script type="module" src="src/ui/laser-lab.js"></script>
+<script type="module" src="src/ui/nozoom.js"></script>
 <script type="module" src="src/ui/stats.js"></script>
 <script type="module" src="src/ui/offline.js"></script>
 </body>

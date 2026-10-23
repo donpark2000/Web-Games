@@ -129,7 +129,8 @@
    fitEnd; 3.2) */
 #play .res b { font-size: calc(21px * var(--rf, 1)); }
 #play .res span { font-size: calc(15px * var(--rf, 1)); }
-#endTools { grid-template-columns: repeat(2, 1fr); }
+/* Next ▸ and New game, See best first when it shows (3.5) */
+#endTools { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; }
 #endTools .tool { white-space: nowrap; }
 /* two rows (3.2): Clear, Hint, Try again over Show answer, New game */
 #tools { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }

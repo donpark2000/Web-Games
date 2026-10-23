@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-22): a new grown-ups' puzzle, **Laser Lab** (called
+*Status (2026-10-23): Laser Lab's end says pieces and coins, yours and
+the best way's, with **See best**; its setup words are the developer's;
+**no pinch zoom** on any game page (release 3.5). 2026-10-22: a new grown-ups' puzzle, **Laser Lab** (called
 Mirror Light until 2026-10-22; buy mirrors and splitters so a laser's
 beam reaches every gem), built from mockup v7 on the branch
 `light-puzzle` (see "Laser Lab"), to try on the phone once published
@@ -111,6 +113,12 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   Connect Four holes to 30 px, matching cards and Count to 9 cards to
   56 px; below that the
   page scrolls). Big screens keep big pieces. The setup screens scroll.
+- **No pinch zoom on the game pages** (developer, 2026-10-23: the board
+  "seems to zoom in", from a two-finger touch by accident; release 3.5):
+  `src/ui/nozoom.js` cancels Safari's gesture events and any touch move
+  with two fingers or more (iOS ignores the viewport's
+  `user-scalable=no`); one finger still scrolls. The home page and
+  log.html keep zoom. Each blocked pinch is logged ("zoom").
 - **A small footer on every page:** "© 2026 Donald Parker · Free software
   under the GPL-3.0 · Source code · Stats" (links to the GitHub repo and
   the stats; developer, 2026-10-04, "Stats" 2026-10-10). **At the bottom of the screen** when the page is shorter
@@ -951,19 +959,43 @@ Agreed after 3.2 (release 3.3; journal "Purple gems spread"):
   3 of 50 (not remade: about 30 minutes of one core a puzzle), each in a
   run of its own.
 
+Agreed after 3.4 (release 3.5; journal "Laser Lab 3.5"):
+- **The setup's words are the developer's** (Claude added "Go over the
+  budget and the rest comes out of your savings.", a rule theirs left
+  out, and fixed "You goal").
+- **The end says pieces and coins** (developer: "Pieces 7, cheapest 6"
+  read as pieces, though both were coins; "something like 'You used 7
+  pieces and 9 coins. Best solution used 6 pieces and 7 coins'"):
+  "You used 7 pieces (8 coins) · hints 1 coin · lasers 1 coin" over
+  "Best: 6 pieces (7 coins)"; matching the cheapest, one line, "You used
+  6 pieces (7 coins): the best ✓". The coins are the pieces' (hints and
+  wrong lasers after them). After Show answer: "Best: 6 pieces (7
+  coins)". At a run's end the best line stays under "This one: ...".
+- **See best** (developer: "an option to show the best solution if your
+  solution was not the best"): at the end of a puzzle solved for more
+  than the cheapest, **See best / Next ▸ / New game**; See best (free)
+  shows on the board the cheapest way closest to the player's board, its
+  lasers on; **Your way** goes back. The best line counts that way's
+  pieces (two cheapest ways can differ: 2 of 10 7×7 two-laser puzzles
+  tried). The cheapest ways are worked out 0.4 s after the sparkle starts
+  (up to 0.3 s on a computer), the puzzle's stored way counted until
+  then.
+
 Claude's choices from the mockup, to be judged on the phone:
 - **The budget is the cheapest cost + 3**, so a best solve saves 3.
 - **The cheapest cost is at least 6 (6×6), 7 (7×7) or 8 (8×8)**: the
   maker walls off cheaper ways until none is left under that floor.
 - **No Try again at the end** (it would let a solved puzzle be played
   again for more savings, and a shown answer be copied): the end's
-  buttons are **Next ▸** (**New run** after the 10th) and **New game**.
+  buttons are **Next ▸** (**New run** after the 10th) and **New game**
+  (and See best first, 3.5, when it shows).
   ❤️ Try again (3.2) is for a puzzle under way.
 - **The end's words**, in the hint bar beside one big star: "Solved!
-  Saved 3 coins" over "Pieces 6, cheapest 6 ✓ · hints 1 · lasers 1"
-  ("Solved, 2 coins over" when it cost more than the budget); "Answer
-  shown: −9 coins" over "A cheapest way: 6 coins" (3.0-3.1: "You gave
-  up", "..., with its beams"); after the
+  Saved 3 coins" ("Solved, 2 coins over" when it cost more than the
+  budget) over the pieces and coins (3.5, above; until then "Pieces 6,
+  cheapest 6 ✓ · hints 1 · lasers 1"); "Answer
+  shown: −9 coins" (3.0-3.1: "You gave
+  up"); after the
   10th, "Run over! Savings 17 coins" over "This one: saved 3 coins · Best
   run!" (or "This one: −9 coins"). The budget row says what the puzzle
   did: "Saved 3 · Savings 15", "Over 2 · Savings 10", "Answer −9 ·

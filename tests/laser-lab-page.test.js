@@ -59,9 +59,9 @@ test('laser lab page: tools Clear, Hint (priced), Try again; Show answer, New ga
   assert.match(js, /ask\('answer', `Show answer: \$\{coins\(-P\.budget\)\}\?`\)/);
   assert.match(js, /ask\('again', 'Try again: uses a ❤️\?'\)/);
   assert.match(js, /if \(what === 'answer'\) showAnswer\(\);\s*if \(what === 'again'\) again\(\);/, 'Yes doesn’t do what was asked');
-  assert.match(js, /head = `Answer shown: \$\{coins\(saved\)\}`/);
   const end = play.match(/<div class="tools" id="endTools" hidden>([\s\S]*?)<\/div>/)?.[1] ?? '';
-  assert.deepEqual(ids(end), ['nextBtn', 'newBtn']);
+  assert.deepEqual(ids(end), ['bestBtn', 'nextBtn', 'newBtn']);
+  assert.match(end, /id="bestBtn" hidden>See best</, 'See best shows before an end says so');
   assert.match(end, /id="nextBtn" data-play/, 'Next not counted as a game started');
   assert.match(js, /e\.done \? 'New run' : 'Next ▸'/);
   const at = id => play.indexOf(`id="${id}"`);
@@ -120,6 +120,32 @@ test('laser lab page: Try again wired to the run’s hearts, kept on the device;
   assert.match(js, /if \(!back\) \{ refuseAgain\('nothing spent'\); return; \}/, 'Try again asks for a heart with nothing to give back');
 });
 
+// 3.5 (developer): the setup's words in the developer's own, with "Your
+// goal" and one rule of theirs left out put back: over the budget, the
+// savings pay.
+test('laser lab page: the setup’s words are the developer’s (3.5)', () => {
+  const rules = page.match(/<div class="rules">([\s\S]*?)<\/div>/)?.[1].replace(/<!--[\s\S]*?-->/g, '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? '';
+  assert.equal(rules, "Buy mirrors and splitters so the laser reaches every 💎. A beam must never shine into a laser: it breaks."
+    + " Use as many pieces as you need, but each piece has a cost. Each puzzle has a budget for buying pieces and what's left after solving the puzzle goes into your savings. Go over the budget and the rest comes out of your savings. Your goal is to maximize your savings over a run of 10 puzzles."
+    + " Select a mirror or a splitter and place it on the board by tapping a square. Tap it again to turn it, and once more to take it off. Tap a laser to switch it on: if its beam isn't right, it goes off and costs 1 coin. Moving a piece switches the lasers off. ❤️ Try again (3 in a run) starts a puzzle over and restores your budget. Show answer costs its whole budget.");
+});
+
+// 3.5: the end's words from src/core endWords (pieces and coins), with the
+// best way they count kept with the end; See best / Your way draws that
+// way, free, only when solved for more than the cheapest; the best way
+// refined to the one closest to the board once the cheapest ways are
+// worked out, after the sparkle starts.
+test('laser lab page: the end’s words from endWords; See best shows the best way they count', () => {
+  assert.match(js, /\.\.\.endWords\(G, P, best, f\), best,/);
+  assert.match(js, /b = ui\.seeing && ui\.end\?\.best \? bestView\(G, P, ui\.end\.best\) : G, placed = placedOf\(b\)/, 'the board not drawn from the best way');
+  assert.match(js, /\$\('bestBtn'\)\.hidden = !\(e\.how === 'solved' && e\.best && !e\.isBest\);/);
+  assert.match(js, /\$\('bestBtn'\)\.onclick = \(\) => \{[\s\S]*?refineBest\(\);\s*ui\.seeing = !ui\.seeing;/, 'See best can show a way the words didn’t count');
+  assert.match(js, /if \(!ui\.end\.isBest && !ui\.end\.refined\) setTimeout\(\(\) => \{ if \(G === game\) refineBest\(\); \}, 400\);/);
+  assert.match(js, /paused: null, seeing: false \}\);/, 'a new puzzle starts showing the last one’s best way');
+  assert.match(js, /\(e\.lines \?\? \[e\.line \?\? ''\]\)/, 'an end kept by 3.4 (one line) not shown');
+  assert.match(css, /#endTools \{ grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; \}/);
+});
+
 // 3.2: New game during play (developer: "New game is the quit"): back to
 // setup with the run kept, the puzzle under way kept in it first.
 test('laser lab page: New game during play keeps the run and the puzzle under way', () => {
@@ -162,7 +188,7 @@ test('laser lab page: purple gem in halves, striped green splitter, bright laser
 test('laser lab page: wired to the log, game keeping, runs, sound and fit', () => {
   assert.match(js, /log\.add\('laser-lab', msg, data\)/);
   assert.match(js, /startLog\('laser-lab'\)/);
-  for (const what of ['puzzles loaded', 'puzzle started', 'puzzle picked up', 'piece', 'square refused', 'piece picked', 'clear', 'laser on', 'laser off', 'laser refused', 'hint', 'cheapest ways worked out', 'answer?', 'answer shown', 'again?', 'try again', 'try again refused', 'end words fit', 'solved', 'run over', 'puzzle done', 'next', 'new game', 'resumed', 'fit', 'turn line fit', 'tools fit', 'clock paused']) {
+  for (const what of ['puzzles loaded', 'puzzle started', 'puzzle picked up', 'piece', 'square refused', 'piece picked', 'clear', 'laser on', 'laser off', 'laser refused', 'hint', 'cheapest ways worked out', 'answer?', 'answer shown', 'again?', 'try again', 'try again refused', 'end words fit', 'see best', 'best way', 'solved', 'run over', 'puzzle done', 'next', 'new game', 'resumed', 'fit', 'turn line fit', 'tools fit', 'clock paused']) {
     const esc = what.replace(/[?]/g, '\\?');
     // L('what' ...), or either word of L(x ? 'what' : 'other' ...)
     assert.ok(new RegExp(`L\\((?:[\\w.]+ \\? (?:'[^']*' : )?)?'${esc}'`).test(js), `not logged: ${what}`);

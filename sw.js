@@ -19,9 +19,9 @@
 // opens online; the pages opened after that get the new files.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'bc03ebead85e';
-const MADE = '2026-10-22';
-const RELEASE = '3.4';
+const VERSION = '0b2719ffa49b';
+const MADE = '2026-10-23';
+const RELEASE = '3.5';
 const FILES = [
   'colour-sudoku.html',
   'connect-four.html',
@@ -104,6 +104,7 @@ const FILES = [
   'src/ui/matchstick.js',
   'src/ui/net.js',
   'src/ui/nim.js',
+  'src/ui/nozoom.js',
   'src/ui/numbercard.js',
   'src/ui/offline.js',
   'src/ui/resume.js',

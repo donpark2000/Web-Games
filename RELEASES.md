@@ -7,6 +7,23 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.5 (2026-10-23, version 0b2719ffa49b)
+
+Laser Lab:
+
+- **The end says pieces and coins**: "You used 7 pieces (8 coins)" and
+  "Best: 6 pieces (7 coins)" (it said "Pieces 7, cheapest 6", which were
+  both coins). Matching the best says "the best ✓".
+- **See best**: when your solve cost more than the cheapest, a See best
+  button at the end shows a cheapest way (the one closest to yours) with
+  its beams; Your way goes back. Free.
+- **The setup's words rewritten** by the developer.
+
+Every game:
+
+- **No pinch zoom** on the game pages, so a two-finger touch can't zoom
+  the board. The home page and the log page still zoom.
+
 ## 3.4 (2026-10-22, version bc03ebead85e)
 
 Colour Sudoku:

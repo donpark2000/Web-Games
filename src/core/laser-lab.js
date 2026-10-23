@@ -658,6 +658,40 @@ export function giveUp(g, p, answers) {
   return true;
 }
 
+// The end's words (3.5; developer: "Pieces 7, cheapest 6" read as pieces,
+// though both were coins): what the player's pieces were and cost, and
+// the best way's, in pieces and coins. `best`: the cheapest way the end
+// counts (and See best shows); `run`: { done, savings, best } at a run's
+// end. Returns { how: 'solved' | 'lost', head, lines, isBest }.
+const pieceCount = k => `${k} piece${k === 1 ? '' : 's'}`;
+export function endWords(g, p, best, run = {}) {
+  const bestLine = `Best: ${pieceCount(best.length)} (${coins(p.cheapest)})`;
+  let how, head, lines, short, isBest = false;
+  if (g.result === 'solved') {
+    const cost = spent(g), hints = g.hintsUsed * (g.hintsUsed + 1) / 2;
+    const fees = [hints ? `hints ${coins(hints)}` : '', g.wrongLamps ? `lasers ${coins(g.wrongLamps)}` : ''].filter(Boolean).map(f => ` · ${f}`).join('');
+    isBest = cost <= p.cheapest;
+    how = 'solved';
+    head = g.saved >= 0 ? `Solved! Saved ${coins(g.saved)}` : `Solved, ${coins(-g.saved)} over`;
+    lines = [`You used ${pieceCount(placedOf(g).size)} (${coins(cost)})${isBest ? ': the best ✓' : ''}${fees}`, ...(isBest ? [] : [bestLine])];
+    short = g.saved >= 0 ? `This one: saved ${coins(g.saved)}` : `This one: ${coins(-g.saved)} over`;
+  } else {
+    how = 'lost';
+    head = `Answer shown: ${coins(g.saved)}`;
+    lines = [bestLine];
+    short = `This one: ${coins(g.saved)}`;
+  }
+  if (run.done) { head = `Run over! Savings ${coins(run.savings)}`; lines = [`${short}${run.best ? ' · Best run!' : ''}`, ...(isBest ? [] : [bestLine])]; }
+  return { how, head, lines, isBest };
+}
+// The board as the best way has it (See best, 3.5): its pieces, every
+// laser on. A view to draw, not a game to play.
+export function bestView(g, p, best) {
+  const pieces = Array(p.n * p.n).fill('');
+  for (const x of best) pieces[x.r * p.n + x.c] = `${x.t}${x.o}`;
+  return { ...g, pieces, fixed: [], on: p.lamps.map((l, li) => li), broken: [], failed: [], miss: null };
+}
+
 // ❤️ Try again (3.2): the board cleared, a hint's pieces too, and all the
 // puzzle cost given back (pieces, wrong lasers, hints), so the budget and
 // savings are as at its start; the clock runs on. It uses one of the run's

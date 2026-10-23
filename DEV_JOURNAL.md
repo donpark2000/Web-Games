@@ -8830,3 +8830,110 @@ and 3.4 (Easy with 30 digits) on the phone. OK to purge
 `Web-Games-testing\2026-10-22_easy-digits` (3.3's Colour Sudoku stock, the
 make's output and the remake check) sent to the Recycle Bin. "Easy starts
 with 30 digits" and "Release 3.4 published" are the record.
+
+## 2026-10-23: Laser Lab 3.5: the end in pieces and coins, See best, the developer's setup words; no pinch zoom
+
+**Developer** (after 3.3 and 3.4 on the phone): asked the difference
+between ↺ Clear and ❤️ Try again (Claude: Clear is free, takes the
+pieces off but a hint's, their prices back, wrong lasers and hints stay
+paid; Try again uses a heart and gives back everything the puzzle cost,
+hint pieces and hints too). Then four changes: new setup words (their
+own text); the end "says how many pieces you used, and what the minimum
+number of pieces would have been but it says 'cheapest'. It would be
+clearer to say something like 'You used 7 pieces and 9 coins. Best
+solution used 6 pieces and 7 coins'"; "sometimes on my phone the board
+seems to zoom in (probably because I accidently used a 2 finger
+gesture). Can that be disabled?"; and "an option to show the best
+solution if your solution was not the best". Claude's suggestions
+(three-line end words, See best / Your way, the pinch blocked on every
+game page, one rule put back into the setup words), then the developer:
+"Please build and publish 3.5".
+
+**Found:** the end's "Pieces 7, cheapest 6" never counted pieces: both
+were coins (`spent(G)`, the pieces' prices, against `P.cheapest`), so a
+splitter counted 2. The label was wrong, not just unclear.
+
+**Built** (DESIGN.md "Laser Lab", new block "Agreed after 3.4 (release
+3.5)"; "Structure" for the zoom):
+- **Setup words:** the developer's, as three paragraphs, with "You
+  goal" → "Your goal", a comma before "but", and Claude's "Go over the
+  budget and the rest comes out of your savings." (their text had left
+  out that the savings pay and can go below 0).
+- **The end's words** (core `endWords(g, p, best, run)`): "You used 7
+  pieces (8 coins) · hints 1 coin · lasers 1 coin" over "Best: 6 pieces
+  (7 coins)"; at the cheapest, one line, "...: the best ✓". The coins
+  are the pieces' prices; hints and wrong lasers follow in coins (before,
+  "hints 1" was coins too, unsaid). Show answer: "Best: N pieces (C
+  coins)" (was "A cheapest way: C coins"). A run's end keeps the best
+  line under "This one: ...". The bar's 3 lines take a head and up to
+  two lines (`resOf`); an end kept by 3.4 (one `line`) still shows.
+- **See best / Your way** (core `bestView`: the best way's pieces, every
+  laser on, the game untouched): first of the end's buttons (now a row
+  of 2 or 3, `grid-auto-flow: column`), only for a solve that cost more
+  than the cheapest; free; reset to the player's board by a reload or
+  the next puzzle. The best way is kept with the end (`ui.end.best`), so
+  a reload shows the same one.
+- **Which best way:** the cheapest way closest to the player's board
+  (`closest`, as hints use). Working them out (`answersFor`) at the
+  solve, timed first on 10 stock puzzles per setup (Node, this PC):
+  average / worst ms 6-1 7/13, 6-2 38/118, 7-1 72/279, 7-2 187/298, 8-1
+  145/242, 8-2 127/192. A phone is slower, so not before the sparkle:
+  the end shows at once with the stored way (or the closest, if a hint
+  already worked them out), and 0.4 s later `refineBest` works them
+  out, updates the words and logs "best way" (pieces, stored, was).
+  See best refines first if tapped sooner. **Does the count change?**
+  Cheapest ways of different piece counts in 2 of those 10 7×7 two-laser
+  puzzles, none in the others: rare, but the words count the way See
+  best shows.
+- **No pinch zoom** (`src/ui/nozoom.js`, loaded by the 12 game pages,
+  not index.html or log.html): `gesturestart` / `gesturechange`
+  cancelled (Safari; iOS ignores `user-scalable=no`), and a touch move
+  with two fingers or more (others); one finger scrolls as before.
+  Logged once per pinch: `[zoom] pinch blocked {"how":"gesture"}`.
+  **Not yet checked on a real phone**: only the iPhone can show whether
+  a real pinch is stopped.
+
+**Tests** (359, 352 before): `laser-lab.test.js` "the words say pieces
+and coins, yours and the best way's" (with fees, the best, over budget,
+answer shown, a run's end) and "See best draws the best way with every
+laser on, the game itself untouched"; `laser-lab-page.test.js` the
+setup's words exactly, See best wired (drawn from `bestView`, shown only
+when not best, refined before showing, reset per puzzle, an end kept by
+3.4), the end's buttons See best / Next / New game, two new log lines;
+`pages.test.js` "every game blocks pinch zoom; the home and log pages
+don't"; new `nozoom.test.js` (a two-finger move cancelled and noted
+once, one finger left alone, noted again after all fingers lift,
+Safari's gesture; one that can't be cancelled left alone). **Shown to
+fail** (a scratch copy, six breaks at once, each caught by its test):
+"Best way:" for "Best:" in the words; `bestView` keeping the game's
+fixed squares; the See best button removed; "You goal" put back; nozoom
+left off nim.html; the touch rule at 3 fingers. `npm test` 359 passed;
+clean room (a fresh copy, run twice): 359 and 359, the file listing the
+same (147 files).
+
+**Browser** (local server, built-in browser): a 6×6 one-laser run's
+first puzzle (61012484, cheapest 6, budget 9) kept on the device with
+its stored way plus a mirror off the beams, then Play! and the laser:
+"Solved! Saved 2 coins" / "You used 6 pieces (7 coins)" / "Best: 5
+pieces (6 coins)", See best / Next ▸ / New game; the log's "cheapest
+ways worked out" 5 ms, "best way" 5 pieces. See best: the spare mirror
+gone, the beam on; Your way: back. At 320 × 640: the three buttons 87 px
+each, none cut, the page 320 × 640; the end's words at 87.5%. The
+longest words likely ("Solved, 12 coins over" / "You used 14 pieces (21
+coins) · hints 10 coins · lasers 12 coins" / "Best: ...") put in the bar
+there fit at 67.5% (the fit goes to 60%). A reload came back to the end
+with See best (not the best way). Next ▸ then Show answer: "Answer
+shown: −9 coins" / "Best: 5 pieces (6 coins)", no See best, page 760 of
+760. A synthetic `gesturestart` on the page: cancelled and logged. No
+console errors.
+
+**Release 3.5 prepared:** `src/core/release.js` 3.5, `node
+tools/offline.js` (version 0b2719ffa49b, 95 files), RELEASES.md 3.5,
+`node tools/release.js`: "Release 3.5 is ready".
+
+**Open questions:** Q32 unchanged (the end's words and See best now part
+of what the developer judges on the phone). **Proposed skill
+additions:** none new (the mislabelled number is this game's).
+
+**Next:** publish (the developer's go-ahead given), then the developer
+plays 3.5 on the phone, including whether a pinch is now stopped.

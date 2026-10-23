@@ -8,6 +8,7 @@ import {
   SETUPS, RUN, PRICE, HEARTS, setupOf, parseSetup, decode, stockAt, puzzleNumber, trace, boardOf, gemColours, checkLamp,
   createGame, placedOf, budgetLeft, nextHintPrice, tapSquare, clearBoard, switchLamp, readyLamps, failedBefore,
   missWords, rightWords, lampName, coins, answersFor, useHint, giveUp, tryAgain, snapshotGame, restoreGame, spent,
+  closest, endWords, bestView,
   PROGRESS_KEY, readProgress, runOf, keepCurrent, finishPuzzle, DEMO, clock,
 } from '../core/laser-lab.js';
 import { mergeSetup } from '../core/resume.js';
@@ -48,8 +49,9 @@ let G = null;         // its game (src/core), kept as JSON
 // The screen's own: the piece a tap puts down, a beam running out, the
 // bar's words, the end's words, the clock, the cheapest ways (worked out
 // at the first hint or Show answer), and the question asked in place of
-// the tools ('answer' or 'again').
-const ui = { sel: 'm', busy: false, lighting: null, bar: { kind: 'idle', words: '' }, end: null, t0: 0, paused: null, answers: null, hinted: -1, asking: null };
+// the tools ('answer' or 'again'), and whether the board shows the best
+// way at the end (See best, 3.5).
+const ui = { sel: 'm', busy: false, lighting: null, bar: { kind: 'idle', words: '' }, end: null, t0: 0, paused: null, answers: null, hinted: -1, asking: null, seeing: false };
 let clockTimer = null;
 let lastFit = '';
 
@@ -142,7 +144,7 @@ function startRun(s) {
 function startGame(s, k, p, kept, saved) {
   P = p;
   G = kept ?? createGame(p, s, k);
-  Object.assign(ui, { busy: false, lighting: null, answers: null, hinted: -1, sel: saved?.sel === 's' ? 's' : 'm', paused: null });
+  Object.assign(ui, { busy: false, lighting: null, answers: null, hinted: -1, sel: saved?.sel === 's' ? 's' : 'm', paused: null, seeing: false });
   ui.bar = saved?.bar && typeof saved.bar.words === 'string' ? saved.bar : { kind: 'idle', words: '' };
   ui.end = saved?.end ?? null;
   ui.t0 = Date.now() - (G.ms ?? 0);
@@ -206,12 +208,13 @@ function buildBoard() {
 
 // Draws the squares, the lasers, the shop, the status, the beams that are
 // on (in full) and the last one that wasn't right (faint, its misses
-// ringed), and the bar.
+// ringed), and the bar. At the end, See best draws the best way in place
+// of the player's board (3.5).
 function render() {
-  const n = P.n, cells = $('board').children, placed = placedOf(G);
+  const n = P.n, cells = $('board').children, b = ui.seeing && ui.end?.best ? bestView(G, P, ui.end.best) : G, placed = placedOf(b);
   for (let i = 0; i < n * n; i++) {
     const c = cells[i];
-    c.innerHTML = cellSvg(P, i, placed, G.fixed);
+    c.innerHTML = cellSvg(P, i, placed, b.fixed);
     c.classList.remove('unlit', 'lit', 'lit1', 'lit2');
     c.classList.toggle('hinted', i === ui.hinted);
     const pc = placed.get(i), code = boardOf(P)[i];
@@ -219,7 +222,7 @@ function render() {
   }
   const ready = new Set(ui.busy ? [] : readyLamps(G, P));
   for (const e of $('lamps').children) {
-    const li = Number(e.dataset.li), on = G.on.includes(li) || ui.lighting === li, broken = G.broken.includes(li);
+    const li = Number(e.dataset.li), on = b.on.includes(li) || ui.lighting === li, broken = b.broken.includes(li);
     e.classList.toggle('on', on && !broken);
     e.classList.toggle('broken', broken);
     e.classList.toggle('ready', ready.has(li));
@@ -247,7 +250,7 @@ function render() {
   $('hintPrice').textContent = coins(nextHintPrice(G));
   for (const id of ['hintBtn', 'clearBtn', 'answerBtn', 'playNewBtn']) $(id).disabled = !!G.result;
   $('againBtn').disabled = !!G.result || hearts <= 0;
-  const t = G.on.length ? trace(P, placed, G.on) : null;
+  const t = b.on.length ? trace(P, placed, b.on) : null;
   const miss = G.miss && !G.result ? checkLamp(P, placed, G.miss.li, G.miss.others) : null;
   drawSegs(t ? t.segs : [], miss ? miss.segs : []);
   if (t) for (const [i, got] of t.lit) cells[i].classList.add(gemLit(i, got));
@@ -573,7 +576,7 @@ function showAnswer() {
   clearInterval(clockTimer);
   const f = finish();
   L('answer shown', { setup: G.setup, seed: P.seed, cost: G.saved, savings: f.savings, runDone: f.done, time: clock(G.ms) });
-  ui.end = { ...endOf(f), at: f.at, savings: f.savings, done: f.done, hearts: f.hearts };
+  ui.end = { ...endOf(f), at: f.at, savings: f.savings, done: f.done, hearts: f.hearts, bestRun: f.best };
   ui.hinted = -1;
   render();
   showEnd();
@@ -616,27 +619,16 @@ function finish() {
   return { ...f, at: r.at, hearts: r.hearts };
 }
 
-// The end's words: the bar has room for a head and one line; at the end
-// of a run the head is the run's savings.
+// The end's words (src/core endWords; 3.5: pieces and coins, the player's
+// and the best way's), with the best way they count, kept with the end
+// for See best. Answer shown: the board is that way. Solved: the cheapest
+// way closest to the player's board when the cheapest ways are worked out
+// (a hint or later, refineBest), else the one stored with the puzzle.
 function endOf(f) {
-  const saved = G.saved;
-  let how, head, line, short;
-  if (G.result === 'solved') {
-    const pieces = spent(G), fees = [G.hintsUsed ? `hints ${G.hintsUsed * (G.hintsUsed + 1) / 2}` : '', G.wrongLamps ? `lasers ${G.wrongLamps}` : ''].filter(Boolean);
-    how = 'solved';
-    head = saved >= 0 ? `Solved! Saved ${coins(saved)}` : `Solved, ${coins(-saved)} over`;
-    line = `Pieces ${pieces}, cheapest ${P.cheapest}${pieces === P.cheapest ? ' ✓' : ''}${fees.length ? ` · ${fees.join(' · ')}` : ''}`;
-    short = saved >= 0 ? `This one: saved ${coins(saved)}` : `This one: ${coins(-saved)} over`;
-  } else {
-    how = 'lost';
-    head = `Answer shown: ${coins(saved)}`;
-    line = `A cheapest way: ${coins(P.cheapest)}`;
-    short = `This one: ${coins(saved)}`;
-  }
-  if (f.done) { head = `Run over! Savings ${coins(f.savings)}`; line = `${short}${f.best ? ' · Best run!' : ''}`; }
-  return { how, head, line };
+  const best = G.result === 'gaveup' ? [...placedOf(G)].map(([i, pc]) => ({ r: Math.floor(i / P.n), c: i % P.n, ...pc }))
+    : ui.answers ? closest(G, P, ui.answers) : P.answer;
+  return { ...endWords(G, P, best, f), best, refined: G.result === 'gaveup' || !!ui.answers };
 }
-
 // Solved: the last beam right. The sparkle, the result in the bar.
 function win() {
   clearInterval(clockTimer);
@@ -644,27 +636,52 @@ function win() {
   $('clock').textContent = clock(G.ms);
   const f = finish();
   L('solved', { setup: G.setup, seed: P.seed, pieces: spent(G), cheapest: P.cheapest, hints: G.hintsUsed, wrongLasers: G.wrongLamps, saved: G.saved, savings: f.savings, time: clock(G.ms) });
-  ui.end = { ...endOf(f), at: f.at, savings: f.savings, done: f.done, hearts: f.hearts };
+  ui.end = { ...endOf(f), at: f.at, savings: f.savings, done: f.done, hearts: f.hearts, bestRun: f.best };
   sound.play('win');
   render();
   showEnd();
   keep();
+  // not the best: the cheapest ways worked out once the sparkle is under
+  // way (up to about 0.3 s on a computer), for the one closest to the board
+  const game = G;
+  if (!ui.end.isBest && !ui.end.refined) setTimeout(() => { if (G === game) refineBest(); }, 400);
+}
+
+// The best way the end counts and See best shows: the cheapest way
+// closest to the player's board (it may have another number of pieces than
+// the one stored with the puzzle). Once per end.
+function refineBest() {
+  const e = ui.end;
+  if (!e || e.refined || G.result !== 'solved') return;
+  const best = closest(G, P, ensureAnswers()), was = e.best.length;
+  Object.assign(e, endWords(G, P, best, { done: e.done, savings: e.savings, best: e.bestRun }), { best, refined: true });
+  L('best way', { pieces: best.length, stored: P.answer.length, was, cost: P.cheapest });
+  $('hintbar').querySelector('.res')?.replaceWith(resOf(e));
+  endFitFor = null;
+  fitEnd();
+  if (ui.seeing) render();
+  resume.keep();
 }
 
 // The result in the hint bar beside one big star (sparkles for a solve,
 // grey for an answer shown), and Next ▸ (New run after a run's 10th) / New game
 // in place of the tools.
 function showEnd() {
-  const e = ui.end ?? { how: G.result === 'solved' ? 'solved' : 'lost', head: G.result === 'solved' ? 'Solved!' : 'Answer shown', line: '' };
+  const e = ui.end ?? { how: G.result === 'solved' ? 'solved' : 'lost', head: G.result === 'solved' ? 'Solved!' : 'Answer shown', lines: [] };
   const sparks = e.how === 'solved' ? [0, 60, 120, 180, 240, 300].map((a, k) => `<i class="spark" style="--a:${a}deg;--d:${k * 60}ms">${STAR}</i>`).join('') : '';
   const bar = $('hintbar');
   bar.className = `hintbar result ${e.how}`;
-  bar.innerHTML = `<span class="bigstar">${STAR}${sparks}</span><span class="res"><b>${e.head}</b><span>${e.line}</span></span>`;
+  bar.innerHTML = `<span class="bigstar">${STAR}${sparks}</span>`;
+  bar.appendChild(resOf(e));
   $('tools').hidden = true;
   $('askTools').hidden = true;
   $('endTools').hidden = false;
   $('nextBtn').textContent = e.done ? 'New run' : 'Next ▸';
-  L('end buttons', { how: e.how, next: $('nextBtn').textContent });
+  // See best (3.5): solved for more than the cheapest (an end kept by 3.4
+  // has no best way)
+  $('bestBtn').hidden = !(e.how === 'solved' && e.best && !e.isBest);
+  $('bestBtn').textContent = ui.seeing ? 'Your way' : 'See best';
+  L('end buttons', { how: e.how, next: $('nextBtn').textContent, best: !$('bestBtn').hidden });
   endFitFor = null;
   fitEnd();
 }
@@ -682,6 +699,23 @@ function fitEnd() {
   const r = largestFitting(k => { res.style.setProperty('--rf', k / 40); return res.getBoundingClientRect().height <= room + 0.5; }, 24, 40);
   L('end words fit', { scale: r.size / 40, fitted: r.fitted, height: Math.round(res.getBoundingClientRect().height), room: Math.round(room), screen: innerWidth });
 }
+// the end's head and lines (3.4 kept one `line`)
+function resOf(e) {
+  const res = document.createElement('span');
+  res.className = 'res';
+  res.innerHTML = `<b>${e.head}</b>${(e.lines ?? [e.line ?? '']).map(l => `<span>${l}</span>`).join('')}`;
+  return res;
+}
+// See best / Your way (3.5; developer: "an option to show the best
+// solution if your solution was not the best"): free, the puzzle over.
+$('bestBtn').onclick = () => {
+  if (!G?.result || !ui.end?.best) return;
+  refineBest();
+  ui.seeing = !ui.seeing;
+  $('bestBtn').textContent = ui.seeing ? 'Your way' : 'See best';
+  L('see best', { seeing: ui.seeing, pieces: ui.end.best.length, cost: P.cheapest, yours: placedOf(G).size });
+  render();
+};
 $('nextBtn').onclick = () => { L('next', { run: runOf(prog, G.setup).no + 1 }); startRun(G.setup); };
 // New game, at the end or during play (3.2; developer: "New game is the
 // quit"): back to setup, the run kept.
