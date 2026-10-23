@@ -4,7 +4,7 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-23, latest): Laser Lab bombs in mockup v8 (see "Bombs"
+*Status (2026-10-23, latest): Laser Lab bombs that point, in mockup v9 (see "Bombs"
 under Laser Lab), to try. Earlier: Laser Lab: a gem pops big at once as
 its beam lights it, and only once (release 3.8, published). Earlier: a tap with the other piece
 picked swaps it, a gem lights as its last beam line starts, and a double
@@ -1109,8 +1109,10 @@ As built (Claude's, not in the mockup):
 **Bombs (mockup v8, 2026-10-23; not built).** Agreed with the developer:
 placed by the puzzle, never bought; **not in every puzzle** ("just a nice
 option to change game play"); with two lasers **always red or blue**,
-only that colour setting one off; the blast **directional** (the wall
-just beyond, the way the beam was going); **the order the lasers go on
+only that colour setting one off; **a bomb points at its wall** (v9;
+developer: "I like B best"; v8's round bomb with a fuse "look[s] a bit
+strange"): only a beam of its colour coming in from behind sets it off,
+and any other beam stops at it; **the order the lasers go on
 can matter** ("a good feature - not a limitation"). Colour mirrors
 parked, more lasers and placing them dropped (Q35). Claude's choices in
 the mockup, to judge: the beam carries on through the gap; a beam of

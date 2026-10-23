@@ -9507,3 +9507,53 @@ pictures were hard to see, now one at the pieces' size. No console
 errors but the page's icon (none in the mockup). **Not checked:** the
 published artifact itself (the built-in browser isn't signed in to
 claude.ai); its 20 files listed there with their types.
+
+## 2026-10-23: Mockup v8 played; v9: bombs that point
+
+**Developer:** "The game works well. The bombs look a but strange to
+me. A big circle and a little orange circle to its side. Maybe it is
+supposed to look like a wick? ... It might be nice to change the graphic
+so the direction is clearer." Claude showed two drawings in the chat: A,
+a round bomb with its fuse on top (the rule as in v8); B, a bomb that
+points at its wall, set off only by a beam from behind. **Developer:**
+"Maybe they are not bombs. Maybe guns? They clearly point." Claude: a
+pointing thing yes, but not a gun on a family site; a laser cutter (a
+lens that focuses a beam from behind and burns through the wall ahead)
+fits the lab, a drill or a rocket also point. **Developer:** "I like B
+best." The mockup still says bomb; the name is open.
+
+**v9 rules:** a bomb is [r, c, k, d]: it points (d) at the wall it brings
+down; only a beam of its colour going that way (in from behind) sets it
+off; any other beam stops at it, as at a wall (v8: set off from any side,
+the blast the way the beam went). The maker points it the way the
+answer's beam goes. Stock entries: A-D a colour-1 bomb pointing up,
+right, down, left; E-H colour 2. A miss now says why: "it stopped at the
+red bomb" or "it reached a bomb from the side, not from behind". The 💣
+emoji gone from the words (it shows a round bomb).
+
+**Checks:** the bomb tests changed for direction (a beam from the side
+stops and is reported as 'side'; pointing down, the same beam sets it
+off; the maker's bomb points at a wall; the random boards' bombs point
+at their walls). 33 pass (9 bomb, 24 of the game's). Shown to fail with
+direction ignored in the trace (the hand-made board and board 4), in the
+solver (board 4), and with the miss's reason always "colour".
+
+**Puzzles remade** (the stock format changed): 6-1 median 15 ms a
+puzzle, 6-2 52 ms (order matters 10 of 10), 7-1 206 ms, 7-2 1.1 s (6 of
+10), 8-1 1.1 s (86 s for 10).
+
+**In the browser** (the scratch copy, the temporary launch config taken
+out again after): 6×6 two lasers, puzzle 1 ("bomb pointing left", blue,
+at its wall): red first "no red on 1 💎", blue right, red solved. All
+four directions in yellow, red and blue drawn side by side: each points
+plainly. No console errors. Published as
+[Laser Lab Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN)
+version 9; not viewed there (not signed in).
+
+**Shell problems** (developer: "I frequently see you having problems
+with shell mangling quoting"): explained (Git Bash and PowerShell are
+both here; the trouble came from scripts packed inside commands, a
+quote or backslash passing through two or three sets of rules, and the
+repo's CRLF files not matching search text). Claude's memory now says to
+write helper scripts to files and use exact-text edits; this entry's
+changes were made that way.
