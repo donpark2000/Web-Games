@@ -8824,4 +8824,4 @@ left.
 "starts with 30 digits; ...", Harder "starts with 12 to 20; ..."),
 Claude's. **Next:** the developer tries 3.3 (Laser Lab's purple gems)
 and 3.4 (Easy with 30 digits) on the phone. OK to purge
-`Web-Games-testing6-10-22_easy-digits`, to ask.
+`Web-Games-testing\2026-10-22_easy-digits`, to ask.
