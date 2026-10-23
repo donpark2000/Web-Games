@@ -8937,3 +8937,19 @@ additions:** none new (the mislabelled number is this game's).
 
 **Next:** publish (the developer's go-ahead given), then the developer
 plays 3.5 on the phone, including whether a pinch is now stopped.
+
+## 2026-10-23: Release 3.5 published (Laser Lab end words, See best; no pinch zoom)
+
+**Developer:** "Please build and publish 3.5". **Checked first:**
+`npm test` 359 passed; `node tools/release.js`: "Release 3.5 is ready",
+version 0b2719ffa49b. **Published:** `main` fast-forwarded to 0ed3fd4,
+tag `v3.5`,
+[GitHub release 3.5](https://github.com/donpark2000/Web-Games/releases/tag/v3.5);
+live after about 15 s (`version.js` 0b2719ffa49b). Local server stopped
+(`tools/serve.js 8123`, the built-in browser's preview); no serve.js
+left. No test folder outside the repo this time (scratch copies only).
+
+**Next:** the developer plays 3.5 on the phone: the setup words, the
+end's words, See best, and whether a two-finger pinch is now stopped
+(only the phone can show that; the log says `[zoom] pinch blocked` each
+time).
