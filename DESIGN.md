@@ -4,7 +4,8 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-23, latest): Laser Lab: a gem pops big at once as
+*Status (2026-10-23, latest): Laser Lab bombs in mockup v8 (see "Bombs"
+under Laser Lab), to try. Earlier: Laser Lab: a gem pops big at once as
 its beam lights it, and only once (release 3.8, published). Earlier: a tap with the other piece
 picked swaps it, a gem lights as its last beam line starts, and a double
 tap on a piece no longer zooms (nor on Colour Sudoku's redrawn squares)
@@ -1104,6 +1105,21 @@ As built (Claude's, not in the mockup):
 - **Sounds:** a tick per piece put down, turned or taken off; a ding
   for a beam that's right, "uh-oh" for one that isn't (or breaks a
   laser), a ping for a hint, the sparkle when solved.
+
+**Bombs (mockup v8, 2026-10-23; not built).** Agreed with the developer:
+placed by the puzzle, never bought; **not in every puzzle** ("just a nice
+option to change game play"); with two lasers **always red or blue**,
+only that colour setting one off; the blast **directional** (the wall
+just beyond, the way the beam was going); **the order the lasers go on
+can matter** ("a good feature - not a limitation"). Colour mirrors
+parked, more lasers and placing them dropped (Q35). Claude's choices in
+the mockup, to judge: the beam carries on through the gap; a beam of
+the other colour stops at a bomb and carries on once it goes; a laser
+switched on must leave all that's on right; a wrong laser can be tried
+again once the lasers on change; a blown wall comes back when the laser
+that blew it goes off or a piece moves; one bomb a puzzle, which must
+save coins; bombs in every other puzzle (the mix to settle); none yet
+at 8×8 with two lasers.
 
 ## Face names
 

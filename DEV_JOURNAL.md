@@ -9420,3 +9420,90 @@ the direction the light was moving)."
 
 Colour mirrors parked (costly to make, maybe less varied); more lasers
 dropped.
+
+## 2026-10-23: Laser Lab mockup v8: bombs
+
+**Developer:** "Lets go straight to the mockup. I'm thinking that every
+puzzle does not need a bomb. Its just a nice option to change game
+play. And maybe bombs on two laser puzzles are always sensitive to
+color. Is that a good idea?" Claude: yes to both (a bomb's colour then
+says which laser sets it off; the colour is what makes the lasers work
+together). Then: "And I think 'order matters' when turning on lasers is
+a good feature - not a limitation."
+
+**Mockup v8:** [Laser Lab Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN)
+(version 8; v1-v7 the same link). Unlike v1-v7 (one file), it is the
+game's own page and files (19: 4 style sheets, the modules the page
+imports, the puzzles), changed for bombs, so it plays as the game would.
+Built in a scratch copy of the site (Claude's scratchpad, `mock8/site`,
+its own git: the game as of 3.8, then each step), served for checks by
+a scratch script through `tools/serve.js`'s `createServer` (a launch
+config added for it, then taken out again: `launch.json` unchanged).
+No stats or offline scripts; the 🏠 goes nowhere; progress kept under
+its own key (`web-games-laser-lab-mock8`); a mockup bar on the setup
+screen ("Start the runs again").
+
+**Rules (src/core/laser-lab.js in the copy).** `bombs` [r, c, k] on the
+board ('B'); in a stock entry x (colour 1) or y (2). `trace` follows the
+lasers in the order they went on, one after another ("phases"), only
+when the puzzle has a bomb; without, all at once as before, so the same
+seeds make the same puzzles. A beam of the bomb's colour that reaches it
+sets it off: the bomb and the wall just beyond it (the way the beam was
+going) are `gone`, and the beam carries on; any beam stopped at either
+carries on too. Another colour stops at a bomb. `check`: solved when
+some order of switching on works (`inOrder`: each laser leaves all that's
+on right). `checkLamp` judges a laser shone after those on. The solver
+(`solveCheap`) searches each order, a phase at a time, with the same
+rules and an undo trail for bombs and stopped beams. The maker
+(`makeCheap` with `bomb`): on a square the answer's beam crosses
+straight, a bomb, and a wall on the next square along; with two lasers
+that next square is one both colours cross, so the bomb's colour must go
+first; then kept only if the bomb saves coins (with it a wall, no way
+at the cheapest cost).
+
+**Checks** (in the copy; Node): the game's 28 Laser Lab tests pass
+against the changed code with the game's own puzzle file (so puzzles
+without bombs are unchanged, remade the same from their seeds); 9 bomb
+tests: the blast and its direction, colour, a blue beam carrying on after
+red's blast, red first wrong and blue then red solved, a bomb takes no
+piece, the maker's bomb saves coins and survives encode/decode, a laser
+retried after the others change, and the solver against every placement
+of up to two pieces on a hand-made board and 40 random 5×5 boards (the
+same ways). Each shown to fail with its rule broken (blast sideways, no
+carrying on in the trace and in the solver, any colour setting a bomb
+off, a piece on a bomb, the retry). The solver's "carrying on" got
+through at first (no board needed it): the random boards were added for
+it, and then caught it (board 25). Found and fixed on the way: a laser
+judged with another on counted a purple gem lit by the other colour as
+reached (`!got` for `!(got & bit)`; the game's own test "lasers switched
+on in turn agree with check" caught it, 537 of 540); and in the browser,
+red wrong before the blue bomb went off was then refused ("Nothing has
+moved") after blue opened its way: with bombs a failure now holds only
+for the same lasers on.
+
+**Making bomb puzzles** (10 a setup; 6×6 to 8×8 with one laser, 6×6
+and 7×7 with two): 6-1 a median 31 ms (99 seeds) a puzzle; 6-2 62 ms
+(220 seeds), the order mattered in 10 of 10; 7-1 227 ms; 7-2 1.0 s,
+order mattered in 5 of 10; 8-1 about 6 s each, 63 s for 10. Cheapest
+costs as today's (6, 7, 8). Far cheaper than puzzles needing a colour
+mirror (one in about 40,000 seeds at 6×6). 8×8 with two lasers not
+tried (30 minutes a puzzle without bombs).
+
+**The mockup's puzzles:** in each run a bomb puzzle, then one of today's,
+in turn (10 bomb puzzles, 2 runs, then today's); 8×8 with two lasers
+as today.
+
+**In the browser** (built-in, the scratch copy at 8124): 6×6 two lasers,
+puzzle 1 (a blue bomb, the wall to its left): hints placed the pieces;
+red first: "The red beam isn't right: no red on 1 💎. That cost 1 coin."
+Blue: "The blue beam is right. Now the red laser.", the bomb gone off
+684 ms after blue went on, the wall down (`aria-label` "wall blown
+down", rubble; the bomb's square "bomb gone off", a scorch); red then:
+solved. Log: `bombs {"laser":1,"order":[1],"blasts":"15>14"}`. 6×6 one
+laser: the beam up through the bomb, the wall above down, the top gem
+lit, solved; the blast at 865 ms (the flash itself too quick for a
+screenshot). Setup at 375 px: no sideways scroll; the three small bomb
+pictures were hard to see, now one at the pieces' size. No console
+errors but the page's icon (none in the mockup). **Not checked:** the
+published artifact itself (the built-in browser isn't signed in to
+claude.ai); its 20 files listed there with their types.
