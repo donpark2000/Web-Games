@@ -8825,3 +8825,8 @@ left.
 Claude's. **Next:** the developer tries 3.3 (Laser Lab's purple gems)
 and 3.4 (Easy with 30 digits) on the phone. OK to purge
 `Web-Games-testing\2026-10-22_easy-digits`, to ask.
+
+**Purged** (developer: "OK to purge the easy-digits test folder."): 
+`Web-Games-testing\2026-10-22_easy-digits` (3.3's Colour Sudoku stock, the
+make's output and the remake check) sent to the Recycle Bin. "Easy starts
+with 30 digits" and "Release 3.4 published" are the record.
