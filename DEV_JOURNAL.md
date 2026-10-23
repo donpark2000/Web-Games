@@ -51,7 +51,9 @@ time, each tried before publishing:
   budget = cheapest + 3, cost floors 6/7/8, no Try again, the end's
   words, the laser drawing), and the build's: a puzzle left unfinished
   waits in its run, the status stacking on narrow phones, purple gems in
-  about 1 in 7 two-laser puzzles (3 of 50 at 8×8), 50 puzzles for 8×8 with two lasers,
+  about 1 in 7 two-laser puzzles (3 of 50 at 8×8; *2026-10-22:* the
+  developer: keep them, about 1 in 3, spread through each run: release
+  3.3, see "Purple gems spread"), 50 puzzles for 8×8 with two lasers,
   and how long the first hint takes (the log's "cheapest ways worked
   out"). *2026-10-22:* 3.2 adds a budget row and a second tools row,
   so the board is smaller (6×6 at 393 × 760: 40 px squares, 3.0 47 px;
@@ -8565,3 +8567,111 @@ live after about 40 s (`version.js` d82d45d7fa31, the page with Try
 again and Show answer). Local servers stopped; no node processes left.
 
 **Next:** the developer tries 3.2 on the phone.
+
+## 2026-10-22: Purple gems spread; release 3.3 prepared; status (start here next session)
+
+**Task** (from the parent session, which asked the developer): on the
+phone with two lasers the developer saw no purple gem (the half red,
+half blue one that wants both beams). The developer, asked whether to
+drop them: "Keep the two-colour gems: about 1 in 3 two-laser puzzles at
+6x6 and 7x7, spread through each run, and 8x8's three spread out."
+
+**Why there were so few:** the stock took the first seeds made, in seed
+order, with no preference (journal "Laser Lab built"): 14 of 100 at
+6×6, 15 at 7×7, 3 of 50 at 8×8. Places in the stock (1-based) of the
+purple ones in 3.2: 6×6 run 1 had 2 (6, 10); 7×7 run 1 none (14 the
+first); 8×8 at 17, 19, 32: runs 1, 3 and 5 none.
+
+**Built** (DESIGN.md "Laser Lab", new block "Agreed after 3.2 (release
+3.3)", and "As built"):
+- `stockPurple(setup)` (core): with two lasers, `Math.round(size / 3)`
+  (33 of 100); 8×8 two lasers 3 (its first 50 had 3; not remade, about
+  30 core-minutes a puzzle); one laser 0. `isPurple(e)`: a '3' on an
+  entry's board.
+- **The pick:** from `firstSeed` on in seed order, the first
+  `stockPurple` made puzzles with a purple gem and the first
+  `size - stockPurple` without. With 0 purple that is 3.0's pick, and at
+  8×8 two lasers it is exactly 3.2's 50 (47 + 3), so nothing else
+  changes.
+- **The order** (`stockOrder`): the others shuffled with the same fixed
+  seed as before, then the purple ones (shuffled too) put at
+  `floor((j + 0.5) × size / purple)`: 100 with 33 at 2, 5, 8, ... 99,
+  3 or 4 a run, always 2 or 3 apart; 8×8 at 9, 26, 42 (runs 1, 3, 5).
+  With no purple the order is 3.0's (one-laser setups unchanged).
+- `tools/laser-lab-puzzles.js`: keeps making until it has both groups
+  (all seeds below the last one done), says "purple" on each such line
+  and where they went; `--order` puts a setup's puzzles already in the
+  file in order without making any (used for 8×8 two lasers; it refuses
+  if the file doesn't hold the count and purple share the rule wants).
+  **Found:** `-` for the output file (as `-` for the count) wrote a file
+  named `-` in the repo (the first 6×6 run went there; deleted). Now `-`
+  means the default for both.
+
+**Timing, one make first** (one core, from the seed after 3.2's last,
+until one purple puzzle was kept; scratch script, capped at 60 / 120 s):
+6×6 two lasers 1,034 seeds in 1.4 s (slowest 89 ms; 19 kept, the 19th
+purple); 7×7 two lasers 65 seeds in 3.4 s (slowest 846 ms; the first
+kept was purple). **The batch** (15 workers, the tool's 300 s cap a
+seed, a line per puzzle kept; output in
+`Web-Games-testing6-10-22_purple-gems`): 6×6 13,320 seeds, 3 s (221
+kept, 35 purple); 7×7 37,632 seeds, 178 s; 8×8 reordered only.
+**The same file again:** 6×6 remade into a copy: byte for byte the
+same.
+
+**Against 3.2's stock** (a copy kept in the test folder): 6-1, 7-1, 8-1
+identical; 6-2 keeps 81 of its 100 (all 14 purple and the first 67
+others), 19 new purple ones (seeds up to 62012902); 7-2 keeps 82 (15 +
+67), 18 new (up to 72037355); 8-2 the same 50, 4 in their old places.
+Purple per run of 10: 6-2 and 7-2 3 4 3 3 3 4 3 3 4 3; 8-2 1 0 1 0 1.
+
+**A run kept on a device over the update** (`src/ui/laser-lab.js`
+`startRun`, `restore`; core `restoreGame`): a run is kept by place
+(run number and puzzle 0-9), with the puzzle under way as a game that
+names its seed. The place, savings and hearts keep working; at 6×6 and
+7×7 two lasers the puzzle at a place is now (nearly always) another one,
+so a puzzle under way is dropped and logged ("puzzle under way not
+picked up (not this puzzle)"), the new one starting fresh; a game kept
+for a reload is dropped too ("resume failed: ... the puzzles
+changed"). Both paths are 3.0's, as Find the Stars' reshuffle did
+(Q28). Nothing is lost that counted: the savings change only at a
+puzzle's end. A player part way through may meet a puzzle again later
+(the places moved). **Checked in the built-in browser:** a 6×6 two-laser
+run as 3.2 would have kept it (puzzle 3, savings 3, 2 hearts, puzzle
+62001098 under way with 2 pieces and a wrong laser): Play! showed
+"Puzzle 3 of 10", savings 3, ❤️❤️🤍, budget 9 of 9 on puzzle 62001476,
+and the log said `puzzle under way not picked up (not this puzzle)
+{"seed":62001476,"kept":62001098}`.
+
+**Tests** (349, 348 before): `laser-lab-stock.test.js` "purple gems in
+about 1 in 3 two-laser puzzles, spread through every run" (the count
+`stockPurple`'s, 30-35%, 3 or 4 a run, never side by side, round the
+end too; 8×8 one in each of 3 runs; none with one laser); "in
+stockOrder" now passes entries; "the file is what the tool makes now"
+also remakes 6×6 two lasers' first seeds up to its second purple
+puzzle (the first two of each group the file's). `laser-lab.test.js`:
+the order with 5 purple in 30 at 3, 9, 15, 21, 27; with none, the plain
+shuffle. **Shown to fail:** run against 3.2's stock (a copy of HEAD with
+the new code and tests): "6-2: 14 purple, not 33" and "6-2: not in
+stockOrder's order"; with 3.2's 8×8 order alone: "8-2: purple per run
+0,2,0,1,0"; with two of 6×6's swapped: "6-2: purple side by side at 2".
+`npm test` 349 passed; clean room (a fresh copy, run twice): 349 and
+349, the file listing the same (145 files).
+
+**Browser** (local server, built-in browser): 6×6 puzzle 2 (62012902,
+one of the new), 7×7 puzzle 5 (72014928, three purple gems), 8×8
+puzzle 9 (82479962, two): each drawn half red, half blue. No console
+errors.
+
+**Release 3.3 prepared** (not published): `src/core/release.js` 3.3,
+`node tools/offline.js` (version cf033660098b, 94 files), RELEASES.md
+3.3, `node tools/release.js`: "Release 3.3 is ready". The local server
+(`tools/serve.js 8123`, the `web-games` entry) is running.
+
+**Open questions:** Q32's purple share settled (above); the rest of
+Q32, Q24, Q27, Q30, Q31 unchanged. **Proposed skill additions:** none
+(the `-` slip is this tool's).
+
+**Next:** the developer's OK to publish as 3.3; then CLAUDE.md's
+release steps, and stop the local server. Then the developer plays a
+two-laser run on the phone. OK to purge
+`Web-Games-testing6-10-22_purple-gems` once this is published.

@@ -7,6 +7,18 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.3 (2026-10-22, version cf033660098b)
+
+Laser Lab:
+
+- **More purple gems** (the half red, half blue ones that need both
+  lasers): about 1 in 3 two-laser puzzles at 6×6 and 7×7, 3 or 4 in
+  every run of 10 (they were about 1 in 7, and some runs had none).
+  8×8's three now come in three different runs.
+- A two-laser run under way keeps its place, savings and hearts; the
+  puzzle under way starts fresh if a different puzzle is now in its
+  place.
+
 ## 3.2 (2026-10-22, version d82d45d7fa31)
 
 Laser Lab, from a first go on the phone:

@@ -356,12 +356,19 @@ const MAKE_ALL = { minGems: 2, maxNodes: 2000000 };
 export const makeOptions = setup => { const { n, lasers } = parseSetup(setup); return { n, lamps: lasers, ...MAKE[n], ...MAKE_ALL }; };
 
 // Puzzles per setup, made ahead of time by tools/laser-lab-puzzles.js into
-// data/laser-lab.json: the first stockSize(setup) seeds from
-// firstSeed(setup) on whose puzzle is made (stockPuzzle), in the order
-// stockOrder gives them. 8 x 8 with two lasers takes about 2 minutes of
-// one core a puzzle (2026-10-22), so 50 of those for now (5 runs).
+// data/laser-lab.json: from firstSeed(setup) on, in seed order, the first
+// stockPurple(setup) made puzzles with a purple gem and the first
+// stockSize - stockPurple without (stockPuzzle), in the order stockOrder
+// gives them. 8 x 8 with two lasers takes about 30 minutes of one core a
+// puzzle (2026-10-22), so 50 of those for now (5 runs).
 export const STOCK = 100;
 export const stockSize = setup => (setup === '8-2' ? 50 : STOCK);
+// Two lasers: about 1 in 3 with a purple gem (developer, 2026-10-22: "about
+// 1 in 3 two-laser puzzles at 6x6 and 7x7, spread through each run, and
+// 8x8's three spread out"). 8 x 8's are the 3 its first 50 had, not remade.
+export const stockPurple = setup => (parseSetup(setup).lasers < 2 ? 0 : setup === '8-2' ? 3 : Math.round(stockSize(setup) / 3));
+// A stock entry (encode) with a purple gem.
+export const isPurple = e => e[2].includes('3');
 export const firstSeed = setup => { const { n, lasers } = parseSetup(setup); return (n * 10 + lasers) * 1000000; };
 // With two lasers, kept only when both beams pass through a piece of the
 // answer (the mockup's first pick rule, v3-v7: otherwise one laser just
@@ -381,9 +388,17 @@ function shuffled(arr, rnd) {
   for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
-// Seed order shuffled once with a fixed seed, so the tool always makes the
-// same file.
-export const stockOrder = (setup, list) => shuffled(list, mulberry32(firstSeed(setup) + 1));
+// Stock entries (in seed order) shuffled once with a fixed seed, so the
+// tool always makes the same file; the purple ones (shuffled too) then
+// spaced evenly through it, so every run of 10 has about as many (100 with
+// 33: 3 or 4 a run, at least 2 puzzles apart). With no purple, the order
+// is 3.0's.
+export function stockOrder(setup, list) {
+  const rnd = mulberry32(firstSeed(setup) + 1);
+  const out = shuffled(list.filter(e => !isPurple(e)), rnd), purple = shuffled(list.filter(isPurple), rnd);
+  purple.forEach((e, j) => out.splice(Math.floor((j + 0.5) * list.length / purple.length), 0, e));
+  return out;
+}
 // Run `no`'s puzzle `at` (0-based): the stock's from no * RUN on; after
 // the last they come round again.
 export const puzzleNumber = (no, at) => no * RUN + at;

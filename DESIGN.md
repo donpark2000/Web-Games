@@ -931,6 +931,15 @@ release 3.1" and "Laser Lab 3.2"):
 - **↺ Clear stays free**: the pieces off but a hint's, their prices back;
   wrong lasers and hints already paid stay paid.
 
+Agreed after 3.2 (release 3.3; journal "Purple gems spread"):
+- **Purple gems in about 1 in 3 two-laser puzzles** (developer: "Keep
+  the two-colour gems: about 1 in 3 two-laser puzzles at 6x6 and 7x7,
+  spread through each run, and 8x8's three spread out"; 3.0-3.2 had 14
+  and 15 of 100, as the seeds fell, and none in some runs). 6×6 and 7×7:
+  33 of 100, 3 or 4 in every run of 10, never two side by side. 8×8: its
+  3 of 50 (not remade: about 30 minutes of one core a puzzle), each in a
+  run of its own.
+
 Claude's choices from the mockup, to be judged on the phone:
 - **The budget is the cheapest cost + 3**, so a best solve saves 3.
 - **The cheapest cost is at least 6 (6×6), 7 (7×7) or 8 (8×8)**: the
@@ -986,17 +995,20 @@ As built (Claude's, not in the mockup):
   also comes back to the lasers that were on and the bar's words.
 - **Puzzles made ahead of time** by `tools/laser-lab-puzzles.js` into
   `data/laser-lab.json`: **100 per size and lasers, 50 for 8×8 with two**
-  (about 2 minutes of one core each; more can follow), the first made from a
-  fixed seed on; each stored with its seed, board, lasers, cheapest cost
-  and one cheapest way. **With two lasers, both beams pass through a
+  (about 30 minutes of one core each; more can follow), the first made from a
+  fixed seed on (with two lasers, the first 33 with a purple gem and the
+  first 67 without, 3.3; 8×8: its first 50, 3 purple); each stored with
+  its seed, board, lasers, cheapest cost and one cheapest way. **With two lasers, both beams pass through a
   piece** of that way (the mockup's first pick rule; at 8×8 it turns
-  most puzzles away). A purple gem in about 1 in 7 two-laser puzzles
-  at 6×6 and 7×7, 3 of 50 at 8×8 (the mockup's hand-picked sets had
-  more). The cheapest ways that hints
+  most puzzles away). The cheapest ways that hints
   and Show answer choose from (up to 50) are worked out on the device at the
   first hint or Show answer. Run k's puzzles are the stock's from 10k on, in
-  an order shuffled once with a fixed seed; after the last they come
-  round again.
+  an order shuffled once with a fixed seed, the purple ones then spaced
+  evenly through it (3.3; one laser: 3.0's order); after the last they
+  come round again. **A run kept over 3.3's new stock** keeps its place,
+  savings and hearts; a puzzle under way that is no longer at its place
+  is dropped (logged "puzzle under way not picked up"), and that place's
+  new puzzle starts fresh. Nothing spent on it had reached the savings.
 - **Kept on the device** (`web-games-laser-lab`): per size and lasers,
   the run under way (its number, the next puzzle, the savings, the
   hearts left (3.2; a run kept before 3.2 has 3), the puzzle under way)

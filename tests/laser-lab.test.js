@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   RUN, MARGIN, PRICE, SETUPS, trace, check, checkLamp, solveCheap, cheapest, answersFor, costOf, answerCost, answerMap,
-  makeCheap, makeOptions, stockPuzzle, bothUsePieces, firstSeed, stockOrder, encode, decode, DEMO, MAKE,
+  makeCheap, makeOptions, stockPuzzle, bothUsePieces, firstSeed, stockOrder, isPurple, encode, decode, DEMO, MAKE,
   createGame, placedOf, budgetLeft, tapSquare, clearBoard, switchLamp, readyLamps, missWords, rightWords, useHint, giveUp, tryAgain, coins, HEARTS,
   closest, snapshotGame, restoreGame, readProgress, runOf, keepCurrent, finishPuzzle, boardOf,
 } from '../src/core/laser-lab.js';
@@ -171,13 +171,22 @@ test('laser lab: stock entries round-trip; a broken entry is refused, saying why
   assert.throws(() => decode('6-2', null), /not a puzzle/);
 });
 
-test('laser lab: the stock order is a fixed shuffle; seeds per setup apart', () => {
-  const list = Array.from({ length: 30 }, (_, i) => i);
+test('laser lab: the stock order is a fixed shuffle, purple spaced out; seeds per setup apart', () => {
+  // entries as [seed, lamps, board]: every 7th purple (a '3' on the board)
+  const list = Array.from({ length: 30 }, (_, i) => [i, [], i % 7 ? '1.2' : '1.3']);
   const a = stockOrder('7-2', list);
   assert.deepEqual(a, stockOrder('7-2', list), 'not the same each time');
   assert.notDeepEqual(a, list);
-  assert.deepEqual([...a].sort((x, y) => x - y), list);
+  assert.deepEqual([...a].sort((x, y) => x[0] - y[0]), list);
   assert.notDeepEqual(stockOrder('6-1', list), a, 'the setups share an order');
+  // 5 purple in 30: at 3, 9, 15, 21, 27 (every 6th, from the middle of the first 6)
+  assert.deepEqual(a.map((e, i) => (isPurple(e) ? i : -1)).filter(i => i >= 0), [3, 9, 15, 21, 27]);
+  assert.deepEqual(a.filter(isPurple).map(e => e[0]).sort((x, y) => x - y), [0, 7, 14, 21, 28]);
+  // none purple: the plain shuffle (3.0-3.2's order, kept for one laser)
+  const plain = list.map(e => [e[0], [], '1.2']);
+  const rnd = mulberry32(firstSeed('6-1') + 1), want = plain.map(e => e[0]);
+  for (let i = want.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [want[i], want[j]] = [want[j], want[i]]; }
+  assert.deepEqual(stockOrder('6-1', plain).map(e => e[0]), want);
   const firsts = SETUPS.map(firstSeed).sort((x, y) => x - y);
   for (let i = 1; i < firsts.length; i++) assert.ok(firsts[i] - firsts[i - 1] >= 1000000, 'seed ranges overlap');
 });
