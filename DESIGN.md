@@ -1335,6 +1335,18 @@ finished, and the app's icon going back to the last game).
   again from memory, and when a scroll stops at its end
   (`src/ui/scrolllog.js`).
 
+## Puzzle order
+
+Every puzzle game (developer, 2026-10-23, confirming Q28 of 2026-10-19):
+**no puzzle comes again until every puzzle of its kind has been
+played.** Each size or level keeps one count on the device; a puzzle
+is used as it starts (Play, Next, a new game, a new run), and only Try
+again plays one again. The stock is shuffled once into a fixed order;
+after the last puzzle the order comes round again. As built: Find the
+Stars 200 a size, Colour Sudoku 200 a level, Laser Lab 100 a setup (50
+for 8×8 with two lasers), its runs taking the next 10 each. A new
+puzzle game follows the same rule.
+
 ## Later
 
 - Matching cards with the developer's own photos.

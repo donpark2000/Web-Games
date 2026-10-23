@@ -41,6 +41,19 @@ time, each tried before publishing:
   changes when appropriate": added to the skill, section 7, "Match the
   model to the work" (see "Proposed additions"). Stays open for the
   Sonnet 5.5 trial.
+- **Q35. Which new rule makes Laser Lab harder, not easier?**
+  (2026-10-23, developer: "I like the concept of the color mirror. But
+  would it make things easier or harder? I don't want to add features
+  that make the game easier. It is already fairly easy." The same for
+  more lasers, or placing them.) Claude's reasoning, not measured: any
+  way within the budget wins, so a new piece or a free choice mostly
+  gives the player more ways to win (easier) unless the puzzles are
+  made to need it; more lasers add rules that pull against each other
+  (likely harder); placing the lasers removes the beam's known start
+  but adds many ways in (unclear). The budget (cheapest + 3) is the
+  plainest lever. To measure with the maker and solver before building:
+  how many ways fit the budget, per variant.
+
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-23, later: "Match the model to the work"
@@ -9286,3 +9299,22 @@ lights it, and doesn't bounce again on a redraw. Q33 (the zoom) closed.
 2. **Q32** (Laser Lab on the phone) stays open.
 3. The developer uploads the rebuilt skill zip
    (`ai-dev-practices\software-project-standards.zip`), if not done.
+
+## 2026-10-23: Puzzle order confirmed; Q35 (what makes Laser Lab harder)
+
+**Developer:** "for all puzzles we should keep track of ones used and
+start new games and new runs with new puzzles. They can eventually
+rotate but we should play all unique puzzles before going back to
+one." **Checked in the code:** already so in all three. Find the Stars
+and Colour Sudoku: `takeNext` counts a puzzle used as it starts, one
+count a size or level (`prog.next`), `stockAt` = `list[k % length]` in
+`stockOrder`'s fixed shuffle. Laser Lab: run `no`'s puzzle `at` is
+number `no * 10 + at` (`puzzleNumber`), `finishPuzzle` starts run
+`no + 1` after the tenth, the same `stockAt`. Stock: Find the Stars 200
+a size; Colour Sudoku 200 a level; Laser Lab 100 a setup, 50 for 8×8
+with two lasers (5 runs before one comes again). Written down as one
+rule for every puzzle game: DESIGN.md "Puzzle order".
+
+**Developer:** would the colour mirror, more lasers, or placing the
+lasers make it easier or harder? Logged as Q35 with Claude's reasoning;
+not measured yet.
