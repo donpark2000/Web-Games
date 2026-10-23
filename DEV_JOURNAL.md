@@ -43,7 +43,9 @@ time, each tried before publishing:
   from the answer keep one answer and only make a puzzle easier, so Easy
   could start with about 30. *Developer:* "Maybe just change the words
   for now. I'll play it a bit and see if it feels too hard." Open until
-  the developer has played it.
+  the developer has played it. *2026-10-22, developer:* "yess" (Easy
+  should start with more digits): to build (digits added from the
+  answer, about 30 at the start), then close.
 
 - **Q32. Laser Lab on the phone.** Built 2026-10-22 from mockup v7 as
   it stood (see "Laser Lab built"); to judge on the developer's phone
@@ -57,7 +59,9 @@ time, each tried before publishing:
   and how long the first hint takes (the log's "cheapest ways worked
   out"). *2026-10-22:* 3.2 adds a budget row and a second tools row,
   so the board is smaller (6×6 at 393 × 760: 40 px squares, 3.0 47 px;
-  see "Laser Lab 3.2 built"): to judge on the phone.
+  see "Laser Lab 3.2 built"): to judge on the phone. *2026-10-22,
+  developer:* "ok" (taken as: nothing to change for now); stays open
+  until 3.3's purple gems have been played.
 
 ## Proposed additions to the standards skill
 
@@ -8613,7 +8617,7 @@ until one purple puzzle was kept; scratch script, capped at 60 / 120 s):
 purple); 7×7 two lasers 65 seeds in 3.4 s (slowest 846 ms; the first
 kept was purple). **The batch** (15 workers, the tool's 300 s cap a
 seed, a line per puzzle kept; output in
-`Web-Games-testing6-10-22_purple-gems`): 6×6 13,320 seeds, 3 s (221
+`Web-Games-testing\2026-10-22_purple-gems`): 6×6 13,320 seeds, 3 s (221
 kept, 35 purple); 7×7 37,632 seeds, 178 s; 8×8 reordered only.
 **The same file again:** 6×6 remade into a copy: byte for byte the
 same.
@@ -8674,7 +8678,7 @@ Q32, Q24, Q27, Q30, Q31 unchanged. **Proposed skill additions:** none
 **Next:** the developer's OK to publish as 3.3; then CLAUDE.md's
 release steps, and stop the local server. Then the developer plays a
 two-laser run on the phone. OK to purge
-`Web-Games-testing6-10-22_purple-gems` once this is published.
+`Web-Games-testing\2026-10-22_purple-gems` once this is published.
 
 ## 2026-10-22: Release 3.3 published (Laser Lab: more purple gems)
 
@@ -8697,4 +8701,4 @@ on 8123 stopped (PID 37008); no node processes left.
 
 **Next:** the developer tries 3.3 on the phone.
 
-**Purged** (developer: "OK to purge"): `Web-Games-testing�6-10-22_purple-gems` (3.2's stock copy, the makes' output, the remake check) sent to the Recycle Bin. This entry and "Purple gems spread" are the record.
+**Purged** (developer: "OK to purge"): `Web-Games-testing\2026-10-22_purple-gems` (3.2's stock copy, the makes' output, the remake check) sent to the Recycle Bin. This entry and "Purple gems spread" are the record.
