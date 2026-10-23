@@ -9557,3 +9557,31 @@ quote or backslash passing through two or three sets of rules, and the
 repo's CRLF files not matching search text). Claude's memory now says to
 write helper scripts to files and use exact-text edits; this entry's
 changes were made that way.
+
+## 2026-10-23: Directional bombs; status (start here next session)
+
+**Developer:** "I think bomb is ok. Maybe 'directional bomb'". The
+mockup's words say "Directional bombs" (the pieces list, the mockup bar);
+"bomb" in the shorter messages. Republished (the artifact's own count
+says version 10; the mockup is v9).
+
+**Status:** release 3.8 live (gems pop at once; Q33 closed). Laser Lab's
+next feature, directional bombs, is in mockup v9
+([Laser Lab Mockup](https://claude.ai/artifact/9ydP14hwMYEm6zAfwgNtiN)),
+built in a scratch copy of the site (Claude's scratchpad `mock8/site`,
+its own git history from 3.8; the bomb code and tests are there, not in
+the repo). Agreed so far: DESIGN.md "Directional bombs" under Laser Lab.
+
+**Next:**
+1. The developer plays v9. Then settle what's left: the mix (how many
+   puzzles get a bomb; the mockup has every other one), Claude's
+   choices listed in DESIGN.md, and 8×8 with two lasers (no bombs yet;
+   those puzzles take about 30 minutes each to make).
+2. Build it into the game from the scratch copy (its git log and diff
+   show every change, with the 9 bomb tests); remake the stock with
+   the bomb mix; release 4.0? (a new kind of puzzle within Laser Lab,
+   or 3.9: to propose when asking to publish).
+3. **Q32**, **Q34** (a session on Sonnet 5.5), **Q35** stay open.
+4. If the scratchpad is gone by then, the mockup's published files hold
+   the same code (the artifact's file list: src/core/laser-lab.js and
+   the rest).

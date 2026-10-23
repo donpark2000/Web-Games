@@ -1106,7 +1106,8 @@ As built (Claude's, not in the mockup):
   for a beam that's right, "uh-oh" for one that isn't (or breaks a
   laser), a ping for a hint, the sparkle when solved.
 
-**Bombs (mockup v8, 2026-10-23; not built).** Agreed with the developer:
+**Directional bombs (mockups v8-v9, 2026-10-23; not built).** Agreed with
+the developer (the name: "I think bomb is ok. Maybe 'directional bomb'"):
 placed by the puzzle, never bought; **not in every puzzle** ("just a nice
 option to change game play"); with two lasers **always red or blue**,
 only that colour setting one off; **a bomb points at its wall** (v9;
