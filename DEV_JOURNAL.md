@@ -9153,3 +9153,31 @@ its own message. No console errors.
 **Release 3.7 prepared:** `src/core/release.js` 3.7, `tools/offline.js`
 run, notes in `RELEASES.md`. Open: Q33 (does 3.7 stop the zoom),
 Q32.
+
+## 2026-10-23: Release 3.7 published; status (start here next session)
+
+**Developer:** "Yes, publish as 3.7." **Checked first:** `light-puzzle`
+level with GitHub at bcc0a91; `npm test` 363 passed; `node
+tools/release.js`: "Release 3.7 is ready", version 2111778e433b.
+**Published:** `main` fast-forwarded to bcc0a91, tag `v3.7`,
+[GitHub release 3.7](https://github.com/donpark2000/Web-Games/releases/tag/v3.7);
+live within about 15 s of the first check (`version.js`
+2111778e433b). Local server stopped (the built-in browser's preview on
+8123); no serve.js left. No test folder outside the repo (scratch
+copies only).
+
+**Status:** Laser Lab 3.7 live: a tap with the other piece picked swaps
+it (facing the same way), a gem lights as its last beam line starts, a
+double tap on a piece or a piece button no longer zooms; Colour Sudoku's
+squares and digits likewise. The zoom log says whether the element
+touched had been redrawn.
+
+**Next:**
+1. The developer plays 3.7 on the iPhone. **Q33:** does a double tap on
+   a piece (or anything) still zoom? If so, Save log: the `[zoom] page
+   zoom changed` line's `touchedRedrawn` and `touched` say where.
+2. Gems: if they still look late, the lit gem's bounce (from 60% size)
+   is the next thing to try.
+3. **Q32** (Laser Lab on the phone) stays open.
+4. The developer uploads the rebuilt skill zip
+   (`ai-dev-practices\software-project-standards.zip`).
