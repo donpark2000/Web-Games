@@ -4,7 +4,9 @@
 // stockOrder gives them (seed order, shuffled once with a fixed seed), so
 // the same code always makes the same file. One line per make; the work
 // is spread over the computer's cores (an Easy make takes about 0.4 s, a
-// Harder one 1.5 s; measured 2026-10-19).
+// Harder one 1.5 s; measured 2026-10-19). An Easy line also says how
+// many givens the maker left; the rest were added from the answer
+// (EASY_GIVENS, 2026-10-22).
 //   node tools/colour-sudoku-puzzles.js [count] [out]
 //     -> data/colour-sudoku.json (count: STOCK per level)
 // Run it after changing the puzzle maker (the tests remake some puzzles
@@ -26,7 +28,7 @@ if (!isMainThread) {
   parentPort.on('message', ({ level, seed }) => {
     const t = Date.now();
     const p = stockPuzzle(level, seed);
-    parentPort.postMessage({ level, seed, ms: Date.now() - t, p: p && encode(seed, p), givens: p?.nGivens, counts: p?.counts });
+    parentPort.postMessage({ level, seed, ms: Date.now() - t, p: p && encode(seed, p), givens: p?.nGivens, made: p?.made, counts: p?.counts });
   });
 } else {
   const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -61,12 +63,12 @@ if (!isMainThread) {
       };
       for (const w of workers) {
         w.removeAllListeners('message');
-        w.on('message', ({ seed, ms, p, givens, counts }) => {
+        w.on('message', ({ seed, ms, p, givens, made, counts }) => {
           busy--;
           tried++;
           done.add(seed);
           if (p) kept.set(seed, p);
-          console.log(`  ${level} seed ${seed}: ${ms} ms, ${p ? `kept (${givens} givens, ${JSON.stringify(counts)})` : 'not kept'}; ${kept.size} kept of ${tried}`);
+          console.log(`  ${level} seed ${seed}: ${ms} ms, ${p ? `kept (${givens} givens${made != null ? `, ${made} from the maker` : ''}, ${JSON.stringify(counts)})` : 'not kept'}; ${kept.size} kept of ${tried}`);
           feed(w);
         });
         feed(w);

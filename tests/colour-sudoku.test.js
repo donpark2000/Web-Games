@@ -8,7 +8,7 @@ import {
   N, NN, HEARTS, HINTS, LEVELS, RULE, rowOf, colOf, boxOf, unitsFor, unitKind, newState, nextStep, apply, solve, generate,
   regionsOk, connected, problems, decode, encode, stockOrder, stockAt, firstSeed, coloursFor, unitName, createGame, enter,
   toggleNote, undo, canUndo, endGame, findHint, applyHint, useHint, walkStep, walkLength, fillRest, emptyCount, digitCounts,
-  snapshotGame, restoreGame, readProgress, takeNext, recordTime, DEMO,
+  snapshotGame, restoreGame, readProgress, takeNext, recordTime, DEMO, EASY_GIVENS, addGivens, mulberry32,
 } from '../src/core/colour-sudoku.js';
 
 // An Easy puzzle and two Harder ones (seed 201's needs "all inside" 33
@@ -307,6 +307,40 @@ test('colour sudoku game: kept as JSON and picked up the same; a game of another
   assert.throws(() => restoreGame(puzzle('harder', HARD), { ...kept, hearts: 7 }), /counts/);
   assert.throws(() => restoreGame(puzzle('harder', HARD), { ...kept, grid: kept.grid.slice(1) }), /board/);
   assert.throws(() => restoreGame(puzzle('harder', HARD), null), /level/);
+});
+
+// Easy starts with EASY_GIVENS digits (journal Q31), added from the
+// answer: the maker's givens kept, one answer, only easier, spread over
+// the boxes; the same every time for a seed.
+test('colour sudoku: Easy gets digits added from the answer, spread over the boxes', () => {
+  const p = addGivens(EASY, EASY_GIVENS, mulberry32(1));
+  assert.equal(EASY_GIVENS, 30);
+  assert.equal(p.givens.filter(Boolean).length, 30);
+  assert.equal(p.nGivens, 30);
+  assert.equal(p.made, EASY.nGivens);
+  assert.ok(EASY.nGivens < 30, `the maker left ${EASY.nGivens}`);
+  assert.ok(EASY.givens.every((d, i) => !d || p.givens[i] === d), 'a maker given changed');
+  assert.ok(p.givens.every((d, i) => !d || d === EASY.sol[i]), 'an added digit not the answer');
+  assert.deepEqual(problems({ ...puzzle('easy', p), givens: p.givens }), []);
+  assert.ok(solve(p.reg, p.givens, RULE.easy).steps.length === NN - 30);
+  const box = new Array(N).fill(0);
+  p.givens.forEach((d, i) => { if (d) box[boxOf(i)]++; });
+  assert.ok(Math.min(...box) >= 3, `per box ${box}`);
+  assert.deepEqual(addGivens(EASY, 30, mulberry32(1)).givens, p.givens, 'not the same for the same stream');
+  // Already as many: unchanged. All 81: the answer.
+  assert.deepEqual(addGivens(EASY, 5, mulberry32(1)).givens, EASY.givens);
+  assert.deepEqual(addGivens(EASY, NN, mulberry32(1)).givens, EASY.sol);
+});
+
+// A game kept for a reload before Easy started with more digits (3.3):
+// refused, saying why (the screen logs it and starts a new game).
+test('colour sudoku game: a game kept before more digits were added is refused, saying why', () => {
+  const g = game(EASY, 'easy');
+  enter(g, firstEmpty(g), g.sol[firstEmpty(g)]);
+  const kept = JSON.parse(JSON.stringify(snapshotGame(g)));
+  const now = addGivens(EASY, 30, mulberry32(1));
+  assert.throws(() => restoreGame({ ...puzzle('easy', EASY), givens: now.givens }, kept),
+    new RegExp(`kept with ${EASY.nGivens} starting digits, the puzzle now has 30 \\(the puzzles changed\\)`));
 });
 
 test('colour sudoku: progress kept per level; a puzzle used as it starts; best times', () => {

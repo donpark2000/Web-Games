@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LEVELS, STOCK, firstSeed, stockOrder, decode, encode, stockPuzzle } from '../src/core/colour-sudoku.js';
+import { LEVELS, STOCK, EASY_GIVENS, firstSeed, stockOrder, decode, encode, stockPuzzle } from '../src/core/colour-sudoku.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const data = JSON.parse(await readFile(path.join(root, 'data/colour-sudoku.json'), 'utf8'));
@@ -33,6 +33,25 @@ test('colour sudoku stock: 200 puzzles per level, each sound for its level, none
     }
   }
   assert.equal(checked, LEVELS.length * STOCK);
+});
+
+// Easy starts with EASY_GIVENS digits, at least 2 in every box (journal
+// Q31, release 3.4; 3.3's had 13-20, and 121 of 200 an empty box);
+// Harder with what the maker leaves (12-20).
+test('colour sudoku stock: Easy starts with 30 digits spread over the boxes, Harder with fewer', () => {
+  const box = i => Math.floor(i / 27) * 3 + Math.floor((i % 9) / 3);
+  const given = e => [...e[2]].flatMap((d, i) => (d === '0' ? [] : [i]));
+  for (const e of data.easy) {
+    const g = given(e);
+    assert.equal(g.length, EASY_GIVENS, `easy seed ${e[0]}: ${g.length} digits to start: ${REMAKE}`);
+    const per = new Array(9).fill(0);
+    for (const i of g) per[box(i)]++;
+    assert.ok(Math.min(...per) >= 2, `easy seed ${e[0]}: per box ${per}`);
+  }
+  for (const e of data.harder) {
+    const n = given(e).length;
+    assert.ok(n >= 12 && n <= 20, `harder seed ${e[0]}: ${n} digits to start`);
+  }
 });
 
 // The first puzzles remade by the tool's rule (every seed from the first,

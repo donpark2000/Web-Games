@@ -317,13 +317,42 @@ export function generate(seed, rule = 1) {
 // (stockPuzzle), in the order stockOrder gives them.
 export const STOCK = 200;
 export const firstSeed = level => (LEVELS.indexOf(level) + 1) * 100000;
+// Easy starts with this many digits (developer, 2026-10-22, journal Q31:
+// in other Sudoku games the level mostly sets how many are filled in).
+// Harder starts with what the maker leaves (12-20).
+export const EASY_GIVENS = 30;
+
+// Puzzle p with digits from its answer added until `n` are given, each
+// in a box with the fewest (at random among those squares, from `rnd`),
+// so they spread out. Only easier, and still one answer. p.made: how many
+// the maker left.
+export function addGivens(p, n, rnd) {
+  const givens = p.givens.slice();
+  const inBox = new Array(N).fill(0);
+  givens.forEach((d, i) => { if (d) inBox[boxOf(i)]++; });
+  let have = givens.filter(Boolean).length;
+  const made = have;
+  while (have < n) {
+    const empty = [...Array(NN).keys()].filter(i => !givens[i]);
+    const least = Math.min(...empty.map(i => inBox[boxOf(i)]));
+    const pick = empty.filter(i => inBox[boxOf(i)] === least);
+    const i = pick[Math.floor(rnd() * pick.length)];
+    givens[i] = p.sol[i];
+    inBox[boxOf(i)]++;
+    have++;
+  }
+  return { ...p, givens, nGivens: have, made, counts: solve(p.reg, givens, 1).counts };
+}
+
 // The puzzle made from `seed` for a level, or null when that seed's
 // isn't kept: none made, or (Harder) none of its steps needs "all
-// inside", so the Easy rules would do.
+// inside", so the Easy rules would do. Easy's gets digits added up to
+// EASY_GIVENS (its own random stream, so the maker's part is as before).
 export function stockPuzzle(level, seed) {
   const p = generate(seed, RULE[level]);
   if (!p) return null;
   if (level === 'harder' && !p.counts.inside) return null;
+  if (level === 'easy') return addGivens(p, EASY_GIVENS, mulberry32(seed ^ 0x9e3779b9));
   return p;
 }
 // The order a level's stock is played in (DESIGN.md "Colour Sudoku": no
@@ -657,6 +686,9 @@ export function restoreGame(p, kept) {
   const count = (v, max) => Number.isInteger(v) && v >= 0 && v <= max;
   if (k.level !== p.level) throw new Error(`restoreGame: level ${k.level}, not ${p.level}`);
   if (!arr(k.grid, d => count(d, 9)) || !arr(k.kind, x => KINDS.includes(x)) || !arr(k.bad, d => count(d, 9)) || !arr(k.notes, m => count(m, 0b1111111110))) throw new Error('restoreGame: bad board');
+  // A game kept before Easy started with more digits (release 3.4).
+  const kg = k.kind.filter(x => x === 'given').length, pg = p.givens.filter(Boolean).length;
+  if (kg !== pg) throw new Error(`restoreGame: kept with ${kg} starting digits, the puzzle now has ${pg} (the puzzles changed)`);
   for (let i = 0; i < NN; i++) {
     if (p.givens[i] && (k.grid[i] !== p.givens[i] || k.kind[i] !== 'given')) throw new Error(`restoreGame: square ${i} not its given`);
     if (k.grid[i] && k.grid[i] !== p.sol[i]) throw new Error(`restoreGame: square ${i} not the answer`);

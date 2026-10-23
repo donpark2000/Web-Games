@@ -7,6 +7,17 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.4 (2026-10-22, version bc03ebead85e)
+
+Colour Sudoku:
+
+- **Easy starts with 30 digits** (it was 13 to 20), spread over the
+  boxes. The extra digits come from the answer, so each puzzle still has
+  one answer and is only easier. Harder is unchanged.
+- How hard? now says how many digits each level starts with.
+- An Easy game left open for a reload over the update starts again at
+  the setup; the next puzzle and best times are kept.
+
 ## 3.3 (2026-10-22, version cf033660098b)
 
 Laser Lab:

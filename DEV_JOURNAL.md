@@ -36,17 +36,6 @@ time, each tried before publishing:
   phone. *2026-10-19:* first report: the selected square's band hid its
   notes; fixed with a ring outside (see "the selected square's ring").
 
-- **Q31. Should Easy start with more digits?** Raised 2026-10-19 by the
-  developer: in other Sudoku games the level mostly sets how many digits
-  are filled in at the start. Ours differ by the steps needed; Easy
-  starts with 13-20 (median 17), Harder 12-20 (median 16). Digits added
-  from the answer keep one answer and only make a puzzle easier, so Easy
-  could start with about 30. *Developer:* "Maybe just change the words
-  for now. I'll play it a bit and see if it feels too hard." Open until
-  the developer has played it. *2026-10-22, developer:* "yess" (Easy
-  should start with more digits): to build (digits added from the
-  answer, about 30 at the start), then close.
-
 - **Q32. Laser Lab on the phone.** Built 2026-10-22 from mockup v7 as
   it stood (see "Laser Lab built"); to judge on the developer's phone
   once published (3.0): Claude's choices (DESIGN.md "Laser Lab": the
@@ -110,6 +99,20 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q31. Should Easy start with more digits?** Raised 2026-10-19 by the
+  developer: in other Sudoku games the level mostly sets how many digits
+  are filled in at the start. Ours differ by the steps needed; Easy
+  starts with 13-20 (median 17), Harder 12-20 (median 16). Digits added
+  from the answer keep one answer and only make a puzzle easier, so Easy
+  could start with about 30. *Developer:* "Maybe just change the words
+  for now. I'll play it a bit and see if it feels too hard." Open until
+  the developer has played it. *2026-10-22, developer:* "yess" (Easy
+  should start with more digits): to build (digits added from the
+  answer, about 30 at the start), then close. **Resolved 2026-10-22:**
+  Easy starts with 30 digits, added from the answer and spread over the
+  boxes; Harder unchanged; the How hard? words say so (see "Easy starts
+  with 30 digits", release 3.4).
 
 - **Q29. Which coloured-region Sudoku the developer means.** Raised
   2026-10-19 (see "A Sudoku with colours: which one?"): the usual rules
@@ -8702,3 +8705,92 @@ on 8123 stopped (PID 37008); no node processes left.
 **Next:** the developer tries 3.3 on the phone.
 
 **Purged** (developer: "OK to purge"): `Web-Games-testing\2026-10-22_purple-gems` (3.2's stock copy, the makes' output, the remake check) sent to the Recycle Bin. This entry and "Purple gems spread" are the record.
+
+## 2026-10-22: Easy starts with 30 digits (Q31); release 3.4 prepared
+
+**Task** (from the parent session; developer, Q31: "yess"): Colour
+Sudoku's Easy should start with more digits, about 30, as in other
+Sudoku games. Digits added from the answer, so each puzzle keeps its one
+answer and only gets easier; Harder unchanged. Done in a session started
+from the parent one, on `light-puzzle`.
+
+**Built** (DESIGN.md "Colour Sudoku": a new decided bullet, "As built"
+setup and puzzles):
+- Core: `EASY_GIVENS = 30`; `addGivens(p, n, rnd)` adds digits from the
+  answer one at a time, each to a box with the fewest givens (at random
+  among those squares), and records `made` (the maker's count);
+  `stockPuzzle('easy', seed)` = the maker's puzzle (as before) then
+  `addGivens(..., mulberry32(seed ^ 0x9e3779b9))`, a stream of its own,
+  so the maker's part is unchanged. Harder: untouched.
+- `restoreGame` refuses a game kept with another number of starting
+  digits, saying so: "kept with 17 starting digits, the puzzle now has
+  30 (the puzzles changed)".
+- `tools/colour-sudoku-puzzles.js`: an Easy line also says "N from the
+  maker".
+- **The words** (How hard?): the 2026-10-19 ones were still true but no
+  longer said the main difference, so each now starts with its count:
+  Easy "starts with 30 digits; each digit can be found from one row,
+  column, box or colour", Harder "starts with 12 to 20; some digits need
+  two of those looked at together". Claude's words, to confirm with the
+  developer.
+
+**Timing, one make first** (scratch script, `timeout 60`): Easy seeds
+100000-100002: the maker 404 / 288 / 887 ms, the stock puzzle (maker +
+added digits) 308 / 322 / 894 ms: adding costs nothing measurable.
+**The batch** (the tool: 15 workers, its 60 s cap a make, a line per
+make; output in `Web-Games-testing\2026-10-22_easy-digits\make.txt`):
+Easy 261 seeds tried, 26 s; Harder 248, 28 s; 54 s in all. **The same
+file again:** remade into a copy, byte for byte the same (76 s).
+
+**Against 3.3's stock** (a copy kept in the test folder): Harder
+identical; Easy: every one of the 200 places the same seed and colours
+(so a puzzle number kept on a device is still the same puzzle), every
+old given kept, 30 givens each (3.3: 13-20; the maker's counts by line
+12:1 13:1 14:12 15:38 16:53 17:70 18:57 19:23 20:6). Per box, fewest
+givens: 3.3 had a box with none in 121 of 200 and one in 79; now 3 in
+199, 2 in 1; most 4 in 185, 5 in 14, 6 in 1. The file stays 71 KB (the
+same length of string).
+
+**Kept on a device over the update** (`src/ui/colour-sudoku.js`
+`restore`; core `restoreGame`): the progress (`next`, `best` per level)
+is unchanged in meaning, as the places hold the same seeds. A game kept
+for a reload of an Easy puzzle has the old starting digits, so it is
+dropped and logged, and the setup shows (3.0's path, as Find the Stars'
+reshuffle and Laser Lab 3.3); a Harder one picks up as before. Nothing
+that counted is lost: the puzzle was counted as used when it started.
+**Checked in the built-in browser:** an Easy game started (puzzle 1,
+seed 100137: 30 givens, "51 to go", the log's "game started ...
+givens: 30", page 755 of 760 at 393 x 760); its kept state then changed
+to 3.3's (only the maker's 17 givens, all of which were among the 30)
+and the page reloaded: the log said `resume failed: a new game
+{"error":"Error: restoreGame: kept with 17 starting digits, the puzzle
+now has 30 (the puzzles changed)"}`, the setup showed, and the progress
+read `next: {easy: 1}`. **320 x 640:** Easy's words take 6 lines (4
+before), Harder's 5, both buttons 133 px, nothing cut, the page 320
+wide (the setup already scrolled there). No console errors.
+
+**Tests** (352, 349 before): `colour-sudoku.test.js` "Easy gets digits
+added from the answer, spread over the boxes" (30, the maker's kept,
+all from the answer, still one answer by Easy's steps, at least 3 a
+box, the same for the same stream; already enough: unchanged; 81: the
+answer) and "a game kept before more digits were added is refused,
+saying why"; `colour-sudoku-stock.test.js` "Easy starts with 30 digits
+spread over the boxes, Harder with fewer" (at least 2 a box; Harder
+12-20); the page test's words. **Shown to fail** (a scratch copy of the
+repo): with 3.3's stock, "easy seed 100137: 17 digits to start: stale:
+run node tools/colour-sudoku-puzzles.js ..." and "the file is what the
+tool makes now" (easy: stale); with `restoreGame`'s new check taken
+out, the kept-game test fails. `npm test` 352 passed.
+
+**Release 3.4 prepared** (not published): `src/core/release.js` 3.4,
+`node tools/offline.js` (version bc03ebead85e, 94 files), RELEASES.md
+3.4, `node tools/release.js`: "Release 3.4 is ready". The local server
+(`tools/serve.js 8123`, the `web-games` entry) is running.
+
+**Open questions:** Q31 resolved (moved). Q24, Q27, Q30, Q32
+unchanged. **Proposed skill additions:** none.
+
+**Next:** the developer's OK to publish as 3.4 (and on the new How
+hard? words); then CLAUDE.md's release steps, and stop the local
+server. Then the developer plays Easy on the phone. OK to purge
+`Web-Games-testing\2026-10-22_easy-digits` once this is published.

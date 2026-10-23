@@ -792,14 +792,20 @@ mockup, to be judged on the phone (journal, "Colour Sudoku mockup v1" to
   of time, played in an order shuffled once, **each counting as used as
   it starts**, the next one per level kept on the device, and the stock
   coming round again only after the last.
+- **Easy starts with 30 digits** (developer, 2026-10-22, journal Q31:
+  "yess", as in other Sudoku games, where the level mostly sets how many
+  are filled in; release 3.4): the maker's puzzle with digits from its
+  answer added, so it keeps its one answer and only gets easier. Harder
+  starts with what the maker leaves (12-20).
 
 As built (Claude's choices from the mockup, unless marked):
 - **Setup:** the rules beside a solved puzzle; **How hard?** Easy
-  ("each digit can be found from one row, column, box or colour") /
-  Harder ("some digits need two of those looked at together": "all
-  inside", a unit's digit confined to another unit; words agreed with
-  the developer 2026-10-19, after 2.0: the first ones' "meaning ... is
-  not clear"; both levels start with about as many digits, journal Q31);
+  ("starts with 30 digits; each digit can be found from one row, column,
+  box or colour") / Harder ("starts with 12 to 20; some digits need two
+  of those looked at together": "all inside", a unit's digit confined to
+  another unit; words agreed with the developer 2026-10-19, after 2.0:
+  the first ones' "meaning ... is not clear"; the counts in front added
+  2026-10-22 with Easy's 30 digits, journal Q31, Claude's words);
   **Your notes:** Auto tidy (a digit placed comes out of
   the notes it rules out; default) / I'll do it; Play!.
 - **Play:** 🏠, "Easy · puzzle 3" over ❤️❤️❤️, "52 to go" and the
@@ -834,10 +840,15 @@ As built (Claude's choices from the mockup, unless marked):
   of hearts" / "You gave up" with the rest of the answer pale; "Shown
   step by step"); **Next** / **Try again** / **New game**.
 - **Puzzles:** 200 per level, made ahead of time by
-  `tools/colour-sudoku-puzzles.js` into `data/colour-sudoku.json` (71 KB;
-  12-20 givens), each with one answer the level's steps reach; Harder
-  ones need "all inside" at least once. The first 200 kept seeds from
-  100000 (Easy) and 200000 (Harder), shuffled once with a fixed seed.
+  `tools/colour-sudoku-puzzles.js` into `data/colour-sudoku.json` (71 KB),
+  each with one answer the level's steps reach; Harder ones need "all
+  inside" at least once. The first 200 kept seeds from 100000 (Easy) and
+  200000 (Harder), shuffled once with a fixed seed. The maker leaves
+  12-20 givens; **Easy's then get digits from the answer up to 30**
+  (`EASY_GIVENS`, `addGivens`), each in a box with the fewest (at random
+  among those, from a stream of the seed's own), so at least 3 in a box
+  (199 of 200; one has a box with 2; 3.3's Easy had a box with none in
+  121 of 200).
 - **Kept on the device:** the next puzzle and the best time per level.
 - **Sounds:** a tick per note, a thud per right digit, "uh-oh" for a
   wrong one, a ping for a hint or step, the sparkle when solved, "aww"
