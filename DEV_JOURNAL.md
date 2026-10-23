@@ -37,10 +37,18 @@ time, each tried before publishing:
   app's model menu); Claude can set one for a session or helper it
   starts. To try: one routine session on Sonnet 5.5, compared; a
   standards-skill line only once that shows something general.
-
+  *2026-10-23, developer:* "Can you add the skill to suggest model
+  changes when appropriate": added to the skill, section 7, "Match the
+  model to the work" (see "Proposed additions"). Stays open for the
+  Sonnet 5.5 trial.
 ## Proposed additions to the standards skill
 
-None waiting. (2026-10-23: "Tie an effect to the event it follows, not
+None waiting. (2026-10-23, later: "Match the model to the work"
+added to the skill's section 7 at the developer's request (Q34), before
+any evidence from this project; ai-dev-practices commit 4f10dc2, zip
+rebuilt, holding it and the two below, for the developer to upload.)
+
+Earlier: (2026-10-23: "Tie an effect to the event it follows, not
 a timer that guesses it" (from "3.5 on the phone; release 3.6") and
 "Check a screen after every way into it" (from "3.0 on the phone;
 release 3.1" and "Laser Lab 3.2 built") approved by the developer ("We
