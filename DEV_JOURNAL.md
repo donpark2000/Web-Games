@@ -52,7 +52,10 @@ time, each tried before publishing:
   (likely harder); placing the lasers removes the beam's known start
   but adds many ways in (unclear). The budget (cheapest + 3) is the
   plainest lever. To measure with the maker and solver before building:
-  how many ways fit the budget, per variant.
+  how many ways fit the budget, per variant. *2026-10-23:* measured
+  (see "Q35 measured"): the budget's margin matters most; a colour
+  mirror makes it harder only in puzzles made to need it; more lasers
+  add a little at 6×6. Open until the developer chooses.
 
 ## Proposed additions to the standards skill
 
@@ -9318,3 +9321,69 @@ rule for every puzzle game: DESIGN.md "Puzzle order".
 **Developer:** would the colour mirror, more lasers, or placing the
 lasers make it easier or harder? Logged as Q35 with Claude's reasoning;
 not measured yet.
+
+## 2026-10-23: Q35 measured: colour mirror, more lasers (and bombs, an idea)
+
+**Developer:** "measure these variants - colour mirror, more lasers.
+Forget placing lasers manually." And a new idea: "Bombs that, when
+placed beside a block and lit with a laser, blow of the block so the
+light can pass through."
+
+**The measure.** How many ways win at each budget (the cheapest cost
++0 to +3; the game's budget is +3), counted by `solveCheap` with no
+answer limit (capped at 20 million choices; a capped count is a lower
+bound, marked +). Fewer ways: less room to win by trying. A proxy for
+"forgiving", not for how hard it is to reason out. Also, for puzzles with
+more than one laser, each laser solved on its own (only its beam, gems
+wanting just its colour): if the lasers alone cost less than together,
+the beams get in each other's way. Scratch code (Claude's scratchpad):
+a copy of `src/core/laser-lab.js` with colour mirrors and up to four
+lasers; checked against the real code first (it remakes 16 stock
+puzzles from their seeds and counts the same ways; broken on purpose,
+it reported 5 makes and 8 counts different). 6×6 only: 7×7 with two
+lasers ran past the cap at +2 (one puzzle, 8.8 s). Colour mirror: 2
+coins, turns its own colour as a mirror does, lets the other through.
+
+**Results** (medians, quartiles in brackets):
+
+| 6×6 | n | +0 | +1 | +2 | +3 (budget) | beams in each other's way |
+|---|---|---|---|---|---|---|
+| one laser (stock) | 30 | 4 (2-8) | 31 (15-64) | 185 (87-450) | 958 (486-2720) | - |
+| two lasers (stock) | 20 | 4 (3-7) | 36 (24-50) | 252 (190-450) | 1436+ | 1 of 20 |
+| + colour mirror offered | 20 | 4 (3-8) | 50 (36-79) | 454+ (334-724) | 1996+ | - |
+| made to need a colour mirror | 9 | 2 (2-4) | 18 (16-32) | 129 (100-216) | 602+ | 8 of 9 |
+| three lasers | 20 | 3 (2-5) | 28 (16-38) | 183+ (89-309) | (capped) | 3 of 20 |
+| four lasers | 20 | 3 (1-4) | 17 (11-24) | 125+ (45-175) | (capped) | 1 of 20 |
+
+(7×7 one laser, 20: 7 / 81 / 625+ / 3048+.)
+
+- **The budget's margin is the biggest lever:** at +3 about 250-350
+  times as many ways win as at the cheapest.
+- **A colour mirror offered on today's puzzles makes it easier:** the
+  cheapest never fell (0 of 20) and never used one, but 1.4-1.8 times
+  as many ways fit each budget.
+- **Puzzles made to need one are harder:** about half the ways at each
+  budget, and in 8 of 9 the beams get in each other's way (each laser
+  alone 1-4 coins, together 6 or 7; today's two-laser puzzles: 1 of 20).
+  Made by dropping one colour mirror where the beams cross, then kept
+  only when no way without one fits the budget: one puzzle in 3,600-93,000
+  seeds, 1-10 minutes of one core each at 6×6 (one of the ten runs ended
+  without a puzzle or an error line; not looked into). Larger boards
+  not tried; 8×8 with two lasers already takes about 30 minutes a puzzle.
+- **More lasers: a little harder by the count** (three: about a quarter
+  fewer ways; four: about half), **but in 18 of 20 (three) and 20 of 20
+  (four) one laser needs 0 or 1 coins on its own**: the same 6-coin floor
+  shared out, so each beam's job is smaller. Their beams mostly share
+  pieces (8-9 of 20) rather than get in each other's way.
+
+**Bombs: Claude's view, not measured.** A fit for the "physics" idea,
+and a rule that changes the board, which nothing does yet. As a piece
+the player buys, it frees any wall: more ways, likely easier (as the
+colour mirror offered). As part of the puzzle (fixed bombs), or with
+puzzles made to need one, likely harder: lighting it can also open a
+way to a wrong gem or a laser. Open: which walls it blows (the four
+next to it?); whether the beam carries on; and the per-laser switches:
+a wall blown by red is gone for blue, so the order the lasers go on
+would matter, and when the wall comes back needs a rule. The solver
+would need to search in stages (walls change), so making puzzles costs
+more.
