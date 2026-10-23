@@ -8675,3 +8675,24 @@ Q32, Q24, Q27, Q30, Q31 unchanged. **Proposed skill additions:** none
 release steps, and stop the local server. Then the developer plays a
 two-laser run on the phone. OK to purge
 `Web-Games-testing6-10-22_purple-gems` once this is published.
+
+## 2026-10-22: Release 3.3 published (Laser Lab: more purple gems)
+
+**Developer** (in the parent session): "OK to publish as with 3.2".
+Published from the parent session, as 3.1 and 3.2 were.
+
+**Checked first:** `light-puzzle` level with GitHub at 08001b7;
+`node tools/release.js`: "Release 3.3 is ready", version cf033660098b;
+`npm test` 349 passed. The stock, by runs of 10 in its order: 6-2 and
+7-2 33 of 100 with a purple gem, per run 3 4 3 3 3 4 3 3 4 3; 8-2 3 of
+50, per run 1 0 1 0 1. In the built-in browser (393 × 760, the local
+server on 8123 serving cf033660098b, a node process left from the 3.3
+session's checks): a 6×6 two-laser run, each puzzle shown and Next ▸:
+purple gems in puzzles 2, 5 and 8 (1, 2 and 2 gems).
+
+**Published:** `main` fast-forwarded to 08001b7, tag `v3.3`,
+[GitHub release 3.3](https://github.com/donpark2000/Web-Games/releases/tag/v3.3);
+live after about 20 s (`version.js` cf033660098b). The leftover server
+on 8123 stopped (PID 37008); no node processes left.
+
+**Next:** the developer tries 3.3 on the phone.
