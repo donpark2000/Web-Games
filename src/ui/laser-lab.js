@@ -216,7 +216,8 @@ function render() {
   for (let i = 0; i < n * n; i++) {
     const c = cells[i];
     c.innerHTML = cellSvg(P, i, placed, b.fixed);
-    c.classList.remove('unlit', 'lit', 'lit1', 'lit2');
+    // a redraw shows a lit gem lit, without its pop again (3.8)
+    c.classList.remove('unlit', 'lit', 'lit1', 'lit2', 'pop');
     c.classList.toggle('hinted', i === ui.hinted);
     const pc = placed.get(i), code = boardOf(P)[i];
     c.setAttribute('aria-label', `Row ${Math.floor(i / n) + 1}, column ${i % n + 1}: ${code === '#' ? 'wall' : code === 'G' ? 'gem' : pc ? `${NAME[pc.t].toLowerCase()} ${pc.o ? '\\' : '/'}` : 'empty'}`);
@@ -476,12 +477,23 @@ $('lamps').addEventListener('pointerdown', e => {
   G = show;
   render();
   G = real;
+  // each gem's pop when the beam lights it (a purple's again for its
+  // second colour), and when, for the log
+  const from = performance.now(), litAt = [];
   drawSegs(before.segs, [], res.segs, {
-    gem: i => { lit.set(i, (lit.get(i) || 0) | bit); cells[i].classList.remove('lit1', 'lit2'); cells[i].classList.add(gemLit(i, lit.get(i))); },
+    gem: i => {
+      lit.set(i, (lit.get(i) || 0) | bit);
+      const c = cells[i];
+      c.classList.remove('lit1', 'lit2', 'pop');
+      void c.offsetWidth;
+      c.classList.add(gemLit(i, lit.get(i)), 'pop');
+      litAt.push(`${i}@${Math.round(performance.now() - from)}`);
+    },
     lamp: burst,
     done: () => {
       ui.busy = false;
       ui.lighting = null;
+      if (litAt.length) L('gems lit', { laser: li, ms: litAt.join(' ') });
       if (res.solved) { win(); return; }
       if (res.ok) {
         sound.play('ding');

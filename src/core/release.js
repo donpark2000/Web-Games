@@ -5,4 +5,4 @@
 // and tools/offline.js copies the number into sw.js. The site's version
 // (src/core/version.js) stays the files' fingerprint, which is what makes
 // devices fetch a new copy.
-export const RELEASE = '3.7';
+export const RELEASE = '3.8';

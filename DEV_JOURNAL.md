@@ -26,19 +26,6 @@ time, each tried before publishing:
   developer:* "ok" (taken as: nothing to change for now); stays open
   until 3.3's purple gems have been played.
 
-- **Q33. Does 3.6 stop the zoom on the iPhone?** (2026-10-23) 3.5's
-  pinch block didn't hold there: the page zoomed ("not sure what I
-  did") and the developer pinched it back out. 3.6 blocks only zooming
-  in, stops double-tap zoom on the whole page, and logs every change of
-  zoom with the touches before it. To check on the phone; if it still
-  zooms, the log says how (see "3.5 on the phone; release 3.6").
-  *2026-10-23, developer:* "3.6 still zooms. It seems to happen when I
-  double tap a piece to change its direction sometimes but not all the
-  time." Cause found (a tap redraws the piece's picture, so its touch's
-  end reaches no handler) and fixed in 3.7, with Colour Sudoku's same
-  case: see "3.6 on the phone; release 3.7". Stays open until 3.7 has
-  been played on the iPhone.
-
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-23: "Tie an effect to the event it follows, not
@@ -84,6 +71,23 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q33. Does 3.6 stop the zoom on the iPhone?** (2026-10-23) 3.5's
+  pinch block didn't hold there: the page zoomed ("not sure what I
+  did") and the developer pinched it back out. 3.6 blocks only zooming
+  in, stops double-tap zoom on the whole page, and logs every change of
+  zoom with the touches before it. To check on the phone; if it still
+  zooms, the log says how (see "3.5 on the phone; release 3.6").
+  *2026-10-23, developer:* "3.6 still zooms. It seems to happen when I
+  double tap a piece to change its direction sometimes but not all the
+  time." Cause found (a tap redraws the piece's picture, so its touch's
+  end reaches no handler) and fixed in 3.7, with Colour Sudoku's same
+  case: see "3.6 on the phone; release 3.7". Stays open until 3.7 has
+  been played on the iPhone. **Closed 2026-10-23** (developer, after playing 3.7: "The zooming problem
+  seems to be gone. Since it was intermittent, I'm not 100% sure, but I
+  think we can assume it is fixed for now, and I'll raise the issue
+  again if I ever see it reappear."). nozoom still logs every change of
+  zoom with `touchedRedrawn` and `touched`, so a log can reopen it.
 
 - **Q24. The home page wouldn't scroll to the footer** once: it stopped
   "part way through the last game". Device, app or Safari, and what came
@@ -9181,3 +9185,62 @@ touched had been redrawn.
 3. **Q32** (Laser Lab on the phone) stays open.
 4. The developer uploads the rebuilt skill zip
    (`ai-dev-practices\software-project-standards.zip`).
+
+## 2026-10-23: 3.7 on the phone; Q33 closed; release 3.8 (a gem pops as it lights)
+
+**Developer:** "The zooming problem seems to be gone ... I think we can
+assume it is fixed for now". Q33 moved to Resolved. And: "The jewels
+still seem to have a momentary delay lighting up after the laser hits
+them. Not a big deal really, but I can't say I noticed much of a
+difference between 3.6 and 3.7."
+
+**Why 3.7 made no difference: measured.** In the built-in browser
+(Chrome, the pane at about 30 frames a second; 6×6, one laser, hints
+placing the pieces), each frame recording each gem's lit class, its
+picture's size, and the dash offset of the beam line ending at it:
+gem #12 lit at 953 ms at **0.6** of its size (the bounce, `scale(.6)`
+to 1.15 to 1 over 0.4 s); the tip reached it at 1019 ms with the gem at
+**0.86**; full size at 1086 (67 ms after the tip), biggest at 1186.
+3.7 moved the lighting about 90 ms earlier (a line grows in `STEP_MS`
+90), but the gem only got to full size after the tip either way, which
+reads as the lag. And a second cause: **every lit gem bounced again**
+(gem #17 back to 0.6 at 1386 ms, as the beam finished): `render()`
+puts a new picture in every square (`c.innerHTML = cellSvg(...)`), and
+the lit class's animation starts again on a new picture. `render()` runs
+when the beam is done, and with two lasers as the second goes on, so the
+first laser's gems bounced again too.
+
+**The fix (3.8).**
+- A lit gem is only a look (fill and glow), no animation: `.lit`,
+  `.lit1`, `.lit2` lose `bounce`.
+- The moment of lighting is its own class, `pop`, added only by the
+  beam's gem callback: `gempop`, from `scale(1.3)` to 1 in 0.25 s,
+  ease-out (big and bright at once, settling). Removed, a reflow, and
+  added again, so a purple gem pops again for its second colour.
+  `render()` removes `pop`, so a redraw shows a lit gem still.
+- When: unchanged, at the last line's `animationstart` (3.7).
+- Logged: `gems lit {laser, ms}`, each gem as `square@ms` after the
+  laser went on, so a phone's log shows the timing.
+
+**In the browser after the fix:** two lasers, 6×6: red's gems #29 and
+#3 popped at 770 and 970 ms; the tips reached them at 836 and 1037 with
+the gems at **1.18** (3.7: 0.86); blue's #3 (purple, its second colour)
+popped again at 498, size 1.18 at the tip. Red's gems #6 and #13 stayed
+at full size, without a second bounce, when blue went on and when it finished. Log:
+`gems lit {"laser":0,"ms":"29@768 3@968"}`. Not checked: the phone, at
+60 frames a second (the pane ran at about 30).
+
+**Checks:** new test "a gem pops once, big at once, as its beam lights
+it" (no `.lit` rule animates, the pop starts above full size, `render()`
+removes `pop` and never adds it, the beam's callback re-adds it, the log
+line). Each part shown to fail on a scratch copy with it undone (bounce
+back on `.lit`, pop from .6, `pop` kept by render, not added, no
+reflow, no log line): each reported by its own message. `npm test` 364
+passed after `node tools/offline.js`. No console errors.
+
+**Release 3.8 prepared:** `src/core/release.js` 3.8, `tools/offline.js`
+run (version b9cd9937caf4), notes in `RELEASES.md`; `node
+tools/release.js`: "Release 3.8 is ready". Open: Q32. If a gem still
+looks late on the phone, the next thing to try is lighting it at the
+line's end (when the tip arrives) now that the pop is at full size at
+once.

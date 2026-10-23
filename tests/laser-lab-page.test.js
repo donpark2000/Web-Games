@@ -163,6 +163,26 @@ test('laser lab page: a gem lights by its beam’s line, not by a timer of its o
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{ \.beam \.grow \{ stroke-dashoffset: 0; \} \}/);
 });
 
+// 3.8 (developer, of 3.7: the gems "still seem to have a momentary delay
+// lighting up after the laser hits them"): measured in the browser, the
+// bounce from 60% size was at 86% as the beam's tip got there, full size
+// 67 ms later, and it ran again on every redraw (a new picture), at the
+// beam's end and when another laser went on. Now a lit gem is only a
+// look, and the pop is the beam's alone: big at once, settling.
+test('laser lab page: a gem pops once, big at once, as its beam lights it', () => {
+  const rules = css.match(/[^}\n]*\.lit[12]?\b[^{}]*\{[^}]*\}/g) ?? [];
+  assert.ok(rules.length >= 10, `only ${rules.length} lit rules found`);
+  for (const r of rules) assert.doesNotMatch(r, /animation/, `a lit gem animates on every redraw: ${r}`);
+  assert.match(css, /\.llcell\.pop svg \{ animation: gempop \.25s ease-out; \}/);
+  const from = css.match(/@keyframes gempop \{ from \{ transform: scale\(([\d.]+)\); \}/)?.[1];
+  assert.ok(Number(from) > 1, `the pop starts at ${from}, not bigger than the gem`);
+  const draw = js.match(/function render\(\) \{[\s\S]*?\r?\n}\r?\n/)?.[0] ?? '';
+  assert.match(draw, /c\.classList\.remove\('unlit', 'lit', 'lit1', 'lit2', 'pop'\);/, 'a redraw keeps the pop');
+  assert.doesNotMatch(draw, /classList\.(add|toggle)\([^)]*'pop'/, 'a redraw pops the gems');
+  assert.match(js, /gem: i => \{[\s\S]*?c\.classList\.remove\('lit1', 'lit2', 'pop'\);\s*void c\.offsetWidth;\s*c\.classList\.add\(gemLit\(i, lit\.get\(i\)\), 'pop'\);/, 'the beam doesn’t pop the gem (again for a purple’s second colour)');
+  assert.match(js, /L\('gems lit', \{ laser: li, ms: litAt\.join\(' '\) \}\)/, 'the gems’ times not logged');
+});
+
 // 3.2: New game during play (developer: "New game is the quit"): back to
 // setup with the run kept, the puzzle under way kept in it first.
 test('laser lab page: New game during play keeps the run and the puzzle under way', () => {

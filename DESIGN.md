@@ -4,10 +4,11 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-23, later): Laser Lab: a tap with the other piece
+*Status (2026-10-23, latest): Laser Lab: a gem pops big at once as
+its beam lights it, and only once (release 3.8, prepared). Earlier: a tap with the other piece
 picked swaps it, a gem lights as its last beam line starts, and a double
 tap on a piece no longer zooms (nor on Colour Sudoku's redrawn squares)
-(release 3.7, prepared). Earlier 2026-10-23: Laser Lab's end says pieces and coins, yours and
+(release 3.7, published). Earlier 2026-10-23: Laser Lab's end says pieces and coins, yours and
 the best way's, with **See best**; its setup words are the developer's;
 **no zooming in** on any game page (release 3.5; 3.6: no double-tap
 zoom anywhere on the page, a zoomed page can be pinched back out, gems
@@ -1009,6 +1010,10 @@ Agreed after 3.5 (release 3.6):
   (developer, of 3.6's lighting at the line's end: "the lag could be a
   bit shorter", lit "at the same time as the last line of the laser was
   drawn").
+  **3.8:** as it lights, the gem **pops big at once** and settles
+  (from 1.3× its size; 3.7's bounce from 0.6× was still small as the
+  tip got there), once: a lit gem doesn't bounce again when the board
+  is redrawn (developer, of 3.7: "a momentary delay lighting up").
 
 Agreed after 3.6 (release 3.7):
 - **A tap with the other piece picked swaps it** (developer: changing

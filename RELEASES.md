@@ -7,6 +7,15 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.8 (2026-10-23, version b9cd9937caf4)
+
+Laser Lab:
+
+- **A gem lights the moment the beam reaches it:** it flashes big and
+  bright, then settles, instead of growing from small.
+- **A lit gem stays still** when the beam finishes or the other laser
+  goes on (it used to bounce again, which looked like it lit late).
+
 ## 3.7 (2026-10-23, version 2111778e433b)
 
 Laser Lab:
