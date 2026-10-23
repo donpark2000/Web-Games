@@ -56,6 +56,12 @@ time, each tried before publishing:
   (see "Q35 measured"): the budget's margin matters most; a colour
   mirror makes it harder only in puzzles made to need it; more lasers
   add a little at 6×6. Open until the developer chooses.
+- **Q36. A two-colour bomb?** (2026-10-23, developer: "A bomb that
+  only goes if two colours of lasers hit it. I'm thinking the only
+  relevant scenario would be to unblock a purple gem. Not sure.")
+  Claude's view, not measured: little to gain for a new rule (see
+  "v9 played: the mix; armour; two-colour bombs"). Parked unless the
+  developer wants it tried.
 
 ## Proposed additions to the standards skill
 
@@ -9585,3 +9591,35 @@ the repo). Agreed so far: DESIGN.md "Directional bombs" under Laser Lab.
 4. If the scratchpad is gone by then, the mockup's published files hold
    the same code (the artifact's file list: src/core/laser-lab.js and
    the rest).
+
+## 2026-10-23: v9 played: the mix; armour; two-colour bombs
+
+**Developer:** "Gameplay is good. Bombs in about 50% of the games is
+good. It does not have to be exactly 'every second game'." So: about
+half the puzzles get a bomb, spread through each run (as purple gems
+were in 3.3), not strictly every other one.
+
+**Armour** (developer: "something that looks more like armor on the
+sides ... a visual clue that not only the bomb blast is directional,
+but it also can only be detonated from one direction"). Claude drew
+three in the chat, on v9's body, each in yellow and turned in red and
+blue: A, riveted steel plates along both sides; B, a pale lens on the
+back (where the beam goes in); C, both. Claude's pick: C (the plates
+say "not from the side", the lens "from here"); A if C is too busy at
+the phone's 40 px squares. To choose.
+
+**Two-colour bomb (Q36).** Claude's view, not measured:
+- It can't work with today's rule that each laser switched on leaves
+  all that's on right: the first beam stops at the bomb (it's solid
+  until set off), so the first laser is judged wrong before the second
+  goes on. It would need its own exception.
+- Both beams must come in from behind, the same way, so their last
+  stretch is shared: much like a purple gem, which already makes the
+  two beams meet, and the bombs already make the lasers work together
+  (the order mattered in 10 of 10 two-laser 6×6 puzzles).
+- More to make it read: a third bomb drawing, and messages for "one
+  colour has reached it".
+- The developer's scenario, a purple gem behind a wall, a one-colour
+  bomb already makes: red opens the wall, then both beams reach the
+  gem (and red must go first).
+- So: little to gain for a new rule. Parked.

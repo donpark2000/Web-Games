@@ -1121,8 +1121,10 @@ the other colour stops at a bomb and carries on once it goes; a laser
 switched on must leave all that's on right; a wrong laser can be tried
 again once the lasers on change; a blown wall comes back when the laser
 that blew it goes off or a piece moves; one bomb a puzzle, which must
-save coins; bombs in every other puzzle (the mix to settle); none yet
-at 8×8 with two lasers.
+save coins; none yet at 8×8 with two lasers. **About half the
+puzzles get a bomb**, spread through each run, not strictly every other
+one (developer, 2026-10-23: "about 50% ... does not have to be exactly
+'every second game'"). A two-colour bomb parked (Q36).
 
 ## Face names
 
