@@ -9387,3 +9387,36 @@ a wall blown by red is gone for blue, so the order the lasers go on
 would matter, and when the wall comes back needs a rule. The solver
 would need to search in stages (walls change), so making puzzles costs
 more.
+
+## 2026-10-23: Bombs: placed by the puzzle; colour and directional bombs
+
+**Developer:** "to require colour mirrors in a solution makes building
+the game very expensive. And possibly reduce the variety of puzzles.
+More lasers does not sound like a big improvement. On the bomb idea, I
+favor having the puzzle make place them rather than the player buying
+them." Two more options: "Colour bombs (i.e. only one laser color
+triggers them). And possibly directional bombs (so they only explode in
+the direction the light was moving)."
+
+**Claude, not measured:** both make it harder, and they fit together.
+- *Directional:* the blast goes the way the beam was going and clears
+  the wall just beyond, and the beam carries on through the gap. One
+  square to think about, not four, and the side a beam comes in from
+  now matters: more to plan.
+- *Colour:* a red bomb makes the red beam open the way for the blue
+  one, so the lasers must work together and the order they go on
+  matters (blue first stops at the wall: a wrong laser, 1 coin). That
+  is the kind of conflict that made the colour-mirror puzzles harder
+  (8 of 9 against 1 of 20), and the maker can build it in (a wall on
+  blue's way, a red bomb on red's) rather than search random boards
+  for it, so likely far cheaper to make. Not yet tried.
+- Rules to settle: a bomb stops a beam that doesn't set it off (it is
+  solid); a blown wall stays gone until a piece moves (moving a piece
+  already switches every laser off) or Try again; it opens the way for
+  every beam from then on.
+- Suggested order, one rule at a time: directional bombs first (one and
+  two lasers), colour bombs as a second step for two lasers, or as a
+  switch in the mockup, as mirrored edges were in v3.
+
+Colour mirrors parked (costly to make, maybe less varied); more lasers
+dropped.
