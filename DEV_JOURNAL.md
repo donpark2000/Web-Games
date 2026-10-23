@@ -8801,3 +8801,27 @@ unchanged. **Proposed skill additions:** none.
 hard? words); then CLAUDE.md's release steps, and stop the local
 server. Then the developer plays Easy on the phone. OK to purge
 `Web-Games-testing\2026-10-22_easy-digits` once this is published.
+
+## 2026-10-22: Release 3.4 published (Colour Sudoku Easy); Q24, Q27, Q30 closed
+
+**Developer** (in the purple-gems session): "OK to close Q24 and Q27 and
+Q30. If no other questions, please publish so I can test on m phone".
+Q24, Q27 and Q30 moved to Resolved, each with that answer (commit
+7e589fc). Published from that session; the Easy-digits session that
+built and prepared 3.4 had stopped with it ready (its entry above).
+
+**Checked first:** the 3.4 work read through (its entry above);
+`light-puzzle` clean at 7e589fc; `node tools/release.js`: "Release 3.4
+is ready", version bc03ebead85e; `npm test` 352 passed.
+
+**Published:** `main` fast-forwarded to 7e589fc, tag `v3.4`,
+[GitHub release 3.4](https://github.com/donpark2000/Web-Games/releases/tag/v3.4);
+live after about 15 s (`version.js` bc03ebead85e, `release.js` 3.4).
+Local server stopped (`tools/serve.js 8123`, PID 25380); no serve.js
+left.
+
+**Still to confirm with the developer:** the new How hard? words (Easy
+"starts with 30 digits; ...", Harder "starts with 12 to 20; ..."),
+Claude's. **Next:** the developer tries 3.3 (Laser Lab's purple gems)
+and 3.4 (Easy with 30 digits) on the phone. OK to purge
+`Web-Games-testing6-10-22_easy-digits`, to ask.
