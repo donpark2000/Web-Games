@@ -62,6 +62,14 @@ time, each tried before publishing:
   Claude's view, not measured: little to gain for a new rule (see
   "v9 played: the mix; armour; two-colour bombs"). Parked unless the
   developer wants it tried.
+- **Q37. An omnidirectional bomb, instead of or beside the directional
+  one?** (2026-10-23, developer: "maybe do away with directional bombs
+  at all (or add an omnidirectional bomb). that way one bomb could
+  remove two or 3 blocks at once.") Claude's view, not measured: with
+  one laser likely easier (set off from any side, more walls open, so
+  more ways win); with two, possibly harder in a new way (red's blast
+  opens blue's way on another side). To measure as Q35 was: ways at
+  each budget, directional against omnidirectional, on the same setups.
 
 ## Proposed additions to the standards skill
 
