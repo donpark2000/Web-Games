@@ -8541,3 +8541,27 @@ fitted the board to the wrong row (added there).
 
 **Next:** the developer's OK to publish as 3.2; then the release steps in CLAUDE.md,
 and stop the local server.
+
+## 2026-10-22: Release 3.2 published (Laser Lab)
+
+**Developer** (in the parent session): "OK to publish 3.2". Published
+from the parent session, as 3.1 was (the 3.2 session had built and
+prepared it; an OK relayed between sessions isn't taken as one there).
+
+**Checked first:** `light-puzzle` level with GitHub at 0019967 (the
+release prepared in bd070bc, then the journal and DESIGN.md);
+`node tools/release.js`: "Release 3.2 is ready", version d82d45d7fa31;
+`npm test` 348 passed. In the built-in browser on the local server
+(a run left from the 3.2 session's checks, all hearts used): 393 × 760,
+"Puzzle 2 of 10" at 20 px, "Budget 2 over · Savings −11" on its own
+row, the tools Clear, Hint 1 coin, Try again (greyed: no hearts),
+Show answer, New game; Show answer asked Yes / No, ended "Answer shown:
+−9 coins", and Next ▸ brought puzzle 3 with all five tools. 320 × 640:
+no sideways scroll, no button cut.
+
+**Published:** `main` fast-forwarded to 0019967, tag `v3.2`,
+[GitHub release 3.2](https://github.com/donpark2000/Web-Games/releases/tag/v3.2);
+live after about 40 s (`version.js` d82d45d7fa31, the page with Try
+again and Show answer). Local servers stopped; no node processes left.
+
+**Next:** the developer tries 3.2 on the phone.
