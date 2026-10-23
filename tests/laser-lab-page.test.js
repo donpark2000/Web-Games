@@ -147,15 +147,17 @@ test('laser lab page: the end’s words from endWords; See best shows the best w
 });
 
 // 3.6 (developer: "the jewels light up before the laser beam hits
-// them"): a gem lights, and a laser breaks, at its beam line's
-// animationend, not by a timer of its own (which ran about 30 ms ahead of
+// them"): a gem lights, and a laser breaks, by its beam line's
+// animation, not by a timer of its own (which ran about 30 ms ahead of
 // the drawing in the browser); a timer behind it for an animation that
 // doesn't run, and the beam shown whole with reduced motion.
-test('laser lab page: a gem lights when its beam’s line has grown, not by a timer of its own', () => {
+test('laser lab page: a gem lights by its beam’s line, not by a timer of its own', () => {
   const draw = js.match(/function drawSegs\([\s\S]*?\r?\n}\r?\n/)?.[0] ?? '';
-  assert.match(draw, /onArrive\(line, \(\) => cb\.gem\(i\)\)/, 'the gem not lit by its line');
-  assert.match(draw, /onArrive\(line, \(\) => cb\.lamp\(g\.lamp\)\)/, 'the laser not broken by its line');
-  assert.match(draw, /line\.addEventListener\('animationend', go, \{ once: true \}\);\s*growTimers\.push\(setTimeout\(go, ARRIVE_MS\)\);/);
+  // 3.7: the gem as its last line starts (developer: "the lag could be a
+  // bit shorter"), the laser as the tip arrives
+  assert.match(draw, /onArrive\(line, 'animationstart', \(\) => cb\.gem\(i\)\)/, 'the gem not lit as its line starts');
+  assert.match(draw, /onArrive\(line, 'animationend', \(\) => cb\.lamp\(g\.lamp\)\)/, 'the laser not broken by its line’s end');
+  assert.match(draw, /line\.addEventListener\(when, go, \{ once: true \}\);\s*growTimers\.push\(setTimeout\(go, ARRIVE_MS\)\);/);
   assert.doesNotMatch(draw, /setTimeout\(\(\) => cb\.(gem|lamp)/, 'a gem or laser still on a timer of its own');
   assert.match(draw, /const finish = \(\) => \{ if \(timeUp && !waiting\) cb\.done\(\); \};/, 'done before every gem is lit');
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{ \.beam \.grow \{ stroke-dashoffset: 0; \} \}/);
@@ -215,5 +217,15 @@ test('laser lab page: wired to the log, game keeping, runs, sound and fit', () =
   for (const s of ['tick', 'ding', 'uhoh', 'ping', 'win']) assert.match(js, new RegExp(`sound\\.play\\('${s}'`), `no ${s}`);
   assert.match(js, /fitPlayScreen\(/);
   assert.match(js, /for \(const el of \[\$\('boardwrap'\), \$\('tray'\)\]\) \{[\s\S]*?addEventListener\('touchend'[\s\S]*?e\.preventDefault\(\);[\s\S]*?\{ passive: false \}\);/, 'no double-tap zoom block');
+  // 3.7 (a double tap on a piece still zoomed the iPhone): the touch's own
+  // element stays in the page, so its end reaches that block. A square's
+  // picture, redrawn by the tap, takes no touches; the shop's buttons are
+  // made once, not on each render.
+  assert.match(css.match(/\.llcell svg \{[^}]*\}/)?.[0] ?? '', /pointer-events: none/, 'a square’s picture takes the touch, and is redrawn under it');
+  assert.match(js, /c\.innerHTML = cellSvg\(/, 'the square’s picture no longer redrawn: check the pointer-events note');
+  const ren = js.match(/function render\(\) \{[\s\S]*?\r?\n\}\r?\n/)?.[0] ?? '';
+  assert.match(ren, /if \(!\$\('tray'\)\.children\.length\) \$\('tray'\)\.innerHTML = /, 'the shop’s buttons made on every render');
+  assert.match(ren, /for \(const b of \$\('tray'\)\.children\) \{ b\.setAttribute\('aria-pressed', String\(ui\.sel === b\.dataset\.t\)\); b\.disabled = !!G\.result; \}/, 'the picked piece or the end not shown on the kept buttons');
+  assert.equal((js.match(/\$\('tray'\)\.innerHTML/g) || []).length, 1, 'the shop’s buttons rebuilt somewhere else');
   assert.match(page, /<link rel="stylesheet" href="css\/hidden-faces\.css">[\s\S]*<link rel="stylesheet" href="css\/laser-lab\.css">/, 'its sheet must come after Find the Stars’');
 });

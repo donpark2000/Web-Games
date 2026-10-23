@@ -78,6 +78,7 @@ test('nozoom: the whole page gets touch-action manipulation; the last touches ke
   doc.dispatchEvent(ev('touchstart', 1, { at: 1200 }));
   doc.dispatchEvent(ev('touchend', 0, { at: 1250 }));
   assert.deepEqual([seen.last, seen.lastTapGap, seen.at], [1, 200, 1200]);
+  assert.equal(seen.touched, doc, 'the element touched not kept (3.7: the zoom log says if a tap redrew it)');
   doc.dispatchEvent(ev('touchstart', 1, { at: 2000 }));
   doc.dispatchEvent(ev('touchstart', 2, { at: 2010 }));
   doc.dispatchEvent(ev('touchend', 1, { at: 2300 }));

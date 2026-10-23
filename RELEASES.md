@@ -7,6 +7,24 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.7 (2026-10-23, version 2111778e433b)
+
+Laser Lab:
+
+- **Swap a piece in one tap:** with Splitter picked, a tap on a mirror
+  turns it into a splitter facing the same way (and the other way
+  round), instead of having to take the old piece off first.
+- **A gem lights as the beam's last line runs into it**, not after.
+- **A double tap on a piece no longer zooms** (or on a piece button).
+
+Colour Sudoku:
+
+- **A double tap on a square or a digit no longer zooms** (the same
+  cause as Laser Lab's).
+
+Every game: if the page ever zooms again, the log now also says whether
+the thing touched had just been redrawn.
+
 ## 3.6 (2026-10-23, version 5f100156e0bb)
 
 Laser Lab:

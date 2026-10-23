@@ -207,9 +207,9 @@ test('laser lab game: a tap puts the picked piece down, turns it, takes it off; 
   assert.equal(budgetLeft(g, p), 4);
   assert.deepEqual(tapSquare(g, p, 7, 's'), { ok: true, did: 'put', t: 's' });
   assert.equal(budgetLeft(g, p), 2);
-  assert.equal(tapSquare(g, p, 7, 'm').did, 'turn', 'a piece turns whatever is picked');
+  assert.equal(tapSquare(g, p, 7, 's').did, 'turn');
   assert.equal(g.pieces[7], 's1');
-  assert.equal(tapSquare(g, p, 7, 'm').did, 'off');
+  assert.equal(tapSquare(g, p, 7, 's').did, 'off');
   assert.equal(budgetLeft(g, p), 4, 'the price back');
   assert.deepEqual(tapSquare(g, p, 24, 'm'), { ok: false, why: 'wall' });
   assert.deepEqual(tapSquare(g, p, 2, 'm'), { ok: false, why: 'gem' });
@@ -217,6 +217,29 @@ test('laser lab game: a tap puts the picked piece down, turns it, takes it off; 
   assert.equal(budgetLeft(g, p), -1, 'past the budget: the savings pay');
   assert.equal(clearBoard(g), 5);
   assert.equal(budgetLeft(g, p), 4);
+});
+
+// 3.7 (developer: changing between mirror and splitter took two taps to
+// take the old piece off first)
+test('laser lab game: a tap with the other piece picked swaps it, facing the same way, at the new price', () => {
+  const p = gp(), g = createGame(p, '5-1', 0);
+  tapSquare(g, p, 7, 'm'); tapSquare(g, p, 7, 'm');   // a mirror '\'
+  assert.equal(budgetLeft(g, p), 3);
+  switchLamp(g, p, 0);
+  const before = budgetLeft(g, p);
+  assert.deepEqual(tapSquare(g, p, 7, 's'), { ok: true, did: 'swap', t: 's', was: 'm' });
+  assert.equal(g.pieces[7], 's1', 'not facing the same way');
+  assert.equal(budgetLeft(g, p), before - 1, 'the splitter’s price, the mirror’s back');
+  assert.deepEqual(g.on, [], 'a swap is a change: the lasers off');
+  assert.equal(tapSquare(g, p, 7, 's').did, 'off', 'then the picked piece’s own taps');
+  tapSquare(g, p, 8, 's');
+  assert.deepEqual(tapSquare(g, p, 8, 'm'), { ok: true, did: 'swap', t: 'm', was: 's' });
+  assert.equal(g.pieces[8], 'm0');
+  assert.equal(budgetLeft(g, p), before, 'the mirror’s price, the splitter’s back');
+  // a hint's piece stays as it is, whatever is picked
+  g.fixed.push(8);
+  assert.deepEqual(tapSquare(g, p, 8, 's'), { ok: false, why: 'fixed' });
+  assert.equal(g.pieces[8], 'm0');
 });
 
 test('laser lab game: a laser wrong costs 1 and goes off; tapped again with nothing moved, refused for free; right, solved', () => {

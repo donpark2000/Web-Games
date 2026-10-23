@@ -230,8 +230,12 @@ function render() {
     const nm = lampName(P, li);
     e.setAttribute('aria-label', `${nm ? `${nm[0].toUpperCase()}${nm.slice(1)} laser` : 'Laser'}: ${broken ? 'broken' : on ? 'on' : 'off'}`);
   }
-  $('tray').innerHTML = ['m', 's'].map(t => `<button type="button" class="piecebtn" data-t="${t}" aria-pressed="${ui.sel === t}" aria-label="${NAME[t]}: ${coins(PRICE[t])} each"${G.result ? ' disabled' : ''}>`
+  // the shop's buttons made once, then only changed (3.7: rebuilt on each
+  // tap, the touch's button was gone by its touch end, so the double-tap
+  // zoom wasn't cancelled)
+  if (!$('tray').children.length) $('tray').innerHTML = ['m', 's'].map(t => `<button type="button" class="piecebtn" data-t="${t}" aria-label="${NAME[t]}: ${coins(PRICE[t])} each">`
     + `<span class="pico">${pieceSvg(t, 0)}</span><span class="pn"><b>${NAME[t]}</b><span>${coins(PRICE[t])} each</span></span></button>`).join('');
+  for (const b of $('tray').children) { b.setAttribute('aria-pressed', String(ui.sel === b.dataset.t)); b.disabled = !!G.result; }
   const r = runOf(prog, G.setup);
   // just the puzzle's place in the run (3.2: no board size, so it isn't
   // shrunk), the run's hearts under it
@@ -293,28 +297,30 @@ function drawSegs(segs, faint, grow, cb = {}) {
   segs.forEach(g => add(g, false, false));
   faint.forEach(g => add(g, true, false));
   if (!grow) return;
-  // A gem lights, or a laser breaks, when the beam's tip gets there: at its
-  // line's animationend (3.6; developer: "the jewels light up before the
-  // laser beam hits them". A timer 90 ms on lit them about 30 ms early in
-  // the browser, the animation starting a frame or more after its timer,
-  // and more on the phone). A timer behind it, for an animation that
-  // doesn't run (reduced motion, a hidden page). Done once the last steps'
-  // time is up and every one has arrived.
+  // A gem lights as the beam's last line into it starts to grow, and a
+  // laser breaks when the tip gets there: at the line's animationstart
+  // and animationend (3.7; developer, of 3.6's gems lit at the line's end:
+  // "the lag could be a bit shorter", lit "at the same time as the last
+  // line of the laser was drawn". 3.6: "the jewels light up before the
+  // laser beam hits them" with a timer 90 ms on, the animation starting a
+  // frame or more after its timer). A timer behind each, for an animation
+  // that doesn't run (reduced motion, a hidden page). Done once the last steps' time is up
+  // and every one has arrived.
   let waiting = 0, timeUp = false;
   const finish = () => { if (timeUp && !waiting) cb.done(); };
-  const onArrive = (line, fn) => {
+  const onArrive = (line, when, fn) => {
     let arrived = false;
     const go = () => { if (arrived) return; arrived = true; fn(); waiting--; finish(); };
     waiting++;
-    line.addEventListener('animationend', go, { once: true });
+    line.addEventListener(when, go, { once: true });
     growTimers.push(setTimeout(go, ARRIVE_MS));
   };
   const last = Math.max(0, ...grow.map(g => g.step)), n = P.n, b = boardOf(P);
   for (let k = 0; k <= last; k++) growTimers.push(setTimeout(() => {
     for (const g of grow) if (g.step === k) {
       const line = add(g, false, true);
-      if (g.end === 'stop' && g.x2 % 1) { const i = Math.floor(g.y2) * n + Math.floor(g.x2); if (b[i] === 'G') onArrive(line, () => cb.gem(i)); }
-      if (g.end === 'lamp') onArrive(line, () => cb.lamp(g.lamp));
+      if (g.end === 'stop' && g.x2 % 1) { const i = Math.floor(g.y2) * n + Math.floor(g.x2); if (b[i] === 'G') onArrive(line, 'animationstart', () => cb.gem(i)); }
+      if (g.end === 'lamp') onArrive(line, 'animationend', () => cb.lamp(g.lamp));
     }
   }, k * STEP_MS));
   growTimers.push(setTimeout(() => { timeUp = true; finish(); }, (last + 2) * STEP_MS));
@@ -403,6 +409,10 @@ addEventListener('resize', fit);
 // (2026-10-13), despite its touch-action: cancelling each touch's end
 // stops the double-tap zoom. The board, the lasers and the shop take
 // pointer events (not clicks, which the cancelled touch end would stop).
+// A touch's end goes to the element it started on, so that element must
+// stay in the page: a square's picture is redrawn by a tap, so it takes
+// no touches (css, 3.7: a double tap on a piece still zoomed with 3.6),
+// and the shop's buttons are kept (render).
 for (const el of [$('boardwrap'), $('tray')]) {
   let last = 0;
   el.addEventListener('touchend', e => {
@@ -424,7 +434,7 @@ $('board').addEventListener('pointerdown', e => {
   const i = Number(c.dataset.i), r = tapSquare(G, P, i, ui.sel);
   if (!r.ok) { shake(c); L('square refused', { ...at(P, i), why: r.why }); return; }
   sound.play('tick');
-  L('piece', { ...at(P, i), did: r.did, piece: r.t, spent: spent(G), left: budgetLeft(G, P) });
+  L('piece', { ...at(P, i), did: r.did, piece: r.t, was: r.was, spent: spent(G), left: budgetLeft(G, P) });
   ui.hinted = -1;
   if (['notice', 'wrong'].includes(ui.bar.kind)) setBar('idle');
   render();

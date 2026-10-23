@@ -104,6 +104,12 @@ test('colour sudoku page: wired to the log, game keeping, progress, sound and fi
   assert.match(js, /recordTime\(prog, G\.level, ms\)/);
   for (const s of ['tick', 'thud', 'uhoh', 'ping', 'win', 'aww']) assert.match(js, new RegExp(`sound\\.play\\([^)]*'${s}'`), `no ${s}`);
   assert.match(js, /fitPlayScreen\(/);
-  assert.match(js, /for \(const el of \[\$\('board'\), \$\('dock'\)\]\) \{[\s\S]*?addEventListener\('touchend'[\s\S]*?e\.preventDefault\(\);[\s\S]*?\{ passive: false \}\);/, 'no double-tap zoom block');
+  // the touch's end caught on its own square or key (a tap redraws them:
+  // an end on a square no longer in the page never reaches the board; 3.7)
+  const block = js.match(/for \(const el of \[\$\('board'\), \$\('dock'\)\]\) \{[\s\S]*?\r?\n\}\r?\n/)?.[0] ?? '';
+  assert.match(block, /const end = e => \{\s*if \(!e\.cancelable\) return;\s*e\.preventDefault\(\);/, 'no double-tap zoom block');
+  assert.match(block, /el\.addEventListener\('pointerdown', e => \{\s*if \(e\.pointerType === 'touch' && !e\.target\.closest\('#hintbar'\)\) e\.target\.addEventListener\('touchend', end, \{ once: true, passive: false \}\);\s*\}, \{ capture: true \}\);/, 'the end not caught on the touch’s own element');
+  assert.doesNotMatch(block, /el\.addEventListener\('touchend'/, 'still caught on the board, which a redrawn square’s end never reaches');
+  assert.match(js, /b\.innerHTML = html;/, 'the board no longer redrawn: the catch on the touch’s own element may not be needed');
   assert.match(page, /<link rel="stylesheet" href="css\/hidden-faces\.css">\s*(?:<!--[\s\S]*?-->\s*)?<link rel="stylesheet" href="css\/colour-sudoku\.css">|<link rel="stylesheet" href="css\/hidden-faces\.css">[\s\S]*<link rel="stylesheet" href="css\/colour-sudoku\.css">/, 'its sheet must come after Find the Stars’');
 });

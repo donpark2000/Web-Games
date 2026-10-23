@@ -32,27 +32,22 @@ time, each tried before publishing:
   in, stops double-tap zoom on the whole page, and logs every change of
   zoom with the touches before it. To check on the phone; if it still
   zooms, the log says how (see "3.5 on the phone; release 3.6").
+  *2026-10-23, developer:* "3.6 still zooms. It seems to happen when I
+  double tap a piece to change its direction sometimes but not all the
+  time." Cause found (a tap redraws the piece's picture, so its touch's
+  end reaches no handler) and fixed in 3.7, with Colour Sudoku's same
+  case: see "3.6 on the phone; release 3.7". Stays open until 3.7 has
+  been played on the iPhone.
 
 ## Proposed additions to the standards skill
 
-- **Tie an effect to the event it follows, not a timer that guesses
-  it.** (2026-10-23, "3.5 on the phone; release 3.6".) Evidence: Laser
-  Lab lit each gem by a timer set to the beam's animation length; the
-  animation started a frame or more after its timer, so the gem lit
-  ~33 ms early in the browser and visibly early on the phone. Lit at
-  the line's animationend (with a fallback timer), the two matched to
-  the ms. Possibly general (any "wait N ms for X" where X can report
-  that it happened); waiting on the developer.
-
-- **Check a screen after every way into it, not only the first.**
-  (2026-10-22, "3.0 on the phone; release 3.1".) Evidence: Laser Lab's
-  first puzzle had its Clear, Hint and Give up; one reached by Next ▸
-  didn't (the end had hidden them), and every check had started fresh
-  or gone back through New game. Possibly a case of section 3's "Check
-  the end state" already. More evidence (2026-10-22, "Laser Lab 3.2
-  built"): Next ▸ also fitted the board while the end's row showed, so
-  the page ran 41 px past the screen on that path only. Waiting on the
-  developer.
+None waiting. (2026-10-23: "Tie an effect to the event it follows, not
+a timer that guesses it" (from "3.5 on the phone; release 3.6") and
+"Check a screen after every way into it" (from "3.0 on the phone;
+release 3.1" and "Laser Lab 3.2 built") approved by the developer ("We
+can add the skills") and added to the skill, sections 4 and 3;
+ai-dev-practices commit 2e527f2, zip rebuilt for the developer to
+upload.)
 
 Earlier: none waiting. (2026-10-16: "Measure fit on the target's fonts, or fit at
 run time" (from "The play screen pushed right on the iPhone") dropped by
@@ -9075,3 +9070,86 @@ every zoom change logged.
 3. **Proposed skill additions waiting on the developer:** "Tie an
    effect to the event it follows, not a timer that guesses it" (new)
    and "Check a screen after every way into it".
+
+## 2026-10-23: 3.6 on the phone; release 3.7 (a double tap on a piece, swap a piece, gems at the line's start)
+
+**Developer:** "We can add the skills. 3.6 still zooms. It seems to
+happen when I double tap a piece to change its direction sometimes but
+not all the time. The jewels are lighting up after being hit, but the
+lag could be a bit shorter. It would look more natural if the jewel lit
+up at the same time as the last line of the laser was drawn." And a
+change to play: with the other piece picked, a tap on a square with a
+piece should just replace it ("I have to tap the existing piece twice
+to remove it before placing the other type").
+
+**Skill:** both proposed additions added (see "Proposed additions";
+ai-dev-practices 2e527f2, pushed; `software-project-standards.zip`
+rebuilt there, to upload in the skills settings).
+
+**The zoom: cause.** Laser Lab's board cancels each touch's end (the
+Find the Stars fix, 2026-10-13), with the listener on `#boardwrap`. A
+touch's events all go to the element the touch started on. A tap on a
+piece lands on the piece's picture (the square's `<svg>`), and the tap's
+pointerdown renders the board: `c.innerHTML = cellSvg(...)` puts a new
+picture in. The touched `<svg>` is now out of the page, so its touchend
+bubbles to nothing: not the board's handler, not even nozoom's document
+listener, and iOS sees an uncancelled double tap. An empty square has
+no picture (the touch is on the square, which stays), so placing pieces
+never zoomed: "sometimes but not all the time". The shop row had the
+same shape: `render()` rebuilt its two buttons on every tap. Not
+reproduced on the iPhone (no log sent); shown in the built-in browser
+(Chrome): on Colour Sudoku, a square tapped (pointerdown) was out of
+the page at once (`isConnected` false) and a touchend sent to it was
+not heard by a listener on the board (`boardHeardIt: false`), which is
+3.6's catch.
+
+**Every path to it.** Find the Stars: its marks take no touches
+(`.cell .mk { pointer-events: none }`) and its squares are made once a
+puzzle: safe. Colour Sudoku: `render()` rebuilds the whole board and
+both digit rows on each tap: the same gap (not reported; the developer
+may not double tap there).
+
+**The fix (3.7).**
+- Laser Lab: `.llcell svg { pointer-events: none }`, so a tap is on the
+  square, which stays; the shop's buttons made once, then only
+  `aria-pressed` and `disabled` changed. In the browser: the element at
+  a piece's centre is now the `llcell`; the tray's two buttons the same
+  objects after taps, swaps and picks.
+- Colour Sudoku: its squares are rebuilt, so the end is caught on the
+  touched element itself: a capture-phase pointerdown (touch only, not
+  in the hint bar) adds a once-only, non-passive touchend listener to
+  `e.target`. In the browser: the touchend sent to the redrawn square
+  was cancelled (`defaultPrevented` true). Logged with `redrawn` on a
+  quick second tap.
+- nozoom keeps the element each touch started on; "page zoom changed"
+  now says `touchedRedrawn` and `touched` (the nearest id), so if the
+  phone zooms again the log shows whether this was the way.
+
+**Gems (3.7).** Lit at the last line's `animationstart` (3.6: its
+`animationend`); a laser still breaks at the end, when the tip arrives.
+Measured in the browser (a solved 6×6, one laser, hints placing the
+pieces): lines start every ~67-100 ms and each grows in 67 ms; gem #11
+lit at 697 ms with its line's start at 697, gem #22 at 764 with its
+line's start at 763, i.e. 67 ms earlier than 3.6 would have. Not
+changed: the lit gem's bounce (`bounce .4s`, from 60% size up), which
+may also read as a lag; to ask if it still looks late.
+
+**Swap (3.7).** `tapSquare`: a piece of the other kind is swapped for
+the picked one, facing the same way (`did: 'swap'`, `was`); then taps
+turn it and take it off as before; the budget pays the new price and
+gets the old back; the lasers go off as for any change; a hint's piece
+refused as before. Test: "a tap with the other piece picked swaps it";
+the old test's "a piece turns whatever is picked" changed to tap with
+the piece's own kind. In the browser: mirror / → mirror \ → (Splitter
+picked) splitter \ → off; Mirror picked: mirror / → \; budget right.
+Logged: the `piece` line's `did: swap` and `was`.
+
+**Checks:** `npm test` 363 passed after `node tools/offline.js`. Each
+new check shown to fail on a scratch copy with its fix taken out (the
+svg's pointer-events, the kept shop buttons, the swap, the gem at
+animationstart, Colour Sudoku's catch on the element): each reported by
+its own message. No console errors.
+
+**Release 3.7 prepared:** `src/core/release.js` 3.7, `tools/offline.js`
+run, notes in `RELEASES.md`. Open: Q33 (does 3.7 stop the zoom),
+Q32.

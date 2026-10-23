@@ -360,14 +360,22 @@ addEventListener('resize', fit);
 // (2026-10-13), despite its touch-action: cancelling each touch's end
 // stops the double-tap zoom. The board and the digits take pointer
 // events (not clicks, which the cancelled touch end would stop).
+// A touch's end goes to the element it started on, and a tap redraws the
+// board and the digits, so that square or key is out of the page by then
+// and its end never reaches `el`: the end is caught on the element
+// itself, from its pointer down (3.7; Laser Lab's pieces let a double tap
+// zoom this way with 3.6).
 for (const el of [$('board'), $('dock')]) {
   let last = 0;
-  el.addEventListener('touchend', e => {
-    if (!e.cancelable || e.target.closest('#hintbar')) return;
+  const end = e => {
+    if (!e.cancelable) return;
     e.preventDefault();
-    if (e.timeStamp - last < 400) L('quick second tap: zoom blocked', { ms: Math.round(e.timeStamp - last), on: el.id });
+    if (e.timeStamp - last < 400) L('quick second tap: zoom blocked', { ms: Math.round(e.timeStamp - last), on: el.id, redrawn: !e.target.isConnected });
     last = e.timeStamp;
-  }, { passive: false });
+  };
+  el.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'touch' && !e.target.closest('#hintbar')) e.target.addEventListener('touchend', end, { once: true, passive: false });
+  }, { capture: true });
 }
 
 // A tap on a square selects it (any square: one with a digit rings the

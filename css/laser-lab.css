@@ -33,7 +33,9 @@
 .llboard { display: grid; grid-template-columns: repeat(var(--n), var(--cell)); width: max-content; background: var(--night);
   border: 3px solid #2B2B33; border-radius: 8px; overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 .llcell { width: var(--cell); height: var(--cell); box-shadow: inset 0 0 0 .5px #FFFFFF1C; cursor: pointer; position: relative; }
-.llcell svg { display: block; width: 100%; height: 100%; }
+/* a square's picture takes no touches: a tap redraws it, and a touch whose
+   element is gone escapes the board's double-tap block (3.7) */
+.llcell svg { display: block; width: 100%; height: 100%; pointer-events: none; }
 
 /* gems: one laser, pale blue; two lasers, the colours they want (k1 red,
    k2 blue, k3 purple: both), dim until lit (the dim colours are the

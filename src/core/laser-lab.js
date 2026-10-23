@@ -503,9 +503,11 @@ export const nextHintPrice = g => g.hintsUsed + 1;
 const lightsOff = g => { g.on = []; g.broken = []; g.failed = []; g.miss = null; };
 
 // A tap on a square, with piece `sel` ('m' or 's') picked: an empty
-// square gets one ('/'); a piece turns ('\'); a '\' piece comes off, its
-// price back. Walls, gems and a hint's pieces can't be changed. Any change
-// switches every laser off, mends a broken one and clears a faint beam.
+// square gets one ('/'); the other kind of piece is swapped for it,
+// facing the same way (3.7; developer: until then it had to be tapped
+// off first); a piece turns ('\'); a '\' piece comes off, its price back.
+// Walls, gems and a hint's pieces can't be changed. Any change switches
+// every laser off, mends a broken one and clears a faint beam.
 export function tapSquare(g, p, i, sel) {
   if (g.result) return { ok: false, why: 'over' };
   const code = boardOf(p)[i];
@@ -515,10 +517,11 @@ export function tapSquare(g, p, i, sel) {
   const pc = pieceOf(g.pieces[i]);
   let did;
   if (!pc) { g.pieces[i] = `${sel}0`; did = 'put'; }
+  else if (pc.t !== sel) { g.pieces[i] = `${sel}${pc.o}`; did = 'swap'; }
   else if (pc.o === 0) { g.pieces[i] = `${pc.t}1`; did = 'turn'; }
   else { g.pieces[i] = ''; did = 'off'; }
   lightsOff(g);
-  return { ok: true, did, t: pc ? pc.t : sel };
+  return { ok: true, did, t: sel, ...(did === 'swap' ? { was: pc.t } : {}) };
 }
 
 // ↺ Clear: every piece off but a hint's, their prices back.

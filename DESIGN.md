@@ -4,7 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-23): Laser Lab's end says pieces and coins, yours and
+*Status (2026-10-23, later): Laser Lab: a tap with the other piece
+picked swaps it, a gem lights as its last beam line starts, and a double
+tap on a piece no longer zooms (nor on Colour Sudoku's redrawn squares)
+(release 3.7, prepared). Earlier 2026-10-23: Laser Lab's end says pieces and coins, yours and
 the best way's, with **See best**; its setup words are the developer's;
 **no zooming in** on any game page (release 3.5; 3.6: no double-tap
 zoom anywhere on the page, a zoomed page can be pinched back out, gems
@@ -123,10 +126,18 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   page zoomed in somehow can always be pinched back out (3.6; with 3.5
   the iPhone still zoomed, and the developer pinched it back out). **No
   double-tap zoom anywhere on the page** (3.6: touch-action
-  manipulation on the whole page; until then only the boards). One
+  manipulation on the whole page; until then only the boards). The
+  boards also cancel each touch's end (iOS still zooms on a quick double
+  tap otherwise), **caught where the touch's element can't have been
+  redrawn** (3.7: a tap on a Laser Lab piece redrew it, its touch's end
+  reached nothing, and a double tap zoomed): a Laser Lab square's
+  picture takes no touches and its shop's buttons are kept; Colour
+  Sudoku, which redraws its squares and digits on a tap, catches the end
+  on the touched element itself. One
   finger still scrolls. The home page and log.html keep zoom. Logged
   ("zoom"): each pinch blocked or that couldn't be cancelled, and every
-  change of zoom with the touches just before it.
+  change of zoom with the touches just before it and whether the element
+  touched had been redrawn.
 - **A small footer on every page:** "© 2026 Donald Parker · Free software
   under the GPL-3.0 · Source code · Stats" (links to the GitHub repo and
   the stats; developer, 2026-10-04, "Stats" 2026-10-10). **At the bottom of the screen** when the page is shorter
@@ -992,9 +1003,19 @@ Agreed after 3.4 (release 3.5; journal "Laser Lab 3.5"):
 
 Agreed after 3.5 (release 3.6):
 - **A gem lights as the beam reaches it** (developer: "the jewels light
-  up before the laser beam hits them"): when its beam line has grown (its
-  animation's end), not by a timer of its own; a laser broken the same
-  way.
+  up before the laser beam hits them"): by its beam line's animation,
+  not by a timer of its own; a laser broken when its line has grown (the
+  animation's end). **3.7:** the gem lights as its last line **starts**
+  (developer, of 3.6's lighting at the line's end: "the lag could be a
+  bit shorter", lit "at the same time as the last line of the laser was
+  drawn").
+
+Agreed after 3.6 (release 3.7):
+- **A tap with the other piece picked swaps it** (developer: changing
+  between mirror and splitter took two taps to take the old piece off
+  first): a mirror becomes a splitter (or back), **facing the same
+  way**, its price changing to the new piece's; then taps turn it and
+  take it off as before. A hint's piece stays as it is.
 
 Claude's choices from the mockup, to be judged on the phone:
 - **The budget is the cheapest cost + 3**, so a best solve saves 3.
@@ -1029,7 +1050,8 @@ Claude's choices from the mockup, to be judged on the phone:
   savings as it happens); the board with its lasers, as big
   as fits with no scrolling; the two piece buttons (the one picked
   lights; tap a square to put it there, again to turn it, once more to
-  take it off); the hint bar (3 lines, hidden until needed); the tools
+  take it off; a tap on the other kind of piece swaps it for the one
+  picked, 3.7); the hint bar (3 lines, hidden until needed); the tools
   in two rows: **↺ Clear**, **💡 Hint** with its price, **❤️ Try
   again**; **🔑 Show answer**, **New game**. Once a piece is on, the
   lasers that can be switched on pulse.

@@ -38,7 +38,10 @@ export function blockPinch(target, { note = () => {}, scale = () => 1, root = nu
   };
   target.addEventListener('gesturestart', e => stop(e, 'gesture'), { passive: false });
   target.addEventListener('gesturechange', e => stop(e, 'gesture'), { passive: false });
-  target.addEventListener('touchstart', e => { seen.fingers = Math.max(seen.fingers, e.touches?.length ?? 0); seen.at = e.timeStamp; }, { passive: true });
+  // the element touched: a touch's end goes to it, so if a tap redraws it
+  // the end reaches nothing above it (3.7: Laser Lab's pieces), not even
+  // this document
+  target.addEventListener('touchstart', e => { seen.fingers = Math.max(seen.fingers, e.touches?.length ?? 0); seen.at = e.timeStamp; seen.touched = e.target; }, { passive: true });
   target.addEventListener('touchmove', e => { if (e.touches?.length > 1) stop(e, 'two fingers'); }, { passive: false });
   const done = e => {
     if (e.touches?.length) return;
@@ -65,7 +68,7 @@ if (typeof document !== 'undefined') {
     let was = vv?.scale ?? 1;
     vv?.addEventListener('resize', () => {
       if (Math.abs(vv.scale - was) < 0.01) return;
-      log.add('zoom', 'page zoom changed', { from: +was.toFixed(2), to: +vv.scale.toFixed(2), fingers: seen.fingers || seen.last, msSinceTouch: Math.round(performance.now() - seen.at), lastTapGap: seen.lastTapGap, blocked: seen.blocked, uncancelable: seen.uncancelable });
+      log.add('zoom', 'page zoom changed', { from: +was.toFixed(2), to: +vv.scale.toFixed(2), fingers: seen.fingers || seen.last, msSinceTouch: Math.round(performance.now() - seen.at), lastTapGap: seen.lastTapGap, touchedRedrawn: seen.touched?.isConnected === false, touched: seen.touched?.closest?.('[id]')?.id ?? seen.touched?.nodeName, blocked: seen.blocked, uncancelable: seen.uncancelable });
       was = vv.scale;
     });
     log.add('zoom', 'blocking zoom in', { touchAction: getComputedStyle(document.documentElement).touchAction, scale: was, visualViewport: !!vv });
