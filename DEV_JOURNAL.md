@@ -8696,3 +8696,5 @@ live after about 20 s (`version.js` cf033660098b). The leftover server
 on 8123 stopped (PID 37008); no node processes left.
 
 **Next:** the developer tries 3.3 on the phone.
+
+**Purged** (developer: "OK to purge"): `Web-Games-testing‚6-10-22_purple-gems` (3.2's stock copy, the makes' output, the remake check) sent to the Recycle Bin. This entry and "Purple gems spread" are the record.
