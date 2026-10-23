@@ -9048,3 +9048,30 @@ follows, not a timer that guesses it").
 **Next:** the developer's OK to publish as 3.6; then the release steps
 and stop the local server. On the phone: whether anything still zooms,
 and if so the log (version line → Save log), which now says how.
+
+## 2026-10-23: Release 3.6 published; status (start here next session)
+
+**Developer:** "Yes, publish as 3.6." **Checked first:** `light-puzzle`
+level with GitHub at 0b09c68; `npm test` 362 passed; `node
+tools/release.js`: "Release 3.6 is ready", version 5f100156e0bb.
+**Published:** `main` fast-forwarded to 0b09c68, tag `v3.6`,
+[GitHub release 3.6](https://github.com/donpark2000/Web-Games/releases/tag/v3.6);
+live after about 50 s (`version.js` 5f100156e0bb). Local server stopped
+(the built-in browser's preview on 8123); no serve.js left. No test
+folder outside the repo (scratch copies only).
+
+**Status:** Laser Lab 3.6 live: the end in pieces and coins (a "Best:"
+line only when there was a cheaper way), See best / Your way, the
+developer's setup words, gems lit as the beam reaches them. Every game
+page: no double-tap zoom, a pinch blocked only at the normal size, and
+every zoom change logged.
+
+**Next:**
+1. The developer plays 3.6 on the phone. **Q33:** does anything still
+   zoom? If so, the log (version line → Save log) says how: look for
+   `[zoom] page zoom changed` and the lines before it.
+2. **Q32** (Laser Lab on the phone) stays open until the developer has
+   played it enough to judge Claude's choices.
+3. **Proposed skill additions waiting on the developer:** "Tie an
+   effect to the event it follows, not a timer that guesses it" (new)
+   and "Check a screen after every way into it".
