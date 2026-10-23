@@ -26,6 +26,18 @@ time, each tried before publishing:
   developer:* "ok" (taken as: nothing to change for now); stays open
   until 3.3's purple gems have been played.
 
+- **Q34. Which Claude model for which work?** (2026-10-23, developer:
+  "I have been using your opus model for everything ... Could you tell
+  me if a different model was better suited".) Claude's view, not yet
+  tested here: Opus 5.5 for design, mockups and hard bugs (as now);
+  Sonnet 5.5 (about half Opus's price) likely enough for routine
+  fix-and-publish sessions; Haiku 5.5 for mechanical look-ups only;
+  Fable 5.1 (about 2.5 times Opus) for the hardest puzzle-logic work.
+  A session can't switch its own model (the developer picks it in the
+  app's model menu); Claude can set one for a session or helper it
+  starts. To try: one routine session on Sonnet 5.5, compared; a
+  standards-skill line only once that shows something general.
+
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-23: "Tie an effect to the event it follows, not
