@@ -10,32 +10,6 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q24. The home page wouldn't scroll to the footer** once: it stopped
-  "part way through the last game". Device, app or Safari, and what came
-  before not yet known. *Developer, 2026-10-15:* on the iPhone, seen
-  once, not since; the log page couldn't be reached, as its link (the
-  version line) is at the bottom, where the page wouldn't scroll.
-  *Debug output built 2026-10-15 (see "Q22-Q24 built"): the home page
-  logs its scroll room. Stays open until it happens again and the log
-  shows why.*
-
-- **Q27. Find the Stars' turn line is cut at 320 px wide.** Seen
-  2026-10-18 (see "Show me how built"): "10×10 · puzzle 1" beside the
-  🏠 loses the end of "puzzle 1" at 320 px in the built-in browser. Not
-  yet checked whether it matters on a real phone, or since when.
-  *2026-10-19:* Colour Sudoku had the same problem and fits its line at
-  run time (`fitInfo`, see "Colour Sudoku built"); the same would fix
-  this one, if it matters.
-
-- **Q30. Colour Sudoku on the phone.** Built from mockup v3.1 as it
-  stood (2026-10-19); to judge on the developer's phone once published:
-  N2 notes (white edge) against N1 (DESIGN.md: "We can start with N2"),
-  and Claude's choices from the mockup (DESIGN.md "Colour Sudoku", "As
-  built"), e.g. a thud per right digit, Next / Try again / New game at
-  every end, the turn line and status as small as 12 px on a 320 px
-  phone. *2026-10-19:* first report: the selected square's band hid its
-  notes; fixed with a ring outside (see "the selected square's ring").
-
 - **Q32. Laser Lab on the phone.** Built 2026-10-22 from mockup v7 as
   it stood (see "Laser Lab built"); to judge on the developer's phone
   once published (3.0): Claude's choices (DESIGN.md "Laser Lab": the
@@ -99,6 +73,39 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q24. The home page wouldn't scroll to the footer** once: it stopped
+  "part way through the last game". Device, app or Safari, and what came
+  before not yet known. *Developer, 2026-10-15:* on the iPhone, seen
+  once, not since; the log page couldn't be reached, as its link (the
+  version line) is at the bottom, where the page wouldn't scroll.
+  *Debug output built 2026-10-15 (see "Q22-Q24 built"): the home page
+  logs its scroll room. Stays open until it happens again and the log
+  shows why.* **Closed 2026-10-22** (developer: "OK to close Q24 and Q27
+  and Q30"): seen once, not since; the home page still logs its scroll
+  room, so it can be reopened from a log if it comes back.
+
+- **Q27. Find the Stars' turn line is cut at 320 px wide.** Seen
+  2026-10-18 (see "Show me how built"): "10×10 · puzzle 1" beside the
+  🏠 loses the end of "puzzle 1" at 320 px in the built-in browser. Not
+  yet checked whether it matters on a real phone, or since when.
+  *2026-10-19:* Colour Sudoku had the same problem and fits its line at
+  run time (`fitInfo`, see "Colour Sudoku built"); the same would fix
+  this one, if it matters. **Closed 2026-10-22** (developer: "OK to
+  close Q24 and Q27 and Q30"): only at 320 px wide; the developer's
+  iPhone is 393 px. Reopen if seen on a phone in use.
+
+- **Q30. Colour Sudoku on the phone.** Built from mockup v3.1 as it
+  stood (2026-10-19); to judge on the developer's phone once published:
+  N2 notes (white edge) against N1 (DESIGN.md: "We can start with N2"),
+  and Claude's choices from the mockup (DESIGN.md "Colour Sudoku", "As
+  built"), e.g. a thud per right digit, Next / Try again / New game at
+  every end, the turn line and status as small as 12 px on a 320 px
+  phone. *2026-10-19:* first report: the selected square's band hid its
+  notes; fixed with a ring outside (see "the selected square's ring").
+  **Closed 2026-10-22** (developer: "OK to close Q24 and Q27 and Q30"):
+  nothing on the phone has bothered the developer; the choices listed
+  stay as built.
 
 - **Q31. Should Easy start with more digits?** Raised 2026-10-19 by the
   developer: in other Sudoku games the level mostly sets how many digits
