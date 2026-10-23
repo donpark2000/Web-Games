@@ -9244,3 +9244,25 @@ tools/release.js`: "Release 3.8 is ready". Open: Q32. If a gem still
 looks late on the phone, the next thing to try is lighting it at the
 line's end (when the tip arrives) now that the pop is at full size at
 once.
+
+## 2026-10-23: Release 3.8 published; status (start here next session)
+
+**Developer:** "Publish 3.8." **Checked first:** `light-puzzle` level
+with GitHub at 0df021e; `npm test` 364 passed; `node tools/release.js`:
+"Release 3.8 is ready", version b9cd9937caf4. **Published:** `main`
+fast-forwarded to 0df021e, tag `v3.8`,
+[GitHub release 3.8](https://github.com/donpark2000/Web-Games/releases/tag/v3.8);
+live within about 30 s (`version.js` b9cd9937caf4). Local server
+stopped (the built-in browser's preview on 8123); no serve.js left. No
+test folder outside the repo (scratch copies only).
+
+**Status:** Laser Lab 3.8 live: a gem pops big at once as its beam
+lights it, and doesn't bounce again on a redraw. Q33 (the zoom) closed.
+
+**Next:**
+1. The developer plays 3.8: do the gems still look late? If so, the
+   next try is lighting them as the tip arrives (`animationend`); the
+   log's `gems lit` line gives each gem's time.
+2. **Q32** (Laser Lab on the phone) stays open.
+3. The developer uploads the rebuilt skill zip
+   (`ai-dev-practices\software-project-standards.zip`), if not done.

@@ -5,7 +5,7 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-23, latest): Laser Lab: a gem pops big at once as
-its beam lights it, and only once (release 3.8, prepared). Earlier: a tap with the other piece
+its beam lights it, and only once (release 3.8, published). Earlier: a tap with the other piece
 picked swaps it, a gem lights as its last beam line starts, and a double
 tap on a piece no longer zooms (nor on Colour Sudoku's redrawn squares)
 (release 3.7, published). Earlier 2026-10-23: Laser Lab's end says pieces and coins, yours and
