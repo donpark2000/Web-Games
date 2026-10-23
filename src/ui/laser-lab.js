@@ -22,6 +22,7 @@ import { resumable } from './resume.js';
 
 const STOCK_FILE = 'data/laser-lab.json';
 const STEP_MS = 90;      // a beam runs out a square per step
+const ARRIVE_MS = 400;   // a gem lit by then if its beam's animation didn't end
 const HINTED_MS = 3300;  // the ring round a hint's square
 const MIN_CELL = 24, MAX_CELL = 72;
 const RIM = .7;          // the lasers' rim, in squares, each side
@@ -274,8 +275,10 @@ function drawSegs(segs, faint, grow, cb = {}) {
   const beam = $('beam'), two = P.lamps.length > 1, cols = two ? [1, 2] : [0];
   beam.innerHTML = ['glow', 'core'].flatMap(k => cols.flatMap(c => [`<g class="${k} c${c} ghost"></g>`, `<g class="${k} c${c} full"></g>`])).join('');
   const ns = 'http://www.w3.org/2000/svg';
+  // the segment's lines (glow and core); returns the core one
   const add = (g, isFaint, growing) => {
     const off = two ? (g.col === 1 ? -.06 : .06) : 0, h = g.y1 === g.y2;
+    let core = null;
     for (const grp of beam.querySelectorAll(`.c${two ? g.col : 0}.${isFaint ? 'ghost' : 'full'}`)) {
       const l = document.createElementNS(ns, 'line');
       l.setAttribute('x1', g.x1 + (h ? 0 : off)); l.setAttribute('y1', g.y1 + (h ? off : 0));
@@ -283,20 +286,38 @@ function drawSegs(segs, faint, grow, cb = {}) {
       l.setAttribute('pathLength', '1');
       if (growing) l.setAttribute('class', 'grow');
       grp.appendChild(l);
+      if (grp.classList.contains('core')) core = l;
     }
+    return core;
   };
   segs.forEach(g => add(g, false, false));
   faint.forEach(g => add(g, true, false));
   if (!grow) return;
+  // A gem lights, or a laser breaks, when the beam's tip gets there: at its
+  // line's animationend (3.6; developer: "the jewels light up before the
+  // laser beam hits them". A timer 90 ms on lit them about 30 ms early in
+  // the browser, the animation starting a frame or more after its timer,
+  // and more on the phone). A timer behind it, for an animation that
+  // doesn't run (reduced motion, a hidden page). Done once the last steps'
+  // time is up and every one has arrived.
+  let waiting = 0, timeUp = false;
+  const finish = () => { if (timeUp && !waiting) cb.done(); };
+  const onArrive = (line, fn) => {
+    let arrived = false;
+    const go = () => { if (arrived) return; arrived = true; fn(); waiting--; finish(); };
+    waiting++;
+    line.addEventListener('animationend', go, { once: true });
+    growTimers.push(setTimeout(go, ARRIVE_MS));
+  };
   const last = Math.max(0, ...grow.map(g => g.step)), n = P.n, b = boardOf(P);
   for (let k = 0; k <= last; k++) growTimers.push(setTimeout(() => {
     for (const g of grow) if (g.step === k) {
-      add(g, false, true);
-      if (g.end === 'stop' && g.x2 % 1) { const i = Math.floor(g.y2) * n + Math.floor(g.x2); if (b[i] === 'G') growTimers.push(setTimeout(() => cb.gem(i), STEP_MS)); }
-      if (g.end === 'lamp') growTimers.push(setTimeout(() => cb.lamp(g.lamp), STEP_MS));
+      const line = add(g, false, true);
+      if (g.end === 'stop' && g.x2 % 1) { const i = Math.floor(g.y2) * n + Math.floor(g.x2); if (b[i] === 'G') onArrive(line, () => cb.gem(i)); }
+      if (g.end === 'lamp') onArrive(line, () => cb.lamp(g.lamp));
     }
   }, k * STEP_MS));
-  growTimers.push(setTimeout(cb.done, (last + 2) * STEP_MS));
+  growTimers.push(setTimeout(() => { timeUp = true; finish(); }, (last + 2) * STEP_MS));
 }
 
 // The hint bar's words (3 lines, its space kept so the board never

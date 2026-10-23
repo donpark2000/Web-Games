@@ -6,7 +6,9 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-10-23): Laser Lab's end says pieces and coins, yours and
 the best way's, with **See best**; its setup words are the developer's;
-**no pinch zoom** on any game page (release 3.5). 2026-10-22: a new grown-ups' puzzle, **Laser Lab** (called
+**no zooming in** on any game page (release 3.5; 3.6: no double-tap
+zoom anywhere on the page, a zoomed page can be pinched back out, gems
+light as the beam reaches them, no "the best ✓"). 2026-10-22: a new grown-ups' puzzle, **Laser Lab** (called
 Mirror Light until 2026-10-22; buy mirrors and splitters so a laser's
 beam reaches every gem), built from mockup v7 on the branch
 `light-puzzle` (see "Laser Lab"), to try on the phone once published
@@ -113,12 +115,18 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   Connect Four holes to 30 px, matching cards and Count to 9 cards to
   56 px; below that the
   page scrolls). Big screens keep big pieces. The setup screens scroll.
-- **No pinch zoom on the game pages** (developer, 2026-10-23: the board
+- **No zooming in on the game pages** (developer, 2026-10-23: the board
   "seems to zoom in", from a two-finger touch by accident; release 3.5):
   `src/ui/nozoom.js` cancels Safari's gesture events and any touch move
   with two fingers or more (iOS ignores the viewport's
-  `user-scalable=no`); one finger still scrolls. The home page and
-  log.html keep zoom. Each blocked pinch is logged ("zoom").
+  `user-scalable=no`), **only while the page is at its normal size**: a
+  page zoomed in somehow can always be pinched back out (3.6; with 3.5
+  the iPhone still zoomed, and the developer pinched it back out). **No
+  double-tap zoom anywhere on the page** (3.6: touch-action
+  manipulation on the whole page; until then only the boards). One
+  finger still scrolls. The home page and log.html keep zoom. Logged
+  ("zoom"): each pinch blocked or that couldn't be cancelled, and every
+  change of zoom with the touches just before it.
 - **A small footer on every page:** "© 2026 Donald Parker · Free software
   under the GPL-3.0 · Source code · Stats" (links to the GitHub repo and
   the stats; developer, 2026-10-04, "Stats" 2026-10-10). **At the bottom of the screen** when the page is shorter
@@ -967,8 +975,9 @@ Agreed after 3.4 (release 3.5; journal "Laser Lab 3.5"):
   read as pieces, though both were coins; "something like 'You used 7
   pieces and 9 coins. Best solution used 6 pieces and 7 coins'"):
   "You used 7 pieces (8 coins) · hints 1 coin · lasers 1 coin" over
-  "Best: 6 pieces (7 coins)"; matching the cheapest, one line, "You used
-  6 pieces (7 coins): the best ✓". The coins are the pieces' (hints and
+  "Best: 6 pieces (7 coins)"; matching the cheapest, just the first line
+  (3.6, developer: "It is obvious if there is no second line"; 3.5 added
+  ": the best ✓"). The coins are the pieces' (hints and
   wrong lasers after them). After Show answer: "Best: 6 pieces (7
   coins)". At a run's end the best line stays under "This one: ...".
 - **See best** (developer: "an option to show the best solution if your
@@ -980,6 +989,12 @@ Agreed after 3.4 (release 3.5; journal "Laser Lab 3.5"):
   tried). The cheapest ways are worked out 0.4 s after the sparkle starts
   (up to 0.3 s on a computer), the puzzle's stored way counted until
   then.
+
+Agreed after 3.5 (release 3.6):
+- **A gem lights as the beam reaches it** (developer: "the jewels light
+  up before the laser beam hits them"): when its beam line has grown (its
+  animation's end), not by a timer of its own; a laser broken the same
+  way.
 
 Claude's choices from the mockup, to be judged on the phone:
 - **The budget is the cheapest cost + 3**, so a best solve saves 3.

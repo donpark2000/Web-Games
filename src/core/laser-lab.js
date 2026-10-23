@@ -660,7 +660,9 @@ export function giveUp(g, p, answers) {
 
 // The end's words (3.5; developer: "Pieces 7, cheapest 6" read as pieces,
 // though both were coins): what the player's pieces were and cost, and
-// the best way's, in pieces and coins. `best`: the cheapest way the end
+// the best way's, in pieces and coins; no best line when the player's was
+// as cheap (3.6; developer: "It is obvious if there is no second line",
+// 3.5 said "the best ✓"). `best`: the cheapest way the end
 // counts (and See best shows); `run`: { done, savings, best } at a run's
 // end. Returns { how: 'solved' | 'lost', head, lines, isBest }.
 const pieceCount = k => `${k} piece${k === 1 ? '' : 's'}`;
@@ -673,7 +675,7 @@ export function endWords(g, p, best, run = {}) {
     isBest = cost <= p.cheapest;
     how = 'solved';
     head = g.saved >= 0 ? `Solved! Saved ${coins(g.saved)}` : `Solved, ${coins(-g.saved)} over`;
-    lines = [`You used ${pieceCount(placedOf(g).size)} (${coins(cost)})${isBest ? ': the best ✓' : ''}${fees}`, ...(isBest ? [] : [bestLine])];
+    lines = [`You used ${pieceCount(placedOf(g).size)} (${coins(cost)})${fees}`, ...(isBest ? [] : [bestLine])];
     short = g.saved >= 0 ? `This one: saved ${coins(g.saved)}` : `This one: ${coins(-g.saved)} over`;
   } else {
     how = 'lost';

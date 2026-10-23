@@ -26,7 +26,23 @@ time, each tried before publishing:
   developer:* "ok" (taken as: nothing to change for now); stays open
   until 3.3's purple gems have been played.
 
+- **Q33. Does 3.6 stop the zoom on the iPhone?** (2026-10-23) 3.5's
+  pinch block didn't hold there: the page zoomed ("not sure what I
+  did") and the developer pinched it back out. 3.6 blocks only zooming
+  in, stops double-tap zoom on the whole page, and logs every change of
+  zoom with the touches before it. To check on the phone; if it still
+  zooms, the log says how (see "3.5 on the phone; release 3.6").
+
 ## Proposed additions to the standards skill
+
+- **Tie an effect to the event it follows, not a timer that guesses
+  it.** (2026-10-23, "3.5 on the phone; release 3.6".) Evidence: Laser
+  Lab lit each gem by a timer set to the beam's animation length; the
+  animation started a frame or more after its timer, so the gem lit
+  ~33 ms early in the browser and visibly early on the phone. Lit at
+  the line's animationend (with a fallback timer), the two matched to
+  the ms. Possibly general (any "wait N ms for X" where X can report
+  that it happened); waiting on the developer.
 
 - **Check a screen after every way into it, not only the first.**
   (2026-10-22, "3.0 on the phone; release 3.1".) Evidence: Laser Lab's
@@ -8953,3 +8969,82 @@ left. No test folder outside the repo this time (scratch copies only).
 end's words, See best, and whether a two-finger pinch is now stopped
 (only the phone can show that; the log says `[zoom] pinch blocked` each
 time).
+
+## 2026-10-23: 3.5 on the phone; release 3.6 prepared (gems on arrival, zoom second try, no "the best")
+
+**Developer** (3.5 on the phone): "Pretty good. The zoom still happens.
+Not sure what I did to make it zoom but I have use a 2 finger pinch
+gesture to zoom back out. One minor thing in the animation - the jewels
+light up before the laser beam hits them. When I have the best solution
+I don't think you need to say 'best'. It is obvious if there is no
+second line saying what the best score could have been."
+
+**The gems, measured first** (built-in browser, 393 × 760, a 6×6
+one-laser puzzle with its stored way; a MutationObserver timing each
+growing beam line, each gem's lit class and each line's animationend):
+gem 12's line added at 635 ms, the gem lit at 735, the line grown at
+768; gem 30: added 901, lit 1001, grown 1034. So the gem lit about 33 ms
+before the beam's tip reached its centre: the gem's timer (90 ms after
+its line was added) runs on its own, while the line's 90 ms animation
+starts a frame or more later (here it took about 130 ms). A phone's
+frames lag more, so more visibly. **Fix** (`drawSegs`): a gem lights, and
+a laser breaks, at its line's `animationend`, with a timer (400 ms)
+behind it for an animation that doesn't run; `cb.done` waits for both
+the steps' time and every arrival. **After:** gems 6 and 5 lit at 464
+ms, the same ms as their lines' animationend. **Found on the way:** with
+reduced motion (site.css turns animations off) a growing beam stayed
+hidden (its dash offset never ran) until the beam's end redrew it; now
+shown whole (`laser-lab.css`).
+
+**The zoom: what 3.5 shows.** The pinch back out going through means
+3.5's block didn't hold on the iPhone at all (it would have blocked
+zooming out too). Why is not known: the listeners may not have run, the
+events may not have been cancelable, or iOS may ignore the cancel. Not
+guessed further; 3.6 makes sure it can't strand a page, closes the
+likeliest other way in, and logs how a zoom happens:
+- **Only zooming in is blocked:** at a page scale over 1.01
+  (`visualViewport.scale`) a pinch is let through, so a zoomed page can
+  always be pinched back out.
+- **No double-tap zoom anywhere on the page:** touch-action
+  manipulation on the root (`document.documentElement`). Until now only
+  the boards stopped a quick second tap (Find the Stars, 2026-10-13);
+  one off the board (the hint bar, the budget row, the page's edge)
+  could still zoom: the likeliest "not sure what I did".
+- **Logged** ("zoom"): "blocking zoom in" on load (with the root's
+  touch-action), each pinch blocked, a pinch that "couldn't be
+  cancelled" (counted), and **every change of zoom**: from, to, the
+  fingers of the last touch, ms since it, the gap between the last two
+  one-finger taps, and the counts. The next zoom on the phone will say
+  which way it came in.
+Checked in the built-in browser: on laser-lab.html the root's
+touch-action is manipulation, a synthetic `gesturestart` is cancelled
+and logged; on the home page neither.
+
+**Words:** at the cheapest, the end says just "You used 6 pieces (7
+coins)" (3.5's ": the best ✓" gone); the "Best:" line only when there
+was a cheaper way. An end on screen across the update keeps its 3.5
+words until Next.
+
+**Tests** (362, 359 before): `nozoom.test.js` rewritten for the new
+shape (a pinch cancelled and noted once, one finger alone; zoomed in, a
+pinch let through and blocked again at the normal size; one that can't
+be cancelled noted and counted; the root's touch-action; the last
+touches kept: fingers, tap gap); `laser-lab-page.test.js` "a gem lights
+when its beam's line has grown, not by a timer of its own"; the end-words
+test's best case. **Shown to fail** (a scratch copy): the gem back on
+its timer ("the gem not lit by its line"); the zoomed-in let-through
+removed; the root's touch-action removed; ": the best ✓" put back.
+`npm test` 362 passed.
+
+**Release 3.6 prepared** (not published): `src/core/release.js` 3.6,
+`node tools/offline.js` (version 5f100156e0bb, 95 files), RELEASES.md
+3.6, `node tools/release.js`: "Release 3.6 is ready". The local server
+(`tools/serve.js 8123`, the built-in browser's preview) is running.
+
+**Open questions:** Q33 added (does 3.6 stop the zoom on the iPhone?).
+**Proposed skill addition:** one ("Tie an effect to the event it
+follows, not a timer that guesses it").
+
+**Next:** the developer's OK to publish as 3.6; then the release steps
+and stop the local server. On the phone: whether anything still zooms,
+and if so the log (version line → Save log), which now says how.

@@ -7,6 +7,23 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.6 (2026-10-23, version 5f100156e0bb)
+
+Laser Lab:
+
+- **A gem lights when the beam reaches it** (it lit a moment before).
+- **No "the best ✓"** when your solve was the cheapest: the end just
+  says what you used, and only adds a "Best:" line when there was a
+  cheaper way.
+
+Every game:
+
+- **Zoom, second try:** a double tap anywhere on a game page no longer
+  zooms (before, only on the boards), and a pinch is blocked only while
+  the page is at its normal size, so a page that gets zoomed can always
+  be pinched back out. Every change of zoom now goes in the log, with
+  the touches just before it.
+
 ## 3.5 (2026-10-23, version 0b2719ffa49b)
 
 Laser Lab:

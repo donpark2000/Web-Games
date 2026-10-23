@@ -72,6 +72,9 @@
 .beam .glow.c2 { stroke: #3D9BFF; } .beam .core.c2 { stroke: #C4E2FF; }
 .beam .grow { stroke-dasharray: 1; stroke-dashoffset: 1; animation: grow .09s linear forwards; }
 @keyframes grow { to { stroke-dashoffset: 0; } }
+/* with no animation (reduced motion) a growing beam shows whole (3.6: it
+   stayed hidden until the beam's end) */
+@media (prefers-reduced-motion: reduce) { .beam .grow { stroke-dashoffset: 0; } }
 .beam .ghost { opacity: .22; } /* a beam that wasn't right, after its laser went off */
 
 /* the lasers, in the rim beside the board, each facing in; drawn shining

@@ -146,6 +146,21 @@ test('laser lab page: the end’s words from endWords; See best shows the best w
   assert.match(css, /#endTools \{ grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; \}/);
 });
 
+// 3.6 (developer: "the jewels light up before the laser beam hits
+// them"): a gem lights, and a laser breaks, at its beam line's
+// animationend, not by a timer of its own (which ran about 30 ms ahead of
+// the drawing in the browser); a timer behind it for an animation that
+// doesn't run, and the beam shown whole with reduced motion.
+test('laser lab page: a gem lights when its beam’s line has grown, not by a timer of its own', () => {
+  const draw = js.match(/function drawSegs\([\s\S]*?\r?\n}\r?\n/)?.[0] ?? '';
+  assert.match(draw, /onArrive\(line, \(\) => cb\.gem\(i\)\)/, 'the gem not lit by its line');
+  assert.match(draw, /onArrive\(line, \(\) => cb\.lamp\(g\.lamp\)\)/, 'the laser not broken by its line');
+  assert.match(draw, /line\.addEventListener\('animationend', go, \{ once: true \}\);\s*growTimers\.push\(setTimeout\(go, ARRIVE_MS\)\);/);
+  assert.doesNotMatch(draw, /setTimeout\(\(\) => cb\.(gem|lamp)/, 'a gem or laser still on a timer of its own');
+  assert.match(draw, /const finish = \(\) => \{ if \(timeUp && !waiting\) cb\.done\(\); \};/, 'done before every gem is lit');
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{ \.beam \.grow \{ stroke-dashoffset: 0; \} \}/);
+});
+
 // 3.2: New game during play (developer: "New game is the quit"): back to
 // setup with the run kept, the puzzle under way kept in it first.
 test('laser lab page: New game during play keeps the run and the puzzle under way', () => {

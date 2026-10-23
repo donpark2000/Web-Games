@@ -349,13 +349,14 @@ test('laser lab end: the words say pieces and coins, yours and the best way’s'
   g.saved = p.budget - spent(g) - g.fees;
   let w = endWords(g, p, best);
   assert.deepEqual(w, { how: 'solved', head: 'Solved! Saved 0 coins', lines: ['You used 1 piece (2 coins) · hints 1 coin · lasers 1 coin', 'Best: 1 piece (1 coin)'], isBest: false });
-  // the best: one line, ticked
+  // the best: one line, and no word for it (3.6; developer: "It is
+  // obvious if there is no second line")
   g = createGame(p, '5-1', 0);
   Object.assign(g, { result: 'solved' });
   g.pieces[12] = 'm0';
   g.saved = p.budget - 1;
   w = endWords(g, p, best);
-  assert.deepEqual(w.lines, ['You used 1 piece (1 coin): the best ✓']);
+  assert.deepEqual(w.lines, ['You used 1 piece (1 coin)']);
   assert.ok(w.isBest);
   // over the budget: two splitters and a mirror (5 coins), budget 4
   g.pieces[12] = 's0'; g.pieces[7] = 's0'; g.pieces[0] = 'm0';
