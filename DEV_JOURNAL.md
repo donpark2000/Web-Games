@@ -62,6 +62,19 @@ time, each tried before publishing:
   Claude's view, not measured: little to gain for a new rule (see
   "v9 played: the mix; armour; two-colour bombs"). Parked unless the
   developer wants it tried.
+- **Q41. Bridges: where on the home page?** (2026-10-24, raised by
+  Claude.) It suits the kids (Small, dots) and the developer (Medium,
+  Large). Claude's suggestion: listed in both 👤 One player and 🧩
+  Puzzles for grown-ups (an exception to "each game in one group
+  only"), opening on Small from the first and Large from the second;
+  or one listing with every size inside. For the developer to choose.
+- **Q42. Bridges: Give up, all at once or step by step?** (2026-10-24,
+  developer: "it would be good to have a 'give up' option to show the
+  solution.") Claude's suggestion: as Find the Stars' Give up, it asks
+  first, then offers **Show me how** (the rest a step at a time, each
+  with its reason, as the hints already give) or **Just show it** (the
+  whole answer at once); either way the puzzle counts as given up (no
+  best time). For mockup v2.
 
 ## Proposed additions to the standards skill
 
@@ -10457,3 +10470,38 @@ the sizes and island counts; no hearts (a mistake shows itself).
 and 🧩 Puzzles for grown-ups), to decide once it's liked.
 
 **Next:** the developer plays mockup v1 in the app.
+
+## 2026-10-24: Bridges v1 played; status (start here next session)
+
+**Developer**, after playing mockup v1: "Thats a really good game. I
+never heard of it before. Is this the sort of game with only 1 right
+answer or are there several possibilities? If only one right answer,
+it would be good to have a 'give up' option to show the solution."
+
+**One answer:** every puzzle the maker keeps has exactly one (the
+solver counts answers up to 2 and keeps only those with 1; shown able
+to fail on four 3s in a square, which has two), and the step-by-step
+reasoning the hints use reaches it, so no guessing is needed. So a
+**Give up** that shows the solution fits (Q42).
+
+**Status:** the `bridges` branch is `main` plus the journal; the mockup
+lives only in Claude's scratchpad (`bridges/site`: `bridges.html`,
+`css/bridges.css`, `src/core/bridges.js`, `src/core/bridges-puzzles.js`,
+`src/ui/bridges.js`, and the scratch tools `make.mjs`, `data.mjs`,
+`preview.mjs`, `checkfail.mjs`), which a new session can't see. The
+published artifact holds the page's files: a new session can read them
+back with the Artifact tool (`read` with `path`) from
+https://claude.ai/artifact/4YnTGtVUwRmwsYsSiAmB7W.
+
+**Next:**
+1. **Mockup v2:** Give up (Q42), and anything else from the
+   developer's play of v1 (Claude's choices listed in the mockup v1
+   entry: plain islands, the board's look, the hint words, the sizes).
+2. **Q41:** where on the home page.
+3. Then build it into the site as release 5.0 (a new game): the maker
+   as `tools/bridges-puzzles.js` writing `data/bridges.json` (how many
+   per size to decide; each seed takes under 15 ms), tests for the
+   rules, solver, maker and hints, the debug log, the home page's
+   button and picture, offline, stats.
+4. Still open: Q32, Q34 (a session on Sonnet 5.5), Q35, Q36 (Laser Lab
+   parked); Dots and Boxes 4.2 on the phone with the kids.

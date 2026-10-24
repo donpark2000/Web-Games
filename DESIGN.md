@@ -4,8 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-24, latest): Dots and Boxes: the Easy robot always
-takes every box it can (release 4.2). Earlier: the robot's latest turn stays
+*Status (2026-10-24, latest): **Bridges** (the Hashi puzzle), the next
+game, in design: mockup v1 liked, Give up to add (see "Bridges"). The
+physics idea dropped. Earlier: Dots and Boxes: the Easy robot always
+takes every box it can (release 4.2, published). Earlier: the robot's latest turn stays
 marked until the person draws (release 4.1, published). Earlier the same
 day: **Dots and Boxes**, a new game for the kids (two players, or
 against the robot), agreed from mockups v1-v2, built and published
@@ -1220,6 +1222,27 @@ them dropped (Q35); a two-colour bomb parked (Q36); an omnidirectional
 bomb not wanted (Q37: "Keep directional bombs only"); a wrong-colour beam
 putting one out of action left out (Q39: "leave the wrong-colour rule
 out").
+
+### Bridges (in design)
+
+The next game (2026-10-24), the Hashi puzzle, for the developer and the
+kids (developer: "a game like bridges would be good for both kids and
+adults"; after mockup v1: "Thats a really good game"). Designed in
+[Bridges Mockup](https://claude.ai/artifact/4YnTGtVUwRmwsYsSiAmB7W)
+(private Claude artifact; version 2 = mockup v1 plus its scratch tools).
+Chosen over a ball-run physics puzzle (developer: "Not sounding very
+interesting") and over Bridg-It ("I'm not wild about a game that
+guarantees first player wins").
+
+- **The rules:** islands with a number; join them with bridges straight
+  across or down, at most two between two islands, never crossing, so
+  each has its number and all are joined. **Every puzzle has exactly
+  one answer**, reachable by reasoning alone.
+- **Give up shows the solution** (developer, after v1; how: Q42).
+- To judge in the mockup, Claude's: Small 5×5 with dots for the kids,
+  Medium 7×7, Large 10×10; tap between islands or drag from one; hints
+  that take a step and say why; plain islands; no hearts. Where on the
+  home page: Q41.
 
 ## Face names
 
