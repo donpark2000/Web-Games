@@ -4,8 +4,11 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-23, latest): Laser Lab bombs that point, in mockup v9 (see "Bombs"
-under Laser Lab), to try. Earlier: Laser Lab: a gem pops big at once as
+*Status (2026-10-24, latest): **Dots and Boxes**, a new game for the kids (two
+players, or against the robot), its rules agreed and in mockup v1 (see
+"Dots and Boxes"), not built yet. 2026-10-23: Laser Lab boosters (bombs
+that point; releases 3.9-3.10) and a fresh start after the home page, a
+restart or a new version (3.11), published. Earlier: Laser Lab: a gem pops big at once as
 its beam lights it, and only once (release 3.8, published). Earlier: a tap with the other piece
 picked swaps it, a gem lights as its last beam line starts, and a double
 tap on a piece no longer zooms (nor on Colour Sudoku's redrawn squares)
@@ -465,6 +468,46 @@ The developer's game, agreed 2026-10-08 from mockup v1 (journal):
   fit with no scrolling (43 px on an iPhone 16, at most 64 px). 🏠,
   footer, debug log as in the other
   games.
+
+### Dots and Boxes
+
+The developer's game, agreed 2026-10-24 (journal, "Dots and Boxes: the
+rules agreed; mockup v1"):
+[Dots and Boxes Mockup](https://claude.ai/artifact/33uKDtf4RKA7pcEdVxkiya)
+(private Claude artifact, version 1). **Not built yet**: to play in the
+mockup first.
+
+- **In 👥 Two players**: **Me and the robot** or **Two players**, face
+  pickers, as Nim.
+- **The rules** (developer): take turns drawing a line between two dots
+  next to each other; a line that closes a box wins it, **shows the
+  owner's face**, and **that player goes again**; with no box closed the
+  turn passes. Most boxes wins.
+- **How big?** **5×5** (preselected) or **7×7** boxes (developer). Both
+  odd, so no ties.
+- **A running tally under the grid** (developer): the dark strip, each
+  player's face, name and boxes this game, outlining whose turn it is;
+  under it the light **Games won** strip, as in matching cards.
+- **Drawing a line** (Claude's suggestion, agreed): tap anywhere between
+  two dots and the nearest line not yet drawn is drawn; while the finger
+  is down it shows faintly and follows the finger; drawn when it lifts.
+  No confirm, no Undo.
+- **The robot** (Claude's suggestion, agreed): **⭐ Easy / ⭐⭐⭐ Hard**, as
+  in Nim. Easy usually takes a box it can and sometimes draws a box's
+  third side; Hard always takes a box, never gives one away while it has
+  a safe line, and then gives away the fewest. No "leave the last two"
+  trick (to add if Hard is too easy).
+- **Who goes first?** the usual three (agreed).
+
+Claude's choices in the mockup, to be judged in it: lines in the
+player's colour (orange / blue), faint dashes where a line can go, **the
+last line blinks**; a won box fills with the owner's light colour and
+its face pops in, with a ding; the turn line says **"Another turn!"**;
+the robot thinks 0.8 s (0.6 s when it goes again), shows its line
+faintly, then draws it; the end: "<face> wins!", the winner's boxes
+smile and wiggle, the scorecard cheer and "aww" face; Play again / New
+game; the board as big as fits with no scrolling (63 px boxes at 5×5 and
+46 px at 7×7 on a 393 × 760 phone).
 
 ### Rock paper scissors
 

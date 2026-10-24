@@ -62,13 +62,6 @@ time, each tried before publishing:
   Claude's view, not measured: little to gain for a new rule (see
   "v9 played: the mix; armour; two-colour bombs"). Parked unless the
   developer wants it tried.
-- **Q40. Does a new version now show on the iPhone when the app
-  opens?** (2026-10-23, 3.11: the home page reloads once a new version
-  is running, and the page asks for a check; see "Old state and late
-  updates".) Measured in the built-in browser only. To check on the
-  phone after 3.11 is published, and with the next release after it
-  (3.10's page has no reload): open the fully closed app on wifi; the
-  log says which check found the version and when the page reloaded.
 
 ## Proposed additions to the standards skill
 
@@ -121,6 +114,17 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q40. Does a new version now show on the iPhone when the app
+  opens?** (2026-10-23, 3.11: the home page reloads once a new version
+  is running, and the page asks for a check; see "Old state and late
+  updates".) Measured in the built-in browser only. To check on the
+  phone after 3.11 is published, and with the next release after it
+  (3.10's page has no reload): open the fully closed app on wifi; the
+  log says which check found the version and when the page reloaded.
+  **Closed 2026-10-24** on the developer's word ("I think we are done
+  with Q40 and laser lab for now"); no phone log was looked at here. If
+  a new version is slow to show again, the log on `log.html` still says
+  which check found it.
 - **Q38. "Bomb", or a name that says direction?** (2026-10-23,
   developer, before publishing 3.10: "calling them 'concentrators' or
   'amplifiers' might reinforce the notion of direction and have a better
@@ -9988,3 +9992,95 @@ page reloads itself for a new version and asks for a check.
 2. The developer plays Laser Lab 3.10/3.11: boosters, and the clean
    start after the home page.
 3. **Q32**, **Q34**, **Q35**, **Q36**, **Q40** open.
+
+## 2026-10-24: Dots and Boxes: the rules agreed; mockup v1
+
+**Developer** (session start): "I think we are done with Q40 and laser
+lab for now. Lets discus the next game." (Q40 closed on that; Q32, Q34,
+Q35, Q36 stay open, parked with Laser Lab.) Claude's lists: for the
+grandkids Dots and Boxes (suggested first), Maze, Sliding puzzle and the
+earlier ideas; for the developer Picture logic (Nonogram, suggested
+first), Bridges, Light Up, Kakuro/Futoshiki.
+
+**Developer:** "Lets add dots and boxes to the kids games. Two player or
+person and robot. When a box is closed it shows the face of the avatar
+that owns the box and there is a running tally below the grid of how
+many boxs each player has. When not boxes are formed, turns alternate
+between players. When a box is formed, the person who closed the box
+gets another turn. Questions?" Claude asked four, each with a
+suggestion; the developer: "1) 5x5 and 7x7 For the other questions, I
+like your suggestions." So, agreed:
+- **Sizes 5×5 and 7×7 boxes** (Claude had suggested 3×3, 4×4, 5×5).
+  Both odd: no ties.
+- **The robot: ⭐ Easy / ⭐⭐⭐ Hard**, as Nim. Easy usually takes a box it
+  can and sometimes draws a third side; Hard never gives a box away
+  while it has a safe line, then gives the fewest; no "leave the last
+  two" trick (to add if Hard is too easy).
+- **Drawing: tap anywhere between two dots, the nearest line**; while the
+  finger is down that line shows faintly and follows it; drawn as the
+  finger lifts. No confirm, no Undo.
+- **Who goes first:** the usual three.
+- The rest as the other games, Claude's (no objection): lines in the
+  player's colour, the last line blinks, a won box fills with the
+  owner's colour and face (pops in, a ding), "Another turn!" in the turn
+  line, the robot at a person's pace, the dark tally strip and a light
+  Games won strip, the end's smiling boxes and "aww" face, Play again /
+  New game, 🏠, 🔊, footer, fits the screen, kept through a reload.
+
+**Mockup v1:** [Dots and Boxes Mockup](https://claude.ai/artifact/33uKDtf4RKA7pcEdVxkiya)
+(private Claude artifact, version 1). As Laser Lab's v8, it is the
+game's own page and files (17: three style sheets, the modules the page
+imports), so it plays as the game would; built in a scratch copy of the
+site (Claude's scratchpad, `dab/site`), the page made into the artifact
+by a scratch script (`dab/build.mjs`: stats and offline left out, the 🏠
+goes nowhere). Nothing in the repo yet but this entry.
+- **Rules** (`src/core/dots-boxes.js` in the copy, no DOM): lines `h`
+  and `v` holding who drew them, `boxes` holding who won them; `draw`
+  (another turn when a box closes; the result when all are won, scored,
+  the next starter by the usual rule); `nearestLine` (the free line
+  nearest a point, within 0.75 of a box); the robot (`robotMove`:
+  `closingLines`, `safeLines`, `givesAway` for Hard's fewest;
+  `ROBOT_TUNING` Easy takes 0.8, plays safe 0.7).
+- **Screen** (`src/ui/dots-boxes.js`, from Nim's): the board one SVG in
+  box units (0.35 of a box round the dots for a finger at the edge),
+  faint dashes where a line can go; only the SVG takes touches (its
+  inside is redrawn each line; a touch's end must reach something still
+  there, DESIGN.md "No zooming in"), and it cancels each touch's end.
+  The robot thinks 0.8 s (0.6 s when it goes again), shows its line
+  faintly 0.45 s, then draws it; a ping when the turn comes back.
+  Setup: a 3×3 corner of a game under way beside the rules ("Take turns
+  drawing a line. Close a box to win it, and go again! Most boxes
+  wins."), How big? with the dots drawn, How hard? (robot only), Who
+  goes first?. Logged ("dots-boxes"): each line (who, closed, boxes,
+  again), the robot's choice and reason, the fit, round won, resumed.
+
+**Tests** (`tests/dots-boxes.test.js` in the copy, 10, all pass): line
+and box geometry, setup checks, the turn passing or not, one line
+closing two boxes, refused lines changing nothing, whole random rounds
+at both sizes with each who-goes-first rule (every line once, no tie,
+the starter), the nearest line, safe/closing/gives-away, the robot
+(Hard always takes, never gives while safe, gives 5 on a board of rows
+of 5; Easy's three reasons), and Hard beating Easy in at least 75% of 40
+games. Two of the tests failed at first on their own boards (a point
+nearer another free line than the one meant; a run whose end box
+already had 3 sides): the tests were wrong, not the rules.
+
+**Checked** in the built-in browser, 393 × 760, served from the scratch
+copy (a temporary `.claude/launch.json` entry, removed after): setup
+fits the phone's width; 5×5 against the robot: 63 px boxes, the page
+760 of 760 (no scroll); a tapped line drawn, the robot's line after
+"Robot is thinking…"; a whole game played (random taps against Easy):
+"Another turn!" seen, "Robot wins!" with smiling robot boxes, Teddy's
+"aww" face, Games won 0-1. Two players, 7×7: 46 px boxes, no scroll; a
+box closed by player 2 shows Ping's face and "Another turn!", tally
+0-1. A reload came back on the same board ("kept game found"); a finger
+held down shows its line faintly. 320 × 568, 7×7: the smallest box
+(30 px) still scrolls 53 px (other games scroll there too). No console
+errors. Not checked: the published artifact itself (the built-in
+browser isn't signed in to claude.ai), sound, a real finger.
+
+**Next:**
+1. The developer plays the mockup in the app.
+2. Then build it into the site from the scratch copy: the page, the
+   home page's button and picture (👥 Two players), `GAME_PAGES`, stats,
+   `tools/offline.js`, DESIGN.md, release 4.0 (a new game).
