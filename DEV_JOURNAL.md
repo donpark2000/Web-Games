@@ -10605,3 +10605,28 @@ date (it stopped at Find the Stars).
 go with the next change (mockup v1's way, not greyed and kept as in
 Find the Stars); hints unlimited, counted at the end; "uh-oh" for a
 refused crossing; the 180 px floor; the sizes and island counts.
+
+## 2026-10-24: Release 5.0 published (Bridges); status (start here next session)
+
+**Published** on the developer's "Build and publish": `npm test` 419
+passed; `node tools/release.js`: "Release 5.0 is ready". `main`
+fast-forwarded 95e6c9f..873fc95 (`git push origin bridges:main`), tag
+`v5.0`, [GitHub release 5.0](https://github.com/donpark2000/Web-Games/releases/tag/v5.0)
+(Latest). Live within about a minute: `version.js` 3642495c7376, `sw.js`
+RELEASE 5.0, `bridges.html` 200; the live home page in the built-in
+browser: "Version 5.0 · Oct 24, 2026 · 364249", Bridges in 👤 One
+player with its picture.
+
+**Local servers:** the preview on 8123 stopped; no other `serve.js`
+running.
+
+**Status:** 5.0 live. Nothing waiting on this branch but this entry.
+
+**Next:**
+1. **The developer (and the kids) try Bridges on the phone:** a finger
+   between two islands lays the bridge meant (on Large's 36 px
+   squares too); a drag from an island; the hint words; Give up's two
+   ways; Small's dots for the kids; Claude's choices listed in "Bridges
+   built; release 5.0".
+2. Still open: **Q32**, **Q34** (a session on Sonnet 5.5), **Q35**,
+   **Q36** (Laser Lab parked); Dots and Boxes 4.2 with the kids.
