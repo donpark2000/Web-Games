@@ -9701,3 +9701,27 @@ stock tests check them).
 Release 3.9 prepared (a change within Laser Lab, so x.y): `RELEASE`
 3.9, `node tools/offline.js` (version 19293ca92ca2, 95 files),
 RELEASES.md, `node tools/release.js`: ready.
+
+## 2026-10-23: Release 3.9 published; status (start here next session)
+
+**Developer:** "Publish 3.9." **Checked first:** `light-puzzle` level
+with GitHub at 2f8ba85; `npm test` 375 passed; `node tools/release.js`:
+"Release 3.9 is ready", version 19293ca92ca2. **Published:** `main`
+fast-forwarded to 2f8ba85, tag `v3.9`,
+[GitHub release 3.9](https://github.com/donpark2000/Web-Games/releases/tag/v3.9);
+live within about 30 s (`version.js` 19293ca92ca2). Local server
+stopped (the built-in browser's preview on 8123); no serve.js left. No
+test folder outside the repo (scratch copies only).
+
+**Status:** Laser Lab 3.9 live: directional bombs in half of each run
+(not at 8×8 with two lasers), drawn with armour plates and a lens (C).
+Q37 closed; Q36 (two-colour bomb) parked.
+
+**Next:**
+1. The developer plays 3.9 on the phone: the bomb drawing at 40 px
+   (C, or A: plates only), the mix, the words when a beam stops at a
+   bomb; 7×7 and 8×8 bomb puzzles were not played here.
+2. Bombs at 8×8 with two lasers: not made (30 minutes a puzzle without
+   bombs); to raise only if wanted.
+3. **Q32**, **Q34** (a session on Sonnet 5.5: a routine release like
+   this one fits), **Q35**, **Q36** stay open.
