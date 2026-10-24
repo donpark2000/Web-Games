@@ -30,10 +30,13 @@ export function lineSvg(l, p, cls = '') {
 }
 
 // A board's inside. `faces`: each player's face; `last`: the line to
-// blink (the robot's); `fresh`: boxes ("r:c") whose faces pop in; `win`:
+// blink (the robot's); `glow`: lines marked with a soft band of their
+// colour under them (the robot's latest turn, until the person draws;
+// developer, 2026-10-24, 4.1: on the phone a finger hid the robot's line
+// while it blinked); `fresh`: boxes ("r:c") whose faces pop in; `win`:
 // the winner, whose boxes smile and wiggle; `guides`: dashes where a line
 // can go.
-export function boardContent(b, { faces, last = null, fresh = [], win = 0, guides = true }) {
+export function boardContent(b, { faces, last = null, glow = [], fresh = [], win = 0, guides = true }) {
   const out = [];
   b.boxes.forEach((row, r) => row.forEach((p, c) => {
     if (!p) return;
@@ -41,6 +44,13 @@ export function boardContent(b, { faces, last = null, fresh = [], win = 0, guide
     out.push(`<rect class="bx" x="${c + 0.07}" y="${r + 0.07}" width=".86" height=".86" rx=".14" style="fill:${FILL[p]}"/>`,
       `<g class="${cls}">${svg(faces[p - 1], win === p ? 'winner' : 'normal').replace('<svg class="av"', `<svg class="av" x="${c + 0.14}" y="${r + 0.14}" width=".72" height=".72"`)}</g>`);
   }));
+  // over the boxes' fill, under every line
+  for (const l of glow) {
+    const p = b[l.k][l.r][l.c];
+    if (!p) continue;
+    const [x1, y1, x2, y2] = ends(l);
+    out.push(`<line class="glow" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="stroke:${STROKE[p]};stroke-width:.36;stroke-linecap:round;opacity:.3"/>`);
+  }
   for (const k of ['h', 'v']) {
     b[k].forEach((row, r) => row.forEach((p, c) => {
       const l = { k, r, c };

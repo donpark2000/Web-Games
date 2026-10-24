@@ -201,7 +201,7 @@ function drawLine(line, who) {
   const r = draw(match, line);
   if (!r.ok) { L('line refused', { line, why: r.why, who }); return; }
   const boxes = boxCounts(match.board);
-  L('line', { player, face: faceOf(player), line, closed: r.closed, boxes, again: match.again, who });
+  L('line', { player, face: faceOf(player), line, closed: r.closed, boxes, again: match.again, turnLines: match.turnLines.length, who });
   sound.play('tick');
   if (r.closed.length) sound.play('ding', 0.12);
   fresh = r.closed.map(([br, bc]) => `${br}:${bc}`);
@@ -282,13 +282,16 @@ function render() {
 
 // Only the robot's last line blinks, so it's easy to see where it went
 // (developer, 2026-10-24: useful for the robot's line, "not needed for
-// the play": a person's own line is just drawn).
+// the play": a person's own line is just drawn). Every line of the
+// robot's latest turn also keeps a glow until the person draws (4.1;
+// developer: on the phone a finger hid the blink). Not at the end.
 function renderBoard() {
   const r = match.result;
   const l = match.last;
   const robotLast = match.vsRobot && l && match.board[l.k][l.r][l.c] === 2 ? l : null;
+  const glow = match.vsRobot && !r && match.turnBy === 2 ? match.turnLines ?? [] : [];
   board.setAttribute('viewBox', viewBox(match.size));
-  board.innerHTML = boardContent(match.board, { faces: match.faces, last: robotLast, fresh, win: r ? r.winner : 0, guides: !r });
+  board.innerHTML = boardContent(match.board, { faces: match.faces, last: robotLast, glow, fresh, win: r ? r.winner : 0, guides: !r });
   fresh = [];
   renderAim();
 }

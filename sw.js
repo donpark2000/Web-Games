@@ -20,9 +20,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '86665e534113';
+const VERSION = 'acc369c8d300';
 const MADE = '2026-10-24';
-const RELEASE = '4.0';
+const RELEASE = '4.1';
 const FILES = [
   'colour-sudoku.html',
   'connect-four.html',

@@ -7,7 +7,8 @@
 //
 // A board of n x n boxes, (n + 1) x (n + 1) dots. On your turn you draw
 // one line between two dots next to each other. A line that closes a box
-// (its fourth side) wins it, and you go again; otherwise the turn passes.
+// (its fourth side) wins it, and you go again; otherwise the turn passes,
+// so one turn can be several lines (match.turnLines).
 // When every box is won, whoever has more wins (developer, 2026-10-24).
 // Players are 1 and 2.
 //
@@ -72,6 +73,8 @@ export function newRound(match) {
   match.last = null;     // the last line drawn
   match.closed = [];     // the boxes it closed, as [r, c]
   match.again = false;   // the player whose turn it is just closed a box
+  match.turnBy = 0;      // who drew the latest turn's lines
+  match.turnLines = [];  // those lines (several when boxes were closed)
   match.result = null;
 }
 
@@ -145,6 +148,10 @@ export function draw(match, line) {
   const player = match.turn;
   const closed = drawOn(b, line, player);
   match.last = { k: line.k, r: line.r, c: line.c };
+  // The latest turn's lines: a new turn starts a new list (the screen
+  // marks the robot's until the person draws; 4.1).
+  if (match.turnBy !== player) { match.turnBy = player; match.turnLines = []; }
+  match.turnLines.push(match.last);
   match.closed = closed;
   const counts = boxCounts(b);
   if (counts[1] + counts[2] === b.n * b.n) {

@@ -10198,3 +10198,53 @@ on this branch.
 3. The scratch copy (`dab/` in this session's scratchpad) isn't needed
    any more: the game is in the repo, and the mockup's files are in its
    artifact.
+
+## 2026-10-24: 4.0 on the phone; release 4.1 (the robot's turn marked)
+
+**Developer**, after playing 4.0 on the phone: "It looks really good on
+my phone. One minor issue - there was one time the robot played and I
+did not notice where. I heard it but I guess my finger was hovering over
+the screen and blocked visibility of the move. This makes me think the
+short animation might not be sufficient. Maybe the robots last move
+looks brighter until the person places their next line? Maybe something
+else. What do you think?"
+
+Claude's view: the blink lasts under 2 s (0.45 s × 4), so anything
+covering the board then hides the move, and nothing shows it after; and
+a robot that wins boxes draws several lines in one turn, of which only
+the last blinked. Proposed: every line of the robot's latest turn keeps
+a pale band of its colour under it until the person draws, the blink
+kept; not "brighter" (all its lines are already blue), not a blink
+that goes on (distracting while a child thinks), not words (the
+youngest don't read). Developer: "Yes: keep the robot's lines from its
+last turn marked with a glow until I draw my next line, keeping the
+blink. Build it as 4.1."
+
+**Built:** the match keeps the latest turn's lines (`turnBy`,
+`turnLines`, `src/core/dots-boxes.js` `draw`: a new list when the
+player changes); `boardContent` draws a `glow` band (0.36 of a box wide,
+the line's colour at 30%) for each, over the boxes' fill and under
+every line (`src/ui/dbboard.js`); the screen asks for it against the
+robot only, when the latest turn was the robot's and the round isn't
+over. A match kept by 4.0 (no `turnLines`) starts a list at its next
+line. Logged: `turnLines` (how many) with each line.
+
+**Tests:** "the latest turn's lines" (a new list per turn, the whole of
+a turn with two boxes won, the other player's line starting theirs, a
+refused line changing nothing, a new round clearing it) and "the glow
+under the robot's lines" (one per drawn line asked for, none for a line
+not drawn, the robot's colour, boxes then glows then lines, none when
+not asked). Shown able to fail: with the list not cleared on a new
+turn, "the latest turn's lines" failed ("a new turn: a new list").
+Suite 396 of 396.
+
+**Checked** on `tools/serve.js` (8123), 393 × 760, against Hard with
+random taps: after the robot's one-line turns, 1 glow; after a turn where
+it closed a box and drew again, 2 glows (the log: `turnLines` 2), both
+seen as pale blue bands once the blink was over; after my next line, 0;
+a reload kept the 2. No errors. Not checked: a finger, how strong the
+band looks on the phone's screen.
+
+**Release 4.1 prepared:** `src/core/release.js` 4.1, `node
+tools/offline.js` (version acc369c8d300, 100 files), notes in
+`RELEASES.md`.

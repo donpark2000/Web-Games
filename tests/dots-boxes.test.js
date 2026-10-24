@@ -4,6 +4,7 @@ import {
   SIZES, freshBoard, checkFaces, createMatch, newRound, draw, isLine, boxesOf, sides, freeLines, boxCounts,
   nearestLine, distanceTo, closingLines, safeLines, givesAway, robotMove, ROBOT,
 } from '../src/core/dots-boxes.js';
+import { boardContent } from '../src/ui/dbboard.js';
 
 // A small repeatable random source (mulberry32), as in the other tests.
 function seeded(seed) {
@@ -79,6 +80,44 @@ test('dots and boxes: one line can close two boxes', () => {
   assert.deepEqual(r.closed, [[0, 0], [0, 1]]);
   assert.deepEqual(boxCounts(m.board), { 1: 2, 2: 0 });
   assert.equal(m.turn, 1);
+});
+
+// 4.1 (developer: on the phone a finger hid the robot's blinking line):
+// the latest turn's lines are kept, all of them when boxes gave it more
+// lines, until the other player draws.
+test('dots and boxes: the latest turn’s lines', () => {
+  const m = twoMatch();
+  assert.deepEqual([m.turnBy, m.turnLines], [0, []]);
+  draw(m, H(5, 4));   // 1
+  assert.deepEqual([m.turnBy, m.turnLines], [1, [H(5, 4)]]);
+  put(m.board, [H(0, 0), V(0, 0), H(1, 0), H(0, 1), H(1, 1)], 1);
+  draw(m, V(0, 1));   // 2 closes (0, 0)
+  assert.deepEqual([m.turnBy, m.turnLines], [2, [V(0, 1)]], 'a new turn: a new list');
+  draw(m, V(0, 2));   // 2 closes (0, 1), again
+  draw(m, H(4, 4));   // 2, nothing: the turn passes
+  assert.deepEqual([m.turnBy, m.turnLines], [2, [V(0, 1), V(0, 2), H(4, 4)]], 'the whole turn');
+  assert.equal(m.turn, 1);
+  draw(m, H(3, 4));   // 1
+  assert.deepEqual([m.turnBy, m.turnLines], [1, [H(3, 4)]], 'the other player drew: the list is theirs');
+  const before = JSON.stringify(m.turnLines);
+  draw(m, H(3, 4));   // refused
+  assert.equal(JSON.stringify(m.turnLines), before);
+  newRound(m);
+  assert.deepEqual([m.turnBy, m.turnLines], [0, []]);
+});
+
+// The glow (src/ui/dbboard.js): a band in the line's colour for each line
+// asked for that is drawn, over the boxes and under every line.
+test('dots and boxes: the glow under the robot’s lines', () => {
+  const b = put(freshBoard(5), [H(0, 0), V(0, 0), H(1, 0), V(0, 1)], 2);
+  b.boxes[0][0] = 2;
+  const svg = boardContent(b, { faces: ['bear', 'robot'], glow: [V(0, 1), H(1, 0), H(4, 4)] });
+  const glows = [...svg.matchAll(/<line class="glow"[^>]*>/g)].map(m => m[0]);
+  assert.equal(glows.length, 2, 'one per drawn line; none for a line not drawn');
+  assert.ok(glows.every(g => g.includes('var(--p2)')), 'the robot’s colour');
+  const at = s => svg.indexOf(s);
+  assert.ok(at('class="bx"') < at('class="glow"') && at('class="glow"') < at('class="ln'), 'boxes, then glows, then lines');
+  assert.ok(!boardContent(b, { faces: ['bear', 'robot'] }).includes('glow'), 'none asked: none drawn');
 });
 
 test('dots and boxes: refused lines change nothing', () => {

@@ -7,6 +7,16 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 4.1 (2026-10-24, version acc369c8d300)
+
+Dots and Boxes:
+
+- **The robot's move stays marked until you draw.** Every line it drew
+  in its last turn (several when it won boxes and went again) keeps a
+  pale band of its colour under it, so the move can't be missed while a
+  finger covers the board. The band goes as soon as you draw your line.
+  Its last line still blinks first.
+
 ## 4.0 (2026-10-24, version 86665e534113)
 
 A new game for the kids, **Dots and Boxes**, in 👥 Two players:

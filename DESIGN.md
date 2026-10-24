@@ -4,9 +4,11 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-24, latest): **Dots and Boxes**, a new game for the kids (two
-players, or against the robot), agreed from mockups v1-v2 and built
-(see "Dots and Boxes"), release 4.0 prepared. 2026-10-23: Laser Lab boosters (bombs
+*Status (2026-10-24, latest): Dots and Boxes: the robot's latest turn stays
+marked until the person draws (release 4.1 prepared). Earlier the same
+day: **Dots and Boxes**, a new game for the kids (two players, or
+against the robot), agreed from mockups v1-v2, built and published
+(release 4.0; see "Dots and Boxes"). 2026-10-23: Laser Lab boosters (bombs
 that point; releases 3.9-3.10) and a fresh start after the home page, a
 restart or a new version (3.11), published. Earlier: Laser Lab: a gem pops big at once as
 its beam lights it, and only once (release 3.8, published). Earlier: a tap with the other piece
@@ -511,6 +513,15 @@ shared with the home page's button).
   draw the line."; mockup version 2). The faint line under a finger
   held down stays, to judge on a touch screen (only seen with a finger:
   a mouse click draws at once).
+- **The robot's latest turn stays marked until the person draws**
+  (developer, after 4.0 on the phone: "there was one time the robot
+  played and I did not notice where ... my finger was hovering over the
+  screen and blocked visibility of the move"; release 4.1): every line
+  of that turn (several when it won boxes and went again) has a pale
+  band of its colour under it, over the boxes' fill; it goes when the
+  person draws, and isn't shown at the end. The blink stays. Not in two
+  players' games (both watch every move). Kept through a reload
+  (`turnBy`, `turnLines` in the match).
 
 Claude's choices in the mockup, to be judged on the phone: lines in the
 player's colour (orange / blue), faint dashes where a line can go; a won box fills with the owner's light colour and
