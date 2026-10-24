@@ -1120,7 +1120,7 @@ only that colour setting one off; **a bomb points at its wall** (v9;
 developer: "I like B best"; v8's round bomb with a fuse "look[s] a bit
 strange"): only a beam of its colour coming in from behind sets it off,
 and any other beam stops at it; drawn (3.9) with riveted armour plates on its
-sides and a lens at its back ( developer: "something that looks
+sides and a lens at its back (developer: "something that looks
 more like armor on the sides"; Claude's pick of three drawn, C; then
 "The visual aspect of an armored bomb does not show up on a small phone
 screen"; 3.10: **a funnel**, its wide open back pale, tapering to the
