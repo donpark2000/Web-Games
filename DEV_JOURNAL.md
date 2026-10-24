@@ -9725,3 +9725,56 @@ Q37 closed; Q36 (two-colour bomb) parked.
    bombs); to raise only if wanted.
 3. **Q32**, **Q34** (a session on Sonnet 5.5: a routine release like
    this one fits), **Q35**, **Q36** stay open.
+
+## 2026-10-23: 3.9 played; bombs in 2 of 3, the order always matters, a funnel; release 3.10 prepared
+
+**Developer:** "The game play is good. Choosing the order of lighting
+the lasers adds a dimension to the game. And that is completely coupled
+to the bombs, so I think more puzzles with bombs is better. Maybe 2 out
+of 3. The visual aspect of an armored bomb does not show up on a small
+phone screen."
+
+**2 in 3.** `stockBombs` = 67 of 100 (not 8×8 with two lasers). Each run
+of 10 has 6 or 7; the rule in a run is now never two without a bomb side
+by side (3.9's "never three of a kind in a row" would force a fixed
+pattern at 7 of 10). Applied to one laser too (Claude's call, said so to
+the developer: the order is a two-laser thing, but direction is a
+puzzle with one laser as well). Kinds made (plain/purple/bomb/both): one
+laser 33/0/67/0; 6-2 24/9/43/24; 7-2 19/14/48/19.
+
+**The order always matters with two lasers.** Measured on 3.9's stock
+first: 50 of 50 6×6 bomb puzzles needed one order, 40 of 50 at 7×7. Since
+the order is what the developer likes in them, a two-laser bomb puzzle is
+now kept only when one order works and the other doesn't
+(`orderMatters`; "the order doesn't matter": 21 seeds dropped in this
+make, all 7×7). A slip on the way: `orderMatters` also said true when
+neither order works; now exactly one must (no stock puzzle differs: a
+right answer always works in some order).
+
+**The drawing.** Claude drew four at true phone size (40 px squares,
+beside a wall): today's (3.9), bold plates, a funnel, plates with an
+open back. **Developer:** "I think the funnel version of the bomb is
+best." `bombSvg`: a funnel, its wide back pale (`.mouth`), tapering to
+the point, one chevron; the rules line says "into its wide open end".
+
+**Made** in 341 s (6-1 1 s, 6-2 4 s, 7-1 12 s, 7-2 217 s, 8-1 107 s).
+
+**Tests:** 376 pass. Changed for 2 in 3: the stock test (67 a setup, 6
+or 7 a run, no two without side by side, every two-laser bomb puzzle
+needs one order: 134 checked) and the order unit test (20 of 30: 7, 6, 7
+a run; and every setup's real layout, 50 runs). New: 3.9's seed
+72500462 (7×7, either order) now makes nothing and is counted as "the
+order doesn't matter"; 62518407 (red first) still made. Shown to fail:
+the side-by-side rule removed (the unit test: at first it passed, as its
+one small layout happened to pass by chance, so it now checks all 50 real
+runs); the order rule removed; in the file, two puzzles without a bomb
+side by side, and a 3.9 either-order puzzle put back. A first try at the
+mutations with sed changed every line ending and missed its target (the
+quoting trouble again); redone with a Node script.
+
+**In the browser** (localhost:8123, 375 × 812): 6×6 two lasers, puzzle 2
+(a red bomb pointing left at its wall, a purple gem): the funnel reads at
+40 px, its pale open end towards the red laser. No console errors.
+
+Release 3.10 prepared (`RELEASE` 3.10, version c85013b336ac, 95 files;
+`node tools/release.js`: ready).

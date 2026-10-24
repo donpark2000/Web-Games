@@ -66,20 +66,16 @@ export function gemSvg(k, two = false, lit = false) {
 
 // A bomb in its laser's colour (k 0 yellow for one laser, 1 red, 2 blue).
 // v9 (developer: "I like B best"; v8's round bomb with a fuse read oddly):
-// a pointed body with two chevrons, drawn pointing right and turned to
-// point d (0 up, 1 right, 2 down, 3 left) at the wall it brings down.
-// 3.9: riveted armour plates on its sides and a lens at its back
-// (developer: "something that looks more like armor on the sides"), so it
-// shows it goes off only from behind.
-const STEEL = '#A9B7C2', RIVET = '#4E5E6B';
+// drawn pointing right and turned to point d (0 up, 1 right, 2 down, 3
+// left) at the wall it brings down. 3.10: a funnel, its wide open back
+// pale (where the beam goes in), tapering to its point, with a chevron
+// (developer: "the funnel version of the bomb is best"; 3.9's riveted
+// plates and lens "[do] not show up on a small phone screen").
 export function bombSvg(k = 0, d = 1) {
   return svg(`<g transform="rotate(${(d - 1) * 90} 50 50)">`
-    + `<path d="M22.5 27.5 H60 L87.5 50 L60 72.5 H22.5 Q15 72.5 15 65 V35 Q15 27.5 22.5 27.5 Z" fill="${LASER[k]}" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`
-    + `<path d="M47.5 38.75 L61.25 50 L47.5 61.25" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`
-    + `<path d="M32.5 38.75 L46.25 50 L32.5 61.25" fill="none" stroke="${INK}" stroke-opacity=".45" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`
-    + [14, 71].map(y => `<rect x="12" y="${y}" width="54" height="15" rx="3" fill="${STEEL}" stroke="${INK}" stroke-width="5"/>`
-      + [22, 39, 56].map(x => `<circle cx="${x}" cy="${y + 7.5}" r="2.6" fill="${RIVET}"/>`).join('')).join('')
-    + `<path class="lens" d="M17 36 Q5 50 17 64" fill="#E4F2FF" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`
+    + `<path d="M8 8 L60 34 L90 50 L60 66 L8 92 Z" fill="${LASER[k]}" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>`
+    + `<path class="mouth" d="M8 8 Q30 50 8 92" fill="#F2F7FB" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>`
+    + `<path d="M52 40 L64 50 L52 60" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`
     + '</g>', 'bomb');
 }
 // where a bomb went off: a scorch mark; where a wall came down: rubble

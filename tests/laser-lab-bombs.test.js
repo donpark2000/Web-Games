@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   trace, check, checkLamp, solveCheap, cheapest, answerMap, boardOf, encode, decode, makeCheap, makeOptions,
-  createGame, tapSquare, inOrder, workingOrder,
+  createGame, tapSquare, inOrder, workingOrder, stockPuzzle, orderMatters, FAILS,
 } from '../src/core/laser-lab.js';
 
 const none = new Map();
@@ -165,4 +165,15 @@ test('colour bombs: a laser wrong before the bomb went off can go on once it has
   assert.ok(switchLamp(g, q, 1).res.ok, 'blue right');
   const r = switchLamp(g, q, 0);
   assert.ok(!r.refused && r.res.ok && r.res.solved, 'red after blue: solved');
+});
+
+// 3.10: with two lasers, a bomb puzzle is kept only when the order matters.
+// Seed 72500462 made one in 3.9 that worked either way; 62518407 (3.9's
+// 6 x 6 puzzle 2: red first) still made.
+test('bombs: a two-laser bomb puzzle that works in either order is not kept (3.10)', () => {
+  const before = FAILS["the order doesn't matter"] || 0;
+  assert.equal(stockPuzzle('7-2', 72500462), null);
+  assert.equal(FAILS["the order doesn't matter"], before + 1, 'counted as why');
+  const p = stockPuzzle('6-2', 62518407);
+  assert.ok(p && p.bombs.length === 1 && orderMatters(p), 'red first: kept');
 });

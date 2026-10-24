@@ -192,16 +192,28 @@ test('laser lab: the stock order is a fixed shuffle, purple spaced out; seeds pe
   for (let i = 1; i < firsts.length; i++) assert.ok(firsts[i] - firsts[i - 1] >= 1000000, 'seed ranges overlap');
 });
 
-test('laser lab: bombs (3.9) in half of each run, where stockSlots says; a mix that does not fit is refused', () => {
-  // 30 entries: a bomb ('A') on half, purple ('3') on 5, both on some
-  const slots = stockSlots('7-2', 30, 5, 15);
-  assert.deepEqual(slots, stockSlots('7-2', 30, 5, 15), 'not the same each time');
+test('laser lab: bombs (3.10) in 2 of 3 of each run, where stockSlots says; a mix that does not fit is refused', () => {
+  // 30 entries: a bomb ('A') on 20, purple ('3') on 5, both on some
+  const slots = stockSlots('7-2', 30, 5, 20);
+  assert.deepEqual(slots, stockSlots('7-2', 30, 5, 20), 'not the same each time');
   assert.deepEqual(slots.map((k, i) => (k & 1 ? i : -1)).filter(i => i >= 0), [3, 9, 15, 21, 27], 'purple where 3.3 put it');
+  const per = [];
   for (let at = 0; at < 30; at += RUN) {
     const run = slots.slice(at, at + RUN).map(k => k >= 2);
-    assert.equal(run.filter(Boolean).length, 5, `run ${at / RUN + 1}`);
-    run.forEach((x, i) => assert.ok(i < 2 || x !== run[i - 1] || x !== run[i - 2], `three of a kind at ${at + i}`));
+    per.push(run.filter(Boolean).length);
+    run.forEach((x, i) => assert.ok(i < 1 || x || run[i - 1], `two without a bomb side by side at ${at + i}`));
   }
+  assert.deepEqual(per, [7, 6, 7], 'bombs per run');
+  // every setup's real layout: no two without a bomb side by side in a run
+  let runs = 0;
+  for (const s of SETUPS) {
+    const all = stockSlots(s, stockSize(s), stockPurple(s), stockBombs(s)).map(k => k >= 2);
+    for (let at = 0; at < all.length && stockBombs(s); at += RUN, runs++) {
+      const run = all.slice(at, at + RUN);
+      run.forEach((x, i) => assert.ok(i < 1 || x || run[i - 1], `${s}: two without a bomb side by side at ${at + i}`));
+    }
+  }
+  assert.equal(runs, 50);
   const list = slots.map((k, i) => [i, [], `1.${k & 1 ? '3' : '2'}${k & 2 ? 'A' : '.'}`]);
   assert.deepEqual(list.map(kindOf), slots);
   const a = stockOrder('7-2', list);

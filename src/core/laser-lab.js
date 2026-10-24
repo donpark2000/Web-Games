@@ -544,31 +544,36 @@ export const stockSize = setup => (setup === '8-2' ? 50 : STOCK);
 export const stockPurple = setup => (parseSetup(setup).lasers < 2 ? 0 : setup === '8-2' ? 3 : Math.round(stockSize(setup) / 3));
 // A stock entry (encode) with a purple gem.
 export const isPurple = e => e[2].includes('3');
-// Directional bombs (3.9): about half the puzzles (developer, 2026-10-23:
-// "about 50% ... does not have to be exactly 'every second game'"), the
-// first made from bombSeed(setup) on; none yet at 8 x 8 with two lasers
-// (30 minutes a puzzle without bombs).
-export const stockBombs = setup => (setup === '8-2' ? 0 : stockSize(setup) / 2);
+// Directional bombs: about 2 in 3 puzzles (3.10; developer, 2026-10-23,
+// after playing 3.9's half: "Choosing the order of lighting the lasers
+// adds a dimension to the game ... more puzzles with bombs is better.
+// Maybe 2 out of 3"), the first made from bombSeed(setup) on; none yet at
+// 8 x 8 with two lasers (30 minutes a puzzle without bombs).
+export const stockBombs = setup => (setup === '8-2' ? 0 : Math.round(stockSize(setup) * 2 / 3));
 export const hasBomb = e => /[A-H]/.test(e[2]);
 export const firstSeed = setup => { const { n, lasers } = parseSetup(setup); return (n * 10 + lasers) * 1000000; };
 export const bombSeed = setup => firstSeed(setup) + 500000;
 // With two lasers, kept only when both beams pass through a piece of the
 // answer (the mockup's first pick rule, v3-v7: otherwise one laser just
 // shines straight at its gems), or (bombs) the order they go on matters:
-// then the laser with no piece is the one whose bomb opens the way.
+// then the laser with no piece is the one whose bomb opens the way. A
+// bomb puzzle with two lasers is kept only when the order matters (3.10:
+// the order is what the developer likes in them; 3.9 had 10 of 50 at
+// 7 x 7 where it didn't).
 // From bombSeed on, each puzzle has a bomb, in a setup with bombs (8 x 8
 // with two lasers has none, and its seeds go past bombSeed: one puzzle in
 // about 13,000 seeds).
 export const bombAt = (setup, seed) => stockBombs(setup) > 0 && seed >= bombSeed(setup);
 export function stockPuzzle(setup, seed) {
   const p = makeCheap(seed, { ...makeOptions(setup), ...(bombAt(setup, seed) ? { bomb: true } : {}) });
-  if (!p || (p.lamps.length > 1 && !bothUsePieces(p) && !orderMatters(p))) return p && fail('a laser with no piece');
-  return p;
+  if (!p || p.lamps.length < 2) return p;
+  if (p.bombs?.length) return orderMatters(p) ? p : fail('the order doesn\'t matter');
+  return bothUsePieces(p) ? p : fail('a laser with no piece');
 }
 // Two lasers, the answer right in one order only.
 export function orderMatters(p) {
   const pl = answerMap(p.answer, p.n);
-  return p.lamps.length > 1 && !(inOrder(p, pl, [0, 1]) && inOrder(p, pl, [1, 0]));
+  return p.lamps.length > 1 && !inOrder(p, pl, [0, 1]) !== !inOrder(p, pl, [1, 0]);
 }
 export function bothUsePieces(p) {
   const by = [0, new Set(), new Set()], pl = answerMap(p.answer, p.n);
@@ -583,9 +588,10 @@ function shuffled(arr, rnd) {
 // What goes where in a stock of `size` with `purple` and `bombs` among
 // them: each place's kind (kindOf). The purple ones spaced evenly, so
 // every run of 10 has about as many (100 with 33: 3 or 4 a run, at least 2
-// puzzles apart); the bombs (3.9) shared out evenly between the runs (50
-// in 100: 5 a run), at places in each run picked with a fixed seed, never
-// three of a kind side by side.
+// puzzles apart); the bombs shared out evenly between the runs (3.10: 67
+// in 100, 6 or 7 a run), at places in each run picked with a fixed seed,
+// never two without a bomb side by side (3.9, half: never three of a
+// kind).
 export const kindOf = e => +isPurple(e) + 2 * hasBomb(e);
 export function stockSlots(setup, size, purple, bombs) {
   const out = Array(size).fill(0), rnd = mulberry32(firstSeed(setup) + 2);
@@ -596,7 +602,7 @@ export function stockSlots(setup, size, purple, bombs) {
     for (let tries = 0; tries < 1000; tries++) {
       const these = new Set(shuffled([...Array(m).keys()], rnd).slice(0, k));
       pick = [...Array(m).keys()].map(i => these.has(i));
-      if (!pick.some((x, i) => i >= 2 && x === pick[i - 1] && x === pick[i - 2])) break;
+      if (!pick.some((x, i) => i >= 1 && !x && !pick[i - 1])) break;
     }
     pick.forEach((x, i) => { if (x) out[at + i] += 2; });
   }

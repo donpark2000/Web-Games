@@ -1108,18 +1108,22 @@ As built (Claude's, not in the mockup):
 
 **Directional bombs (3.9, from mockups v8-v9, 2026-10-23).** Agreed
 with the developer (the name: "I think bomb is ok. Maybe 'directional
-bomb'"): placed by the puzzle, never bought; **in about half the
-puzzles**, spread through each run, not strictly every other one ("about
-50% ... does not have to be exactly 'every second game'"): 5 in each run
-of 10, never three with or three without side by side, at places picked
-with a fixed seed (`stockSlots`); none yet at 8×8 with two lasers (30
+bomb'"): placed by the puzzle, never bought; **in about 2 in 3
+puzzles** (3.10; developer, after playing 3.9's half: "Choosing the
+order of lighting the lasers adds a dimension to the game ... more
+puzzles with bombs is better. Maybe 2 out of 3"): 6 or 7 in each run of
+10, never two without a bomb side by side, at places picked with a
+fixed seed (`stockSlots`; 3.9: half, 5 a run, never three of a kind in
+a row); none yet at 8×8 with two lasers (30
 minutes a puzzle without bombs); with two lasers **always red or blue**,
 only that colour setting one off; **a bomb points at its wall** (v9;
 developer: "I like B best"; v8's round bomb with a fuse "look[s] a bit
 strange"): only a beam of its colour coming in from behind sets it off,
 and any other beam stops at it; drawn with **riveted armour plates on its
-sides and a lens at its back** (developer: "something that looks more
-like armor on the sides"; Claude's pick of three drawn, C); **the order
+sides and a lens at its back** (3.9; developer: "something that looks
+more like armor on the sides"; Claude's pick of three drawn, C; then
+"The visual aspect of an armored bomb does not show up on a small phone
+screen": bolder drawings to choose from); **the order
 the lasers go on can matter** ("a good feature - not a limitation").
 Gameplay as in v9 ("Gameplay is good"): the beam carries on through the
 gap; a beam of the other colour stops at a bomb and carries on once it
@@ -1128,8 +1132,10 @@ can be tried again once the lasers on change; a blown wall comes back
 when the laser that blew it goes off or a piece moves; one bomb a
 puzzle, which must save coins. Bomb puzzles come from their own seeds
 (`bombSeed`: firstSeed + 500,000); the others are the first of 3.8's
-stock in seed order. With two lasers, kept when both beams use a piece
-or the order matters. Colour mirrors parked, more lasers and placing
+stock in seed order. With two lasers, a puzzle without a bomb is kept
+when both beams use a piece; **a bomb puzzle only when the order
+matters** (3.10: one order works, the other doesn't; 3.9 had 10 of 50 at
+7×7 that worked either way). Colour mirrors parked, more lasers and placing
 them dropped (Q35); a two-colour bomb parked (Q36); an omnidirectional
 bomb not wanted (Q37: "Keep directional bombs only").
 

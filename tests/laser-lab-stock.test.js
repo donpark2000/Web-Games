@@ -32,7 +32,7 @@ test('laser lab stock: 100 puzzles per size and lasers (50 at 8×8 with two), ea
       assert.doesNotThrow(() => { p = decode(s, e); }, `${s}, seed ${e[0]}`);
       assert.equal(p.n, n);
       assert.ok(p.cheapest >= MAKE[n].minCost, `${s} ${e[0]}: cheapest ${p.cheapest} under the floor`);
-      if (lasers > 1) assert.ok(bothUsePieces(p) || (hasBomb(e) && orderMatters(p)), `${s} ${e[0]}: a laser that uses no piece`);
+      if (lasers > 1 && !hasBomb(e)) assert.ok(bothUsePieces(p), `${s} ${e[0]}: a laser that uses no piece`);
       // a bomb puzzle's seed from bombSeed on, the others' below it (8 x 8
       // with two lasers: no bombs, its seeds past bombSeed)
       assert.equal(stockBombs(s) > 0 && e[0] >= bombSeed(s), hasBomb(e), `${s} ${e[0]}: seed and bomb don't agree`);
@@ -66,26 +66,31 @@ test('laser lab stock: purple gems in about 1 in 3 two-laser puzzles, spread thr
   assert.equal(runs, SETUPS.reduce((k, s) => k + stockSize(s) / RUN, 0));
 });
 
-// Directional bombs (developer, 2026-10-23: "about 50% ... does not have
-// to be exactly 'every second game'"): half of each run of 10, never
-// three bomb puzzles (or three without) side by side in a run; none at
-// 8 x 8 with two lasers yet.
-test('laser lab stock: bombs in half of every run, mixed in', () => {
-  let runs = 0;
+// Directional bombs in about 2 in 3 (3.10; developer, 2026-10-23: "more
+// puzzles with bombs is better. Maybe 2 out of 3"; 3.9 had half): 6 or 7
+// in each run of 10, never two without a bomb side by side in a run; with
+// two lasers, every bomb puzzle needs one order; none at 8 x 8 with two
+// lasers yet.
+test('laser lab stock: bombs in 2 of 3, 6 or 7 every run, mixed in; with two lasers the order matters', () => {
+  let runs = 0, ordered = 0;
   for (const s of SETUPS) {
     const has = data[s].map(hasBomb);
     assert.equal(has.filter(Boolean).length, stockBombs(s), `${s}: ${has.filter(Boolean).length} bombs, not ${stockBombs(s)}: ${REMAKE}`);
     if (s === '8-2') { assert.equal(stockBombs(s), 0); runs += data[s].length / RUN; continue; }
-    assert.equal(stockBombs(s), data[s].length / 2, s);
+    assert.equal(stockBombs(s), 67, s);
     for (let at = 0; at < data[s].length; at += RUN) {
-      const run = has.slice(at, at + RUN);
-      assert.equal(run.filter(Boolean).length, RUN / 2, `${s}: run ${at / RUN + 1}: ${run.filter(Boolean).length} bombs`);
-      run.forEach((x, i) => assert.ok(i < 2 || x !== run[i - 1] || x !== run[i - 2], `${s}: three ${x ? 'bomb puzzles' : 'without a bomb'} in a row at ${at + i - 1}`));
+      const run = has.slice(at, at + RUN), k = run.filter(Boolean).length;
+      assert.ok(k === 6 || k === 7, `${s}: run ${at / RUN + 1}: ${k} bombs`);
+      run.forEach((x, i) => assert.ok(i < 1 || x || run[i - 1], `${s}: two without a bomb side by side at ${at + i}`));
       runs++;
     }
-    // with two lasers, purple bomb puzzles too
-    if (parseSetup(s).lasers > 1) assert.ok(data[s].some(e => hasBomb(e) && isPurple(e)), `${s}: no purple bomb puzzle`);
+    if (parseSetup(s).lasers > 1) {
+      // purple bomb puzzles too
+      assert.ok(data[s].some(e => hasBomb(e) && isPurple(e)), `${s}: no purple bomb puzzle`);
+      for (const e of data[s].filter(hasBomb)) { assert.ok(orderMatters(decode(s, e)), `${s} ${e[0]}: either order works: ${REMAKE}`); ordered++; }
+    }
   }
+  assert.equal(ordered, 2 * 67);
   assert.equal(runs, SETUPS.reduce((k, s) => k + stockSize(s) / RUN, 0));
 });
 

@@ -7,6 +7,17 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.10 (2026-10-23, version c85013b336ac)
+
+Laser Lab:
+
+- **More bombs:** about 2 in 3 puzzles have one (6 or 7 in each run
+  of 10), instead of half.
+- **With two lasers, every bomb puzzle needs the right order:** one
+  order works and the other doesn't.
+- **A bomb is now a funnel**, wide open at the back where the beam goes
+  in, so it's easy to see on a phone which side sets it off.
+
 ## 3.9 (2026-10-23, version 19293ca92ca2)
 
 Laser Lab:
