@@ -13,7 +13,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { siteFiles, siteVersion, withList, check, madeDay, today, update, versionModule, VERSION_FILE, RELEASE_FILE, readRelease } from '../tools/offline.js';
-import { versionLabel, dayLabel } from '../src/core/appversion.js';
+import { versionLabel, dayLabel, reloadFor } from '../src/core/appversion.js';
 import { iconSvg, pngSize, PNGS } from '../tools/make-icons.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -138,6 +138,32 @@ test("offline: the home page's version line", () => {
   assert.equal(dayLabel('2026-01-05'), 'Jan 5, 2026');
   assert.equal(dayLabel('2026-13-05'), '2026-13-05', 'not a day: as it is');
   assert.equal(dayLabel(undefined), '');
+});
+
+// 3.11 (developer: new versions "not happening right away. Even if I fully
+// close the app"; measured: the new version took over 1.7 s after opening
+// and the page on screen stayed old): the home page loads again, once per
+// version; a game page never does.
+test('offline: the home page reloads for a new version running; not a game, not localhost, not twice', () => {
+  const own = { version: 'aaa' }, run = { version: 'bbb', freshFirst: false };
+  assert.deepEqual(reloadFor({ home: true, own, running: run }), { reload: true, why: 'a new version is running' });
+  assert.equal(reloadFor({ home: true, own, running: { version: 'aaa' } }).why, 'same version');
+  assert.equal(reloadFor({ home: true, own, running: {} }).why, 'same version', 'an answer with no version');
+  assert.match(reloadFor({ home: false, own, running: run }).why, /^not the home page/);
+  assert.equal(reloadFor({ home: true, own, running: { ...run, freshFirst: true } }).reload, false, 'localhost');
+  assert.deepEqual(reloadFor({ home: true, own, running: run, reloadedFor: 'bbb' }), { reload: false, why: 'already reloaded for it' });
+  assert.equal(reloadFor({ home: true, own, running: { version: 'ccc' }, reloadedFor: 'bbb' }).reload, true, 'a later version: once more');
+});
+
+test('offline: the page reloads through reloadFor, asks for a check, and logs each step', async () => {
+  const ui = await readFile(path.join(root, 'src/ui/offline.js'), 'utf8');
+  assert.match(ui, /reloadFor\(\{ home: !!line, own: \{ version: VERSION \}, running, reloadedFor \}\)/);
+  assert.match(ui, /session\.setItem\(RELOADED_KEY, running\.version\);[\s\S]*?location\.reload\(\);/, 'the reload not remembered before it happens');
+  assert.equal((ui.match(/location\.reload\(\)/g) || []).length, 1, 'a reload not through reloadFor');
+  assert.match(ui, /reg\.update\(\)/, 'no check for a new version');
+  for (const what of ['on the device at opening', 'a new version found: installing', 'checked for a new version', 'reloading the home page for the new version', 'not reloading for the version running']) {
+    assert.ok(ui.includes(`'${what}'`), `not logged: ${what}`);
+  }
 });
 
 /* ---------- sw.js at work, with a fake cache and network ---------- */

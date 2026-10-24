@@ -9,7 +9,7 @@ import {
   makeCheap, makeOptions, stockPuzzle, bothUsePieces, firstSeed, stockOrder, isPurple, encode, decode, DEMO, MAKE,
   stockSlots, stockKinds, stockSize, stockPurple, stockBombs, bombSeed, kindOf,
   createGame, placedOf, budgetLeft, tapSquare, clearBoard, switchLamp, readyLamps, missWords, rightWords, useHint, giveUp, tryAgain, coins, HEARTS,
-  closest, snapshotGame, restoreGame, readProgress, runOf, keepCurrent, finishPuzzle, boardOf, endWords, bestView, spent,
+  closest, snapshotGame, restoreGame, readProgress, runOf, keepCurrent, dropOtherVisits, finishPuzzle, boardOf, endWords, bestView, spent,
 } from '../src/core/laser-lab.js';
 import { mulberry32 } from '../src/core/hidden-faces.js';
 
@@ -400,6 +400,35 @@ test('laser lab runs: savings over 10 puzzles, below 0 allowed; the best run kep
   assert.deepEqual(runOf(back, '7-2'), { no: 2, at: 0, savings: 0, hearts: HEARTS, cur: null });
   assert.deepEqual(readProgress('{"runs":{"6-1":{"no":0,"at":12,"savings":1},"9-9":{"no":0,"at":1,"savings":1}},"best":{"6-1":"x"}}'), { runs: {}, best: {} });
   assert.deepEqual(readProgress('not json'), { runs: {}, best: {} });
+});
+
+// 3.11 (developer: going to the home page, a restart or a new version
+// should start fresh; "Same puzzle, clean board, coins back"): the puzzle
+// under way keeps its visit, and only that visit picks it up; the run's
+// place, savings and hearts stay.
+test('laser lab runs: a puzzle under way only for the visit it was left in; the run itself kept', () => {
+  const prog = readProgress(null);
+  finishPuzzle(prog, '6-1', 4);
+  const g = createGame(gp(), '6-1', 1);
+  tapSquare(g, gp(), 12, 'm');
+  keepCurrent(prog, '6-1', g, 'a1/v1');
+  prog.runs['6-1'].hearts = 2;
+  const back = readProgress(JSON.stringify(prog));
+  assert.equal(runOf(back, '6-1').visit, 'a1/v1', 'the visit not kept on the device');
+  assert.deepEqual(dropOtherVisits(back, 'a1/v1'), [], 'the same visit: kept');
+  assert.equal(runOf(back, '6-1').cur.seed, 5);
+  assert.deepEqual(dropOtherVisits(back, 'b2/v1'), ['6-1'], 'another visit (home page or restart): dropped');
+  assert.deepEqual(runOf(back, '6-1'), { no: 0, at: 1, savings: 4, hearts: 2, cur: null }, 'the run’s place, savings or hearts changed');
+  keepCurrent(back, '6-1', g, 'b2/v1');
+  assert.deepEqual(dropOtherVisits(back, 'b2/v2'), ['6-1'], 'a new version: dropped');
+  // Kept before 3.11: no visit, so dropped too; a run with nothing under way is left alone.
+  const old = readProgress(JSON.stringify({ runs: { '6-1': { no: 0, at: 3, savings: 1, hearts: 3, cur: snapshotGame(g) }, '7-1': { no: 1, at: 2, savings: 5, hearts: 3, cur: null } }, best: {} }));
+  assert.deepEqual(dropOtherVisits(old, 'c3/v2'), ['6-1']);
+  assert.deepEqual(runOf(old, '7-1'), { no: 1, at: 2, savings: 5, hearts: 3, cur: null });
+  // The puzzle's end clears what was under way, and its visit.
+  keepCurrent(back, '6-1', g, 'd4/v2');
+  finishPuzzle(back, '6-1', 2);
+  assert.deepEqual(runOf(back, '6-1'), { no: 0, at: 2, savings: 6, hearts: 2, cur: null });
 });
 
 // 3.2 (developer, on the phone: the 🪙 "looks like a ball - not

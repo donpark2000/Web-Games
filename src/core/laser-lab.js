@@ -974,11 +974,12 @@ export function restoreGame(p, kept) {
 
 export const PROGRESS_KEY = 'web-games-laser-lab';
 
-// { runs: { setup: { no, at, savings, hearts, cur } }, best: { setup:
-// savings } }: run `no`'s next puzzle is `at` (0-9); `hearts` the Try
-// agains left (3.2: a run kept before has HEARTS); `cur` the puzzle under
-// way, as left (a kept game), or null. Anything unreadable counts as
-// nothing.
+// { runs: { setup: { no, at, savings, hearts, cur, visit } }, best: {
+// setup: savings } }: run `no`'s next puzzle is `at` (0-9); `hearts` the
+// Try agains left (3.2: a run kept before has HEARTS); `cur` the puzzle
+// under way, as left (a kept game), or null, and `visit` the visit it was
+// left in (3.11; src/core/resume.js visitTag). Anything unreadable counts
+// as nothing.
 export function readProgress(text) {
   const out = { runs: {}, best: {} };
   let v = null;
@@ -988,6 +989,7 @@ export function readProgress(text) {
     if (r && Number.isInteger(r.no) && r.no >= 0 && Number.isInteger(r.at) && r.at >= 0 && r.at < RUN && Number.isFinite(r.savings)) {
       const hearts = Number.isInteger(r.hearts) && r.hearts >= 0 && r.hearts <= HEARTS ? r.hearts : HEARTS;
       out.runs[s] = { no: r.no, at: r.at, savings: r.savings, hearts, cur: r.cur && typeof r.cur === 'object' ? r.cur : null };
+      if (out.runs[s].cur && typeof r.visit === 'string') out.runs[s].visit = r.visit;
     }
     if (Number.isFinite(b)) out.best[s] = b;
   }
@@ -996,9 +998,27 @@ export function readProgress(text) {
 export const runOf = (prog, setup) => prog.runs[setup] ?? { no: 0, at: 0, savings: 0, hearts: HEARTS, cur: null };
 
 // Keeps the puzzle under way in its run (after every change), so it comes
-// back as left.
-export function keepCurrent(prog, setup, g) {
-  prog.runs[setup] = { ...runOf(prog, setup), cur: g.result ? null : snapshotGame(g) };
+// back as left in the same `visit`.
+export function keepCurrent(prog, setup, g, visit) {
+  const { visit: _, ...r } = runOf(prog, setup);
+  prog.runs[setup] = g.result ? { ...r, cur: null } : { ...r, cur: snapshotGame(g), visit };
+}
+
+// The puzzles under way left in another visit dropped (3.11; developer:
+// going to the home page, a restart or a new version should "start
+// fresh"): Play! then starts that puzzle again on a clean board, with
+// nothing it cost counted (developer: "Same puzzle, clean board, coins
+// back"). Nothing spent on it had reached the savings; Try agains used on
+// it stay used. Returns the setups whose puzzle was dropped.
+export function dropOtherVisits(prog, visit) {
+  const dropped = [];
+  for (const [s, r] of Object.entries(prog.runs)) {
+    if (!r.cur || r.visit === visit) continue;
+    const { visit: _, ...rest } = r;
+    prog.runs[s] = { ...rest, cur: null };
+    dropped.push(s);
+  }
+  return dropped;
 }
 
 // The puzzle's end: `saved` (what's left of its budget, or minus all of
@@ -1013,6 +1033,6 @@ export function finishPuzzle(prog, setup, saved) {
     best = prog.best[setup] === undefined || savings > prog.best[setup];
     if (best) prog.best[setup] = savings;
     prog.runs[setup] = { no: r.no + 1, at: 0, savings: 0, hearts: HEARTS, cur: null };
-  } else prog.runs[setup] = { ...r, at: r.at + 1, savings, cur: null };
+  } else prog.runs[setup] = { no: r.no, at: r.at + 1, savings, hearts: r.hearts, cur: null };
   return { savings, done, best, run: prog.runs[setup] };
 }

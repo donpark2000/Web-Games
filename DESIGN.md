@@ -1073,12 +1073,15 @@ Claude's choices from the mockup, to be judged on the phone:
   squares when bigger), from the board's edge out past the rim.
 
 As built (Claude's, not in the mockup):
-- **A puzzle left unfinished waits:** the run keeps it on the device as
-  it was left (pieces, coins spent, hints, clock), and Play! brings it
-  back, even after a restart, so leaving neither costs nor saves
-  anything. (The mockup brought it back with a clean board, which
-  would have undone what was spent.) A reload or a trip to another app
-  also comes back to the lasers that were on and the bar's words.
+- **A puzzle left unfinished waits, in the same visit:** the run keeps
+  it on the device as it was left (pieces, coins spent, hints, clock),
+  and Play! (after New game) brings it back. A reload or a trip to
+  another app also comes back to the lasers that were on and the bar's
+  words. **After the home page, a restart or a new version** (3.11;
+  developer: "Same puzzle, clean board, coins back") Play! starts the
+  same puzzle on a clean board, nothing it cost counted (logged "puzzle
+  under way dropped"); the run's place, savings and hearts stay.
+  (3.0-3.10 it came back as left even after a restart.)
 - **Puzzles made ahead of time** by `tools/laser-lab-puzzles.js` into
   `data/laser-lab.json`: **100 per size and lasers, 50 for 8×8 with two**
   (about 30 minutes of one core each; more can follow), the first made from a
@@ -1097,7 +1100,8 @@ As built (Claude's, not in the mockup):
   new puzzle starts fresh. Nothing spent on it had reached the savings.
 - **Kept on the device** (`web-games-laser-lab`): per size and lasers,
   the run under way (its number, the next puzzle, the savings, the
-  hearts left (3.2; a run kept before 3.2 has 3), the puzzle under way)
+  hearts left (3.2; a run kept before 3.2 has 3), the puzzle under way
+  and its visit (3.11))
   and the best run. The code keeps its 3.0 names for Show answer
   (`giveUp`, result `'gaveup'`), so puzzles kept under 3.1 still read.
 - (3.0-3.1: the status beside the 🏠 stacked when one row would be under
@@ -1258,14 +1262,23 @@ work in the car too (developer, 2026-10-10; journal, Q13).
   version into `src/core/version.js` for the pages; the tests fail until
   it's run after a change). A device that opens the app
   online gets the new version in the background; the next page opened
-  uses it, and the old copy is deleted.
+  uses it, and the old copy is deleted. **The home page loads again by
+  itself** once a new version is running (3.11; developer: new versions
+  weren't "happening right away. Even if I fully close the app"), so a
+  new version shows a few seconds after the app opens; once per version
+  (no loop), never on a game page (the next page opened has it), not on
+  localhost (`reloadFor`, `src/core/appversion.js`). **The page asks
+  for a check** after registering (`update()`; registering again
+  doesn't check, 3.11).
 - **On localhost the network comes first**, so the local server still
   shows edits on a reload; 127.0.0.1 behaves like the live site, for
   testing it.
 - **`src/ui/offline.js`** (every page) registers `sw.js` and logs
   ("offline"): opened as the installed app or in the browser, the saved
   version and file count, a new version taking over, or why there's
-  none. **It registers 2 s after the page opens, and only with a
+  none; what's on the device at opening, each new version's steps
+  (found, installed, activated), the check asked for, and the home
+  page's reload or why not (3.11). **It registers 2 s after the page opens, and only with a
   connection** (nothing to fetch; 2026-10-11, the iPhone's airplane-mode
   alert; the installed app said `navigator.onLine` true as it opened in
   airplane mode). `src/core/net.js` (`SETTLE_MS`) does the waiting, and
@@ -1338,6 +1351,16 @@ finished, and the app's icon going back to the last game).
   shown again from the browser's memory after its state was cleared
   starts fresh (it reloads). The app's icon no longer goes back into a
   game.
+- **A new version clears it too** (3.11; developer: "any version update
+  and any time I go to the home page should clear previous state"): a
+  kept game carries the site's version and isn't used by another.
+- **The visit** (3.11): what a game keeps on the device for the puzzle
+  under way (Laser Lab's) is tagged with the visit and version
+  (`visitTag`, in the per-session storage) and picked up only in the
+  same one. The home page ends the visit; a restart is a new one; a new
+  version a new tag. Progress chosen to be kept stays: Laser Lab runs
+  (place, savings, hearts) and best runs, Find the Stars' and Colour
+  Sudoku's next puzzles and best times, sound on/off, the debug log.
 - **As it was left**, with what was moving finished or done again: a
   robot's turn starts again; two cards left showing settle; a roll or a
   move being shown is done (Snakes and Ladders: the pieces where they

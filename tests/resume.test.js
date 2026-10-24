@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { GAME_PAGES, GAMES, HOME, OLD_LAST_KEY, clearGames, forgetOld, pack, unpack, mergeSetup, createResume, gameKey } from '../src/core/resume.js';
+import { GAME_PAGES, GAMES, HOME, OLD_LAST_KEY, VISIT_KEY, clearGames, forgetOld, pack, unpack, mergeSetup, createResume, gameKey, visitTag, endVisit } from '../src/core/resume.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -71,6 +71,52 @@ test('resume: kept data reads back; other formats, junk and nothing are not used
   assert.deepEqual(unpack(pack(1, data, 1000), 2), { data: null, why: 'old format 1' });
   assert.deepEqual(unpack(JSON.stringify({ format: 2, at: 1, data: { setup: {} } }), 2), { data: null, why: 'empty' });
   assert.deepEqual(unpack('null', 2), { data: null, why: 'old format undefined' });
+});
+
+// 3.11 (developer: "any version update ... should clear previous state").
+test('resume: a game kept by another version (or before 3.11, by none) is not used', () => {
+  const data = { screen: 'play', match: { turn: 3 } };
+  assert.deepEqual(unpack(pack(1, data, 7, 'v2'), 1, 'v2'), { data, at: 7 });
+  assert.deepEqual(unpack(pack(1, data, 7, 'v1'), 1, 'v2'), { data: null, why: 'kept by version v1' });
+  assert.deepEqual(unpack(pack(1, data, 7), 1, 'v2'), { data: null, why: 'kept by version unknown' });
+  const storage = fakeStorage(), log = fakeLog();
+  createResume({ storage, game: 'nim', format: 1, log, version: 'v1' }).save(data);
+  assert.deepEqual(createResume({ storage, game: 'nim', format: 1, log, version: 'v1' }).saved, data, 'the same version: picked up');
+  assert.equal(createResume({ storage, game: 'nim', format: 1, log, version: 'v2' }).saved, null, 'a new version picked it up');
+  assert.match(log.lines.at(-1), /kept game not used .*"why":"kept by version v1"/);
+});
+
+// 3.11: the visit a puzzle under way kept on the device belongs to.
+test('resume: a visit lasts the session until the home page ends it; its tag holds the version', () => {
+  const storage = fakeStorage();
+  let n = 0;
+  const make = () => `id${++n}`;
+  assert.equal(visitTag(storage, 'v1', make), 'id1/v1');
+  assert.equal(visitTag(storage, 'v1', make), 'id1/v1', 'the same visit on another page or a reload');
+  assert.equal(visitTag(storage, 'v2', make), 'id1/v2', 'a new version: another tag');
+  assert.equal(endVisit(storage), true);
+  assert.equal(storage.getItem(VISIT_KEY), null);
+  assert.equal(endVisit(storage), false, 'nothing to end');
+  assert.equal(visitTag(storage, 'v1', make), 'id2/v1', 'after the home page: a new visit');
+  assert.equal(visitTag(fakeStorage(), 'v1', make), 'id3/v1', 'a restart (a new session): a new visit');
+  const refusing = fakeStorage({}, { refuse: true });
+  assert.equal(visitTag(refusing, 'v1', make), 'id4/v1', 'storage refused: a visit all the same');
+  assert.equal(visitTag(null, 'v1', make), 'id5/v1');
+  assert.equal(endVisit(null), false);
+});
+
+test('resume: pages pass the version; the home page ends the visit; Laser Lab alone asks for it', async () => {
+  const ui = await readFile(path.join(root, 'src/ui/resume.js'), 'utf8');
+  assert.match(ui, /createResume\(\{ storage, game, format, log, version: VERSION \}\)/);
+  const home = ui.match(/export function homePage\(\) \{[\s\S]*?\r?\n\}\r?\n/)?.[0] ?? '';
+  assert.match(home, /const visitEnded = endVisit\(storage\);/);
+  assert.match(home, /log\.add\('resume', 'home page', \{ how, cleared, visitEnded \}\);/);
+  assert.match(ui, /export function visit\(\) \{\r?\n  tag \?\?= visitTag\(storage, VERSION\);/);
+  const users = [];
+  for (const f of await readdir(path.join(root, 'src/ui'))) {
+    if (/\bvisit\(\)/.test(await readFile(path.join(root, 'src/ui', f), 'utf8')) && f !== 'resume.js') users.push(f);
+  }
+  assert.deepEqual(users, ['laser-lab.js'], 'another game keeps a puzzle under way on the device: drop it on a new visit too');
 });
 
 test('resume: setup picks merge by the page\'s keys and kinds only', () => {

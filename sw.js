@@ -16,12 +16,13 @@
 //
 // A new VERSION (tools/offline.js, after any change to the site) makes
 // this file different, so the browser installs it the next time a page
-// opens online; the pages opened after that get the new files.
+// opens online (src/ui/offline.js also asks for a check); the pages opened
+// after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '9492cb48b18f';
+const VERSION = '268c25be2a2d';
 const MADE = '2026-10-23';
-const RELEASE = '3.10';
+const RELEASE = '3.11';
 const FILES = [
   'colour-sudoku.html',
   'connect-four.html',

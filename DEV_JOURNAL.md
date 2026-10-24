@@ -62,6 +62,13 @@ time, each tried before publishing:
   Claude's view, not measured: little to gain for a new rule (see
   "v9 played: the mix; armour; two-colour bombs"). Parked unless the
   developer wants it tried.
+- **Q40. Does a new version now show on the iPhone when the app
+  opens?** (2026-10-23, 3.11: the home page reloads once a new version
+  is running, and the page asks for a check; see "Old state and late
+  updates".) Measured in the built-in browser only. To check on the
+  phone after 3.11 is published, and with the next release after it
+  (3.10's page has no reload): open the fully closed app on wifi; the
+  log says which check found the version and when the page reloaded.
 
 ## Proposed additions to the standards skill
 
@@ -9850,3 +9857,105 @@ closed; Q36 (two-colour booster) parked.
 3. **Q32**, **Q34** (a session on Sonnet 5.5), **Q35**, **Q36** stay
    open.
 4. This session is long: start the next one fresh from this entry.
+
+
+## 2026-10-23: Old state and late updates; release 3.11 prepared
+
+**Developer** (playing 3.10 on the phone): "it seems to be remembering
+old state info. Any time I go to the game selection page, it should
+start fresh. It is good to remember state if I just open the app and it
+shows me the page that was last active as long I have not fully closed
+the game. But any version update and any time I go to the home page
+should clear previous state. And I notice that new versions do not seem
+to be happening right away. Even if I fully close the app. I have to
+enter a game and then go back to the home screen to see the new
+version."
+
+**State, found by reading the code:** the game in progress is kept per
+session (`sessionStorage`) and the home page already cleared it (Q22).
+What outlived the home page and a restart was **Laser Lab's puzzle
+under way**, kept on the device in its run (`web-games-laser-lab`,
+`runs[setup].cur`): Play! brought it back as left, "(under way)", even
+after a full close. That was Claude's choice in 3.0 (DESIGN.md "A
+puzzle left unfinished waits"), not the developer's. No other game keeps
+a puzzle under way on the device (Find the Stars and Colour Sudoku keep
+only the next puzzle and best times).
+
+**Updates, measured** (built-in browser, 127.0.0.1:8123, which behaves
+like the live site; timed lines added to the debug log first): with
+e8146a saved, a one-line CSS change made 0d0798, and the home page was
+opened in a fresh tab. The browser found the new version at 1.56 s,
+installed it at 1.67 s, it took over at 1.68 s, and the page on screen
+stayed the old one: "Version 3.10 · ... · e8146a (new version next
+time: ... 0d0798)". Only the next page opened got the new files: on the
+phone, the game entered, then the home page after it. That is the
+developer's description. A second run found the new version only at
+our register (2.0 s), not before: so whether the browser checks by
+itself as a page opens varies, and registering again doesn't check
+(the Service Worker spec's Register resolves at once for the same
+script). That may be why a full close on the iPhone didn't help; not
+measured on the iPhone.
+
+**Proposed, agreed** (developer: "Same puzzle, clean board, coins back.
+Build the plan as 3.11."):
+- **The home page and a new version clear the game under way.** A
+  kept game now carries the site's version (`pack`/`unpack`,
+  `src/core/resume.js`) and another version doesn't use it ("kept by
+  version ..."). Laser Lab's puzzle under way is tagged with the
+  **visit** (`visitTag`: an id in the per-session storage, plus the
+  version); the home page ends the visit (`endVisit`), a restart is a
+  new session, a new version a new tag; Laser Lab drops a puzzle under
+  way from another visit as it opens (`dropOtherVisits`), and Play!
+  starts the same puzzle clean. Kept: runs (place, savings, hearts;
+  Try agains used stay used), best runs, the other games' progress,
+  sound, the log. Known: leaving by the home page and coming back is a
+  free restart of that puzzle (no heart used); the developer chose this.
+- **Updates:** the home page loads again when the version running
+  isn't its own (`reloadFor`, `src/core/appversion.js`): once per
+  version (the per-session storage remembers it, so no loop), never on
+  a game page (logged why), not on localhost. After registering, the
+  page asks for a check (`reg.update()`), logged "checked for a new
+  version".
+
+**Evidence:**
+- `npm test`: 384 of 384 (377 + 7: a kept game of another version,
+  visits, home-page and Laser Lab wiring, a puzzle under way per visit
+  with the run kept, `reloadFor`'s cases, offline.js's wiring and
+  log lines). Shown to fail (a scratch script broke each change in a
+  temp copy): no version check in `unpack`, the home page keeping the
+  visit, other visits never dropped, a drop changing the run's place,
+  a reload loop, a game page reloading, no update check: all 7 caught
+  by their own tests.
+- **Built-in browser, update:** with 35231e running, a temporary CSS
+  change made 2f014c; a fresh tab on the home page: the old page,
+  "a new version took over" 1.83 s, "reloading the home page for the
+  new version {from 35231e, to 2f014c}", then "Version 3.10 · ... ·
+  2f014c" (no "next time"); after the reload "checked for a new
+  version", no second reload. On Laser Lab mid-puzzle the same takeover
+  logged "not reloading ... not the home page" and play went on.
+- **Built-in browser, Laser Lab** (6×6, one laser, puzzle 1, seed
+  61508703, a mirror down, 8 of 9 left): a reload, and New game then
+  Play!, both came back with the mirror and 8 left. 🏠 ("home page
+  {cleared: [], visitEnded: true}"), then Laser Lab: "A run of 10
+  puzzles" (no "under way"), "puzzle under way dropped (home page,
+  restart or new version): starts clean", Play! started seed 61508703
+  with 9 of 9 and no pieces. With a mirror down again, a new version and
+  two reloads: "kept game not used {why: kept by version 35231e}",
+  the puzzle under way dropped, the setup screen. No console errors.
+- Temporary changes undone (`css/site.css` restored, `tools/offline.js`
+  run). A scratch copy served on 8124 couldn't register `sw.js` in the
+  built-in browser ("An unknown error occurred when fetching the
+  script"; the server never saw the request); the project's own preview
+  server on 8123 could, so all checks used that.
+
+**Release 3.11 prepared:** `RELEASE = '3.11'`, version 268c25be2a2d,
+notes in `RELEASES.md`; `node tools/release.js`: "Release 3.11 is
+ready". DESIGN.md "Offline app", "Coming back to a game" and Laser
+Lab's "A puzzle left unfinished waits" updated. Not published.
+
+**To check on the iPhone after publishing (Q40):** open the app fully
+closed, on wifi: within a few seconds the home page should reload to
+3.11 (or, this first time, 3.10's page has no reload: the next open
+should). The log (Copy on log.html) then says which check found the
+new version (the browser's own before "registered", or ours after
+"checked for a new version").

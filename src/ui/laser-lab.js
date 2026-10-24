@@ -9,7 +9,7 @@ import {
   createGame, placedOf, budgetLeft, nextHintPrice, tapSquare, clearBoard, switchLamp, readyLamps, failedBefore,
   missWords, rightWords, lampName, coins, answersFor, useHint, giveUp, tryAgain, snapshotGame, restoreGame, spent,
   closest, endWords, bestView,
-  PROGRESS_KEY, readProgress, runOf, keepCurrent, finishPuzzle, DEMO, clock,
+  PROGRESS_KEY, readProgress, runOf, keepCurrent, dropOtherVisits, finishPuzzle, DEMO, clock,
 } from '../core/laser-lab.js';
 import { mergeSetup } from '../core/resume.js';
 import { largestFitting } from '../core/fit.js';
@@ -18,7 +18,7 @@ import { pieceSvg, lampSvg, gemSvg, wallSvg, cellSvg, lampColour, miniSvg, bombS
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
-import { resumable } from './resume.js';
+import { resumable, visit } from './resume.js';
 
 const STOCK_FILE = 'data/laser-lab.json';
 const STEP_MS = 90;      // a beam runs out a square per step
@@ -42,6 +42,15 @@ let prog = readProgress(null);
 try { prog = readProgress(storage?.getItem(PROGRESS_KEY)); } catch { /* unreadable: start fresh */ }
 function saveProgress() {
   try { storage?.setItem(PROGRESS_KEY, JSON.stringify(prog)); } catch (e) { L('progress not kept', { error: String(e) }); }
+}
+// A puzzle under way is picked up only in the visit it was left in (3.11):
+// after the home page, a restart or a new version, Play! starts it again
+// on a clean board, its coins back.
+const VISIT = visit();
+const dropped = dropOtherVisits(prog, VISIT);
+if (dropped.length) {
+  L('puzzle under way dropped (home page, restart or new version): starts clean', { setups: dropped, visit: VISIT });
+  saveProgress();
 }
 
 let stock = null;     // { setup: [entry, ...] } (decoded as each is played)
@@ -189,7 +198,7 @@ function keep() {
   if (!G) return;
   if (!G.result) {
     G.ms = elapsed();
-    keepCurrent(prog, G.setup, G);
+    keepCurrent(prog, G.setup, G, VISIT);
     saveProgress();
   }
   resume.keep();

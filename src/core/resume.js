@@ -54,16 +54,20 @@ export function forgetOld(storage) {
 
 // A game's kept state as stored: its format number (a game changes it when
 // what it keeps changes, so an older copy is left alone, not misread), when
-// it was kept, and the game's own data ({ screen, ... }).
-export const pack = (format, data, at) => JSON.stringify({ format, at, data });
+// it was kept, the site's version it was kept by (3.11), and the game's own
+// data ({ screen, ... }).
+export const pack = (format, data, at, version) => JSON.stringify({ format, at, version, data });
 
 // { data, at } from what was stored, or { data: null, why } ('none',
-// 'unreadable', 'old format N', 'empty').
-export function unpack(text, format) {
+// 'unreadable', 'old format N', 'kept by version V', 'empty'). With a
+// `version`, a game kept by another version isn't used (3.11; developer:
+// "any version update ... should clear previous state").
+export function unpack(text, format, version) {
   if (text == null) return { data: null, why: 'none' };
   let v;
   try { v = JSON.parse(text); } catch { return { data: null, why: 'unreadable' }; }
   if (v?.format !== format) return { data: null, why: `old format ${v?.format}` };
+  if (version !== undefined && v.version !== version) return { data: null, why: `kept by version ${v.version ?? 'unknown'}` };
   if (!v.data || typeof v.data !== 'object' || typeof v.data.screen !== 'string') return { data: null, why: 'empty' };
   return { data: v.data, at: v.at };
 }
@@ -82,15 +86,43 @@ export function mergeSetup(setup, kept) {
   return setup;
 }
 
+// The visit (3.11; developer: "Any time I go to the game selection page,
+// it should start fresh"): what a game keeps on the device for the puzzle
+// under way (Laser Lab's runs) is tagged with it, and picked up only in
+// the same visit and version. Kept in the per-session storage, so a
+// restart of the app starts a new one; the home page ends it (endVisit);
+// the tag holds the site's version, so a new version is a new visit too.
+export const VISIT_KEY = 'web-games-visit';
+const newId = () => Math.random().toString(36).slice(2, 10);
+// 'id/version': this visit's tag (one is started if there's none).
+export function visitTag(storage, version, make = newId) {
+  let id = null;
+  try { id = storage?.getItem(VISIT_KEY) ?? null; } catch { /* storage refused: a visit of this page only */ }
+  if (!id) {
+    id = make();
+    try { storage?.setItem(VISIT_KEY, id); } catch { /* as above */ }
+  }
+  return `${id}/${version}`;
+}
+// Ends the visit; true if there was one.
+export function endVisit(storage) {
+  try {
+    if (storage?.getItem(VISIT_KEY) == null) return false;
+    storage.removeItem(VISIT_KEY);
+    return true;
+  } catch { return false; }
+}
+
 // One game's keeping. storage: the browser's sessionStorage (or null);
-// log: the debug log. Returns { saved: the data found (or null), save(data),
-// clear() }. Each save is logged only when the screen changes (a save
-// follows every move).
-export function createResume({ storage, game, format, log, now = () => Date.now() }) {
+// log: the debug log; version: the site's (a game kept by another isn't
+// used). Returns { saved: the data found (or null), save(data), clear() }.
+// Each save is logged only when the screen changes (a save follows every
+// move).
+export function createResume({ storage, game, format, log, version, now = () => Date.now() }) {
   const key = gameKey(game);
   let text = null;
   try { text = storage?.getItem(key) ?? null; } catch (e) { log.add('resume', 'storage refused', { error: String(e) }); }
-  const found = unpack(text, format);
+  const found = unpack(text, format, version);
   if (found.data) log.add('resume', 'kept game found', { game, screen: found.data.screen, keptMinsAgo: Math.round((now() - found.at) / 60000) });
   else if (found.why !== 'none') log.add('resume', 'kept game not used', { game, why: found.why });
   let lastScreen = found.data?.screen ?? null;
@@ -99,7 +131,7 @@ export function createResume({ storage, game, format, log, now = () => Date.now(
     saved: found.data,
     save(data) {
       try {
-        storage?.setItem(key, pack(format, data, now()));
+        storage?.setItem(key, pack(format, data, now(), version));
       } catch (e) {
         if (!warned) { warned = true; log.add('resume', 'not kept (storage refused)', { game, error: String(e) }); }
         return false;

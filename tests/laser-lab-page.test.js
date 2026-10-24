@@ -222,6 +222,17 @@ test('laser lab page: purple gem in halves, striped green splitter, bright laser
 // Wired to the site: the debug log, the game kept for a reload, the runs
 // kept on the device, sounds, stats, the fit, and the iPhone's double-tap
 // zoom blocked on the board, the lasers and the shop.
+// 3.11 (developer: "Any time I go to the game selection page, it should
+// start fresh"; "Same puzzle, clean board, coins back"): a puzzle under
+// way left in another visit is dropped as the page opens, before anything
+// can pick it up, and the run saved without it.
+test('laser lab page: a puzzle under way from another visit dropped as it opens, logged and saved', () => {
+  assert.match(js, /import \{ resumable, visit \} from '\.\/resume\.js';/);
+  const at = js.indexOf('const VISIT = visit();');
+  assert.ok(at > js.indexOf('function saveProgress()') && at < js.indexOf('fetch(STOCK_FILE)'), 'the visit not read before the puzzles load');
+  assert.match(js, /const dropped = dropOtherVisits\(prog, VISIT\);\r?\nif \(dropped\.length\) \{\r?\n  L\('puzzle under way dropped \(home page, restart or new version\): starts clean', \{ setups: dropped, visit: VISIT \}\);\r?\n  saveProgress\(\);\r?\n\}/);
+});
+
 test('laser lab page: wired to the log, game keeping, runs, sound and fit', () => {
   assert.match(js, /log\.add\('laser-lab', msg, data\)/);
   assert.match(js, /startLog\('laser-lab'\)/);
@@ -232,7 +243,7 @@ test('laser lab page: wired to the log, game keeping, runs, sound and fit', () =
   }
   assert.match(js, /resumable\('laser-lab', 1,/);
   assert.match(js, /const STOCK_FILE = 'data\/laser-lab\.json';/);
-  assert.match(js, /keepCurrent\(prog, G\.setup, G\)/, 'the puzzle under way not kept in its run');
+  assert.match(js, /keepCurrent\(prog, G\.setup, G, VISIT\)/, 'the puzzle under way not kept in its run, with its visit');
   assert.match(js, /finishPuzzle\(prog, G\.setup, G\.saved\)/);
   for (const s of ['tick', 'ding', 'uhoh', 'ping', 'win']) assert.match(js, new RegExp(`sound\\.play\\('${s}'`), `no ${s}`);
   assert.match(js, /fitPlayScreen\(/);

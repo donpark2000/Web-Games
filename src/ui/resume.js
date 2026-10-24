@@ -5,9 +5,11 @@
 // At most one game in progress, kept in the browser's per-session storage
 // (sessionStorage): a reload and a trip to another app keep it; a restart
 // of the app, 🏠, the home page and opening another game clear it
-// (developer, 2026-10-15, journal Q22).
+// (developer, 2026-10-15, journal Q22), and a new version doesn't use it
+// (3.11).
 
-import { createResume, clearGames, forgetOld, gameKey } from '../core/resume.js';
+import { createResume, clearGames, forgetOld, gameKey, visitTag, endVisit } from '../core/resume.js';
+import { VERSION } from '../core/version.js';
 import { log } from './debuglog.js';
 
 let storage = null;
@@ -28,7 +30,7 @@ try {
 export function resumable(game, format, snapshot) {
   const others = clearGames(storage, game);
   if (others.length) log.add('resume', 'another game’s kept state cleared', { opened: game, cleared: others });
-  const r = createResume({ storage, game, format, log });
+  const r = createResume({ storage, game, format, log, version: VERSION });
   let leaving = false;
   const keep = () => (leaving ? false : r.save(snapshot()));
   // 🏠 is leaving the game on purpose: nothing kept after it.
@@ -57,12 +59,24 @@ export function resumable(game, format, snapshot) {
 }
 
 // The home page: clears any game in progress, as it opens and when it's
-// shown again from the browser's memory (back to it).
+// shown again from the browser's memory (back to it). It also ends the
+// visit, so a puzzle under way kept on the device (Laser Lab's) isn't
+// picked up again (3.11).
 export function homePage() {
   const clear = how => {
     const cleared = clearGames(storage);
-    log.add('resume', 'home page', { how, cleared });
+    const visitEnded = endVisit(storage);
+    log.add('resume', 'home page', { how, cleared, visitEnded });
   };
   clear('opened');
   addEventListener('pageshow', e => { if (e.persisted) clear('back (from memory)'); });
+}
+
+// This visit's tag ('id/version', src/core/resume.js visitTag), for what a
+// game keeps on the device for the puzzle under way: picked up only in the
+// same visit and version (3.11). Not made on the home page, which ends it.
+let tag = null;
+export function visit() {
+  tag ??= visitTag(storage, VERSION);
+  return tag;
 }

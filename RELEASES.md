@@ -7,6 +7,22 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.11 (2026-10-23, version 268c25be2a2d)
+
+The whole site:
+
+- **A new version shows when the app opens.** The home page checks
+  for a new version and loads it again by itself a few seconds after
+  opening. Before, the new version only showed after going into a game
+  and back. A game is never interrupted: the next page opened has the
+  new version.
+- **The home page starts fresh.** Going to it, closing the app, or a
+  new version clears the game under way. In Laser Lab, Play! then
+  brings back the same puzzle with a clean board and its coins back.
+  The run, its savings and hearts, and the best runs are kept.
+- Reopening the app without closing it still comes back to the game
+  as it was.
+
 ## 3.10 (2026-10-23, version 9492cb48b18f)
 
 Laser Lab:

@@ -23,6 +23,23 @@ export function dayLabel(made) {
 // 6 characters (enough to tell two apart).
 const short = v => [v.release, dayLabel(v.made), String(v.version).slice(0, 6)].filter(Boolean).join(' · ');
 
+// Whether the page loads again to show the version now running (3.11;
+// developer: "new versions do not seem to be happening right away. Even if
+// I fully close the app"; measured: a new version took over 1.7 s after
+// opening, and the page on screen stayed the old one). Only the home page
+// (a game is never cut short), only when the running version isn't the
+// page's own, not on localhost (its pages come from the network, newer than
+// what's saved), and once per version (`reloadedFor`: the version last
+// reloaded for, so a reload that still brings the old page can't loop).
+// own, running: { version }. Returns { reload, why }.
+export function reloadFor({ home, own, running, reloadedFor = null }) {
+  if (!running?.version || running.version === own.version) return { reload: false, why: 'same version' };
+  if (!home) return { reload: false, why: 'not the home page (the next page opened has it)' };
+  if (running.freshFirst) return { reload: false, why: 'localhost: pages from the network' };
+  if (reloadedFor === running.version) return { reload: false, why: 'already reloaded for it' };
+  return { reload: true, why: 'a new version is running' };
+}
+
 export function versionLabel(own, next = null) {
   let s = `Version ${short(own)}`;
   if (next && next.version !== own.version) s += ` (new version next time: ${short(next)})`;
