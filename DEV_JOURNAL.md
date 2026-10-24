@@ -10489,8 +10489,8 @@ lives only in Claude's scratchpad (`bridges/site`: `bridges.html`,
 `css/bridges.css`, `src/core/bridges.js`, `src/core/bridges-puzzles.js`,
 `src/ui/bridges.js`, and the scratch tools `make.mjs`, `data.mjs`,
 `preview.mjs`, `checkfail.mjs`), which a new session can't see. The
-published artifact holds the page's files: a new session can read them
-back with the Artifact tool (`read` with `path`) from
+published artifact (version 2) holds the page's files and the scratch
+tools (`tools/`): a new session can read them back with the Artifact tool (`read` with `path`) from
 https://claude.ai/artifact/4YnTGtVUwRmwsYsSiAmB7W.
 
 **Next:**
