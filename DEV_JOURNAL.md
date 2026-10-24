@@ -10084,3 +10084,25 @@ browser isn't signed in to claude.ai), sound, a real finger.
 2. Then build it into the site from the scratch copy: the page, the
    home page's button and picture (👥 Two players), `GAME_PAGES`, stats,
    `tools/offline.js`, DESIGN.md, release 4.0 (a new game).
+
+## 2026-10-24: Dots and Boxes mockup v2: a person's line just drawn
+
+**Developer**, after playing v1 on the desktop: "Very good. The
+animation for the robot placing a line is useful so it is easy to know
+where his last move was. I don't think it is needed for the play. Just
+draw the line. But maybe gameplay is different on the phone or a device
+with a touch screen. I can't test that with the mockup on my desktop
+computer." Taken as: keep the robot's faint line and blink; a person's
+line no longer blinks. (In v1 every last line blinked, the person's
+too; the faint line under a finger held down can't be seen with a mouse
+click, which draws at once, so it stays, to judge with a finger.)
+
+**Changed** (scratch copy,  ): the
+last line blinks only when the robot drew it. Mockup version 2 (the
+same link). **Checked** in the built-in browser: after a person's line
+no line blinks ( 0); after the robot's, its line blinks
+(); no errors. Two players: neither line blinks (each
+player watched the other draw).
+
+**Touch:** the mockup can't be tried on a phone; the way to try touch
+is to build it into the site and publish (as with Laser Lab 3.0).

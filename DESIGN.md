@@ -498,10 +498,16 @@ mockup first.
   a safe line, and then gives away the fewest. No "leave the last two"
   trick (to add if Hard is too easy).
 - **Who goes first?** the usual three (agreed).
+- **The robot's line is shown first, then blinks** (developer, after
+  v1: "useful so it is easy to know where his last move was"): it shows
+  faintly for a moment, is drawn, and blinks a few times. **A person's
+  line is just drawn** ("I don't think it is needed for the play. Just
+  draw the line."; mockup version 2). The faint line under a finger
+  held down stays, to judge on a touch screen (only seen with a finger:
+  a mouse click draws at once).
 
 Claude's choices in the mockup, to be judged in it: lines in the
-player's colour (orange / blue), faint dashes where a line can go, **the
-last line blinks**; a won box fills with the owner's light colour and
+player's colour (orange / blue), faint dashes where a line can go; a won box fills with the owner's light colour and
 its face pops in, with a ding; the turn line says **"Another turn!"**;
 the robot thinks 0.8 s (0.6 s when it goes again), shows its line
 faintly, then draws it; the end: "<face> wins!", the winner's boxes
