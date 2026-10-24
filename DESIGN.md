@@ -1119,11 +1119,12 @@ minutes a puzzle without bombs); with two lasers **always red or blue**,
 only that colour setting one off; **a bomb points at its wall** (v9;
 developer: "I like B best"; v8's round bomb with a fuse "look[s] a bit
 strange"): only a beam of its colour coming in from behind sets it off,
-and any other beam stops at it; drawn with **riveted armour plates on its
-sides and a lens at its back** (3.9; developer: "something that looks
+and any other beam stops at it; drawn (3.9) with riveted armour plates on its
+sides and a lens at its back ( developer: "something that looks
 more like armor on the sides"; Claude's pick of three drawn, C; then
 "The visual aspect of an armored bomb does not show up on a small phone
-screen": bolder drawings to choose from); **the order
+screen"; 3.10: **a funnel**, its wide open back pale, tapering to the
+point: "I think the funnel version of the bomb is best"); **the order
 the lasers go on can matter** ("a good feature - not a limitation").
 Gameplay as in v9 ("Gameplay is good"): the beam carries on through the
 gap; a beam of the other colour stops at a bomb and carries on once it
