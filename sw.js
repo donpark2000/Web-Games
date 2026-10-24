@@ -20,9 +20,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '268c25be2a2d';
-const MADE = '2026-10-23';
-const RELEASE = '3.11';
+const VERSION = '86665e534113';
+const MADE = '2026-10-24';
+const RELEASE = '4.0';
 const FILES = [
   'colour-sudoku.html',
   'connect-four.html',
@@ -31,6 +31,7 @@ const FILES = [
   'css/colour-sudoku.css',
   'css/connect-four.css',
   'css/count-to-9.css',
+  'css/dots-boxes.css',
   'css/five-dice.css',
   'css/follow-me.css',
   'css/game.css',
@@ -47,6 +48,7 @@ const FILES = [
   'data/five-dice-long.bin',
   'data/hidden-faces.json',
   'data/laser-lab.json',
+  'dots-boxes.html',
   'five-dice.html',
   'follow-me.html',
   'hidden-faces.html',
@@ -66,6 +68,7 @@ const FILES = [
   'src/core/colour-sudoku.js',
   'src/core/connect-four.js',
   'src/core/count-to-9.js',
+  'src/core/dots-boxes.js',
   'src/core/fit.js',
   'src/core/five-dice-best.js',
   'src/core/five-dice.js',
@@ -89,7 +92,9 @@ const FILES = [
   'src/ui/connect-four.js',
   'src/ui/count-to-9.js',
   'src/ui/csboard.js',
+  'src/ui/dbboard.js',
   'src/ui/debuglog.js',
+  'src/ui/dots-boxes.js',
   'src/ui/faces.js',
   'src/ui/fit.js',
   'src/ui/five-dice.js',

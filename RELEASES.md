@@ -7,6 +7,20 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 4.0 (2026-10-24, version 86665e534113)
+
+A new game for the kids, **Dots and Boxes**, in 👥 Two players:
+
+- **Me and the robot** (⭐ Easy or ⭐⭐⭐ Hard) or **Two players**, on a
+  board of **5×5** or **7×7** boxes.
+- Take turns drawing a line between two dots. Close a box to win it:
+  it shows your face, and you **go again**. Most boxes wins.
+- Tap anywhere between two dots: the nearest line is drawn. While a
+  finger is held down, that line shows faintly.
+- The robot's line shows faintly for a moment, then is drawn and
+  blinks, so it's easy to see where it went.
+- A running tally of boxes under the board, and the games won.
+
 ## 3.11 (2026-10-23, version 268c25be2a2d)
 
 The whole site:

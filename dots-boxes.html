@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dots and Boxes</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#E4F1EE">
+<meta name="apple-mobile-web-app-title" content="Let's Play!">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/dots-boxes.css">
+</head>
+<body>
+<main class="app">
+  <!-- SETUP ("New game") -->
+  <section id="setup" class="app" aria-label="New game">
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <h1>Dots and Boxes</h1>
+    </div>
+
+    <div class="panel intro">
+      <span class="mini" id="mini"></span>
+      <p class="rules">Take turns drawing <b>a line</b>. Close <b>a box</b> to win it, and go again! <b>Most boxes</b> wins.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Who's playing?</h2>
+      <div class="modes">
+        <button type="button" class="mode" id="modeRobot" aria-pressed="true"><span class="pair" id="pairRobot"></span>Me and the robot</button>
+        <button type="button" class="mode" id="modeTwo" aria-pressed="false"><span class="pair" id="pairTwo"></span>Two players</button>
+      </div>
+    </div>
+
+    <div class="panel p1">
+      <h2><span id="p1Title">Pick your face</span> <span class="chip" id="p1Chip"></span></h2>
+      <div class="faces" id="p1Faces"></div>
+    </div>
+
+    <div class="panel p2" id="p2Panel">
+      <h2>Player 2, pick a face <span class="chip" id="p2Chip"></span></h2>
+      <div class="faces" id="p2Faces"></div>
+    </div>
+
+    <div class="panel">
+      <h2>How big?</h2>
+      <div class="levels">
+        <button type="button" class="level size" data-size="5" aria-pressed="true"><span class="dots" id="size5"></span>5 × 5<small>25 boxes</small></button>
+        <button type="button" class="level size" data-size="7" aria-pressed="false"><span class="dots" id="size7"></span>7 × 7<small>49 boxes</small></button>
+      </div>
+    </div>
+
+    <div class="panel" id="levelPanel">
+      <h2>How hard?</h2>
+      <div class="levels">
+        <button type="button" class="level" data-level="easy" aria-pressed="true"><span class="ico">⭐</span>Easy</button>
+        <button type="button" class="level" data-level="hard" aria-pressed="false"><span class="ico">⭐⭐⭐</span>Hard</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Who goes first?</h2>
+      <div class="firsts">
+        <button type="button" class="first" data-rule="alt" aria-pressed="true"><span class="ico">🔁</span>Take turns</button>
+        <button type="button" class="first" data-rule="win" aria-pressed="false"><span class="ico">🏆</span>Winner goes first</button>
+        <button type="button" class="first" data-rule="lose" aria-pressed="false"><span class="ico">🤗</span>Loser goes first</button>
+      </div>
+    </div>
+
+    <div class="go">
+      <button type="button" class="big" id="playBtn">Play!</button>
+      <div class="why" id="why"></div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="app" aria-label="Game" hidden>
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <div class="turn" id="turn" aria-live="polite"></div>
+    </div>
+    <div class="boardwrap"><svg class="board" id="board" role="img" aria-label="The dots: tap between two dots to draw a line"></svg></div>
+    <div class="sc" id="sc" aria-label="Boxes this game">
+      <div class="side c1" id="side1"><span class="chip" id="s1Chip"></span><span><span class="n" id="s1">0</span><span class="who" id="s1Who"></span></span></div>
+      <div class="mid">Boxes</div>
+      <div class="side c2" id="side2"><span class="chip" id="s2Chip"></span><span><span class="n" id="s2">0</span><span class="who" id="s2Who"></span></span></div>
+    </div>
+    <div class="sc2" id="sc2" aria-label="Games won"></div>
+    <div class="controls">
+      <button type="button" class="pill primary" id="againBtn">Play again</button>
+      <button type="button" class="pill" id="newBtn">New game</button>
+    </div>
+  </section>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a></footer>
+<script type="module" src="src/ui/dots-boxes.js"></script>
+<script type="module" src="src/ui/nozoom.js"></script>
+<script type="module" src="src/ui/stats.js"></script>
+<script type="module" src="src/ui/offline.js"></script>
+</body>
+</html>

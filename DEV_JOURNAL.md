@@ -10106,3 +10106,57 @@ neither line blinks (each player watched the other draw); not tried.
 
 **Touch:** the mockup can't be tried on a phone; the way to try touch
 is to build it into the site and publish (as with Laser Lab 3.0).
+
+## 2026-10-24: Dots and Boxes built; release 4.0 prepared; status (start here next session)
+
+**Developer:** "Yes, build Dots and Boxes into the site on the branch so
+I can try it on my phone once it's published."
+
+**Built** on `dots-boxes` from the scratch copy's files (the mockup's
+version 2): `dots-boxes.html`, `css/dots-boxes.css`,
+`src/core/dots-boxes.js`, `src/ui/dots-boxes.js`,
+`tests/dots-boxes.test.js`, all given the repo's CRLF endings. Changed on
+the way in:
+- **The board's drawing moved to `src/ui/dbboard.js`** (as Laser Lab's
+  `llboard.js`), so the home page's button can draw the setup screen's
+  3 × 3 picture. Its colours are now inline styles from the site's
+  colour variables (`site.css`, on every page), not classes in the
+  game's sheet, which the home page doesn't load; `dots-boxes.css` keeps
+  only the moving parts (the faint line, the blink, the pop, the
+  wiggle). The setup picture's line no longer blinks (v1-v2 blinked it
+  4 times on the setup screen, a leftover).
+- **Joined to the site:** `GAME_PAGES` (`src/core/resume.js`: one game
+  kept at a time), the home page's button in 👥 Two players after Nim
+  (`index.html`, `.pic.db` in `site.css`); stats come by themselves
+  (`#playBtn`, `#againBtn`).
+- **Tests:** the 10 Dots and Boxes tests; `pages.test.js` (the game in
+  the page list and in 👥 Two players); `sound.test.js` (its sounds:
+  tick, ding, ping, and the end-of-round one; 31 sounds checked, was
+  28); `resume-games.test.js` (a 7×7 match against Hard comes back from
+  JSON and plays on the same). The suite: 394 of 394.
+
+**Checked** in the built-in browser on `tools/serve.js` (8123), 393 ×
+760: the home page's button with its picture (no sideways scroll);
+opened from it, the setup's picture and the two sizes' dots (36 and 64);
+against the robot, my line drawn with no blink, the robot's line drawn
+and blinking ("Teddy's turn" back), 63 px boxes, the page 760 of 760;
+two players: a box closed by player 2 filled light blue
+(`rgb(216, 235, 249)`, `--p2-soft`) with Ping's face, "Another turn!",
+no line blinking. No console errors, no errors in the log. Not checked:
+a finger on a touch screen, sound by ear.
+
+**Release 4.0 prepared** (a new game): `src/core/release.js` 4.0,
+`node tools/offline.js` (version 86665e534113, 100 files), its notes in
+`RELEASES.md`; `node tools/release.js`: "Release 4.0 is ready: version
+86665e534113; tag v4.0 not made yet."
+
+**Status:** Dots and Boxes built and ready to publish as 4.0, waiting
+for the developer's OK.
+
+**Next:**
+1. Publish 4.0 with the developer's OK (merge `dots-boxes` into `main`,
+   tag, GitHub release, stop the local server).
+2. **On the phone:** a finger between two dots draws the right line;
+   the faint line under a finger held down (keep it, or draw at once?);
+   the robot's pace; Easy and Hard against the grandkids.
+3. **Q32**, **Q34**, **Q35**, **Q36** open (Laser Lab parked).

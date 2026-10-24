@@ -13,6 +13,7 @@ import * as count from '../src/core/count-to-9.js';
 import * as snl from '../src/core/snakes-ladders.js';
 import * as dice from '../src/core/five-dice.js';
 import * as nim from '../src/core/nim.js';
+import * as db from '../src/core/dots-boxes.js';
 import * as rps from '../src/core/rock-paper-scissors.js';
 import * as fm from '../src/core/follow-me.js';
 
@@ -46,6 +47,9 @@ test('resume: every game\'s match comes back from JSON and plays on the same', (
     m => [dice.endTurn(m), dice.roll(m, mulberry32(8))]);
   check('nim', nim.createMatch({ vsRobot: true, ...faces, firstRule: 'alt', level: 'hard' }),
     m => { nim.take(m, 2, [0, 1]); }, m => nim.take(m, 0, [2]));
+  check('dots and boxes', db.createMatch({ vsRobot: true, ...faces, firstRule: 'alt', level: 'hard', size: 7 }),
+    m => { for (const l of [{ k: 'h', r: 0, c: 0 }, { k: 'v', r: 0, c: 0 }, { k: 'h', r: 1, c: 0 }]) db.draw(m, l); },
+    m => [db.draw(m, { k: 'v', r: 0, c: 1 }), db.robotMove(m.board, m.level, mulberry32(13))]);
   check('rock paper scissors', rps.createMatch({ p1: 'bear' }),
     m => { rps.newRound(m, mulberry32(9)); rps.unlock(m); rps.choose(m, 'rock'); rps.newRound(m, mulberry32(10)); rps.unlock(m); },
     m => rps.choose(m, 'paper'));

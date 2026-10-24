@@ -1,0 +1,65 @@
+/* Dots and Boxes screens. The setup screen, turn line, scorecards and
+   buttons are the other games' (game.css; the two scorecards as in
+   matching cards). The board is drawn in SVG, in boxes: the dots, the
+   lines drawn in each player's colour, faint dashes where a line can go,
+   and each box won filled with its owner's colour and face. */
+
+/* --cell is one box's size. src/ui/dots-boxes.js sets it on the play
+   screen from a fitted size, so the whole page fits the screen with no
+   scrolling; --span is the board in boxes, margin included. */
+:root { --cell: 56px; --span: 5.7; --cheer-scale: 1.4; }
+
+/* setup: the rules beside a small finished corner */
+.intro { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px; }
+.mini svg { width: 104px; height: 104px; display: block; }
+.rules { font-size: 16px; line-height: 1.4; margin: 0; }
+.rules b { white-space: nowrap; }
+.dots svg { width: 46px; height: 46px; display: block; margin-bottom: 2px; }
+
+/* play screen */
+#play { gap: 12px; }
+.boardwrap { display: grid; justify-items: center; }
+.board {
+  width: calc(var(--cell) * var(--span)); height: calc(var(--cell) * var(--span)); display: block;
+  background: var(--card); border-radius: 18px; box-shadow: 0 4px 0 var(--line);
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+/* Only the board itself takes touches: its inside is redrawn on every
+   line, and a touch's end must reach something still there (DESIGN.md
+   "No zooming in"). */
+.board * { pointer-events: none; }
+
+/* The board's colours are inline (src/ui/dbboard.js), so the home page's
+   picture needs no game sheet; here only the moving parts. The line under
+   a finger (or the robot's, just before it's drawn) is faint. */
+.ln.pv { opacity: .4; }
+/* The robot's last line blinks a few times, so it's easy to see (a
+   person's own line is just drawn). */
+.ln.last { animation: blink .45s ease-in-out 4; }
+@keyframes blink { 50% { opacity: .2; } }
+/* A box just won: its face pops in. At the end the winner's boxes smile
+   and wiggle. */
+.fc { transform-box: fill-box; transform-origin: center; }
+.fc.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
+.fc.win { animation: wiggle .9s ease-in-out .3s 3; }
+@keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* scorecard 1: boxes this game, the dark strip (as matching cards') */
+.sc {
+  background: var(--ink); color: var(--board-ink); border-radius: 18px; padding: 6px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 4px;
+}
+.sc .side { gap: 8px; }
+.sc .side .chip { width: 56px; height: 56px; flex: none; }
+.sc .side .n { font-size: 30px; }
+.mid { display: grid; justify-items: center; font-size: 11px; opacity: .8; text-align: center; line-height: 1.2; }
+
+/* scorecard 2: games won, light and smaller */
+.sc2 {
+  background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 6px 10px;
+  display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 15px; font-weight: 700; flex-wrap: wrap;
+}
+.sc2 .lbl { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; line-height: 1.15; text-align: center; }
+.sc2 .chip { width: 30px; height: 30px; display: block; }
+.sc2 .w { display: flex; align-items: center; gap: 5px; font-variant-numeric: tabular-nums; }
+.controls { margin-top: 4px; }

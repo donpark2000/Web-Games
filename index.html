@@ -48,6 +48,10 @@
         <span class="pic nim" id="nimPic" aria-hidden="true"></span>
         Nim
       </a>
+      <a class="game" id="dbLink" href="dots-boxes.html">
+        <span class="pic db" id="dbPic" aria-hidden="true"></span>
+        Dots and Boxes
+      </a>
     </div>
   </section>
   <section class="group" id="oneGroup" aria-labelledby="oneTitle">
@@ -98,6 +102,7 @@
   import { miniBoard as csMini } from './src/ui/csboard.js';
   import { DEMO as LL_DEMO } from './src/core/laser-lab.js';
   import { miniSvg as llMini } from './src/ui/llboard.js';
+  import { miniSvg as dbMini } from './src/ui/dbboard.js';
   import { log, startLog } from './src/ui/debuglog.js';
   import { homePage } from './src/ui/resume.js';
   import { logScrollRoom } from './src/ui/scrolllog.js';
@@ -143,6 +148,9 @@
   // bear's colour) from the last row.
   document.getElementById('nimPic').innerHTML = [3, 5, 7].map((n, r) => '<span class="nrow">'
     + Array.from({ length: n }, (_, i) => `<span class="${r === 2 && i >= 5 ? 'o1' : ''}">${MATCH_SVG}</span>`).join('') + '</span>').join('');
+  // Dots and Boxes: a corner of a game under way, a box each for the bear
+  // and the robot (the setup screen's picture).
+  document.getElementById('dbPic').innerHTML = dbMini(['bear', 'robot'], 'dbmini');
   // Follow Me: the four pads, the frog lit up.
   document.getElementById('fmPic').innerHTML = padsFor(4, 'bear').map((p, i) =>
     `<span class="${i === 0 ? 'lit' : ''}" style="${padStyle(p.color)}">${svg(p.face, i === 0 ? 'winner' : 'normal')}</span>`).join('');

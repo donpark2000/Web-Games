@@ -157,6 +157,8 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 .game .pic.cs .csmini span { border-radius: 0; aspect-ratio: auto; padding: 0; }
 /* Laser Lab: a small solved board with its laser, one picture with its
    own colours (src/ui/llboard.js), also the setup screen's rules picture. */
+.game .pic.db { display: block; width: 150px; }
+.game .pic.db .dbmini { display: block; width: 100%; height: auto; }
 .game .pic.ll { display: block; width: 150px; }
 .game .pic.ll .llmini { display: block; width: 100%; height: auto; }
 

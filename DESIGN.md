@@ -5,8 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-10-24, latest): **Dots and Boxes**, a new game for the kids (two
-players, or against the robot), its rules agreed and in mockup v1 (see
-"Dots and Boxes"), not built yet. 2026-10-23: Laser Lab boosters (bombs
+players, or against the robot), agreed from mockups v1-v2 and built
+(see "Dots and Boxes"), release 4.0 prepared. 2026-10-23: Laser Lab boosters (bombs
 that point; releases 3.9-3.10) and a fresh start after the home page, a
 restart or a new version (3.11), published. Earlier: Laser Lab: a gem pops big at once as
 its beam lights it, and only once (release 3.8, published). Earlier: a tap with the other piece
@@ -63,6 +63,8 @@ page. So far:
 - **Snakes and Ladders** (roll the die, climb ladders, slide down snakes)
 - **Five Dice** (Yahtzee-style: roll five dice up to 3 times, fill the boxes)
 - **Nim** (take matches from one row; whoever takes the last one wins)
+- **Dots and Boxes** (2026-10-24; draw lines between dots, close a box
+  to win it and go again)
 - **Rock paper scissors** (against the robot)
 - **Follow Me** (repeat the robot's order of faces, Simon-style)
 
@@ -105,7 +107,8 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   is just another button. **Grouped by who can play** (developer,
   2026-10-04): **👥 Two players** first (a game with a two-player choice,
   the second player a person or the robot: tic-tac-toe, matching cards,
-  Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim), then **👤 One player** (no way to play
+  Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim, Dots and
+  Boxes), then **👤 One player** (no way to play
   another person: rock paper scissors, Follow Me), then **🧩 Puzzles for
   grown-ups** (Find the Stars, Colour Sudoku, Laser Lab; developer, 2026-10-13: one
   site, kept apart). Each game in one group only; a
@@ -474,8 +477,11 @@ The developer's game, agreed 2026-10-08 from mockup v1 (journal):
 The developer's game, agreed 2026-10-24 (journal, "Dots and Boxes: the
 rules agreed; mockup v1"):
 [Dots and Boxes Mockup](https://claude.ai/artifact/33uKDtf4RKA7pcEdVxkiya)
-(private Claude artifact, version 1). **Not built yet**: to play in the
-mockup first.
+(private Claude artifact, version 2). **Built 2026-10-24** from the
+mockup's own files (release 4.0), so the developer can try it with a
+finger on the phone. Files and storage: `dots-boxes` (`dots-boxes.html`,
+`src/core/dots-boxes.js`, the board's drawing `src/ui/dbboard.js`,
+shared with the home page's button).
 
 - **In 👥 Two players**: **Me and the robot** or **Two players**, face
   pickers, as Nim.
@@ -506,14 +512,17 @@ mockup first.
   held down stays, to judge on a touch screen (only seen with a finger:
   a mouse click draws at once).
 
-Claude's choices in the mockup, to be judged in it: lines in the
+Claude's choices in the mockup, to be judged on the phone: lines in the
 player's colour (orange / blue), faint dashes where a line can go; a won box fills with the owner's light colour and
 its face pops in, with a ding; the turn line says **"Another turn!"**;
 the robot thinks 0.8 s (0.6 s when it goes again), shows its line
 faintly, then draws it; the end: "<face> wins!", the winner's boxes
 smile and wiggle, the scorecard cheer and "aww" face; Play again / New
 game; the board as big as fits with no scrolling (63 px boxes at 5×5 and
-46 px at 7×7 on a 393 × 760 phone).
+46 px at 7×7 on a 393 × 760 phone; at least 30 px, below which the page
+scrolls); the home page's button a 3 × 3 corner of a game under way (the
+setup screen's picture). Sounds: a tick per line, a ding per box, a ping
+when the turn comes back from the robot, and the end-of-round sound.
 
 ### Rock paper scissors
 

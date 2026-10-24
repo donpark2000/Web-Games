@@ -166,6 +166,8 @@ const GAME_SOUNDS = {
   'snakes-ladders': ['shake', 'tick', 'climb', 'wheee', 'ping'],
   'five-dice': ['shake', 'tick', 'thud', 'ping'],
   nim: ['tick', 'uhoh', 'thud', 'ping'],
+  // A tick per line, a ding per box won (2026-10-24, the mockup's).
+  'dots-boxes': ['tick', 'ding', 'ping'],
   'rock-paper-scissors': ['tick', 'swish', 'tie', 'ding', 'uhoh'],
   // Not the ping after the robot (developer, Follow Me mockup v1): the
   // robot's notes are the order to count. Each pad's note is sound.note().
@@ -188,7 +190,7 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 28);
+  assert.equal(checked, 31);
 });
 
 // 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (developer, 2026-10-09; was
