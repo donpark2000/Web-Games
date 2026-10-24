@@ -10160,3 +10160,41 @@ for the developer's OK.
    the faint line under a finger held down (keep it, or draw at once?);
    the robot's pace; Easy and Hard against the grandkids.
 3. **Q32**, **Q34**, **Q35**, **Q36** open (Laser Lab parked).
+
+## 2026-10-24: Release 4.0 published (Dots and Boxes); status (start here next session)
+
+**Developer:** "Publish 4.0." **Checked first:** `dots-boxes` level with
+GitHub at 5515ec8, `origin/main` (fd3cbb9) its ancestor; `npm test` 394
+passed; `node tools/release.js`: "Release 4.0 is ready", version
+86665e534113. **Published:** `main` fast-forwarded fd3cbb9..5515ec8
+(`git push origin dots-boxes:main`), tag `v4.0`,
+[GitHub release 4.0](https://github.com/donpark2000/Web-Games/releases/tag/v4.0)
+(listed as Latest above 3.11). Live about 45 s after the push
+(`version.js` 86665e534113, `sw.js` RELEASE 4.0, `dots-boxes.html` 200).
+
+**3.11 → 4.0 seen in the built-in browser** (it had 3.11 saved from
+2026-10-23): the home page opened showing "Version 3.11 · Oct 23, 2026 ·
+268c25", and by itself, one open, became "Version 4.0 · Oct 24, 2026 ·
+86665e" with the Dots and Boxes button. The log: at +6.2 s "a new
+version took over", "reloading the home page for the new version" (from
+268c25be2a2d to 86665e534113); after the reload, "opened in the browser"
+with release 4.0, and "checked for a new version" at +2.06 s. So 3.11's
+reload works from one release to the next, in the browser; Q40 was
+closed on the developer's word, and this is the first log of it.
+
+**Local servers:** the preview on 8123 stopped; no other `serve.js`
+running. (The scratch copy's on 8131 was stopped earlier.)
+
+**Status:** 4.0 live: Dots and Boxes in 👥 Two players. Nothing waiting
+on this branch.
+
+**Next:**
+1. **The developer tries Dots and Boxes on the phone:** a finger between
+   two dots draws the line meant; the faint line under a finger held
+   down (keep, or draw at once?); the sounds; the robot's pace; Easy and
+   Hard with the grandkids.
+2. **Q32**, **Q34** (a session on Sonnet 5.5), **Q35**, **Q36** open
+   (Laser Lab parked).
+3. The scratch copy (`dab/` in this session's scratchpad) isn't needed
+   any more: the game is in the repo, and the mockup's files are in its
+   artifact.
