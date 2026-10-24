@@ -207,14 +207,36 @@ test('dots and boxes: the robot', () => {
   assert.equal(hard.reason, 'least');
   assert.equal(hard.gives, Math.min(...freeLines(rows).map(l => givesAway(rows, l))));
   assert.equal(hard.gives, 5, 'each row is a run of 5');
-  // Easy, with a box to take and a fixed random source: takes it when
-  // rand < easyTake, otherwise not always.
-  assert.equal(robotMove(b, 'easy', () => 0.1).reason, 'take');
-  assert.equal(robotMove(b, 'easy', () => 0.95).reason, 'careless');
+  // Easy takes a box whenever it can too, whatever the random source says
+  // (4.2; until then 1 time in 5 it left it).
+  for (const r of [0, 0.5, 0.8, 0.95, 0.999]) assert.deepEqual(robotMove(b, 'easy', () => r), { line: V(0, 1), reason: 'take' });
+  for (let s = 0; s < 50; s++) assert.equal(robotMove(b, 'easy', seeded(s)).reason, 'take');
+  // With no box to take, Easy is sometimes safe and sometimes careless.
   const reasons = new Set();
-  for (let s = 0; s < 200; s++) reasons.add(robotMove(b, 'easy', seeded(s)).reason);
-  assert.deepEqual([...reasons].sort(), ['careless', 'safe', 'take']);
+  for (let s = 0; s < 200; s++) reasons.add(robotMove(open, 'easy', seeded(s)).reason);
+  assert.deepEqual([...reasons].sort(), ['careless', 'safe']);
   assert.throws(() => robotMove(put(freshBoard(5), freeLines(freshBoard(5))), 'easy'), /no lines left/);
+});
+
+test('dots and boxes: Easy takes every box on offer in one turn', () => {
+  // A run of three boxes along the top, opened at its left end: Easy
+  // takes all three, one after another, then draws a line that closes
+  // nothing and the turn passes.
+  for (let s = 0; s < 30; s++) {
+    const m = twoMatch({ size: 5 });
+    put(m.board, [H(0, 0), H(0, 1), H(0, 2), H(1, 0), H(1, 1), H(1, 2), V(0, 0)]);
+    m.turn = 2;
+    const rand = seeded(s);
+    const reasons = [];
+    while (m.turn === 2 && !m.result) {
+      const pick = robotMove(m.board, 'easy', rand);
+      reasons.push(pick.reason);
+      assert.ok(draw(m, pick.line).ok);
+    }
+    assert.deepEqual(reasons.slice(0, 3), ['take', 'take', 'take'], `seed ${s}`);
+    assert.equal(boxCounts(m.board)[2], 3, `seed ${s}`);
+    assert.equal(closingLines(m.board).length, 0, `seed ${s}: no box left on offer`);
+  }
 });
 
 test('dots and boxes: Hard beats Easy most of the time, and both finish every game', () => {

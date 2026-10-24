@@ -10283,3 +10283,61 @@ change by itself within 9 s of opening.
    (Laser Lab parked).
 3. The session that built Dots and Boxes was long: start the next one
    fresh from this entry.
+
+## 2026-10-24: 4.1 on the phone; release 4.2 (Easy takes every box)
+
+**Developer**, after 4.1: "The glow for the robots last move helps a
+lot." And: "Sometimes the robot does not make all the boxes he can, but
+that can make the other players job harder if he finishes the boxes the
+robot did not, and then has to give up a new line what can give the
+robot even more boxes. ... I'm not sure the kids would appreciate it.
+So maybe robot should finish all available boxes he can on his turn."
+
+**Why:** Easy took a box it could only 80% of the time
+(`ROBOT_TUNING.easyTake` 0.8); the rest it drew a safe or any line,
+leaving the box. Late in a round every new line gives boxes away, so
+taking the leftover box makes the taker open the next run: by accident,
+the experts' trick of declining boxes to keep control.
+
+**Measured** (a scratchpad script, not kept: Easy against a stand-in
+person playing like Hard, 2000 games per row, robot first in half):
+
+| | robot's boxes (avg) | robot wins | games with a box left |
+|---|---|---|---|
+| 5×5, easyTake 0.8 | 4.55 of 25 | 0.7% | 70% (1.02 per game) |
+| 5×5, always takes | 6.66 of 25 | 6.3% | 0 |
+| 7×7, easyTake 0.8 | 7.26 of 49 | 0.0% | 87% (1.66 per game) |
+| 7×7, always takes | 11.26 of 49 | 1.3% | 0 |
+
+So on average a box left was a gift to the person, not a trap; the case
+the developer saw is real but rarer. Easy stays easy through its
+careless lines (`easySafe` 0.7). The stand-in plays far better than a
+child, so Easy will feel a little stronger to the kids; if too strong,
+lower `easySafe`, not box-skipping. Developer: "Build and publish 4.2."
+
+**The developer's question:** who wins with perfect play? Not known for
+5×5 or 7×7: the largest solved board is 4×5 boxes, a tie (Barker and
+Korf, AAAI 2011/2012). On odd-sided boards the first player wants an
+even number of long chains, the second an odd number (the long chain
+rule); a single long chain on 5×5 usually favours the second player
+(Julian West). Neither robot knows the rule.
+
+**Built:** `robotMove` (`src/core/dots-boxes.js`): both levels take a
+box when they can, before anything else; `easyTake` gone
+(`ROBOT_TUNING` is `{ easySafe: 0.7 }`). Logged as before: each robot
+line with its reason ("robot chose").
+
+**Tests:** "the robot": Easy takes the box for random values 0 to 0.999
+and 50 seeds; with no box to take, both safe and careless appear.
+New, "Easy takes every box on offer in one turn": a run of three opened
+at one end, 30 seeds: take, take, take, then no box left on offer.
+Shown able to fail: with the old `robotMove` both failed ("careless"
+for 0.95; seed 1: take, take, safe). Suite 397 of 397.
+
+**Checked** on `tools/serve.js` (8123), against Easy: drew three sides
+of the top-left box; the robot took it ("robot chose ... reason take,
+level easy"), drew again, both lines banded. No console errors.
+
+**Release 4.2 prepared:** `src/core/release.js` 4.2, `node
+tools/offline.js` (version 4d5c726fdbc5, 100 files), notes in
+`RELEASES.md`; `node tools/release.js`: "Release 4.2 is ready".

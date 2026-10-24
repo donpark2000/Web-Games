@@ -4,8 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-24, latest): Dots and Boxes: the robot's latest turn stays
-marked until the person draws (release 4.1 prepared). Earlier the same
+*Status (2026-10-24, latest): Dots and Boxes: the Easy robot always
+takes every box it can (release 4.2). Earlier: the robot's latest turn stays
+marked until the person draws (release 4.1, published). Earlier the same
 day: **Dots and Boxes**, a new game for the kids (two players, or
 against the robot), agreed from mockups v1-v2, built and published
 (release 4.0; see "Dots and Boxes"). 2026-10-23: Laser Lab boosters (bombs
@@ -501,9 +502,12 @@ shared with the home page's button).
   is down it shows faintly and follows the finger; drawn when it lifts.
   No confirm, no Undo.
 - **The robot** (Claude's suggestion, agreed): **⭐ Easy / ⭐⭐⭐ Hard**, as
-  in Nim. Easy usually takes a box it can and sometimes draws a box's
-  third side; Hard always takes a box, never gives one away while it has
-  a safe line, and then gives away the fewest. No "leave the last two"
+  in Nim. **Both always take every box they can** (developer, after
+  4.1: Easy left a box 1 time in 5, and the person who took it then had
+  to open a new run for the robot, a trick the kids wouldn't see;
+  release 4.2). Easy sometimes draws a box's third side; Hard never
+  gives a box away while it has a safe line, and then gives away the
+  fewest. No "leave the last two"
   trick (to add if Hard is too easy).
 - **Who goes first?** the usual three (agreed).
 - **The robot's line is shown first, then blinks** (developer, after

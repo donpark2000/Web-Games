@@ -27,9 +27,10 @@ export { FACE_NAMES, ROBOT, FIRST_RULES, nextStarter };
 export const SIZES = [5, 7];
 export const LEVELS = ['easy', 'hard'];
 
-// How often the Easy robot takes a box it could, and draws a line that
-// gives none away when it could (the rest of the time, any line).
-export const ROBOT_TUNING = { easyTake: 0.8, easySafe: 0.7 };
+// How often the Easy robot draws a line that gives no box away when it
+// could (the rest of the time, any line). It always takes a box it can
+// (release 4.2; until then 80% of the time: see robotMove).
+export const ROBOT_TUNING = { easySafe: 0.7 };
 
 const grid = (rows, cols) => Array.from({ length: rows }, () => Array(cols).fill(0));
 
@@ -219,11 +220,16 @@ export function givesAway(board, line) {
 // fixed one so they're repeatable. Returns { line, reason } (reason for
 // the debug log):
 //
-// Easy: usually ('easyTake') takes a box it can ('take'); otherwise
-// usually ('easySafe') draws a line that gives no box away ('safe'), and
-// the rest of the time any line ('careless'), which can hand a box over.
+// Both levels always take a box they can ('take'), so a turn takes every
+// box on offer (developer, 2026-10-24, after 4.1: Easy left boxes 1 time
+// in 5, and the person who took them then had to open a new run for the
+// robot, a trick the kids can't see; 4.2).
 //
-// Hard: always takes a box it can; otherwise gives none away while it
+// Easy: otherwise usually ('easySafe') draws a line that gives no box
+// away ('safe'), and the rest of the time any line ('careless'), which
+// can hand a box over.
+//
+// Hard: otherwise gives none away while it
 // can; when every line gives some away, the line that gives the fewest
 // ('least'). It doesn't know the experts' trick of leaving the last two
 // boxes of a run to win the rest (developer, 2026-10-24: Claude's
@@ -233,14 +239,13 @@ export function robotMove(board, level = 'easy', rand = Math.random, tuning = RO
   if (!all.length) throw new Error('robotMove: no lines left');
   const closing = closingLines(board);
   const safe = safeLines(board);
+  if (closing.length) return { line: anyOf(closing, rand), reason: 'take' };
   if (level === 'hard') {
-    if (closing.length) return { line: anyOf(closing, rand), reason: 'take' };
     if (safe.length) return { line: anyOf(safe, rand), reason: 'safe' };
     const cost = all.map(l => givesAway(board, l));
     const least = Math.min(...cost);
     return { line: anyOf(all.filter((_, i) => cost[i] === least), rand), reason: 'least', gives: least };
   }
-  if (closing.length && rand() < tuning.easyTake) return { line: anyOf(closing, rand), reason: 'take' };
   if (safe.length && rand() < tuning.easySafe) return { line: anyOf(safe, rand), reason: 'safe' };
   return { line: anyOf(all, rand), reason: 'careless' };
 }

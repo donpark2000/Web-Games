@@ -7,6 +7,15 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 4.2 (2026-10-24, version 4d5c726fdbc5)
+
+Dots and Boxes:
+
+- **The Easy robot takes every box it can.** Before, it sometimes left
+  a box it could have closed; taking it then often meant having to
+  open a new run of boxes for the robot. Easy still makes careless
+  moves that give boxes away.
+
 ## 4.1 (2026-10-24, version acc369c8d300)
 
 Dots and Boxes:
