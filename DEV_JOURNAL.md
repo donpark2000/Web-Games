@@ -9959,3 +9959,32 @@ closed, on wifi: within a few seconds the home page should reload to
 should). The log (Copy on log.html) then says which check found the
 new version (the browser's own before "registered", or ours after
 "checked for a new version").
+
+
+## 2026-10-23: Release 3.11 published; status (start here next session)
+
+**Developer:** "Publish 3.11." **Checked first:** `light-puzzle` level
+with GitHub at fd3cbb9; `npm test` 384 passed; `node tools/release.js`:
+"Release 3.11 is ready", version 268c25be2a2d. **Published:** `main`
+fast-forwarded 998bd4e..fd3cbb9, tag `v3.11`,
+[GitHub release 3.11](https://github.com/donpark2000/Web-Games/releases/tag/v3.11)
+(listed as Latest above 3.10); live within 10 s of the first look
+(`version.js` 268c25be2a2d, `sw.js` RELEASE 3.11). In the built-in
+browser, which had no copy of the live site: "Version 3.11 · Oct 23,
+2026 · 268c25", saved for offline (95 files) at 4.9 s. The update from
+3.10 to 3.11 couldn't be watched there (nothing saved before): that is
+Q40, on the phone. Local servers stopped (the preview on 8123, the
+scratch copy's on 8124); no serve.js left.
+
+**Status:** 3.11 live: the home page, a restart and a new version
+clear the game under way (Laser Lab: the same puzzle, clean); the home
+page reloads itself for a new version and asks for a check.
+
+**Next:**
+1. **Q40 on the iPhone:** open the fully closed app on wifi twice (the
+   first open is 3.10's page, which has no reload); 3.11 should show.
+   From the next release on, one open should do, a few seconds after it
+   opens. The log on `log.html` tells which check found it.
+2. The developer plays Laser Lab 3.10/3.11: boosters, and the clean
+   start after the home page.
+3. **Q32**, **Q34**, **Q35**, **Q36**, **Q40** open.
