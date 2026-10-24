@@ -10341,3 +10341,26 @@ level easy"), drew again, both lines banded. No console errors.
 **Release 4.2 prepared:** `src/core/release.js` 4.2, `node
 tools/offline.js` (version 4d5c726fdbc5, 100 files), notes in
 `RELEASES.md`; `node tools/release.js`: "Release 4.2 is ready".
+
+## 2026-10-24: Release 4.2 published; status (start here next session)
+
+**Developer:** "Build and publish 4.2." **Published:** `origin/main`
+(a735abc) an ancestor of `dots-boxes`; `main` fast-forwarded
+a735abc..95e6c9f, tag `v4.2`,
+[GitHub release 4.2](https://github.com/donpark2000/Web-Games/releases/tag/v4.2)
+(Latest). Live at the first look, about 1 minute after the push
+(`version.js` 4d5c726fdbc5, `sw.js` RELEASE 4.2, no `easyTake` in the
+live `src/core/dots-boxes.js`).
+
+**Local servers:** the preview on 8123 stopped; no other `serve.js`
+running.
+
+**Status:** 4.2 live. Nothing waiting on `dots-boxes`.
+
+**Next:**
+1. The developer plays 4.2 on the phone: does Easy still feel easy for
+   the kids now that it takes every box? (If too strong: lower
+   `easySafe`.) Still open from 4.0: the faint line under a finger held
+   down, the robot's pace, Easy and Hard with the grandkids.
+2. **Q32**, **Q34** (a session on Sonnet 5.5), **Q35**, **Q36** open
+   (Laser Lab parked).
