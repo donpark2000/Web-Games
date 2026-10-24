@@ -10097,12 +10097,12 @@ line no longer blinks. (In v1 every last line blinked, the person's
 too; the faint line under a finger held down can't be seen with a mouse
 click, which draws at once, so it stays, to judge with a finger.)
 
-**Changed** (scratch copy,  ): the
+**Changed** (scratch copy, `src/ui/dots-boxes.js` `renderBoard`): the
 last line blinks only when the robot drew it. Mockup version 2 (the
-same link). **Checked** in the built-in browser: after a person's line
-no line blinks ( 0); after the robot's, its line blinks
-(); no errors. Two players: neither line blinks (each
-player watched the other draw).
+same link). **Checked** in the built-in browser, against the robot:
+after a person's line no line blinks (`.ln.last` 0); after the robot's,
+its line blinks (`ln p2 last`); no errors. Two players: by the code,
+neither line blinks (each player watched the other draw); not tried.
 
 **Touch:** the mockup can't be tried on a phone; the way to try touch
 is to build it into the site and publish (as with Laser Lab 3.0).
