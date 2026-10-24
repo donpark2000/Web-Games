@@ -9824,3 +9824,29 @@ the page's text.
 
 Release 3.10 ready again with the words (version 9492cb48b18f, 95 files;
 `node tools/release.js`: ready); `npm test` 377 passed.
+
+## 2026-10-23: Release 3.10 published; status (start here next session)
+
+**Developer:** "Publish 3.10." **Checked first:** `light-puzzle` level
+with GitHub at 998bd4e; `npm test` 377 passed; `node tools/release.js`:
+"Release 3.10 is ready", version 9492cb48b18f. **Published:** `main`
+fast-forwarded to 998bd4e, tag `v3.10`,
+[GitHub release 3.10](https://github.com/donpark2000/Web-Games/releases/tag/v3.10)
+(listed as Latest above 3.9); live within about 30 s (`version.js`
+9492cb48b18f; the live laser-lab.html says "Boosters"). Local server
+stopped (the built-in browser's preview on 8123); no serve.js left. No
+test folder outside the repo (scratch copies only).
+
+**Status:** Laser Lab 3.10 live: boosters (directional bombs renamed),
+drawn as a funnel, in about 2 of 3 puzzles (not 8×8 with two lasers);
+with two lasers every booster puzzle needs one order. Q37, Q38, Q39
+closed; Q36 (two-colour booster) parked.
+
+**Next:**
+1. The developer plays 3.10 on the phone: the funnel at 40 px, 2 in 3,
+   the words; 7×7 and 8×8 booster puzzles not played here.
+2. Boosters at 8×8 with two lasers: not made (30 minutes a puzzle
+   without them); only if wanted.
+3. **Q32**, **Q34** (a session on Sonnet 5.5), **Q35**, **Q36** stay
+   open.
+4. This session is long: start the next one fresh from this entry.
