@@ -10248,3 +10248,38 @@ band looks on the phone's screen.
 **Release 4.1 prepared:** `src/core/release.js` 4.1, `node
 tools/offline.js` (version acc369c8d300, 100 files), notes in
 `RELEASES.md`.
+
+## 2026-10-24: Release 4.1 published; status (start here next session)
+
+**Developer:** "Publish 4.1." **Checked first:** `dots-boxes` level with
+GitHub at a735abc, `origin/main` (5515ec8) its ancestor; `npm test` 396
+passed; `node tools/release.js`: "Release 4.1 is ready", version
+acc369c8d300. **Published:** `main` fast-forwarded 5515ec8..a735abc,
+tag `v4.1`,
+[GitHub release 4.1](https://github.com/donpark2000/Web-Games/releases/tag/v4.1)
+(Latest above 4.0). Live about 45 s after the push (`version.js`
+acc369c8d300, `sw.js` RELEASE 4.1, the glow in `src/ui/dbboard.js`).
+
+**4.0 → 4.1 in the built-in browser:** the home page opened showing
+"Version 4.0 · Oct 24, 2026 · 86665e"; 9 s later it showed "Version 4.1
+· Oct 24, 2026 · acc369", and the log has "reloading the home page for
+the new version" (86665e534113 to acc369c8d300), then "opened in the
+browser" with release 4.1. That reload line is stamped +1150 s, not a
+few seconds: its clock seems to be an older page's (perhaps the home
+page left open since the 4.0 check), not explained; the version did
+change by itself within 9 s of opening.
+
+**Local servers:** the preview on 8123 stopped; no `serve.js` running.
+
+**Status:** 4.1 live. Nothing waiting on `dots-boxes`.
+
+**Next:**
+1. The developer tries 4.1 on the phone: is the robot's band easy to
+   see, and not too strong (its strength is one number, `opacity:.3` in
+   `src/ui/dbboard.js`)? Also still open from 4.0: the faint line under a
+   finger held down, the robot's pace, Easy and Hard with the
+   grandkids.
+2. **Q32**, **Q34** (a session on Sonnet 5.5), **Q35**, **Q36** open
+   (Laser Lab parked).
+3. The session that built Dots and Boxes was long: start the next one
+   fresh from this entry.
