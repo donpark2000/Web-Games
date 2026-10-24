@@ -10364,3 +10364,96 @@ running.
    down, the robot's pace, Easy and Hard with the grandkids.
 2. **Q32**, **Q34** (a session on Sonnet 5.5), **Q35**, **Q36** open
    (Laser Lab parked).
+
+## 2026-10-24: The next game: not physics; Bridges (Hashi) mockup v1
+
+**Developer**, after 4.2: "Its good. I'm ready to leave that game for
+now." Laser Lab stays parked ("I'm OK with laser lab for now"). Then:
+"We had talked about another game involving moving a ball around" (idea
+A of "A physics-and-logic puzzle", 2026-10-21: a ball run on a grid).
+Claude's sketch (seen from the side, ramps, springs, flippers, several
+balls, a fixed set of parts with one answer). Developer: "Not sounding
+very interesting. Maybe the whole 'physics' idea is not a good one."
+So the physics idea is dropped.
+
+**Ideas offered** (developer: "The next game is for me"): Picture logic
+(Nonogram; Claude's first pick, but the pictures must be drawn),
+Bridges (Hashi), no-guess Minesweeper, Light Up (too like Find the
+Stars), Kakuro/Futoshiki (too like Colour Sudoku), a FreeCell-style
+solitaire, a word puzzle, Mahjong solitaire (too small on a phone).
+**Developer:** "Maybe a game like bridges would be good for both kids
+and adults."
+
+**Bridg-It, not this.** The developer remembered a childhood game with
+pegs of two colours and bridges, joining your two sides: that is
+Bridg-It (David Gale's game), a different game from Hashi. Claude: the
+first player can always win it with perfect play (a known pairing
+strategy). **Developer:** "I'm not wild about a game that guarantees
+first player wins." So Hashi: "tell me more or give me a mock up".
+
+**Mockup v1:** [Bridges Mockup](https://claude.ai/artifact/4YnTGtVUwRmwsYsSiAmB7W)
+(private Claude artifact, version 1): the page, the site's `site.css`
+and `game.css`, its own sheet and three modules, from a scratch copy
+(Claude's scratchpad, `bridges/site`). Nothing in the repo yet but
+this entry.
+- **Rules** (`src/core/bridges.js` in the copy, no DOM): islands with a
+  number; bridges straight across or down between islands that see each
+  other, at most two, never crossing; solved when every island has its
+  number and all are joined. A tap between two islands cycles that
+  bridge 0, 1, 2, 0 (the nearest within half a square, as Dots and
+  Boxes' lines); a drag from an island lays one toward the island that
+  way (shown faintly while dragging). A bridge that would cross another
+  is refused ("That bridge would cross another one.", the board shakes).
+  An island with its number turns yellow, one with too many pale red.
+  Every island right but not all joined says so. Undo, Clear, a clock.
+- **Sizes:** Small 5×5, 6 islands, numbers 1-4 shown **as dots** (the
+  kids); Medium 7×7, 12 islands; Large 10×10, 24 islands. 5 puzzles
+  each in the mockup.
+- **Hints** say why and take the step: a bridge not in the answer comes
+  off first; otherwise the next island whose bridges are forced, ringed,
+  its forced bridges drawn and blinking, with the reason: "The ringed
+  island needs 4. It can take at most 1 right (the 1 there has room for
+  only one more), 2 down, 2 up: 5 in all. So even with the most
+  everywhere else, it needs one down and one up." Limits named: a
+  bridge in the way, a neighbour with no more room, two islands that
+  would be cut off. Small's hint is one line ("Here is a bridge for the
+  ringed island.").
+- **The maker** (seeded): islands only where some rows meet some
+  columns (so they line up and see each other), none side by side, an
+  island on each edge, never two empty rows or columns together; a
+  random network of non-crossing bridges (a spanning tree, then a few
+  more), one or two each; kept only with exactly one answer (counted by
+  a solver) that the step-by-step reasoning above also reaches.
+  **Measured:** the first maker (islands grown from one another) made
+  near-trees, about 1.1 possible bridges per island at 7×7, too easy;
+  islands scattered at random were worse (10.8 lines of sight for 12
+  islands, too few to join them all, 300 of 300 seeds failed). Lined up:
+  1.25 per island at 7×7, about 1.42 at 10×10. Each seed takes under
+  15 ms; 5 kept per size from 382 (Small), 256 (Medium) and 2137
+  (Large) seeds. A first Large left three empty rows: hence the edge and
+  gap rules. **The checks shown able to fail:** four 3s in a square (two
+  answers) counted 2 and reasoning got stuck; four 4s (one answer)
+  counted 1 and solved.
+
+**Checked** in the built-in browser (the copy served on 8124 from a
+temporary `.claude/launch.json` entry, removed after), 393 × 760: setup
+fits; Small and Large play screens 760 of 760 (no scroll), the board
+361 px (36 px squares at 10×10); two hints on Small (2 then 1 bridges
+drawn, the ringed island); two taps on one bridge then 💡: "A bridge
+there isn't part of the answer, so one of the two came off."; Undo
+brought it back; tapping the answer solved it ("⭐ Solved in 0:36!",
+every island wiggling, the tools greyed). Large: a crossing refused
+with its words; a drag from an island showed the faint bridge and drew
+it; 7 hints with their reasons; a 5-line hint still no scroll. 320 ×
+568, Medium: no scroll, 31 px squares. No console errors. Not checked:
+the published artifact itself (the built-in browser isn't signed in to
+claude.ai), a real finger.
+
+**Claude's choices, to judge in the mockup:** islands plain (white,
+numbers), not faces; the sea-blue board with faint dots where islands
+could be; wooden bridges; yellow for an island done; the hint's words;
+the sizes and island counts; no hearts (a mistake shows itself).
+**Open:** where on the home page (one listing, or in both 👤 One player
+and 🧩 Puzzles for grown-ups), to decide once it's liked.
+
+**Next:** the developer plays mockup v1 in the app.
