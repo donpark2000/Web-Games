@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   trace, check, checkLamp, solveCheap, cheapest, answerMap, boardOf, encode, decode, makeCheap, makeOptions,
-  createGame, tapSquare, inOrder, workingOrder, stockPuzzle, orderMatters, FAILS,
+  createGame, tapSquare, inOrder, workingOrder, stockPuzzle, orderMatters, FAILS, missWords,
 } from '../src/core/laser-lab.js';
 
 const none = new Map();
@@ -176,4 +176,13 @@ test('bombs: a two-laser bomb puzzle that works in either order is not kept (3.1
   assert.equal(FAILS["the order doesn't matter"], before + 1, 'counted as why');
   const p = stockPuzzle('6-2', 62518407);
   assert.ok(p && p.bombs.length === 1 && orderMatters(p), 'red first: kept');
+});
+
+// 3.10: the player's word is "booster" (developer: "Call them boosters").
+test('bombs: a beam stopped at one says booster, and why', () => {
+  const p = { lamps: [{ side: 3, k: 2, c: 1 }, { side: 0, k: 1, c: 2 }] };
+  const res = why => ({ hits: new Set(), unlit: [0], wrong: [], blocked: [{ i: 5, why }] });
+  assert.equal(missWords(p, res('colour'), 1), "The blue beam isn't right: no blue on 1 💎, it stopped at the red booster. That cost 1 coin.");
+  assert.equal(missWords(p, res('side'), 0), "The red beam isn't right: no red on 1 💎, it reached a booster from the side, not through its open end. That cost 1 coin.");
+  assert.doesNotMatch(missWords(p, res('colour'), 0) + missWords(p, res('side'), 1), /bomb/);
 });

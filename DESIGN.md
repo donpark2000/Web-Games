@@ -1106,7 +1106,9 @@ As built (Claude's, not in the mockup):
   for a beam that's right, "uh-oh" for one that isn't (or breaks a
   laser), a ping for a hint, the sparkle when solved.
 
-**Directional bombs (3.9, from mockups v8-v9, 2026-10-23).** Agreed
+**Boosters (directional bombs until 3.10; 3.9, from mockups v8-v9,
+2026-10-23).** The player's word since 3.10 is **booster** (developer:
+"Call them boosters"; Q38), the code keeps `bombs`. Agreed
 with the developer (the name: "I think bomb is ok. Maybe 'directional
 bomb'"): placed by the puzzle, never bought; **in about 2 in 3
 puzzles** (3.10; developer, after playing 3.9's half: "Choosing the
@@ -1138,7 +1140,9 @@ when both beams use a piece; **a bomb puzzle only when the order
 matters** (3.10: one order works, the other doesn't; 3.9 had 10 of 50 at
 7×7 that worked either way). Colour mirrors parked, more lasers and placing
 them dropped (Q35); a two-colour bomb parked (Q36); an omnidirectional
-bomb not wanted (Q37: "Keep directional bombs only").
+bomb not wanted (Q37: "Keep directional bombs only"); a wrong-colour beam
+putting one out of action left out (Q39: "leave the wrong-colour rule
+out").
 
 ## Face names
 

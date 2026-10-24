@@ -24,6 +24,8 @@
 // { t: 'm' (mirror) | 's' (splitter), o: 0 ('/') | 1 ('\') }.
 //
 // Directional bombs (3.9, from mockups v8-v9; developer, 2026-10-23),
+// "boosters" in the words since 3.10 (developer: "Call them boosters";
+// the code keeps "bomb", as it keeps "lamp" for the laser),
 // placed by the puzzle, `bombs` [r, c, k, d]. A bomb points (d, a
 // direction) at the wall it brings down; a beam of its colour k (one
 // laser: its beam; two: red or blue) coming in from behind, going the way
@@ -814,8 +816,8 @@ export function missWords(p, res, li) {
   if (res.hits.size) bits.push(res.hits.size > 1 ? 'it broke both lasers' : res.hits.has(li) ? (two ? 'it shone back into its own laser' : 'the beam shone back into the laser') : `it broke the ${other} laser`);
   if (res.unlit.length) bits.push(two ? `no ${name} on ${res.unlit.length} 💎` : `${res.unlit.length} 💎 not lit`);
   if (res.wrong.length) bits.push(`${name} on ${res.wrong.length} ${other} 💎`);
-  if (res.blocked?.some(x => x.why === 'colour')) bits.push(`it stopped at the ${other} bomb`);
-  if (res.blocked?.some(x => x.why === 'side')) bits.push('it reached a bomb from the side, not from behind');
+  if (res.blocked?.some(x => x.why === 'colour')) bits.push(`it stopped at the ${other} booster`);
+  if (res.blocked?.some(x => x.why === 'side')) bits.push('it reached a booster from the side, not through its open end');
   return `${two ? `The ${name} beam isn't right` : 'Not yet'}: ${bits.join(', ')}. That cost ${coins(WRONG_LAMP)}.`;
 }
 export function rightWords(g, p, li) {

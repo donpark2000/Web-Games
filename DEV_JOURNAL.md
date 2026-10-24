@@ -62,25 +62,6 @@ time, each tried before publishing:
   Claude's view, not measured: little to gain for a new rule (see
   "v9 played: the mix; armour; two-colour bombs"). Parked unless the
   developer wants it tried.
-- **Q38. "Bomb", or a name that says direction?** (2026-10-23,
-  developer, before publishing 3.10: "calling them 'concentrators' or
-  'amplifiers' might reinforce the notion of direction and have a better
-  cognitive bond with the funnel shape.") Claude's view: for young
-  players a short everyday word; "concentrator" is long and abstract,
-  "amplifier" says louder rather than "brings a wall down"; suggested
-  "booster" (short, one way, fits the funnel; it burns out as the wall
-  comes down). Only the words change (rules line, messages, labels); the
-  code keeps `bombs` as it kept `lamp` for the laser. To decide.
-- **Q39. Should a wrong-colour beam put it out of action?** (2026-10-23,
-  developer: "it might be worth adding a rule that says the wrong color
-  laser renders it inoperable. I'm not sure if that complexity makes any
-  difference.") Measured on 3.10's stock (answer's pieces down, the other
-  colour switched on first): its beam reaches the bomb in 20 of 67
-  two-laser bomb puzzles at 6×6 and 25 of 67 at 7×7; in the rest it stops
-  at the wall the bomb would bring down. Claude's view: it adds a
-  penalty for guessing the order (already 1 coin), not something new to
-  work out, and only in about a third of the puzzles; it needs a mend
-  rule, a drawing and words. Suggested: leave it out. To decide.
 
 ## Proposed additions to the standards skill
 
@@ -133,6 +114,29 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q38. "Bomb", or a name that says direction?** (2026-10-23,
+  developer, before publishing 3.10: "calling them 'concentrators' or
+  'amplifiers' might reinforce the notion of direction and have a better
+  cognitive bond with the funnel shape.") Claude's view: for young
+  players a short everyday word; "concentrator" is long and abstract,
+  "amplifier" says louder rather than "brings a wall down"; suggested
+  "booster" (short, one way, fits the funnel; it burns out as the wall
+  comes down). Only the words change (rules line, messages, labels); the
+  code keeps `bombs` as it kept `lamp` for the laser. To decide.
+  **Closed 2026-10-23** (developer: "Call them boosters, and leave the
+  wrong-colour rule out."): see "Boosters; release 3.10 prepared".
+- **Q39. Should a wrong-colour beam put it out of action?** (2026-10-23,
+  developer: "it might be worth adding a rule that says the wrong color
+  laser renders it inoperable. I'm not sure if that complexity makes any
+  difference.") Measured on 3.10's stock (answer's pieces down, the other
+  colour switched on first): its beam reaches the bomb in 20 of 67
+  two-laser bomb puzzles at 6×6 and 25 of 67 at 7×7; in the rest it stops
+  at the wall the bomb would bring down. Claude's view: it adds a
+  penalty for guessing the order (already 1 coin), not something new to
+  work out, and only in about a third of the puzzles; it needs a mend
+  rule, a drawing and words. Suggested: leave it out. To decide.
+  **Closed 2026-10-23** (developer: "Call them boosters, and leave the
+  wrong-colour rule out."): see "Boosters; release 3.10 prepared".
 - **Q37. An omnidirectional bomb, instead of or beside the directional
   one?** (2026-10-23, developer: "maybe do away with directional bombs
   at all (or add an omnidirectional bomb). that way one bomb could
@@ -9797,3 +9801,26 @@ quoting trouble again); redone with a Node script.
 
 Release 3.10 prepared (`RELEASE` 3.10, version c85013b336ac, 95 files;
 `node tools/release.js`: ready).
+
+## 2026-10-23: Boosters; release 3.10 prepared
+
+**Developer:** "Call them boosters, and leave the wrong-colour rule out."
+(Q38, Q39 closed.)
+
+**The words** (only what the player sees; the code, log lines and
+tests keep "bomb"): the rules line ("**Boosters** come with some
+puzzles. Each points at a wall. A beam going into its wide open end is
+boosted: the wall comes down, the booster burns out, and the beam
+carries on. ..."); the misses ("it stopped at the red booster", "it
+reached a booster from the side, not through its open end"); the
+board's labels ("booster pointing left", "booster burnt out", "wall
+brought down"); RELEASES.md's 3.10 notes. The flash, sparks, scorch and
+thud stay (a burn-out).
+
+**Tests:** a words test (both misses say booster, never bomb), shown to
+fail with "bomb" put back. In the browser (localhost:8123): the rules
+line, a board label "booster pointing left", and no "bomb" anywhere in
+the page's text.
+
+Release 3.10 ready again with the words (version 9492cb48b18f, 95 files;
+`node tools/release.js`: ready); `npm test` 377 passed.

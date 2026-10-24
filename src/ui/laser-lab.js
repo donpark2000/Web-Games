@@ -225,7 +225,7 @@ function render() {
     c.classList.remove('unlit', 'lit', 'lit1', 'lit2', 'pop');
     c.classList.toggle('hinted', i === ui.hinted);
     const pc = placed.get(i), code = boardOf(P)[i];
-    c.setAttribute('aria-label', `Row ${Math.floor(i / n) + 1}, column ${i % n + 1}: ${t?.gone.has(i) ? (code === '#' ? 'wall blown down' : 'bomb gone off') : code === '#' ? 'wall' : code === 'G' ? 'gem' : code === 'B' ? `bomb pointing ${['up', 'right', 'down', 'left'][bombDirs(P).get(i)]}` : pc ? `${NAME[pc.t].toLowerCase()} ${pc.o ? '\\' : '/'}` : 'empty'}`);
+    c.setAttribute('aria-label', `Row ${Math.floor(i / n) + 1}, column ${i % n + 1}: ${t?.gone.has(i) ? (code === '#' ? 'wall brought down' : 'booster burnt out') : code === '#' ? 'wall' : code === 'G' ? 'gem' : code === 'B' ? `booster pointing ${['up', 'right', 'down', 'left'][bombDirs(P).get(i)]}` : pc ? `${NAME[pc.t].toLowerCase()} ${pc.o ? '\\' : '/'}` : 'empty'}`);
   }
   const ready = new Set(ui.busy ? [] : readyLamps(G, P));
   for (const e of $('lamps').children) {
