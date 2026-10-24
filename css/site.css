@@ -161,5 +161,9 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 .game .pic.db .dbmini { display: block; width: 100%; height: auto; }
 .game .pic.ll { display: block; width: 150px; }
 .game .pic.ll .llmini { display: block; width: 100%; height: auto; }
+/* Bridges: a small solved puzzle, its colours inline (src/ui/brboard.js),
+   also the setup screen's rules picture. */
+.game .pic.bridges { display: block; width: 150px; }
+.game .pic.bridges .brmini { display: block; width: 100%; height: auto; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

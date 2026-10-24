@@ -62,20 +62,6 @@ time, each tried before publishing:
   Claude's view, not measured: little to gain for a new rule (see
   "v9 played: the mix; armour; two-colour bombs"). Parked unless the
   developer wants it tried.
-- **Q41. Bridges: where on the home page?** (2026-10-24, raised by
-  Claude.) It suits the kids (Small, dots) and the developer (Medium,
-  Large). Claude's suggestion: listed in both 👤 One player and 🧩
-  Puzzles for grown-ups (an exception to "each game in one group
-  only"), opening on Small from the first and Large from the second;
-  or one listing with every size inside. For the developer to choose.
-- **Q42. Bridges: Give up, all at once or step by step?** (2026-10-24,
-  developer: "it would be good to have a 'give up' option to show the
-  solution.") Claude's suggestion: as Find the Stars' Give up, it asks
-  first, then offers **Show me how** (the rest a step at a time, each
-  with its reason, as the hints already give) or **Just show it** (the
-  whole answer at once); either way the puzzle counts as given up (no
-  best time). For mockup v2.
-
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-23, later: "Match the model to the work"
@@ -127,6 +113,26 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q41. Bridges: where on the home page?** (2026-10-24, raised by
+  Claude.) It suits the kids (Small, dots) and the developer (Medium,
+  Large). Claude's suggestion: listed in both 👤 One player and 🧩
+  Puzzles for grown-ups (an exception to "each game in one group
+  only"), opening on Small from the first and Large from the second;
+  or one listing with every size inside. **Closed 2026-10-24**
+  (developer: "I do not want to list the same game twice. I suggest we
+  put it in the kids section and make the smaller grid the default."):
+  in 👤 One player after Follow Me, Small preselected; see "Bridges
+  built; release 5.0".
+- **Q42. Bridges: Give up, all at once or step by step?** (2026-10-24,
+  developer: "it would be good to have a 'give up' option to show the
+  solution.") Claude's suggestion: as Find the Stars' Give up, it asks
+  first, then offers **Show me how** (the rest a step at a time, each
+  with its reason, as the hints already give) or **Just show it** (the
+  whole answer at once); either way the puzzle counts as given up (no
+  best time). **Closed 2026-10-24**: asked "Shall I build mockup v2 with
+  Give up as Show me how / Just show it?", the developer answered "Build
+  and publish"; built as suggested, with no mockup v2 (see "Bridges
+  built; release 5.0"). To judge on the phone.
 - **Q40. Does a new version now show on the iPhone when the app
   opens?** (2026-10-23, 3.11: the home page reloads once a new version
   is running, and the page asks for a check; see "Old state and late
@@ -10505,3 +10511,97 @@ https://claude.ai/artifact/4YnTGtVUwRmwsYsSiAmB7W.
    button and picture, offline, stats.
 4. Still open: Q32, Q34 (a session on Sonnet 5.5), Q35, Q36 (Laser Lab
    parked); Dots and Boxes 4.2 on the phone with the kids.
+
+## 2026-10-24: Bridges built; release 5.0
+
+**Developer**, asked whether to build mockup v2 with Give up as Show me
+how / Just show it: "Build an publish. I do not want to list the same
+game twice. I suggest we put it in the kids section and make the
+smaller grid the default." Taken as: no mockup v2, Give up as suggested
+(Q42), into the site and published as 5.0 (a new game); Q41 settled.
+
+**Built** on `bridges` from the mockup's files, read back from its
+artifact (version 2): `bridges.html`, `css/bridges.css`,
+`src/core/bridges.js`, `src/ui/bridges.js`, the board's drawing
+`src/ui/brboard.js` (inline colours, as Dots and Boxes' `dbboard.js`, so
+the home page's button needs no game sheet), `tools/bridges-puzzles.js`
+-> `data/bridges.json`. Changed on the way in:
+- **The hints, Show me how's steps, the game, progress and keeping**
+  moved into the core (`nextHint`, `useHint`, `walkStep`, `walkLength`,
+  `fillRest`, `cycle`, `standing`, `snapshotGame`/`restoreGame`,
+  `readProgress`/`takeNext`/`recordTime`), so they're tested in Node; the
+  hint's words too. The rest follows Colour Sudoku's screen: the hint
+  bar, tools, Give up's question row, Show me how's row, the end in the
+  hint bar, Next / Try again / New game, the clock stopping while the
+  page is hidden.
+- **Give up** (Q42): Show me how (from the player's board: a wrong
+  bridge first, then the reasoning steps; ⏩ The rest, Next ▸, Finish ▸)
+  or Just show it (the rest of the answer pale). No best time either way.
+- **The stock:** 200 per size, no shape twice turned or flipped
+  (`shapeKey`). **Measured first** (one seed, then 2,000, then 100,000
+  per size, one line each): about 0.03-0.06 ms a seed; kept 1,829 Small
+  of 100,000 but only **634 distinct shapes** (the 5×5's room is small),
+  484 Medium, 163 Large (all distinct). So 200 a size, single-threaded:
+  the tool takes 8 s (Large: 126,900 seeds). 41 KB.
+- **Nothing in the board takes a touch** (`pointer-events: none` on its
+  drawing), so the board's `<svg>` gets every touch and its end, and a
+  redraw never removes the element a touch began on (3.7's lesson); its
+  `touchend` is cancelled against the double-tap zoom.
+- **Two class clashes** caught by `css.test.js`: the bridge lines' `.br`
+  (Snakes and Ladders has one) became `.bline`, the home tile's
+  `.pic.br` `.pic.bridges`; `brmini` added to the shared names, as
+  `llmini`.
+- `nextStep`'s "no more room" limit can't go below what's there
+  (`Math.max(lo, ...)`), harmless from any board that is part of the
+  answer (hints and Show me how take wrong bridges off first).
+
+**Tests:** `bridges.test.js` (14: edges and crossings, the solver and
+reasoning on four 3s / four 4s, joined, tap cycle and refused crossing,
+Undo and Clear, the last bridge winning, hints alone solving a stock
+puzzle of each size with their words, a wrong bridge first, Show me how
+from the player's board and ⏩ The rest, keeping, progress, the maker
+seeded and decode refusing, shape keys, the demo), `bridges-stock.test.js`
+(3: 200 a size sound, no shape twice, the order; Small at most 4; the
+first 10 a size remade), `bridges-page.test.js` (5: the home tile once
+in One player, Small preselected; the picture; tools, Give up, the end;
+the wiring; the board takes no touches). `pages.test.js` (the game in
+One player) and `css.test.js` (`brmini`). **Shown able to fail** (a
+scratch script on a temp copy, removed after): two Small puzzles
+swapped, a Medium island's number changed, a Large puzzle twice: each
+fails the first stock test, named ("small: not in stockOrder's order",
+"medium, seed 223958", "large: not in stockOrder's order"). The suite:
+419 of 419.
+
+**Checked** in the built-in browser on `tools/serve.js` (8123):
+- 393 × 760: the home tile in 👤 One player after Follow Me, the solved
+  Small picture, no sideways scroll; the setup with Small preselected;
+  Small play 760 of 760 (361 px board, 72 px squares). A hint: the
+  ringed island, its bridge, "Here is a bridge for the ringed island.";
+  a tap between two islands and a drag from one each laid a bridge,
+  done islands yellow; the rest by taps: "Solved in 0:39! / 1 hint ·
+  New best!", Next / Try again / New game.
+- Large 760 of 760 (36 px squares); a bridge across, then one down
+  across it refused ("That bridge would cross another one.", one line
+  on the board). Give up: "Give up?" Show me how / Just show it / No;
+  Show me how: "Step 3 of 20", the clock stopped at 0:26, the reasons
+  ("... 1 down (two bridges would leave islands cut off from the rest):
+  3 in all. So even with the most everywhere else, it needs one right.");
+  **a reload came back on step 3** with its words and ring; ⏩ The rest:
+  "Shown step by step / 20 steps". Next, a hint, Just show it: "You gave
+  up", the hint's bridge in wood, the rest pale.
+- 320 × 568, Medium: with a 240 px floor the page scrolled 52 px (620 of
+  568); **the floor lowered to 180 px**: 568 of 568, a 188 px board; the
+  turn line fitted at 16.5px, no tool cut. No errors in the log.
+- Not checked: a finger on a touch screen, sound by ear, the iPhone's
+  double-tap zoom.
+
+**Release 5.0 prepared:** `src/core/release.js` 5.0, `node
+tools/offline.js` (version 3642495c7376, 106 files), its notes in
+`RELEASES.md`; `node tools/release.js`: "Release 5.0 is ready: version
+3642495c7376; tag v5.0 not made yet." README's game list brought up to
+date (it stopped at Find the Stars).
+
+**Claude's choices, to judge on the phone:** the hint's ring and words
+go with the next change (mockup v1's way, not greyed and kept as in
+Find the Stars); hints unlimited, counted at the end; "uh-oh" for a
+refused crossing; the 180 px floor; the sizes and island counts.

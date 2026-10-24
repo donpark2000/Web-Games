@@ -1,0 +1,27 @@
+/* Bridges screens. The setup panels and buttons are the other games'
+   (game.css); the rules box, status line, hint bar, tools and the end are
+   Find the Stars' (hidden-faces.css, loaded before this). From the Bridges
+   Mockup (v1, 2026-10-24). The board's colours are inline styles
+   (src/ui/brboard.js), so the home page's button needs no sheet; this one
+   adds the board's size and its moving parts. */
+
+/* setup: three sizes in a row */
+.sizes3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.sizes3 .level { font-size: 17px; padding: 10px 2px; }
+#rulesPic .brmini { width: 130px; }
+
+/* play: --bw is the board's size; src/ui/bridges.js sets it from a fitted
+   size, so the whole page fits the screen with no scrolling. The default
+   is small, so the board can't widen the page the fit measures. */
+#play { --bw: 200px; }
+.status .hints { color: var(--muted); }
+.brboard {
+  display: block; width: var(--bw); height: var(--bw); background: #D4ECF4; border-radius: 16px; box-shadow: 0 4px 0 #A9D3E2;
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; cursor: pointer;
+}
+.brboard .bline.new { animation: brnew .5s ease 3; }
+@keyframes brnew { 50% { stroke: var(--sun); } }
+.brboard .isl.cheer { animation: cheer .7s ease-in-out 3; transform-box: fill-box; transform-origin: center; }
+@keyframes cheer { 25% { transform: scale(1.18) rotate(-8deg); } 75% { transform: scale(1.18) rotate(8deg); } }
+.brboard.shake { animation: shake .35s; }
+@media (prefers-reduced-motion: reduce) { .brboard .bline.new, .brboard .isl.cheer, .brboard.shake { animation: none; } }

@@ -65,6 +65,13 @@
         <span class="pic fm" id="fmPic" aria-hidden="true"></span>
         Follow Me
       </a>
+      <!-- A puzzle for the kids and the grown-ups, listed once (developer,
+           2026-10-24: "I do not want to list the same game twice"); Small,
+           the kids', is preselected. -->
+      <a class="game" id="brLink" href="bridges.html">
+        <span class="pic bridges" id="brPic" aria-hidden="true"></span>
+        Bridges
+      </a>
     </div>
   </section>
   <!-- For the developer, not the kids (2026-10-13: one site, kept apart). -->
@@ -103,6 +110,7 @@
   import { DEMO as LL_DEMO } from './src/core/laser-lab.js';
   import { miniSvg as llMini } from './src/ui/llboard.js';
   import { miniSvg as dbMini } from './src/ui/dbboard.js';
+  import { miniSvg as brMini } from './src/ui/brboard.js';
   import { log, startLog } from './src/ui/debuglog.js';
   import { homePage } from './src/ui/resume.js';
   import { logScrollRoom } from './src/ui/scrolllog.js';
@@ -154,6 +162,8 @@
   // Follow Me: the four pads, the frog lit up.
   document.getElementById('fmPic').innerHTML = padsFor(4, 'bear').map((p, i) =>
     `<span class="${i === 0 ? 'lit' : ''}" style="${padStyle(p.color)}">${svg(p.face, i === 0 ? 'winner' : 'normal')}</span>`).join('');
+  // Bridges: the setup screen's picture, a Small puzzle solved.
+  document.getElementById('brPic').innerHTML = brMini('brmini');
   // Find the Stars: a 5 x 5 under way, two stars found and the ✕s around
   // them in the top three rows.
   const two = DEMO.faces.slice(0, 2);

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bridges</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#E4F1EE">
+<meta name="apple-mobile-web-app-title" content="Let's Play!">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/game.css">
+<!-- Find the Stars' sheet for what the puzzles share (the rules box, the
+     status line, the hint bar, the tools and the end); then this game's own -->
+<link rel="stylesheet" href="css/hidden-faces.css">
+<link rel="stylesheet" href="css/bridges.css">
+</head>
+<body>
+<main class="app">
+  <!-- SETUP ("New game") -->
+  <section id="setup" class="app" aria-label="New game">
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <h1>Bridges</h1>
+    </div>
+
+    <div class="panel rulesbox">
+      <div id="rulesPic" aria-hidden="true"></div>
+      <div class="rules">
+        <p>Join the islands with bridges. Each island needs <b>as many bridges as its number</b>.</p>
+        <p>Bridges go straight across or down, <b>never cross</b>, and <b>at most two</b> join the same two islands. In the end, <b>every island is joined</b> to the rest.</p>
+        <p class="how">Tap between two islands for a bridge, again for two, once more to take them away. Or drag from an island.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Size</h2>
+      <div class="sizes3" id="sizes">
+        <button type="button" class="level" data-size="small" aria-pressed="true">Small<small>5 × 5 · dots</small></button>
+        <button type="button" class="level" data-size="medium" aria-pressed="false">Medium<small>7 × 7</small></button>
+        <button type="button" class="level" data-size="large" aria-pressed="false">Large<small>10 × 10</small></button>
+      </div>
+    </div>
+
+    <div class="go">
+      <button type="button" class="big" id="playBtn" disabled>Play!</button>
+      <div class="why" id="why"></div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="app" aria-label="Game" hidden>
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <div class="turn" id="turn"></div>
+    </div>
+    <div class="status">
+      <span class="hints" id="hintsUsed"></span>
+      <span class="found" id="found"></span>
+      <span class="clock" id="clock">0:00</span>
+    </div>
+    <div class="boardwrap"><svg class="brboard" id="board" role="img" aria-label="Bridges board"></svg></div>
+    <div class="hintbar idle" id="hintbar" aria-live="polite"></div>
+    <div class="tools" id="tools">
+      <button type="button" class="tool" id="undoBtn">↩ Undo</button>
+      <button type="button" class="tool" id="hintBtn">💡 Hint</button>
+      <button type="button" class="tool" id="clearBtn">↺ Clear</button>
+      <button type="button" class="tool" id="giveUpBtn">🏳 Give up</button>
+    </div>
+    <!-- Give up asks first, in place of the tools -->
+    <div class="tools ask" id="askTools" hidden>
+      <span class="askq">Give up?</span>
+      <button type="button" class="tool primary" id="giveUpHow">Show me how</button>
+      <button type="button" class="tool" id="giveUpYes">Just show it</button>
+      <button type="button" class="tool" id="giveUpNo">No</button>
+    </div>
+    <!-- "Show me how", in place of the tools: the rest a step at a time -->
+    <div class="tools hinttools" id="walkTools" hidden>
+      <button type="button" class="tool" id="walkRest">⏩ The rest</button>
+      <button type="button" class="tool primary" id="walkNext">Next ▸</button>
+    </div>
+    <!-- at the end, in place of the tools: the board stays in view -->
+    <div class="tools" id="endTools" hidden>
+      <button type="button" class="tool primary" id="nextBtn" data-play>Next</button>
+      <button type="button" class="tool" id="againBtn">Try again</button>
+      <button type="button" class="tool" id="newBtn">New game</button>
+    </div>
+  </section>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a></footer>
+<script type="module" src="src/ui/bridges.js"></script>
+<script type="module" src="src/ui/nozoom.js"></script>
+<script type="module" src="src/ui/stats.js"></script>
+<script type="module" src="src/ui/offline.js"></script>
+</body>
+</html>

@@ -4,9 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-24, latest): **Bridges** (the Hashi puzzle), the next
-game, in design: mockup v1 liked, Give up to add (see "Bridges"). The
-physics idea dropped. Earlier: Dots and Boxes: the Easy robot always
+*Status (2026-10-24, latest): **Bridges** (the Hashi puzzle) built from
+mockup v1 with Give up added, in 👤 One player, Small preselected
+(release 5.0; see "Bridges"). Earlier the same day: Bridges designed
+(mockup v1 liked); the physics idea dropped. Earlier: Dots and Boxes: the Easy robot always
 takes every box it can (release 4.2, published). Earlier: the robot's latest turn stays
 marked until the person draws (release 4.1, published). Earlier the same
 day: **Dots and Boxes**, a new game for the kids (two players, or
@@ -72,6 +73,8 @@ page. So far:
   to win it and go again)
 - **Rock paper scissors** (against the robot)
 - **Follow Me** (repeat the robot's order of faces, Simon-style)
+- **Bridges** (2026-10-24; the Hashi puzzle: join numbered islands with
+  bridges; Small for the kids, Medium and Large for grown-ups)
 
 And one for the developer (2026-10-13: "I wanted it for me"):
 
@@ -114,10 +117,11 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   the second player a person or the robot: tic-tac-toe, matching cards,
   Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim, Dots and
   Boxes), then **👤 One player** (no way to play
-  another person: rock paper scissors, Follow Me), then **🧩 Puzzles for
+  another person: rock paper scissors, Follow Me, Bridges), then **🧩 Puzzles for
   grown-ups** (Find the Stars, Colour Sudoku, Laser Lab; developer, 2026-10-13: one
-  site, kept apart). Each game in one group only; a
-  group's only game is one column wide, centred.
+  site, kept apart). Each game in one group only (developer, 2026-10-24,
+  of Bridges, for the kids and grown-ups alike: "I do not want to list
+  the same game twice"); a group's only game is one column wide, centred.
 - **A 🏠 button top-left on every game screen** (setup and play), back to
   the home page to change games, **80 px in every game** (developer,
   2026-10-14: it changed size a lot from game to game; the bigger sizes
@@ -1223,26 +1227,100 @@ bomb not wanted (Q37: "Keep directional bombs only"); a wrong-colour beam
 putting one out of action left out (Q39: "leave the wrong-colour rule
 out").
 
-### Bridges (in design)
+### Bridges
 
-The next game (2026-10-24), the Hashi puzzle, for the developer and the
-kids (developer: "a game like bridges would be good for both kids and
+The Hashi puzzle (2026-10-24), for the developer and the kids
+(developer: "a game like bridges would be good for both kids and
 adults"; after mockup v1: "Thats a really good game"). Designed in
 [Bridges Mockup](https://claude.ai/artifact/4YnTGtVUwRmwsYsSiAmB7W)
 (private Claude artifact; version 2 = mockup v1 plus its scratch tools).
 Chosen over a ball-run physics puzzle (developer: "Not sounding very
 interesting") and over Bridg-It ("I'm not wild about a game that
-guarantees first player wins").
+guarantees first player wins"). **Built from v1 with Give up added, no
+mockup v2** (developer: "Build and publish"; release 5.0). Files and
+storage: `bridges` (`bridges.html`, `src/core/bridges.js`, the board's
+drawing `src/ui/brboard.js`, shared with the home page's button,
+`web-games-bridges`).
 
+Agreed with the developer:
 - **The rules:** islands with a number; join them with bridges straight
   across or down, at most two between two islands, never crossing, so
   each has its number and all are joined. **Every puzzle has exactly
   one answer**, reachable by reasoning alone.
-- **Give up shows the solution** (developer, after v1; how: Q42).
-- To judge in the mockup, Claude's: Small 5×5 with dots for the kids,
-  Medium 7×7, Large 10×10; tap between islands or drag from one; hints
-  that take a step and say why; plain islands; no hearts. Where on the
-  home page: Q41.
+- **Home: in 👤 One player, listed once, Small preselected** (developer,
+  2026-10-24, Q41: "I do not want to list the same game twice. I
+  suggest we put it in the kids section and make the smaller grid the
+  default"). After Follow Me.
+- **Give up shows the solution** (developer, after v1: "it would be good
+  to have a 'give up' option to show the solution"; Q42, built as
+  Claude suggested): it asks first, in place of the tools, "Give up?"
+  **Show me how** / **Just show it** / **No** (a touch on the board is
+  No). Show me how walks the rest from the player's board a step at a
+  time, each shown and taken as a hint is (a wrong bridge first), with
+  **⏩ The rest** and **Next ▸** ("Finish ▸" after the last step), "Step
+  3 of 20" in place of the islands done, the clock stopped, the board
+  taking no taps; its end: "Shown step by step / 20 steps". Just show it
+  puts the rest of the answer on the board, **pale**, the player's own
+  bridges as they were: "You gave up / The pale bridges are the rest of
+  the answer." Either way no best time.
+
+Claude's choices from mockup v1 (liked as a whole, to judge on the
+phone):
+- **Sizes:** **Small** 5×5, 6 islands, each wanting 1 to 4, **shown as
+  a die's dots** (the kids); **Medium** 7×7, 12 islands; **Large**
+  10×10, 24 islands (1 to 8).
+- **Setup:** the rules beside a solved Small puzzle (also the home
+  page's button); **Size**; Play!.
+- **Play:** 🏠, "Small · puzzle 3", 🔊; a status row (💡 and the hints
+  used, "2 of 6 islands", the clock); the board as big as fits with no
+  scrolling (a sea-blue square with faint dots where islands could be;
+  361 px on a 393 × 760 phone: 72 px squares Small, 36 px Large; at least
+  180 px, 188 px for Medium at 320 × 568); the hint bar (Find the Stars',
+  hidden until needed); **↩ Undo**, **💡 Hint**, **↺ Clear**, **🏳 Give
+  up**.
+- **Laying bridges:** a tap between two islands (the nearest line within
+  half a square, as Dots and Boxes) cycles that bridge 0, 1, 2, 0; a drag
+  from an island lays one toward the island that way, shown faintly
+  while dragging. A bridge that would cross another is refused: the
+  board shakes, "uh-oh", "That bridge would cross another one." An
+  island with its number turns yellow, one with too many pale red. Every
+  island right but not all joined: "Every island has its bridges, but
+  they aren't all joined up." Undo takes back each change (Clear too).
+  No hearts: a mistake shows itself.
+- **Hints, no limit** (counted at the end) say the next step **and take
+  it**: a bridge not in the answer comes off first ("A bridge there
+  isn't part of the answer, so it came off."); otherwise the next island
+  whose bridges are forced is ringed, its forced bridges drawn and
+  blinking, with the reason: "The ringed island needs 4. It can take at
+  most 1 right (the 1 there has room for no more), 2 down, 2 up: 5 in
+  all. So even with the most everywhere else, it needs one down and one
+  up." Limits named: a bridge in the way, a neighbour with no more room,
+  islands that would be cut off. Small's words are short ("Here is a
+  bridge for the ringed island."). The hint's ring and words go with the
+  next change to the board (not greyed and kept, as in Find the Stars:
+  mockup v1's way).
+- **The end:** the result in the hint bar beside one big star, the
+  tools replaced by **Next** / **Try again** / **New game**. Solved:
+  every island wiggles, "Solved in 0:39! / 1 hint · New best!" (best
+  time per size), the sparkle.
+- **Puzzles: 200 per size, made ahead of time** by
+  `tools/bridges-puzzles.js` into `data/bridges.json` (41 KB, about 8 s
+  to make): the first kept seeds from 100,000 (Small), 200,000 (Medium),
+  300,000 (Large) on, **no two the same shape turned or flipped**
+  (Small has only about 630 in all), shuffled once with a fixed seed.
+  The maker (mockup v1's): islands only where some rows meet some
+  columns (so they see each other), none side by side, one on each edge,
+  never two empty rows or columns together; a random network of
+  non-crossing bridges (a spanning tree, then a few more); kept only
+  with exactly one answer (a solver counts up to 2) that the hints'
+  step-by-step reasoning reaches, and enough possible bridges per island
+  (Small 1.0, Medium 1.2, Large 1.38). Large keeps about 1 seed in 600.
+- **Kept on the device** (`web-games-bridges`): the next puzzle and the
+  best time per size (see "Puzzle order"). **Kept for a reload** (as
+  every game): the puzzle, its bridges and Undo, the hints, the clock,
+  the hint on show, Show me how's step, the result.
+- **Sounds:** a tick per bridge, "uh-oh" for a refused crossing, a ping
+  for a hint or step, the sparkle when solved.
 
 ## Face names
 
@@ -1318,8 +1396,8 @@ Which games are opened and played, from where, over time (developer,
   home page `/Web-Games/`), with its title, the screen size and the
   referrer when another site sent the visitor; and each **game started**
   (Play! or Play again) as an event, `play-<game>` (e.g. `play-nim`);
-  in Find the Stars also "Same size" and "Another", in Colour Sudoku
-  and Laser Lab "Next" (`data-play`; Laser Lab's is "New run" after a
+  in Find the Stars also "Same size" and "Another", in Colour Sudoku,
+  Laser Lab and Bridges "Next" (`data-play`; Laser Lab's is "New run" after a
   run's 10th puzzle).
 - **Only the live site counts** (donpark2000.github.io), not localhost or
   an automated browser, so testing doesn't add to the numbers. **Nothing
@@ -1455,8 +1533,8 @@ finished, and the app's icon going back to the last game).
   (`visitTag`, in the per-session storage) and picked up only in the
   same one. The home page ends the visit; a restart is a new one; a new
   version a new tag. Progress chosen to be kept stays: Laser Lab runs
-  (place, savings, hearts) and best runs, Find the Stars' and Colour
-  Sudoku's next puzzles and best times, sound on/off, the debug log.
+  (place, savings, hearts) and best runs, Find the Stars', Colour
+  Sudoku's and Bridges' next puzzles and best times, sound on/off, the debug log.
 - **As it was left**, with what was moving finished or done again: a
   robot's turn starts again; two cards left showing settle; a roll or a
   move being shown is done (Snakes and Ladders: the pieces where they
@@ -1502,7 +1580,8 @@ is used as it starts (Play, Next, a new game, a new run), and only Try
 again plays one again. The stock is shuffled once into a fixed order;
 after the last puzzle the order comes round again. As built: Find the
 Stars 200 a size, Colour Sudoku 200 a level, Laser Lab 100 a setup (50
-for 8×8 with two lasers), its runs taking the next 10 each. A new
+for 8×8 with two lasers), its runs taking the next 10 each, Bridges 200
+a size. A new
 puzzle game follows the same rule.
 
 ## Later

@@ -20,13 +20,15 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '4d5c726fdbc5';
+const VERSION = '3642495c7376';
 const MADE = '2026-10-24';
-const RELEASE = '4.2';
+const RELEASE = '5.0';
 const FILES = [
+  'bridges.html',
   'colour-sudoku.html',
   'connect-four.html',
   'count-to-9.html',
+  'css/bridges.css',
   'css/cards.css',
   'css/colour-sudoku.css',
   'css/connect-four.css',
@@ -44,6 +46,7 @@ const FILES = [
   'css/site.css',
   'css/snakes-ladders.css',
   'css/tic-tac-toe.css',
+  'data/bridges.json',
   'data/colour-sudoku.json',
   'data/five-dice-long.bin',
   'data/hidden-faces.json',
@@ -65,6 +68,7 @@ const FILES = [
   'rock-paper-scissors.html',
   'snakes-ladders.html',
   'src/core/appversion.js',
+  'src/core/bridges.js',
   'src/core/colour-sudoku.js',
   'src/core/connect-four.js',
   'src/core/count-to-9.js',
@@ -87,6 +91,8 @@ const FILES = [
   'src/core/stats.js',
   'src/core/tic-tac-toe.js',
   'src/core/version.js',
+  'src/ui/brboard.js',
+  'src/ui/bridges.js',
   'src/ui/cardback.js',
   'src/ui/colour-sudoku.js',
   'src/ui/connect-four.js',

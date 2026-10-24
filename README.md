@@ -3,9 +3,11 @@
 Simple games for young kids (ages 5-7), played in a web browser on a
 tablet or phone, all reached from one home page. Two players (the second
 a person, or in most games the robot): tic-tac-toe, matching cards,
-Connect Four, Count to 9, Snakes and Ladders, Five Dice and Nim. One
-player: rock paper scissors and Follow Me. And one puzzle for grown-ups:
-Find the Stars (one star per row, column and colour, none touching).
+Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim and Dots
+and Boxes. One player: rock paper scissors, Follow Me and Bridges (join
+the islands with bridges; Small for the kids, Medium and Large for
+grown-ups). And puzzles for grown-ups: Find the Stars (one star per
+row, column and colour, none touching), Colour Sudoku and Laser Lab.
 
 **Play it:** https://donpark2000.github.io/Web-Games/
 

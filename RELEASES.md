@@ -7,6 +7,25 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 5.0 (2026-10-24, version 3642495c7376)
+
+A new game, **Bridges** (the Hashi puzzle), in 👤 One player, for the
+kids and grown-ups alike:
+
+- Join the numbered islands with bridges: each island needs as many
+  bridges as its number. Bridges go straight across or down, never
+  cross, at most two between two islands, and in the end every island
+  is joined to the rest.
+- **Small** (5×5, numbers shown as dots, for the kids; picked to start
+  with), **Medium** (7×7) or **Large** (10×10). 200 puzzles each, every
+  one with exactly one answer that can be found by reasoning.
+- Tap between two islands for a bridge, again for two, once more to take
+  them away; or drag from an island.
+- **💡 Hint** says why the next bridges must go where they go, and puts
+  them down. **🏳 Give up** asks first, then **Show me how** (the rest a
+  step at a time, with the reasons) or **Just show it** (the whole
+  answer at once).
+
 ## 4.2 (2026-10-24, version 4d5c726fdbc5)
 
 Dots and Boxes:
