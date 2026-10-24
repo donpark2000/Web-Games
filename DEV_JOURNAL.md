@@ -77,7 +77,8 @@ time, each tried before publishing:
   Find the Stars' hearts (a wrong bridge shakes and costs one; but that
   marks each guess right or wrong at once, and is hard on the kids at
   Small), or leave it (the usual Hashi; the clock is the cost). For the
-  developer to choose.
+  developer to choose. *2026-10-24, developer:* "lets leave it for now.
+  I'll play it some more and think about it." Open; nothing built.
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-23, later: "Match the model to the work"
