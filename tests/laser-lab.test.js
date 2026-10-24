@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import {
   RUN, MARGIN, PRICE, SETUPS, trace, check, checkLamp, solveCheap, cheapest, answersFor, costOf, answerCost, answerMap,
   makeCheap, makeOptions, stockPuzzle, bothUsePieces, firstSeed, stockOrder, isPurple, encode, decode, DEMO, MAKE,
+  stockSlots, stockKinds, stockSize, stockPurple, stockBombs, bombSeed, kindOf,
   createGame, placedOf, budgetLeft, tapSquare, clearBoard, switchLamp, readyLamps, missWords, rightWords, useHint, giveUp, tryAgain, coins, HEARTS,
   closest, snapshotGame, restoreGame, readProgress, runOf, keepCurrent, finishPuzzle, boardOf, endWords, bestView, spent,
 } from '../src/core/laser-lab.js';
@@ -189,6 +190,37 @@ test('laser lab: the stock order is a fixed shuffle, purple spaced out; seeds pe
   assert.deepEqual(stockOrder('6-1', plain).map(e => e[0]), want);
   const firsts = SETUPS.map(firstSeed).sort((x, y) => x - y);
   for (let i = 1; i < firsts.length; i++) assert.ok(firsts[i] - firsts[i - 1] >= 1000000, 'seed ranges overlap');
+});
+
+test('laser lab: bombs (3.9) in half of each run, where stockSlots says; a mix that does not fit is refused', () => {
+  // 30 entries: a bomb ('A') on half, purple ('3') on 5, both on some
+  const slots = stockSlots('7-2', 30, 5, 15);
+  assert.deepEqual(slots, stockSlots('7-2', 30, 5, 15), 'not the same each time');
+  assert.deepEqual(slots.map((k, i) => (k & 1 ? i : -1)).filter(i => i >= 0), [3, 9, 15, 21, 27], 'purple where 3.3 put it');
+  for (let at = 0; at < 30; at += RUN) {
+    const run = slots.slice(at, at + RUN).map(k => k >= 2);
+    assert.equal(run.filter(Boolean).length, 5, `run ${at / RUN + 1}`);
+    run.forEach((x, i) => assert.ok(i < 2 || x !== run[i - 1] || x !== run[i - 2], `three of a kind at ${at + i}`));
+  }
+  const list = slots.map((k, i) => [i, [], `1.${k & 1 ? '3' : '2'}${k & 2 ? 'A' : '.'}`]);
+  assert.deepEqual(list.map(kindOf), slots);
+  const a = stockOrder('7-2', list);
+  assert.deepEqual(a.map(kindOf), slots, 'a kind out of its place');
+  assert.deepEqual([...a].sort((x, y) => x[0] - y[0]), list);
+  assert.notDeepEqual(a, list, 'not shuffled');
+  // one purple moved from a bomb puzzle to one without: no place for it
+  const k = list.findIndex(e => kindOf(e) === 3), j = list.findIndex(e => kindOf(e) === 0);
+  const bad = list.map((e, i) => (i === k ? [e[0], [], '1.2A'] : i === j ? [e[0], [], '1.3.'] : e));
+  assert.throws(() => stockOrder('7-2', bad), /kind 0.*places for/);
+  // stockKinds: the four counts add up; none with a bomb at 8 x 8, two lasers
+  for (const s of SETUPS) {
+    const kinds = stockKinds(s);
+    assert.equal(kinds.reduce((x, y) => x + y, 0), stockSize(s), s);
+    assert.equal(kinds[2] + kinds[3], stockBombs(s), s);
+    assert.equal(kinds[1] + kinds[3], stockPurple(s), s);
+  }
+  assert.equal(stockBombs('8-2'), 0);
+  assert.ok(bombSeed('6-1') > firstSeed('6-1') && bombSeed('6-1') < firstSeed('6-2'));
 });
 
 test('laser lab: the rules picture’s puzzle: its answer right, and the cheapest 3', () => {

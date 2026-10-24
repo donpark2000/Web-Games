@@ -62,14 +62,6 @@ time, each tried before publishing:
   Claude's view, not measured: little to gain for a new rule (see
   "v9 played: the mix; armour; two-colour bombs"). Parked unless the
   developer wants it tried.
-- **Q37. An omnidirectional bomb, instead of or beside the directional
-  one?** (2026-10-23, developer: "maybe do away with directional bombs
-  at all (or add an omnidirectional bomb). that way one bomb could
-  remove two or 3 blocks at once.") Claude's view, not measured: with
-  one laser likely easier (set off from any side, more walls open, so
-  more ways win); with two, possibly harder in a new way (red's blast
-  opens blue's way on another side). To measure as Q35 was: ways at
-  each budget, directional against omnidirectional, on the same setups.
 
 ## Proposed additions to the standards skill
 
@@ -122,6 +114,17 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q37. An omnidirectional bomb, instead of or beside the directional
+  one?** (2026-10-23, developer: "maybe do away with directional bombs
+  at all (or add an omnidirectional bomb). that way one bomb could
+  remove two or 3 blocks at once.") Claude's view, not measured: with
+  one laser likely easier (set off from any side, more walls open, so
+  more ways win); with two, possibly harder in a new way (red's blast
+  opens blue's way on another side). To measure as Q35 was: ways at
+  each budget, directional against omnidirectional, on the same setups.
+  **Closed 2026-10-23** (developer: "No need to measure. Keep
+  directional bombs only and build them into the game."): not measured;
+  built in 3.9 (see "Directional bombs built; release 3.9 prepared").
 - **Q33. Does 3.6 stop the zoom on the iPhone?** (2026-10-23) 3.5's
   pinch block didn't hold there: the page zoomed ("not sure what I
   did") and the developer pinched it back out. 3.6 blocks only zooming
@@ -9631,3 +9634,70 @@ the phone's 40 px squares. To choose.
   bomb already makes: red opens the wall, then both beams reach the
   gem (and red must go first).
 - So: little to gain for a new rule. Parked.
+
+## 2026-10-23: Directional bombs built; release 3.9 prepared
+
+**Developer:** "No need to measure. Keep directional bombs only and build
+them into the game." (Q37 closed.) The drawing wasn't picked in words;
+Claude used its pick, C (plates and lens), to judge on the phone: A
+(plates only) is a two-line change in `bombSvg`.
+
+**Ported from the scratch copy** (mock8/site, 7 commits on 3.8; its
+files were 3.8's but for line endings): `src/core/laser-lab.js`,
+`src/ui/laser-lab.js`, `src/ui/llboard.js`, `css/laser-lab.css`, the
+rules line in `laser-lab.html`, `tests/laser-lab-bombs.test.js` (9
+tests). Left out: the mockup bar and its reset, its progress key (back to
+`web-games-laser-lab`, so runs carry on), its 🏠 and script changes.
+Comments say 3.9 for v8/v9. The bomb drawn as C: steel plates, three
+rivets each, on both sides, a pale lens at the back (`bombSvg`).
+
+**The stock** (`stockBombs`, `stockSlots`, `stockKinds`, `bombSeed`,
+`bombAt`, `orderMatters` in the core; the tool reworked):
+- Half of each setup's 100 have a bomb, 5 in each run of 10, at places
+  picked once with a fixed seed, never three with (or three without) side
+  by side in a run. Purple places as 3.3-3.8 (the same formula); purple
+  and bomb places are independent, so the four kinds' counts come from
+  the places: 6-2 38/12/29/21 (plain/purple/bomb/both), 7-2 32/18/35/15,
+  one laser 50/0/50/0.
+- Plain puzzles: the first of each kind from firstSeed in seed order, so
+  a subset of 3.8's. Bomb puzzles from bombSeed (firstSeed + 500,000) on,
+  as in the mockup's make. With two lasers kept when both beams use a
+  piece or the order matters (the mockup's rule; 33 seeds dropped for
+  "a laser with no piece", 5 in 6-2 and 28 in 7-2).
+- 8×8 with two lasers: no bombs, its file untouched; `stockOrder` with no
+  bombs gives 3.8's order exactly (checked: same seeds in the same order).
+- Made in 410 s over 15 workers: 6-1 1 s, 6-2 5 s, 7-1 13 s, 7-2 264 s,
+  8-1 127 s. Cheapest costs as before.
+
+**A bug the suite caught:** 8×8 with two lasers finds a puzzle in about
+13,000 seeds, so its seeds run to firstSeed + 664,101, past bombSeed:
+`stockPuzzle` read them as bomb puzzles ("8-2 seed 82562072 makes
+nothing now"). Fixed with `bombAt` (bombs only in setups that have
+them).
+
+**Tests:** 375 pass (`npm test`). New: the order unit test (kinds in
+their places, purple where 3.3 put it, 5 bombs a run, no three in a row,
+a mix that doesn't fit refused, `stockKinds` adding up); stock tests:
+bombs half of every run, no three in a row, a purple bomb puzzle in each
+two-laser setup, seed and bomb agree, at most one bomb, two bomb
+puzzles' cheapest proved per setup, 6-1's first two bomb puzzles remade
+from bombSeed. Each shown to fail: in the core (no three-in-a-row rule,
+kinds not checked, bombs not shared by run: 1 failure each) and in the
+file (two puzzles swapped: 2; a bomb removed: 4, "49 bombs"; a bomb moved
+to another run: 2).
+
+**In the browser** (built-in, localhost:8123, 375 × 812): the rules line
+and the bomb picture on the setup screen, no sideways scroll. 6×6 one
+laser, puzzle 2 (seed 61500284, a bomb pointing up): pieces placed, the
+laser on: the beam up through the bomb, the wall above down, both gems
+lit, solved (log: `bombs {"laser":0,"order":[0],"blasts":"17>11"}`).
+A reload came back to it with the scorch and rubble drawn. 6×6 two
+lasers, puzzle 2 (seed 62518407, a red bomb pointing left, a purple
+gem): blue first, "The blue beam isn't right: no blue on 1 💎. That cost
+1 coin."; red, "The red beam is right. Now the blue laser."; blue,
+solved. No console errors. 7×7 and 8×8 bomb puzzles not played (the
+stock tests check them).
+
+Release 3.9 prepared (a change within Laser Lab, so x.y): `RELEASE`
+3.9, `node tools/offline.js` (version 19293ca92ca2, 95 files),
+RELEASES.md, `node tools/release.js`: ready.

@@ -6,7 +6,7 @@
 // no stylesheet (the home page); css/laser-lab.css restyles the board's
 // gems and lasers as they light (classes win over attributes).
 
-import { boardOf, gemColours, trace, lampAt, DR, DC, answerMap } from '../core/laser-lab.js';
+import { boardOf, gemColours, bombColours, bombDirs, trace, lampAt, DR, DC, answerMap } from '../core/laser-lab.js';
 
 export const NIGHT = '#22313F';
 const INK = '#101A23';
@@ -64,13 +64,38 @@ export function gemSvg(k, two = false, lit = false) {
   return svg(s, `gem k${k}`);
 }
 
+// A bomb in its laser's colour (k 0 yellow for one laser, 1 red, 2 blue).
+// v9 (developer: "I like B best"; v8's round bomb with a fuse read oddly):
+// a pointed body with two chevrons, drawn pointing right and turned to
+// point d (0 up, 1 right, 2 down, 3 left) at the wall it brings down.
+// 3.9: riveted armour plates on its sides and a lens at its back
+// (developer: "something that looks more like armor on the sides"), so it
+// shows it goes off only from behind.
+const STEEL = '#A9B7C2', RIVET = '#4E5E6B';
+export function bombSvg(k = 0, d = 1) {
+  return svg(`<g transform="rotate(${(d - 1) * 90} 50 50)">`
+    + `<path d="M22.5 27.5 H60 L87.5 50 L60 72.5 H22.5 Q15 72.5 15 65 V35 Q15 27.5 22.5 27.5 Z" fill="${LASER[k]}" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`
+    + `<path d="M47.5 38.75 L61.25 50 L47.5 61.25" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`
+    + `<path d="M32.5 38.75 L46.25 50 L32.5 61.25" fill="none" stroke="${INK}" stroke-opacity=".45" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`
+    + [14, 71].map(y => `<rect x="12" y="${y}" width="54" height="15" rx="3" fill="${STEEL}" stroke="${INK}" stroke-width="5"/>`
+      + [22, 39, 56].map(x => `<circle cx="${x}" cy="${y + 7.5}" r="2.6" fill="${RIVET}"/>`).join('')).join('')
+    + `<path class="lens" d="M17 36 Q5 50 17 64" fill="#E4F2FF" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`
+    + '</g>', 'bomb');
+}
+// where a bomb went off: a scorch mark; where a wall came down: rubble
+export const scorchSvg = () => svg('<circle cx="50" cy="50" r="30" fill="#00000059"/><circle cx="50" cy="50" r="16" fill="#0000004D"/>', 'scorch');
+export const rubbleSvg = () => svg('<g fill="#6A7B89" stroke="#4E5E6B" stroke-width="3" opacity=".75"><rect x="14" y="70" width="22" height="16" rx="4"/><rect x="42" y="76" width="18" height="12" rx="3"/><rect x="64" y="68" width="22" height="18" rx="4"/><rect x="30" y="58" width="14" height="11" rx="3"/></g>', 'rubble');
+
 export const wallSvg = () => svg('<rect x="4" y="4" width="92" height="92" rx="10" fill="#6A7B89"/><rect x="4" y="4" width="92" height="92" rx="10" fill="none" stroke="#4E5E6B" stroke-width="5"/><path d="M8 37 H92 M8 66 H92 M38 8 V37 M64 37 V66 M34 66 V92" stroke="#55656F" stroke-width="5"/>');
 
-// What's on square i: a wall, a gem, a piece (`fixed`: the squares a hint
-// fixed), or nothing.
-export function cellSvg(p, i, placed, fixed = []) {
+// What's on square i: a wall, a gem, a bomb, a piece (`fixed`: the squares
+// a hint fixed), or nothing. `gone`: the bombs gone off and the walls they
+// brought down (3.9).
+export function cellSvg(p, i, placed, fixed = [], gone = null) {
   const code = boardOf(p)[i];
+  if (gone?.has(i)) return code === '#' ? rubbleSvg() : scorchSvg();
   if (code === '#') return wallSvg();
+  if (code === 'B') return bombSvg(p.lamps.length > 1 ? bombColours(p).get(i) : 0, bombDirs(p).get(i));
   if (code === 'G') return gemSvg(gemColours(p).get(i), p.lamps.length > 1);
   const pc = placed.get(i);
   return pc ? pieceSvg(pc.t, pc.o, fixed.includes(i)) : '';

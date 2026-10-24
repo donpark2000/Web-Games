@@ -163,3 +163,14 @@
 .money.wrap { flex-direction: column; align-items: center; }
 .money.wrap .dot { display: none; }
 .neg { color: #D2283C; }
+
+/* Bombs (3.9). A bomb going off flashes and throws sparks; the wall
+   beyond it shakes and crumbles. */
+.bico { width: 18px; height: 18px; display: inline-block; }
+.bico svg { display: block; width: 100%; height: 100%; }
+.bombrow { display: flex; gap: 1px; padding: 9px 1px; background: var(--night); border-radius: 8px; width: 40px; justify-content: center; }
+.llcell.boom::before { content: ''; position: absolute; inset: -20%; border-radius: 50%; background: radial-gradient(#FFF6C2, #FFC21A 40%, #FF7A1A00 70%); animation: boomflash .45s ease-out forwards; pointer-events: none; z-index: 2; }
+@keyframes boomflash { 0% { transform: scale(.3); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+.llcell.boom .shard { background: #FFB347; }
+.llcell.crumble svg { animation: crumble .3s ease-in; }
+@keyframes crumble { 0% { transform: translate(0); } 25% { transform: translate(-6%, 2%) rotate(-4deg); } 50% { transform: translate(6%, -2%) rotate(4deg); } 100% { transform: translateY(8%) scale(.9); opacity: .4; } }

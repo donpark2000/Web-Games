@@ -7,6 +7,19 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 3.9 (2026-10-23, version 19293ca92ca2)
+
+Laser Lab:
+
+- **Directional bombs** in about half the puzzles. Each one points at a
+  wall and has armour on its sides: a beam coming in from behind sets it
+  off, the wall comes down, and the beam carries on. A beam from any
+  other side stops at it.
+- **With two lasers, a bomb is red or blue**, and only that colour sets
+  it off, so the order you switch the lasers on can matter.
+- New puzzles for every size except 8×8 with two lasers (no bombs there
+  yet).
+
 ## 3.8 (2026-10-23, version b9cd9937caf4)
 
 Laser Lab:

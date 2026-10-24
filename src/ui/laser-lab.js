@@ -5,7 +5,7 @@
 // (tools/laser-lab-puzzles.js).
 
 import {
-  SETUPS, RUN, PRICE, HEARTS, setupOf, parseSetup, decode, stockAt, puzzleNumber, trace, boardOf, gemColours, checkLamp,
+  SETUPS, RUN, PRICE, HEARTS, setupOf, parseSetup, decode, stockAt, puzzleNumber, trace, boardOf, gemColours, checkLamp, bombDirs,
   createGame, placedOf, budgetLeft, nextHintPrice, tapSquare, clearBoard, switchLamp, readyLamps, failedBefore,
   missWords, rightWords, lampName, coins, answersFor, useHint, giveUp, tryAgain, snapshotGame, restoreGame, spent,
   closest, endWords, bestView,
@@ -14,7 +14,7 @@ import {
 import { mergeSetup } from '../core/resume.js';
 import { largestFitting } from '../core/fit.js';
 import { STAR } from './hfboard.js';
-import { pieceSvg, lampSvg, gemSvg, wallSvg, cellSvg, lampColour, miniSvg } from './llboard.js';
+import { pieceSvg, lampSvg, gemSvg, wallSvg, cellSvg, lampColour, miniSvg, bombSvg, scorchSvg, rubbleSvg } from './llboard.js';
 import { log, startLog } from './debuglog.js';
 import { fitPlayScreen } from './fit.js';
 import { sound } from './sound.js';
@@ -89,6 +89,7 @@ fetch(STOCK_FILE)
 $('mirrorIco').innerHTML = pieceSvg('m', 0);
 $('splitIco').innerHTML = pieceSvg('s', 0);
 $('wallIco').innerHTML = wallSvg();
+$('bombIco').innerHTML = bombSvg(0);
 $('oneIco').innerHTML = `<span class="lico">${lampSvg(0, true)}</span>`;
 $('twoIco').innerHTML = `<span class="lico">${lampSvg(1, true)}</span><span class="lico">${lampSvg(2, true)}</span>`;
 $('gemIcos').innerHTML = [1, 2, 3].map(k => `<span class="gico">${gemSvg(k, true)}</span>`).join('');
@@ -213,14 +214,18 @@ function buildBoard() {
 // of the player's board (3.5).
 function render() {
   const n = P.n, cells = $('board').children, b = ui.seeing && ui.end?.best ? bestView(G, P, ui.end.best) : G, placed = placedOf(b);
+  // the board as the lasers on have left it, in the order they went on
+  // (3.9: bombs gone off, walls down)
+  const t = b.on.length ? trace(P, placed, b.on) : null;
   for (let i = 0; i < n * n; i++) {
     const c = cells[i];
-    c.innerHTML = cellSvg(P, i, placed, b.fixed);
+    c.innerHTML = cellSvg(P, i, placed, b.fixed, t?.gone);
+    c.classList.remove('boom', 'crumble');
     // a redraw shows a lit gem lit, without its pop again (3.8)
     c.classList.remove('unlit', 'lit', 'lit1', 'lit2', 'pop');
     c.classList.toggle('hinted', i === ui.hinted);
     const pc = placed.get(i), code = boardOf(P)[i];
-    c.setAttribute('aria-label', `Row ${Math.floor(i / n) + 1}, column ${i % n + 1}: ${code === '#' ? 'wall' : code === 'G' ? 'gem' : pc ? `${NAME[pc.t].toLowerCase()} ${pc.o ? '\\' : '/'}` : 'empty'}`);
+    c.setAttribute('aria-label', `Row ${Math.floor(i / n) + 1}, column ${i % n + 1}: ${t?.gone.has(i) ? (code === '#' ? 'wall blown down' : 'bomb gone off') : code === '#' ? 'wall' : code === 'G' ? 'gem' : code === 'B' ? `bomb pointing ${['up', 'right', 'down', 'left'][bombDirs(P).get(i)]}` : pc ? `${NAME[pc.t].toLowerCase()} ${pc.o ? '\\' : '/'}` : 'empty'}`);
   }
   const ready = new Set(ui.busy ? [] : readyLamps(G, P));
   for (const e of $('lamps').children) {
@@ -256,9 +261,8 @@ function render() {
   $('hintPrice').textContent = coins(nextHintPrice(G));
   for (const id of ['hintBtn', 'clearBtn', 'answerBtn', 'playNewBtn']) $(id).disabled = !!G.result;
   $('againBtn').disabled = !!G.result || hearts <= 0;
-  const t = b.on.length ? trace(P, placed, b.on) : null;
   const miss = G.miss && !G.result ? checkLamp(P, placed, G.miss.li, G.miss.others) : null;
-  drawSegs(t ? t.segs : [], miss ? miss.segs : []);
+  drawSegs(t ? t.segs : [], miss ? miss.newSegs : []);
   if (t) for (const [i, got] of t.lit) cells[i].classList.add(gemLit(i, got));
   if (miss) for (const i of [...miss.unlit, ...miss.wrong]) cells[i].classList.add('unlit');
   paintBar();
@@ -322,6 +326,7 @@ function drawSegs(segs, faint, grow, cb = {}) {
       const line = add(g, false, true);
       if (g.end === 'stop' && g.x2 % 1) { const i = Math.floor(g.y2) * n + Math.floor(g.x2); if (b[i] === 'G') onArrive(line, 'animationstart', () => cb.gem(i)); }
       if (g.end === 'lamp') onArrive(line, 'animationend', () => cb.lamp(g.lamp));
+      if (g.blast && cb.bomb) onArrive(line, 'animationend', () => cb.bomb(g.blast));
     }
   }, k * STEP_MS));
   growTimers.push(setTimeout(() => { timeUp = true; finish(); }, (last + 2) * STEP_MS));
@@ -480,7 +485,7 @@ $('lamps').addEventListener('pointerdown', e => {
   // each gem's pop when the beam lights it (a purple's again for its
   // second colour), and when, for the log
   const from = performance.now(), litAt = [];
-  drawSegs(before.segs, [], res.segs, {
+  drawSegs(res.oldSegs, [], res.newSegs, {
     gem: i => {
       lit.set(i, (lit.get(i) || 0) | bit);
       const c = cells[i];
@@ -490,10 +495,12 @@ $('lamps').addEventListener('pointerdown', e => {
       litAt.push(`${i}@${Math.round(performance.now() - from)}`);
     },
     lamp: burst,
+    bomb: boom,
     done: () => {
       ui.busy = false;
       ui.lighting = null;
       if (litAt.length) L('gems lit', { laser: li, ms: litAt.join(' ') });
+      if (res.blasts.length) L('bombs', { laser: li, order: res.order, blasts: res.blasts.map(x => `${x.i}${x.wall >= 0 ? `>${x.wall}` : ' (no wall)'}`).join(' '), blocked: res.blocked });
       if (res.solved) { win(); return; }
       if (res.ok) {
         sound.play('ding');
@@ -509,6 +516,27 @@ $('lamps').addEventListener('pointerdown', e => {
   });
   keep();
 });
+
+// A bomb going off (3.9) as the beam reaches it: a flash, sparks,
+// a scorch mark left; the wall just beyond crumbles to rubble.
+function boom(x) {
+  const cells = $('board').children, c = cells[x.i];
+  sound.play('thud');
+  c.innerHTML = scorchSvg();
+  c.classList.remove('boom'); void c.offsetWidth; c.classList.add('boom');
+  for (let k = 0; k < 8; k++) {
+    const s = document.createElement('span');
+    s.className = 'shard';
+    s.style.setProperty('--a', `${k * 45 + 20}deg`);
+    c.appendChild(s);
+  }
+  if (x.wall >= 0) {
+    const w = cells[x.wall];
+    w.classList.remove('crumble'); void w.offsetWidth; w.classList.add('crumble');
+    setTimeout(() => { w.innerHTML = rubbleSvg(); }, 180);
+  }
+  setTimeout(() => c.querySelectorAll('.shard').forEach(e => e.remove()), 900);
+}
 
 // a laser a beam shone into: a small burst, then dark and cracked
 function burst(li) {

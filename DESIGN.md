@@ -1106,25 +1106,32 @@ As built (Claude's, not in the mockup):
   for a beam that's right, "uh-oh" for one that isn't (or breaks a
   laser), a ping for a hint, the sparkle when solved.
 
-**Directional bombs (mockups v8-v9, 2026-10-23; not built).** Agreed with
-the developer (the name: "I think bomb is ok. Maybe 'directional bomb'"):
-placed by the puzzle, never bought; **not in every puzzle** ("just a nice
-option to change game play"); with two lasers **always red or blue**,
+**Directional bombs (3.9, from mockups v8-v9, 2026-10-23).** Agreed
+with the developer (the name: "I think bomb is ok. Maybe 'directional
+bomb'"): placed by the puzzle, never bought; **in about half the
+puzzles**, spread through each run, not strictly every other one ("about
+50% ... does not have to be exactly 'every second game'"): 5 in each run
+of 10, never three with or three without side by side, at places picked
+with a fixed seed (`stockSlots`); none yet at 8×8 with two lasers (30
+minutes a puzzle without bombs); with two lasers **always red or blue**,
 only that colour setting one off; **a bomb points at its wall** (v9;
 developer: "I like B best"; v8's round bomb with a fuse "look[s] a bit
 strange"): only a beam of its colour coming in from behind sets it off,
-and any other beam stops at it; **the order the lasers go on
-can matter** ("a good feature - not a limitation"). Colour mirrors
-parked, more lasers and placing them dropped (Q35). Claude's choices in
-the mockup, to judge: the beam carries on through the gap; a beam of
-the other colour stops at a bomb and carries on once it goes; a laser
-switched on must leave all that's on right; a wrong laser can be tried
-again once the lasers on change; a blown wall comes back when the laser
-that blew it goes off or a piece moves; one bomb a puzzle, which must
-save coins; none yet at 8×8 with two lasers. **About half the
-puzzles get a bomb**, spread through each run, not strictly every other
-one (developer, 2026-10-23: "about 50% ... does not have to be exactly
-'every second game'"). A two-colour bomb parked (Q36).
+and any other beam stops at it; drawn with **riveted armour plates on its
+sides and a lens at its back** (developer: "something that looks more
+like armor on the sides"; Claude's pick of three drawn, C); **the order
+the lasers go on can matter** ("a good feature - not a limitation").
+Gameplay as in v9 ("Gameplay is good"): the beam carries on through the
+gap; a beam of the other colour stops at a bomb and carries on once it
+goes; a laser switched on must leave all that's on right; a wrong laser
+can be tried again once the lasers on change; a blown wall comes back
+when the laser that blew it goes off or a piece moves; one bomb a
+puzzle, which must save coins. Bomb puzzles come from their own seeds
+(`bombSeed`: firstSeed + 500,000); the others are the first of 3.8's
+stock in seed order. With two lasers, kept when both beams use a piece
+or the order matters. Colour mirrors parked, more lasers and placing
+them dropped (Q35); a two-colour bomb parked (Q36); an omnidirectional
+bomb not wanted (Q37: "Keep directional bombs only").
 
 ## Face names
 

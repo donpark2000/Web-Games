@@ -22,6 +22,16 @@
 // column, c: its colour }. Colours are bits: one lamp 1; two lamps red 1,
 // blue 2; a gem's colour is the bits it wants (3: purple). A piece is
 // { t: 'm' (mirror) | 's' (splitter), o: 0 ('/') | 1 ('\') }.
+//
+// Directional bombs (3.9, from mockups v8-v9; developer, 2026-10-23),
+// placed by the puzzle, `bombs` [r, c, k, d]. A bomb points (d, a
+// direction) at the wall it brings down; a beam of its colour k (one
+// laser: its beam; two: red or blue) coming in from behind, going the way
+// it points, sets it off: that wall comes down and the beam carries on.
+// Any other beam (another colour, or from another side) stops at it, as
+// at a wall. A beam stopped at a wall or bomb that then goes carries on. The lasers shine in the order they were switched
+// on, each leaving everything on right (the order can matter: developer,
+// "a good feature - not a limitation").
 
 import { mulberry32, clock } from './hidden-faces.js';
 
@@ -53,7 +63,19 @@ export function boardOf(p) {
   const b = Array(p.n * p.n).fill('.');
   for (const [r, c] of p.walls) b[r * p.n + c] = '#';
   for (const [r, c] of p.gems) b[r * p.n + c] = 'G';
+  for (const [r, c] of p.bombs ?? []) b[r * p.n + c] = 'B';
   return b;
+}
+export const bombColours = p => new Map((p.bombs ?? []).map(([r, c, k]) => [r * p.n + c, k || 1]));
+export const bombDirs = p => new Map((p.bombs ?? []).map(([r, c, , d]) => [r * p.n + c, d]));
+// the way a segment of beam goes (0 up, 1 right, 2 down, 3 left)
+export const segDir = g => (g.x2 > g.x1 ? 1 : g.x2 < g.x1 ? 3 : g.y2 > g.y1 ? 2 : 0);
+// every order the lasers can be switched on in (one, unless bombs make it
+// matter)
+export function lampOrders(p) {
+  const all = p.lamps.map((l, li) => li);
+  if (!(p.bombs ?? []).length || all.length < 2) return [all];
+  return [all, [all[1], all[0]]];
 }
 export const gemColours = p => new Map(p.gems.map(([r, c, k]) => [r * p.n + c, k || 1]));
 // lamps by the square outside the board they stand on
@@ -66,48 +88,102 @@ const lampSpots = p => new Map(p.lamps.map((l, i) => { const a = lampAt(l, p.n);
 // colours each gem got (a Map from square to bits), the pieces touched
 // and the lamps hit. `only`: the lamps switched on (all if left out).
 export function trace(p, placed, only) {
-  const n = p.n, b = boardOf(p), spots = lampSpots(p);
+  const n = p.n, b = boardOf(p), spots = lampSpots(p), bombK = bombColours(p), bombD = bombDirs(p);
+  const order = only ?? p.lamps.map((l, li) => li);
   const segs = [], lit = new Map(), touched = new Set(), hits = new Set(), seen = new Set();
+  const gone = new Set(), blasts = [], stopped = new Map();
   const inside = (r, c) => r >= 0 && c >= 0 && r < n && c < n;
-  let beams = p.lamps.flatMap((l, li) => (!only || only.includes(li) ? [{ ...lampAt(l, n), col: l.c || 1 }] : [])), step = 0;
-  while (beams.length) {
-    const next = [];
-    for (const { r, c, d, col } of beams) {
-      const key = ((((r + 1) * (n + 2) + c + 1) * 4 + d) * 4) + col;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const r2 = r + DR[d], c2 = c + DC[d];
-      // from the square's centre, or from the board's edge for a beam
-      // coming in from a lamp
-      const x1 = c + .5 + (inside(r, c) ? 0 : DC[d] / 2), y1 = r + .5 + (inside(r, c) ? 0 : DR[d] / 2);
-      if (!inside(r2, c2)) {
-        const half = { x1, y1, x2: c + .5 + DC[d] / 2, y2: r + .5 + DR[d] / 2, step, col };
-        const li = spots.get(`${r2},${c2}`);
-        if (li !== undefined) { hits.add(li); segs.push({ ...half, end: 'lamp', lamp: li }); }
-        else segs.push({ ...half, end: 'edge' });
-        continue;
+  let step = 0;
+  // with bombs, one laser after another (`phase`), each one's steps from
+  // 0; without, all at once as before 3.9 (the same puzzles from a seed).
+  // Each segment says its laser (`li`).
+  const phased = (p.bombs ?? []).length > 0, phases = phased ? order.map(li => [li]) : [order];
+  for (let ph = 0; ph < phases.length; ph++) {
+    let beams = phases[ph].map(li => ({ ...lampAt(p.lamps[li], n), col: p.lamps[li].c || 1, li }));
+    step = 0;
+    while (beams.length) {
+      const next = [];
+      for (const bm of beams) {
+        const { r, c, d, col, li: from } = bm;
+        const key = ((((r + 1) * (n + 2) + c + 1) * 4 + d) * 16) + col;
+        if (seen.has(key) && !bm.resume) continue;
+        seen.add(key);
+        const r2 = r + DR[d], c2 = c + DC[d];
+        // from the square's centre, or from the board's edge for a beam
+        // coming in from a lamp
+        const x1 = c + .5 + (inside(r, c) ? 0 : DC[d] / 2), y1 = r + .5 + (inside(r, c) ? 0 : DR[d] / 2);
+        if (!inside(r2, c2)) {
+          const half = { x1, y1, x2: c + .5 + DC[d] / 2, y2: r + .5 + DR[d] / 2, step, col, phase: ph, li: from };
+          const li = spots.get(`${r2},${c2}`);
+          if (li !== undefined) { hits.add(li); segs.push({ ...half, end: 'lamp', lamp: li }); }
+          else segs.push({ ...half, end: 'edge' });
+          continue;
+        }
+        const i = r2 * n + c2, code = gone.has(i) ? '.' : b[i];
+        if (code === '#' || (code === 'B' && !(col & bombK.get(i) && d === bombD.get(i)))) {
+          segs.push({ x1, y1, x2: c + .5 + DC[d] / 2, y2: r + .5 + DR[d] / 2, step, col, end: 'stop', phase: ph, li: from });
+          if (!stopped.has(i)) stopped.set(i, []);
+          stopped.get(i).push({ r, c, d, col, li: from });
+          continue;
+        }
+        segs.push({ x1, y1, x2: c2 + .5, y2: r2 + .5, step, col, phase: ph, li: from, ...(code === 'G' ? { end: 'stop' } : {}) });
+        if (code === 'G') { lit.set(i, (lit.get(i) || 0) | col); continue; }
+        if (code === 'B') {
+          // the bomb goes off; the wall it points at (the way the beam
+          // goes) comes down; beams stopped at either carry on
+          gone.add(i);
+          const r3 = r2 + DR[d], c3 = c2 + DC[d], j = inside(r3, c3) && b[r3 * n + c3] === '#' && !gone.has(r3 * n + c3) ? r3 * n + c3 : -1;
+          if (j >= 0) gone.add(j);
+          const blast = { i, wall: j, d, col, phase: ph, step };
+          segs[segs.length - 1].blast = blast;
+          blasts.push(blast);
+          for (const k of [i, j]) if (k >= 0 && stopped.has(k)) { for (const x of stopped.get(k)) next.push({ ...x, resume: true }); stopped.delete(k); }
+          next.push({ r: r2, c: c2, d, col, li: from });
+          continue;
+        }
+        const pc = gone.has(i) ? null : placed.get(i);
+        if (pc) touched.add(i);
+        if (!pc) next.push({ r: r2, c: c2, d, col, li: from });
+        else {
+          next.push({ r: r2, c: c2, d: turn(pc.o, d), col, li: from });
+          if (pc.t === 's') next.push({ r: r2, c: c2, d, col, li: from });
+        }
       }
-      const i = r2 * n + c2, code = b[i];
-      if (code === '#') { segs.push({ x1, y1, x2: c + .5 + DC[d] / 2, y2: r + .5 + DR[d] / 2, step, col, end: 'stop' }); continue; }
-      segs.push({ x1, y1, x2: c2 + .5, y2: r2 + .5, step, col, ...(code === 'G' ? { end: 'stop' } : {}) });
-      if (code === 'G') { lit.set(i, (lit.get(i) || 0) | col); continue; }
-      const pc = placed.get(i);
-      if (pc) touched.add(i);
-      if (!pc) next.push({ r: r2, c: c2, d, col });
-      else {
-        next.push({ r: r2, c: c2, d: turn(pc.o, d), col });
-        if (pc.t === 's') next.push({ r: r2, c: c2, d, col });
-      }
+      beams = next; step++;
     }
-    beams = next; step++;
   }
-  return { segs, lit, touched, hits, steps: step };
+  return { segs, lit, touched, hits, steps: step, gone, blasts, order, phased };
+}
+
+// What's on, in `order`, is right: no lamp hit, every gem has exactly the
+// colours it wants of those on.
+const bitsOf = (p, order) => order.reduce((k, li) => k | (p.lamps[li].c || 1), 0);
+function rightSoFar(p, t, order) {
+  if (t.hits.size) return false;
+  const on = bitsOf(p, order);
+  for (const [i, k] of gemColours(p)) if ((t.lit.get(i) || 0) !== (k & on)) return false;
+  return true;
+}
+// The lasers switched on in `order`, each one leaving all that's on
+// right: the last trace, or null.
+export function inOrder(p, placed, order) {
+  let t = null;
+  for (let k = 1; k <= order.length; k++) {
+    t = trace(p, placed, order.slice(0, k));
+    if (!rightSoFar(p, t, order.slice(0, k))) return null;
+  }
+  return t;
 }
 
 // Solved: every gem got exactly its colours and no lamp is hit. `wrong`
 // gems got a colour they don't want; `unlit` ones miss one. (No tray
 // since v6: a piece the beams don't touch is only money wasted.)
 export function check(p, placed) {
+  // solved when some order of switching the lasers on works
+  for (const order of lampOrders(p)) {
+    const t = inOrder(p, placed, order);
+    if (t) return { ok: true, unlit: [], wrong: [], ...t };
+  }
   const t = trace(p, placed);
   const unlit = [], wrong = [];
   for (const [i, k] of gemColours(p)) {
@@ -123,15 +199,27 @@ export function check(p, placed) {
 // by one, is the same as `check` passing. `unlit` gems miss this colour,
 // `wrong` ones got it unwanted; `solved` when it was the last lamp.
 export function checkLamp(p, placed, li, others = []) {
-  const t = trace(p, placed, [li]), bit = p.lamps[li].c || 1;
+  // shone after the ones on, in their order, which bombs make
+  // matter; `segs` has them all (newSegs: this laser's beam, and with bombs
+  // any beam its blasts let on)
+  const t = trace(p, placed, [...others, li]), bit = p.lamps[li].c || 1;
   const unlit = [], wrong = [];
   for (const [i, k] of gemColours(p)) {
     const got = t.lit.get(i) || 0;
-    if (got & ~k) wrong.push(i); else if ((k & bit) && !got) unlit.push(i);
+    if (got & ~k) wrong.push(i); else if ((k & bit) && !(got & bit)) unlit.push(i);
   }
   const last = p.lamps.every((l, j) => j === li || others.includes(j));
   const ok = !unlit.length && !wrong.length && !t.hits.size;
-  return { ok, solved: ok && last, last, unlit, wrong, ...t };
+  // where this beam was stopped by a bomb: of the other colour, or
+  // from a side that doesn't set it off
+  const bk = bombColours(p), blocked = [];
+  for (const g of t.segs) if (g.end === 'stop' && g.col === bit) {
+    const d = segDir(g);
+    const r = Math.floor(g.y1) + DR[d], c = Math.floor(g.x1) + DC[d], i = r * p.n + c;
+    if (bk.has(i) && !t.gone.has(i)) blocked.push({ i, why: bk.get(i) & bit ? 'side' : 'colour' });
+  }
+  const newSegs = t.segs.filter(g => (t.phased ? g.phase === others.length : g.li === li));
+  return { ok, solved: ok && last, last, unlit, wrong, blocked, ...t, newSegs, oldSegs: t.segs.filter(g => !newSegs.includes(g)) };
 }
 
 /* ---------- the cheapest cost ---------- */
@@ -151,33 +239,80 @@ export const answerMap = (a, n) => new Map(a.map(x => [x.r * n + x.c, { t: x.t, 
 // The state is shared by all branches: each change is written on a trail
 // and undone after a branch, rather than copied for every choice.
 export function solveCheap(p, cap, limit = 1, budget = Infinity) {
+  // with bombs, each order the lasers can go on in, the answers merged
+  const out = [], keys = new Set();
+  let nodes = 0, over = false;
+  for (const order of lampOrders(p)) {
+    const r = solveOrder(p, cap, limit, budget - nodes, order);
+    nodes += r.nodes;
+    for (const a of r.answers) {
+      const key = a.map(x => `${x.r * p.n + x.c}${x.t}${x.o}`).join(' ');
+      if (!keys.has(key) && out.length < limit) { keys.add(key); out.push(a); }
+    }
+    if (r.over) { over = true; break; }
+  }
+  return { answers: out, nodes, over };
+}
+function solveOrder(p, cap, limit, budget, order) {
   const n = p.n, N = n + 2;
-  const b = boardOf(p), gems = gemColours(p), want = new Int8Array(n * n);
+  const b = boardOf(p), gems = gemColours(p), want = new Int8Array(n * n), bombK = new Int8Array(n * n), bombD = new Int8Array(n * n);
   for (const [i, k] of gems) want[i] = k;
+  for (const [i, k] of bombColours(p)) bombK[i] = k;
+  for (const [i, d] of bombDirs(p)) bombD[i] = d;
   const lampOut = new Uint8Array(N * N);   // squares outside the board with a lamp
   for (const l of p.lamps) { const a = lampAt(l, n); lampOut[(a.r + 1) * N + a.c + 1] = 1; }
   const place = new Int8Array(n * n).fill(-1);   // -1 not chosen yet, else PIECES' index
-  const seen = new Uint8Array(N * N * 16), lit = new Int8Array(n * n), trail = [];
+  const seen = new Uint8Array(N * N * 64), lit = new Int8Array(n * n), trail = [];
+  const gone = new Uint8Array(n * n), stopped = Array.from({ length: n * n }, () => []);
   const out = []; let nodes = 0;
+  const start = li => { const l = p.lamps[li]; return { ...lampAt(l, n), col: l.c || 1 }; };
+  // with bombs, one laser after another; without, all at once (as before 3.9)
+  const phases = (p.bombs ?? []).length ? order.map(li => [li]) : [order];
+  const undo = mark => {
+    while (trail.length > mark) {
+      const t = trail.pop();
+      if (typeof t === 'function') t();
+      else if (t >= 0) seen[t] = 0; else { const u = -1 - t; lit[u >> 4] &= ~(u & 15); }
+    }
+  };
   // returns at a dead end or after trying a choice's options
-  function run(queue, money) {
+  function run(queue, money, ph) {
     for (let q = 0; q < queue.length; q++) {
-      const { r, c, d, col } = queue[q];
-      const key = ((((r + 1) * N + c + 1) * 4 + d) * 4) + col;
-      if (seen[key]) continue;
+      const bm = queue[q], { r, c, d, col } = bm;
+      const key = ((((r + 1) * N + c + 1) * 4 + d) * 16) + col;
+      if (seen[key] && !bm.resume) continue;
       const r2 = r + DR[d], c2 = c + DC[d];
       if (r2 < 0 || c2 < 0 || r2 >= n || c2 >= n) {
         if (lampOut[(r2 + 1) * N + c2 + 1]) return;
         seen[key] = 1; trail.push(key); continue;
       }
-      const i = r2 * n + c2, code = b[i];
-      if (code === '#') { seen[key] = 1; trail.push(key); continue; }
+      const i = r2 * n + c2, code = gone[i] ? '.' : b[i];
+      if (code === '#' || (code === 'B' && !(col & bombK[i] && d === bombD[i]))) {
+        seen[key] = 1; trail.push(key);
+        stopped[i].push({ r, c, d, col }); trail.push(() => stopped[i].pop());
+        continue;
+      }
       if (code === 'G') {
         if (col & ~want[i]) return;
         seen[key] = 1; trail.push(key);
-        if (!(lit[i] & col)) { lit[i] |= col; trail.push(-1 - i * 4 - col); }
+        if (!(lit[i] & col)) { lit[i] |= col; trail.push(-1 - i * 16 - col); }
         continue;
       }
+      if (code === 'B') {
+        seen[key] = 1; trail.push(key);
+        gone[i] = 1; trail.push(() => { gone[i] = 0; });
+        const r3 = r2 + DR[d], c3 = c2 + DC[d], j = r3 >= 0 && c3 >= 0 && r3 < n && c3 < n && b[r3 * n + c3] === '#' && !gone[r3 * n + c3] ? r3 * n + c3 : -1;
+        if (j >= 0) { gone[j] = 1; trail.push(() => { gone[j] = 0; }); }
+        for (const k of [i, j]) if (k >= 0 && stopped[k].length) {
+          const was = stopped[k];
+          for (const x of was) queue.push({ ...x, resume: true });
+          stopped[k] = []; trail.push(() => { stopped[k] = was; });
+        }
+        queue.push({ r: r2, c: c2, d, col });
+        continue;
+      }
+      // a wall or bomb gone: empty, and no piece can be there
+      if (b[i] !== '.') { seen[key] = 1; trail.push(key); queue.push({ r: r2, c: c2, d, col }); continue; }
       if (place[i] < 0 && money > 0) {
         const rest = queue.slice(q);
         for (let o = 0; o < 5; o++) {
@@ -186,11 +321,8 @@ export function solveCheap(p, cap, limit = 1, budget = Infinity) {
           nodes++;
           const mark = trail.length;
           place[i] = o;
-          run(rest.slice(), money - PAY[o]);
-          while (trail.length > mark) {
-            const t = trail.pop();
-            if (t >= 0) seen[t] = 0; else { const u = -1 - t; lit[u >> 2] &= ~(u & 3); }
-          }
+          run(rest.slice(), money - PAY[o], ph);
+          undo(mark);
         }
         place[i] = -1;
         return;
@@ -203,12 +335,20 @@ export function solveCheap(p, cap, limit = 1, budget = Infinity) {
         if (pc.t === 's') queue.push({ r: r2, c: c2, d, col });
       }
     }
-    for (const [i, k] of gems) if (lit[i] !== k) return;
+    // this laser has shone: all that's on must be right before the next
+    const on = phases.slice(0, ph + 1).flat().reduce((k, li) => k | (p.lamps[li].c || 1), 0);
+    for (const [i, k] of gems) if (lit[i] !== (k & on)) return;
+    if (ph + 1 < phases.length) {
+      const mark = trail.length;
+      run(phases[ph + 1].map(start), money, ph + 1);
+      undo(mark);
+      return;
+    }
     const ans = [];
     place.forEach((o, i) => { if (o > 0) ans.push({ r: Math.floor(i / n), c: i % n, t: PIECES[o].t, o: PIECES[o].o }); });
     out.push(ans);
   }
-  run(p.lamps.map(l => ({ ...lampAt(l, n), col: l.c || 1 })), cap);
+  run(phases[0].map(start), cap, 0);
   return { answers: out, nodes, over: nodes > budget };
 }
 
@@ -304,6 +444,7 @@ export function makeCheap(seed, opt) {
   const placed = new Map([...lay.placed].filter(([i]) => c.touched.has(i)));
   if (costOf(placed) < minCost) return fail('too cheap');
   if (!check(p, placed).ok) return fail('not right without the untouched pieces');
+  if (opt.bomb && !addBomb(p, placed, fronts, R)) return fail('no square for a bomb');
   const onPath = cellsOf(trace(p, placed), n);
   let nodes = 0;
   for (let k2 = 0; ; k2++) {
@@ -323,12 +464,46 @@ export function makeCheap(seed, opt) {
   nodes += all.nodes;
   if (all.over) return fail('search too big');
   p.cheapest = all.cost;
+  // a bomb must save coins: with it a wall, the cheapest costs more
+  if (opt.bomb) {
+    const w = { ...p, walls: [...p.walls, ...p.bombs.map(([r, c]) => [r, c])], bombs: [] };
+    const r = solveCheap(w, all.cost, 1, maxNodes);
+    nodes += r.nodes;
+    if (r.over) return fail('search too big');
+    if (r.answers.length) return fail('the bomb saves nothing');
+  }
   p.budget = all.cost + MARGIN;
   p.answers = all.answers;
   p.answer = all.answers.find(a => sameAnswer(a, placed, n)) || all.answers[0];
   p.nodes = nodes;
   p.seed = seed;
   return p;
+}
+
+// A bomb on a square the answer's beam crosses straight, with a
+// wall put on the next square along (one laser), or on a square where both
+// colours cross (two: the bomb the other colour's, so it must go first).
+// It points the way that beam goes. False when no square will do.
+function addBomb(p, placed, fronts, R) {
+  const n = p.n, t = trace(p, placed), b = boardOf(p);
+  const cols = new Map(), free = i => b[i] === '.' && !placed.has(i) && !fronts.has(i);
+  for (const g of t.segs) if (!g.end) { const i = Math.floor(g.y2) * n + Math.floor(g.x2); cols.set(i, (cols.get(i) || 0) | g.col); }
+  const cands = [];
+  for (const g of t.segs) {
+    if (g.end || !(g.x1 % 1) || !(g.y1 % 1)) continue;
+    const P = Math.floor(g.y1) * n + Math.floor(g.x1), Q = Math.floor(g.y2) * n + Math.floor(g.x2);
+    if (!free(P) || !free(Q)) continue;
+    if (p.lamps.length > 1 && cols.get(Q) !== 3) continue;
+    cands.push([P, Q, g.col, segDir(g)]);
+  }
+  for (let k = cands.length - 1; k > 0; k--) { const j = Math.floor(R() * (k + 1)); [cands[k], cands[j]] = [cands[j], cands[k]]; }
+  for (const [P, Q, col, d] of cands) {
+    const q = { ...p, walls: [...p.walls, [Math.floor(Q / n), Q % n]], bombs: [[Math.floor(P / n), P % n, col, d]] };
+    if (!check(q, placed).ok) continue;
+    p.walls = q.walls; p.bombs = q.bombs;
+    return true;
+  }
+  return false;
 }
 
 // the squares inside the board the beams pass through or stop in
@@ -356,10 +531,10 @@ const MAKE_ALL = { minGems: 2, maxNodes: 2000000 };
 export const makeOptions = setup => { const { n, lasers } = parseSetup(setup); return { n, lamps: lasers, ...MAKE[n], ...MAKE_ALL }; };
 
 // Puzzles per setup, made ahead of time by tools/laser-lab-puzzles.js into
-// data/laser-lab.json: from firstSeed(setup) on, in seed order, the first
-// stockPurple(setup) made puzzles with a purple gem and the first
-// stockSize - stockPurple without (stockPuzzle), in the order stockOrder
-// gives them. 8 x 8 with two lasers takes about 30 minutes of one core a
+// data/laser-lab.json: in seed order, the first made (stockPuzzle) of each
+// kind as many as stockKinds says (with a purple gem or without; without
+// a bomb from firstSeed(setup) on, with one from bombSeed(setup) on), in
+// the order stockOrder gives them. 8 x 8 with two lasers takes about 30 minutes of one core a
 // puzzle (2026-10-22), so 50 of those for now (5 runs).
 export const STOCK = 100;
 export const stockSize = setup => (setup === '8-2' ? 50 : STOCK);
@@ -369,14 +544,31 @@ export const stockSize = setup => (setup === '8-2' ? 50 : STOCK);
 export const stockPurple = setup => (parseSetup(setup).lasers < 2 ? 0 : setup === '8-2' ? 3 : Math.round(stockSize(setup) / 3));
 // A stock entry (encode) with a purple gem.
 export const isPurple = e => e[2].includes('3');
+// Directional bombs (3.9): about half the puzzles (developer, 2026-10-23:
+// "about 50% ... does not have to be exactly 'every second game'"), the
+// first made from bombSeed(setup) on; none yet at 8 x 8 with two lasers
+// (30 minutes a puzzle without bombs).
+export const stockBombs = setup => (setup === '8-2' ? 0 : stockSize(setup) / 2);
+export const hasBomb = e => /[A-H]/.test(e[2]);
 export const firstSeed = setup => { const { n, lasers } = parseSetup(setup); return (n * 10 + lasers) * 1000000; };
+export const bombSeed = setup => firstSeed(setup) + 500000;
 // With two lasers, kept only when both beams pass through a piece of the
 // answer (the mockup's first pick rule, v3-v7: otherwise one laser just
-// shines straight at its gems).
+// shines straight at its gems), or (bombs) the order they go on matters:
+// then the laser with no piece is the one whose bomb opens the way.
+// From bombSeed on, each puzzle has a bomb, in a setup with bombs (8 x 8
+// with two lasers has none, and its seeds go past bombSeed: one puzzle in
+// about 13,000 seeds).
+export const bombAt = (setup, seed) => stockBombs(setup) > 0 && seed >= bombSeed(setup);
 export function stockPuzzle(setup, seed) {
-  const p = makeCheap(seed, makeOptions(setup));
-  if (!p || (p.lamps.length > 1 && !bothUsePieces(p))) return p && fail('a laser with no piece');
+  const p = makeCheap(seed, { ...makeOptions(setup), ...(bombAt(setup, seed) ? { bomb: true } : {}) });
+  if (!p || (p.lamps.length > 1 && !bothUsePieces(p) && !orderMatters(p))) return p && fail('a laser with no piece');
   return p;
+}
+// Two lasers, the answer right in one order only.
+export function orderMatters(p) {
+  const pl = answerMap(p.answer, p.n);
+  return p.lamps.length > 1 && !(inOrder(p, pl, [0, 1]) && inOrder(p, pl, [1, 0]));
 }
 export function bothUsePieces(p) {
   const by = [0, new Set(), new Set()], pl = answerMap(p.answer, p.n);
@@ -388,16 +580,45 @@ function shuffled(arr, rnd) {
   for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
-// Stock entries (in seed order) shuffled once with a fixed seed, so the
-// tool always makes the same file; the purple ones (shuffled too) then
-// spaced evenly through it, so every run of 10 has about as many (100 with
-// 33: 3 or 4 a run, at least 2 puzzles apart). With no purple, the order
-// is 3.0's.
-export function stockOrder(setup, list) {
-  const rnd = mulberry32(firstSeed(setup) + 1);
-  const out = shuffled(list.filter(e => !isPurple(e)), rnd), purple = shuffled(list.filter(isPurple), rnd);
-  purple.forEach((e, j) => out.splice(Math.floor((j + 0.5) * list.length / purple.length), 0, e));
+// What goes where in a stock of `size` with `purple` and `bombs` among
+// them: each place's kind (kindOf). The purple ones spaced evenly, so
+// every run of 10 has about as many (100 with 33: 3 or 4 a run, at least 2
+// puzzles apart); the bombs (3.9) shared out evenly between the runs (50
+// in 100: 5 a run), at places in each run picked with a fixed seed, never
+// three of a kind side by side.
+export const kindOf = e => +isPurple(e) + 2 * hasBomb(e);
+export function stockSlots(setup, size, purple, bombs) {
+  const out = Array(size).fill(0), rnd = mulberry32(firstSeed(setup) + 2);
+  for (let j = 0; j < purple; j++) out[Math.floor((j + 0.5) * size / purple)] = 1;
+  for (let at = 0; at < size && bombs; at += RUN) {
+    const m = Math.min(RUN, size - at), k = Math.round((at + m) * bombs / size) - Math.round(at * bombs / size);
+    let pick;
+    for (let tries = 0; tries < 1000; tries++) {
+      const these = new Set(shuffled([...Array(m).keys()], rnd).slice(0, k));
+      pick = [...Array(m).keys()].map(i => these.has(i));
+      if (!pick.some((x, i) => i >= 2 && x === pick[i - 1] && x === pick[i - 2])) break;
+    }
+    pick.forEach((x, i) => { if (x) out[at + i] += 2; });
+  }
   return out;
+}
+// Stock entries (in seed order), each kind shuffled once with a fixed
+// seed, so the tool always makes the same file, then put in stockSlots'
+// places. With no bombs, the order is 3.3-3.8's (no purple either: 3.0's).
+// Throws when the entries don't fit the places (stockSlots puts a purple
+// or plain one on each place, so the purple bomb puzzles must be as many
+// as the places both purple and bombs).
+export function stockOrder(setup, list) {
+  const slots = stockSlots(setup, list.length, list.filter(isPurple).length, list.filter(hasBomb).length);
+  const rnd = mulberry32(firstSeed(setup) + 1);
+  const by = [0, 1, 2, 3].map(k => shuffled(list.filter(e => kindOf(e) === k), rnd));
+  by.forEach((g, k) => { const want = slots.filter(x => x === k).length; if (g.length !== want) throw new Error(`${setup}: ${g.length} puzzles of kind ${k} (purple 1, bomb 2), places for ${want}`); });
+  return slots.map(k => by[k].shift());
+}
+// How many of each kind a stock of `size` needs (the tool makes these).
+export function stockKinds(setup, size = stockSize(setup)) {
+  const slots = stockSlots(setup, size, Math.round(size * stockPurple(setup) / stockSize(setup)), Math.round(size * stockBombs(setup) / stockSize(setup)));
+  return [0, 1, 2, 3].map(k => slots.filter(x => x === k).length);
 }
 // Run `no`'s puzzle `at` (0-based): the stock's from no * RUN on; after
 // the last they come round again.
@@ -410,6 +631,8 @@ export const stockAt = (list, k) => list[k % list.length];
 export function encode(p) {
   const b = boardOf(p).map(x => (x === 'G' ? '?' : x));
   for (const [r, c, k] of p.gems) b[r * p.n + c] = String(k);
+  // a bomb: A-D colour 1 pointing up, right, down, left; E-H colour 2
+  for (const [r, c, k, d] of p.bombs ?? []) b[r * p.n + c] = String.fromCharCode(65 + (k === 2 ? 4 : 0) + d);
   return [p.seed, p.lamps.map(l => [l.side, l.k]), b.join(''), p.cheapest, p.answer.map(a => `${a.r * p.n + a.c}${a.t}${a.o}`).join(' ')];
 }
 // A stock entry as a puzzle. Throws, saying why, when it isn't one
@@ -417,12 +640,13 @@ export function encode(p) {
 export function decode(setup, e) {
   const { n, lasers } = parseSetup(setup);
   const [seed, lamps, board, cost, answer] = Array.isArray(e) ? e : [];
-  const p = { setup, seed, n, lamps: [], walls: [], gems: [], cheapest: cost, budget: cost + MARGIN, answer: [] };
+  const p = { setup, seed, n, lamps: [], walls: [], gems: [], bombs: [], cheapest: cost, budget: cost + MARGIN, answer: [] };
   try {
     p.lamps = lamps.map(([side, k], i) => ({ side, k, c: i + 1 }));
     [...board].forEach((x, i) => {
       if (x === '#') p.walls.push([Math.floor(i / n), i % n]);
       else if (/[123]/.test(x)) p.gems.push([Math.floor(i / n), i % n, Number(x)]);
+      else if (/[A-H]/.test(x)) { const v = x.charCodeAt(0) - 65; p.bombs.push([Math.floor(i / n), i % n, v >= 4 ? 2 : 1, v % 4]); }
     });
     p.answer = answer.split(' ').filter(Boolean).map(w => {
       const m = /^(\d+)([ms])([01])$/.exec(w);
@@ -447,7 +671,7 @@ export function decode(setup, e) {
 export function problems(p, lasers = p.lamps.length) {
   const out = [], n = p.n;
   if (!Number.isInteger(p.seed)) out.push('no seed');
-  if (typeof p.boardText === 'string' && (p.boardText.length !== n * n || /[^.#123]/.test(p.boardText))) out.push(`the board isn't ${n}×${n} squares`);
+  if (typeof p.boardText === 'string' && (p.boardText.length !== n * n || /[^.#123A-H]/.test(p.boardText))) out.push(`the board isn't ${n}×${n} squares`);
   if (p.lamps.length !== lasers) out.push(`${p.lamps.length} lasers, not ${lasers}`);
   if (new Set(p.lamps.map(l => l.side)).size !== p.lamps.length) out.push('two lasers on one side');
   for (const l of p.lamps) if (![0, 1, 2, 3].includes(l.side) || !(Number.isInteger(l.k) && l.k >= 0 && l.k < n)) out.push(`a laser off the board (${l.side}, ${l.k})`);
@@ -513,6 +737,7 @@ export function tapSquare(g, p, i, sel) {
   const code = boardOf(p)[i];
   if (code === '#') return { ok: false, why: 'wall' };
   if (code === 'G') return { ok: false, why: 'gem' };
+  if (code === 'B') return { ok: false, why: 'bomb' };
   if (g.fixed.includes(i)) return { ok: false, why: 'fixed' };
   const pc = pieceOf(g.pieces[i]);
   let did;
@@ -562,10 +787,17 @@ export function switchLamp(g, p, li) {
   }
   g.fees += WRONG_LAMP;
   g.wrongLamps++;
-  g.failed.push(res.unlit.length || res.wrong.length || res.hits.size ? `${li}` : key);
+  // with bombs, the lasers on change what a beam can reach,
+  // so a failure holds only for the same lasers on
+  g.failed.push(!(p.bombs ?? []).length && (res.unlit.length || res.wrong.length || res.hits.size) ? `${li}` : key);
   for (const h of res.hits) { if (!g.broken.includes(h)) g.broken.push(h); g.on = g.on.filter(x => x !== h); }
   g.miss = { li, others };
   return { did: 'on', res, others };
+}
+
+// An order of switching the lasers on that solves it with `placed`.
+export function workingOrder(p, placed) {
+  return lampOrders(p).find(o => inOrder(p, placed, o)) ?? p.lamps.map((l, li) => li);
 }
 
 // The words for a laser's beam that wasn't right (three lines at most).
@@ -576,6 +808,8 @@ export function missWords(p, res, li) {
   if (res.hits.size) bits.push(res.hits.size > 1 ? 'it broke both lasers' : res.hits.has(li) ? (two ? 'it shone back into its own laser' : 'the beam shone back into the laser') : `it broke the ${other} laser`);
   if (res.unlit.length) bits.push(two ? `no ${name} on ${res.unlit.length} 💎` : `${res.unlit.length} 💎 not lit`);
   if (res.wrong.length) bits.push(`${name} on ${res.wrong.length} ${other} 💎`);
+  if (res.blocked?.some(x => x.why === 'colour')) bits.push(`it stopped at the ${other} bomb`);
+  if (res.blocked?.some(x => x.why === 'side')) bits.push('it reached a bomb from the side, not from behind');
   return `${two ? `The ${name} beam isn't right` : 'Not yet'}: ${bits.join(', ')}. That cost ${coins(WRONG_LAMP)}.`;
 }
 export function rightWords(g, p, li) {
@@ -655,7 +889,7 @@ export function giveUp(g, p, answers) {
   g.pieces = Array(p.n * p.n).fill('');
   for (const x of a) g.pieces[x.r * p.n + x.c] = `${x.t}${x.o}`;
   g.fixed = a.map(x => x.r * p.n + x.c);
-  g.on = p.lamps.map((l, li) => li); g.broken = []; g.failed = []; g.miss = null;
+  g.on = workingOrder(p, answerMap(a, p.n)); g.broken = []; g.failed = []; g.miss = null;
   g.result = 'gaveup';
   g.saved = -p.budget;
   return true;
@@ -694,7 +928,7 @@ export function endWords(g, p, best, run = {}) {
 export function bestView(g, p, best) {
   const pieces = Array(p.n * p.n).fill('');
   for (const x of best) pieces[x.r * p.n + x.c] = `${x.t}${x.o}`;
-  return { ...g, pieces, fixed: [], on: p.lamps.map((l, li) => li), broken: [], failed: [], miss: null };
+  return { ...g, pieces, fixed: [], on: workingOrder(p, answerMap(best, p.n)), broken: [], failed: [], miss: null };
 }
 
 // ❤️ Try again (3.2): the board cleared, a hint's pieces too, and all the
