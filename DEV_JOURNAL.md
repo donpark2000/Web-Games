@@ -62,6 +62,22 @@ time, each tried before publishing:
   Claude's view, not measured: little to gain for a new rule (see
   "v9 played: the mix; armour; two-colour bombs"). Parked unless the
   developer wants it tried.
+- **Q43. Bridges: guessing forever.** (2026-10-24, developer, after 5.0
+  on the phone: "it seems to have unlimited 'undo' which means you can
+  just keep guessing forever.") Undo isn't the way in: a tap on a bridge
+  cycles it 0, 1, 2, 0 (`cycle` in `src/core/bridges.js`), so any bridge
+  comes off with taps anyway, and Clear takes them all. Nothing during
+  play says whether a bridge is in the answer (an island's colour only
+  says its count); only the win does, so trying until it works costs
+  nothing but time. Claude's suggestion: **count mistakes silently**
+  (each bridge laid that the answer doesn't have), shown only at the
+  end ("Solved in 3:10 / 2 mistakes · 1 hint"), Undo not taking them
+  back (as Find the Stars), and a best time only with no mistakes;
+  nothing said during play, so it gives nothing away. Other ways:
+  Find the Stars' hearts (a wrong bridge shakes and costs one; but that
+  marks each guess right or wrong at once, and is hard on the kids at
+  Small), or leave it (the usual Hashi; the clock is the cost). For the
+  developer to choose.
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-23, later: "Match the model to the work"
@@ -10630,3 +10646,12 @@ running.
    built; release 5.0".
 2. Still open: **Q32**, **Q34** (a session on Sonnet 5.5), **Q35**,
    **Q36** (Laser Lab parked); Dots and Boxes 4.2 with the kids.
+
+## 2026-10-24: 5.0 on the phone; Q43 (guessing forever)
+
+**Developer**, after Bridges 5.0 on the phone: "It works well on the
+phone. But it seems to have unlimited 'undo' which means you can just
+keep guessing forever." Checked in the code: a tap cycles a bridge 0, 1,
+2, 0 and Undo only steps back through the same boards, so limiting Undo
+alone wouldn't stop guessing. Raised as **Q43** (see "Open questions",
+with Claude's suggestion and the other ways), for the developer to choose.
