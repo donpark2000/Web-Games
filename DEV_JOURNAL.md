@@ -62,6 +62,25 @@ time, each tried before publishing:
   Claude's view, not measured: little to gain for a new rule (see
   "v9 played: the mix; armour; two-colour bombs"). Parked unless the
   developer wants it tried.
+- **Q38. "Bomb", or a name that says direction?** (2026-10-23,
+  developer, before publishing 3.10: "calling them 'concentrators' or
+  'amplifiers' might reinforce the notion of direction and have a better
+  cognitive bond with the funnel shape.") Claude's view: for young
+  players a short everyday word; "concentrator" is long and abstract,
+  "amplifier" says louder rather than "brings a wall down"; suggested
+  "booster" (short, one way, fits the funnel; it burns out as the wall
+  comes down). Only the words change (rules line, messages, labels); the
+  code keeps `bombs` as it kept `lamp` for the laser. To decide.
+- **Q39. Should a wrong-colour beam put it out of action?** (2026-10-23,
+  developer: "it might be worth adding a rule that says the wrong color
+  laser renders it inoperable. I'm not sure if that complexity makes any
+  difference.") Measured on 3.10's stock (answer's pieces down, the other
+  colour switched on first): its beam reaches the bomb in 20 of 67
+  two-laser bomb puzzles at 6×6 and 25 of 67 at 7×7; in the rest it stops
+  at the wall the bomb would bring down. Claude's view: it adds a
+  penalty for guessing the order (already 1 coin), not something new to
+  work out, and only in about a third of the puzzles; it needs a mend
+  rule, a drawing and words. Suggested: leave it out. To decide.
 
 ## Proposed additions to the standards skill
 
