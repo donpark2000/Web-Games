@@ -20,9 +20,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '3642495c7376';
-const MADE = '2026-10-24';
-const RELEASE = '5.0';
+const VERSION = '11d40472a957';
+const MADE = '2026-10-25';
+const RELEASE = '6.0';
 const FILES = [
   'bridges.html',
   'colour-sudoku.html',
@@ -42,6 +42,7 @@ const FILES = [
   'css/log.css',
   'css/matching.css',
   'css/nim.css',
+  'css/reversi.css',
   'css/rock-paper-scissors.css',
   'css/site.css',
   'css/snakes-ladders.css',
@@ -65,6 +66,7 @@ const FILES = [
   'manifest.webmanifest',
   'matching.html',
   'nim.html',
+  'reversi.html',
   'rock-paper-scissors.html',
   'snakes-ladders.html',
   'src/core/appversion.js',
@@ -86,6 +88,7 @@ const FILES = [
   'src/core/players.js',
   'src/core/release.js',
   'src/core/resume.js',
+  'src/core/reversi.js',
   'src/core/rock-paper-scissors.js',
   'src/core/snakes-ladders.js',
   'src/core/stats.js',
@@ -120,8 +123,10 @@ const FILES = [
   'src/ui/numbercard.js',
   'src/ui/offline.js',
   'src/ui/resume.js',
+  'src/ui/reversi.js',
   'src/ui/rock-paper-scissors.js',
   'src/ui/rpspics.js',
+  'src/ui/rvboard.js',
   'src/ui/scrolllog.js',
   'src/ui/snakes-ladders.js',
   'src/ui/snlart.js',

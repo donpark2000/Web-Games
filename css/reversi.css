@@ -1,0 +1,77 @@
+/* Reversi screens. The setup screen, turn line, scorecards and buttons are
+   the other games' (game.css; the two scorecards as in Dots and Boxes).
+   The board is drawn in SVG, in squares (src/ui/rvboard.js): a green
+   board with a wooden rim, black and white discs drawn as real pieces. */
+
+/* --cell is one square's size. src/ui/reversi.js sets it on the play
+   screen from a fitted size, so the whole page fits the screen with no
+   scrolling; --span is the board in squares, rim included. */
+:root { --cell: 48px; --span: 6.6; --cheer-scale: 1.4; }
+
+/* setup: the rules beside a small board with two discs flipping */
+.intro { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px; }
+.mini svg { width: 104px; height: 104px; display: block; }
+.rules { font-size: 16px; line-height: 1.4; margin: 0; }
+.rules b { white-space: nowrap; }
+.start svg { width: 52px; height: 52px; display: block; margin-bottom: 2px; }
+h2 .blackfirst { font-size: 14px; font-weight: 600; color: var(--muted); }
+/* The rules' picture flips its two discs over and over. */
+.mini .flipping .out { animation: flipout 3.2s ease-in-out var(--d) infinite; }
+.mini .flipping .in { animation: flipin 3.2s ease-in-out var(--d) infinite; }
+@keyframes flipout { 0%, 6% { transform: scaleX(1); } 11%, 100% { transform: scaleX(0); } }
+@keyframes flipin { 0%, 11% { transform: scaleX(0); } 16%, 92% { transform: scaleX(1); } 97%, 100% { transform: scaleX(0); } }
+
+/* play screen */
+#play { gap: 12px; }
+.boardwrap { display: grid; justify-items: center; }
+.board {
+  width: calc(var(--cell) * var(--span)); height: calc(var(--cell) * var(--span)); display: block;
+  border-radius: 14px; box-shadow: 0 4px 0 var(--line);
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+/* Only the board itself takes touches: its inside is redrawn on every
+   move, and a touch's end must reach something still there (DESIGN.md
+   "No zooming in"). */
+.board * { pointer-events: none; }
+
+/* A disc turns over about its middle: the old colour narrows to nothing,
+   then the new one widens from nothing, each disc a little after the one
+   before it (--d, from src/ui/reversi.js). */
+.disc { transform-box: fill-box; transform-origin: center; }
+#board .flipping .out { animation: turnaway .14s ease-in var(--d) both; }
+#board .flipping .in { animation: turnin .14s ease-out calc(var(--d) + .14s) both; }
+@keyframes turnaway { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes turnin { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* A disc put down drops in. */
+.disc.put { animation: drop .22s cubic-bezier(.3, 1.5, .6, 1); }
+@keyframes drop { from { transform: translateY(-.25px) scale(1.25); opacity: .4; } to { transform: none; opacity: 1; } }
+/* The robot's latest disc stays ringed until the person plays. */
+.lastmark { animation: ring 1.6s ease-in-out infinite; }
+@keyframes ring { 50% { opacity: .35; } }
+/* At the end the winner's discs bob once, one after another. */
+.disc.win { animation: bob .5s ease-in-out var(--d) 2; }
+@keyframes bob { 50% { transform: translateY(-.12px); } }
+
+/* scorecard 1: discs this game, the dark strip; each side the face, a disc
+   of that player's colour this round, the count and the name */
+.sc {
+  background: var(--ink); color: var(--board-ink); border-radius: 18px; padding: 6px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 4px;
+}
+.sc .side { gap: 6px; }
+.sc .side .chip { width: 52px; height: 52px; flex: none; }
+.sc .side .n { font-size: 30px; }
+.disc1 .cd { width: 26px; height: 29px; display: block; }
+.mid { display: grid; justify-items: center; font-size: 11px; opacity: .8; text-align: center; line-height: 1.2; }
+
+/* scorecard 2: games won, light and smaller */
+.sc2 {
+  background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 6px 10px;
+  display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 15px; font-weight: 700; flex-wrap: wrap;
+}
+.sc2 .lbl { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; line-height: 1.15; text-align: center; }
+.sc2 .chip { width: 30px; height: 30px; display: block; }
+.sc2 .w { display: flex; align-items: center; gap: 5px; font-variant-numeric: tabular-nums; }
+.controls { margin-top: 4px; }
+/* "No move for ...": the turn line's words, a little smaller */
+.turn .pass { font-size: 19px; }

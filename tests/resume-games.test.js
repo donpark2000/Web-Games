@@ -14,6 +14,7 @@ import * as snl from '../src/core/snakes-ladders.js';
 import * as dice from '../src/core/five-dice.js';
 import * as nim from '../src/core/nim.js';
 import * as db from '../src/core/dots-boxes.js';
+import * as rv from '../src/core/reversi.js';
 import * as rps from '../src/core/rock-paper-scissors.js';
 import * as fm from '../src/core/follow-me.js';
 
@@ -50,6 +51,10 @@ test('resume: every game\'s match comes back from JSON and plays on the same', (
   check('dots and boxes', db.createMatch({ vsRobot: true, ...faces, firstRule: 'alt', level: 'hard', size: 7 }),
     m => { for (const l of [{ k: 'h', r: 0, c: 0 }, { k: 'v', r: 0, c: 0 }, { k: 'h', r: 1, c: 0 }]) db.draw(m, l); },
     m => [db.draw(m, { k: 'v', r: 0, c: 1 }), db.robotMove(m.board, m.level, mulberry32(13))]);
+  const rvFirst = m => { const [x] = rv.legalMoves(m.board, m.turn); return rv.play(m, x.r, x.c); };
+  check('reversi', rv.createMatch({ vsRobot: true, ...faces, firstRule: 'alt', level: 'hard', size: 8 }),
+    m => { rvFirst(m); rvFirst(m); rvFirst(m); },
+    m => [rvFirst(m), rv.robotMove(m.board, m.turn, m.level, mulberry32(14))]);
   check('rock paper scissors', rps.createMatch({ p1: 'bear' }),
     m => { rps.newRound(m, mulberry32(9)); rps.unlock(m); rps.choose(m, 'rock'); rps.newRound(m, mulberry32(10)); rps.unlock(m); },
     m => rps.choose(m, 'paper'));

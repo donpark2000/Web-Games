@@ -7,6 +7,25 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 6.0 (2026-10-25, version 11d40472a957)
+
+A new game, **Reversi**, in 👥 Two players, after Dots and Boxes:
+
+- Put down a disc to trap a line of the other colour between two of
+  yours; the trapped discs flip over. When neither player can move,
+  most discs wins (a tie is possible).
+- Classic black and white discs, drawn as real pieces seen at an angle.
+  Whoever goes first plays black.
+- **Me and the robot** (⭐ Easy or ⭐⭐⭐ Hard) or **Two players**; a
+  **6×6** board (picked to start with, for the kids) or the classic
+  **8×8**; who goes first as in the other games.
+- Faint dots show where you can play. Hold a finger down to see the
+  disc and the discs it would flip; it goes down as you lift. The
+  robot's latest disc stays ringed until you play. With no move: "No
+  move for Teddy, so Robot goes again."
+- The tally shows each player's face, colour and discs, with games won
+  under it.
+
 ## 5.0 (2026-10-24, version 3642495c7376)
 
 A new game, **Bridges** (the Hashi puzzle), in 👤 One player, for the

@@ -52,6 +52,10 @@
         <span class="pic db" id="dbPic" aria-hidden="true"></span>
         Dots and Boxes
       </a>
+      <a class="game" id="rvLink" href="reversi.html">
+        <span class="pic rv" id="rvPic" aria-hidden="true"></span>
+        Reversi
+      </a>
     </div>
   </section>
   <section class="group" id="oneGroup" aria-labelledby="oneTitle">
@@ -111,6 +115,7 @@
   import { miniSvg as llMini } from './src/ui/llboard.js';
   import { miniSvg as dbMini } from './src/ui/dbboard.js';
   import { miniSvg as brMini } from './src/ui/brboard.js';
+  import { miniSvg as rvMini } from './src/ui/rvboard.js';
   import { log, startLog } from './src/ui/debuglog.js';
   import { homePage } from './src/ui/resume.js';
   import { logScrollRoom } from './src/ui/scrolllog.js';
@@ -159,6 +164,8 @@
   // Dots and Boxes: a corner of a game under way, a box each for the bear
   // and the robot (the setup screen's picture).
   document.getElementById('dbPic').innerHTML = dbMini(['bear', 'robot'], 'dbmini');
+  // Reversi: a corner of a game under way, black's line just made.
+  document.getElementById('rvPic').innerHTML = rvMini('rvmini');
   // Follow Me: the four pads, the frog lit up.
   document.getElementById('fmPic').innerHTML = padsFor(4, 'bear').map((p, i) =>
     `<span class="${i === 0 ? 'lit' : ''}" style="${padStyle(p.color)}">${svg(p.face, i === 0 ? 'winner' : 'normal')}</span>`).join('');

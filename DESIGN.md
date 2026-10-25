@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-24, latest): **Bridges** (the Hashi puzzle) built from
+*Status (2026-10-25, latest): **Reversi** built from mockup v1 with the
+discs seen at an angle (sample C), in 👥 Two players after Dots and
+Boxes (release 6.0; see "Reversi"). 2026-10-24: **Bridges** (the Hashi puzzle) built from
 mockup v1 with Give up added, in 👤 One player, Small preselected
 (release 5.0; see "Bridges"). Earlier the same day: Bridges designed
 (mockup v1 liked); the physics idea dropped. Earlier: Dots and Boxes: the Easy robot always
@@ -71,6 +73,8 @@ page. So far:
 - **Nim** (take matches from one row; whoever takes the last one wins)
 - **Dots and Boxes** (2026-10-24; draw lines between dots, close a box
   to win it and go again)
+- **Reversi** (2026-10-25; trap the other colour's discs to flip them;
+  most discs wins)
 - **Rock paper scissors** (against the robot)
 - **Follow Me** (repeat the robot's order of faces, Simon-style)
 - **Bridges** (2026-10-24; the Hashi puzzle: join numbered islands with
@@ -116,7 +120,7 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   2026-10-04): **👥 Two players** first (a game with a two-player choice,
   the second player a person or the robot: tic-tac-toe, matching cards,
   Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim, Dots and
-  Boxes), then **👤 One player** (no way to play
+  Boxes, Reversi), then **👤 One player** (no way to play
   another person: rock paper scissors, Follow Me, Bridges), then **🧩 Puzzles for
   grown-ups** (Find the Stars, Colour Sudoku, Laser Lab; developer, 2026-10-13: one
   site, kept apart). Each game in one group only (developer, 2026-10-24,
@@ -544,6 +548,69 @@ game; the board as big as fits with no scrolling (63 px boxes at 5×5 and
 scrolls); the home page's button a 3 × 3 corner of a game under way (the
 setup screen's picture). Sounds: a tick per line, a ding per box, a ping
 when the turn comes back from the robot, and the end-of-round sound.
+
+### Reversi
+
+The developer's game, agreed 2026-10-25 (journal, "Reversi: the rules
+agreed; mockup v1"): Othello's game under its old free name ("Othello"
+is a trademark, as Yahtzee became Five Dice).
+[Reversi Mockup](https://claude.ai/artifact/NYMiWjNSCNGvvSYtWRxTHv)
+(private Claude artifact, version 3; developer: "Reversi mockup is
+great"), the discs from
+[Reversi Disc Samples](https://claude.ai/artifact/Dc8RZpsbdj96L8U67W4a9f)
+(version 1). **Built 2026-10-25** from the mockup's files (release 6.0),
+for the developer to try on the phone. Files and storage: `reversi`
+(`reversi.html`, `src/core/reversi.js`, the board's drawing
+`src/ui/rvboard.js`, shared with the home page's button).
+
+Agreed with the developer:
+- **In 👥 Two players**, after Dots and Boxes: **Me and the robot** or
+  **Two players**, face pickers, as Dots and Boxes.
+- **The rules:** put down a disc so that one or more straight lines of
+  the other colour are trapped between it and one of yours; they flip.
+  No such square: you pass ("No move for Teddy, so Robot goes again.").
+  Neither can move: most discs wins; a tie is possible.
+- **Classic black and white discs**, no faces on them (developer: "just
+  classic black and white"), **drawn as 3D playing pieces** ("make the
+  discs look like 3d playing pieces instead of just circles"), **seen at
+  an angle** (developer, 2026-10-25: mockup v1's black disc "looks more
+  like a ball than a disc"; of four samples, C: "It looks more like real
+  pieces"): the top an oval with a flat face, the side a band of its own
+  colour over one of the other.
+- **The tally** (the dark strip): each player's face, a disc of their
+  colour, the count and the name ("the tally of pieces for each player
+  can show up beside their avatar"); **Games won** under it.
+- **How big?** **6×6** (preselected, for the kids) / **8×8**; **How
+  hard?** ⭐ Easy / ⭐⭐⭐ Hard (robot only); **Who goes first?** the usual
+  three; **whoever goes first plays black** (black moves first).
+- **Dots where you can play** (a person's turn only); **a finger held
+  down** shows the disc faintly and spots the discs it would flip; played
+  as it lifts. No confirm, no Undo.
+- **The robot's disc** shows faintly, then goes down; its discs flip one
+  after another; **its latest disc stays ringed until the person plays**
+  (Dots and Boxes 4.1's lesson).
+- **The end:** "<face> wins!" or "It's a tie!", the scorecard cheer and
+  "aww" face, the winner's discs bob; Play again / New game.
+
+Claude's choices in the mockup, to be judged on the phone:
+- **The robot** (`robotMove`, `ROBOT_TUNING`): **Easy** takes a corner
+  it can half the time, otherwise the move that flips the most 40% of the
+  time, else any move; **Hard** looks 4 moves ahead on square weights
+  (corners best, the squares next to them worst, edges good) plus its
+  moves open, and plays the last 8 empty squares out exactly. Hard beat
+  Easy in 40 of 40 games at both sizes; Hard's move 4 ms on average at
+  6×6, 23 ms at 8×8 (slowest 290 ms) on the developer's PC.
+- **The board:** green felt in a wooden rim with the four small dots; as
+  big as fits with no scrolling (54 px squares at 6×6 and 41 px at 8×8 on
+  a 393 × 760 phone; at least 30 px, below which the page scrolls).
+- **A flip:** the old colour narrows to nothing and the new one widens,
+  90 ms apart out from the disc put down, a tick each; the disc put down
+  drops in with a thud. The robot thinks 0.8 s (or until the last move's
+  discs have turned, plus 0.35 s), shows its disc 0.5 s, then plays; a
+  ping when the turn comes back. A tap where no disc can go: "Put it on a
+  dot!" for 2 s and "uh-oh".
+- **The setup's picture:** a disc put down and two discs flipping over
+  and over; the home page's button a 4 × 4 corner of a game under way.
 
 ### Rock paper scissors
 

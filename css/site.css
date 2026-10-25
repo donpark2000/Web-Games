@@ -165,5 +165,9 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
    also the setup screen's rules picture. */
 .game .pic.bridges { display: block; width: 150px; }
 .game .pic.bridges .brmini { display: block; width: 100%; height: auto; }
+/* Reversi: a corner of a game under way, its colours inline
+   (src/ui/rvboard.js). */
+.game .pic.rv { display: block; width: 150px; }
+.game .pic.rv .rvmini { display: block; width: 100%; height: auto; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

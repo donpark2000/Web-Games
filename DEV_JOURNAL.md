@@ -10831,3 +10831,54 @@ artifact itself, a real phone.
 
 **Next:** the developer picks a disc (or asks for changes); then build
 Reversi into the site with it (release 6.0).
+
+## 2026-10-25: Reversi built with disc C; release 6.0
+
+**Developer:** "I like C best - the angle view. It looks more like real
+pieces. At this point I think you can build and publish. My next step
+would be to test on my phone."
+
+**Built** on `reversi` from the mockup's files (read back from the
+artifact, version 3; the scratch copy of the last session was gone with
+its scratchpad): `reversi.html` (Dots and Boxes' page shell: manifest,
+icons, footer, stats and offline; the mockup's body, the 🏠 back to
+`index.html`), `css/reversi.css`, `src/core/reversi.js`,
+`src/ui/reversi.js`, `src/ui/rvboard.js`, `tests/reversi.test.js`. The
+mockup's shared files were compared with the repo's first: all the same
+but `GAME_PAGES` (`src/core/resume.js`, Reversi after Dots and Boxes).
+Changed on the way in:
+- **The discs are sample C** (`discSvg` in `rvboard.js`): the top an
+  oval (0.4 by 0.3 of a square, its centre 0.43 down), a flat face
+  lighter at the back, the side two bands of 0.085 (its own colour over
+  the other's) shaded as a cylinder; the spots on the discs a held
+  finger would flip moved to the oval's centre; the tally's disc a
+  little lower in its picture.
+- **The home page's button** (`miniSvg`, `.pic.rv` in `site.css`): a
+  4 × 4 corner of a game under way, black's line just made; in 👥 Two
+  players after Dots and Boxes.
+- **`.note` renamed `.blackfirst`** ("(black goes first)" on the setup
+  screen): `css.test.js` caught it shared a name with `site.css`'s
+  `.game .note`.
+- **Tests:** the 12 Reversi tests; `pages.test.js` (fifteen games,
+  Reversi in 👥 Two players); `sound.test.js` (thud, tick, uh-oh, ping:
+  35 sounds checked, was 31); `resume-games.test.js` (an 8×8 match
+  against Hard comes back from JSON and plays on the same). The suite:
+  431 of 431.
+
+**Checked** in the built-in browser on `tools/serve.js` (8123), 393 ×
+760: the home page's button with its 9 discs, no sideways scroll; 6×6
+against the robot (Easy): 54 px squares, the page 760 of 760, a tapped
+dot played and the robot answered (3-3, its disc ringed); a whole round
+by script, 16 taps: a pass ("pass", robot) and a tie, 18-18, Games won
+0-0 ("round won", tie, next starter the robot); Two players 8×8: 41 px,
+760 of 760, the setup with no sideways scroll; a reload in the middle
+came back to the same board (3-3, Teddy's turn, 41 px). No console
+errors, no errors in the log. Not checked: a real finger, sound by ear,
+the drawn discs at full size on this pane (its screenshots came back at
+half scale this session; the disc samples page showed the same drawing
+at full size).
+
+**Release 6.0** (a new game): `src/core/release.js` 6.0, `node
+tools/offline.js` (version 11d40472a957, 111 files), notes in
+`RELEASES.md`; `node tools/release.js`: "Release 6.0 is ready: version
+11d40472a957; tag v6.0 not made yet."
