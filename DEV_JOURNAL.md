@@ -10656,3 +10656,125 @@ keep guessing forever." Checked in the code: a tap cycles a bridge 0, 1,
 2, 0 and Undo only steps back through the same boards, so limiting Undo
 alone wouldn't stop guessing. Raised as **Q43** (see "Open questions",
 with Claude's suggestion and the other ways), for the developer to choose.
+*Developer:* "lets leave it for now. I'll play it some more and think
+about it."
+
+## 2026-10-25: Reversi: the rules agreed; mockup v1
+
+**Developer:** "I remember another board game I played as a kid that
+might be a good fit. It was called othello (and sometimes reversi) ...
+Do you think that woudl be a good fit (or a similar game that involves
+capturing pieces)?" Claude: a good fit for 👥 Two players (few rules,
+short games, the robot cheap to tune); "Othello" is a trademark, so
+**Reversi** (as Yahtzee became Five Dice); for 5-7-year-olds the hard
+part is seeing where a disc can go, so faint dots there and the discs
+that would flip shown under a finger held down; checkers second
+(more rules, longer), Mancala and Ataxx mentioned.
+
+**Developer:** "I would not bother with faces on the playing pieces -
+just classic black and white. But the tally of pieces for each player
+can show up beside their avatar. Same set up - pick board size, 2
+player or one player against robot. Any questions or suggestions?"
+Claude's suggestions and defaults; the developer: "It sounds good. It
+would be good to make the discs look like 3d playing pieces instead of
+just circles." So, agreed:
+- **Classic black and white discs**, drawn as **3D playing pieces**;
+  no faces on them. The tally (the dark strip) shows each player's
+  face, a disc of their colour, the count and the name; Games won
+  under it, as Dots and Boxes.
+- **Setup as Dots and Boxes:** Me and the robot / Two players, face
+  pickers, **How big?** **6×6** (preselected, for the kids) / **8×8**,
+  **How hard?** ⭐ Easy / ⭐⭐⭐ Hard (robot only), **Who goes first?** the
+  usual three; **whoever goes first plays black** (black moves first).
+- **Dots where you can play** (a person's turn only); a finger held
+  down shows the disc faintly and spots the discs it would flip; played
+  as it lifts. No confirm, no Undo.
+- **The robot's disc** is shown faintly, then put down; its discs
+  flip one after another; its latest disc stays ringed until the
+  person plays (Dots and Boxes 4.1's lesson).
+- **No move:** "No move for Teddy, so Robot goes again." **The end:**
+  most discs wins, a tie possible; the usual cheer, Play again / New
+  game. In 👥 Two players after Dots and Boxes.
+
+**Mockup v1:** [Reversi Mockup](https://claude.ai/artifact/NYMiWjNSCNGvvSYtWRxTHv)
+(private Claude artifact, version 3). As Dots and Boxes' v1, the game's
+own page and files (18), built in a scratch copy of the site (Claude's
+scratchpad, `rev/site`, `reversi.html` added to `GAME_PAGES` there) and
+made into the artifact by a scratch script (`rev/build.mjs`: stats and
+offline left out, the 🏠 goes nowhere). The artifact also holds the
+tests and scratch tools (`tests/reversi.test.js`, `tools/build.mjs`,
+`tools/measure.mjs`), so a new session can read them back. Nothing in
+the repo yet but this entry.
+- **Rules** (`src/core/reversi.js` in the copy, no DOM): `cells` n×n
+  holding the player; `freshBoard` (the starter's discs top-right and
+  bottom-left of the four); `flipsFor` (nearest first along each line),
+  `legalMoves`; `play` (then the other player, or a pass
+  (`match.passed`), or the end when neither can move: scored, the next
+  starter); `match.black` = the round's starter.
+- **The robot** (`robotMove`): **Easy** takes a corner it can half the
+  time, otherwise the most flips 40% of the time, else any move
+  (`ROBOT_TUNING`); **Hard** looks 4 moves ahead (alpha-beta) on
+  `squareWeight` (corners 100, the squares diagonally next to them -50,
+  the edge squares next to them -20, other edges 10, inside -1) plus 5
+  per move more than the other side, and plays the last 8 empty squares
+  out exactly. Measured (`tools/measure.mjs`, 40 games a size, Hard
+  against Easy, each starting half): **Hard won 40 of 40 at both
+  sizes**; Hard's move 4 ms on average at 6×6 (slowest 39 ms), 23 ms at
+  8×8 (slowest 290 ms) on this PC; the phone's to see in the log
+  ("robot chose", `ms`).
+- **Screen** (`src/ui/reversi.js`, from Dots and Boxes'; the board's
+  drawing `src/ui/rvboard.js`): a green board with a wooden rim and the
+  four small dots; **the disc**: a shadow, then two layers seen a little
+  from the front (the other colour under, its own colour over, as a real
+  disc is black one side and white the other), the top with a radial
+  shine and a highlight. A flip: the old colour narrows to nothing and
+  the new one widens (0.14 s each), 90 ms apart out from the disc put
+  down, a tick each; the disc put down drops in with a thud. The robot
+  thinks 0.8 s, or until the last move's discs have turned plus 0.35 s,
+  shows its disc 0.5 s, then plays; a ping when the turn comes back. A
+  tap where no disc can go: "Put it on a dot!" for 2 s and "uh-oh". The
+  winner's discs bob at the end. Only the SVG takes touches (its inside
+  is redrawn; DESIGN.md "No zooming in"), and it cancels each touch's
+  end. Logged ("reversi"): each move (who, square, flipped, discs,
+  pass), the robot's choice, reason and time, refused moves and taps,
+  the fit, round won, resumed.
+
+**Tests** (`tests/reversi.test.js` in the copy, 12, all pass): the
+starting four and black's four first moves at both sizes; flips (two
+trapped, one, a gap, the other colour, a taken square, off the board);
+all eight directions at once; `play` and refused moves changing nothing;
+the end when neither can move (scored, next starter, then refused); a
+pass; a tie scored for nobody; whole random rounds at both sizes with
+each who-goes-first rule (whoever has the turn can move, black =
+starter, over only when neither can); the square weights; the robot's
+moves always legal, Hard taking a corner on offer; Hard beating Easy in
+at least 75% of games at both sizes. **One test was wrong at first:**
+its "corner on offer" board was a few discs on an empty board, the
+corner reached along a diagonal, so taking it also left Hard holding the
+square next to the corner, and its look-ahead chose the other move;
+remade with the corner along an edge, where it is plainly best.
+
+**Checked** in the built-in browser, 393 × 760, the scratch copy
+served on 8124 (a temporary `.claude/launch.json` entry, removed after):
+setup fits the phone's width (the rules' picture flips two discs over
+and over); 6×6 against the robot: 54 px squares, the page 760 of 760,
+no sideways scroll; a tapped dot played, its disc flipped, "Robot is
+thinking…", the robot's faint disc, then its move, ringed; a whole game
+by script (taps on random dots): 15 moves, "Robot wins!", 8 to 28, the
+board full, Teddy's "aww" face, Games won 0-1; Play again: the robot
+started, black, Teddy white with white dots; a finger held down showed
+the faint disc and a spot on the disc it would flip. Two players 8×8:
+41 px squares, 760 of 760. 320 × 568, 8×8: at the 30 px floor the page
+scrolls 76 px (Dots and Boxes' 7×7 scrolls 53 there). No console
+errors. Changed on the way: the disc thicker and with a highlight (the
+first was flat at a phone's size); the disc dropped from the turn line
+("Teddy's turn" broke onto two lines; the tally shows the colour).
+Not checked: the published artifact itself, a pass on screen (in the
+tests only), sound, a real finger.
+
+**Next:**
+1. The developer plays the mockup in the app.
+2. Then build it into the site from the scratch copy (or the artifact's
+   files): the page, the home page's button and picture (👥 Two
+   players, after Dots and Boxes), `GAME_PAGES`, stats, `tools/offline.js`,
+   DESIGN.md, release 6.0 (a new game).
