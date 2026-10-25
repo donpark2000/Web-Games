@@ -10882,3 +10882,31 @@ at full size).
 tools/offline.js` (version 11d40472a957, 111 files), notes in
 `RELEASES.md`; `node tools/release.js`: "Release 6.0 is ready: version
 11d40472a957; tag v6.0 not made yet."
+
+## 2026-10-25: Release 6.0 published (Reversi); status (start here next session)
+
+**Published** on the developer's "build and publish": `npm test` 431
+passed; `node tools/release.js`: "Release 6.0 is ready". `main`
+fast-forwarded 873fc95..bf53a39 (`git push origin reversi:main`), tag
+`v6.0`, [GitHub release 6.0](https://github.com/donpark2000/Web-Games/releases/tag/v6.0)
+(Latest). Live within about a minute: `version.js` 11d40472a957, `sw.js`
+RELEASE 6.0, `reversi.html` 200. In the built-in browser the live home
+page first showed 5.0 (its copy saved offline at 5.0's check), then
+reloaded itself as the new version took over (3.11's `reloadFor`):
+"Version 6.0 · Oct 25, 2026 · 11d404", Reversi last in 👥 Two players
+with its picture (9 discs).
+
+**Local servers:** the preview on 8123 stopped; no other `serve.js`
+running.
+
+**Status:** 6.0 live. Nothing waiting on this branch but this entry.
+No open questions.
+
+**Next:**
+1. **The developer tries Reversi on the phone:** the discs (C) at a
+   phone's size; a finger held down (the faint disc, the spots) and
+   lifted; the robot's pace and ringed disc; Easy and Hard (the log's
+   "robot chose" `ms` at 8×8); a pass; Claude's choices listed in
+   DESIGN.md "Reversi".
+2. Purge `rev-discs` and the mockup copies: nothing to purge (they were
+   in Claude's scratchpad, not the testing folder).
