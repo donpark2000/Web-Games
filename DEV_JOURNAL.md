@@ -10,75 +10,8 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q32. Laser Lab on the phone.** Built 2026-10-22 from mockup v7 as
-  it stood (see "Laser Lab built"); to judge on the developer's phone
-  once published (3.0): Claude's choices (DESIGN.md "Laser Lab": the
-  budget = cheapest + 3, cost floors 6/7/8, no Try again, the end's
-  words, the laser drawing), and the build's: a puzzle left unfinished
-  waits in its run, the status stacking on narrow phones, purple gems in
-  about 1 in 7 two-laser puzzles (3 of 50 at 8×8; *2026-10-22:* the
-  developer: keep them, about 1 in 3, spread through each run: release
-  3.3, see "Purple gems spread"), 50 puzzles for 8×8 with two lasers,
-  and how long the first hint takes (the log's "cheapest ways worked
-  out"). *2026-10-22:* 3.2 adds a budget row and a second tools row,
-  so the board is smaller (6×6 at 393 × 760: 40 px squares, 3.0 47 px;
-  see "Laser Lab 3.2 built"): to judge on the phone. *2026-10-22,
-  developer:* "ok" (taken as: nothing to change for now); stays open
-  until 3.3's purple gems have been played.
+None.
 
-- **Q34. Which Claude model for which work?** (2026-10-23, developer:
-  "I have been using your opus model for everything ... Could you tell
-  me if a different model was better suited".) Claude's view, not yet
-  tested here: Opus 5.5 for design, mockups and hard bugs (as now);
-  Sonnet 5.5 (about half Opus's price) likely enough for routine
-  fix-and-publish sessions; Haiku 5.5 for mechanical look-ups only;
-  Fable 5.1 (about 2.5 times Opus) for the hardest puzzle-logic work.
-  A session can't switch its own model (the developer picks it in the
-  app's model menu); Claude can set one for a session or helper it
-  starts. To try: one routine session on Sonnet 5.5, compared; a
-  standards-skill line only once that shows something general.
-  *2026-10-23, developer:* "Can you add the skill to suggest model
-  changes when appropriate": added to the skill, section 7, "Match the
-  model to the work" (see "Proposed additions"). Stays open for the
-  Sonnet 5.5 trial.
-- **Q35. Which new rule makes Laser Lab harder, not easier?**
-  (2026-10-23, developer: "I like the concept of the color mirror. But
-  would it make things easier or harder? I don't want to add features
-  that make the game easier. It is already fairly easy." The same for
-  more lasers, or placing them.) Claude's reasoning, not measured: any
-  way within the budget wins, so a new piece or a free choice mostly
-  gives the player more ways to win (easier) unless the puzzles are
-  made to need it; more lasers add rules that pull against each other
-  (likely harder); placing the lasers removes the beam's known start
-  but adds many ways in (unclear). The budget (cheapest + 3) is the
-  plainest lever. To measure with the maker and solver before building:
-  how many ways fit the budget, per variant. *2026-10-23:* measured
-  (see "Q35 measured"): the budget's margin matters most; a colour
-  mirror makes it harder only in puzzles made to need it; more lasers
-  add a little at 6×6. Open until the developer chooses.
-- **Q36. A two-colour bomb?** (2026-10-23, developer: "A bomb that
-  only goes if two colours of lasers hit it. I'm thinking the only
-  relevant scenario would be to unblock a purple gem. Not sure.")
-  Claude's view, not measured: little to gain for a new rule (see
-  "v9 played: the mix; armour; two-colour bombs"). Parked unless the
-  developer wants it tried.
-- **Q43. Bridges: guessing forever.** (2026-10-24, developer, after 5.0
-  on the phone: "it seems to have unlimited 'undo' which means you can
-  just keep guessing forever.") Undo isn't the way in: a tap on a bridge
-  cycles it 0, 1, 2, 0 (`cycle` in `src/core/bridges.js`), so any bridge
-  comes off with taps anyway, and Clear takes them all. Nothing during
-  play says whether a bridge is in the answer (an island's colour only
-  says its count); only the win does, so trying until it works costs
-  nothing but time. Claude's suggestion: **count mistakes silently**
-  (each bridge laid that the answer doesn't have), shown only at the
-  end ("Solved in 3:10 / 2 mistakes · 1 hint"), Undo not taking them
-  back (as Find the Stars), and a best time only with no mistakes;
-  nothing said during play, so it gives nothing away. Other ways:
-  Find the Stars' hearts (a wrong bridge shakes and costs one; but that
-  marks each guess right or wrong at once, and is hard on the kids at
-  Small), or leave it (the usual Hashi; the clock is the cost). For the
-  developer to choose. *2026-10-24, developer:* "lets leave it for now.
-  I'll play it some more and think about it." Open; nothing built.
 ## Proposed additions to the standards skill
 
 None waiting. (2026-10-23, later: "Match the model to the work"
@@ -130,6 +63,83 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q32. Laser Lab on the phone.** Built 2026-10-22 from mockup v7 as
+  it stood (see "Laser Lab built"); to judge on the developer's phone
+  once published (3.0): Claude's choices (DESIGN.md "Laser Lab": the
+  budget = cheapest + 3, cost floors 6/7/8, no Try again, the end's
+  words, the laser drawing), and the build's: a puzzle left unfinished
+  waits in its run, the status stacking on narrow phones, purple gems in
+  about 1 in 7 two-laser puzzles (3 of 50 at 8×8; *2026-10-22:* the
+  developer: keep them, about 1 in 3, spread through each run: release
+  3.3, see "Purple gems spread"), 50 puzzles for 8×8 with two lasers,
+  and how long the first hint takes (the log's "cheapest ways worked
+  out"). *2026-10-22:* 3.2 adds a budget row and a second tools row,
+  so the board is smaller (6×6 at 393 × 760: 40 px squares, 3.0 47 px;
+  see "Laser Lab 3.2 built"): to judge on the phone. *2026-10-22,
+  developer:* "ok" (taken as: nothing to change for now); stays open
+  until 3.3's purple gems have been played.
+  **Closed 2026-10-25** (developer: "The game looks fine on the
+  phone."): Claude's choices stay as built (3.11).
+- **Q34. Which Claude model for which work?** (2026-10-23, developer:
+  "I have been using your opus model for everything ... Could you tell
+  me if a different model was better suited".) Claude's view, not yet
+  tested here: Opus 5.5 for design, mockups and hard bugs (as now);
+  Sonnet 5.5 (about half Opus's price) likely enough for routine
+  fix-and-publish sessions; Haiku 5.5 for mechanical look-ups only;
+  Fable 5.1 (about 2.5 times Opus) for the hardest puzzle-logic work.
+  A session can't switch its own model (the developer picks it in the
+  app's model menu); Claude can set one for a session or helper it
+  starts. To try: one routine session on Sonnet 5.5, compared; a
+  standards-skill line only once that shows something general.
+  *2026-10-23, developer:* "Can you add the skill to suggest model
+  changes when appropriate": added to the skill, section 7, "Match the
+  model to the work" (see "Proposed additions"). Stays open for the
+  Sonnet 5.5 trial.
+  **Closed 2026-10-25** (developer, 2026-10-25: "I am OK to close the other open questions"): no Sonnet 5.5 trial
+  planned; the skill's "Match the model to the work" stays.
+- **Q35. Which new rule makes Laser Lab harder, not easier?**
+  (2026-10-23, developer: "I like the concept of the color mirror. But
+  would it make things easier or harder? I don't want to add features
+  that make the game easier. It is already fairly easy." The same for
+  more lasers, or placing them.) Claude's reasoning, not measured: any
+  way within the budget wins, so a new piece or a free choice mostly
+  gives the player more ways to win (easier) unless the puzzles are
+  made to need it; more lasers add rules that pull against each other
+  (likely harder); placing the lasers removes the beam's known start
+  but adds many ways in (unclear). The budget (cheapest + 3) is the
+  plainest lever. To measure with the maker and solver before building:
+  how many ways fit the budget, per variant. *2026-10-23:* measured
+  (see "Q35 measured"): the budget's margin matters most; a colour
+  mirror makes it harder only in puzzles made to need it; more lasers
+  add a little at 6×6. Open until the developer chooses.
+  **Closed 2026-10-25** (developer, 2026-10-25: "I am OK to close the other open questions"): no new rule; Laser
+  Lab stays as 3.11.
+- **Q36. A two-colour bomb?** (2026-10-23, developer: "A bomb that
+  only goes if two colours of lasers hit it. I'm thinking the only
+  relevant scenario would be to unblock a purple gem. Not sure.")
+  Claude's view, not measured: little to gain for a new rule (see
+  "v9 played: the mix; armour; two-colour bombs"). Parked unless the
+  developer wants it tried.
+  **Closed 2026-10-25** (developer, 2026-10-25: "I am OK to close the other open questions"): not built.
+- **Q43. Bridges: guessing forever.** (2026-10-24, developer, after 5.0
+  on the phone: "it seems to have unlimited 'undo' which means you can
+  just keep guessing forever.") Undo isn't the way in: a tap on a bridge
+  cycles it 0, 1, 2, 0 (`cycle` in `src/core/bridges.js`), so any bridge
+  comes off with taps anyway, and Clear takes them all. Nothing during
+  play says whether a bridge is in the answer (an island's colour only
+  says its count); only the win does, so trying until it works costs
+  nothing but time. Claude's suggestion: **count mistakes silently**
+  (each bridge laid that the answer doesn't have), shown only at the
+  end ("Solved in 3:10 / 2 mistakes · 1 hint"), Undo not taking them
+  back (as Find the Stars), and a best time only with no mistakes;
+  nothing said during play, so it gives nothing away. Other ways:
+  Find the Stars' hearts (a wrong bridge shakes and costs one; but that
+  marks each guess right or wrong at once, and is hard on the kids at
+  Small), or leave it (the usual Hashi; the clock is the cost). For the
+  developer to choose. *2026-10-24, developer:* "lets leave it for now.
+  I'll play it some more and think about it." Open; nothing built.
+  **Closed 2026-10-25** (developer, 2026-10-25: "I am OK to close the other open questions"): left as the usual
+  Hashi (the clock is the cost); nothing built.
 - **Q41. Bridges: where on the home page?** (2026-10-24, raised by
   Claude.) It suits the kids (Small, dots) and the developer (Medium,
   Large). Claude's suggestion: listed in both 👤 One player and 🧩
@@ -10778,3 +10788,46 @@ tests only), sound, a real finger.
    files): the page, the home page's button and picture (👥 Two
    players, after Dots and Boxes), `GAME_PAGES`, stats, `tools/offline.js`,
    DESIGN.md, release 6.0 (a new game).
+
+## 2026-10-25: Open questions closed; Reversi disc samples
+
+**Developer**, at the session's start: "Not sure what q32 is. The game
+looks fine on the phone. And I am OK to close the other open
+questions." Q32 was Laser Lab on the phone (Claude's choices from
+mockup v7, to judge once played). Q32, Q34, Q35, Q36 and Q43 moved to
+"Resolved", each with its closing note; nothing built for any of them.
+No open questions now.
+
+**Developer:** "Reversi mockup is great. But I wonder if you can give me
+a couple of samples of what the pieces could look like. The black piece
+in particular looks more like a ball than a disc to me." Why it does:
+mockup v1's top is a radial gradient from a bright spot (upper left) to
+a near-black edge, with a white highlight, which is how a ball is lit;
+its edge under the top is thin (0.065 of a square per colour).
+
+**[Reversi Disc Samples](https://claude.ai/artifact/Dc8RZpsbdj96L8U67W4a9f)**
+(private Claude artifact, version 1): four ways to draw a disc, each on
+a piece of board at a phone's two sizes (54 px squares for 6×6, 41 px
+for 8×8) and in the tally strip, with **Flip** (the mockup's turn-over
+animation) and **Pick** (the style on whole 6×6 and 8×8 boards with the
+rim):
+- **A. Now (mockup v1)**, for comparison.
+- **B. Flat top, bevelled edge:** a flat face of one colour inside a
+  rim lit from the upper left; the edge 0.085 per colour.
+- **C. Seen at an angle:** the top an oval (0.3 high to 0.4 wide), the
+  side a band of each colour, shaded as a cylinder.
+- **D. Flat top with a ring:** a flat face with a pressed ring, as many
+  real sets have.
+
+The disc functions are drop-in replacements for `discSvg` in the
+mockup's `src/ui/rvboard.js` (the same square units; the flip still
+narrows about the middle). **Checked** in the built-in browser at
+393 × 760 (served from Claude's scratchpad on 8124 by a temporary
+`.claude/launch.json` entry, removed after): every style draws at both
+sizes and in the tally, no sideways scroll, Flip turns 9 discs on each
+piece of board, Pick marks the card and redraws both boards (12 discs
+turning on the 6×6), no console errors. Not checked: the published
+artifact itself, a real phone.
+
+**Next:** the developer picks a disc (or asks for changes); then build
+Reversi into the site with it (release 6.0).
