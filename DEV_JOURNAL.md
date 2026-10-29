@@ -26,13 +26,13 @@ time, each tried before publishing:
   Proposed in the [Sideways Phone Fixes](https://claude.ai/artifact/VodMXAPmjzrVMp9H26Tqka)
   mockup (version 1), with Q45.
   Agreed (Five Dice option B): see "Sideways phone fixes agreed".
-  Built (release 6.3, not yet published): see "Sideways phone fixes and
+  Built and published (release 6.3): see "Sideways phone fixes and
   the game's name built".
 - **Q45. The game's name on the play screen.** (2026-10-29, developer:
   "once you are playing a game, the name of the game is not visible
   anywhere.") Agreed: top centre of the screen both ways (developer:
   under the 🏠 "seems to imply that it is related to the home icon").
-  Built in 6.3 (not yet published): upright no board smaller; sideways
+  Built and published in 6.3: upright no board smaller; sideways
   most boards 18 px smaller on a phone (see "Sideways phone fixes and the
   game's name built").
 
@@ -11446,20 +11446,34 @@ tag v6.3 not made yet."
 **Not checked:** the real devices; screenshots of every size (the pane
 stopped drawing once hidden; sizes read by script, as for 6.2).
 
-## 2026-10-29: Status (start here next session)
+## 2026-10-29: Release 6.3 published (sideways phone fixes, the game's name); status (start here next session)
 
-**Status:** release 6.3 (the sideways phone fixes and the game's name)
-built, tested and ready on `reversi`, committed and pushed; **not
-published**: waiting for the developer's OK. Q44 and Q45 open until the
-developer has tried 6.3.
+**Published** on the developer's "Yes, publish 6.3": `npm test` 446
+passed; `node tools/release.js`: "Release 6.3 is ready". `main`
+fast-forwarded 786fc88..7c3bf8c (pushed from `reversi`, no branch
+switch), tag `v6.3`,
+[GitHub release 6.3](https://github.com/donpark2000/Web-Games/releases/tag/v6.3).
+Live within about 40 s: `sw.js` RELEASE 6.3, version 551bc1c01533. In
+the built-in browser the live page kept 6.2's offline copy through one
+reload (`version.js` 1cfeda4d3c27 from the old service worker's cache)
+until the new service worker had taken over about 10 s later; after the
+next reload, at 780 × 340: Five Dice (long), Laser Lab and Matching 6×6
+each wide with their names, pages 340 × 780 (no scrolling).
+
+**Local servers:** the preview on 8123 stopped; no other `serve.js`
+running.
+
+**Status:** 6.3 live. Q44 and Q45 open until the developer has tried
+it.
 
 **Next:**
-1. On the developer's "publish": merge `reversi` to `main`, tag `v6.3`,
-   push the tag, `node tools/release.js notes` for the GitHub release;
-   check the live site; stop the local server (`serve.js` on 8123).
-2. The developer tries 6.3 on the phone and tablet: the name (upright
+1. The developer tries 6.3 on the phone and tablet: the name (upright
    and sideways), Matching 6×6, Five Dice and Laser Lab sideways on the
-   phone. Then close Q44 and Q45.
-3. If wanted: Five Dice and Laser Lab on a small phone sideways
+   phone. If a page shows the old layout, a reload brings 6.3. Then
+   close Q44 and Q45.
+2. If wanted: Five Dice and Laser Lab on a small phone sideways
    (667 × 375) still scroll; Rock paper scissors' picks narrower than
-   their column on a tablet (see above).
+   their column on a tablet (see "Sideways phone fixes and the game's
+   name built").
+3. Waiting at a checkpoint: the proposed standards-skill addition "Key
+   a remembered result by everything it depends on". Nothing to purge.
