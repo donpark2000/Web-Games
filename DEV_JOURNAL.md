@@ -11022,3 +11022,38 @@ expected to fire then; `orientationchange` isn't listened to by the
 games), Safari's bars and the iPhone's notch insets held sideways
 (body padding uses them, so the board may come out smaller there than
 at 780 × 340).
+
+## 2026-10-29: Release 6.1 published (sideways screens); status (start here next session)
+
+**Published** on the developer's "Yes, publish 6.1": `npm test` 438
+passed; `node tools/release.js`: "Release 6.1 is ready". `main`
+fast-forwarded bf53a39..557d355 (`git push origin reversi:main`), tag
+`v6.1`, [GitHub release 6.1](https://github.com/donpark2000/Web-Games/releases/tag/v6.1)
+(Latest). Live within about a minute: `version.js` 0633202916d9, `sw.js`
+RELEASE 6.1, `css/game.css` with the wide layout. In the built-in
+browser the live Reversi at 780 × 340: wide layout, board 310 px, page
+340 × 780 (no scrolling).
+
+**Local servers:** the preview on 8123 stopped; no other `serve.js`
+running.
+
+**Status:** 6.1 live. Q44 open: the sideways layout tried on Reversi
+and the home page only.
+
+**Next:**
+1. **The developer tries 6.1 on the Android tablet and the phone,**
+   held sideways and turned while playing: Reversi's three columns
+   (sizes, where the 🏠, 🔊 and buttons are), the switch as the device
+   turns, the home page's rows. The log's `[reversi] fit` lines say
+   which layout was kept and both sizes; the home's `scroll room` lines
+   say `perRow`.
+2. Then the other 14 games: each one's board in `.boardwrap` (or the
+   rule pointed at its own board element), its right-column rows in
+   `--side-rows`, `fitEitherWay` in its fit, `setWide(false)` on every
+   way to its setup screen. Games with more beside the board (Five
+   Dice's dice and sheet, Rock paper scissors, Follow Me, the puzzles'
+   hint bar and tools) need a look each.
+3. Still open from 6.0: the developer's try of Reversi itself on the
+   phone (the discs, a finger held down, the robot's pace, Easy/Hard).
+4. Nothing to purge (no testing folder this session; the mockup files
+   are in Claude's scratchpad).
