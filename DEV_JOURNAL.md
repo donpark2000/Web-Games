@@ -10,7 +10,13 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-None.
+- **Q44. Landscape: use the screen's width.** (2026-10-29, developer: on
+  the Android tablet held sideways, and then the phone, "Boards are
+  quite a bit smaller and there is a lot of unused space beside the
+  game board"; all games.) Proposed: three columns when the screen is
+  wider than tall ([Landscape Layout Mockup](https://claude.ai/artifact/KL1NyspH9Zgd7Th4PdKq2m),
+  version 1; see "Landscape: measured; three columns proposed").
+  Waiting on the developer.
 
 ## Proposed additions to the standards skill
 
@@ -10910,3 +10916,50 @@ No open questions.
    DESIGN.md "Reversi".
 2. Purge `rev-discs` and the mockup copies: nothing to purge (they were
    in Claude's scratchpad, not the testing folder).
+
+## 2026-10-29: Landscape: measured; three columns proposed
+
+The developer (Q44): on the Android tablet, held sideways for video,
+the games leave the boards small with empty space either side; the
+phone sideways the same.
+
+**Why:** every play screen is one column, at most 520 px wide
+(`.app` in `css/game.css`), and `fitPlayScreen` (`src/ui/fit.js`)
+shrinks the board until the whole column, footer included, fits the
+screen's height. Sideways, the height is short, so the board shrinks
+and the width goes unused. Nothing in the site looks at orientation
+(only matching cards tries its grid both ways round).
+
+**Measured** (the built-in browser, each game's play screen in a frame
+of the size, the biggest block under the turn line; Reversi's board
+itself measured on its page):
+- 393 × 760 (phone upright): boards 300-360 px, every page fits.
+- 1280 × 720 (tablet sideways): Reversi's board 350 px (27% of the
+  width); tic-tac-toe 290, Laser Lab 280, Connect Four 397 × 342.
+  Pages fit.
+- 780 × 340 (phone sideways, Chrome's bar showing): every board at its
+  smallest (Reversi 198 px) and **every page scrolls** (Reversi's 566 px
+  tall; Laser Lab's 623).
+
+**Tried on Reversi's real page** (CSS put in by script, the fit
+redone the site's way, nothing saved):
+- Board left, everything else in a 300 px column: on the phone the
+  column needs 342 px (🏠 row 80, discs 78, games won 46, buttons 54,
+  footer 36, gaps) of the 316 available, so nothing fits.
+- **Three columns:** the 🏠 (top) and 🔊 (bottom) on the left, the
+  board at full height, the turn line, scores, buttons and footer on
+  the right (`.top` becomes `display: contents`; the footer moves into
+  the play screen). Phone 780 × 340: **board 316 px** (squares 48 px;
+  was 198, scrolling), no scrolling, no sideways overflow. Tablet
+  1280 × 720: **board 696 px** (squares 105 px, was 350), with the
+  squares' upper limit raised from 80 to 120 px.
+
+**Proposed:** each game tries both layouts and keeps the one with the
+bigger board, so an upright phone is unchanged; it switches on turning.
+The other two-player games take the same three columns; the puzzles put
+the hint bar and tools in the right column. Mockup:
+[Landscape Layout Mockup](https://claude.ai/artifact/KL1NyspH9Zgd7Th4PdKq2m)
+(private Claude artifact, version 1: Reversi now and proposed, phone and
+tablet sideways, the site's own CSS and drawing in screen-sized frames).
+Not covered yet: the setup screens (they scroll, as now) and the home
+page (one 560 px column).
