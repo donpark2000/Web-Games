@@ -29,6 +29,8 @@ function classesIn(css) {
 const MEANT_SHARED = new Set([
   'app', 'av', 'big', 'brmini', 'c1', 'c2', 'chip', 'controls', 'csmini', 'die', 'hfmini', 'ico', 'level', 'lit', 'llmini', 'n', 'nm', 'now',
   'num', 'o1', 'o2', 'p1', 'p2', 'pic', 'pill', 'primary', 'side', 'turn', 'who', 'why', 'with-sound',
+  // the board's slot in the wide layout (DESIGN.md "Sideways screens", 2026-10-29)
+  'boardwrap',
 ]);
 
 test('css: classesIn finds selector classes, not numbers, files or comments', () => {

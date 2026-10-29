@@ -77,6 +77,27 @@ h2 .chip { width: 34px; height: 34px; }
 .side.c2.now { border-color: var(--p2); }
 
 .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Sideways screens (DESIGN.md "Sideways screens"): src/ui/fit.js sets
+   body.wide-layout when it gives a bigger board. Three columns: the 🏠 (top) and
+   🔊 (bottom); the board (.boardwrap) at the screen's full height; the
+   turn line and the rest, --side-rows of them, then the footer (moved in
+   by fit.js) at the column's foot. */
+body.wide-layout main.app { max-width: none; }
+body.wide-layout #play {
+  --side: 300px;
+  grid-template-columns: auto auto var(--side);
+  grid-template-rows: repeat(var(--side-rows, 4), auto) 1fr;
+  column-gap: 20px; row-gap: 10px; justify-content: center;
+}
+@media (min-height: 600px) { body.wide-layout #play { --side: 340px; } }
+body.wide-layout #play .top { display: contents; }
+body.wide-layout #play > *, body.wide-layout #play .turn { grid-column: 3; }
+body.wide-layout #play .homebtn { grid-column: 1; grid-row: 1 / -1; align-self: start; }
+body.wide-layout #play .soundbtn { grid-column: 1; grid-row: 1 / -1; align-self: end; justify-self: center; }
+body.wide-layout #play > .boardwrap { grid-column: 2; grid-row: 1 / -1; align-self: center; }
+body.wide-layout #play > .site-foot { grid-row: -2 / -1; align-self: end; padding-top: 0; }
+body.wide-layout #play .turn { font-size: 21px; justify-content: flex-start; text-align: left; }
 .pill { border-radius: 999px; padding: 13px 8px; font-size: 19px; font-weight: 800; cursor: pointer; border: 3px solid var(--ink); background: transparent; }
 .pill.primary { background: var(--ink); color: var(--card); }
 

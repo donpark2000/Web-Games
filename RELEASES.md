@@ -7,6 +7,19 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 6.1 (2026-10-29, version 0633202916d9)
+
+Sideways screens, tried first on Reversi and the home page:
+
+- **Reversi** on a tablet or phone held sideways: the board fills the
+  screen's height in the middle, the 🏠 and 🔊 to its left, and the
+  turn line, scores and buttons to its right. On a sideways tablet the
+  board is about twice as wide as before; on a sideways phone it's
+  bigger and the page no longer scrolls. It changes as the screen
+  turns; upright, nothing changes.
+- **The home page** held sideways shows more games a row: 3 on a phone,
+  5 on a tablet.
+
 ## 6.0 (2026-10-25, version 11d40472a957)
 
 A new game, **Reversi**, in 👥 Two players, after Dots and Boxes:

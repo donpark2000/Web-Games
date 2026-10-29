@@ -11,7 +11,7 @@ import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { RIM, viewBox, boardContent, aimContent, rulesSvg, startSvg, chipDisc } from './rvboard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -23,7 +23,7 @@ const ROBOT_WAIT = { think: 800, show: 500, afterFlips: 350 };
 const FLIP_STEP = 90, FLIP_MS = 280;
 const CHEER_MS = 2800;   // the end-of-round scorecard cheer (css: .cheer-win)
 const OOPS_MS = 2000;    // "Put it on a dot!" in the turn line
-const MIN_CELL = 30, MAX_CELL = 80;
+const MIN_CELL = 30, MAX_CELL = 80, MAX_CELL_WIDE = 120;
 const BOARD_ID = 'rvb';
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('reversi', msg, data);
@@ -132,18 +132,23 @@ function showPlay() {
 }
 
 // The play screen's square size: the biggest that lets the whole page fit
-// the screen, up to what the width allows (at most 520px of board).
+// the screen, up to what the width allows (at most 520px of board), in
+// one column or, on a screen wider than tall, beside the rest (the wide
+// layout, squares up to MAX_CELL_WIDE) if that gives a bigger board.
 function fitBoard() {
   const play = $('play');
   const span = match.size + 2 * RIM;
   play.style.setProperty('--span', span);
-  // The page column's width (main), not the play screen's: a board too
-  // wide for the screen would stretch the play screen it's measured from.
-  const width = Math.min(document.querySelector('main').clientWidth, 520);
-  const maxCell = Math.min(MAX_CELL, width / span);
-  const r = fitPlayScreen(px => {
-    play.style.setProperty('--cell', `${px}px`);
-  }, Math.min(MIN_CELL, maxCell), maxCell);
+  const r = fitEitherWay(wide => {
+    // The page column's width (main), not the play screen's: a board too
+    // wide for the screen would stretch the play screen it's measured from.
+    const width = wide ? wideRoom() : Math.min(document.querySelector('main').clientWidth, 520);
+    const maxCell = Math.min(wide ? MAX_CELL_WIDE : MAX_CELL, width / span);
+    if (wide && maxCell < MIN_CELL) return null;
+    return fitPlayScreen(px => {
+      play.style.setProperty('--cell', `${px}px`);
+    }, Math.min(MIN_CELL, maxCell), maxCell);
+  });
   L('fit', { ...r, size: match.size });
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fitBoard(); });
@@ -393,6 +398,7 @@ $('newBtn').onclick = () => {
   aim = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -423,6 +429,7 @@ function restore() {
     moods = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

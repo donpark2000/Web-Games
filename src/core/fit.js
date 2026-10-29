@@ -29,6 +29,17 @@ export function largestFitting(fits, min, max) {
   return { size: lo, tries, fitted: true };
 }
 
+// Which layout a play screen keeps (DESIGN.md "Sideways screens"): tall
+// (one column) or wide (the board between the 🏠 and a column of the
+// rest), each a largestFitting result, wide null when it can't be tried.
+// One that fits beats one that doesn't; then the bigger size; a tie
+// keeps tall, the layout an upright phone has always had.
+export function pickLayout(tall, wide) {
+  if (!wide) return 'tall';
+  if (wide.fitted !== tall.fitted) return wide.fitted ? 'wide' : 'tall';
+  return wide.size > tall.size ? 'wide' : 'tall';
+}
+
 // The page's scroll room, for the debug log (journal Q24: the home page
 // once wouldn't scroll to its footer on the iPhone). Heights in whole px;
 // maxScroll: how far the page can scroll (0 when it fits); atEnd: scrolled

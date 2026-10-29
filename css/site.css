@@ -89,6 +89,15 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
    the body has 16px each side, a column at least 220px, a 16px gap). */
 @media (min-width: 488px) { .game:only-child { justify-self: center; width: calc(50% - 8px); } }
 .games { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+/* A screen wider than tall (a tablet or phone held sideways): more games
+   per row, each a fixed width, rows centred (developer, 2026-10-29: "a
+   horizontal homepage option with more games per row"); 3 a row on a
+   phone, 5 on a tablet. */
+@media (orientation: landscape) and (min-width: 700px) {
+  .home { max-width: 1200px; }
+  .games { display: flex; flex-wrap: wrap; justify-content: center; }
+  .games .game, .games .game:only-child { width: 220px; }
+}
 .game {
   display: grid; justify-items: center; gap: 10px; padding: 18px 12px 16px; text-decoration: none; color: var(--ink);
   background: var(--card); border-radius: 24px; box-shadow: 0 5px 0 var(--line); font-size: 24px; font-weight: 800;

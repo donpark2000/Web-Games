@@ -16,7 +16,9 @@ time, each tried before publishing:
   game board"; all games.) Proposed: three columns when the screen is
   wider than tall ([Landscape Layout Mockup](https://claude.ai/artifact/KL1NyspH9Zgd7Th4PdKq2m),
   version 1; see "Landscape: measured; three columns proposed").
-  Waiting on the developer.
+  Built on Reversi and the home page first (release 6.1, "Sideways
+  screens built on Reversi and the home page"), for the developer to
+  try on the tablet and phone; then the other games.
 
 ## Proposed additions to the standards skill
 
@@ -10963,3 +10965,60 @@ the hint bar and tools in the right column. Mockup:
 tablet sideways, the site's own CSS and drawing in screen-sized frames).
 Not covered yet: the setup screens (they scroll, as now) and the home
 page (one 560 px column).
+
+## 2026-10-29: Sideways screens built on Reversi and the home page; release 6.1 ready
+
+The developer: the mockup can't be tried on a phone or tablet, so
+"publish one game, let me test the new layout and the responsiveness
+to orientation, and once it looks good we can apply it to all the
+other games"; and "I do like the idea of a horizontal homepage option
+with more games per row". Claude's suggestion, built: Reversi (the
+mockup's game) and the home page in one release, 6.1.
+
+**Built** (DESIGN.md "Sideways screens"):
+- Shared, for the other games to switch on later: `pickLayout`
+  (`src/core/fit.js`), `fitEitherWay`, `setWide`, `wideRoom`
+  (`src/ui/fit.js`), the wide layout's styles in `css/game.css`
+  (`body.wide-layout`, the board in `.boardwrap`, `--side-rows` rows on
+  the right). `fitPlayScreen` also checks the page isn't wider than the
+  screen in the wide layout, and `pageHeight` counts the footer once
+  when it's inside main.
+- Reversi: `fitBoard` fits both ways; `setWide(false)` on both ways to
+  the setup screen (New game, a failed resume), so the footer isn't left
+  in the hidden play screen.
+- The home page: a CSS rule for a screen wider than tall and at least
+  700 px wide; `perRow` in its "scroll room" log line.
+
+**Found on the way:** the body class was first `wide`, and
+`tests/css.test.js` failed: Laser Lab's tools use `.tool.wide`, and a
+class on the body set by a shared sheet must have a name no game sheet
+uses (the 2026-10-14 lesson); renamed `wide-layout`. `.boardwrap` (in
+game.css and four game sheets) added to the test's names meant to be
+shared, as the board's slot in the wide layout.
+
+**Checked** (the built-in browser; screenshots timed out with the pane
+hidden, so measured by script):
+- Reversi 6×6: 780 × 340 board 310 px, wide, page 340 tall and 780 wide,
+  footer in the right column; turned to 393 × 760: one column, board
+  356 px, footer back under main; 1280 × 720: wide, 693 px; 800 × 1280:
+  one column, 515 px. 8×8 at 780 × 340: wide, 310 px.
+- New game while wide: one column, footer under main and showing.
+- The log: `[reversi] fit {"size":6,...,"layout":"wide","tall":30,"wide":47}`.
+  (`size` there is the board's squares a side, overwriting the fitted
+  size as before this change; the kept size is the `tall` or `wide`
+  one.)
+- Home: 780 × 340 3+3+3, 3, 3 a row; 1280 × 720 5+4, 3, 3; 393 × 760
+  and 800 × 1280 as before (1 and 2 a row).
+- Tests: `tests/wide.test.js` (pickLayout's cases; fitEitherWay on a
+  stand-in page: wide kept, tall refitted after wide was tried, an
+  upright screen never tries wide; Reversi's wiring; the styles; the
+  home rule). Shown to fail: `>=` for `>` in pickLayout (a tie went
+  wide) and one `setWide(false)` removed. `npm test` 438 passed;
+  `node tools/release.js`: "Release 6.1 is ready" (version 0633202916d9).
+
+**Not checked:** a real phone or tablet (the developer's test, after
+the publish): the turn itself on a device (the `resize` event is
+expected to fire then; `orientationchange` isn't listened to by the
+games), Safari's bars and the iPhone's notch insets held sideways
+(body padding uses them, so the board may come out smaller there than
+at 780 × 340).
