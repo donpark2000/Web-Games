@@ -25,10 +25,11 @@ time, each tried before publishing:
   developer's notes"); Bridges and Find the Stars fine as they are.
   Proposed in the [Sideways Phone Fixes](https://claude.ai/artifact/VodMXAPmjzrVMp9H26Tqka)
   mockup (version 1), with Q45.
+  Agreed (Five Dice option B): see "Sideways phone fixes agreed".
 - **Q45. The game's name on the play screen.** (2026-10-29, developer:
   "once you are playing a game, the name of the game is not visible
-  anywhere.") Proposed: small capitals above the turn line upright,
-  under the 🏠 sideways (Sideways Phone Fixes mockup).
+  anywhere.") Agreed: top centre of the screen both ways (developer:
+  under the 🏠 "seems to imply that it is related to the home icon").
 
 ## Proposed additions to the standards skill
 
@@ -11268,3 +11269,38 @@ by script (CSS put in, `setWide(true)`, the fit run with
   56: room above it); sideways, under the 🏠 in the left column, 80 px
   wide, two lines. Neither takes height from the board: Matching 6×6
   page 340 tall sideways, 760 upright, as without it.
+
+## 2026-10-29: Sideways phone fixes agreed; status (start here next session)
+
+**Agreed** from the Sideways Phone Fixes mockup (version 1), the
+developer: "I like the options you proposed." So:
+- **Matching cards:** wide allowed with cards under 56 px (to the
+  40 px the scrolling fallback uses), and the setup screen stops
+  greying every size on a sideways phone.
+- **Five Dice: option B**, the dice and Roll standing in a column
+  beside the score sheet when wide (a picked-up die lifts sideways).
+- **Laser Lab:** the shop's two buttons standing beside the board when
+  wide; the tools and hint words a little smaller there.
+- **The game's name (Q45): top centre of the screen, both ways**
+  (developer: "Under the Home icon seems to imply that it is related to
+  the home icon"). Upright: small capitals above the turn line in the
+  🏠's row (no cost, as in the mockup). Sideways: over the middle
+  column, above the board. Not measured yet: sideways it takes about one
+  line (~16 px) of the board's height (e.g. Reversi 316 → ~300 px on
+  780 × 340), unless it can share the 12 px above the board; say the
+  real cost when it's built.
+
+**Status:** decisions recorded, nothing built. Branch `reversi`, clean
+after this commit, pushed. Q44 and Q45 open until built, published and
+tried.
+
+**Next:**
+1. Build all four on the branch, each with its debug output and tests
+   (standards): the name in every game's page (the setup screen's
+   heading text), placed by shared CSS; the fit checks at 780 × 340,
+   852 × 393, 667 × 375, 1280 × 720, 393 × 760 and 800 × 1280 that every
+   page still fits as in DESIGN.md "Sideways screens" (now Matching 6×6,
+   Five Dice and Laser Lab wide on a sideways phone).
+2. DESIGN.md: "Sideways screens" and Q45's name; then release 6.3
+   (fixes and changes) by the release checklist, and ask to publish.
+3. The developer tries it on the phone and tablet; close Q44 and Q45.
