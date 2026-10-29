@@ -16,7 +16,7 @@ import { svg, pickerFace } from './faces.js';
 import { dotsSvg, cubeSvg } from './snlart.js';
 import { BOX_PICS, HELP } from './fivedice-pics.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -146,16 +146,24 @@ function showPlay() {
 
 // The row and die sizes: the biggest that let the whole page fit the
 // screen (rows and dice grow together), the dice no wider than the tray
-// allows. The turn line is one die tall, at least 48px.
+// allows. The turn line is one die tall, at least 48px. On a screen wider
+// than tall, the dice and the sheet beside the rest if that gives bigger
+// rows (DESIGN.md "Sideways screens"), a column at most WIDE_W wide.
+const WIDE_W = 600;
 function fit() {
   const play = $('play');
-  const dieMax = Math.min(MAX_DIE, Math.floor((play.clientWidth - 6 * 5 - 64) / 5));
-  const r = fitPlayScreen(px => {
-    const die = Math.min(dieMax, Math.round(px * 1.2));
-    play.style.setProperty('--row', `${px}px`);
-    play.style.setProperty('--die', `${die}px`);
-    play.style.setProperty('--topsq', `${Math.max(48, die)}px`);
-  }, MIN_ROW, MAX_ROW);
+  const r = fitEitherWay(wide => {
+    const width = wide ? Math.min(wideRoom(), WIDE_W) : play.clientWidth;
+    if (wide && width < 320) return null;
+    play.style.setProperty('--stagew', `${width}px`);
+    const dieMax = Math.min(MAX_DIE, Math.floor((width - 6 * 5 - 64) / 5));
+    return fitPlayScreen(px => {
+      const die = Math.min(dieMax, Math.round(px * 1.2));
+      play.style.setProperty('--row', `${px}px`);
+      play.style.setProperty('--die', `${die}px`);
+      play.style.setProperty('--topsq', `${Math.max(48, die)}px`);
+    }, MIN_ROW, MAX_ROW);
+  });
   L('fit', { ...r, die: play.style.getPropertyValue('--die') });
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fit(); });
@@ -529,6 +537,7 @@ $('newBtn').onclick = () => {
   $('turn').classList.remove('won');
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -579,6 +588,7 @@ function restore() {
     moods = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

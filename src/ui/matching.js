@@ -11,7 +11,7 @@ import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -72,7 +72,11 @@ function playLayout(size) {
 // ways round (upright, sideways) are tried, each with the biggest cards
 // (at least MIN_CARD) that let the page fit; the bigger cards win. A grid
 // with too many cards for that keeps the cards playLayout() gives, and
-// the page scrolls (as before), so no size is lost.
+// the page scrolls (as before), so no size is lost. On a screen wider
+// than tall all that is tried beside the rest too (the wide layout, cards
+// up to MAX_CARD_WIDE), and the bigger cards win (DESIGN.md "Sideways
+// screens").
+const MAX_CARD_WIDE = 180;
 let lastLayout = '';
 function layoutGrid() {
   const g = $('grid');
@@ -81,28 +85,29 @@ function layoutGrid() {
     g.style.setProperty('--cols', cols);
     g.style.setProperty('--cs', `${px}px`);
   };
-  const width = Math.min(innerWidth - 32, PLAY_MAX_W);
   const [a, b] = match.size;
-  let best = null, tries = 0;
-  for (const [cols, rows] of a === b ? [[a, b]] : [[a, b], [b, a]]) {
-    const widest = Math.min(Math.floor((width - GAP * (cols - 1)) / cols), 130);   // 130: fitLayout's max
-    if (widest < MIN_CARD) continue;
-    const fit = fitPlayScreen(px => apply(cols, px), MIN_CARD, widest);
-    tries += fit.tries;
-    if (fit.fitted && (!best || fit.size > best.cs)) best = { cols, rows, cs: fit.size };
-  }
-  let use = best;
-  if (!use) {
-    const lay = playLayout(match.size);
-    use = { cols: lay.cols, rows: lay.rows, cs: Math.max(lay.cs, 40) };
-  }
-  apply(use.cols, use.cs);
-  const key = `${use.cols}x${use.rows}@${use.cs}`;
+  let tries = 0;
+  const r = fitEitherWay(wide => {
+    const width = wide ? wideRoom() : Math.min(innerWidth - 32, PLAY_MAX_W);
+    let best = null;
+    for (const [cols, rows] of a === b ? [[a, b]] : [[a, b], [b, a]]) {
+      const widest = Math.min(Math.floor((width - GAP * (cols - 1)) / cols), wide ? MAX_CARD_WIDE : 130);   // 130: fitLayout's max
+      if (widest < MIN_CARD) continue;
+      const fit = fitPlayScreen(px => apply(cols, px), MIN_CARD, widest);
+      tries += fit.tries;
+      if (fit.fitted && (!best || fit.size > best.cs)) best = { cols, rows, cs: fit.size };
+    }
+    if (!best && wide) return null;
+    const use = best ?? (lay => ({ cols: lay.cols, rows: lay.rows, cs: Math.max(lay.cs, 40) }))(playLayout(match.size));
+    apply(use.cols, use.cs);
+    return { size: use.cs, fitted: !!best, cols: use.cols, rows: use.rows };
+  });
+  const key = `${r.cols}x${r.rows}@${r.size}/${r.layout}`;
   if (key !== lastLayout) {
     lastLayout = key;
     L('layout', {
-      size: sizeKey(match.size), cols: use.cols, rows: use.rows, card: use.cs, wholePageFits: !!best, tries,
-      viewport: `${innerWidth}x${innerHeight}`,
+      size: sizeKey(match.size), cols: r.cols, rows: r.rows, card: r.size, wholePageFits: r.fitted, tries,
+      layout: r.layout, tall: r.tall, wide: r.wide, viewport: `${innerWidth}x${innerHeight}`,
     });
   }
 }
@@ -382,6 +387,7 @@ $('newBtn').onclick = () => {
   match = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -419,6 +425,7 @@ function restore() {
     moods = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

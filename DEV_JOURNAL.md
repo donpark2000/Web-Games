@@ -11057,3 +11057,76 @@ and the home page only.
    phone (the discs, a finger held down, the robot's pace, Easy/Hard).
 4. Nothing to purge (no testing folder this session; the mockup files
    are in Claude's scratchpad).
+
+## 2026-10-29: Sideways screens in every game; release 6.2 ready
+
+The developer, after 6.1 on the phone and the tablet: "The new layout
+option is great and the responsiveness to changing layout when I turn
+the device is great. Can we make similar changes for all the games in
+the next update ... I don't feel we need to go just one game at a time
+if they are all following a similar recipe." Claude: nothing else to
+test first; the shared part (both ways fitted, refit on a turn, the
+footer moving) is what was tried.
+
+**Built** (DESIGN.md "Sideways screens"):
+- The middle column became a `.stage` (was `.boardwrap`, which only
+  four games have): `boardwrap stage` where a game has a board wrapper,
+  else a new `<div class="stage stack">` round the board, `display:
+  contents` upright so nothing changes there. Not a class on the board
+  itself: Nim and tic-tac-toe set their board's `className` on every
+  draw. Five Dice (dice over sheet), Rock paper scissors (cards over
+  picks) and Follow Me (pads over dots) stack two pieces.
+- The right column counts itself: 12 rows to spare, no row gap, 8 px
+  under each piece (was `--side-rows`, a count per game).
+- Every game's fit is `fitEitherWay`, its width from `wideRoom()` in
+  the wide layout and its biggest size 1.5 times one column's; the
+  puzzles fit their tools and turn line inside it (the row is narrower
+  in the right column); every way to setup calls `setWide(false)` (the
+  puzzles' failed-download path too).
+
+**Found and fixed on the way:**
+- `#play` kept one column's `max-width` (520 px, matching's 680) in the
+  wide layout; Reversi's grid only looked right because it overflowed
+  the same on both sides. Now `max-width: none` there too.
+- **A bug in 6.1's `fitEitherWay`:** when the wide fit had no room
+  (returned null) one column was kept but the page was left in the wide
+  layout. Reversi never hit it (it always had room); at 667 × 375 Five
+  Dice, Rock paper scissors, Nim and Connect Four came out wider than
+  the screen (686-956 px). The unit test checked the result, not the
+  layout class; it now checks both, and fails with the old line.
+- `pickLayout`: Five Dice at 780 × 340 fitted neither way and wide won
+  on size, but its sheet was wider than the room. Now wide only when it
+  fits.
+- The right column was 4-6 px too tall on a sideways phone for Nim
+  (320), Bridges (320), Find the Stars (322); 8 px gaps, a 48 px turn
+  line and a tighter footer fixed them, and Dots and Boxes (314 + its
+  board's span) too. Tic-tac-toe's scoreboard faces are sized from the
+  squares, so the column grew with the board (board 200 px): 60 px faces
+  there now (314 px). Matching's "Games won" wrapped to two lines
+  (86 px) at 300 px: no names there.
+- Rock paper scissors on the tablet, cards at their biggest, sat at the
+  top with 220 px empty below: the wide play screen is now centred in
+  the screen's height (`margin-block: auto`).
+
+**Measured** (the built-in browser, each game's play screen in a frame,
+the stage's biggest piece; after the fixes):
+- 1280 × 720: all 15 wide; tic-tac-toe 695, matching 696, Connect Four
+  782 × 672, Count to 9 650, Snakes 696, Five Dice 600 × 613, Nim
+  728 × 507, Dots 695, Reversi 693, Rock paper scissors 640 × 487,
+  Follow Me 532 × 560, Bridges 696, Find the Stars 696, Colour Sudoku
+  690, Laser Lab 694. Nothing scrolls or is too wide.
+- 780 × 340: 12 wide, none scrolling (288-327 px boards). One column,
+  scrolling as before: Five Dice (wide room 313 px, under its 320 px
+  least), Colour Sudoku (right column 340 px of 316), Laser Lab (417).
+- 667 × 375: 7 wide (tic-tac-toe, Count to 9, Dots, Reversi, Follow Me,
+  Bridges, Find the Stars); the rest one column, as before.
+- 393 × 760 and 800 × 1280: every game one column with the same sizes
+  as before the change (393 × 760 compared with the first measurement,
+  entry "Landscape: measured").
+- Tests: `tests/wide.test.js` checks all 15 games' wiring (both ways,
+  the room, a way out with no room, the log, a refit on resize, every
+  way to setup, one `.stage`); `npm test` 437 passed and 1 failed
+  (RELEASES.md had no 6.2 yet) before the notes.
+
+**Not checked:** screenshots (the pane drew the emulated screen at the
+wrong scale; positions read by script instead); the real devices.

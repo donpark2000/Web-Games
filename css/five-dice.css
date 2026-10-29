@@ -134,3 +134,7 @@
 .scoreboard .side .chip { width: 52px; height: 52px; flex: none; display: grid; place-items: center; font-size: 34px; }
 .mid { font-size: 12px; opacity: .85; text-align: center; line-height: 1.2; }
 .controls { margin-top: 2px; }
+
+/* Sideways (DESIGN.md "Sideways screens"): the dice over the sheet in the
+   middle column, --stagew wide (src/ui/five-dice.js). */
+body.wide-layout #play > .stage { width: var(--stagew); justify-items: stretch; }

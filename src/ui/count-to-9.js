@@ -12,7 +12,7 @@ import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { numberSvg } from './numbercard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -22,6 +22,7 @@ const CHEER_MS = 2800;        // the end-of-round scorecard cheer (css: .cheer-w
 const GAP = 10;               // between cards (css: .grid)
 const MIN_CARD = 56;          // smaller cards than this: the page scrolls instead
 const MAX_CARD = 140;         // css: --cs
+const MAX_CARD_WIDE = 210;    // beside the rest (DESIGN.md "Sideways screens")
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('count', msg, data);
 
@@ -131,10 +132,15 @@ function showPlay() {
 // the screen, up to what the width allows.
 function fitGrid() {
   const play = $('play');
-  const widest = Math.min(MAX_CARD, Math.floor((Math.min(play.clientWidth, 440) - 2 * GAP) / 3));
-  const r = fitPlayScreen(px => {
-    play.style.setProperty('--cs', `${px}px`);
-  }, Math.min(MIN_CARD, widest), widest);
+  // In one column at most 440px of cards; on a screen wider than tall,
+  // beside the rest if that's bigger (DESIGN.md "Sideways screens").
+  const r = fitEitherWay(wide => {
+    const widest = Math.min(wide ? MAX_CARD_WIDE : MAX_CARD, Math.floor(((wide ? wideRoom() : Math.min(play.clientWidth, 440)) - 2 * GAP) / 3));
+    if (wide && widest < MIN_CARD) return null;
+    return fitPlayScreen(px => {
+      play.style.setProperty('--cs', `${px}px`);
+    }, Math.min(MIN_CARD, widest), widest);
+  });
   L('fit', r);
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fitGrid(); });
@@ -312,6 +318,7 @@ $('newBtn').onclick = () => {
   match = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -344,6 +351,7 @@ function restore() {
     moods = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

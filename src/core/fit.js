@@ -32,11 +32,13 @@ export function largestFitting(fits, min, max) {
 // Which layout a play screen keeps (DESIGN.md "Sideways screens"): tall
 // (one column) or wide (the board between the 🏠 and a column of the
 // rest), each a largestFitting result, wide null when it can't be tried.
-// One that fits beats one that doesn't; then the bigger size; a tie
+// Wide only when it fits (2026-10-29: Five Dice on a sideways phone fitted
+// neither way, and wide, picked for its bigger rows, was wider than the
+// screen); then over a tall that scrolls, or with the bigger size; a tie
 // keeps tall, the layout an upright phone has always had.
 export function pickLayout(tall, wide) {
-  if (!wide) return 'tall';
-  if (wide.fitted !== tall.fitted) return wide.fitted ? 'wide' : 'tall';
+  if (!wide || !wide.fitted) return 'tall';
+  if (!tall.fitted) return 'wide';
   return wide.size > tall.size ? 'wide' : 'tall';
 }
 

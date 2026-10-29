@@ -9,7 +9,7 @@ import { endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -122,11 +122,16 @@ function showPlay() {
 // board width from it (css/connect-four.css).
 function fitBoard() {
   const play = $('play');
-  const maxCell = (Math.min(play.clientWidth, 520) - 2 * PAD - 6 * GAP) / 7;
-  const r = fitPlayScreen(px => {
-    play.style.setProperty('--cell', `${px}px`);
-    play.style.setProperty('--c4w', `${px * 7 + 6 * GAP + 2 * PAD}px`);
-  }, Math.min(MIN_CELL, maxCell), maxCell);
+  // In one column at most 520px of board; on a screen wider than tall,
+  // beside the rest if that's bigger (DESIGN.md "Sideways screens").
+  const r = fitEitherWay(wide => {
+    const maxCell = ((wide ? wideRoom() : Math.min(play.clientWidth, 520)) - 2 * PAD - 6 * GAP) / 7;
+    if (wide && maxCell < MIN_CELL) return null;
+    return fitPlayScreen(px => {
+      play.style.setProperty('--cell', `${px}px`);
+      play.style.setProperty('--c4w', `${px * 7 + 6 * GAP + 2 * PAD}px`);
+    }, Math.min(MIN_CELL, maxCell), maxCell);
+  });
   L('fit', r);
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fitBoard(); });
@@ -284,6 +289,7 @@ $('newBtn').onclick = () => {
   match = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -313,6 +319,7 @@ function restore() {
     moods = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

@@ -18,7 +18,9 @@ test('wide: pickLayout keeps the bigger board that fits; a tie or no wide keeps 
   // One that fits beats a bigger one that doesn't (that page scrolls).
   assert.equal(pickLayout(fit(30, false), fit(31)), 'wide');
   assert.equal(pickLayout(fit(40), fit(60, false)), 'tall');
-  assert.equal(pickLayout(fit(30, false), fit(35, false)), 'wide', 'neither fits: the bigger');
+  // Neither fits: tall, as before; a wide that doesn't fit can be wider
+  // than the screen (Five Dice on a sideways phone).
+  assert.equal(pickLayout(fit(30, false), fit(35, false)), 'tall', 'neither fits: tall');
 });
 
 // A stand-in page for fitEitherWay: a body whose class list records the
@@ -70,36 +72,63 @@ test('wide: an upright screen never tries the wide layout; no room keeps tall', 
     assert.deepEqual([r.layout, r.size, r.wide], ['tall', 55, null]);
     assert.ok(!classes.has('wide-layout'));
   });
-  await withScreen(500, 400, fitEitherWay => {
-    const r = fitEitherWay(wide => (wide ? null : fit(40)));
+  // No room beside the column: back to one column, fitted again
+  // (2026-10-29: the page was left in the wide layout, wider than the
+  // screen).
+  await withScreen(500, 400, (fitEitherWay, classes) => {
+    const calls = [];
+    const r = fitEitherWay(wide => { calls.push(wide); return wide ? null : fit(40); });
     assert.deepEqual([r.layout, r.size, r.wide], ['tall', 40, null]);
+    assert.deepEqual(calls, [false, true, false]);
+    assert.ok(!classes.has('wide-layout'), 'left in the wide layout');
+  });
+  // Wide doesn't fit: the same.
+  await withScreen(780, 340, (fitEitherWay, classes) => {
+    const r = fitEitherWay(wide => fit(wide ? 50 : 30, !wide));
+    assert.equal(r.layout, 'tall');
+    assert.ok(!classes.has('wide-layout'));
   });
 });
 
-test('wide: Reversi fits both ways, logs the layout, and goes back to one column for setup', async () => {
-  const js = await read('src/ui/reversi.js');
-  const fitBoard = js.match(/function fitBoard\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
-  assert.match(fitBoard, /fitEitherWay\(wide => \{/, 'not fitted both ways');
-  assert.match(fitBoard, /wide \? wideRoom\(\)/, 'the wide board isn’t limited by the room beside the column');
-  assert.match(fitBoard, /wide \? MAX_CELL_WIDE : MAX_CELL/);
-  assert.match(fitBoard, /L\('fit', \{ \.\.\.r, size: match\.size \}\)/, 'the fit (with its layout) isn’t logged');
-  assert.match(js, /addEventListener\('resize', \(\) => \{ if \(match && !\$\('play'\)\.hidden\) fitBoard\(\); \}\);/, 'not refitted when the screen turns');
-  // Every way to the setup screen puts the footer back under main.
-  const toSetup = [...js.matchAll(/\$\('setup'\)\.hidden = false;\s*(setWide\(false\);)?/g)];
-  assert.equal(toSetup.length, 2, `${toSetup.length} ways to setup`);
-  for (const m of toSetup) assert.ok(m[1], `setup shown without setWide(false): ${m[0]}`);
+const GAMES = ['tic-tac-toe', 'matching', 'connect-four', 'count-to-9', 'snakes-ladders', 'five-dice', 'nim', 'dots-boxes', 'reversi',
+  'rock-paper-scissors', 'follow-me', 'bridges', 'hidden-faces', 'colour-sudoku', 'laser-lab'];
+
+test('wide: every game fits both ways, refits on a turn, logs it, and goes back to one column for setup', async () => {
+  let checked = 0;
+  for (const g of GAMES) {
+    const js = await read(`src/ui/${g}.js`);
+    // (assert.ok, not match: a failure names the game, not the whole file)
+    assert.ok(/import \{ fitPlayScreen, fitEitherWay, setWide, wideRoom \} from '\.\/fit\.js';/.test(js), `${g}: fit.js not imported`);
+    const call = js.match(/const r = fitEitherWay\(wide => \{[\s\S]*?\n  \}\);/)?.[0] ?? '';
+    assert.ok(call, `${g}: not fitted both ways`);
+    assert.ok(/wide \? (Math\.min\()?wideRoom\(\)/.test(call), `${g}: the wide board isn’t limited by the room beside the column`);
+    assert.ok(/if \([^)]*wide[^)]*\) return null;/.test(call), `${g}: no way out when the wide layout has no room`);
+    assert.ok(/fitPlayScreen\(/.test(call), `${g}: fitPlayScreen not used`);
+    assert.ok(/r\.layout|L\('fit', (r|\{ \.\.\.r)/.test(js), `${g}: the layout kept isn’t logged`);
+    assert.ok(/addEventListener\('resize', (fit\)|[\s\S]{0,120}?(fit\w*|layoutGrid)\(\))/.test(js), `${g}: not refitted when the screen turns`);
+    // Every way to the setup screen puts the footer back under main.
+    const toSetup = [...js.matchAll(/\$\('setup'\)\.hidden = false;\s*(setWide\(false\);)?/g)];
+    assert.ok(toSetup.length >= 2, `${g}: ${toSetup.length} ways to setup`);
+    for (const m of toSetup) assert.ok(m[1], `${g}: setup shown without setWide(false)`);
+    // The play screen has one stage, the wide layout's middle column.
+    const html = await read(`${g}.html`);
+    const play = html.match(/<section id="play"[\s\S]*?<\/section>/)?.[0] ?? '';
+    assert.equal((play.match(/class="[^"]*\bstage\b/g) ?? []).length, 1, `${g}: one .stage in the play screen`);
+    checked++;
+  }
+  assert.equal(checked, 15);
 });
 
 test('wide: the wide layout’s styles: three columns, the board at full height, the footer at the foot', async () => {
   const css = await read('css/game.css');
-  assert.match(css, /body.wide-layout #play \{[^}]*grid-template-columns: auto auto var\(--side\);/);
-  assert.match(css, /body.wide-layout #play \.top \{ display: contents; \}/);
-  assert.match(css, /body.wide-layout #play > \.boardwrap \{ grid-column: 2; grid-row: 1 \/ -1;/);
-  assert.match(css, /body.wide-layout #play \.homebtn \{ grid-column: 1; grid-row: 1 \/ -1; align-self: start; \}/);
-  assert.match(css, /body.wide-layout #play > \.site-foot \{ grid-row: -2 \/ -1;/);
-  assert.match(css, /body.wide-layout main\.app \{ max-width: none; \}/);
-  // Reversi's play screen has the board the wide layout expects.
-  assert.match(await read('reversi.html'), /<section id="play"[\s\S]*<div class="boardwrap">/);
+  assert.match(css, /body\.wide-layout #play \{[^}]*grid-template-columns: auto auto var\(--side\);/);
+  assert.match(css, /body\.wide-layout #play \.top \{ display: contents; \}/);
+  assert.match(css, /body\.wide-layout #play > \.stage \{ grid-column: 2; grid-row: 1 \/ -1;/);
+  assert.match(css, /body\.wide-layout #play \.homebtn \{ grid-column: 1; grid-row: 1 \/ -1; align-self: start;/);
+  assert.match(css, /body\.wide-layout #play > \.site-foot \{ grid-row: -2 \/ -1;/);
+  assert.match(css, /body\.wide-layout main\.app, body\.wide-layout #play \{ max-width: none; \}/);
+  // Upright, a stack of pieces lays out as if it weren't there.
+  assert.match(css, /^\.stage\.stack \{ display: contents; \}/m);
 });
 
 test('wide: the home page has more games a row on a screen wider than tall, and logs how many', async () => {

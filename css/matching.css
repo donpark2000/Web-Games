@@ -45,3 +45,8 @@ main.app { max-width: 680px; }   /* the setup screen inside stays 520px (game.cs
 .sc2 .w { display: flex; align-items: center; gap: 5px; font-variant-numeric: tabular-nums; }
 .sc2 .nm { font-size: 13px; color: var(--muted); }
 .controls { margin-top: 6px; }
+
+/* Sideways (DESIGN.md "Sideways screens"): "Games won" without the names,
+   on one line in the right column (with them it took two, too tall for a
+   sideways phone); the faces say whose, and the names are just above. */
+body.wide-layout .sc2 .nm { display: none; }

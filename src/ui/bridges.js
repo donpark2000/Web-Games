@@ -14,7 +14,7 @@ import { largestFitting } from '../core/fit.js';
 import { boardContent, miniSvg, viewBox } from './brboard.js';
 import { STAR } from './hfboard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -23,7 +23,7 @@ const WIN_MS = 600;      // the last bridge drawn, then the result and the end b
 const NOTE_MS = 2500;    // a moment's words in the hint bar
 // The board's size in px: at least 180 (a 320 x 568 phone fits Medium
 // with a 188 px board; 240 scrolled it 52 px), at most 520 (big screens).
-const MIN_BOARD = 180, MAX_BOARD = 520;
+const MIN_BOARD = 180, MAX_BOARD = 520, MAX_BOARD_WIDE = 780;
 const DRAG = 0.4;        // squares a finger moves from an island before it's a drag
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('bridges', msg, data);
@@ -81,7 +81,7 @@ fetch(STOCK_FILE)
   .catch(e => {
     stock = null;
     L('puzzles not loaded', { error: String(e) });
-    if (resuming) { resuming = false; $('setup').hidden = false; renderSetup(); }
+    if (resuming) { resuming = false; $('setup').hidden = false; setWide(false); renderSetup(); }
     $('why').textContent = 'The puzzles didn\'t load. Check the connection, then reload the page.';
   });
 
@@ -276,14 +276,19 @@ function fitTurn() {
 // The board as big as fits: the whole page on the screen, no scrolling.
 function fit() {
   if (!G || $('play').hidden) return;
-  fitTools();
   const main = document.querySelector('main');
-  const widest = Math.max(MIN_BOARD, Math.min(MAX_BOARD, main.clientWidth));
-  const r = fitPlayScreen(px => $('play').style.setProperty('--bw', `${px}px`), MIN_BOARD, widest);
-  const key = `${r.size}@${innerWidth}x${innerHeight}`;
+  // On a screen wider than tall, beside the rest if that gives a bigger
+  // board (DESIGN.md "Sideways screens").
+  const r = fitEitherWay(wide => {
+    fitTools();
+    const widest = Math.min(wide ? MAX_BOARD_WIDE : MAX_BOARD, wide ? wideRoom() : main.clientWidth);
+    if (wide && widest < MIN_BOARD) return null;
+    return fitPlayScreen(px => $('play').style.setProperty('--bw', `${px}px`), MIN_BOARD, Math.max(MIN_BOARD, widest));
+  });
+  const key = `${r.size}@${innerWidth}x${innerHeight}/${r.layout}`;
   if (key !== lastFit) {
     lastFit = key;
-    L('fit', { board: r.size, square: Math.round(r.size / G.p.n), fitted: r.fitted, tries: r.tries, page: r.page, screen: r.screen, mainW: main.clientWidth });
+    L('fit', { board: r.size, square: Math.round(r.size / G.p.n), fitted: r.fitted, tries: r.tries, layout: r.layout, tall: r.tall, wide: r.wide, page: r.page, screen: r.screen, mainW: main.clientWidth });
   }
 }
 addEventListener('resize', fit);
@@ -573,6 +578,7 @@ $('newBtn').onclick = () => {
   stopNote();
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -599,6 +605,7 @@ function restore() {
     shown = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

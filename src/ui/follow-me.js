@@ -12,7 +12,7 @@ import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { padStyle } from './fmpads.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -117,34 +117,42 @@ function showPlay() {
 
 // The biggest pads that let the whole page fit the screen with no
 // scrolling, trying each way to lay them out (6: 2 across and 3 down, or
-// 3x2) and keeping the one with the bigger pads.
+// 3x2) and keeping the one with the bigger pads. On a screen wider than
+// tall, all that beside the rest too, pads up to MAX_PAD_WIDE, and the
+// bigger pads win (DESIGN.md "Sideways screens").
+const MAX_PAD_WIDE = 260;
 function fitPads() {
   const play = $('play');
   const apply = (cols, px) => {
     play.style.setProperty('--cols', cols);
     play.style.setProperty('--pad', `${px}px`);
   };
-  // The page column's width (main), not the play screen's (nim.js).
-  const width = Math.min(document.querySelector('main').clientWidth, 520);
-  let use = null, tries = 0;
-  for (const [cols, rows] of ARRANGEMENTS[match.size]) {
-    const widest = Math.min(MAX_PAD, Math.floor((width - PAD_GAP * (cols - 1)) / cols));
-    if (widest < MIN_PAD) continue;
-    const fit = fitPlayScreen(px => apply(cols, px), MIN_PAD, widest);
-    tries += fit.tries;
-    if (fit.fitted && (!use || fit.size > use.pad)) use = { cols, rows, pad: fit.size, fitted: true };
-  }
-  // Nothing fits (a phone held sideways): the smallest pads, in the layout
-  // with the fewest rows (the least scrolling), and the page scrolls.
-  if (!use) {
-    const [cols, rows] = ARRANGEMENTS[match.size].reduce((a, b) => (b[1] < a[1] ? b : a));
-    use = { cols, rows, pad: MIN_PAD, fitted: false };
-  }
-  apply(use.cols, use.pad);
-  const key = `${use.cols}x${use.rows}@${use.pad}`;
+  let tries = 0;
+  const r = fitEitherWay(wide => {
+    // The page column's width (main), not the play screen's (nim.js).
+    const width = wide ? wideRoom() : Math.min(document.querySelector('main').clientWidth, 520);
+    let use = null;
+    for (const [cols, rows] of ARRANGEMENTS[match.size]) {
+      const widest = Math.min(wide ? MAX_PAD_WIDE : MAX_PAD, Math.floor((width - PAD_GAP * (cols - 1)) / cols));
+      if (widest < MIN_PAD) continue;
+      const fit = fitPlayScreen(px => apply(cols, px), MIN_PAD, widest);
+      tries += fit.tries;
+      if (fit.fitted && (!use || fit.size > use.pad)) use = { cols, rows, pad: fit.size, fitted: true };
+    }
+    if (!use && wide) return null;
+    // Nothing fits (a phone held sideways): the smallest pads, in the layout
+    // with the fewest rows (the least scrolling), and the page scrolls.
+    if (!use) {
+      const [cols, rows] = ARRANGEMENTS[match.size].reduce((a, b) => (b[1] < a[1] ? b : a));
+      use = { cols, rows, pad: MIN_PAD, fitted: false };
+    }
+    apply(use.cols, use.pad);
+    return { size: use.pad, fitted: use.fitted, cols: use.cols, rows: use.rows };
+  });
+  const key = `${r.cols}x${r.rows}@${r.size}/${r.layout}`;
   if (key !== lastLayout) {
     lastLayout = key;
-    L('fit', { size: match.size, ...use, tries, screen: `${innerWidth}x${innerHeight}` });
+    L('fit', { size: match.size, cols: r.cols, rows: r.rows, pad: r.size, fitted: r.fitted, tries, layout: r.layout, tall: r.tall, wide: r.wide, screen: `${innerWidth}x${innerHeight}` });
   }
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fitPads(); });
@@ -371,6 +379,7 @@ $('newBtn').onclick = () => {
   match = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -406,6 +415,7 @@ function restore() {
     $('over').hidden = true;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

@@ -61,28 +61,30 @@
       <a class="homebtn" href="index.html" aria-label="All games"></a>
       <div class="turn" id="turn" aria-live="polite"></div>
     </div>
-    <!-- The pads, and over them at the end the "Game over" banner with
-         Play again and New game (developer, 2026-10-09: not during a game,
-         so a stray tap can't restart it); 🏠 still leaves. Give up, under
-         the scoreboard, asks first, over the pads (2026-10-15). -->
-    <div class="board">
-      <div class="pads wait" id="pads"></div>
-      <div class="over" id="over" hidden>
-        <div class="overcard" role="dialog" aria-labelledby="overTitle">
-          <p class="overtitle" id="overTitle">Game over</p>
-          <button type="button" class="big" id="againBtn">Play again</button>
-          <button type="button" class="pill" id="newBtn">New game</button>
+    <div class="stage stack">
+      <!-- The pads, and over them at the end the "Game over" banner with
+           Play again and New game (developer, 2026-10-09: not during a game,
+           so a stray tap can't restart it); 🏠 still leaves. Give up, under
+           the scoreboard, asks first, over the pads (2026-10-15). -->
+      <div class="board">
+        <div class="pads wait" id="pads"></div>
+        <div class="over" id="over" hidden>
+          <div class="overcard" role="dialog" aria-labelledby="overTitle">
+            <p class="overtitle" id="overTitle">Game over</p>
+            <button type="button" class="big" id="againBtn">Play again</button>
+            <button type="button" class="pill" id="newBtn">New game</button>
+          </div>
+        </div>
+        <div class="over" id="ask" hidden>
+          <div class="overcard askcard" role="dialog" aria-labelledby="askTitle">
+            <p class="overtitle" id="askTitle">Give up this game?</p>
+            <button type="button" class="pill primary" id="giveUpYes">Yes</button>
+            <button type="button" class="pill" id="giveUpNo">No</button>
+          </div>
         </div>
       </div>
-      <div class="over" id="ask" hidden>
-        <div class="overcard askcard" role="dialog" aria-labelledby="askTitle">
-          <p class="overtitle" id="askTitle">Give up this game?</p>
-          <button type="button" class="pill primary" id="giveUpYes">Yes</button>
-          <button type="button" class="pill" id="giveUpNo">No</button>
-        </div>
-      </div>
+      <div class="dots" id="dots" aria-hidden="true"></div>
     </div>
-    <div class="dots" id="dots" aria-hidden="true"></div>
     <div class="scoreboard" aria-label="Score">
       <div class="side"><span class="chip" id="s1Chip"></span><span><span class="n" id="s1">0</span><span class="who" id="s1Who"></span></span></div>
       <div class="mid" id="mid"></div>

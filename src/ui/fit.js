@@ -65,14 +65,16 @@ export function wideRoom() {
 export function fitEitherWay(fit) {
   setWide(false);
   const tall = fit(false);
+  const tried = innerWidth > innerHeight;
   let wide = null;
-  if (innerWidth > innerHeight) {
+  if (tried) {
     setWide(true);
     wide = fit(true);
   }
   const layout = pickLayout(tall, wide);
-  let kept = wide;
-  if (layout === 'tall' && wide) { setWide(false); kept = fit(false); }
-  else if (layout === 'tall') kept = tall;
+  let kept = layout === 'wide' ? wide : tall;
+  // Back to one column, fitted again, whenever wide was tried and not
+  // kept, also when it had no room (wide null).
+  if (layout === 'tall' && tried) { setWide(false); kept = fit(false); }
   return { ...kept, layout, tall: tall.size, wide: wide?.size ?? null };
 }

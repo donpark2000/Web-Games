@@ -11,7 +11,7 @@ import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { boardArtSvg, snakePoints, dotsSvg, cubeSvg } from './snlart.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -138,11 +138,17 @@ function showPlay() {
 // least 48px).
 function fitBoard() {
   const play = $('play');
-  const maxSq = (Math.min(play.clientWidth, 520) - 2 * PAD) / COLS;
-  const r = fitPlayScreen(px => {
-    play.style.setProperty('--sq', `${px}px`);
-    play.style.setProperty('--topsq', `${Math.max(48, px)}px`);
-  }, Math.min(MIN_SQ, maxSq), maxSq);
+  // In one column at most 520px of board; on a screen wider than tall,
+  // beside the rest if that's bigger (DESIGN.md "Sideways screens"), the
+  // die in the right column no bigger than one-column's biggest (64px).
+  const r = fitEitherWay(wide => {
+    const maxSq = ((wide ? wideRoom() : Math.min(play.clientWidth, 520)) - 2 * PAD) / COLS;
+    if (wide && maxSq < MIN_SQ) return null;
+    return fitPlayScreen(px => {
+      play.style.setProperty('--sq', `${px}px`);
+      play.style.setProperty('--topsq', `${Math.max(48, wide ? Math.min(64, px) : px)}px`);
+    }, Math.min(MIN_SQ, maxSq), maxSq);
+  });
   L('fit', r);
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fitBoard(); });
@@ -396,6 +402,7 @@ $('newBtn').onclick = () => {
   match = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -428,6 +435,7 @@ function restore() {
     moods = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

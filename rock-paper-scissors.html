@@ -42,24 +42,26 @@
       <div class="turn" id="turn" aria-live="polite"></div>
     </div>
 
-    <div class="arena">
-      <div class="side">
-        <span class="who" id="meFace"></span>
-        <div class="slot mine empty" id="mySlot"><div class="in"><div class="face-b"></div><div class="face-f" id="myPic"></div></div></div>
-        <span class="lbl" id="meLbl"></span>
+    <div class="stage stack">
+      <div class="arena">
+        <div class="side">
+          <span class="who" id="meFace"></span>
+          <div class="slot mine empty" id="mySlot"><div class="in"><div class="face-b"></div><div class="face-f" id="myPic"></div></div></div>
+          <span class="lbl" id="meLbl"></span>
+        </div>
+        <div class="count" id="count">vs</div>
+        <div class="side">
+          <span class="who" id="botFace"></span>
+          <div class="slot robot" id="botSlot"><div class="in"><div class="face-b" id="botBack"></div><div class="face-f" id="botPic"></div></div></div>
+          <span class="lbl" id="botLbl">Robot</span>
+        </div>
       </div>
-      <div class="count" id="count">vs</div>
-      <div class="side">
-        <span class="who" id="botFace"></span>
-        <div class="slot robot" id="botSlot"><div class="in"><div class="face-b" id="botBack"></div><div class="face-f" id="botPic"></div></div></div>
-        <span class="lbl" id="botLbl">Robot</span>
-      </div>
-    </div>
 
-    <div class="picks" id="picks">
-      <button type="button" class="pick" data-pick="rock" disabled><span class="pic" data-pic="rock"></span>Rock</button>
-      <button type="button" class="pick" data-pick="paper" disabled><span class="pic" data-pic="paper"></span>Paper</button>
-      <button type="button" class="pick" data-pick="scissors" disabled><span class="pic" data-pic="scissors"></span>Scissors</button>
+      <div class="picks" id="picks">
+        <button type="button" class="pick" data-pick="rock" disabled><span class="pic" data-pic="rock"></span>Rock</button>
+        <button type="button" class="pick" data-pick="paper" disabled><span class="pic" data-pic="paper"></span>Paper</button>
+        <button type="button" class="pick" data-pick="scissors" disabled><span class="pic" data-pic="scissors"></span>Scissors</button>
+      </div>
     </div>
 
     <div class="sc" aria-label="Score, first to 3">

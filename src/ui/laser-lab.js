@@ -16,7 +16,7 @@ import { largestFitting } from '../core/fit.js';
 import { STAR } from './hfboard.js';
 import { pieceSvg, lampSvg, gemSvg, wallSvg, cellSvg, lampColour, miniSvg, bombSvg, scorchSvg, rubbleSvg } from './llboard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable, visit } from './resume.js';
 
@@ -24,7 +24,7 @@ const STOCK_FILE = 'data/laser-lab.json';
 const STEP_MS = 90;      // a beam runs out a square per step
 const ARRIVE_MS = 400;   // a gem lit by then if its beam's animation didn't end
 const HINTED_MS = 3300;  // the ring round a hint's square
-const MIN_CELL = 24, MAX_CELL = 72;
+const MIN_CELL = 24, MAX_CELL = 72, MAX_CELL_WIDE = 108;
 const RIM = .7;          // the lasers' rim, in squares, each side
 const NAME = { m: 'Mirror', s: 'Splitter' };
 const $ = id => document.getElementById(id);
@@ -89,7 +89,7 @@ fetch(STOCK_FILE)
   .catch(e => {
     stock = null;
     L('puzzles not loaded', { error: String(e) });
-    if (resuming) { resuming = false; $('setup').hidden = false; renderSetup(); }
+    if (resuming) { resuming = false; $('setup').hidden = false; setWide(false); renderSetup(); }
     $('why').textContent = 'The puzzles didn\'t load. Check the connection, then reload the page.';
   });
 
@@ -404,16 +404,21 @@ function fitInfo() {
 // Its width is n squares and the lasers' rim each side.
 function fit() {
   if (!G || $('play').hidden) return;
-  fitInfo();
-  fitTools();
-  if (G.result) fitEnd();
   const wrap = $('boardwrap'), main = document.querySelector('main'), n = P.n;
-  const widest = Math.max(MIN_CELL, Math.min(MAX_CELL, Math.floor((main.clientWidth - 6) / (n + 2 * RIM))));
-  const r = fitPlayScreen(px => wrap.style.setProperty('--cell', `${px}px`), MIN_CELL, widest);
-  const key = `${r.size}@${innerWidth}x${innerHeight}`;
+  // On a screen wider than tall, beside the rest if that gives a bigger
+  // board (DESIGN.md "Sideways screens").
+  const r = fitEitherWay(wide => {
+    fitInfo();
+    fitTools();
+    if (G.result) fitEnd();
+    const widest = Math.min(wide ? MAX_CELL_WIDE : MAX_CELL, Math.floor(((wide ? wideRoom() : main.clientWidth) - 6) / (n + 2 * RIM)));
+    if (wide && widest < MIN_CELL) return null;
+    return fitPlayScreen(px => wrap.style.setProperty('--cell', `${px}px`), MIN_CELL, Math.max(MIN_CELL, widest));
+  });
+  const key = `${r.size}@${innerWidth}x${innerHeight}/${r.layout}`;
   if (key !== lastFit) {
     lastFit = key;
-    L('fit', { cell: r.size, fitted: r.fitted, tries: r.tries, page: r.page, screen: r.screen, mainW: main.clientWidth, playW: Math.round($('play').getBoundingClientRect().width) });
+    L('fit', { cell: r.size, fitted: r.fitted, tries: r.tries, layout: r.layout, tall: r.tall, wide: r.wide, page: r.page, screen: r.screen, mainW: main.clientWidth, playW: Math.round($('play').getBoundingClientRect().width) });
   }
 }
 addEventListener('resize', fit);
@@ -811,6 +816,7 @@ function newGame() {
   P = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   $('tools').hidden = false;
   $('endTools').hidden = true;
   renderSetup();
@@ -840,6 +846,7 @@ function restore() {
     P = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

@@ -12,7 +12,7 @@ import {
 import { mergeSetup } from '../core/resume.js';
 import { STAR, XMARK, HXMARK, borderStyle, miniBoard } from './hfboard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { largestFitting } from '../core/fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
@@ -23,7 +23,7 @@ const LOSE_MS = 700;
 // The grid full with stars still hidden: the end after this long, so a
 // double tap's look on the last ✕ still comes first.
 const FULL_MS = 400;
-const MIN_CELL = 28, MAX_BOARD = 600;
+const MIN_CELL = 28, MAX_BOARD = 600, MAX_BOARD_WIDE = 900;
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('hidden-faces', msg, data);
 
@@ -76,7 +76,7 @@ fetch(STOCK_FILE)
   .catch(e => {
     stock = null;
     L('puzzles not loaded', { error: String(e) });
-    if (resuming) { resuming = false; $('setup').hidden = false; renderSetup(); }
+    if (resuming) { resuming = false; $('setup').hidden = false; setWide(false); renderSetup(); }
     $('why').textContent = 'The puzzles didn\'t load. Check the connection, then reload the page.';
   });
 
@@ -245,14 +245,19 @@ function fitTools() {
 // The board as big as fits: the whole page on the screen, no scrolling.
 function fit() {
   if (!G || $('play').hidden) return;
-  fitTools();
   const b = $('board');
-  const width = Math.min(document.querySelector('main').clientWidth, MAX_BOARD);
-  const widest = Math.max(MIN_CELL, Math.floor((width - 6) / G.n));
-  const r = fitPlayScreen(px => b.style.setProperty('--cell', `${px}px`), MIN_CELL, widest);
-  const key = `${G.n}@${r.size}`;
+  // On a screen wider than tall, beside the rest if that gives a bigger
+  // board (DESIGN.md "Sideways screens").
+  const r = fitEitherWay(wide => {
+    fitTools();
+    const width = wide ? Math.min(wideRoom(), MAX_BOARD_WIDE) : Math.min(document.querySelector('main').clientWidth, MAX_BOARD);
+    const widest = Math.floor((width - 6) / G.n);
+    if (wide && widest < MIN_CELL) return null;
+    return fitPlayScreen(px => b.style.setProperty('--cell', `${px}px`), MIN_CELL, Math.max(MIN_CELL, widest));
+  });
+  const key = `${G.n}@${r.size}/${r.layout}`;
   // playW: the play screen's width, which must be the page column's (mainW).
-  if (key !== lastFit) { lastFit = key; L('fit', { size: G.n, cell: r.size, fitted: r.fitted, tries: r.tries, screen: r.screen, mainW: document.querySelector('main').clientWidth, playW: Math.round($('play').getBoundingClientRect().width) }); }
+  if (key !== lastFit) { lastFit = key; L('fit', { size: G.n, cell: r.size, fitted: r.fitted, tries: r.tries, layout: r.layout, tall: r.tall, wide: r.wide, screen: r.screen, mainW: document.querySelector('main').clientWidth, playW: Math.round($('play').getBoundingClientRect().width) }); }
   if (shown?.lit) paintHint();
 }
 addEventListener('resize', fit);
@@ -771,6 +776,7 @@ $('newBtn').onclick = () => {
   G = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -795,6 +801,7 @@ function restore() {
     G = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

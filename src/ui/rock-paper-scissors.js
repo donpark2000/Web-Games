@@ -9,7 +9,7 @@ import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { PICTURES, SAYS } from './rpspics.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -19,7 +19,7 @@ const SHOW_MS = 2500;    // a round's result before the next countdown
 const SAME_MS = 1500;    // after "Same!"
 const ACT_MS = 300;      // the cards turn over, then the winner acts it out
 const CHEER_MS = 2800;   // the end-of-game scorecard cheer (css: .cheer-win)
-const MIN_CARD = 80, MAX_CARD = 150;
+const MIN_CARD = 80, MAX_CARD = 150, MAX_CARD_WIDE = 225;
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('rps', msg, data);
 
@@ -80,8 +80,16 @@ function showPlay() {
 // the whole page fit the screen, up to what the width allows.
 function fitCards() {
   const play = $('play');
-  const widest = Math.min(MAX_CARD, Math.floor((Math.min(play.clientWidth, 520) - 56 - 16) / 2));
-  const r = fitPlayScreen(px => play.style.setProperty('--cs', `${px}px`), Math.min(MIN_CARD, widest), widest);
+  // On a screen wider than tall, the cards and picks beside the rest if
+  // that gives bigger cards (DESIGN.md "Sideways screens"), a column at
+  // most 640px wide.
+  const r = fitEitherWay(wide => {
+    const width = wide ? Math.min(wideRoom(), 640) : Math.min(play.clientWidth, 520);
+    const widest = Math.min(wide ? MAX_CARD_WIDE : MAX_CARD, Math.floor((width - 56 - 16) / 2));
+    if (wide && widest < MIN_CARD) return null;
+    play.style.setProperty('--stagew', `${width}px`);
+    return fitPlayScreen(px => play.style.setProperty('--cs', `${px}px`), Math.min(MIN_CARD, widest), widest);
+  });
   L('fit', r);
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fitCards(); });
@@ -215,6 +223,7 @@ $('newBtn').onclick = () => {
   match = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -251,6 +260,7 @@ function restore() {
     moods = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

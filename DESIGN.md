@@ -4,10 +4,11 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-29, latest): **sideways screens**: Reversi's play
-screen in three columns when that gives a bigger board, and the home
-page with more games a row, to try on the tablet and phone (release 6.1;
-see "Sideways screens"); the other games once it's been tried.
+*Status (2026-10-29, latest): **sideways screens in every game**: each
+play screen in three columns when that gives a bigger board (release
+6.2; see "Sideways screens"). Earlier the same day: the same on Reversi,
+and the home page with more games a row (release 6.1, liked on the phone
+and tablet).
 2026-10-25: **Reversi** built from mockup v1 with the
 discs seen at an angle (sample C), in 👥 Two players after Dots and
 Boxes (release 6.0; see "Reversi"). 2026-10-24: **Bridges** (the Hashi puzzle) built from
@@ -193,10 +194,12 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
 A tablet or phone held sideways (developer, 2026-10-29: on the Android
 tablet "Boards are quite a bit smaller and there is a lot of unused
 space beside the game board"; journal Q44, "Landscape: measured; three
-columns proposed"). Agreed to try on **one game first, Reversi**, and the
-home page (release 6.1), the other games after it's been tried
-(developer: "publish one game, let me test the new layout and the
-responsiveness to orientation").
+columns proposed"). Tried first on Reversi and the home page (release
+6.1; developer: "publish one game, let me test the new layout and the
+responsiveness to orientation"), then **every game** (release 6.2;
+developer, after 6.1 on the phone and tablet: "The new layout option is
+great and the responsiveness to changing layout when I turn the device
+is great ... I don't feel we need to go just one game at a time").
 
 - **A play screen's wide layout:** on a screen wider than tall, three
   columns: the 🏠 at the top and the 🔊 at the bottom on the left, the
@@ -206,17 +209,43 @@ responsiveness to orientation").
   [Landscape Layout Mockup](https://claude.ai/artifact/KL1NyspH9Zgd7Th4PdKq2m)
   (private Claude artifact, version 1). A 🏠 at the top of the right
   column didn't fit a sideways phone (the column needed 342 px of 316).
+  The right column is slimmer than one column's pieces: 8 px under each
+  piece, a 48 px turn line with 44 px faces, the footer's lines closer
+  (6.2: Nim, Dots and Boxes, Bridges and Find the Stars were 4-6 px too
+  tall for a sideways phone). A board at its biggest leaves room: the
+  play screen sits in the middle of the screen's height.
+- **The middle column** is each game's `.stage`: its board's wrapper
+  (`.boardwrap stage`), or a `stage stack` wrapping the board, which
+  upright is `display: contents` so nothing changes there. A stack can
+  hold what belongs with the board: **Five Dice** the dice over the
+  score sheet (the column at most 600 px wide), **Rock paper scissors**
+  the cards over the picks (at most 640 px), **Follow Me** the pads over
+  the row of dots. **Nim**'s Take button, **Snakes and Ladders**' die
+  (at most 64 px) and the puzzles' status, hint bar and tools go in the
+  right column. **Tic-tac-toe**'s scoreboard faces are 60 px there (sized
+  from the squares, the column grew as tall as the board); **matching
+  cards**' "Games won" has no names there (on two lines it was too
+  tall). Wide, a game's biggest board or pieces go up to 1.5 times one
+  column's biggest.
 - **The bigger board wins:** the play screen is fitted both ways
   (`fitEitherWay` in `src/ui/fit.js`, `pickLayout` in
-  `src/core/fit.js`) and keeps the layout with the bigger board, one
-  that fits beating one that scrolls; a tie keeps one column. So an
+  `src/core/fit.js`) and keeps the layout with the bigger board. **Wide
+  only when it fits** (6.2: Five Dice on a sideways phone fitted neither
+  way, and wide was wider than the screen); then over one column that
+  scrolls, or with the bigger board; a tie keeps one column. So an
   upright phone or tablet looks as before. Fitted again whenever the
-  screen turns or changes size. Wide, Reversi's squares go up to 120 px
-  (80 in one column).
-- **Measured** (the built-in browser): Reversi's board on a sideways
-  phone (780 × 340) 310 px, with no scrolling (198 px and a page that
-  scrolled before); a sideways tablet (1280 × 720) 693 px (350 before).
-  Upright phone 356 px and upright tablet 515 px, unchanged.
+  screen turns or changes size.
+- **Measured** (the built-in browser, release 6.2): a sideways tablet
+  (1280 × 720): all 15 games wide, boards 650-780 px (Reversi 693, 350
+  before; Rock paper scissors' cards 225 px each, its column 640 wide);
+  a sideways phone (780 × 340): 12 wide with no scrolling, boards
+  288-327 px (before, every game's smallest and every page scrolled);
+  Five Dice, Colour Sudoku and Laser Lab stay one column (their right
+  column is too tall, or Five Dice's sheet too wide for the room); a
+  small phone sideways (667 × 375): 7 wide (tic-tac-toe, Count to 9,
+  Dots and Boxes, Reversi, Follow Me, Bridges, Find the Stars), the
+  rest one column. Upright (393 × 760, 800 × 1280): every game as
+  before.
 - **The home page,** on a screen wider than tall and at least 700 px
   wide: the game buttons 220 px wide, as many a row as fit, the rows
   centred (developer: "a horizontal homepage option with more games per

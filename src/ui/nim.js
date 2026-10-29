@@ -11,7 +11,7 @@ import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { MATCH_SVG } from './matchstick.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -21,7 +21,7 @@ const ROBOT_WAIT = { think: 800, lift: 450, beforeTake: 700 };
 const FLY_MS = 450;      // taken matches fly off (css: .m.gone)
 const CHEER_MS = 2800;   // the end-of-round scorecard cheer (css: .cheer-win)
 const GAP = 6, TRAY_PAD = 10;   // css: --mgap, --traypad
-const MIN_SLOT = 30, MAX_SLOT = 64;
+const MIN_SLOT = 30, MAX_SLOT = 64, MAX_SLOT_WIDE = 96;
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('nim', msg, data);
 
@@ -143,11 +143,16 @@ function fitTray() {
   const play = $('play');
   // The page column's width (main), not the play screen's: a tray too wide
   // for the screen would stretch the play screen it's measured from.
-  const width = Math.min(document.querySelector('main').clientWidth, 520);
-  const maxSlot = Math.min(MAX_SLOT, (width - 2 * TRAY_PAD - 6 * GAP) / 7);
-  const r = fitPlayScreen(px => {
-    play.style.setProperty('--slot', `${px}px`);
-  }, Math.min(MIN_SLOT, maxSlot), maxSlot);
+  // On a screen wider than tall, beside the rest if that's bigger
+  // (DESIGN.md "Sideways screens").
+  const r = fitEitherWay(wide => {
+    const width = wide ? wideRoom() : Math.min(document.querySelector('main').clientWidth, 520);
+    const maxSlot = Math.min(wide ? MAX_SLOT_WIDE : MAX_SLOT, (width - 2 * TRAY_PAD - 6 * GAP) / 7);
+    if (wide && maxSlot < MIN_SLOT) return null;
+    return fitPlayScreen(px => {
+      play.style.setProperty('--slot', `${px}px`);
+    }, Math.min(MIN_SLOT, maxSlot), maxSlot);
+  });
   L('fit', r);
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fitTray(); });
@@ -343,6 +348,7 @@ $('newBtn').onclick = () => {
   busy = false;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -377,6 +383,7 @@ function restore() {
     moods = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

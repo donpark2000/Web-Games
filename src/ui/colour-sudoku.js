@@ -14,7 +14,7 @@ import { largestFitting } from '../core/fit.js';
 import { STAR } from './hfboard.js';
 import { boxLines, miniBoard } from './csboard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -22,7 +22,7 @@ const STOCK_FILE = 'data/colour-sudoku.json';
 const WIN_MS = 500;      // the last digit pops in, then the result and the end buttons
 const LOSE_MS = 700;
 const NOTE_MS = 2500;    // a moment's words in the hint bar
-const MIN_CELL = 24, MAX_CELL = 58;
+const MIN_CELL = 24, MAX_CELL = 58, MAX_CELL_WIDE = 87;
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('colour-sudoku', msg, data);
 const at = i => ({ square: i, row: rowOf(i) + 1, col: colOf(i) + 1 });
@@ -79,7 +79,7 @@ fetch(STOCK_FILE)
   .catch(e => {
     stock = null;
     L('puzzles not loaded', { error: String(e) });
-    if (resuming) { resuming = false; $('setup').hidden = false; renderSetup(); }
+    if (resuming) { resuming = false; $('setup').hidden = false; setWide(false); renderSetup(); }
     $('why').textContent = 'The puzzles didn\'t load. Check the connection, then reload the page.';
   });
 
@@ -337,19 +337,24 @@ function fitInfo() {
 // Then the dock's height without a hint lit, which a lit hint's words get.
 function fit() {
   if (!G || $('play').hidden) return;
-  fitInfo();
-  fitTools();
   const b = $('board'), main = document.querySelector('main');
   const dock = $('dock'), lit = dock.classList.contains('lit');
   dock.classList.remove('lit');
-  const widest = Math.max(MIN_CELL, Math.min(MAX_CELL, Math.floor((main.clientWidth - 6) / 9)));
-  const r = fitPlayScreen(px => b.style.setProperty('--cell', `${px}px`), MIN_CELL, widest);
+  // On a screen wider than tall, beside the rest if that gives a bigger
+  // board (DESIGN.md "Sideways screens").
+  const r = fitEitherWay(wide => {
+    fitInfo();
+    fitTools();
+    const widest = Math.min(wide ? MAX_CELL_WIDE : MAX_CELL, Math.floor(((wide ? wideRoom() : main.clientWidth) - 6) / 9));
+    if (wide && widest < MIN_CELL) return null;
+    return fitPlayScreen(px => b.style.setProperty('--cell', `${px}px`), MIN_CELL, Math.max(MIN_CELL, widest));
+  });
   dock.style.setProperty('--dockH', `${dock.offsetHeight}px`);
   dock.classList.toggle('lit', lit);
-  const key = `${r.size}@${innerWidth}x${innerHeight}`;
+  const key = `${r.size}@${innerWidth}x${innerHeight}/${r.layout}`;
   if (key !== lastFit) {
     lastFit = key;
-    L('fit', { cell: r.size, fitted: r.fitted, tries: r.tries, page: r.page, screen: r.screen, dock: dock.style.getPropertyValue('--dockH'), mainW: main.clientWidth, playW: Math.round($('play').getBoundingClientRect().width) });
+    L('fit', { cell: r.size, fitted: r.fitted, tries: r.tries, layout: r.layout, tall: r.tall, wide: r.wide, page: r.page, screen: r.screen, dock: dock.style.getPropertyValue('--dockH'), mainW: main.clientWidth, playW: Math.round($('play').getBoundingClientRect().width) });
   }
 }
 addEventListener('resize', fit);
@@ -658,6 +663,7 @@ $('newBtn').onclick = () => {
   stopNote();
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -683,6 +689,7 @@ function restore() {
     shown = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

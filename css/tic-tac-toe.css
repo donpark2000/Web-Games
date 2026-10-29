@@ -53,3 +53,10 @@
 .controls { margin-top: 22px; }
 
 @keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* Sideways (DESIGN.md "Sideways screens"): the scoreboard in the right
+   column, under the turn line, its faces a fixed size there: sized from
+   the squares, the column would grow as tall as the board. */
+body.wide-layout .scoreboard { margin-top: 0; }
+body.wide-layout .side .chip { width: 60px; }
+body.wide-layout .controls { margin-top: 0; }

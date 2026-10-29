@@ -12,7 +12,7 @@ import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { MARGIN, viewBox, sameLine as same, lineSvg, boardContent, miniSvg, dotsSvg } from './dbboard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -20,7 +20,7 @@ import { resumable } from './resume.js';
 // moment, then draws it; a little quicker when it goes again.
 const ROBOT_WAIT = { think: 800, again: 600, show: 450 };
 const CHEER_MS = 2800;   // the end-of-round scorecard cheer (css: .cheer-win)
-const MIN_CELL = 30, MAX_CELL = 90;
+const MIN_CELL = 30, MAX_CELL = 90, MAX_CELL_WIDE = 135;
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('dots-boxes', msg, data);
 
@@ -142,13 +142,18 @@ function fitBoard() {
   const play = $('play');
   const span = match.size + 2 * MARGIN;
   play.style.setProperty('--span', span);
-  // The page column's width (main), not the play screen's: a board too
-  // wide for the screen would stretch the play screen it's measured from.
-  const width = Math.min(document.querySelector('main').clientWidth, 520);
-  const maxCell = Math.min(MAX_CELL, width / span);
-  const r = fitPlayScreen(px => {
-    play.style.setProperty('--cell', `${px}px`);
-  }, Math.min(MIN_CELL, maxCell), maxCell);
+  // On a screen wider than tall, beside the rest if that's bigger
+  // (DESIGN.md "Sideways screens").
+  const r = fitEitherWay(wide => {
+    // The page column's width (main), not the play screen's: a board too
+    // wide for the screen would stretch the play screen it's measured from.
+    const width = wide ? wideRoom() : Math.min(document.querySelector('main').clientWidth, 520);
+    const maxCell = Math.min(wide ? MAX_CELL_WIDE : MAX_CELL, width / span);
+    if (wide && maxCell < MIN_CELL) return null;
+    return fitPlayScreen(px => {
+      play.style.setProperty('--cell', `${px}px`);
+    }, Math.min(MIN_CELL, maxCell), maxCell);
+  });
   L('fit', { ...r, size: match.size });
 }
 addEventListener('resize', () => { if (match && !$('play').hidden) fitBoard(); });
@@ -342,6 +347,7 @@ $('newBtn').onclick = () => {
   aim = null;
   $('play').hidden = true;
   $('setup').hidden = false;
+  setWide(false);
   renderSetup();
   scrollTo(0, 0);
 };
@@ -372,6 +378,7 @@ function restore() {
     moods = null;
     $('play').hidden = true;
     $('setup').hidden = false;
+    setWide(false);
     return false;
   }
 }

@@ -7,6 +7,23 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 6.2 (2026-10-29, version 1cfeda4d3c27)
+
+Sideways screens in every game (tried first on Reversi in 6.1):
+
+- **Held sideways,** each game puts its board in the middle at the
+  screen's full height, the 🏠 and 🔊 to its left, and the turn line,
+  scores and buttons to its right, whenever that gives a bigger board.
+  It changes as the screen turns; upright, nothing changes.
+- **On a tablet** every game does this: boards about twice as big.
+- **On a phone** most games do, and no longer scroll. Five Dice, Colour
+  Sudoku and Laser Lab have too much beside their boards, so they stay
+  as they were.
+- Five Dice keeps its dice over the score sheet, Rock paper scissors its
+  cards over the picks, Follow Me its row of dots under the pads.
+- A board at its biggest leaves the play screen in the middle of the
+  screen, not at the top.
+
 ## 6.1 (2026-10-29, version 0633202916d9)
 
 Sideways screens, tried first on Reversi and the home page:
