@@ -63,6 +63,24 @@ export function fitLayout([a, b], width, height, { gap = 8, max = 130, extraRows
 }
 export const sizeFits = (size, width, height, opts) => fitLayout(size, width, height, opts).cs >= MIN_CARD;
 
+// Sideways (DESIGN.md "Sideways screens"): beside the turn line and the
+// scorecards the grid has the screen's full height, so a sideways phone
+// can show 6×6 with ~46px cards where one column has 40px cards and
+// scrolls (journal "6.2 tried sideways"). The wide layout's cards may be
+// this small; one column keeps MIN_CARD. (40: the one-column fallback's
+// cards when nothing fits.)
+export const MIN_CARD_WIDE = 40;
+
+// Whether the setup screen offers a size: its cards are at least MIN_CARD
+// in one column (tall: { width, height }), or at least MIN_CARD_WIDE in
+// the wide layout's room (wide: { width, height }, null on a screen
+// that isn't wider than tall). (2026-10-29: held sideways, a phone
+// greyed every size, 3×4 too: only one column was sized.)
+export function sizeOffered(size, tall, wide, opts) {
+  if (fitLayout(size, tall.width, tall.height, opts).cs >= MIN_CARD) return true;
+  return !!wide && fitLayout(size, wide.width, wide.height, opts).cs >= MIN_CARD_WIDE;
+}
+
 // A new match: scores 0-0, player 1 starts. `solo` is playing alone.
 // Throws if the picks aren't valid (the screen keeps "Play!" greyed until
 // they are, so this is a guard, not the normal path).

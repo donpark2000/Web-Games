@@ -148,17 +148,22 @@ function showPlay() {
 // screen (rows and dice grow together), the dice no wider than the tray
 // allows. The turn line is one die tall, at least 48px. On a screen wider
 // than tall, the dice and the sheet beside the rest if that gives bigger
-// rows (DESIGN.md "Sideways screens"), a column at most WIDE_W wide.
-const WIDE_W = 600;
+// rows (DESIGN.md "Sideways screens"), a column at most WIDE_W wide: the
+// dice and Roll standing beside the sheet (6.3), so the dice can be
+// WIDE_DIE rows tall (their column about the sheet's height), the sheet
+// at least WIDE_SHEET wide.
+const WIDE_W = 600, WIDE_DIE = 1.3, WIDE_SHEET = 240;
 function fit() {
   const play = $('play');
   const r = fitEitherWay(wide => {
     const width = wide ? Math.min(wideRoom(), WIDE_W) : play.clientWidth;
-    if (wide && width < 320) return null;
+    const dieMax = wide
+      ? Math.min(MAX_DIE, width - 10 - WIDE_SHEET)   // 10: the stage's gap
+      : Math.min(MAX_DIE, Math.floor((width - 6 * 5 - 64) / 5));
+    if (wide && dieMax < MIN_ROW) return null;
     play.style.setProperty('--stagew', `${width}px`);
-    const dieMax = Math.min(MAX_DIE, Math.floor((width - 6 * 5 - 64) / 5));
     return fitPlayScreen(px => {
-      const die = Math.min(dieMax, Math.round(px * 1.2));
+      const die = Math.min(dieMax, Math.round(px * (wide ? WIDE_DIE : 1.2)));
       play.style.setProperty('--row', `${px}px`);
       play.style.setProperty('--die', `${die}px`);
       play.style.setProperty('--topsq', `${Math.max(48, die)}px`);

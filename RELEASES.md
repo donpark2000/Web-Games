@@ -7,6 +7,24 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 6.3 (2026-10-29, version 551bc1c01533)
+
+Fixes for a phone held sideways, and the game's name:
+
+- **Every game shows its name** at the top of the play screen, in the
+  middle: upright over the turn line, sideways over the board.
+- **Matching cards:** a 6 × 6 grid fits a sideways phone with no
+  scrolling (the cards a little smaller there), and the setup screen no
+  longer greys every size when the phone is sideways.
+- **Five Dice:** held sideways, the dice and Roll stand in a column
+  beside the score sheet, so a phone no longer scrolls. A die picked up
+  to roll again lifts sideways.
+- **Laser Lab:** held sideways, the Mirror and Splitter buttons stand
+  beside the board, so the shop and the buttons are all on a phone's
+  screen.
+- **Bridges and Find the Stars:** sideways, no button's words are cut
+  off any more.
+
 ## 6.2 (2026-10-29, version 1cfeda4d3c27)
 
 Sideways screens in every game (tried first on Reversi in 6.1):

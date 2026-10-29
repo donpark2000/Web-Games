@@ -3,7 +3,7 @@
 // draws, keeps time and handles taps.
 
 import {
-  SIZES, DEFAULT_SIZE, MIN_CARD, FIRST_RULES, checkFaces, sizeKey, parseSize, fitLayout,
+  SIZES, DEFAULT_SIZE, MIN_CARD, MIN_CARD_WIDE, FIRST_RULES, checkFaces, sizeKey, parseSize, fitLayout, sizeOffered,
   createMatch, newRound, flip, settle,
 } from '../core/matching.js';
 import { FACE_NAMES, endMoods, endSound, nameOf, twoPlayerFaces } from '../core/players.js';
@@ -11,7 +11,7 @@ import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { CARD_BACK } from './cardback.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom, wideArea } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -58,12 +58,16 @@ const WHY = {
 // css/site.css). This decides which sizes are greyed and whether the grid
 // is turned sideways; layoutGrid() then shrinks the cards further so the
 // whole page fits, when it can.
-function playLayout(size) {
+function playArea() {
   const width = Math.min(innerWidth - 32, PLAY_MAX_W);
   const top = parseFloat(getComputedStyle(document.body).paddingTop) || 12;
   const sc = $('sc').offsetHeight || SC_HEIGHT;
   const home = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--homebtn')) || 80;
   const height = innerHeight - top - 12 - 12 - sc - 12 - home - GAP;
+  return { width, height };
+}
+function playLayout(size) {
+  const { width, height } = playArea();
   return fitLayout(size, width, height, { gap: GAP });
 }
 
@@ -74,8 +78,8 @@ function playLayout(size) {
 // with too many cards for that keeps the cards playLayout() gives, and
 // the page scrolls (as before), so no size is lost. On a screen wider
 // than tall all that is tried beside the rest too (the wide layout, cards
-// up to MAX_CARD_WIDE), and the bigger cards win (DESIGN.md "Sideways
-// screens").
+// up to MAX_CARD_WIDE, down to MIN_CARD_WIDE: 6×6 on a sideways phone),
+// and the bigger cards win (DESIGN.md "Sideways screens").
 const MAX_CARD_WIDE = 180;
 let lastLayout = '';
 function layoutGrid() {
@@ -92,8 +96,9 @@ function layoutGrid() {
     let best = null;
     for (const [cols, rows] of a === b ? [[a, b]] : [[a, b], [b, a]]) {
       const widest = Math.min(Math.floor((width - GAP * (cols - 1)) / cols), wide ? MAX_CARD_WIDE : 130);   // 130: fitLayout's max
-      if (widest < MIN_CARD) continue;
-      const fit = fitPlayScreen(px => apply(cols, px), MIN_CARD, widest);
+      const least = wide ? MIN_CARD_WIDE : MIN_CARD;
+      if (widest < least) continue;
+      const fit = fitPlayScreen(px => apply(cols, px), least, widest);
       tries += fit.tries;
       if (fit.fitted && (!best || fit.size > best.cs)) best = { cols, rows, cs: fit.size };
     }
@@ -155,19 +160,21 @@ function fillPicker(box, mine, theirs, onPick) {
   }));
 }
 
-// Sizes whose cards would be under MIN_CARD on this screen are greyed. If
-// the picked size no longer fits (e.g. the phone was turned upright), the
-// pick goes back to the default.
+// Sizes whose cards would be under MIN_CARD on this screen are greyed; on
+// a screen wider than tall, only those under MIN_CARD_WIDE in the wide
+// layout too (sizeOffered). If the picked size no longer fits (e.g. the
+// phone was turned upright), the pick goes back to the default.
 let lastGreyed = null;
 function renderSizes() {
-  const greyed = SIZES.filter(s => playLayout(s).cs < MIN_CARD).map(sizeKey);
+  const wide = wideArea();
+  const greyed = SIZES.filter(s => !sizeOffered(s, playArea(), wide, { gap: GAP })).map(sizeKey);
   if (greyed.includes(setup.size)) {
     L('size no longer fits', { size: setup.size, now: DEFAULT_SIZE });
     setup.size = DEFAULT_SIZE;
   }
   if (greyed.join() !== lastGreyed) {
     lastGreyed = greyed.join();
-    L('sizes greyed', { greyed, viewport: `${innerWidth}x${innerHeight}` });
+    L('sizes greyed', { greyed, viewport: `${innerWidth}x${innerHeight}`, wideArea: wide && { width: Math.round(wide.width), height: Math.round(wide.height) } });
   }
   $('sizes').replaceChildren(...SIZES.map(sz => {
     const key = sizeKey(sz);
@@ -183,7 +190,7 @@ function renderSizes() {
     btn.onclick = () => { setup.size = key; L('size', { size: key }); renderSetup(); };
     return btn;
   }));
-  $('sizeNote').textContent = greyed.length ? "Greyed sizes don't fit this screen. Turning a phone sideways can help." : '';
+  $('sizeNote').textContent = !greyed.length ? '' : wide ? "Greyed sizes don't fit this screen." : "Greyed sizes don't fit this screen. Turning a phone sideways can help.";
 }
 
 function pick(player, face) {

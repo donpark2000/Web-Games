@@ -14,7 +14,7 @@ import { largestFitting } from '../core/fit.js';
 import { boardContent, miniSvg, viewBox } from './brboard.js';
 import { STAR } from './hfboard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom, fitFor } from './fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 
@@ -243,34 +243,35 @@ function stopNote() {
 
 // The tools row's words as big as fit, none cut (Find the Stars,
 // 2026-10-16: in the iPhone's fonts its row was wider than the screen).
-// From the CSS's size down to 10px, in half pixels; once per screen width.
+// From the CSS's size down to 10px, in half pixels; once per screen width
+// and layout (fitFor).
 let toolsFitFor = null;
 function fitTools() {
   const t = $('tools');
-  if (!t.offsetParent || toolsFitFor === innerWidth) return;
-  toolsFitFor = innerWidth;
+  if (!t.offsetParent || toolsFitFor === fitFor()) return;
+  toolsFitFor = fitFor();
   const bs = [...t.children];
   t.style.removeProperty('--tf');
   const base = parseFloat(getComputedStyle(bs[0]).fontSize);
   const cut = () => bs.filter(b => b.scrollWidth > b.clientWidth).map(b => b.id);
   const before = cut();
   const r = largestFitting(h => { t.style.setProperty('--tf', `${h / 2}px`); return cut().length === 0; }, 20, Math.max(20, Math.round(base * 2)));
-  L('tools fit', { font: r.size / 2, base, cutAtBase: before, fitted: r.fitted, row: t.clientWidth, screen: innerWidth });
+  L('tools fit', { font: r.size / 2, base, cutAtBase: before, fitted: r.fitted, row: t.clientWidth, screen: innerWidth, for: fitFor() });
 }
 
 // The turn line beside the 🏠 as big as fits, not cut ("Medium · puzzle
 // 200" at 320 px wide): from 20px down to 12px, in half pixels; once per
-// line and screen width.
+// line, screen width and layout (fitFor).
 let turnFitFor = null;
 function fitTurn() {
   const t = $('turn');
-  const key = `${t.textContent}|${innerWidth}`;
+  const key = `${t.textContent}|${fitFor()}`;
   if (!t.offsetParent || turnFitFor === key) return;
   turnFitFor = key;
   t.style.removeProperty('font-size');
   if (t.scrollWidth <= t.clientWidth + 0.5) return;
   const r = largestFitting(h => { t.style.fontSize = `${h / 2}px`; return t.scrollWidth <= t.clientWidth + 0.5; }, 24, 40);
-  L('turn line fit', { font: r.size / 2, fitted: r.fitted, width: t.clientWidth, screen: innerWidth });
+  L('turn line fit', { font: r.size / 2, fitted: r.fitted, width: t.clientWidth, screen: innerWidth, for: fitFor() });
 }
 
 // The board as big as fits: the whole page on the screen, no scrolling.

@@ -12,7 +12,7 @@ import {
 import { mergeSetup } from '../core/resume.js';
 import { STAR, XMARK, HXMARK, borderStyle, miniBoard } from './hfboard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom, fitFor } from './fit.js';
 import { largestFitting } from '../core/fit.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
@@ -227,19 +227,20 @@ function armFull() {
 // The tools row's words as big as fit, none cut (developer, 2026-10-16: in
 // the iPhone's fonts the row was wider than the screen and pushed the play
 // screen past its right edge). From the CSS's size (--tf0) down to 10px, in
-// half pixels; once per screen width, while the tools show.
+// half pixels; once per screen width and layout (fitFor), while the
+// tools show.
 let toolsFitFor = null;
 function fitTools() {
   const t = $('tools');
-  if (!t.offsetParent || toolsFitFor === innerWidth) return;   // not on screen: nothing to measure
-  toolsFitFor = innerWidth;
+  if (!t.offsetParent || toolsFitFor === fitFor()) return;   // not on screen: nothing to measure
+  toolsFitFor = fitFor();
   const bs = [...t.children];
   t.style.removeProperty('--tf');
   const base = parseFloat(getComputedStyle(bs[0]).fontSize);
   const cut = () => bs.filter(b => b.scrollWidth > b.clientWidth).map(b => b.id);
   const before = cut();
   const r = largestFitting(h => { t.style.setProperty('--tf', `${h / 2}px`); return cut().length === 0; }, 20, Math.max(20, Math.round(base * 2)));
-  L('tools fit', { font: r.size / 2, base, cutAtBase: before, fitted: r.fitted, row: t.clientWidth, screen: innerWidth });
+  L('tools fit', { font: r.size / 2, base, cutAtBase: before, fitted: r.fitted, row: t.clientWidth, screen: innerWidth, for: fitFor() });
 }
 
 // The board as big as fits: the whole page on the screen, no scrolling.

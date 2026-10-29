@@ -16,7 +16,7 @@ import { largestFitting } from '../core/fit.js';
 import { STAR } from './hfboard.js';
 import { pieceSvg, lampSvg, gemSvg, wallSvg, cellSvg, lampColour, miniSvg, bombSvg, scorchSvg, rubbleSvg } from './llboard.js';
 import { log, startLog } from './debuglog.js';
-import { fitPlayScreen, fitEitherWay, setWide, wideRoom } from './fit.js';
+import { fitPlayScreen, fitEitherWay, setWide, wideRoom, fitFor } from './fit.js';
 import { sound } from './sound.js';
 import { resumable, visit } from './resume.js';
 
@@ -354,32 +354,34 @@ function setBar(kind, words = '') { ui.bar = { kind, words }; if (G && !G.result
 
 // The tools row's words as big as fit, none cut (Find the Stars,
 // 2026-10-16: in the iPhone's fonts its row was wider than the screen).
-// From the CSS's size down to 10px, in half pixels; once per screen width.
+// From the CSS's size down to 10px, in half pixels; once per screen width
+// and layout (fitFor).
 let toolsFitFor = null;
 function fitTools() {
   const t = $('tools');
-  if (!t.offsetParent || toolsFitFor === innerWidth) return;
-  toolsFitFor = innerWidth;
+  if (!t.offsetParent || toolsFitFor === fitFor()) return;
+  toolsFitFor = fitFor();
   const bs = [...t.children];
   t.style.removeProperty('--tf');
   const base = parseFloat(getComputedStyle(bs[0]).fontSize);
   const cut = () => bs.filter(b => b.scrollWidth > b.clientWidth).map(b => b.id);
   const before = cut();
   const r = largestFitting(h => { t.style.setProperty('--tf', `${h / 2}px`); return cut().length === 0; }, 20, Math.max(20, Math.round(base * 2)));
-  L('tools fit', { font: r.size / 2, base, cutAtBase: before, fitted: r.fitted, row: t.clientWidth, screen: innerWidth });
+  L('tools fit', { font: r.size / 2, base, cutAtBase: before, fitted: r.fitted, row: t.clientWidth, screen: innerWidth, for: fitFor() });
 }
 
 // The turn line and the status beside the 🏠 (the hearts and the clock)
 // as big as fit, none cut (Colour Sudoku's fitInfo; journal Q27): from
 // 20px down to 10px, in half pixels. Measured with the widest they will
-// show ("Puzzle 10 of 10", "59:59"), once per screen width. The budget
-// row under them stays at 17px (3.2); measured with its widest words, it
-// goes on two lines, without its dot, when one is too narrow.
+// show ("Puzzle 10 of 10", "59:59"), once per screen width and layout
+// (fitFor). The budget row under them stays at 17px (3.2); measured with
+// its widest words, it goes on two lines, without its dot, when one is
+// too narrow.
 let infoFitFor = null;
 function fitInfo() {
   const info = document.querySelector('.topinfo'), t = $('turn'), c = $('clock'), money = $('money');
-  if (!info.offsetParent || infoFitFor === innerWidth) return;
-  infoFitFor = innerWidth;
+  if (!info.offsetParent || infoFitFor === fitFor()) return;
+  infoFitFor = fitFor();
   const keep = [t.textContent, c.textContent];
   t.textContent = `Puzzle ${RUN} of ${RUN}`;
   c.textContent = '59:59';
@@ -396,7 +398,7 @@ function fitInfo() {
   const need = [...money.children].reduce((w, e) => w + e.getBoundingClientRect().width, 0);
   money.classList.toggle('wrap', need > money.clientWidth + 0.5);
   [b.innerHTML, s.innerHTML] = mk;
-  L('turn line fit', { font: r.size / 2, cutAt20: before, fitted: r.fitted, width: info.clientWidth, screen: innerWidth,
+  L('turn line fit', { font: r.size / 2, cutAt20: before, fitted: r.fitted, width: info.clientWidth, screen: innerWidth, for: fitFor(),
     budgetRow: { font: parseFloat(getComputedStyle(money).fontSize), need: Math.round(need), width: money.clientWidth, wrapped: money.classList.contains('wrap') } });
 }
 
@@ -406,19 +408,21 @@ function fit() {
   if (!G || $('play').hidden) return;
   const wrap = $('boardwrap'), main = document.querySelector('main'), n = P.n;
   // On a screen wider than tall, beside the rest if that gives a bigger
-  // board (DESIGN.md "Sideways screens").
+  // board (DESIGN.md "Sideways screens"), the shop in a column beside it
+  // (6.3): the board's room is less the shop's and its gap.
+  const shopW = () => $('tray').offsetWidth + parseFloat(getComputedStyle($('play')).columnGap);
   const r = fitEitherWay(wide => {
     fitInfo();
     fitTools();
     if (G.result) fitEnd();
-    const widest = Math.min(wide ? MAX_CELL_WIDE : MAX_CELL, Math.floor(((wide ? wideRoom() : main.clientWidth) - 6) / (n + 2 * RIM)));
+    const widest = Math.min(wide ? MAX_CELL_WIDE : MAX_CELL, Math.floor(((wide ? wideRoom() - shopW() : main.clientWidth) - 6) / (n + 2 * RIM)));
     if (wide && widest < MIN_CELL) return null;
     return fitPlayScreen(px => wrap.style.setProperty('--cell', `${px}px`), MIN_CELL, Math.max(MIN_CELL, widest));
   });
   const key = `${r.size}@${innerWidth}x${innerHeight}/${r.layout}`;
   if (key !== lastFit) {
     lastFit = key;
-    L('fit', { cell: r.size, fitted: r.fitted, tries: r.tries, layout: r.layout, tall: r.tall, wide: r.wide, page: r.page, screen: r.screen, mainW: main.clientWidth, playW: Math.round($('play').getBoundingClientRect().width) });
+    L('fit', { cell: r.size, fitted: r.fitted, tries: r.tries, layout: r.layout, tall: r.tall, wide: r.wide, page: r.page, screen: r.screen, mainW: main.clientWidth, playW: Math.round($('play').getBoundingClientRect().width), shopW: r.layout === 'wide' ? $('tray').offsetWidth : null });
   }
 }
 addEventListener('resize', fit);
@@ -774,12 +778,12 @@ function showEnd() {
 // The end's words as big as fit in the bar's 3 lines (3.2: in coins they
 // were cut at 320 px wide; so were 3.1's gave-up words, by 33 px): the
 // head and the line shrink together, from their full size to 60%, in
-// 2.5% steps. Once per end and screen width.
+// 2.5% steps. Once per end, screen width and layout (fitFor).
 let endFitFor = null;
 function fitEnd() {
   const bar = $('hintbar'), res = bar.querySelector('.res');
-  if (!res || !bar.offsetParent || endFitFor === innerWidth) return;
-  endFitFor = innerWidth;
+  if (!res || !bar.offsetParent || endFitFor === fitFor()) return;
+  endFitFor = fitFor();
   const cs = getComputedStyle(bar), room = bar.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
   const r = largestFitting(k => { res.style.setProperty('--rf', k / 40); return res.getBoundingClientRect().height <= room + 0.5; }, 24, 40);
   L('end words fit', { scale: r.size / 40, fitted: r.fitted, height: Math.round(res.getBoundingClientRect().height), room: Math.round(room), screen: innerWidth });

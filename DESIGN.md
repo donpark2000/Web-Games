@@ -4,9 +4,12 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-29, latest): **sideways screens in every game**: each
+*Status (2026-10-29, latest): **the game's name on every play screen**,
+at the top centre; **Matching cards 6×6, Five Dice and Laser Lab fit a
+sideways phone** (release 6.3; see "Sideways screens"). Earlier the same
+day: **sideways screens in every game**: each
 play screen in three columns when that gives a bigger board (release
-6.2; see "Sideways screens"). Earlier the same day: the same on Reversi,
+6.2). Earlier the same day: the same on Reversi,
 and the home page with more games a row (release 6.1, liked on the phone
 and tablet).
 2026-10-25: **Reversi** built from mockup v1 with the
@@ -217,16 +220,46 @@ is great ... I don't feel we need to go just one game at a time").
 - **The middle column** is each game's `.stage`: its board's wrapper
   (`.boardwrap stage`), or a `stage stack` wrapping the board, which
   upright is `display: contents` so nothing changes there. A stack can
-  hold what belongs with the board: **Five Dice** the dice over the
-  score sheet (the column at most 600 px wide), **Rock paper scissors**
+  hold what belongs with the board: **Five Dice** the dice and Roll
+  standing in a column beside the score sheet, a picked-up die lifted
+  sideways, away from the sheet (6.3, option B of the
+  [Sideways Phone Fixes](https://claude.ai/artifact/VodMXAPmjzrVMp9H26Tqka)
+  mockup, version 1; until then the dice row over the sheet, too tall
+  for a sideways phone; the dice 1.3 rows tall, the sheet at least
+  240 px wide, the column at most 600 px), **Rock paper scissors**
   the cards over the picks (at most 640 px), **Follow Me** the pads over
   the row of dots. **Nim**'s Take button, **Snakes and Ladders**' die
   (at most 64 px) and the puzzles' status, hint bar and tools go in the
-  right column. **Tic-tac-toe**'s scoreboard faces are 60 px there (sized
+  right column, except **Laser Lab**'s shop: its two buttons stand
+  in a column of their own between the board and the right column, each
+  its picture over its words (70 px wide, 12 px gaps between the
+  columns), and its tools (6 px less padding) and hint words (14 px) are
+  a little smaller (6.3; in 6.2 its right column was about 70 px too tall
+  for a sideways phone). **Tic-tac-toe**'s scoreboard faces are 60 px there (sized
   from the squares, the column grew as tall as the board); **matching
   cards**' "Games won" has no names there (on two lines it was too
   tall). Wide, a game's biggest board or pieces go up to 1.5 times one
-  column's biggest.
+  column's biggest, and **matching cards** may be as small as 40 px
+  (one column keeps 56; 6.3: a 6×6 grid on a sideways phone fits wide
+  with 43 px cards, where one column had 40 px cards and scrolled); its
+  setup screen greys only the sizes that fit neither way (6.2 greyed
+  every size on a sideways phone: only one column was sized). The
+  puzzles fit their tools' and turn line's words for each layout (6.3:
+  fitted once per screen width, the wide layout kept one column's
+  sizes, and Bridges' and Find the Stars' tools had words cut).
+- **The game's name on every play screen** (developer, 2026-10-29:
+  "once you are playing a game, the name of the game is not visible
+  anywhere"; journal Q45), the setup screen's heading, in small muted
+  capitals (13 px) **at the top centre of the screen**, both ways (not
+  under the 🏠, which "seems to imply that it is related to the home
+  icon"). Upright, in the 🏠's row over the turn line, across the whole
+  row so it is centred on the screen; the row stays the 🏠's 80 px, so it
+  costs no board anything (Snakes and Ladders' row, three lines of words
+  beside its die, is 85 px, its board limited by the width). Sideways,
+  over the middle column, the board moved down 18 px (`--gname-room`):
+  most boards 18 px smaller on a sideways phone (e.g. Reversi 310 → 297
+  px at 780 × 340), none where the board is limited by the width
+  (Connect Four, Nim, Rock paper scissors, Laser Lab).
 - **The bigger board wins:** the play screen is fitted both ways
   (`fitEitherWay` in `src/ui/fit.js`, `pickLayout` in
   `src/core/fit.js`) and keeps the layout with the bigger board. **Wide
@@ -246,13 +279,27 @@ is great ... I don't feel we need to go just one game at a time").
   Dots and Boxes, Reversi, Follow Me, Bridges, Find the Stars), the
   rest one column. Upright (393 × 760, 800 × 1280): every game as
   before.
+- **Measured again** (the built-in browser, release 6.3, the name in):
+  a sideways phone (780 × 340): 14 wide with no scrolling, Matching 6×6
+  (43 px cards), Five Dice (rows 34 px, dice 44) and Laser Lab 6×6 (34 px
+  squares) now among them; Colour Sudoku still one column (judged fine
+  by the developer). 852 × 393: all 15 wide, Five Dice rows 41 and dice
+  53, Laser Lab 44 px squares. 667 × 375: 8 wide (Matching now too),
+  Five Dice and Laser Lab still one column (the room beside the column,
+  about 215 px, is too narrow for them). 1280 × 720: all 15 wide, boards
+  650-782 px (most 17-20 px smaller for the name). Upright: every board
+  as in 6.2.
 - **The home page,** on a screen wider than tall and at least 700 px
   wide: the game buttons 220 px wide, as many a row as fit, the rows
   centred (developer: "a horizontal homepage option with more games per
   row"): 3 a row on a sideways phone, 5 and 4 on a sideways tablet.
 - **The setup screens** scroll in one column, as before.
 - Logged: each fit's layout and both ways' sizes (`fit`, e.g.
-  `"layout":"wide","tall":30,"wide":47`); the home page's games in its
+  `"layout":"wide","tall":30,"wide":47`; Five Dice's with its die, Laser
+  Lab's with its shop's width, `shopW`); the puzzles' word fits with the
+  layout they were made for (`tools fit`, `turn line fit`: `"for":"780/wide"`);
+  Matching's greyed sizes with the wide room estimated
+  (`sizes greyed`, `wideArea`); the home page's games in its
   first row with its scroll room (`perRow`).
 
 ## The games (first version)
@@ -323,7 +370,8 @@ Agreed 2026-10-04 from mockup v1 (journal):
   (no robot for now), face pickers (two players never share a face),
   **How many cards?** (3x4, **4x4 default**, 4x5, 4x6, 5x6, 6x6; sizes
   whose cards would be under 56 px on the screen are greyed, with a
-  note), who goes first (two players only; same three choices).
+  note; on a screen wider than tall only those that don't fit the wide
+  layout either, with cards of 40 px: see "Sideways screens"), who goes first (two players only; same three choices).
 - **Pictures: the drawn faces** (the 15, robot included) less the
   players' picks; when a grid needs more pairs than that, some faces
   appear 4 times. No timer.

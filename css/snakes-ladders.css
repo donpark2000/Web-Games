@@ -17,6 +17,7 @@
 #play { gap: 12px; }
 .snl-top { grid-template-columns: auto minmax(0, 1fr) auto; }
 .snl-top.with-sound { grid-template-columns: auto minmax(0, 1fr) auto auto; }   /* 🏠, words, die, 🔊 */
+body:not(.wide-layout) #play > .snl-top > .die { grid-column: 3; grid-row: 1 / 3; }   /* placed: the game's name is over the words (game.css) */
 #play .turn { font-size: 20px; gap: 6px; line-height: 1.15; min-height: var(--topsq); }
 #play .turn .chip { width: 40px; height: 40px; }
 #play .turn .say { min-width: 0; text-wrap: balance; }

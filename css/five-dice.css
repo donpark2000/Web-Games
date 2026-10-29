@@ -135,6 +135,16 @@
 .mid { font-size: 12px; opacity: .85; text-align: center; line-height: 1.2; }
 .controls { margin-top: 2px; }
 
-/* Sideways (DESIGN.md "Sideways screens"): the dice over the sheet in the
-   middle column, --stagew wide (src/ui/five-dice.js). */
-body.wide-layout #play > .stage { width: var(--stagew); justify-items: stretch; }
+/* Sideways (DESIGN.md "Sideways screens"): the dice and Roll standing in a
+   column beside the sheet, all in the middle column, --stagew wide
+   (src/ui/five-dice.js). (6.3, option B of the Sideways Phone Fixes
+   mockup; until then the dice row over the sheet, too tall for a
+   sideways phone.) A picked-up die lifts sideways, away from the sheet.
+   (.stage.stack: game.css's justify-items: center outranked plain .stage,
+   so until 6.3 the sheet was only as wide as its words.) */
+body.wide-layout #play > .stage.stack { width: var(--stagew); justify-items: stretch; grid-template-columns: auto minmax(0, 1fr); align-items: center; }
+body.wide-layout .tray { flex-direction: column; align-items: center; }
+body.wide-layout .roll { flex: none; width: var(--die); min-width: 0; max-width: none; height: var(--die); padding: 2px 0; font-size: min(19px, calc(var(--die) * .4)); }
+body.wide-layout .roll .pips { gap: 3px; }
+body.wide-layout .dz.up { transform: translateX(-9px) rotate(-10deg); }
+body.wide-layout .dz.up:nth-child(even) { transform: translateX(-9px) rotate(10deg); }

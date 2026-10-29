@@ -76,6 +76,26 @@ h2 .chip { width: 34px; height: 34px; }
 .side.c1.now { border-color: var(--p1); }
 .side.c2.now { border-color: var(--p2); }
 
+/* play screen: the game's name at the top centre of the screen (journal
+   Q45; developer, 2026-10-29: "once you are playing a game, the name of
+   the game is not visible anywhere"; not under the 🏠, which "seems to
+   imply that it is related to the home icon"). Upright, in the 🏠's row
+   over the turn line, across the whole row so it is centred on the
+   screen (the 🔊 is narrower than the 🏠); the row stays the 🏠's height.
+   Sideways, over the board (below). */
+.gname { font-size: 13px; line-height: 16px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: center; white-space: nowrap; pointer-events: none; }
+body:not(.wide-layout) #play > .top { row-gap: 0; }
+/* the words (a turn line, or a puzzle's status) under the name; the rest
+   (the 🏠, the 🔊, Snakes and Ladders' die) both rows tall */
+body:not(.wide-layout) #play > .top > * { grid-column: 2; grid-row: 2; }
+body:not(.wide-layout) #play > .top > .homebtn { grid-column: 1; grid-row: 1 / 3; }
+body:not(.wide-layout) #play > .top > .gname { grid-column: 1 / -1; grid-row: 1; justify-self: center; align-self: end; }
+/* the 🏠 (and Snakes and Ladders' die) keep the row's height: a turn line
+   held one die tall by its min-height (or Laser Lab's, over its status)
+   would add the name's to it */
+body:not(.wide-layout) #play > .top .turn { min-height: 0; }
+body:not(.wide-layout) #play > .top > .soundbtn { grid-column: -2; grid-row: 1 / 3; }
+
 .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 .pill { border-radius: 999px; padding: 13px 8px; font-size: 19px; font-weight: 800; cursor: pointer; border: 3px solid var(--ink); background: transparent; }
@@ -97,18 +117,24 @@ body.wide-layout main.app, body.wide-layout #play { max-width: none; }
 /* a board at its biggest leaves room: the play screen sits in the middle */
 body.wide-layout main.app { margin-block: auto; }
 body.wide-layout #play {
-  --side: 300px;
   grid-template-columns: auto auto var(--side);
   grid-template-rows: repeat(12, auto) 1fr;
-  column-gap: 20px; row-gap: 0; justify-content: center;
+  column-gap: var(--wide-gap); row-gap: 0; justify-content: center;
 }
-@media (min-height: 600px) { body.wide-layout #play { --side: 340px; } }
+/* on :root, so the setup screen can estimate the wide room too (wideArea, src/ui/fit.js) */
+:root { --side: 300px; --wide-gap: 20px; --gname-room: 18px; }
+@media (min-height: 600px) { :root { --side: 340px; } }
 body.wide-layout #play .top { display: contents; }
-body.wide-layout #play > *, body.wide-layout #play .top > * { grid-column: 3; margin-bottom: 8px; }
+/* the right column is the last (-2: Laser Lab has a column for its shop before it) */
+body.wide-layout #play > *, body.wide-layout #play .top > * { grid-column: -2; margin-bottom: 8px; }
 body.wide-layout #play .homebtn { grid-column: 1; grid-row: 1 / -1; align-self: start; margin: 0; }
 body.wide-layout #play .soundbtn { grid-column: 1; grid-row: 1 / -1; align-self: end; justify-self: center; margin: 0; }
 body.wide-layout #play > .stage { grid-column: 2; grid-row: 1 / -1; align-self: center; margin: 0; }
 body.wide-layout #play > .stage.stack { display: grid; gap: 10px; justify-items: center; align-content: center; }
 body.wide-layout #play > .site-foot { grid-row: -2 / -1; align-self: end; padding-top: 0; margin-bottom: 0; line-height: 1.35; }
+/* the game's name over the board: the stage moves down --gname-room (the
+   one thing it costs the board, a line's height) */
+body.wide-layout #play .top > .gname { grid-column: 2; grid-row: 1 / -1; align-self: start; justify-self: center; margin: 0; }
+body.wide-layout #play > .stage { margin-top: var(--gname-room); }
 body.wide-layout #play .turn { font-size: 21px; justify-content: flex-start; text-align: left; min-height: 48px; }
 body.wide-layout #play .turn .chip { width: 44px; height: 44px; }

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  SIZES, PICTURES, MIN_CARD, sizeKey, parseSize, shuffle, makeDeck, fitLayout, sizeFits,
+  SIZES, PICTURES, MIN_CARD, MIN_CARD_WIDE, sizeKey, parseSize, shuffle, makeDeck, fitLayout, sizeFits, sizeOffered,
   createMatch, newRound, flip, settle,
 } from '../src/core/matching.js';
 
@@ -110,6 +110,33 @@ test('layout: big grids are refused on a small screen, allowed on a big one', ()
   assert.ok(!sizeFits([6, 6], 343, 470), '6x6 cards would be under the minimum on a phone');
   assert.ok(sizeFits([6, 6], 736, 820), 'a tablet fits 6x6');
   assert.ok(fitLayout([6, 6], 343, 470).cs < MIN_CARD);
+});
+
+// A sideways phone (780 x 340, as measured 2026-10-29): one column has a
+// 680 x 122 area for the grid (the rest is the 🏠, the scorecards and the
+// footer), so every size was greyed; the wide layout's room beside the
+// column is 328 x 298 (wideArea in src/ui/fit.js).
+const SIDEWAYS = { tall: { width: 680, height: 122 }, wide: { width: 328, height: 298 } };
+test('sizeOffered: held sideways, sizes that fit the wide layout are offered', () => {
+  const offered = SIZES.filter(s => sizeOffered(s, SIDEWAYS.tall, SIDEWAYS.wide, { gap: 8 })).map(sizeKey);
+  assert.deepEqual(offered, SIZES.map(sizeKey), 'all six, 6x6 too (43px cards)');
+  assert.equal(fitLayout([6, 6], 328, 298).cs, 43);
+  // without the wide layout (an upright screen) the same area offers none
+  assert.deepEqual(SIZES.filter(s => sizeOffered(s, SIDEWAYS.tall, null)), []);
+});
+
+test('sizeOffered: one column at MIN_CARD; the wide layout at MIN_CARD_WIDE, not below', () => {
+  const phone = { width: 343, height: 470 };
+  assert.ok(sizeOffered([4, 4], phone, null), 'upright phone: 4x4');
+  assert.ok(!sizeOffered([6, 6], phone, null), 'upright phone: not 6x6');
+  assert.equal(MIN_CARD_WIDE, 40);
+  // 6 rows of 40px cards and 5 gaps of 8: 280px tall; 279 is a pixel short
+  const wide = h => ({ width: 1000, height: h });
+  assert.equal(fitLayout([6, 6], 1000, 280).cs, MIN_CARD_WIDE);
+  assert.ok(sizeOffered([6, 6], phone, wide(280)));
+  assert.ok(!sizeOffered([6, 6], phone, wide(279)), 'cards of 39px are too small even sideways');
+  // a size that fits one column needs no wide room
+  assert.ok(sizeOffered([3, 4], phone, wide(10)));
 });
 
 test('createMatch: two players can never share a face; alone needs one face', () => {

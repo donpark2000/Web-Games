@@ -26,14 +26,28 @@ time, each tried before publishing:
   Proposed in the [Sideways Phone Fixes](https://claude.ai/artifact/VodMXAPmjzrVMp9H26Tqka)
   mockup (version 1), with Q45.
   Agreed (Five Dice option B): see "Sideways phone fixes agreed".
+  Built (release 6.3, not yet published): see "Sideways phone fixes and
+  the game's name built".
 - **Q45. The game's name on the play screen.** (2026-10-29, developer:
   "once you are playing a game, the name of the game is not visible
   anywhere.") Agreed: top centre of the screen both ways (developer:
   under the 🏠 "seems to imply that it is related to the home icon").
+  Built in 6.3 (not yet published): upright no board smaller; sideways
+  most boards 18 px smaller on a phone (see "Sideways phone fixes and the
+  game's name built").
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-10-23, later: "Match the model to the work"
+- **Key a remembered result by everything it depends on.** A result
+  worked out once and reused (a cache, a "done already" flag) must be
+  redone when anything it depends on changes, not just the input that
+  usually changes. *Evidence:* the puzzles fitted their buttons' words
+  once per screen width; sideways both layouts are tried at one width,
+  so the narrower one kept the wider one's font and cut its words
+  (2026-10-29, "Sideways phone fixes and the game's name built").
+  Waiting for the developer at a checkpoint.
+
+Earlier: none waiting. (2026-10-23, later: "Match the model to the work"
 added to the skill's section 7 at the developer's request (Q34), before
 any evidence from this project; ai-dev-practices commit 4f10dc2, zip
 rebuilt, holding it and the two below, for the developer to upload.)
@@ -11304,3 +11318,148 @@ tried.
 2. DESIGN.md: "Sideways screens" and Q45's name; then release 6.3
    (fixes and changes) by the release checklist, and ask to publish.
 3. The developer tries it on the phone and tablet; close Q44 and Q45.
+
+## 2026-10-29: Sideways phone fixes and the game's name built; release 6.3 ready
+
+Built on `reversi` from "Sideways phone fixes agreed" (the developer's
+go-ahead given there), DESIGN.md "Sideways screens" updated.
+
+**Built:**
+- **The game's name (Q45)** in every play screen's top row, the setup
+  screen's heading (`<div class="gname">`, 13 px muted capitals,
+  game.css). Upright: across the whole 🏠 row (`grid-column: 1 / -1`),
+  over the turn line, so it's centred on the screen (the 🔊 is 48 px,
+  the 🏠 80, so the turn line's own column is 16 px off centre); the
+  🏠, 🔊 and Snakes and Ladders' die span both rows. The turn line's
+  min-height is dropped there (Five Dice and Snakes hold it a die tall,
+  Laser Lab's sat in an 80 px status block: with the name over it, Laser
+  Lab's row grew to 96 px and its board went 302 → 287 until then).
+  Sideways: in the middle column, the stage moved down `--gname-room`
+  (18 px).
+- **Matching cards:** wide cards down to `MIN_CARD_WIDE` (40); setup
+  greys a size only when it fits neither way (`sizeOffered` in core,
+  the wide room from a new `wideArea()` in `src/ui/fit.js`, which reads
+  `--side`, `--wide-gap` and `--gname-room`, now on `:root`). The note
+  under the sizes drops "Turning a phone sideways can help" when the
+  screen is already sideways.
+- **Five Dice option B:** the stage is two columns (dice, sheet); the
+  tray a column, Roll one die square; a picked-up die moves 9 px left.
+  Dice 1.3 rows tall (their column about the sheet's height), the sheet
+  at least 240 px wide, else one column.
+- **Laser Lab:** a fourth column for the shop (70 px buttons, picture
+  over words, the price wrapping), 12 px gaps, tools 6 px padding, hint
+  words 14 px; the board's room is `wideRoom()` less the shop and a gap.
+  game.css's right column is now `grid-column: -2` (the last), so Laser
+  Lab needn't restate the 🏠, 🔊 and stage (the shared-class test flagged
+  that first try).
+
+**Found and fixed on the way:**
+- **The puzzles fitted their words once per screen width**, but both
+  layouts are tried at one width, so the wide layout kept one column's
+  tool font. Seen before the fix (780 × 340 and 852 × 393): Bridges'
+  Give up 76 px of words in 71; Find the Stars' Hint, Show and Give up
+  76/77/73 in 67 (1280 × 720: Hint and Show 83/84 in 80). Probably the
+  mockup's "tools cut at `--side` 280". Now keyed by `fitFor()` (width
+  and layout) in all four puzzles, logged as `"for":"780/wide"`; after
+  it, no button or status word cut in any puzzle at the four sideways
+  sizes (Find the Stars' tools 10.5 px on a sideways phone).
+- **Five Dice's `justify-items: stretch` never applied sideways**:
+  game.css's `#play > .stage.stack` outranks five-dice.css's
+  `#play > .stage`, so in 6.2 the sheet was only as wide as its words
+  (170 of 313 px at 780 × 340, a 54 px gap beside the dice). Now
+  `.stage.stack`. Rock paper scissors has the same rule and the same
+  loss (1280 × 720: picks 394 px, arena 522, centred in a 640 px
+  column); not changed, the developer judged it fine: a question for
+  them if it ever looks narrow.
+- A harness bug, not the site's: a removed frame saved its game as it
+  unloaded, after the harness had cleared it, so the next run resumed
+  the old game (every Matching size measured as 3×4). Now the frame is
+  removed before clearing.
+
+**Measured** (the built-in browser, the local server; each game's play
+screen in a frame at the size, started from setup with its defaults;
+"before" = the same page with a style hiding the name and undoing its
+placement, so the difference is the name's cost alone; board = the
+stage's size):
+- **The name's cost, sideways phone 780 × 340:** 18 px off most boards
+  (tic-tac-toe 314 → 296, Matching 4×4 316 → 296, Count to 9 314 → 296,
+  Snakes 312 → 294, Five Dice 312 → 295 tall, Dots 314 → 296, Follow Me
+  316 → 298 tall, Bridges 316 → 298, Find the Stars 312 → 294); Reversi
+  310 → 297; none for Connect Four (327 × 282), Nim (322 × 228), Rock
+  paper scissors (313 × 293) and Laser Lab (258), whose boards are
+  limited by the width. 852 × 393: the same pattern (e.g. Reversi
+  363 → 350, Bridges 369 → 351). 667 × 375: no board smaller (all
+  limited by the width). 1280 × 720: 17-20 px off most (Reversi
+  693 → 673; Laser Lab 694 → 672 with its shop column too); none for
+  Connect Four, Count to 9, Five Dice, Nim, Rock paper scissors, Follow
+  Me. Upright 393 × 760 and 800 × 1280: every board unchanged; the 🏠
+  row 80 px in 14 games, 85 in Snakes and Ladders (its words are three
+  lines, 69 px, beside the die; its board is limited by the width, so
+  360 and 516 as before). The name is centred: 196-197 of 393.
+- **Matching cards** (one player): setup greyed every size at 780 × 340
+  in 6.2; now none there or at 852 × 393, 5×6 and 6×6 at 667 × 375,
+  6×6 upright at 393 × 760 (note with "Turning a phone sideways can
+  help"). 6×6 at 780 × 340: wide, 43 px cards, page 340 × 780 (6.2: one
+  column, 40 px, page 643 tall; the mockup's 46 px had no name);
+  852 × 393: 51 px; 5×6 at 780 × 340: 48 px; 4×5 and 4×6 at 667 × 375:
+  wide, 44 px, no scrolling (were one column and scrolled).
+- **Five Dice:** 780 × 340, long and short: wide, rows 34, dice 44,
+  page 340 × 780 (6.2: one column, page 606 tall; the mockup's B: rows
+  35, dice 46, no name); the sheet 259 px wide beside a 44 px column.
+  852 × 393: rows 41, dice 53. 1280 × 720: rows 64, dice 83, sheet 507.
+  667 × 375: still one column, scrolling (606), as in 6.2: the room
+  beside the column (about 215 px) leaves no 240 px sheet. Screenshot
+  at 780 × 340 after a roll with two dice picked up: both lifted left,
+  the name centred over dice and sheet.
+- **Laser Lab:** 780 × 340: wide, 6×6 34 px squares (6.2: one column,
+  24 px, page 623; the mockup's 33 had no name), 7×7 30, 8×8 27; with
+  20 px gaps and the price on one line it was 28 px (the board is
+  limited by the width there: 780 − 32 − 80 − shop − 300 − gaps).
+  852 × 393: 44 / 39 / 34. 1280 × 720: 90 / 80 / 71. The "ask" row
+  (Show answer) and the end (answer shown, Next and New game) fit at
+  780 × 340, nothing cut, no scrolling. 667 × 375: still one column.
+- **Every game, every size:** nothing scrolls or is wider than the
+  screen sideways except the one-column games at 667 × 375 (Connect
+  Four, Snakes, Five Dice, Nim, Rock paper scissors, Colour Sudoku,
+  Laser Lab, as in 6.2) and Colour Sudoku at 780 × 340 (one column, as
+  in 6.2, judged fine).
+
+**Tests:** `tests/wide.test.js` (the name in all 15 play screens, the
+setup heading, next after the 🏠, one each; its CSS both ways;
+`wideArea` and `fitFor` on a stand-in page; no once-per-screen fit keyed
+by the width alone in the four puzzles, and the layout logged; Five
+Dice B, Laser Lab's shop, Matching's smaller wide cards and greying),
+`tests/matching.test.js` (`sizeOffered`: all six sizes sideways at
+780 × 340, none in the same area upright; 40 px allowed, 39 not).
+`tests/css.test.js`: `stack` added to the classes meant to be shared,
+beside `stage`. Each new check shown to fail: ten breaks (a puzzle key
+back to the width, a name removed or wrong, `MIN_CARD_WIDE` 39, the
+wide branch dropped, the die lifting up, Laser Lab's room without the
+shop, the stage's name room, Matching's wide minimum), each caught,
+the files restored byte for byte. `npm test` 446 passed.
+
+**Release 6.3 ready:** `src/core/release.js` 6.3, `node tools/offline.js`
+(version 551bc1c01533, 111 files), RELEASES.md notes,
+`node tools/release.js`: "Release 6.3 is ready: version 551bc1c01533;
+tag v6.3 not made yet."
+
+**Not checked:** the real devices; screenshots of every size (the pane
+stopped drawing once hidden; sizes read by script, as for 6.2).
+
+## 2026-10-29: Status (start here next session)
+
+**Status:** release 6.3 (the sideways phone fixes and the game's name)
+built, tested and ready on `reversi`, committed and pushed; **not
+published**: waiting for the developer's OK. Q44 and Q45 open until the
+developer has tried 6.3.
+
+**Next:**
+1. On the developer's "publish": merge `reversi` to `main`, tag `v6.3`,
+   push the tag, `node tools/release.js notes` for the GitHub release;
+   check the live site; stop the local server (`serve.js` on 8123).
+2. The developer tries 6.3 on the phone and tablet: the name (upright
+   and sideways), Matching 6×6, Five Dice and Laser Lab sideways on the
+   phone. Then close Q44 and Q45.
+3. If wanted: Five Dice and Laser Lab on a small phone sideways
+   (667 × 375) still scroll; Rock paper scissors' picks narrower than
+   their column on a tablet (see above).

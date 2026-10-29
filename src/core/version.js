@@ -2,5 +2,5 @@
 // from the site's files, and the day it was made. Don't edit by hand.
 // Pages show their own files' version from this, so it's right however
 // the page was loaded (a hard reload skips sw.js).
-export const VERSION = '1cfeda4d3c27';
+export const VERSION = '551bc1c01533';
 export const MADE = '2026-10-29';

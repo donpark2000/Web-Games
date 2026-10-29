@@ -30,8 +30,9 @@ const MEANT_SHARED = new Set([
   'app', 'av', 'big', 'brmini', 'c1', 'c2', 'chip', 'controls', 'csmini', 'die', 'hfmini', 'ico', 'level', 'lit', 'llmini', 'n', 'nm', 'now',
   'num', 'o1', 'o2', 'p1', 'p2', 'pic', 'pill', 'primary', 'side', 'turn', 'who', 'why', 'with-sound',
   // the wide layout and its middle column, which a game may adjust (DESIGN.md
-  // "Sideways screens", 2026-10-29)
-  'stage', 'wide-layout',
+  // "Sideways screens", 2026-10-29; a stack of pieces there, 6.3: Five Dice's
+  // dice beside its sheet)
+  'stack', 'stage', 'wide-layout',
 ]);
 
 test('css: classesIn finds selector classes, not numbers, files or comments', () => {

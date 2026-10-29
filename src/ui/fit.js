@@ -56,6 +56,29 @@ export function wideRoom() {
   return document.querySelector('main').clientWidth - home - parseFloat(cs.getPropertyValue('--side')) - 2 * parseFloat(cs.columnGap);
 }
 
+// What words fitted to the screen once (the puzzles' tools and turn
+// lines) were fitted for: the screen's width and the layout. The right
+// column is narrower than one column, so each layout fits its own (6.3:
+// fitted once per width, the wide layout kept one column's sizes, and
+// Bridges' and Find the Stars' tools had their words cut).
+export const fitFor = () => `${innerWidth}${document.body.classList.contains('wide-layout') ? '/wide' : ''}`;
+
+// The board's room in the wide layout, estimated without it showing (a
+// setup screen deciding what fits; wideRoom() measures the play screen):
+// { width, height }, or null on a screen not wider than tall. The width
+// is the screen's less the page's sides, the 🏠, the right column and the
+// two gaps; the height the screen's less the page's top and bottom and
+// the game's name over the board (css/game.css).
+export function wideArea() {
+  if (innerWidth <= innerHeight) return null;
+  const css = (el, v) => parseFloat(getComputedStyle(el).getPropertyValue(v)) || 0;
+  const root = document.documentElement, body = document.body;
+  return {
+    width: innerWidth - css(body, 'padding-left') - css(body, 'padding-right') - css(root, '--homebtn') - css(root, '--side') - 2 * css(root, '--wide-gap'),
+    height: innerHeight - css(body, 'padding-top') - css(body, 'padding-bottom') - css(root, '--gname-room'),
+  };
+}
+
 // Fits the play screen both ways and keeps the one with the bigger board
 // (pickLayout). fit(wide) sets that layout's limits and returns
 // fitPlayScreen's result, or null when the layout has no room. Only a

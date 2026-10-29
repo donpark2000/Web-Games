@@ -174,3 +174,23 @@
 .llcell.boom .shard { background: #FFB347; }
 .llcell.crumble svg { animation: crumble .3s ease-in; }
 @keyframes crumble { 0% { transform: translate(0); } 25% { transform: translate(-6%, 2%) rotate(-4deg); } 50% { transform: translate(6%, -2%) rotate(4deg); } 100% { transform: translateY(8%) scale(.9); opacity: .4; } }
+
+/* Sideways (DESIGN.md "Sideways screens"; 6.3, from the Sideways Phone
+   Fixes mockup): the shop's two buttons stand beside the board in a
+   column of their own, each its picture over its words, and the tools and
+   the hint's words are a little smaller, so the right column fits a
+   sideways phone (in 6.2 it was about 70px too tall: Laser Lab stayed one
+   column there, and scrolled). Four columns: the 🏠, the board, the shop,
+   the rest (game.css puts the rest in the last column); the board's
+   room is less the shop's (src/ui/laser-lab.js). */
+/* 12px gaps and a 70px shop (the price on two lines when it needs them):
+   cells 34px on a sideways phone (780 x 340), 28 with 20px gaps and the
+   price on one line */
+body.wide-layout #play { grid-template-columns: auto auto auto var(--side); --wide-gap: 12px; }
+body.wide-layout #play > .tray { grid-column: 3; grid-row: 1 / -1; align-self: center; flex-direction: column; margin: var(--gname-room) 0 0; }
+body.wide-layout .piecebtn { flex-direction: column; gap: 2px; width: 70px; padding: 6px 2px 4px; }
+body.wide-layout .piecebtn .pn { text-align: center; }
+body.wide-layout .piecebtn .pn b { font-size: 15px; }
+body.wide-layout .piecebtn .pn span { white-space: normal; font-size: 12px; line-height: 1.15; }
+body.wide-layout #tools .tool { padding-block: 6px; }
+body.wide-layout #play .hintbar { font-size: 14px; }
