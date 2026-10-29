@@ -11130,3 +11130,39 @@ the stage's biggest piece; after the fixes):
 
 **Not checked:** screenshots (the pane drew the emulated screen at the
 wrong scale; positions read by script instead); the real devices.
+
+## 2026-10-29: Release 6.2 published (sideways screens in every game); status (start here next session)
+
+**Published** on the developer's "Yes, publish 6.2": `npm test` 438
+passed; `node tools/release.js`: "Release 6.2 is ready". `main`
+fast-forwarded 557d355..786fc88, tag `v6.2`,
+[GitHub release 6.2](https://github.com/donpark2000/Web-Games/releases/tag/v6.2)
+(Latest). Live within about 30 s: `version.js` 1cfeda4d3c27, `sw.js`
+RELEASE 6.2. In the built-in browser the live Connect Four at 780 × 340
+first showed the offline 6.1 copy (no `.stage`) and didn't reload
+itself within 6 s; after one reload: 6.2, wide, board 327 × 282, page
+340 × 780 (no scrolling). (6.0's took over by itself; this time the
+check ran after the measurement. Not looked into: a reload is the
+expected fallback.)
+
+**Local servers:** the preview on 8123 stopped; no other `serve.js`
+running.
+
+**Status:** 6.2 live. Q44 open until the developer has tried every
+game sideways.
+
+**Next:**
+1. **The developer tries 6.2 sideways on the tablet and phone,** a few
+   games of each kind: a board game (tic-tac-toe's 60 px scoreboard
+   faces), Five Dice (dice over the sheet; one column on a phone), Rock
+   paper scissors (cards over picks, centred on the tablet), Follow Me,
+   a puzzle (status, hint bar and tools on the right). If a page shows
+   the old layout, a reload brings 6.2. Then close Q44.
+2. If wanted: Five Dice, Colour Sudoku and Laser Lab on a sideways
+   phone (they stay one column): a different right column for them
+   (e.g. Colour Sudoku's keys under the board) would be a design
+   question for the developer.
+3. Still open from 6.0: the developer's try of Reversi itself (the
+   discs, a finger held down, the robot's pace, Easy/Hard).
+4. This session was long: start the next one fresh from this entry.
+   Nothing to purge.
