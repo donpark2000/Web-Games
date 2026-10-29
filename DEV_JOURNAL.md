@@ -19,6 +19,13 @@ time, each tried before publishing:
   Built on Reversi and the home page first (release 6.1, "Sideways
   screens built on Reversi and the home page"), for the developer to
   try on the tablet and phone; then the other games.
+  6.2 (every game) tried 2026-10-29: most fine; to fix: Matching
+  cards 6×6 and Five Dice scroll on a sideways phone, Laser Lab's shop
+  and tools are off the screen, Bridges and Find the Stars 10×10 look
+  small (see "6.2 tried sideways; the developer's notes").
+- **Q45. The game's name on the play screen.** (2026-10-29, developer:
+  "once you are playing a game, the name of the game is not visible
+  anywhere.") Where it could go is a design question.
 
 ## Proposed additions to the standards skill
 
@@ -11166,3 +11173,61 @@ game sideways.
    discs, a finger held down, the robot's pace, Easy/Hard).
 4. This session was long: start the next one fresh from this entry.
    Nothing to purge.
+
+## 2026-10-29: 6.2 tried sideways; the developer's notes
+
+The developer, of every game held sideways (Q44), in their words:
+
+- Good / fine: tic-tac-toe, Connect Four, Count to 9, Snakes and
+  Ladders, Nim, Dots and Boxes, Reversi, Rock paper scissors, Follow Me,
+  Colour Sudoku ("I think colour sudoku is fine").
+- **Matching cards:** "good up to 5x6 grid - then the score card gets
+  cut in half at the bottom of the screen" (6×6).
+- **Five Dice:** "requires vertical scrolling in horizontal mode. Maybe
+  the score card could go to 3 columns? or the rolling dice could go to
+  a side of the screen and be vertical. or something else?"
+- **Bridges:** "pretty good, but the large (10x10) grid looks small. If
+  the layout of the buttons was vertical the grid could be bigger."
+  "Same with Find The Stars."
+- **Laser Lab:** "no good. You cant select a mirror or a splitter
+  without scrolling and the bottons are also off screen."
+- New: "once you are playing a game, the name of the game is not
+  visible anywhere" (Q45).
+
+Which device each note is from (phone or tablet) wasn't said; the
+measurements below check both.
+
+**Checked** (the built-in browser, the local server, release 6.2's
+code; phone sideways 780 × 340 and 852 × 393, tablet sideways
+1280 × 720):
+
+- **Matching cards 6×6:** tablet: wide, grid 694 px, no scrolling.
+  Phone 780 × 340: one column, 40 px cards, page 643 tall (scrolls):
+  the scorecards are below the screen, as the developer saw. Wide was
+  never tried below `MIN_CARD` (56 px); forced wide, the page fits at
+  every card size 40-50 px (scrollHeight 340, scrollWidth 780). So a
+  wide grid of ~48 px cards with no scrolling is possible where now
+  it's 40 px and scrolling. Also seen: on the phone sideways the setup
+  screen greys **every** size, 3×4 too ("Greyed sizes don't fit this
+  screen. Turning a phone sideways can help."): `playLayout` sizes the
+  one-column screen only. Not yet known how the developer reached 6×6
+  on the phone (started upright, or on the tablet).
+- **Five Dice, long:** phone 780 × 340: one column, page 606 tall: the
+  tray (37) and the sheet (249, two panels of 7 rows) stacked don't fit
+  beside the right column. Tablet: wide (as measured for 6.2).
+- **Laser Lab 6×6:** phone 780 × 340: one column, page 623 tall, the
+  shop tray at 326 (just off the screen) and the tools at 483. Forced
+  wide at the smallest cells: the right column (money 20, tray 54, hint
+  bar 83, tools 94 in two rows, footer 32, plus the status and gaps)
+  ends at 407 of 340, so wide never fits.
+- **Bridges, Large 10×10:** wide everywhere, and the board already takes
+  the screen's full height: 316 of 340 (780 × 340), 369 of 393
+  (852 × 393), 696 of 720 (1280 × 720), 12 px above and below. The
+  buttons are in the right column and take no height from the board, so
+  laying them out vertically can't make the board bigger at these sizes.
+  10×10 in 316 px is ~31 px a square, small however it's laid out
+  sideways. Not measured: Find the Stars (the same layout). Open: what
+  the developer's screen showed (an old 6.1 copy, one column with the
+  buttons under a small board, would match "if the buttons were
+  vertical the grid could be bigger": 6.2's live check on 2026-10-29
+  first showed the offline 6.1 copy until a reload).
