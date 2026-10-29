@@ -21,11 +21,14 @@ time, each tried before publishing:
   try on the tablet and phone; then the other games.
   6.2 (every game) tried 2026-10-29: most fine; to fix: Matching
   cards 6×6 and Five Dice scroll on a sideways phone, Laser Lab's shop
-  and tools are off the screen, Bridges and Find the Stars 10×10 look
-  small (see "6.2 tried sideways; the developer's notes").
+  and tools are off the screen (see "6.2 tried sideways; the
+  developer's notes"); Bridges and Find the Stars fine as they are.
+  Proposed in the [Sideways Phone Fixes](https://claude.ai/artifact/VodMXAPmjzrVMp9H26Tqka)
+  mockup (version 1), with Q45.
 - **Q45. The game's name on the play screen.** (2026-10-29, developer:
   "once you are playing a game, the name of the game is not visible
-  anywhere.") Where it could go is a design question.
+  anywhere.") Proposed: small capitals above the turn line upright,
+  under the 🏠 sideways (Sideways Phone Fixes mockup).
 
 ## Proposed additions to the standards skill
 
@@ -11231,3 +11234,37 @@ code; phone sideways 780 × 340 and 852 × 393, tablet sideways
   buttons under a small board, would match "if the buttons were
   vertical the grid could be bigger": 6.2's live check on 2026-10-29
   first showed the offline 6.1 copy until a reload).
+
+**Bridges and Find the Stars: fine as they are** (developer, told the
+board already fills the height: "For bridges and find the stars on a
+big grid it is already as high as it can get. So I guess it is fine.")
+
+**Mockup** (developer: "You can show me a mock up but no need to make
+it playable. I can't really test these things until they are
+published."):
+[Sideways Phone Fixes](https://claude.ai/artifact/VodMXAPmjzrVMp9H26Tqka)
+(private Claude artifact, version 1): screenshots of the real pages at
+780 × 340 (the name upright at 393 × 760), each change tried in place
+by script (CSS put in, `setWide(true)`, the fit run with
+`fitPlayScreen`; nothing saved), sizes as fitted:
+- **Matching cards 6×6:** wide with cards allowed below 56 px: 46 px
+  cards, page 340 tall and 780 wide (was 40 px, page 643, scrolling).
+- **Five Dice, long, three options:** A, the sheet's 14 boxes in 3
+  columns under the dice row (`.half` as `display: contents`, 6 grid
+  columns): rows 32 px, dice 35 (limited by width; the boxes read
+  across, mixing the halves). B, the dice and Roll standing in a column
+  beside the sheet: rows 35, dice 46. C, the dice row moved to the right
+  column under the turn line: rows 36, dice 40. All fit at 340 × 780.
+  Upright phone for comparison: rows 40, dice 48. Claude's pick: B.
+- **Laser Lab 6×6:** a fourth grid column for the shop beside the board
+  (the piece buttons' icon over their words), the tools 36 px tall at
+  14 px, the hint bar 3 lines at 14 px: cells 33 px, page 309 tall,
+  780 wide (was one column, cells 24, page 623). At `--side` 280 the
+  tools' row was cut (Hint and Try again wider than their thirds); at
+  300 the Hint button is still 96 of 90 px wide, its price shrunk.
+  Long hint words scroll inside the bar.
+- **The game's name (Q45):** upright, small capitals (13 px, muted) in
+  the 🏠's row above the turn line (that row is 80 px, the turn line
+  56: room above it); sideways, under the 🏠 in the left column, 80 px
+  wide, two lines. Neither takes height from the board: Matching 6×6
+  page 340 tall sideways, 760 upright, as without it.
