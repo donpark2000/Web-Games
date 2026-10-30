@@ -10,31 +10,7 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q44. Landscape: use the screen's width.** (2026-10-29, developer: on
-  the Android tablet held sideways, and then the phone, "Boards are
-  quite a bit smaller and there is a lot of unused space beside the
-  game board"; all games.) Proposed: three columns when the screen is
-  wider than tall ([Landscape Layout Mockup](https://claude.ai/artifact/KL1NyspH9Zgd7Th4PdKq2m),
-  version 1; see "Landscape: measured; three columns proposed").
-  Built on Reversi and the home page first (release 6.1, "Sideways
-  screens built on Reversi and the home page"), for the developer to
-  try on the tablet and phone; then the other games.
-  6.2 (every game) tried 2026-10-29: most fine; to fix: Matching
-  cards 6×6 and Five Dice scroll on a sideways phone, Laser Lab's shop
-  and tools are off the screen (see "6.2 tried sideways; the
-  developer's notes"); Bridges and Find the Stars fine as they are.
-  Proposed in the [Sideways Phone Fixes](https://claude.ai/artifact/VodMXAPmjzrVMp9H26Tqka)
-  mockup (version 1), with Q45.
-  Agreed (Five Dice option B): see "Sideways phone fixes agreed".
-  Built and published (release 6.3): see "Sideways phone fixes and
-  the game's name built".
-- **Q45. The game's name on the play screen.** (2026-10-29, developer:
-  "once you are playing a game, the name of the game is not visible
-  anywhere.") Agreed: top centre of the screen both ways (developer:
-  under the 🏠 "seems to imply that it is related to the home icon").
-  Built and published in 6.3: upright no board smaller; sideways
-  most boards 18 px smaller on a phone (see "Sideways phone fixes and the
-  game's name built").
+None waiting.
 
 ## Proposed additions to the standards skill
 
@@ -95,6 +71,35 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q44. Landscape: use the screen's width.** (2026-10-29, developer: on
+  the Android tablet held sideways, and then the phone, "Boards are
+  quite a bit smaller and there is a lot of unused space beside the
+  game board"; all games.) Proposed: three columns when the screen is
+  wider than tall ([Landscape Layout Mockup](https://claude.ai/artifact/KL1NyspH9Zgd7Th4PdKq2m),
+  version 1; see "Landscape: measured; three columns proposed").
+  Built on Reversi and the home page first (release 6.1, "Sideways
+  screens built on Reversi and the home page"), for the developer to
+  try on the tablet and phone; then the other games.
+  6.2 (every game) tried 2026-10-29: most fine; to fix: Matching
+  cards 6×6 and Five Dice scroll on a sideways phone, Laser Lab's shop
+  and tools are off the screen (see "6.2 tried sideways; the
+  developer's notes"); Bridges and Find the Stars fine as they are.
+  Proposed in the [Sideways Phone Fixes](https://claude.ai/artifact/VodMXAPmjzrVMp9H26Tqka)
+  mockup (version 1), with Q45.
+  Agreed (Five Dice option B): see "Sideways phone fixes agreed".
+  Built and published (release 6.3): see "Sideways phone fixes and
+  the game's name built".
+  *2026-10-30:* closed: 6.3 published and told what to try, the
+  developer: "All good" (which devices wasn't said).
+- **Q45. The game's name on the play screen.** (2026-10-29, developer:
+  "once you are playing a game, the name of the game is not visible
+  anywhere.") Agreed: top centre of the screen both ways (developer:
+  under the 🏠 "seems to imply that it is related to the home icon").
+  Built and published in 6.3: upright no board smaller; sideways
+  most boards 18 px smaller on a phone (see "Sideways phone fixes and the
+  game's name built").
+  *2026-10-30:* closed: the developer, of 6.3: "All good".
 
 - **Q32. Laser Lab on the phone.** Built 2026-10-22 from mockup v7 as
   it stood (see "Laser Lab built"); to judge on the developer's phone
@@ -11477,3 +11482,21 @@ it.
    name built").
 3. Waiting at a checkpoint: the proposed standards-skill addition "Key
    a remembered result by everything it depends on". Nothing to purge.
+
+## 2026-10-30: 6.3 tried; Q44 and Q45 closed; status (start here next session)
+
+The developer, after 6.3 was published and they were asked to try it:
+"All good". Taken as the verdict on 6.3 on the phone and tablet (which
+devices and games wasn't said); Q44 and Q45 moved to "Resolved".
+
+**Status:** 6.3 live, nothing open from it. No open questions. Branch
+`reversi` holds only journal commits past `main`; no local server
+running.
+
+**Next:** the developer's next request. Left over, only if wanted: Five
+Dice and Laser Lab on a small phone sideways (667 × 375) still scroll;
+Rock paper scissors' picks narrower than their column on a tablet; 6.0's
+Reversi try (the discs, a finger held down, the robot's pace, Easy and
+Hard) has no recorded verdict of its own. Waiting at a checkpoint: the
+proposed standards-skill addition "Key a remembered result by everything
+it depends on". Nothing to purge.
