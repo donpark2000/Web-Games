@@ -11558,3 +11558,53 @@ caches everything in `css`, `src`, `data` and `icons`.
 (three.js from cdnjs in the mockup only; the site would get its own
 copy), once the developer has said which devices to aim for and whether
 Five Dice is the one to start with.
+
+## 2026-11-07: 3D as new games; Five Dice 3D tray mockup v1
+
+**Agreed with the developer:**
+- **This repo, not a new one.** The developer first thought of a new
+  repo ("3D WebGames or similar"); Claude's view: a branch here reuses
+  `src/core/five-dice.js` (the rules and their tests), the debug log,
+  sound and the release tools, and makes a later swap easy; a new repo
+  only if 3D becomes its own family of games or needs a build step.
+  Developer: "OK".
+- **Published as new games, beside the 2D ones, until proven**
+  (developer: the phone and tablet can't reach a localhost server, so
+  trying means publishing). E.g. "Five Dice 3D" next to Five Dice; the
+  first publish a new game (7.0). Whether it later replaces the 2D one
+  is the developer's call. Every offline install would download three.js
+  (about 0.7 MB) even if the 3D game is never played; accepted for now.
+- **No photos of dice** (developer offered): dice are made in code; a
+  photo would only be a reference for the look.
+- **Devices (Q47):** the developer has asked their daughters which
+  devices the kids use; until then, testing locally.
+
+**Mockup v1** ([Five Dice 3D Tray](https://claude.ai/artifact/XsCVMyHvGaGVmaSqq3oHqR),
+private, version 2): a wooden tray with green felt, a fixed camera
+fitted to the screen's shape, five dice as rounded cubes with dots drawn
+at run time (no image files). Roll throws them in from the front; up to
+3 rolls; tap a die to pick it up (it lifts and tilts over a ring in
+player 1's colour); Roll with none picked up lifts all five and asks
+"Roll them all?", as in Five Dice. **The rules pick the numbers, the
+throw is steered to show them:** each die's landing turn is chosen
+first, the tumble is a turn about the throw's sideways axis that runs
+down to it, and the height keeps the lowest corner on the felt; landing
+spots are kept clear of dice already there. Under the tray: "the rules
+rolled ...; the dice show ..." (read back from the 3D) with ✓/✗.
+Choices: colour (white, red, blue, black), dots pressed in or painted
+on, corners a little or very round, normal or slow motion, a knock
+sound per bounce. three.js r160 from jsDelivr (the mockup only).
+
+**Checked** (scratchpad served on 8130 through `tools/serve.js`
+`createServer`, temporary `.claude/launch.json` entry, removed after;
+built-in browser): first publish showed the "no WebGL" message over a
+working tray (the page's `display: grid` beat `hidden` in the local copy;
+fixed with a `[hidden]` rule, version 2). Then: WebGL 2, 60 frames a
+second at 760 × 476; roll 1 "rolled 4 5 5 6 3; the dice show 4 5 5 6 3
+✓"; two dice tapped, lifted with rings, "Roll 2 again"; roll 2 "1 5 5 1
+3 ... ✓". At 375 × 812 no sideways scroll; the tray 343 px wide, so the
+dice are small on a phone held upright (to look at in the game's
+layout). Red with very round corners drawn as expected. Not checked: a
+real phone's frame rate.
+
+**Open questions:** Q46-Q50 unchanged (Q47 waiting for the daughters).
