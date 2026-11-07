@@ -1775,7 +1775,9 @@ puzzle game follows the same rule.
 ## 3D games
 
 Started 2026-11-07 (developer: "I wanted to explore 3D games"); being
-designed, nothing built on the site yet. Open: Q46-Q50 (journal).
+designed, nothing built on the site yet. Q46 and Q48-Q50 closed
+2026-11-07 as below (developer: "agreed"); open: Q47, the oldest device
+(journal).
 
 - **In this repo, on a branch**, not a new repo: the 3D version reuses
   the 2D game's rules (`src/core/`) and tests, the debug log, sound and
@@ -1787,7 +1789,8 @@ designed, nothing built on the site yet. Open: Q46-Q50 (journal).
 - **three.js**, one pinned copy in the repo (MIT), cached by the offline
   app like any other file (about 0.7 MB, downloaded by every install).
   No model or image files: shapes and dots are made in code. A device
-  without WebGL is pointed to the 2D game.
+  without WebGL is pointed to the 2D game. **A fixed camera**: no
+  turning or zooming; tap to pick.
 - **Five Dice 3D's dice tray**, agreed from mockup v2
   ([Five Dice 3D Tray](https://claude.ai/artifact/XsCVMyHvGaGVmaSqq3oHqR),
   private, version 4; developer: "The cup is great. And the movement of
@@ -1801,6 +1804,9 @@ designed, nothing built on the site yet. Open: Q46-Q50 (journal).
   the numbers and each tumble is steered to land on them.** Colour, dots
   and corners not chosen yet (the mockup's white, pressed-in dots, a
   little round, unless the developer says otherwise).
+- **The whole play screen:** mockup v1 being reviewed
+  ([Five Dice 3D Play Screen](https://claude.ai/artifact/JbXs6Vn444DcXPrYoHaXjL),
+  private, version 1; journal Q51); nothing agreed yet.
 
 ## Later
 

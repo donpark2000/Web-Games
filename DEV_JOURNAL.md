@@ -10,23 +10,30 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q46-Q50. 3D games: five things to settle first** (2026-11-07,
-  developer; from a discussion in another session). Q46 offline (a copy
-  of the 3D library in the repo), Q47 the oldest device it must run
-  smoothly on, Q48 download size, Q49 touch controls and camera freedom,
-  Q50 art (built-in shapes or free model libraries). Claude's proposals
-  in "3D games: the five questions".
+- **Q47. 3D games: the oldest device it must run smoothly on**
+  (2026-11-07, developer; one of five, Q46-Q50, from a discussion in
+  another session; the other four resolved). The developer has asked
+  their daughters which devices the kids use. Claude's proposal in "3D
+  games: the five questions": test on that device before publishing; a
+  device without WebGL, or too slow, is pointed to the 2D game.
+- **Q51. Five Dice 3D's play screen** (2026-11-07; play screen mockup
+  v1, "3D games: Q46, Q48-Q50 closed; Five Dice 3D play screen mockup
+  v1"). For the developer to review: the dice's size on a phone (36 px
+  upright, Five Dice's 52), Roll on the tray's corner, a sideways phone
+  with the scoreboard and buttons a scroll down, and the dice's look.
+  The build waits for this (developer: "lets hold off until I can review
+  the mockup").
 
 ## Proposed additions to the standards skill
 
-- **Key a remembered result by everything it depends on.** A result
-  worked out once and reused (a cache, a "done already" flag) must be
-  redone when anything it depends on changes, not just the input that
-  usually changes. *Evidence:* the puzzles fitted their buttons' words
-  once per screen width; sideways both layouts are tried at one width,
-  so the narrower one kept the wider one's font and cut its words
-  (2026-10-29, "Sideways phone fixes and the game's name built").
-  Waiting for the developer at a checkpoint.
+None waiting. (2026-11-07: "Key a remembered result by everything it
+depends on" (from "Sideways phone fixes and the game's name built",
+2026-10-29: the puzzles fitted their buttons' words once per screen
+width; sideways both layouts are tried at one width, so the narrower one
+kept the wider one's font and cut its words) approved by the developer
+("agreed with the skill update") and added to the skill, section 4;
+ai-dev-practices commit 7db531b, zip rebuilt for the developer to
+upload.)
 
 Earlier: none waiting. (2026-10-23, later: "Match the model to the work"
 added to the skill's section 7 at the developer's request (Q34), before
@@ -77,6 +84,15 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q46, Q48-Q50. 3D games: offline, size, touch, art.** (2026-11-07,
+  developer; see "3D games: the five questions".) Closed 2026-11-07 as
+  Claude proposed (developer: "agreed"; "3D games: Q46, Q48-Q50
+  closed"): **Q46** one pinned copy of three.js in the repo with its
+  licence, cached by the offline app like any other file (to do in the
+  build); **Q48** no model or image files, the library's 0.7 MB for
+  every install accepted; **Q49** a fixed camera, tap to pick a die, no
+  turning or zooming (liked in tray mockups v1 and v2); **Q50** shapes
+  made in code (liked in both mockups). Q47 stays open.
 - **Q44. Landscape: use the screen's width.** (2026-10-29, developer: on
   the Android tablet held sideways, and then the phone, "Boards are
   quite a bit smaller and there is a lot of unused space beside the
@@ -11745,3 +11761,105 @@ daughters which devices the kids use.
    says publish.
 4. Waiting at a checkpoint: the proposed standards-skill addition "Key a
    remembered result by everything it depends on". Nothing to purge.
+
+## 2026-11-07: 3D games: Q46, Q48-Q50 closed; Five Dice 3D play screen mockup v1
+
+**The developer**, on the three next steps proposed: "1) agreed. 2)
+agreed 3) lets hold off until I can review the mockup." So Q46, Q48-Q50
+are closed as proposed (Resolved), the whole play screen is mocked up,
+and nothing is built until the developer has reviewed it. On the skill
+addition, once explained: "agreed with the skill update" (added; see
+"Proposed additions"). And: the app's end-of-turn box with the question
+isn't seen by the developer ("There is no 'box below'"), so questions
+go in the message itself from now on.
+
+**Five Dice measured first** (built-in browser; the real page in frames
+of each exact size, as the pane's own size emulation gave 487 × 940 for
+393 × 760 once): dice and score rows the same in short and long games:
+393 × 760 dice 52, rows 43; 780 × 340 dice 44, rows 34 (wide); 800 ×
+1280 dice 77, rows 64; 1280 × 720 dice 83, rows 64 (wide). Upright phone,
+long: the 🏠 row 80 px, dice row 52, sheet 364, scoreboard 86, buttons
+54, footer 52. A sideways phone's right column has 74 px to spare.
+
+**Mockup** ([Five Dice 3D Play Screen](https://claude.ai/artifact/JbXs6Vn444DcXPrYoHaXjL),
+private, version 1): an outer page that shows the play screen in a frame
+of the picked screen's real size (phone 393 × 760 / 780 × 340, tablet
+800 × 1280 / 1280 × 720), scaled down to fit, with Short / Long. The
+play screen is the site's own: its CSS, `src/core/five-dice.js` (the
+rules), the score sheet's pictures, the faces and `src/ui/fit.js`,
+published beside the page as files, so it lays out as the site would on
+that screen. Just me only; New game = Play again; no picture pop-ups.
+Claude's choices in it:
+- **The tray in the dice row's place**, over the sheet; the cup and back
+  row of tray mockup v2. **At a new turn the dice wait along the back.**
+- **Roll on the tray's front right corner**, where the cup comes; it
+  fades while the cup is out and is ↩ Undo there after scoring. First
+  tried beside the turn line in the 🏠's row: the words then had about
+  90 px and "Pick a box, or tap dice to roll again" took five lines.
+  **No die lands under Roll**: a landing spot is rejected if the die's
+  box, projected to the screen, comes within 4 px of the button. Roll
+  grows with the dice (about 2.1 × 1.5 dice).
+- **The tray's shape follows the room**: inside 6.6-8.2 wide by 3.6-5.4
+  deep; the shape with the biggest dice, then of those within 3% the
+  biggest tray. The camera centres the tray top to bottom, and the tray's
+  frame is cut to the height at which the tray still fills its width.
+- **The fit:** each layout tried for the biggest dice and rows together,
+  by the smaller of the die and 1.2 rows (Five Dice's 52/43); the tray
+  gets the height left over. Layouts: one column; sideways, the tray over
+  the sheet in the middle column; or the tray in the right column under
+  the turn line with the sheet alone in the middle, the scoreboard and
+  buttons then a scroll down (only if it beats the others by 25%).
+- **The play screen up to 680 px wide** (as matching cards; the other
+  games 520): at 520 an upright tablet had a band of about 300 px empty
+  at the bottom, the tray held by the width. The sheet is kept to 560 px
+  in the middle column sideways.
+
+**Sizes it picked** (dice / rows, Five Dice in brackets): 393 × 760 one
+column, tray 361 × 172: **36 / 28** (52 / 43); 780 × 340 tray on the
+right, 300 × 216: **34 / 34** (44 / 34), scoreboard and buttons a scroll
+down (the other two layouts didn't fit at all); 800 × 1280 one column,
+680 × 424: **75 / 64** (77 / 64); 1280 × 720 the tray over the sheet,
+760 × 281: **57 / 46** (83 / 64). Short and long the same. The upright
+phone's rows are at Five Dice's smallest (28); the tray costs a phone
+real height.
+
+**Found and fixed while checking:**
+- **A die turned back to its old number** after landing: 4 of 9 rolls
+  in a scripted check (3 turns) showed other numbers than the rules', all
+  on a turn's first roll or soon after. The dice slide to the back row as
+  a turn starts; a Roll tapped before that slide ended (the check tapped
+  0.3 s after the turn passed) left the slide pending, and it ran after
+  the throw, turning the die back. A throw now cancels any slide. After
+  the fix every roll seen landed as the rules rolled (20 in the log:
+  14 on the upright phone, 6 on the three other screens).
+- **No landing spots** for 4 dice with 1 kept on the shallowest tray
+  (logged; a fallback row was used): the strip in front of the kept
+  dice was 0.9 deep; now 1.15 nearer the back row and 0.6 from the front.
+  Not seen again.
+- The back row's dice stood above the frame's top (the camera kept only
+  the tray's corners in view; now the dice's tops too), and the tray
+  didn't fill its frame (the camera looked at a fixed point).
+- The scripted check: no die outside the tray or under Roll (9 rolls),
+  closest two dice 1.12 apart (a die is 1.0).
+
+**Not checked:** the published page itself (the built-in browser's
+claude.ai asks to sign in; checked on a local server, 8130 through
+`tools/serve.js` `createServer` with a temporary launch entry, removed
+after); a real phone or tablet; the fit's time: 0.1-0.5 s, but 0.9-1.3 s
+on the sideways tablet (each row size tries a dozen tray shapes; to
+make quicker in the build).
+
+**Status:** Q46, Q48-Q50 closed; Q47 and Q51 open. Release 6.3 live,
+unchanged; branch `reversi` holds only journal and DESIGN.md commits
+past `main`. Local servers stopped. Nothing to purge (the mockup's files
+are in Claude's scratchpad; the artifact holds them).
+
+**Next:**
+1. The developer reviews the play screen mockup (Q51), and says about
+   Q47 (devices) when the daughters answer.
+2. Changes from the review, then the build on a new branch from `main`
+   (as in the last status: three.js pinned with its licence,
+   `five-dice-3d.html`, the tray as UI with its maths tested under Node,
+   debug log, the WebGL fallback, tests, release 7.0 on "publish"). The
+   mockup's `play3d.js` is the starting point; read it with the Artifact
+   tool (`path: "play3d.js"`).
