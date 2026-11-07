@@ -10,7 +10,12 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-None waiting.
+- **Q46-Q50. 3D games: five things to settle first** (2026-11-07,
+  developer; from a discussion in another session). Q46 offline (a copy
+  of the 3D library in the repo), Q47 the oldest device it must run
+  smoothly on, Q48 download size, Q49 touch controls and camera freedom,
+  Q50 art (built-in shapes or free model libraries). Claude's proposals
+  in "3D games: the five questions".
 
 ## Proposed additions to the standards skill
 
@@ -11500,3 +11505,56 @@ Reversi try (the discs, a finger held down, the robot's pace, Easy and
 Hard) has no recorded verdict of its own. Waiting at a checkpoint: the
 proposed standards-skill addition "Key a remembered result by everything
 it depends on". Nothing to purge.
+
+## 2026-11-07: 3D games: the five questions
+
+The developer: "I wanted to explore 3D games", starting with a 3D
+version of a game we already have: Five Dice "with actual 3d Dice
+rolling", or Reversi "with more 3D game pieces and animations for
+flipping tiles". Five things to settle first, from a discussion in
+another session (Q46-Q50, "Open questions").
+
+**What's there now** (read from the code): Reversi's discs are SVG drawn
+at an angle (`src/ui/rvboard.js`), and a flip is a CSS animation of a
+disc's two drawings; Five Dice's dice are flat SVG, and a roll swaps
+random faces for a while (`shown`/`rolling` in `src/ui/five-dice.js`).
+Nothing on the site is true 3D. The site's files come to about 2.3 MB
+raw (`git ls-files`, less tests, tools and notes); `tools/offline.js`
+caches everything in `css`, `src`, `data` and `icons`.
+
+**Two ways to draw 3D:**
+- **CSS 3D** (`perspective`, `preserve-3d`, `rotate3d`): a die as six
+  squares, a disc turning over on its edge. No library, nothing to
+  download, works wherever the site works now. No real light, shadows or
+  physics (faked with gradients), and it gets fiddly past a few objects.
+- **WebGL with three.js** (MIT licence, fits GPL-3.0): real light,
+  shadows, a camera, dice that tumble and bounce. About 0.7 MB raw
+  (roughly 0.2 MB as GitHub Pages sends it, compressed); physics would
+  be a second library or a scripted tumble.
+
+**Claude's proposals:**
+- **First game: Five Dice.** The roll is the moment 3D changes most;
+  Reversi's discs already look 3D and flip, so less is new there.
+- **The rules decide the roll, the picture follows** (`src/core/` stays
+  as it is): the roll is made first, then the tumble is steered so each
+  die lands showing it. Tests keep checking the rules; the 3D is UI.
+- **Q46 offline:** one pinned three.js file in the repo (e.g.
+  `src/vendor/`, with its licence), so `tools/offline.js` caches it like
+  any other file; nothing loaded from other sites, as now.
+- **Q47 devices:** the oldest device the developer's family uses sets
+  the bar; tested there before publishing. If WebGL is missing or slow,
+  the game falls back to today's flat dice, so nobody loses the game.
+- **Q48 size:** no model or texture files: dice made in code (a rounded
+  cube, pips as shapes or drawn at run time). The only real cost is the
+  library.
+- **Q49 touch:** no rotating or zooming for ages 5-7 (in line with "no
+  zooming in"); a fixed camera looking into a dice tray. Tap a die to
+  hold it, as now; Roll as now (perhaps a flick or a shake later).
+- **Q50 art:** built-in shapes for dice and discs. Kenney.nl (CC0) only
+  if a later game needs real models; Poly Haven's textures are large for
+  phones, so not for now.
+
+**Next:** a mockup of the 3D dice tray to try in the app's viewer
+(three.js from cdnjs in the mockup only; the site would get its own
+copy), once the developer has said which devices to aim for and whether
+Five Dice is the one to start with.
