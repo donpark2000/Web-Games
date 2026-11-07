@@ -7,6 +7,21 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 7.0 (2026-11-07, version 06f7612aeeec)
+
+A new game, the site's first in 3D:
+
+- **Five Dice 3D:** Five Dice with its dice in a wooden tray on green
+  felt. Tap a die to pick it up; on Roll the dice kept move to a row at
+  the back, and the others hop into a leather cup that shakes and pours
+  them out. Next to Five Dice in 👥 Two players.
+- **Pick the dice's colour** on the setup screen: white, red, blue or
+  black.
+- The rules, the robot and the score sheet are Five Dice's own; Five
+  Dice itself is unchanged.
+- A phone or tablet that can't show 3D says so, with a button to play
+  Five Dice instead.
+
 ## 6.3 (2026-10-29, version 551bc1c01533)
 
 Fixes for a phone held sideways, and the game's name:
