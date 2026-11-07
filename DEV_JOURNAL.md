@@ -11694,3 +11694,54 @@ no die outside the tray, closest two dice 1.30 apart** (the back row's
 spacing; a die is 1.0), no "tighter gap" or "no room" in the log. Not
 checked: the look and feel on a phone; the screenshots were slow to
 come (the app's window was hidden), so mostly measured, not looked at.
+
+## 2026-11-07: Tray v2 liked; status (start here next session)
+
+**The developer** on mockup v2: "The cup is great. And the movement of
+the dice that are not rolled again work well." Recorded as agreed in
+DESIGN.md "3D games" (new section), with the decisions of this session.
+
+**Status:** 3D games designed as far as Five Dice 3D's dice tray; nothing
+built on the site; release 6.3 live, unchanged. Branch `reversi` holds
+only journal and DESIGN.md commits past `main`. No local server running;
+`.claude/launch.json` as committed. `Web-Games-testing` empty.
+
+**Where the mockup's code is:** only in the artifact (version 4); the
+scratchpad it was made in belongs to this session. A new session reads
+it with the Artifact tool (`action: "read"` on the link in DESIGN.md
+"3D games"). Its parts worth reusing: `upright` / `topFace` / `support`
+(a die's turn for a number, the number on top, its height on the felt),
+`bounces` / `heightAt` and `throwPose` (the steered tumble), `pickSpots`
+(landing spots clear of the others), the cup's timing (`throwDice`,
+`updateCup`) and the back row. To check a mockup locally: the
+scratchpad served through `tools/serve.js` `createServer` with a
+temporary `.claude/launch.json` entry (removed after), and a local copy
+that adds the viewer's skeleton and **drives frames from a timer**: the
+browser pane draws no `requestAnimationFrame` frames while the app's
+window is hidden (measured: 0 in 500 ms).
+
+**Open questions:** Q46-Q50 (3D). Claude's proposal for the next
+checkpoint: close Q46 (a pinned copy of three.js in the repo; agreed
+with "OK", to be done in the build), Q48 (no model or image files; the
+library's 0.7 MB for every install accepted), Q49 (fixed camera, tap to
+pick, no turning or zooming: liked in both mockups) and Q50 (shapes made
+in code: liked). **Q47 stays open:** the developer has asked their
+daughters which devices the kids use.
+
+**Next:**
+1. Close Q46, Q48-Q50 with the developer (above), and hear about Q47 if
+   the daughters have answered.
+2. **The whole play screen for Five Dice 3D**: where the tray goes with
+   the score sheet, the Roll button and the scoreboard. On a phone held
+   upright the tray is wide and short (343 px wide in mockup v1, the
+   dice small), so a mockup of the full screen first (upright and
+   sideways), then the dice's colour, dots and corners if the developer
+   wants other than white, pressed in, a little round.
+3. Then build it on a new branch from `main` (e.g. `five-dice-3d`):
+   three.js pinned in the repo with its licence; `five-dice-3d.html`
+   using `src/core/five-dice.js` as is; the 3D tray as UI (the dice-turn
+   maths testable under Node: three.js's maths needs no browser);
+   debug log; the WebGL fallback; tests; release 7.0 when the developer
+   says publish.
+4. Waiting at a checkpoint: the proposed standards-skill addition "Key a
+   remembered result by everything it depends on". Nothing to purge.

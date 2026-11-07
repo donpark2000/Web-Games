@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-10-29, latest): **the game's name on every play screen**,
+*Status (2026-11-07, latest): **3D games** started: Five Dice 3D's dice
+tray agreed from mockup v2 (a cup that pours the dice, kept dice moved
+to the back); not built yet (see "3D games"). 2026-10-29: **the game's name on every play screen**,
 at the top centre; **Matching cards 6×6, Five Dice and Laser Lab fit a
 sideways phone** (release 6.3; see "Sideways screens"). Earlier the same
 day: **sideways screens in every game**: each
@@ -1769,6 +1771,36 @@ Stars 200 a size, Colour Sudoku 200 a level, Laser Lab 100 a setup (50
 for 8×8 with two lasers), its runs taking the next 10 each, Bridges 200
 a size. A new
 puzzle game follows the same rule.
+
+## 3D games
+
+Started 2026-11-07 (developer: "I wanted to explore 3D games"); being
+designed, nothing built on the site yet. Open: Q46-Q50 (journal).
+
+- **In this repo, on a branch**, not a new repo: the 3D version reuses
+  the 2D game's rules (`src/core/`) and tests, the debug log, sound and
+  the release tools.
+- **Published as new games beside the 2D ones until proven** (the
+  phone and tablet can only try what's published): first **Five Dice
+  3D**, next to Five Dice, as release 7.0. Whether it later replaces the
+  2D game is the developer's call.
+- **three.js**, one pinned copy in the repo (MIT), cached by the offline
+  app like any other file (about 0.7 MB, downloaded by every install).
+  No model or image files: shapes and dots are made in code. A device
+  without WebGL is pointed to the 2D game.
+- **Five Dice 3D's dice tray**, agreed from mockup v2
+  ([Five Dice 3D Tray](https://claude.ai/artifact/XsCVMyHvGaGVmaSqq3oHqR),
+  private, version 4; developer: "The cup is great. And the movement of
+  the dice that are not rolled again work well."): a wooden tray with
+  green felt seen from a fixed camera (no turning or zooming); tap a die
+  to pick it up (it lifts over a ring; tap again to put it back), as in
+  Five Dice; on **Roll**, the dice kept are lifted to a **row along the
+  back**, in their left-to-right order, turned square to the front; the
+  picked dice hop into **a leather cup** that shakes, tips and pours them
+  onto the felt, about 2.5 s in all; normal speed only. **The rules pick
+  the numbers and each tumble is steered to land on them.** Colour, dots
+  and corners not chosen yet (the mockup's white, pressed-in dots, a
+  little round, unless the developer says otherwise).
 
 ## Later
 
