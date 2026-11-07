@@ -26,12 +26,15 @@ time, each tried before publishing:
   (2026-11-07, developer, with Q52: "after the roll is complete, we could
   actually move the dice ... the results of the new roll get re-aligned
   in the middle or at the bottom. I'm not convinced it is worth it or
-  even a good idea.") To discuss before any change.
+  even a good idea.") To discuss before any change. In the
+  [Five Dice 3D Dice Moves](https://claude.ai/artifact/FZvYxrkGijE5quRBPSH9vW)
+  mockup (version 1) on a switch, with Q54; see "Dice moves mockup v1".
 - **Q54. Five Dice 3D: the dice show the box picked** (2026-11-07,
   developer: "after the player selects the score card option they want,
   we redraw the dice to reflect that option. Basically treat selecting
   the score card in the same way we treat selecting which dice to roll
-  again.") To discuss before any change.
+  again.") To discuss before any change. In the dice moves mockup with
+  Q53.
 
 ## Proposed additions to the standards skill
 
@@ -12131,3 +12134,78 @@ and one roll landed, the sheet's faded scores matching the dice seen
 2. Left over, only if wanted: Five Dice and Laser Lab on a small phone
    sideways (667 × 375) still scroll; Rock paper scissors' picks narrower
    than their column on a tablet. Nothing to purge.
+
+## 2026-11-07: 7.0 on the phone; Q52 closed; dice moves mockup v1 (Q53, Q54)
+
+**The developer**, after 7.0: "Looks good on my phone - both
+orientations. Q52 - I think it is OK." (Q52 closed; Q47 waits for the
+kids' devices.) Two ideas, to discuss before any change: Q53, after a
+roll "the results of the new roll get re-aligned in the middle or at the
+bottom" ("I'm not convinced it is worth it"); Q54, after a box is picked
+"redraw the dice to reflect that option".
+
+**Claude's view, given:** Q54 the stronger: it shows a child why a box
+scored (the screen does the adding), fits in the 3 s Undo that's already
+there, and shows what the robot counted. Q53 a closer call: dice in a row
+are easier to read and tap on a phone (35 px dice), but less like real
+dice, and 0.4 s more a roll; both use the same dice-into-a-row move.
+Proposed: one mockup with both on switches. Developer: "Yes".
+
+**Mockup** ([Five Dice 3D Dice Moves](https://claude.ai/artifact/FZvYxrkGijE5quRBPSH9vW),
+private, version 1): **release 7.0's own files**, copied (not the
+repo's), with the two ideas added in the copies of `tray3d.js` and
+`five-dice-game.js` and a new `src/core/showbox.js`; an outer page with
+the switches and the screen size (phone and tablet, both ways), the game
+in a frame of that size. The switches are read at each roll and score.
+- **Q53** (Off / Middle, preselected / Front): once every die has landed,
+  the dice just rolled slide (0.4 s) into one row, left to right as they
+  landed, square to the front; the kept dice stay in the back row.
+- **Q54** (Off / On, preselected): on a box, the dice that make its
+  score stand forward in a row and hop once, grouped like the box's
+  picture (`showBox`): the number's dice for 1s-6s; the dice the same for
+  3/4/5 the same; 3 + 2 with a wider gap for a full house; one of each
+  number low to high for a run (4 for the small run, as its picture);
+  all five low to high for "?". The rest step back to the back row; a box
+  scoring 0 moves nothing; Undo puts every die back. The robot's boxes
+  too, its turn passing after 2.4 s (was 1.5 s) for the dice to move.
+- Not in it: the 🏠 goes to the setup screen; no stats, no offline copy;
+  the robot's long-game values (1 MB `.bin`: artifacts serve no such
+  file type; the robot then goes for the most points each turn, as the
+  game does when the file won't load).
+
+**Found and fixed while checking** (the built-in browser, the mockup's
+folder served on 8130 by `tools/serve.js`'s `createServer`, a temporary
+launch entry removed after):
+1. **The dice never tidied:** the tidy-up starts in the frame in which
+   the roll ends, and that frame had already worked out that nothing was
+   moving, so the drawing stopped with the slides pending (`moving: true`
+   with the dice still where they landed, 1.5 s later). The frame now
+   counts slides started by the landing.
+2. **No room beside Roll for 5 dice in the middle of an upright phone's
+   tray** ("tidy: no row clear of Roll"). Measured at 393 × 760 (tray 3.7
+   × 1.8): in the middle the rightmost die can be at x 1.95 at most, the
+   leftmost -3.1, so 5 dice 1.3 apart (5.2) don't fit; 1.2 apart (4.8)
+   do. The row now closes up (1.3, then 1.2, then 1.12; a group's gap
+   0.45, 0.35, 0.28) until it clears Roll.
+3. **Neither the front nor the middle had room on a sideways phone's
+   tray** for 5 dice (780 × 340): the row now steps back 0.25 at a time,
+   as far as the back row when no die stays there (5 dice thrown, or every
+   die counting for a box), else to 1.1 in front of it. There: 5 dice at
+   z -0.19, 2 and 4 at the front.
+
+**Checked** (scripted: each turn a roll of 5, 2 picked up, 4 picked up,
+then a box): upright phone (Middle, Front), sideways phone (Front),
+sideways tablet (Middle), upright tablet (Off, with Q54 on): every
+tidy-up and show done, no die under Roll, the closest two dice 1.12-1.3
+apart (a die is 1.0); every landing as the rules rolled. Boxes: ? (5
+low to high), 1s (one die forward, four back), full house forced (5-5-5,
+a gap, 2-2), 5 the same scoring 0 (nothing moved), Undo (every die back
+where it was), the robot's large straight (2-3-4-5-6) and its turn
+passing after 2.4 s. No console errors. `showBox` checked on 14 rolls in
+Node (`check-showbox.mjs`, Claude's scratchpad). **Not checked:** the
+published page itself (claude.ai sign-in in the built-in browser); a real
+phone.
+
+**Next:** the developer tries the mockup (Q53, Q54), then build what's
+agreed in the game (with tests: `showBox` and the rows' room), as 7.1.
+Q47 open. No local server running; nothing to purge.
