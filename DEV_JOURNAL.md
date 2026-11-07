@@ -11608,3 +11608,8 @@ layout). Red with very round corners drawn as expected. Not checked: a
 real phone's frame rate.
 
 **Open questions:** Q46-Q50 unchanged (Q47 waiting for the daughters).
+
+**Purged** (developer: "Yes, purge it"): `Web-Games-testing\2026-10-21_mirror-light-v3`
+(9 files: Laser Lab, then Mirror Light, screenshots from 2026-10-21, left
+over and not named in the journal) sent to the Recycle Bin.
+`Web-Games-testing` is now empty.
