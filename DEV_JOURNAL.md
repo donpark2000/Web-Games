@@ -11654,3 +11654,43 @@ picking dice up as now (lift and ring, easy to undo), and send only the
 picked-up ones into the cup on Roll. Proposed as a choice in the next
 mockup, beside the hand throw, to compare. Not built; the developer to
 decide.
+
+## 2026-11-07: Tray mockup v2: the dice cup and the back row (version 4)
+
+**The developer**, on version 3: "Slow motion works now, but after
+seeing it, I prefer normal speed." Asked for the cup version; on undo:
+"hold off putting the selected dice into the cup until Roll is pressed"
+(as proposed). And an idea, asked for Claude's view first: after the
+first roll, **move the dice kept to the side or top of the board**, "what
+happens in a real game so the new rolls don't hit the dice we want to
+keep". Claude's view: yes; the back (top of the screen), as the throw
+comes from the front and the back is the long side; moved only when
+Roll is pressed (undo unchanged); in their left-to-right order, not
+sorted; a kept die can still be picked for the third roll; it gives the
+throw the open felt. Developer: "yes".
+
+**Built (mockup v2, [Five Dice 3D Tray](https://claude.ai/artifact/XsCVMyHvGaGVmaSqq3oHqR) version 4):**
+- **Throw: From the cup (first) / By hand.** Speed choice removed
+  (normal only).
+- **The cup** (leather brown, dark inside, a gold band) pops in over the
+  front right of the tray; the picked dice hop in one after another
+  (hidden once inside); it shakes for 0.42 s with a rattle (soft clicks
+  each half-shake); tips 115° towards the back left; the dice tumble out
+  of its mouth side by side, in the order they'll land, and roll to
+  their spots; the cup is lifted away and shrinks out. About 2.5 s from
+  Roll to the last die still (die 0 sampled: in the cup at 0.65 s, out
+  at about 1.6 s, still at 2.4 s).
+- **The back row:** on Roll, the dice not picked are lifted over to a
+  row along the back (1.3 apart, centred), in their left-to-right
+  order, turned square to the front with the same number on top. The
+  throw then lands only in front of the row.
+
+**Checked** (scratchpad on 8130 through `tools/serve.js` `createServer`,
+temporary launch entry removed after; built-in browser, frames from a
+timer that can be paused for a look): the pour seen paused mid-tip.
+Five full turns in each throw mode (first roll, then 1-4 random dice
+picked, twice): **30 of 30 rolls "the dice show" what the rules rolled,
+no die outside the tray, closest two dice 1.30 apart** (the back row's
+spacing; a die is 1.0), no "tighter gap" or "no room" in the log. Not
+checked: the look and feel on a phone; the screenshots were slow to
+come (the app's window was hidden), so mostly measured, not looked at.
