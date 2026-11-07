@@ -20,12 +20,18 @@ time, each tried before publishing:
   assuming they are probably OK. They play games like minecraft that has
   a lot of 3D stuff." Built without waiting; still open until the kids'
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
-- **Q52. Five Dice 3D: dice landing beside a kept one** (2026-11-07,
-  Claude, from the build). With dice kept from touching, an upright
-  phone's shallow tray had room in front of the back row for 4 dice beside
-  1 kept only 1-3 times in 50, so they then land anywhere clear of it,
-  some beside it in the back row. Fine to look at? (Else: a deeper tray on
-  a phone, slightly smaller dice.) For the developer to judge on the phone.
+  2026-11-07, after 7.0: "Looks good on my phone - both orientations"
+  (the developer's own phone; the kids' devices still to come).
+- **Q53. Five Dice 3D: tidy the new dice into a row after a roll?**
+  (2026-11-07, developer, with Q52: "after the roll is complete, we could
+  actually move the dice ... the results of the new roll get re-aligned
+  in the middle or at the bottom. I'm not convinced it is worth it or
+  even a good idea.") To discuss before any change.
+- **Q54. Five Dice 3D: the dice show the box picked** (2026-11-07,
+  developer: "after the player selects the score card option they want,
+  we redraw the dice to reflect that option. Basically treat selecting
+  the score card in the same way we treat selecting which dice to roll
+  again.") To discuss before any change.
 
 ## Proposed additions to the standards skill
 
@@ -87,6 +93,12 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q52. Five Dice 3D: dice landing beside a kept one.** (2026-11-07,
+  Claude, from the build: on an upright phone, 4 dice thrown beside 1
+  kept had room in front of the back row only 1-3 times in 50, so they
+  may land beside it in the back row.) Closed 2026-11-07 after 7.0 on
+  the developer's phone: "Q52 - I think it is OK." Kept as built; the
+  developer's idea of tidying the dice after a roll is Q53.
 - **Q51. Five Dice 3D's play screen.** (2026-11-07; play screen mockups
   v1 and v2.) Agreed: v1 "all except phone sideways", where v1 left the
   scoreboard and buttons a scroll down; for that, version 2's **option
