@@ -16,13 +16,14 @@ time, each tried before publishing:
   their daughters which devices the kids use. Claude's proposal in "3D
   games: the five questions": test on that device before publishing; a
   device without WebGL, or too slow, is pointed to the 2D game.
-- **Q51. Five Dice 3D's play screen** (2026-11-07; play screen mockup
-  v1, "3D games: Q46, Q48-Q50 closed; Five Dice 3D play screen mockup
-  v1"). For the developer to review: the dice's size on a phone (36 px
-  upright, Five Dice's 52), Roll on the tray's corner, a sideways phone
-  with the scoreboard and buttons a scroll down, and the dice's look.
-  The build waits for this (developer: "lets hold off until I can review
-  the mockup").
+- **Q51. Five Dice 3D's play screen on a sideways phone** (2026-11-07;
+  play screen mockups v1 and v2). The rest of the play screen agreed
+  ("I like it all except phone sideways"); v1's sideways phone left the
+  scoreboard and buttons a scroll down. Version 2's options: A, the
+  buttons under the 🏠 and the scoreboard upright beside the sheet (dice
+  34 px); B, all on the right, slimmer, the tray smaller (dice 24 px).
+  Claude's pick: A. See "Sideways phone: options A and B". The build
+  waits for this.
 
 ## Proposed additions to the standards skill
 
@@ -11863,3 +11864,64 @@ are in Claude's scratchpad; the artifact holds them).
    debug log, the WebGL fallback, tests, release 7.0 on "publish"). The
    mockup's `play3d.js` is the starting point; read it with the Artifact
    tool (`path: "play3d.js"`).
+
+## 2026-11-07: Play screen v1 liked; sideways phone: options A and B (version 2); dice colour on setup
+
+**The developer** on play screen mockup v1: "I like it all except phone
+sideways. There is a fair bit of empty space between the 'Roll the dice'
+text and the table. If we removed some of that and possibly made the
+table a little smaller we should be able to make it fit." And: "when we
+do the set up for the game, can we keep the option of selecting dice
+color?" Recorded in DESIGN.md "3D games": the play screen agreed but for
+a sideways phone; a dice colour choice on the setup screen (the four of
+tray mockup v1, white preselected: Claude's proposal, to confirm when the
+setup screen is built).
+
+**Measured** (v1 at 780 × 340, in the mockup's own frame): the right
+column needed 470 px of 316: turn line 48, tray 216, scoreboard 86,
+buttons 54, footer 32, gaps. Without the tray the rest is 254, so a
+tray alone could have only 62 px (dice about 12 px): trimming the space
+and a smaller tray can't make it fit by themselves. The space above the
+tray is mostly kept for the dice waiting along the back (they rise above
+the back rim) and the camera's margins.
+
+**Version 2** (same artifact, version 2), a choice for a sideways phone:
+- **A:** Play again and New game in the left column's empty strip
+  between the 🏠 and the 🔊 (80 px wide, 14 px words), the scoreboard
+  upright beside the sheet (76 px wide: face, points, name; "Long";
+  🏆, best). The tray keeps the right column under the turn line:
+  **dice 34, rows 34**, tray 300 × 186.
+- **B:** everything stays in the right column, slimmer: the turn line 44
+  px (18 px words, a 36 px face), the scoreboard on one line a side (34
+  px faces), the buttons 16 px: **dice 24, rows 34**, tray 300 × 118.
+- Both fit with nothing to scroll. The camera's margins a little
+  tighter for every screen (the tray to 97% of the width, 96% of the
+  height; were 95%, 93%). The scrolling layout of v1 is gone.
+
+**Sizes** (dice / rows; Five Dice in brackets): 393 × 760 36 / 28
+(52 / 43); 780 × 340 A 34 / 34, B 24 / 34 (44 / 34); 800 × 1280 77 / 64
+(77 / 64); 1280 × 720 55 / 48 (83 / 64). Claude's pick for the sideways
+phone: **A** (the dice keep their size; the buttons are seldom needed
+mid-game, and the strip under the 🏠 was empty).
+
+**Found while checking:** B's page grew 2 px after the first roll: it
+was fitted while the turn line said "Roll the dice!" (one line), and
+"Pick a box, or tap dice to roll again" takes two lines in B's 40 px
+turn line. B's turn line is now two lines tall from the start (44 px);
+after a roll every screen's page stayed its fitted height (340, 760,
+720, 1280). Another case of "check a screen after every way into it"
+(in the skill): here, after every turn-line text, not just the first.
+
+**Checked:** two full turns on B's tray (the smallest, Roll covering
+the most of it): 6 of 6 rolls landed as the rules rolled, none under
+Roll or outside the tray, closest two dice 1.19 apart, no fallback
+spots. Not checked: the published page (sign-in), a real phone.
+
+**Status:** Q51 narrowed to the sideways phone, A or B; Q47 open.
+Release 6.3 live, unchanged. Local servers stopped, the temporary
+launch entry removed.
+
+**Next:**
+1. The developer picks A or B (Q51); Q47 when the daughters answer.
+2. Then the build, as in the last entry's "Next", with the setup
+   screen's dice colour choice.

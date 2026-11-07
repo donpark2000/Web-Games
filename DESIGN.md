@@ -1804,9 +1804,21 @@ designed, nothing built on the site yet. Q46 and Q48-Q50 closed
   the numbers and each tumble is steered to land on them.** Colour, dots
   and corners not chosen yet (the mockup's white, pressed-in dots, a
   little round, unless the developer says otherwise).
-- **The whole play screen:** mockup v1 being reviewed
+- **The whole play screen**, agreed from play screen mockup v1
   ([Five Dice 3D Play Screen](https://claude.ai/artifact/JbXs6Vn444DcXPrYoHaXjL),
-  private, version 1; journal Q51); nothing agreed yet.
+  private, version 1; developer, 2026-11-07: "I like it all except phone
+  sideways"): Five Dice's play screen with the tray in the dice row's
+  place, over the sheet; **Roll on the tray's front right corner**, where
+  the cup comes (no die lands under it; it fades while the cup is out and
+  is ↩ Undo there after scoring); the dice waiting along the back at a
+  turn's start; the tray's shape following the room; the play screen up
+  to 680 px wide; a sideways tablet with the tray over the sheet in the
+  middle column. **A sideways phone:** open (Q51), options A and B in
+  version 2.
+- **Dice colour picked on the setup screen** (developer, 2026-11-07:
+  "when we do the set up for the game, can we keep the option of
+  selecting dice color?"): white, red, blue or black, as in tray mockup
+  v1; white preselected, kept with the other picks.
 
 ## Later
 
