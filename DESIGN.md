@@ -6,7 +6,8 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-11-07, latest): **3D games** started: Five Dice 3D's dice
 tray agreed from mockup v2 (a cup that pours the dice, kept dice moved
-to the back); not built yet (see "3D games"). 2026-10-29: **the game's name on every play screen**,
+to the back), and its whole play screen from play screen mockups v1-v2,
+with a dice colour choice on setup; not built yet (see "3D games"). 2026-10-29: **the game's name on every play screen**,
 at the top centre; **Matching cards 6×6, Five Dice and Laser Lab fit a
 sideways phone** (release 6.3; see "Sideways screens"). Earlier the same
 day: **sideways screens in every game**: each
@@ -1813,8 +1814,11 @@ designed, nothing built on the site yet. Q46 and Q48-Q50 closed
   is ↩ Undo there after scoring); the dice waiting along the back at a
   turn's start; the tray's shape following the room; the play screen up
   to 680 px wide; a sideways tablet with the tray over the sheet in the
-  middle column. **A sideways phone:** open (Q51), options A and B in
-  version 2.
+  middle column. **A sideways phone: option A** of version 2 (developer,
+  2026-11-07: "A"): Play again and New game in the left column between
+  the 🏠 and the 🔊, the scoreboard upright beside the sheet, the tray in
+  the right column under the turn line; nothing to scroll (dice 34 px,
+  rows 34 at 780 × 340).
 - **Dice colour picked on the setup screen** (developer, 2026-11-07:
   "when we do the set up for the game, can we keep the option of
   selecting dice color?"): white, red, blue or black, as in tray mockup

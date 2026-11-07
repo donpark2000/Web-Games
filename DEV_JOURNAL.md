@@ -16,14 +16,6 @@ time, each tried before publishing:
   their daughters which devices the kids use. Claude's proposal in "3D
   games: the five questions": test on that device before publishing; a
   device without WebGL, or too slow, is pointed to the 2D game.
-- **Q51. Five Dice 3D's play screen on a sideways phone** (2026-11-07;
-  play screen mockups v1 and v2). The rest of the play screen agreed
-  ("I like it all except phone sideways"); v1's sideways phone left the
-  scoreboard and buttons a scroll down. Version 2's options: A, the
-  buttons under the 🏠 and the scoreboard upright beside the sheet (dice
-  34 px); B, all on the right, slimmer, the tray smaller (dice 24 px).
-  Claude's pick: A. See "Sideways phone: options A and B". The build
-  waits for this.
 
 ## Proposed additions to the standards skill
 
@@ -85,6 +77,12 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q51. Five Dice 3D's play screen.** (2026-11-07; play screen mockups
+  v1 and v2.) Agreed: v1 "all except phone sideways", where v1 left the
+  scoreboard and buttons a scroll down; for that, version 2's **option
+  A** (developer: "A"): the buttons under the 🏠, the scoreboard upright
+  beside the sheet, dice 34 px (B: all on the right, dice 24 px). See
+  "Sideways phone: options A and B" and "Option A picked".
 - **Q46, Q48-Q50. 3D games: offline, size, touch, art.** (2026-11-07,
   developer; see "3D games: the five questions".) Closed 2026-11-07 as
   Claude proposed (developer: "agreed"; "3D games: Q46, Q48-Q50
@@ -11925,3 +11923,45 @@ launch entry removed.
 1. The developer picks A or B (Q51); Q47 when the daughters answer.
 2. Then the build, as in the last entry's "Next", with the setup
    screen's dice colour choice.
+
+## 2026-11-07: Option A picked; status (start here next session)
+
+**The developer:** "A". Q51 closed (Resolved); DESIGN.md "3D games"
+holds the whole agreed play screen, the sideways phone as option A, and
+the dice colour choice on setup.
+
+**Status:** Five Dice 3D designed: the tray (tray mockup v2), the play
+screen (play screen mockup v2, option A for a sideways phone), dice
+colour on setup. Nothing built; release 6.3 live, unchanged. Branch
+`reversi` holds only journal and DESIGN.md commits past `main`. No local
+server running; `.claude/launch.json` as committed. `Web-Games-testing`
+empty; nothing to purge. Open: Q47 (devices; the daughters asked).
+Waiting on the developer: the rebuilt standards-skill zip to upload
+(`ai-dev-practices\software-project-standards.zip`, commit 7db531b).
+
+**Where the mockup's code is:** in the artifact
+[Five Dice 3D Play Screen](https://claude.ai/artifact/JbXs6Vn444DcXPrYoHaXjL)
+(version 2): `play3d.js` (the tray, the fit, the turn), `play3d.css`,
+`play.html`, the outer page `index.html`; the site's own files beside
+them are copies of the repo's, unchanged. A new session reads them with
+the Artifact tool (`action: "read"`, `paths`). Option B's code is in it
+too (`side-b`); the build keeps only A.
+
+**Next: the build** (a fresh session; a new branch from `main`, e.g.
+`five-dice-3d`):
+1. three.js pinned in the repo with its licence (Q46; r160 in the
+   mockups), cached by `tools/offline.js`.
+2. `five-dice-3d.html` from `five-dice.html`: the setup screen with
+   "Dice colour" added; the play screen from the mockup, with the robot
+   and two players, the picture pop-ups, sounds, resume, as Five Dice.
+   `src/core/five-dice.js` as is.
+3. The tray's maths (the steered throw, landing spots, the tray's shape
+   for the room) in a module with no DOM, tested under Node; the fit's
+   time cut (0.9-1.6 s on a sideways tablet in the mockup: a dozen tray
+   shapes tried per row size).
+4. Debug log lines for the fit, rolls, landings, taps; the WebGL
+   fallback pointing to Five Dice; tests for each (normal and edge:
+   a quick Roll during the slide to the back row, no room for spots,
+   every turn-line text fitting); the home page's button in 👥 next to
+   Five Dice.
+5. Release 7.0 when the developer says "publish" (DESIGN.md "Releases").
