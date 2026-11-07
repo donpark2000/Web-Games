@@ -12089,3 +12089,33 @@ tests passing; not published. Release 6.3 live, unchanged. Next:
 Branches: `five-dice-3d` holds `reversi`'s journal commits too, so
 merging it carries them. No local server left running after this
 session. `Web-Games-testing` empty; nothing to purge.
+
+## 2026-11-07: Release 7.0 published (Five Dice 3D); status (start here next session)
+
+**Published** on the developer's "publish" (7.0 proposed as a new
+game): `src/core/release.js` 7.0, `node tools/offline.js` (version
+06f7612aeeec, 120 files), notes in `RELEASES.md`; `node tools/release.js`:
+"Release 7.0 is ready"; `npm test` 460 passed, `git status` the same
+before and after. `main` fast-forwarded 7c3bf8c..5179e93 (pushed from
+`five-dice-3d`, no branch switch), tag `v7.0`,
+[GitHub release 7.0](https://github.com/donpark2000/Web-Games/releases/tag/v7.0).
+
+**Checked live** (the built-in browser, desktop size): `sw.js` RELEASE
+7.0, version 06f7612aeeec; the home page's version line "Version 7.0 ·
+Nov 7, 2026 · 06f761" and a button to `five-dice-3d.html`; Five Dice 3D
+opened with no console errors, a short game against the robot started
+and one roll landed, the sheet's faded scores matching the dice seen
+(two 2s, a 3, two 6s). Not checked: a real phone or tablet (Q47, Q52).
+
+**Local servers:** none running (no `serve.js` this session).
+
+**Status:** 7.0 live. Open: Q47 and Q52, from the developer trying it.
+
+**Next:**
+1. The developer tries Five Dice 3D on the phone and tablet (and the
+   kids' devices when possible): upright and sideways, a few rolls with
+   dice kept. If a page shows the old site, a reload brings 7.0. Then
+   Q47 and Q52.
+2. Left over, only if wanted: Five Dice and Laser Lab on a small phone
+   sideways (667 × 375) still scroll; Rock paper scissors' picks narrower
+   than their column on a tablet. Nothing to purge.

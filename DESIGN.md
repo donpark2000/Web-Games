@@ -4,10 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-07, latest): **Five Dice 3D built** on the branch
-`five-dice-3d` from the agreed tray and play screen mockups, with three.js
-in the repo; not published yet (release 7.0 when the developer says
-"publish"; see "3D games"). Earlier the same day: **3D games** started:
+*Status (2026-11-07, latest): **Five Dice 3D built** from the agreed
+tray and play screen mockups, with three.js in the repo, and published
+(release 7.0; see "3D games"). Earlier the same day: **3D games** started:
 Five Dice 3D's dice
 tray agreed from mockup v2 (a cup that pours the dice, kept dice moved
 to the back), and its whole play screen from play screen mockups v1-v2,
@@ -1787,7 +1786,7 @@ Started 2026-11-07 (developer: "I wanted to explore 3D games"). Q46 and
 Q48-Q50 closed 2026-11-07 as below (developer: "agreed"); open: Q47, the
 oldest device (journal; developer, 2026-11-07: not known yet, "probably
 OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
-"Five Dice 3D built"), not published yet.
+"Five Dice 3D built") and published as release 7.0 the same day.
 
 - **In this repo, on a branch**, not a new repo: the 3D version reuses
   the 2D game's rules (`src/core/`) and tests, the debug log, sound and
