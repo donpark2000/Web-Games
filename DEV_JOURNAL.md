@@ -11613,3 +11613,44 @@ real phone's frame rate.
 (9 files: Laser Lab, then Mirror Light, screenshots from 2026-10-21, left
 over and not named in the journal) sent to the Recycle Bin.
 `Web-Games-testing` is now empty.
+
+## 2026-11-07: Tray mockup v1 tried; the toss lowered (version 3); a dice cup idea
+
+**The developer:** "The mockup is very good." Two things: (1) **Slow
+motion "does not work - the animation just freezes"**; (2) the dice
+look great hitting the table, but **when tossed "they seem to be lifted
+away from the table rather than above the table"**. And an idea, not
+decided ("I'm not sure I want to do it"): **a cup** that the dice picked
+to roll go into, which turns over to tip them onto the table.
+
+**(2) measured:** dice 0's position sampled every 250 ms through a roll:
+in the scoop before the throw it rose to y 3.1 at z 3.8, past the front
+rim (inner edge z 2.7), towards the camera; that's the "lifted away".
+**Fixed:** the dice gather side by side just inside the front rim (z
+2.25), in the same left-to-right order as where they'll land, at about
+1.8 up, with a 1.3 drop (was 2.3); they land in the back two-thirds of
+the tray. Three normal rolls and one slow: highest any die went 2.10,
+furthest forward 2.25; all four "... the dice show ... ✓".
+
+**(1) not reproduced:** in the built-in browser, slow motion moved the
+dice throughout (5.7 s instead of 1.9 s) and landed ✓, both before and
+after the change. Found on the way: the browser pane draws no frames
+while hidden (`requestAnimationFrame` ran 0 times in 500 ms, page
+"visible"), so the local copy now gets frames from a 16 ms timer (local
+copy only). Changed anyway: slow motion is now one clock for the whole
+throw that runs a third as fast (was: the throw's lengths multiplied by
+3), so it also works if picked mid-roll; picking it is logged. Possible
+causes not ruled out: the slow throw spent about a second in the
+scoop, above and in front of the tray (now gone), and a long slow
+settle at the end (unchanged). Waiting for the developer to try version
+3.
+
+**The cup:** Claude in favour: it fixes the toss for good (the dice
+pour from a cup's mouth low over the felt), shows plainly which dice are
+being rolled, and gives a shake moment (Five Dice already has a shake
+sound). Costs: a longer roll (aim to keep it about 2.5 s) and the cup
+needs room on screen (it could come in for the roll and leave). Keep
+picking dice up as now (lift and ring, easy to undo), and send only the
+picked-up ones into the cup on Roll. Proposed as a choice in the next
+mockup, beside the hand throw, to compare. Not built; the developer to
+decide.
