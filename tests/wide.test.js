@@ -93,18 +93,26 @@ test('wide: an upright screen never tries the wide layout; no room keeps tall', 
 const GAMES = ['tic-tac-toe', 'matching', 'connect-four', 'count-to-9', 'snakes-ladders', 'five-dice', 'nim', 'dots-boxes', 'reversi',
   'rock-paper-scissors', 'follow-me', 'bridges', 'hidden-faces', 'colour-sudoku', 'laser-lab'];
 
+// A game's screen code: its own file, and Five Dice's shared with Five
+// Dice 3D (2026-11-07).
+const SHARED_UI = { 'five-dice': ['five-dice-game'], 'five-dice-3d': ['five-dice-game', 'tray3d'] };
+const uiOf = async g => (await Promise.all([g, ...(SHARED_UI[g] ?? [])].map(f => read(`src/ui/${f}.js`)))).join('\n');
+
 test('wide: every game fits both ways, refits on a turn, logs it, and goes back to one column for setup', async () => {
   let checked = 0;
   for (const g of GAMES) {
-    const js = await read(`src/ui/${g}.js`);
+    const js = await uiOf(g);
     // (assert.ok, not match: a failure names the game, not the whole file)
-    assert.ok(/import \{ fitPlayScreen, fitEitherWay, setWide, wideRoom(, \w+)* \} from '\.\/fit\.js';/.test(js), `${g}: fit.js not imported`);
+    for (const name of ['fitPlayScreen', 'fitEitherWay', 'setWide', 'wideRoom']) {
+      assert.ok(new RegExp(`import \\{[^}]*\\b${name}\\b[^}]*\\} from '\\./fit\\.js';`).test(js), `${g}: ${name} not imported from fit.js`);
+    }
     const call = js.match(/const r = fitEitherWay\(wide => \{[\s\S]*?\n  \}\);/)?.[0] ?? '';
     assert.ok(call, `${g}: not fitted both ways`);
     assert.ok(/wide \? (Math\.min\()?wideRoom\(\)/.test(call), `${g}: the wide board isn’t limited by the room beside the column`);
     assert.ok(/if \([^)]*wide[^)]*\) return null;/.test(call), `${g}: no way out when the wide layout has no room`);
     assert.ok(/fitPlayScreen\(/.test(call), `${g}: fitPlayScreen not used`);
-    assert.ok(/r\.layout|L\('fit', (r|\{ \.\.\.r)/.test(js), `${g}: the layout kept isn’t logged`);
+    // (Five Dice: its fit returns { ...r, die }, which five-dice-game.js logs)
+    assert.ok(/r\.layout|L\('fit', (r|\{ \.\.\.r)|return \{ \.\.\.r, [\s\S]*L\('fit', tray\.fit\(\)\)/.test(js), `${g}: the layout kept isn’t logged`);
     assert.ok(/addEventListener\('resize', (fit\)|[\s\S]{0,120}?(fit\w*|layoutGrid)\(\))/.test(js), `${g}: not refitted when the screen turns`);
     // Every way to the setup screen puts the footer back under main.
     const toSetup = [...js.matchAll(/\$\('setup'\)\.hidden = false;\s*(setWide\(false\);)?/g)];
@@ -117,6 +125,28 @@ test('wide: every game fits both ways, refits on a turn, logs it, and goes back 
     checked++;
   }
   assert.equal(checked, 15);
+});
+
+// Five Dice 3D fits its own way (src/ui/tray3d.js: the tray's height and
+// shape with the rows; play screen mockup v2), but like the others: tried
+// both ways on a screen wider than tall, refitted on a turn, logged, and
+// one column again for the setup screen.
+test('wide: Five Dice 3D fits one column, the tray in the middle, or the tray on the right', async () => {
+  const js = await uiOf('five-dice-3d');
+  assert.match(js, /const kinds = innerWidth > innerHeight \? \['tall', 'mid', 'side'\] : \['tall'\];/);
+  assert.match(js, /setWide\(kind !== 'tall'\);/);
+  assert.match(js, /bestRow\(MIN_ROW, MAX_ROW, 2, r => \{/);
+  assert.match(js, /addEventListener\('resize', \(\) => \{ if \(match && !\$\('play'\)\.hidden\) fit\(\); \}\);/);
+  assert.match(js, /const fit = \(\) => L\('fit', tray\.fit\(\)\);/);
+  const toSetup = [...js.matchAll(/\$\('setup'\)\.hidden = false;\s*(setWide\(false\);)?/g)];
+  assert.equal(toSetup.length, 2);
+  for (const m of toSetup) assert.ok(m[1], 'setup shown without setWide(false)');
+  const html = await read('five-dice-3d.html');
+  const play = html.match(/<section id="play"[\s\S]*?<\/section>/)?.[0] ?? '';
+  assert.equal((play.match(/class="[^"]*\bstage\b/g) ?? []).length, 1);
+  const css = await read('css/five-dice-3d.css');
+  assert.match(css, /body\.tray-side #play > \.controls \{[^}]*grid-column: 1; grid-row: 1 \/ -1;/);
+  assert.match(css, /body\.tray-side #play > \.stage > \.scoreboard \{/);
 });
 
 test('wide: the wide layout’s styles: three columns, the board at full height, the footer at the foot', async () => {

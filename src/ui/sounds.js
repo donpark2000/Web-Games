@@ -84,6 +84,10 @@ export const RECIPES = {
   swish: (k, t) => k.noise(t, { dur: 0.11, peak: 0.35, f: 600, to: 4000, q: 1.5, attack: 0.02 }),
   // Dice rolling, B "Soft shake".
   shake: (k, t) => k.rattle(t, 14, 0.7, 900, 1400, 0.3),
+  // A die landing on felt and bouncing twice, softer each time (Five Dice
+  // 3D; the click of the tray and play screen mockups, a bounce apart).
+  clack: (k, t) => [[0, 0.5], [0.31, 0.22], [0.44, 0.1]].forEach(([dt, peak]) =>
+    k.noise(t + dt, { dur: 0.045, peak, f: 1300 + Math.random() * 900, q: 1.4 })),
   // Got one!, A "Ding".
   ding: (k, t) => k.bell(t, N.E6, 0.6, 0.2),
   // Oops, B "Uh-oh".

@@ -1,0 +1,64 @@
+/* Five Dice 3D (from play screen mockup v2): what changes from Five
+   Dice's screens (five-dice.css). The tray takes the dice row's place, and
+   Roll sits on the tray's front right corner, where the cup comes (no die
+   lands under it). src/ui/tray3d.js sets --trayh, --row and the button's
+   size so the page fits the screen. */
+
+/* the play screen up to 680px wide (one column is 520px in the other
+   games): an upright tablet's tray was held to 520px, the dice with it.
+   The setup screen stays 520px (.app). */
+main.app, #play.app { max-width: 680px; }
+
+/* the setup screen: the dice's colour, four in a row; the words for a
+   device that can't show 3D */
+.dcolours { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.dcolour {
+  border: 3px solid var(--line); background: var(--card); border-radius: 16px; padding: 8px 2px; cursor: pointer;
+  font-size: 15px; font-weight: 700; display: grid; gap: 4px; justify-items: center;
+}
+.dcolour .ico { width: 44px; height: 44px; }
+.dcolour[aria-pressed="true"] { border-color: var(--sun); background: var(--sun-soft); }
+.no3d { display: grid; gap: 12px; justify-items: center; text-align: center; font-size: 18px; }
+.no3d p { margin: 0; }
+.no3d .big { text-decoration: none; }
+
+/* the tray: the canvas fills it; the camera keeps the whole tray in view */
+.tray3d {
+  position: relative; width: 100%; height: var(--trayh, 200px); border-radius: 14px; overflow: hidden;
+  touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.tray3d canvas { display: block; width: 100%; height: 100%; }
+
+/* Roll (and Undo after scoring) on the tray's corner. It fades while the
+   cup is out, so the cup's shake and pour can be seen. */
+#play .tray3d .roll {
+  position: absolute; right: 6px; bottom: 8px; width: var(--rollw, 80px); height: var(--rollh, 58px);
+  min-width: 0; max-width: none; padding: 2px 0; font-size: var(--rollfont, 19px); transition: opacity .2s;
+}
+#play .tray3d .roll.away { opacity: 0; pointer-events: none; }
+#play .tray3d .roll .pips { gap: 4px; }
+/* five-dice.css's sideways rule for its dice column's Roll */
+body.wide-layout #play .tray3d .roll { flex: none; }
+
+/* Sideways, the tray over the sheet in the middle column (a tablet) */
+body.wide-layout #play > .stage.stack { width: var(--stagew); grid-template-columns: minmax(0, 1fr); justify-items: stretch; align-items: start; }
+body.wide-layout #play > .stage.stack > .sheet { justify-self: center; width: min(100%, 560px); }
+
+/* or (a phone, option A of mockup v2) the tray in the right column under
+   the turn line and the sheet in the middle, the scoreboard upright beside
+   it, Play again / New game in the left column between the 🏠 and the 🔊
+   (mockup v1 left the scoreboard and buttons a scroll down: the right
+   column needed 470px of 316) */
+body.tray-side #play > .stage { align-self: center; }
+body.tray-side #play > .stage.stack { grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; }
+body.tray-side #play > .stage > .scoreboard {
+  width: 76px; margin: 0; grid-template-columns: 1fr; grid-auto-rows: auto; align-content: center; gap: 12px; padding: 8px 4px;
+}
+body.tray-side .scoreboard .side { flex-direction: column; gap: 2px; text-align: center; }
+body.tray-side .scoreboard .side .chip { width: 44px; height: 44px; font-size: 28px; }
+body.tray-side .scoreboard .side .n { font-size: 26px; }
+body.tray-side #play > .controls {
+  grid-column: 1; grid-row: 1 / -1; align-self: center; margin: 0; width: var(--homebtn);
+  grid-template-columns: 1fr; gap: 10px;
+}
+body.tray-side #play > .controls .pill { padding: 9px 2px; font-size: 14px; line-height: 1.15; border-width: 2px; }

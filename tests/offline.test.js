@@ -31,7 +31,9 @@ test('offline: sw.js lists every file of the site, with their version', async ()
 test('offline: the list has every page, style, script, data file and icon, and nothing else', async () => {
   const files = await siteFiles(root);
   const pages = (await readdir(root)).filter(f => f.endsWith('.html'));
-  for (const f of [...pages, 'manifest.webmanifest', 'css/site.css', 'src/ui/offline.js', VERSION_FILE, 'src/core/nim.js', 'data/five-dice-long.bin', 'icons/apple-touch-icon.png']) {
+  for (const f of [...pages, 'manifest.webmanifest', 'css/site.css', 'src/ui/offline.js', VERSION_FILE, 'src/core/nim.js', 'data/five-dice-long.bin', 'icons/apple-touch-icon.png',
+    // three.js, for the 3D games (DESIGN.md "3D games"), with its licence
+    'src/vendor/three/three.module.min.js', 'src/vendor/three/RoundedBoxGeometry.js', 'src/vendor/three/LICENSE']) {
     assert.ok(files.includes(f), `${f} not saved`);
   }
   for (const f of files) assert.doesNotMatch(f, /^(tests|tools|sw\.js|package\.json|.*\.md$)/, `${f} shouldn't be saved`);

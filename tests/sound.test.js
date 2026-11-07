@@ -53,9 +53,10 @@ function setupSound({ ctx = fakeContext(), storage = fakeStorage(), noAudio = fa
 }
 
 // The developer's picks (sampler v1, 2026-10-09) plus the tie.
-const NAMES = ['tick', 'thud', 'win', 'aww', 'tie', 'swish', 'shake', 'ding', 'uhoh', 'climb', 'wheee', 'ping'];
+// clack: a die landing in Five Dice 3D's tray (2026-11-07, the mockups' click).
+const NAMES = ['tick', 'thud', 'win', 'aww', 'tie', 'swish', 'shake', 'ding', 'uhoh', 'climb', 'wheee', 'ping', 'clack'];
 
-test('sound: the twelve sounds, each scheduling audio that starts now and ends within 2 s', () => {
+test('sound: the thirteen sounds, each scheduling audio that starts now and ends within 2 s', () => {
   assert.deepEqual(Object.keys(RECIPES).sort(), [...NAMES].sort());
   for (const name of NAMES) {
     const { s, ctx } = setupSound();
@@ -165,6 +166,8 @@ const GAME_SOUNDS = {
   'count-to-9': ['swish', 'ding', 'uhoh', 'ping'],
   'snakes-ladders': ['shake', 'tick', 'climb', 'wheee', 'ping'],
   'five-dice': ['shake', 'tick', 'thud', 'ping'],
+  // Five Dice's, the shake as the cup shakes, and a clack as each die lands.
+  'five-dice-3d': ['shake', 'tick', 'thud', 'ping', 'clack'],
   nim: ['tick', 'uhoh', 'thud', 'ping'],
   // A tick per line, a ding per box won (2026-10-24, the mockup's).
   'dots-boxes': ['tick', 'ding', 'ping'],
@@ -181,8 +184,12 @@ const GAME_SOUNDS = {
 
 test('sound: each game plays its agreed sounds, all real ones, and the end-of-round sound', async () => {
   let checked = 0;
+  // A game's screen code: its own file, and Five Dice's shared with Five
+  // Dice 3D (2026-11-07).
+  const SHARED_UI = { 'five-dice': ['five-dice-game'], 'five-dice-3d': ['five-dice-game', 'tray3d'] };
   for (const [game, want] of Object.entries(GAME_SOUNDS)) {
-    const src = await readFile(path.join(root, 'src/ui', `${game}.js`), 'utf8');
+    const files = [game, ...(SHARED_UI[game] ?? [])];
+    const src = (await Promise.all(files.map(f => readFile(path.join(root, 'src/ui', `${f}.js`), 'utf8')))).join('\n');
     assert.match(src, /import \{ sound \} from '\.\/sound\.js';/, `${game}: no sound`);
     assert.match(src, /sound\.play\([^;]*endSound\(/,`${game}: no end-of-round sound`);
     // The quoted names inside each sound.play(...) call.
@@ -193,7 +200,7 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 35);
+  assert.equal(checked, 40);
 });
 
 // 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (developer, 2026-10-09; was

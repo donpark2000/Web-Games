@@ -16,6 +16,16 @@ time, each tried before publishing:
   their daughters which devices the kids use. Claude's proposal in "3D
   games: the five questions": test on that device before publishing; a
   device without WebGL, or too slow, is pointed to the 2D game.
+  2026-11-07, developer: "I don't know about the devices yet but I am
+  assuming they are probably OK. They play games like minecraft that has
+  a lot of 3D stuff." Built without waiting; still open until the kids'
+  devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
+- **Q52. Five Dice 3D: dice landing beside a kept one** (2026-11-07,
+  Claude, from the build). With dice kept from touching, an upright
+  phone's shallow tray had room in front of the back row for 4 dice beside
+  1 kept only 1-3 times in 50, so they then land anywhere clear of it,
+  some beside it in the back row. Fine to look at? (Else: a deeper tray on
+  a phone, slightly smaller dice.) For the developer to judge on the phone.
 
 ## Proposed additions to the standards skill
 
@@ -11965,3 +11975,117 @@ too (`side-b`); the build keeps only A.
    every turn-line text fitting); the home page's button in 👥 next to
    Five Dice.
 5. Release 7.0 when the developer says "publish" (DESIGN.md "Releases").
+
+## 2026-11-07: Five Dice 3D built
+
+**The developer:** "start the build" (Q47: devices not known yet,
+"probably OK"; the kids play Minecraft). The rebuilt standards skill is
+uploaded (the session's skill has "Key a remembered result by everything
+it depends on").
+
+**Branch `five-dice-3d`, from `reversi`**, not `main` as the last status
+said: `reversi` is `main` plus only the journal and DESIGN.md commits, so
+branching from it keeps those notes in one line instead of two copies to
+merge.
+
+**What was built** (DESIGN.md "3D games", "As built"):
+- three.js r160 from the npm package (`npm pack three@0.160.0`, npm's
+  integrity check), copied into `src/vendor/three/` with its licence and
+  a README of where from; the rounded box's one import changed to a
+  relative path, so no import map is needed (Safari before 16.4 has
+  none). `tools/offline.js` now leaves `.md` notes out of the saved files
+  (`tests/offline.test.js` already said none should be saved: it failed
+  on the README).
+- **The tray's maths in `src/core/dice3d.js`, with no three.js.** Running
+  the downloaded three.js under Node was refused by Claude Code's
+  safety check ("Code from External"), so the maths has its own small
+  vectors and quaternions, written to match three.js's (the tests check
+  turns and the camera's projection against hand-worked values); only
+  the browser runs three.js. `tests/dice3d.test.js`, 12 tests.
+- **Five Dice's game shared** (`src/ui/five-dice-game.js`), the dice drawn
+  by each page's "tray": `src/ui/five-dice.js` keeps the flat row and its
+  fit; `src/ui/tray3d.js` is the 3D tray. Five Dice checked after the
+  move: a turn, Undo, the robot's turn; sideways fits as DESIGN.md
+  records for 6.3 (780 × 340 rows 34 dice 44; 852 × 393 rows 41 dice 53).
+- A new sound, `clack`: a die landing, with two softer bounces (the
+  mockups clicked on every bounce: 25 log lines a roll; now 5).
+
+**Findings, with evidence** (the built-in browser):
+1. **Dice could overlap where they land** (the mockup's rule). Spots
+   were kept apart by their centres (at least 1.05 apart at the
+   tightest), but a die's corner reaches 0.67 from its centre: two turned
+   dice 1.05 apart can touch. Now each spot has its turn and the dice's
+   squares are kept 0.06 apart (`apart()`; tested at 1.03 side by side, a
+   slant, an eighth turn).
+2. **That left no room on an upright phone with 1 die kept.** Measured,
+   50 throws each, the shallow 3.3 × 1.8 tray: room in front of the back
+   row for 4 dice beside 1 kept 21-24 times with the mockup's rule; with
+   fresh starts when the first dice leave no room, 45-48; with touching
+   dice refused, 1-3. So the dice then use the whole tray clear of the
+   kept one (`where: 'tray'` in the log); rows only when even that fails.
+   Every other tray and number kept: room in front 50 of 50. Q52 asks the
+   developer if landing beside the kept die looks fine.
+3. **The fit's time: 0.9-1.6 s in the mockup, 40-270 ms now.** The
+   mockup tried all 19 row sizes, each with a dozen tray shapes and 9
+   page layouts. Now: the row size found by halving (6-10 tries; the
+   test checks it matches trying every one, within 1 px, in 6 rooms);
+   tray shapes remembered by width and height; the tray's height guessed
+   from the page's room (the page grows px for px with it) and checked,
+   halving only when the guess is wrong. A sideways tablet: 521 ms with
+   the halving search, 170-272 ms with the guess.
+4. **A sideways phone got rows 30, not the mockup's 34.** There the tray
+   isn't in the sheet's column, so bigger rows don't shrink the dice; the
+   search stopped at the first row size matching the dice. It now takes
+   the biggest that keeps them (tested: dice the same at every row size
+   up to 34). 780 × 340: dice 34, rows 34, as in the mockup.
+5. **The turn line could make an upright phone scroll.** At 393 × 760,
+   "Five the same! Pick a box, or tap dice to roll again" takes three
+   lines (69 px, fitted at 46) and the page scrolled. Now fitted with
+   those words in place: none of 8 turn lines scrolls (dice 36 → 35 px).
+6. **No animation frames in a hidden pane:** the first roll never landed
+   (0 frames in 3.5 s). The mockup's timer fallback is back (one chain of
+   frames at a time, so a late frame can't double the speed); after it,
+   171 frames, landed as the rules said.
+7. **The no-3D page was blank:** its note is a `.panel` too, and was
+   hidden with the setup's panels. Checked in a frame whose canvases give
+   no WebGL: now the note and **Play Five Dice** only; with WebGL, the
+   game. A test pins it.
+8. **A check that checked nothing:** the spots test's pretend Roll button
+   was in the front right corner, which the cup's room keeps dice out of
+   anyway; breaking the Roll check failed only another test. Moved to the
+   front left; now it fails there. Each check of `tests/dice3d.test.js`
+   shown to fail on a broken copy (in a temp folder): a die landing one
+   number off, touching dice allowed, the Roll button ignored, no
+   bigger-rows step, tray shapes remembered by width only, the camera too
+   far away.
+
+**Checked in the browser:** every throw landed on the rules' numbers
+(`landed ... "same":true`, person and robot, short and long); picking up,
+the kept dice sliding to the back row, Undo; Play again mid-roll (the
+roll stopped, dice back to the back row); a reload mid-turn (same dice
+and faces, the colour kept); the robot's turns in 3D; the home page's
+button; a two-player game with black dice, five the same forced (the
+page's random numbers fixed for one roll: five 6s landed, all five
+hopped, the four-line turn line didn't scroll the page). Sizes in
+DESIGN.md "As built". **Not checked:** a real phone or tablet (Q47);
+blue dice seen (picked and logged only).
+
+**Tests:** 460 pass (12 new for the tray's maths; the page, sound,
+offline and sideways tests updated for the new page and the shared
+code); the suite leaves nothing behind (`git status` the same before and
+after).
+
+## 2026-11-07: Status (start here next session)
+
+**Five Dice 3D built** on the branch `five-dice-3d` (pushed), all 460
+tests passing; not published. Release 6.3 live, unchanged. Next:
+1. The developer tries it: the local server (`node tools/serve.js`), or
+   publish as **release 7.0** (a new game) on the developer's "publish":
+   set it in `src/core/release.js`, `node tools/offline.js`, notes in
+   `RELEASES.md`, `node tools/release.js` ready; merge to `main`, tag
+   `v7.0`, the GitHub release.
+2. Q47 (the kids' devices) and Q52 (dice landing beside a kept one on a
+   phone) answered from trying it.
+Branches: `five-dice-3d` holds `reversi`'s journal commits too, so
+merging it carries them. No local server left running after this
+session. `Web-Games-testing` empty; nothing to purge.

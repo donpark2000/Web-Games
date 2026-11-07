@@ -20,8 +20,8 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '551bc1c01533';
-const MADE = '2026-10-29';
+const VERSION = 'b9349d410ab1';
+const MADE = '2026-11-07';
 const RELEASE = '6.3';
 const FILES = [
   'bridges.html',
@@ -34,6 +34,7 @@ const FILES = [
   'css/connect-four.css',
   'css/count-to-9.css',
   'css/dots-boxes.css',
+  'css/five-dice-3d.css',
   'css/five-dice.css',
   'css/follow-me.css',
   'css/game.css',
@@ -53,6 +54,7 @@ const FILES = [
   'data/hidden-faces.json',
   'data/laser-lab.json',
   'dots-boxes.html',
+  'five-dice-3d.html',
   'five-dice.html',
   'follow-me.html',
   'hidden-faces.html',
@@ -74,6 +76,7 @@ const FILES = [
   'src/core/colour-sudoku.js',
   'src/core/connect-four.js',
   'src/core/count-to-9.js',
+  'src/core/dice3d.js',
   'src/core/dots-boxes.js',
   'src/core/fit.js',
   'src/core/five-dice-best.js',
@@ -106,6 +109,8 @@ const FILES = [
   'src/ui/dots-boxes.js',
   'src/ui/faces.js',
   'src/ui/fit.js',
+  'src/ui/five-dice-3d.js',
+  'src/ui/five-dice-game.js',
   'src/ui/five-dice.js',
   'src/ui/fivedice-pics.js',
   'src/ui/fmpads.js',
@@ -134,6 +139,10 @@ const FILES = [
   'src/ui/sounds.js',
   'src/ui/stats.js',
   'src/ui/tic-tac-toe.js',
+  'src/ui/tray3d.js',
+  'src/vendor/three/LICENSE',
+  'src/vendor/three/RoundedBoxGeometry.js',
+  'src/vendor/three/three.module.min.js',
   'tic-tac-toe.html',
 ];
 // ---- end ----

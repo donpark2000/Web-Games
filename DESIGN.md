@@ -4,10 +4,14 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-07, latest): **3D games** started: Five Dice 3D's dice
+*Status (2026-11-07, latest): **Five Dice 3D built** on the branch
+`five-dice-3d` from the agreed tray and play screen mockups, with three.js
+in the repo; not published yet (release 7.0 when the developer says
+"publish"; see "3D games"). Earlier the same day: **3D games** started:
+Five Dice 3D's dice
 tray agreed from mockup v2 (a cup that pours the dice, kept dice moved
 to the back), and its whole play screen from play screen mockups v1-v2,
-with a dice colour choice on setup; not built yet (see "3D games"). 2026-10-29: **the game's name on every play screen**,
+with a dice colour choice on setup. 2026-10-29: **the game's name on every play screen**,
 at the top centre; **Matching cards 6×6, Five Dice and Laser Lab fit a
 sideways phone** (release 6.3; see "Sideways screens"). Earlier the same
 day: **sideways screens in every game**: each
@@ -81,6 +85,8 @@ page. So far:
 - **Count to 9** (turn over numbered cards in order, 1 to 9)
 - **Snakes and Ladders** (roll the die, climb ladders, slide down snakes)
 - **Five Dice** (Yahtzee-style: roll five dice up to 3 times, fill the boxes)
+- **Five Dice 3D** (2026-11-07; Five Dice with its dice in a 3D tray,
+  poured from a cup; see "3D games")
 - **Nim** (take matches from one row; whoever takes the last one wins)
 - **Dots and Boxes** (2026-10-24; draw lines between dots, close a box
   to win it and go again)
@@ -130,8 +136,8 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   is just another button. **Grouped by who can play** (developer,
   2026-10-04): **👥 Two players** first (a game with a two-player choice,
   the second player a person or the robot: tic-tac-toe, matching cards,
-  Connect Four, Count to 9, Snakes and Ladders, Five Dice, Nim, Dots and
-  Boxes, Reversi), then **👤 One player** (no way to play
+  Connect Four, Count to 9, Snakes and Ladders, Five Dice, Five Dice 3D,
+  Nim, Dots and Boxes, Reversi), then **👤 One player** (no way to play
   another person: rock paper scissors, Follow Me, Bridges), then **🧩 Puzzles for
   grown-ups** (Find the Stars, Colour Sudoku, Laser Lab; developer, 2026-10-13: one
   site, kept apart). Each game in one group only (developer, 2026-10-24,
@@ -1554,7 +1560,9 @@ Small effects in every game, picked by the developer from a sampler
   and each hop; a thud when a move lands (tic-tac-toe, Connect Four as the
   disc reaches its hole, Nim's Take, a Five Dice score); a swish when a
   card turns (Matching cards, Count to 9, the robot's card in Rock paper
-  scissors); a soft dice shake; a ding for a pair, the right number, or a
+  scissors); a soft dice shake (Five Dice 3D: as the cup shakes); a
+  clack as each die lands in Five Dice 3D's tray, with two softer bounces
+  (2026-11-07, the mockups' click); a ding for a pair, the right number, or a
   round of Rock paper scissors won; "uh-oh" for no match, a wrong number,
   a round lost, or "One row at a time!"; a climb up a ladder and a
   "wheee" down a snake; a ping for "your turn" after the robot's turn
@@ -1775,10 +1783,11 @@ puzzle game follows the same rule.
 
 ## 3D games
 
-Started 2026-11-07 (developer: "I wanted to explore 3D games"); being
-designed, nothing built on the site yet. Q46 and Q48-Q50 closed
-2026-11-07 as below (developer: "agreed"); open: Q47, the oldest device
-(journal).
+Started 2026-11-07 (developer: "I wanted to explore 3D games"). Q46 and
+Q48-Q50 closed 2026-11-07 as below (developer: "agreed"); open: Q47, the
+oldest device (journal; developer, 2026-11-07: not known yet, "probably
+OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
+"Five Dice 3D built"), not published yet.
 
 - **In this repo, on a branch**, not a new repo: the 3D version reuses
   the 2D game's rules (`src/core/`) and tests, the debug log, sound and
@@ -1823,6 +1832,32 @@ designed, nothing built on the site yet. Q46 and Q48-Q50 closed
   "when we do the set up for the game, can we keep the option of
   selecting dice color?"): white, red, blue or black, as in tray mockup
   v1; white preselected, kept with the other picks.
+- **As built** (2026-11-07): `five-dice-3d.html`, in 👥 Two players after
+  Five Dice, its home picture five dice seen at an angle on green felt.
+  **The game is Five Dice's**, shared: `src/ui/five-dice-game.js` (setup,
+  turns, the robot, the sheet, pop-ups, coming back to a game) with each
+  page's own dice, `src/ui/five-dice.js` (the flat row) and
+  `src/ui/tray3d.js` (the 3D tray, three.js); the tray's maths with no
+  DOM or three.js in `src/core/dice3d.js` (tested under Node). three.js
+  r160 in `src/vendor/three/` (the minified build, the rounded box, the
+  MIT licence; its README says where from), saved for offline with the
+  rest. **Dice never touch where they land** (the mockup could overlap
+  two at its tightest spacing): on an upright phone's shallow tray, 4
+  dice thrown beside 1 kept nearly always need the whole tray, so they
+  may land beside the kept one in the back row. **Fitted with the longest
+  turn line** ("Five the same! Pick a box, or tap dice to roll again"),
+  so no words make the page scroll. Sizes (the built-in browser): an
+  upright phone 393 × 760, dice 35 px and rows 28; a sideways phone 780 ×
+  340, option A, dice 34 and rows 34; 667 × 375 and 852 × 393, option A,
+  dice 35; a sideways tablet 1280 × 720, the tray over the sheet in the
+  middle, dice 55 and rows 48; an upright tablet 800 × 1280, dice 77 and
+  rows 64; fitted in 40-270 ms (the mockup's 0.9-1.6 s). **A device that
+  can't show 3D** (no WebGL, or three.js won't load) sees only "This phone
+  or tablet can't show the 3D dice" and a **Play Five Dice** button.
+  Logged: the fit (layout, sizes, tries, ms), each roll's spots (where:
+  front, tray or rows; how far apart), each landing (the rules' numbers
+  and the faces seen), the dice colour, taps on the tray, and why 3D
+  couldn't start.
 
 ## Later
 

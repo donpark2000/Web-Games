@@ -17,16 +17,18 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // What the site is made of: the pages and the manifest at the top, and
-// everything in these folders. Not the tests, tools, notes or sw.js.
+// everything in these folders but notes (.md: src/vendor/three/README.md).
+// Not the tests, tools or sw.js.
 const TOP = /\.(html|webmanifest)$/;
 const FOLDERS = ['css', 'src', 'data', 'icons'];
+const NOTES = /\.md$/;
 
 async function walk(root, dir) {
   const out = [];
   for (const e of await readdir(path.join(root, dir), { withFileTypes: true })) {
     const rel = `${dir}/${e.name}`;
     if (e.isDirectory()) out.push(...await walk(root, rel));
-    else out.push(rel);
+    else if (!NOTES.test(e.name)) out.push(rel);
   }
   return out;
 }
