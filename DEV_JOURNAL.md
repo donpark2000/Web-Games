@@ -12908,3 +12908,29 @@ cropped, so the look was judged from the outer page's scaled frame.
 **Next:** the developer's verdict on the mockup; then build what's
 agreed in the game (with tests) and publish it with the retiring as
 **7.6**.
+
+## 2026-11-08: Cup start mockup v1 tried; the dice shown in the cup on every roll?
+
+**Developer:** "I like dice in the cup and the option to let taping the
+cup start the roll. I notice that the dice only appear in the cup for
+the first roll. I wonder if there should be different images showing
+dice in the cup when there are only 1, 2, 3, or 4 dice." Agreed: a turn
+starts with the dice in the cup; a tap on the waiting cup rolls.
+
+**How v1 does the 2nd and 3rd rolls** (as the game): the dice tapped
+stay on the felt, lifted over a ring, until Roll; then they hop into the
+cup as it pops up and are hidden once inside, so the cup shakes empty.
+
+**Claude's view, given:**
+- **Yes, the cup should show the dice it holds on every roll:** as each
+  die hops in, a small die appears in the cup, so 1 to 4 show while it
+  shakes, as 5 do at a turn's start. Each count needs its own heap, so
+  even 1 die shows over the rim.
+- **No to moving tapped dice into the cup before Roll:** lifted on the
+  felt, a child sees which numbers they're throwing again and taps one
+  to keep it after all; in the cup the numbers are hidden, and taking
+  one back out means tapping a small die in the cup. So the cup waits on
+  the felt only at a turn's start, when all five go.
+
+**Next:** the developer: mockup v2 with this, or build it straight into
+the game for 7.6.
