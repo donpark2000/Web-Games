@@ -1909,7 +1909,10 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   Logged: the fit (layout, sizes, tries, ms), each roll's spots (where:
   front, tray or rows; how far apart), each landing (the rules' numbers
   and the faces seen), the dice colour, taps on the tray, and why 3D
-  couldn't start.
+  couldn't start. **No double-tap zoom on the tray** (2026-11-08, after
+  7.4; developer: the screen zoomed in "a couple of times"): its canvas
+  cancels each touch's end, as every other game's board does (its taps
+  are pointer events, so they still come); a quick second tap is logged.
 
 ## Later
 

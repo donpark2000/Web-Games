@@ -22,6 +22,13 @@ time, each tried before publishing:
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
+- **Q58. Five Dice 3D's name once the 2D game is retired** (2026-11-08,
+  developer: "happy to retire the 2D version"): "Five Dice" or "Five
+  Dice 3D"? Claude's view: "Five Dice". See "Five Dice 3D: no double-tap
+  zoom on the tray".
+- **Q59. A device that can't show 3D, once the 2D game is retired**
+  (2026-11-08): keep the 2D page, off the home page, as its fallback, or
+  drop it? Claude's view: keep it until Q47 is closed. Same entry.
 
 ## Proposed additions to the standards skill
 
@@ -12666,3 +12673,69 @@ again live.)
    x 375) still scroll; Rock paper scissors' picks narrower than their
    column on a tablet. Whether Five Dice 3D replaces the 2D Five Dice
    (DESIGN.md "3D games": the developer's call). Nothing to purge.
+
+## 2026-11-08: Five Dice 3D: no double-tap zoom on the tray (not published); retiring the 2D Five Dice (Q58, Q59)
+
+**Developer:** "One anomaly I noticed a couple of times - something I did
+made the screen 'zoom in'. I was able to zoom back out, I'm pretty sure we
+had that problem in the early stages of developing these web games and
+fixed it. Aside from that, I would be happy to retire the 2D version of
+the game."
+
+**Cause (from the code; no phone log yet):** Five Dice 3D loads
+`src/ui/nozoom.js` like every game (pinch blocked at the normal size,
+touch-action manipulation on the whole page), but its tray's canvas had
+only a `pointerdown`, no cancelled `touchend`. Every other game's board
+cancels each touch's end, because touch-action alone didn't stop the
+iPhone's double-tap zoom: Find the Stars' board zoomed on two quick taps
+despite `touch-action: none`, with squares made once a puzzle (so not the
+3.7 "redrawn element" way). Two quick taps on a die (pick it up, put it
+back) are the likely way in. Not reproduced on the phone. The other way
+known (3.7: a tap redraws the element it began on, so its end reaches
+nothing) doesn't fit: the canvas is never replaced, and the sheet's boxes
+and Roll are clicks, which redraw after the touch ends.
+
+**Changed:** `src/ui/tray3d.js`: the canvas cancels each `touchend`
+(non-passive, only when cancelable), logging `quick second tap: zoom
+blocked` with the gap when two come within 400 ms. Die taps are
+`pointerdown`, which a cancelled touch end doesn't stop.
+
+**Test** (`tests/pages.test.js`, "Five Dice 3D's tray blocks the iPhone's
+double-tap zoom"): the block on the canvas, its log line, die taps on
+`pointerdown`, and no `click` on the canvas (a cancelled touch end would
+stop it). Without the change it fails ("no double-tap zoom block on the
+tray"). `npm test` 469 passed (after `node tools/offline.js`: version
+ffee12759bc5).
+
+**Checked** in the built-in browser (393 x 760, Short game, one roll):
+two touch-type `pointerdown` + `touchend` on die 0, 200 ms apart: both
+touch ends `defaultPrevented`; the log says `die picked up` then `die put
+back` then `quick second tap: zoom blocked {"ms":216}`; no console
+errors. (Chrome has no double-tap zoom here, so this proves the wiring,
+not the iPhone's behaviour.) Server stopped after.
+
+**If it zooms again:** the phone's log (version line → Save log) has
+`[zoom] page zoom changed` with `touched` (the nearest id: `c` is the
+tray) and `lastTapGap`.
+
+**Retiring the 2D Five Dice:** what it touches. Five Dice 3D shares the
+2D game's rules, `src/ui/five-dice-game.js` and `css/five-dice.css`, so
+those stay. The 2D page (`five-dice.html`, with `src/ui/five-dice.js`, its
+flat dice row) is the home page's `diceLink` and Five Dice 3D's "Play Five
+Dice" for a device that can't show 3D. Two questions:
+
+- **Q58. The name once it's the only one:** "Five Dice" (the 3D is just
+  how it's shown) or keep "Five Dice 3D"? Claude's view: "Five Dice"; the
+  page's address can stay `five-dice-3d.html`.
+- **Q59. A device that can't show 3D:** keep the 2D page, off the home
+  page, as its fallback, or drop it (the note just says this device
+  can't play it)? Claude's view: keep it as the fallback until Q47 (the
+  kids' devices) is closed; it costs a page and its tests, and an
+  address saved for the 2D game still works.
+
+**Open questions:** Q47; Q58, Q59 (new). **Proposed skill additions:**
+none (the lesson, cancel the touch end, is this project's and already
+here).
+
+**Next:** the developer's answers to Q58 and Q59; then publish the zoom
+fix, with or without the retiring, as **7.5**.

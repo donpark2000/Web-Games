@@ -483,6 +483,19 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     if (rolling()) return L('die tap ignored', { die: d.i, why: 'still landing' });
     tapDie(d.i);
   });
+  // Two quick taps on a die (pick it, put it back) could zoom the iPhone
+  // in (developer, 2026-11-08, after 7.4: the screen "zoom in" a couple of
+  // times): touch-action alone doesn't stop the double-tap zoom (Find the
+  // Stars, 2026-10-13), cancelling each touch's end does, as on every
+  // other game's board. The taps above are pointer events, which still
+  // come; the canvas is never redrawn, so the end always reaches it.
+  let lastEnd = 0;
+  canvas.addEventListener('touchend', e => {
+    if (!e.cancelable) return;
+    e.preventDefault();
+    if (e.timeStamp - lastEnd < 400) L('quick second tap: zoom blocked', { ms: Math.round(e.timeStamp - lastEnd) });
+    lastEnd = e.timeStamp;
+  }, { passive: false });
 
   /* ---------- drawing ---------- */
 

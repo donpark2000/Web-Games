@@ -136,6 +136,20 @@ test('pages: Five Dice 3D picks the dice’s colour, and points a device without
   assert.doesNotMatch(js, /^import .*tray3d/m);
 });
 
+// 2026-11-08, after 7.4 (developer: the screen "zoom in" a couple of
+// times): the tray's canvas cancels each touch's end, as every other
+// game's board does (touch-action alone let Find the Stars' board zoom);
+// its taps are pointer events, so they still come; a quick second tap is
+// logged.
+test('pages: Five Dice 3D’s tray blocks the iPhone’s double-tap zoom; its taps are pointer events', async () => {
+  const js = await readFile(path.join(root, 'src/ui/tray3d.js'), 'utf8');
+  const block = js.match(/canvas\.addEventListener\('touchend', [\s\S]*?\}, \{ passive: false \}\);/)?.[0] ?? '';
+  assert.match(block, /if \(!e\.cancelable\) return;\s*e\.preventDefault\(\);/, 'no double-tap zoom block on the tray');
+  assert.match(block, /L\('quick second tap: zoom blocked'/, 'a blocked double tap not logged');
+  assert.match(js, /canvas\.addEventListener\('pointerdown', /, 'a die tap must be a pointer event (a click would be stopped)');
+  assert.doesNotMatch(js, /canvas\.(onclick|addEventListener\('click')/, 'a click on the canvas would be stopped by the cancelled touch end');
+});
+
 // Nim's "How hard?": just the stars and the word, no line under them
 // (developer, 2026-10-08: "robot doesn't know the trick" won't inspire
 // anyone to play).
