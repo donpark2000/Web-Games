@@ -7,6 +7,21 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 7.6 (2026-11-08, version 4cfe4b907888)
+
+Five Dice 3D: the dice start each turn in the cup; the flat Five Dice is
+retired:
+
+- **Each turn starts with the dice in the cup**, waiting on the felt,
+  the felt empty. When a turn ends, the dice hop into it one by one.
+- **Tap the cup to roll**, or press Roll as before.
+- **The cup shows the dice in it on every roll**, full size and heaped
+  as real dice would be: you can see there are dice, but not count them.
+  On a 2nd or 3rd roll each die you picked up goes in as it hops in.
+- **The cup is bigger**, so five full-size dice fit.
+- **The flat (2D) Five Dice is gone**: Five Dice 3D is the one to play.
+  A phone or tablet that can't show 3D says so.
+
 ## 7.5 (2026-11-08, version efcded3b8f19)
 
 Five Dice 3D: no zooming in on the dice:

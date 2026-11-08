@@ -1842,7 +1842,7 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   place, over the sheet; **Roll on the tray's front right corner**, where
   the cup comes (no die lands under it; it fades while the cup is out and
   is ↩ Undo there after scoring; off the tray since 7.2, see below); the dice waiting along the back at a
-  turn's start; the tray's shape following the room; the play screen up
+  turn's start (in the cup since 7.6, see below); the tray's shape following the room; the play screen up
   to 680 px wide; a sideways tablet with the tray over the sheet in the
   middle column. **A sideways phone: option A** of version 2 (developer,
   2026-11-07: "A"): Play again and New game in the left column between
@@ -1896,6 +1896,28 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   34; upright tablet 800 × 1280, dice 76, rows 64; sideways tablet 1280 ×
   720, dice 49, rows 42 (55 and 48 in 7.1); a small phone upright 375 ×
   667 still scrolls (as in 7.1, by 59 px more).
+- **A turn starts with the dice in the cup** (release 7.6; Q60; agreed
+  from the [Five Dice 3D Cup Start](https://claude.ai/artifact/HBjnrfUnApYoMHNDTZnvkD)
+  mockup, version 3; developer, 2026-11-08: "show no dice on the board,
+  and maybe the cup that clearly has some dice in it before roll is
+  pressed", then "v3 is good"): when the turn passes, the cup stands on
+  the felt under where it pours from and all five dice hop into it, the
+  nearest first; the cup comes once no die is in its way (on an upright
+  phone's shallow tray 0.32 s; all in by 1.0 s). **A tap on the waiting
+  cup rolls**, as Roll does (refused on the robot's turn, as Roll is). On
+  Roll the cup lifts to where it pours in the time the dice used to hop
+  in, so a roll takes as long. **The cup shows the dice in it on every
+  roll, full size, heaped** as real dice would be (developer: "you could
+  not count them without turning the cup over"; mockup v2's half-size
+  dice, one heap per count, were dropped): two on the bottom, the 3rd and
+  4th on them, the 5th on top, so 1-2 show inside it and 3+ over the rim;
+  on a 2nd or 3rd roll the picked-up dice stay lifted on the felt until
+  Roll (their numbers in sight, one can be tapped back), then each shows
+  in the cup as it hops in. **The cup** 1.7 times as wide and 1.6 tall
+  (was 1.4), the same size waiting and pouring. A game picked up at a
+  turn's start shows the dice in the cup. Logged: `dice into the cup`
+  (the order, when the cup comes, when all are in), `dice placed in the
+  cup`, `roll from the cup`, `cup tapped: roll`.
 - **As built** (2026-11-07): `five-dice-3d.html`, in 👥 Two players after
   Five Dice, its home picture five dice seen at an angle on green felt.
   **The game is Five Dice's**, shared: `src/ui/five-dice-game.js` (setup,

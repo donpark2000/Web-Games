@@ -22,11 +22,6 @@ time, each tried before publishing:
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
-- **Q60. Five Dice 3D: a turn starts with the dice in the cup?**
-  (2026-11-08, developer: "show no dice on the board, and maybe the cup
-  that clearly has some dice in it before roll is pressed"). Claude's
-  view: yes; see "Q60: the dice in the cup at a turn's start". Mockup
-  first or build straight away: the developer's call.
 
 ## Proposed additions to the standards skill
 
@@ -87,6 +82,15 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q60. Five Dice 3D: a turn starts with the dice in the cup?**
+  (2026-11-08, developer: "show no dice on the board, and maybe the cup
+  that clearly has some dice in it before roll is pressed".) Settled by
+  three mockups: v1 "I like dice in the cup and the option to let taping
+  the cup start the roll"; v2 (the dice in the cup on every roll, half
+  size) "an improvement", but "the dice visibly shrink"; v3 (full size,
+  heaped in a wider cup) "v3 is good". Built and published in 7.6; see
+  "The cup start built; release 7.6".
 
 - **Q58, Q59. Retiring the 2D Five Dice: the name, and a device that
   can't show 3D.** (2026-11-08.) Developer: "I'll leave the name as 5
@@ -13069,3 +13073,80 @@ a scratchpad script; a temporary launch entry, removed after), Just me:
 **Open questions:** Q47; Q60 (mockup v3 to try). **Next:** the developer
 tries mockup v3; then build what's agreed (see the status entry before
 this one for the plan) and publish 7.6 with the retiring.
+
+## 2026-11-08: The cup start built; release 7.6
+
+**Developer:** "v3 is good. Please proceed with our 7.6 plan" (the plan:
+build mockup v3 into the game, then publish it with the 2D Five Dice's
+retiring as 7.6; the number agreed earlier: "publish both changes as
+7.6"). Q60 closed (Resolved).
+
+**Built** (mockup v3's behaviour, both switches as preselected: dice in
+the cup, a tap on the cup rolls):
+- `src/core/dice3d.js` (tested under Node): the cup's size (`CUP_H` 1.6,
+  was 1.4; `CUP_R` 1.7) and outline (`cupOutline`, which `tray3d.js` now
+  draws from), its inside (`cupInner`), where it waits (`cupRestAt`: 0.25
+  back from under where it pours), the heap (`CUP_HEAP`), the 24 turns
+  that look the same (`CUBE_TURNS`), a die's hop in (`gatherPose`), when
+  the cup comes (`gatherPlan`), what a tap hit (`tapped`), and the first
+  roll's lift from the felt (`cupPose` with `fromRest`).
+- `src/ui/tray3d.js`: the dice in the cup drawn as five dice in the cup's
+  group; `newTurn` sends the dice into the cup (until 7.6: slid to the
+  back row); `place` at a turn's start puts them in it; a roll from the
+  cup hides the thrown dice until they fly out; a later roll's cup shows
+  one more die as each hops in; a tap on the waiting cup is Roll. Log
+  lines: `dice into the cup` (the order, `cupAt`, `allInBy`), `dice
+  placed in the cup`, `roll from the cup`, `cup tapped: roll`.
+
+**Found while testing, and changed from the mockup:**
+- **The hop in passed through the cup's wall.** The new test followed
+  every die's way into the cup, for every tray shape and four ways the
+  dice can stand (all along the front, all along the back, two mixes),
+  and failed: "over the wall at k 0.38: y 2.08". The mockup's hop rose
+  and moved across together. A die starting near the cup reached its wall
+  before it was over the top. Now it rises first, then moves across, then
+  drops (`gatherPose`).
+- **The cup came down on dice still standing.** It appeared at once, and
+  on an upright phone's shallow tray (3.3 x 1.8) three dice of a front
+  row stand inside its footprint. Now `gatherPlan` brings the cup only
+  once no die is in its way: the nearest go first, 0.1 s apart (0.12 in
+  the mockup). By the plan the cup comes at 0.32 s at the latest (0 when
+  all stand along the back of the biggest tray), pops up in 0.15 s (0.25),
+  and every die drops in after it's there (each hop 0.6 s; 0.5). Checked
+  by the test: 48 plans, 14,352 die positions.
+- **Die 4 touched die 2.** The mockup's heap came from the script with
+  4-decimal numbers; the test's overlap check found die 4 0.005 into die
+  2. Raised 0.01 (0.77 to 0.78).
+
+**Tests** (`tests/dice3d.test.js`, 6 new, 23 in all): the waiting cup
+inside every tray shape (12 checked), shown to fail without the 0.25
+setback (it would reach over the shallowest tray's front rim); the heap:
+every die inside the cup, none overlapping another, 1-2 under the rim,
+3-5 over it, shown to fail with a die moved; the 24 turns: all different,
+the heap's shape the same in each; the dice into the cup (above); a tap:
+a hidden die passed over, the cup only while it waits; the first roll's
+lift from the felt to where it pours. Along the way two checks of my own
+were wrong and were changed, not the code: "the cup clear of the back
+row" (no die is in the back row at a turn's start), and the top die
+"outside the cup" (a corner at the rim's height, over the leather).
+`npm test`: 474 passed (version 4cfe4b907888).
+
+**Checked** in the built-in browser (`tools/serve.js` on 8123):
+- **Upright phone (393 x 760), Me and the robot.** The new game showed
+  the cup with five dice in it, the felt empty (`inCup()`: 5 shown, the
+  real dice hidden). A tap on the cup logged `cup tapped: roll`, and the
+  dice landed on the rules' numbers. A box scored: when the turn passed,
+  `dice into the cup` (`cupAt` 0.32, `allInBy` 1). The robot rolled from
+  the cup (`roll from the cup`) and kept two for its 2nd roll, which
+  landed on its numbers.
+- **Sideways phone (780 x 340) and upright tablet (800 x 1280),** each
+  after a reload: the game picked up with the dice in the cup; the tablet
+  doesn't scroll.
+- No console errors. Server stopped.
+- **Not checked:** a real phone.
+
+**Release 7.6:** `src/core/release.js` 7.6, `node tools/offline.js`
+(release 7.6, version 4cfe4b907888, 119 files), `RELEASES.md`, `node
+tools/release.js` "Release 7.6 is ready: version 4cfe4b907888".
+
+**Open questions:** Q47. **Proposed skill additions:** none.

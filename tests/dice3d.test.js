@@ -9,6 +9,8 @@ import {
   trayCorners, trayPlaces, backRow, pickSpots, fallbackSpots, planThrow, throwPose, slide, slidePose, cupPose, cupTimes,
   bounces, heightAt, restPose, project, aim, dieAt, trayShape, shapesKnown, bestRow, flat, apart, DIE_GAP, THROW_T, RATIO,
   lineUp, TRAY, inOrder, sortRow, LAYER_UP, intoRow, slidesMeet,
+  CUP_H, CUP_OUT, CUP_BOTTOM, CUP_RIM, CUP_BACK, cupInner, cupOutline, cupRestAt, CUP_HEAP, CUBE_TURNS, heapPose, gatherPose, tapped,
+  gatherPlan, clearOfCup, GATHER_T, CUP_POP, add,
 } from '../src/core/dice3d.js';
 
 // The same numbers every run.
@@ -471,4 +473,178 @@ test('dice3d: the fit finds the same row size as trying every one, in a few trie
   assert.equal(bestRow(28, 64, 2, () => null), null);
   // big rows always fit with room to spare: the biggest
   assert.equal(bestRow(28, 64, 2, () => ({ die: 200 })).row, 64);
+});
+
+/* ---------- Q60: the dice in the cup at a turn's start ---------- */
+
+// Every tray shape the fit can pick.
+const SHAPES = [];
+for (let ix = TRAY.xRange[0]; ix <= TRAY.xRange[1] + 1e-9; ix += TRAY.xStep) {
+  for (let iz = TRAY.zRange[0]; iz <= TRAY.zRange[1] + 1e-9; iz += TRAY.zStep) SHAPES.push([+ix.toFixed(2), +iz.toFixed(2)]);
+}
+// A die's corners (pulled in for the rounding) at p turned q.
+const CORNERS = [];
+for (const x of [-1, 1]) for (const y of [-1, 1]) for (const z of [-1, 1]) CORNERS.push(v3(x * .46, y * .46, z * .46));
+const cornersOf = (p, q) => CORNERS.map(c => { const r = qRotate(q, c); return v3(p.x + r.x, p.y + r.y, p.z + r.z); });
+// Two dice overlap (separating axes; half size a little under .5, the corners being round).
+function overlap(pa, qa, pb, qb, h = .485) {
+  const ax = q => [v3(1, 0, 0), v3(0, 1, 0), v3(0, 0, 1)].map(v => qRotate(q, v));
+  const A = ax(qa), B = ax(qb), d = v3(pb.x - pa.x, pb.y - pa.y, pb.z - pa.z);
+  const dt = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
+  const cr = (a, b) => v3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+  const axes = [...A, ...B];
+  for (const a of A) for (const b of B) { const c = cr(a, b); if (dt(c, c) > 1e-6) axes.push(c); }
+  return axes.every(L => Math.abs(dt(d, L)) <= A.reduce((s, a) => s + h * Math.abs(dt(a, L)), 0) + B.reduce((s, b) => s + h * Math.abs(dt(b, L)), 0));
+}
+// Whether a die at p turned q is inside the cup: over its bottom, inside its
+// lining (over the rim it may lean out a little, over the rim's leather).
+const inCup = (p, q) => cornersOf(p, q).every(c => c.y >= CUP_BOTTOM - 1e-6 && Math.hypot(c.x, c.z) <= cupInner(c.y) + (c.y >= CUP_RIM - 1e-6 ? .08 : 0) + 1e-6);
+
+test('dice3d: the waiting cup stands on the felt, inside every tray (Q60)', () => {
+  let checked = 0;
+  for (const [ix, iz] of SHAPES) {
+    const places = trayPlaces(ix, iz), r = cupRestAt(places);
+    assert.ok(near(r.y - CUP_H / 2, 0), 'its bottom on the felt');
+    // at its widest, inside the felt (clear of the rim) on every side
+    assert.ok(Math.abs(r.x) + CUP_OUT <= ix && Math.abs(r.z) + CUP_OUT <= iz, `${ix} x ${iz}: at ${r.x.toFixed(2)}, ${r.z.toFixed(2)}`);
+    checked++;
+  }
+  assert.equal(checked, SHAPES.length);
+  assert.ok(checked >= 12, `${checked} shapes`);
+  // the check can fail: right under where it pours, the cup would reach
+  // over the front rim of the shallowest tray
+  const [ix, iz] = [TRAY.xRange[0], TRAY.zRange[0]], c = trayPlaces(ix, iz).cupAt;
+  assert.ok(c.z + CUP_OUT > iz, 'without CUP_BACK it would touch the front rim');
+  assert.ok(CUP_BACK > 0);
+  // the outline the cup is drawn with is as wide as CUP_OUT, its lining as cupInner
+  const o = cupOutline();
+  assert.ok(near(Math.max(...o.body.map(([x]) => x)), CUP_OUT));
+  assert.ok(near(o.lining[0][0], cupInner(CUP_RIM)) && near(o.lining[1][0], cupInner(CUP_BOTTOM)));
+});
+
+test('dice3d: five full-size dice heap in the cup; 1-2 inside it, 3+ over the rim (Q60)', () => {
+  assert.equal(CUP_HEAP.length, 5);
+  for (let turn = 0; turn < CUBE_TURNS.length; turn += 5) {
+    const heap = CUP_HEAP.map((_, j) => heapPose(j, turn));
+    heap.forEach(({ p, q }, j) => {
+      assert.ok(inCup(p, q), `die ${j + 1} (turn ${turn}) inside the cup`);
+      for (let k = 0; k < j; k++) assert.ok(!overlap(p, q, heap[k].p, heap[k].q), `dice ${k + 1} and ${j + 1} overlap`);
+    });
+  }
+  const top = j => Math.max(...cornersOf(CUP_HEAP[j].p, CUP_HEAP[j].q).map(c => c.y)) + .04;
+  // one or two: on the bottom, under the rim
+  for (const j of [0, 1]) assert.ok(top(j) < CUP_RIM && CUP_HEAP[j].p.y < 0, `die ${j + 1} top ${top(j)}`);
+  // three or more: over the rim; the 5th the highest
+  for (const j of [2, 3, 4]) assert.ok(top(j) > CUP_RIM + .3, `die ${j + 1} top ${top(j)}`);
+  assert.ok(top(4) > top(2) && top(4) > top(3));
+  // the checks can fail: a die moved onto another overlaps; one moved out
+  // through the wall is outside the cup
+  assert.ok(overlap(CUP_HEAP[1].p, CUP_HEAP[1].q, CUP_HEAP[0].p, CUP_HEAP[0].q) === false);
+  assert.ok(overlap(v3(CUP_HEAP[0].p.x + .3, CUP_HEAP[0].p.y, CUP_HEAP[0].p.z), CUP_HEAP[1].q, CUP_HEAP[0].p, CUP_HEAP[0].q));
+  assert.ok(!inCup(v3(CUP_HEAP[1].p.x + .4, CUP_HEAP[1].p.y, CUP_HEAP[1].p.z), CUP_HEAP[1].q));
+});
+
+test('dice3d: the 24 turns that leave a die looking the same (Q60)', () => {
+  assert.equal(CUBE_TURNS.length, 24);
+  const key = q => [v3(1, 0, 0), v3(0, 1, 0)].map(v => qRotate(q, v)).map(v => [v.x, v.y, v.z].map(n => Math.round(n)).join()).join('|');
+  assert.equal(new Set(CUBE_TURNS.map(key)).size, 24);
+  for (const q of CUBE_TURNS) {
+    for (const v of [v3(1, 0, 0), v3(0, 1, 0), v3(0, 0, 1)]) {
+      const r = qRotate(q, v);
+      assert.ok([r.x, r.y, r.z].filter(n => near(Math.abs(n), 1, 1e-6)).length === 1, 'an axis goes to an axis');
+    }
+  }
+  // the heap's shape stays: each die's corners land where they did
+  const pts = j => cornersOf(heapPose(j, 0).p, heapPose(j, 0).q).map(c => [c.x, c.y, c.z].map(n => n.toFixed(4)).join()).sort().join(';');
+  const ptsT = (j, t) => cornersOf(heapPose(j, t).p, heapPose(j, t).q).map(c => [c.x, c.y, c.z].map(n => n.toFixed(4)).join()).sort().join(';');
+  for (let j = 0; j < 5; j++) for (let t = 0; t < 24; t++) assert.equal(ptsT(j, t), pts(j));
+  // on the tray: moved with the waiting cup
+  const at = v3(1, CUP_H / 2, -.5);
+  assert.ok(nearV(heapPose(2, 3, at).p, v3(at.x + CUP_HEAP[2].p.x, at.y + CUP_HEAP[2].p.y, at.z + CUP_HEAP[2].p.z)));
+});
+
+test('dice3d: the dice hop into the cup, which comes once none is in its way (Q60)', () => {
+  // where the five can stand as the turn passes: all along the front (a
+  // box's dice, or a roll's), along the back, or some forward and some back
+  const layouts = places => {
+    const front = places.iz - .75, R = backRow(5, front), B = backRow(5, places.backZ);
+    return { front: R, back: B, mixed: [R[1], R[2], R[3], B[0], B[4]], right: [R[3], R[4], B[0], B[1], B[2]] };
+  };
+  // every die's way, from now: clear of the cup once it's there, or
+  // dropping straight onto its place; none in the cup before the cup
+  const check = (starts, places, plan) => {
+    const at = cupRestAt(places);
+    let samples = 0;
+    for (let t = 0; t <= plan.end + 1e-9; t += .01) {
+      plan.order.forEach((i, j) => {
+        const k = (t - plan.t0s[i]) / GATHER_T;
+        if (k < 0 || k > 1) return;
+        const to = add(at, CUP_HEAP[j].p), { p } = gatherPose({ p0: starts[i], q0: upright(1), to, qT: upright(1) }, k);
+        const dropping = Math.hypot(p.x - to.x, p.z - to.z) < 1e-6;
+        if (t >= plan.cupT) assert.ok(clearOfCup(p, at) || dropping, `die ${i} in the cup's way at ${t.toFixed(2)} s (k ${k.toFixed(2)})`);
+        if (dropping && p.y < OVER_RIM(at)) assert.ok(t >= plan.cupT + CUP_POP - 1e-9, `die ${i} into the cup at ${t.toFixed(2)} s, before it's there (${plan.cupT})`);
+        samples++;
+      });
+    }
+    return samples;
+  };
+  const OVER_RIM = at => at.y + CUP_H / 2 + .5;
+  let plans = 0, samples = 0, latest = 0, longest = 0;
+  for (const [ix, iz] of SHAPES) {
+    const places = trayPlaces(ix, iz);
+    for (const [name, spots] of Object.entries(layouts(places))) {
+      const starts = spots.map(p => v3(p.x, .5, p.z)), plan = gatherPlan(starts, places);
+      assert.deepEqual([...plan.order].sort(), [0, 1, 2, 3, 4], name);
+      // the nearest first
+      const at = cupRestAt(places), dist = plan.order.map(i => flat(starts[i], at));
+      assert.ok(dist.every((d, k) => !k || d >= dist[k - 1]), `${name}: nearest first`);
+      samples += check(starts, places, plan);
+      latest = Math.max(latest, plan.cupT); longest = Math.max(longest, plan.end);
+      // each from where it stood to its place in the heap
+      plan.order.forEach((i, j) => {
+        const g = { p0: starts[i], q0: upright(2), to: add(at, CUP_HEAP[j].p), qT: upright(5) };
+        assert.ok(nearV(gatherPose(g, 0).p, starts[i]) && nearV(gatherPose(g, 1).p, g.to));
+      });
+      plans++;
+    }
+  }
+  assert.equal(plans, SHAPES.length * 4);
+  // not long: the cup there within half a second, every die in within 1.4 s
+  assert.ok(latest < .5 && longest < 1.4, `the cup at ${latest} s at the latest; all in by ${longest} s`);
+  console.log(`# into the cup: ${plans} plans, ${samples} dice positions checked; the cup at ${latest} s at the latest, all in by ${longest.toFixed(2)} s`);
+  // none to go in (all in already): the cup at once; two to go, after three
+  assert.deepEqual(gatherPlan([], trayPlaces(3.7, 2.1), 5), { order: [], t0s: [], cupT: 0, end: 0 });
+  {
+    const pl = trayPlaces(3.7, 2.1), two = backRow(2, pl.backZ).map(p => v3(p.x, .5, p.z)), g = gatherPlan(two, pl, 3);
+    assert.equal(g.order.length, 2);
+    assert.ok(g.end > 0 && g.end < 1);
+  }
+  // the check can fail: the cup there at once, a die along the front is in its way
+  const places = trayPlaces(TRAY.xRange[0], TRAY.zRange[0]), starts = layouts(places).front.map(p => v3(p.x, .5, p.z));
+  const plan = gatherPlan(starts, places);
+  assert.ok(plan.cupT > 0);
+  assert.throws(() => check(starts, places, { ...plan, cupT: 0 }), /in the cup's way/);
+});
+
+test('dice3d: a tap picks a die that shows, else the waiting cup (Q60)', () => {
+  // a hidden die (in the cup) is passed over; the cup behind it is hit
+  assert.deepEqual(tapped([{ die: 2, visible: false }, { cup: true }], { cupWaiting: true }), { cup: true });
+  assert.deepEqual(tapped([{ cup: true }, { die: 4, visible: true }], { cupWaiting: true }), { die: 4 });
+  assert.deepEqual(tapped([{ die: 1, visible: true }], { cupWaiting: false }), { die: 1 });
+  // the cup only while it waits with the dice in it (not while it pours)
+  assert.deepEqual(tapped([{ cup: true }], { cupWaiting: false }), {});
+  assert.deepEqual(tapped([{ die: 0, visible: false }], { cupWaiting: false }), {});
+  assert.deepEqual(tapped([], { cupWaiting: true }), {});
+});
+
+test('dice3d: a turn\'s first roll lifts the cup from the felt to where it pours (Q60)', () => {
+  const places = trayPlaces(3.7, 2.1), P = { t0: 0, ...cupTimes(5) }, R = { ...P, fromRest: true };
+  // from the felt, full size, to where it pours by the shake
+  assert.ok(nearV(cupPose(R, 0, places).pos, cupRestAt(places)) && near(cupPose(R, 0, places).scale, 1));
+  assert.ok(nearV(cupPose(R, P.shake0, places).pos, places.cupAt));
+  const mid = cupPose(R, P.shake0 / 2, places).pos;
+  assert.ok(mid.y > cupRestAt(places).y && mid.y < places.cupAt.y);
+  // after that as any roll; a later roll pops up where it pours
+  assert.deepEqual(cupPose(R, P.tip1, places), cupPose(P, P.tip1, places));
+  assert.ok(nearV(cupPose(P, 0, places).pos, places.cupAt) && cupPose(P, 0, places).scale < .5);
 });

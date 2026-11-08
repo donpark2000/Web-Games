@@ -115,7 +115,28 @@ export function support(q) {
 // The inside's half width (ix) and half depth (iz) are picked for the room
 // on the screen (trayShape), from these ranges in these steps.
 export const TRAY = { rim: 0.36, rimH: 0.55, xRange: [3.3, 4.1], xStep: 0.4, zRange: [1.8, 2.7], zStep: 0.3 };
-export const CUP_H = 1.4;
+// The cup: CUP_H tall, its outline (a lathe: [radius, height] from its
+// centre) CUP_R times as wide as the tray mockup's. Since Q60 (cup start
+// mockup v3; until 7.6 1.4 tall and 1 times as wide) it holds five
+// full-size dice in a heap (CUP_HEAP).
+export const CUP_H = 1.6;
+export const CUP_R = 1.7;
+export function cupOutline() {
+  const h = CUP_H / 2, w = ([x, y]) => [x * CUP_R, y];
+  return {
+    body: [[0, -h], [.72, -h], [.8, -h + .07], [.9, h - .04], [.9, h], [.82, h]].map(w),
+    lining: [[.82, h], [.74, -h + .14], [0, -h + .14]].map(w),
+    band: { r: .885 * CUP_R, y: h - .2 },
+  };
+}
+// The cup's inside: its radius at height y (from the cup's centre), the
+// bottom's height, the rim's.
+export const CUP_BOTTOM = -CUP_H / 2 + .14, CUP_RIM = CUP_H / 2;
+export function cupInner(y) {
+  const top = .82 * CUP_R, bot = .74 * CUP_R;
+  return bot + (top - bot) * clamp((y - CUP_BOTTOM) / (CUP_RIM - CUP_BOTTOM), 0, 1);
+}
+export const CUP_OUT = .9 * CUP_R;   // its widest, at the rim
 export const TIP = 115 * Math.PI / 180;   // the cup tipped this far, pouring
 
 // What the camera keeps in view: the tray's corners, and the tops of dice
@@ -142,6 +163,118 @@ export function trayPlaces(ix, iz) {
 
 // n dice standing in a row along the back, left to right.
 export const backRow = (n, backZ) => Array.from({ length: n }, (_, j) => v3((j - (n - 1) / 2) * DIE_GAP, 0, backZ));
+
+/* ---------- the dice in the cup at a turn's start (Q60) ---------- */
+
+// From the cup start mockup v3 (developer, 2026-11-08: "v3 is good"): when
+// the turn passes the cup stands on the felt under where it pours from,
+// set CUP_BACK further back (at its full size it would touch the front
+// rim), and all five dice hop into it. On Roll it lifts to where it pours.
+export const CUP_BACK = .25;
+export const cupRestAt = places => v3(places.cupAt.x, CUP_H / 2, places.cupAt.z - CUP_BACK);
+
+// The dice in the cup, full size, in one heap in the order they go in (the
+// cup's own units, its centre at 0): two flat on the bottom, the 3rd and
+// 4th lying on them, the 5th on top. So 1 or 2 show inside the cup, 3 or
+// more stick up over the rim: you see there are dice, not how many
+// (developer: "you could not count them without turning the cup over").
+// Worked out by dropping dice one by one into the cup, each to the lowest
+// place it fits (journal, "Cup start mockup v3"); the tests check none
+// overlaps another or the cup.
+export const CUP_HEAP = [
+  { p: v3(-0.5464, -0.2, 0.3923), q: { x: 0, y: 0.3009, z: 0, w: 0.9536 } },
+  { p: v3(0.6507, -0.2, -0.036), q: { x: 0, y: 0.6951, z: 0, w: 0.7189 } },
+  { p: v3(-0.2913, 0.73, -0.4408), q: { x: -0.0053, y: 0.6146, z: -0.2005, w: 0.763 } },
+  { p: v3(0.736, 0.78, 0.1547), q: { x: 0, y: 0.6066, z: 0, w: 0.795 } },   // 0.77 in the mockup: touched die 2 once rounded
+  { p: v3(-0.5171, 1.26, 0.6468), q: { x: 0, y: 0.5674, z: 0, w: 0.8234 } },
+].map(({ p, q }) => ({ p, q: qNorm(q) }));
+
+// The 24 ways a die can be turned and look the same (only its numbers
+// move): each die in the heap gets one at random, so the heap keeps its
+// shape and its numbers change.
+export const CUBE_TURNS = (() => {
+  const out = [Q0];
+  for (let k = 0; k < out.length; k++) {
+    for (const ax of [v3(1, 0, 0), UP, v3(0, 0, 1)]) {
+      const q = qMul(out[k], qAxis(ax, Math.PI / 2));
+      if (!out.some(s => Math.abs(s.x * q.x + s.y * q.y + s.z * q.z + s.w * q.w) > .999)) out.push(q);
+    }
+  }
+  return out;
+})();
+// Die j of the heap, turned by CUBE_TURNS[turn]: its place and turn in the
+// cup, and (with `at`, the waiting cup's centre) on the tray.
+export function heapPose(j, turn, at = v3()) {
+  const h = CUP_HEAP[j];
+  return { p: add(at, h.p), q: qMul(h.q, CUBE_TURNS[turn]) };
+}
+
+// A die hopping into the waiting cup, k from 0 to 1 (GATHER_T s): up to
+// over the cup's top first, across to over its place in the heap, then
+// down onto it, full size all the way (mockup v2 shrank it), so the die in
+// the heap takes over where it lies. p0/q0: where it starts; to/qT: its
+// place in the heap. (The mockup rose and moved across together: a die
+// starting near the cup passed through its wall.)
+export const GATHER_T = .6, GATHER_STAG = .1;
+const OVER = CUP_H + 1.1;   // a die's centre over the waiting cup: its bottom clear of the top
+export function gatherPose({ p0, q0, to, qT }, k) {
+  k = clamp(k, 0, 1);
+  const over = Math.max(p0.y, OVER);
+  let p;
+  if (k < .75) {
+    const u = k / .75, e = ease(clamp((u - .25) / .75, 0, 1));
+    p = v3(p0.x + (to.x - p0.x) * e, p0.y + (over - p0.y) * Math.sin(Math.PI / 2 * Math.min(1, u / .35)), p0.z + (to.z - p0.z) * e);
+  } else {
+    const u = (k - .75) / .25;
+    p = v3(to.x, over + (to.y - over) * u * u, to.z);
+  }
+  return { p, q: qSlerp(q0, qT, ease(Math.min(1, k / .8))) };
+}
+// Whether a die at p is clear of the cup standing at `at`: well outside its
+// wall, or over its top. (A die dropping straight onto its own place in the
+// heap is checked by the caller.)
+export const clearOfCup = (p, at) => Math.hypot(p.x - at.x, p.z - at.z) > CUP_OUT + .72 || p.y - .87 > at.y + CUP_H / 2;
+
+// The dice going into the cup when the turn passes (starts: where each
+// stands, at its resting height), the nearest first, GATHER_STAG s apart;
+// the cup comes onto the felt (`cupT`, popping up in CUP_POP s) once no die
+// is in its way, so none passes through it. (The dice nearest it go first,
+// so it's there before the first drops in: the tests check every tray and
+// the ways the dice can stand.) `first`: how many are in the cup already
+// (their places in the heap taken). Returns { order, t0s (by die, from
+// now), cupT, end }.
+export const CUP_POP = .15;
+export function gatherPlan(starts, places, first = 0) {
+  if (!starts.length) return { order: [], t0s: [], cupT: 0, end: 0 };
+  const at = cupRestAt(places);
+  const order = starts.map((p, i) => i).sort((a, b) => flat(starts[a], at) - flat(starts[b], at));
+  const t0s = [];
+  order.forEach((i, k) => { t0s[i] = k * GATHER_STAG; });
+  const pathOf = i => { const j = first + order.indexOf(i); return { p0: starts[i], q0: Q0, to: add(at, CUP_HEAP[j].p), qT: Q0 }; };
+  // the cup can come at t when, from then on, every die is clear of it or
+  // dropping straight onto its place
+  const inWay = t => order.some(i => {
+    const k = (t - t0s[i]) / GATHER_T;
+    if (k >= 1) return false;
+    const g = pathOf(i), { p } = gatherPose(g, k);
+    return !(clearOfCup(p, at) || (flat(p, g.to) < 1e-6 && p.y >= g.to.y));
+  });
+  const last = Math.max(...t0s) + GATHER_T;
+  let cupT = 0;
+  for (let t = 0; t <= last; t += .01) if (inWay(t)) cupT = t + .01;
+  return { order, t0s, cupT: Math.round(cupT * 100) / 100, end: last };
+}
+
+// What a tap on the tray hit, from three.js's hits nearest first
+// ({ die: i, visible } or { cup: true }): a die that shows (the dice in the
+// cup are hidden, and a ray still finds them), else the cup while it waits
+// with the dice in it (a tap on it rolls, as Roll does), else nothing.
+export function tapped(hits, { cupWaiting }) {
+  const die = hits.find(h => h.die !== undefined && h.visible);
+  if (die) return { die: die.die };
+  if (cupWaiting && hits.some(h => h.cup)) return { cup: true };
+  return {};
+}
 
 /* ---------- where thrown dice come to rest ---------- */
 
@@ -470,14 +603,18 @@ export function throwPose(a, t) {
 }
 
 // The cup t after Roll: popping up over the front right, shaking, tipping
-// to pour, then rising away and shrinking. Hidden once done.
+// to pour, then rising away and shrinking. Hidden once done. A turn's
+// first roll (P.fromRest, Q60): instead of popping up, it lifts from where
+// it waits on the felt (cupRestAt) to where it pours, in the time the dice
+// would have taken to hop in, so a roll takes as long.
 export function cupPose(P, t, places) {
   let wob = 0;
   if (t >= P.shake0 && t < P.shake1) wob = Math.sin((t - P.shake0) * 2 * Math.PI * 7);
-  const pop = ease(Math.min(1, t / .18));
+  const pop = P.fromRest ? 1 : ease(Math.min(1, t / .18));
   const tip = TIP * ease(clamp((t - P.shake1) / (P.tip1 - P.shake1), 0, 1));
   const out = ease(clamp((t - P.out0) / .35, 0, 1));
-  const pos = add(places.cupAt, scale(places.cupAxis, .12 * wob));
+  const at = P.fromRest && t < P.shake0 ? lerp(cupRestAt(places), places.cupAt, ease(clamp(t / P.shake0, 0, 1))) : places.cupAt;
+  const pos = add(at, scale(places.cupAxis, .12 * wob));
   pos.y += .1 * Math.abs(wob) + 1.4 * out;
   const quat = qMul(qAxis(places.cupAxis, tip * (1 - .5 * out)), qAxis(places.pour, .14 * wob));
   return { pos, quat, scale: Math.max(.001, (.4 + .6 * pop) * (1 - out)), visible: out < 1, shaking: t >= P.shake0 && t < P.shake1 };

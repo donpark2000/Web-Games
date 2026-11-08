@@ -6,16 +6,19 @@
 // felt, and once landed they line up along the front, then each row puts
 // itself in order, smallest to highest (Q53, Q56). A box picked:
 // the dice that score it stand forward, grouped like its picture, and hop
-// (Q54); Undo puts them back. The maths (the throw, landing spots, camera, the tray's shape for
-// the room) is src/core/dice3d.js; this file draws it and fits the play
-// screen. Made by src/ui/five-dice-3d.js for src/ui/five-dice-game.js
-// (its "tray").
+// (Q54); Undo puts them back. A turn starts with the dice in the cup
+// (Q60): when the turn passes they hop into it, waiting on the felt; Roll,
+// or a tap on the cup, lifts it to where it pours. The maths (the throw,
+// landing spots, camera, the tray's shape for the room, the cup's heap) is
+// src/core/dice3d.js; this file draws it and fits the play screen. Made by
+// src/ui/five-dice-3d.js for src/ui/five-dice-game.js (its "tray").
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { RoundedBoxGeometry } from '../vendor/three/RoundedBoxGeometry.js';
 import {
   v3, upright, topFace, trayPlaces, trayCorners, backRow, pickSpots, planThrow, throwPose, slide, slidePose, cupPose, restPose,
-  aim, project, trayShape, bestRow, lineUp, flat, FOV, TRAY, CUP_H, CORNER, DIE_GAP, sortRow, intoRow,
+  aim, project, trayShape, bestRow, lineUp, flat, FOV, TRAY, CORNER, DIE_GAP, sortRow, intoRow,
+  add, cupOutline, cupRestAt, CUP_HEAP, CUBE_TURNS, heapPose, gatherPose, gatherPlan, GATHER_T, CUP_POP, tapped,
 } from '../core/dice3d.js';
 import { showBox } from '../core/showbox.js';
 import { UNDO_MS } from './five-dice-game.js';
@@ -195,17 +198,87 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
   {
     const leather = new THREE.MeshStandardMaterial({ color: 0x7B3B27, roughness: .65, side: THREE.DoubleSide });
     const inside = new THREE.MeshStandardMaterial({ color: 0x2E140C, roughness: .9, side: THREE.DoubleSide });
-    const h = CUP_H / 2, v2 = pts => pts.map(([x, y]) => new THREE.Vector2(x, y));
-    const body = new THREE.Mesh(new THREE.LatheGeometry(v2([[0, -h], [.72, -h], [.8, -h + .07], [.9, h - .04], [.9, h], [.82, h]]), 48), leather);
-    const lining = new THREE.Mesh(new THREE.LatheGeometry(v2([[.82, h], [.74, -h + .14], [0, -h + .14]]), 48), inside);
-    const band = new THREE.Mesh(new THREE.TorusGeometry(.885, .04, 10, 48), new THREE.MeshStandardMaterial({ color: 0xD3A548, roughness: .35, metalness: .4 }));
-    band.rotation.x = Math.PI / 2; band.position.y = h - .2;
+    // wide enough for five full-size dice (Q60; until 7.6 1.4 tall, 1.8 across)
+    const o = cupOutline(), v2 = pts => pts.map(([x, y]) => new THREE.Vector2(x, y));
+    const body = new THREE.Mesh(new THREE.LatheGeometry(v2(o.body), 48), leather);
+    const lining = new THREE.Mesh(new THREE.LatheGeometry(v2(o.lining), 48), inside);
+    const band = new THREE.Mesh(new THREE.TorusGeometry(o.band.r, .05, 10, 64), new THREE.MeshStandardMaterial({ color: 0xD3A548, roughness: .35, metalness: .4 }));
+    band.rotation.x = Math.PI / 2; band.position.y = o.band.y;
     body.castShadow = band.castShadow = true;
     cup.add(body, lining, band);
     cup.visible = false;
     scene.add(cup);
   }
   let cupPlan = null;
+
+  /* ---------- the dice in the cup (Q60) ---------- */
+
+  // The dice the cup holds, drawn as five dice of its own (in its group, so
+  // they shake and tip with it), full size, in one heap (CUP_HEAP): the
+  // dice themselves are hidden while in it. On every roll: at a turn's start
+  // all five, on a later roll one more as each picked-up die hops in; all
+  // go as the real ones fly out.
+  const ease = x => x * x * (3 - 2 * x);
+  const inCupDice = [], heapTurn = [];
+  for (let j = 0; j < 5; j++) {
+    const m = new THREE.Mesh(dieGeo, mats);
+    m.castShadow = true; m.visible = false;
+    cup.add(m); inCupDice.push(m);
+  }
+  let cupCount = 0;   // how many show in the cup
+  function showInCup(n) {
+    cupCount = n;
+    inCupDice.forEach((m, j) => { m.visible = j < n; });
+  }
+  // each die in the heap turned one of the 24 ways that look the same: the
+  // heap's shape stays, its numbers change
+  function turnHeap() {
+    inCupDice.forEach((m, j) => {
+      heapTurn[j] = Math.floor(Math.random() * CUBE_TURNS.length);
+      const { p, q } = heapPose(j, heapTurn[j]);
+      m.position.set(p.x, p.y, p.z); m.quaternion.set(q.x, q.y, q.z, q.w);
+    });
+  }
+  // The cup waiting on the felt with the dice in it ({ t0 }: when it pops up).
+  let cupWait = null;
+  const holdAt = () => add(places.cupAt, v3(0, .1, 0));
+  // A die hopping into the waiting cup is put in it (it lands, or Roll).
+  function finishGather(d) {
+    if (!d.gather) return;
+    showInCup(Math.max(cupCount, d.gather.j + 1));
+    d.gather = null; d.inCup = true;
+  }
+  // The turn passes: all five hop into the cup, the nearest first; the cup
+  // comes onto the felt once none is in its way.
+  function gatherIntoCup() {
+    turnHeap();
+    for (const d of dice) { finishGather(d); settle(d); d.hop = null; }
+    const out = dice.filter(d => !d.inCup), already = 5 - out.length;
+    showInCup(already);
+    const plan = gatherPlan(out.map(d => restPose(d.pos, d.quat, 0).p), places, already);
+    const at = cupRestAt(places);
+    cupWait = { t0: clock + plan.cupT };
+    plan.order.forEach((k, n) => {
+      const d = out[k], j = already + n, s = restPose(d.pos, d.quat, 0), h = heapPose(j, heapTurn[j], at);
+      d.gather = { t0: clock + plan.t0s[k], p0: s.p, q0: s.q, to: h.p, qT: h.q, j };
+    });
+    L('dice into the cup', { order: plan.order.map(k => out[k].i), already, cupAt: plan.cupT, allInBy: r2(plan.end) });
+  }
+  // All five in the cup at once (a new game; a game picked up at a turn's start).
+  function allInCup() {
+    const at = cupRestAt(places);
+    cupWait = { t0: clock - 1 };
+    for (const d of dice) Object.assign(d, { gather: null, inCup: true, anim: null, move: null, hop: null, lift: 0, pos: v3(at.x, 0, at.z) });
+    turnHeap();
+    showInCup(5);
+  }
+  // None in the cup (a game picked up after a roll).
+  function noneInCup() {
+    cupWait = null;
+    if (!cupPlan) cup.visible = false;
+    showInCup(0);
+    for (const d of dice) { d.gather = null; d.inCup = false; }
+  }
 
   /* ---------- the turn ---------- */
 
@@ -216,6 +289,13 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
   function roll(rolled, done) {
     const idx = rolled.flatMap((u, i) => (u ? [i] : []));
     const thrown = idx.map(i => dice[i]);
+    // a turn's first roll: from the cup waiting on the felt, the dice thrown
+    // from inside it (hidden until they fly out); a later roll's cup starts
+    // empty, each die showing in it as it hops in
+    for (const d of dice) finishGather(d);
+    const fromCup = dice.some(d => d.inCup);
+    if (fromCup) { const h = holdAt(); for (const d of dice) if (d.inCup) d.mesh.position.set(h.x, h.y, h.z); }
+    else { turnHeap(); showInCup(0); }
     // a die still sliding to the back row (a new turn) is thrown from where
     // it is: a slide left over would run after it lands and turn it back
     for (const d of thrown) {
@@ -236,6 +316,12 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     for (const d of thrown) { d.anim = plan.anims[d.i]; d.bounced = 0; }
     cupPlan = plan.cup;
     cupPlan.shook = false;
+    if (fromCup) {
+      cupPlan.fromRest = true;
+      cupWait = null;
+      for (const d of thrown) { d.anim.fromCup = true; d.inCup = false; }
+      L('roll from the cup', { dice: idx });
+    }
     rollDone = done;
     // where the dice will land: in front of the kept ones, anywhere clear
     // of them, or in rows; how far apart (1.75 with room to spare)
@@ -389,6 +475,7 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
   // Stops a roll being shown: every die straight to where it was going,
   // the cup away. (Play again, New game: a quick tap mid-roll.)
   function stop() {
+    for (const d of dice) finishGather(d);
     for (const d of dice) {
       if (d.anim) { d.pos = { ...d.anim.to }; d.quat = d.anim.qT; d.anim = null; d.lift = 0; }
       settle(d);
@@ -401,30 +488,28 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     wake();
   }
 
-  // A turn's start: the dice wait in a row along the back, not rolled.
+  // A turn's start: the dice go into the cup, which waits on the felt (Q60;
+  // until 7.6 they slid to a row along the back).
   function newTurn() {
     if (!places) return;
     row = null; shown = null; justThrown = [];
-    backRow(5, places.backZ).forEach((p, j) => {
-      const d = dice[j];
-      settle(d);
-      d.hop = null;
-      if (Math.hypot(d.pos.x - p.x, d.pos.z - p.z) > .05) d.move = slide(d, p, clock);
-    });
+    gatherIntoCup();
     wake();
   }
 
-  // The dice where they'd be with nothing moving: waiting along the back,
-  // or (a game picked up again) lined up along the front showing their
-  // numbers, as after a roll.
+  // The dice where they'd be with nothing moving: in the cup at a turn's
+  // start, or (a game picked up again) lined up along the front showing
+  // their numbers, as after a roll.
   let placed = false;
   function place(v) {
     placed = true;
     row = null; shown = null; justThrown = [];
     if (v.wait) {
-      backRow(5, places.backZ).forEach((p, j) => { dice[j].pos = p; });
+      allInCup();
+      L('dice placed in the cup');
       return;
     }
+    noneInCup();
     const r = { groups: [[0, 1, 2, 3, 4].sort((a, b) => v.dice[a] - v.dice[b] || a - b)], backFree: true }, line = lineFor(r);
     if (line) row = r;
     const spots = line?.spots ?? pickSpots({ n: 5, fixed: [], places, kept: 0 })?.spots ?? backRow(5, places.backZ);
@@ -477,9 +562,16 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     const r = canvas.getBoundingClientRect();
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects(dice.map(d => d.mesh))[0];
-    if (!hit) return L('tap on the tray, no die');
-    const d = dice.find(x => x.mesh === hit.object);
+    // the dice in the cup are hidden, and a ray still finds them; a tap on
+    // the waiting cup rolls, as Roll does (Q60)
+    const hits = ray.intersectObjects([...dice.map(d => d.mesh), cup], true).map(h => {
+      const d = dice.find(x => x.mesh === h.object);
+      return d ? { die: d.i, visible: d.mesh.visible } : { cup: true };
+    });
+    const what = tapped(hits, { cupWaiting: !!cupWait && !cupPlan && cup.visible });
+    if (what.cup) { L('cup tapped: roll'); return tapRoll(); }
+    if (what.die === undefined) return L('tap on the tray, no die');
+    const d = dice[what.die];
     if (rolling()) return L('die tap ignored', { die: d.i, why: 'still landing' });
     tapDie(d.i);
   });
@@ -503,10 +595,25 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
   const setPose = (d, p, q) => { d.mesh.position.set(p.x, p.y, p.z); d.mesh.quaternion.set(q.x, q.y, q.z, q.w); };
   // Moves die d on by dt; true while it's still moving.
   function update(d, dt) {
+    // hopping into the waiting cup (Q60), or in it (hidden: the cup's own
+    // die shows where it lies)
+    if (d.gather) {
+      const g = d.gather, k = (clock - g.t0) / GATHER_T;
+      d.ring.material.opacity = 0;
+      d.mesh.visible = true;
+      if (k >= 1) { finishGather(d); d.mesh.visible = false; return true; }
+      const s = k <= 0 ? { p: g.p0, q: g.q0 } : gatherPose(g, k);
+      setPose(d, s.p, s.q);
+      return true;
+    }
+    if (d.inCup) { d.mesh.visible = false; d.ring.material.opacity = 0; return false; }
     const a = d.anim;
     if (a) {
       const s = throwPose(a, clock - a.t0);
-      d.mesh.visible = s.visible;
+      // from the waiting cup: hidden until it flies out; into the cup on a
+      // later roll: once inside, one more shows in it
+      d.mesh.visible = a.fromCup && (s.phase === 'wait' || s.phase === 'in') ? false : s.visible;
+      if (!a.fromCup && s.phase === 'in' && !s.visible && !a.shownInCup) { a.shownInCup = true; showInCup(cupCount + 1); }
       if (s.phase === 'done') { d.anim = null; d.lift = 0; d.pos = { ...a.to }; d.quat = a.qT; }
       else {
         setPose(d, s.p, s.q);
@@ -540,8 +647,19 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     return hopping || d.lift !== up;
   }
   function updateCup() {
-    if (!cupPlan) return false;
+    if (!cupPlan) {
+      // waiting on the felt, popping up as it comes (Q60)
+      if (!cupWait) return false;
+      const k = (clock - cupWait.t0) / CUP_POP, r = cupRestAt(places);
+      cup.visible = k >= 0;
+      cup.position.set(r.x, r.y, r.z);
+      cup.quaternion.set(0, 0, 0, 1);
+      cup.scale.setScalar(.4 + .6 * ease(Math.min(1, Math.max(0, k))));
+      return k < 1;
+    }
     const t = clock - cupPlan.t0, s = cupPose(cupPlan, t, places);
+    // the dice in it go as the real ones fly out
+    if (cupCount && t >= cupPlan.shake1 + (cupPlan.tip1 - cupPlan.shake1) * .7) showInCup(0);
     if (s.shaking && !cupPlan.shook) { cupPlan.shook = true; sound.play('shake'); }
     cup.visible = s.visible;
     cup.position.set(s.pos.x, s.pos.y, s.pos.z);
@@ -715,6 +833,9 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
 
   L('3D ready', { webgl2: renderer.capabilities.isWebGL2, revision: THREE.REVISION, pixelRatio: renderer.getPixelRatio() });
   // for checking from the console
-  window.dice3d = { dice, places: () => places, camera: () => cam, frames: () => frames, rolling, row: () => row, shown: () => shown };
+  window.dice3d = {
+    dice, places: () => places, camera: () => cam, frames: () => frames, rolling, row: () => row, shown: () => shown,
+    inCup: () => ({ shown: cupCount, waiting: !!cupWait, cup: cup.visible, size: cup.scale.x, hidden: dice.filter(d => !d.mesh.visible).length }),
+  };
   return { render, roll, stop, newTurn, show, fit, undone: unshow, scoreShowMs: SHOW_MS };
 }
