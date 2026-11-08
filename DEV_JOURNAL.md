@@ -12278,3 +12278,33 @@ temp copy).
 
 **Next:** publish as **7.1** on the developer's "publish", then try it on
 the phone. Q47 open (the kids' devices). Claude's server on 8123 running.
+
+## 2026-11-08: Release 7.1 published (the dice line up, show the score); status (start here next session)
+
+**Published** on the developer's "Publish 7.1": `src/core/release.js`
+7.1, `node tools/offline.js` (version 437a0c58bad6, 121 files), notes in
+`RELEASES.md`; `node tools/release.js`: "Release 7.1 is ready"; `npm
+test` 465 passed, `git status` showing only the release's four files
+after it. `main` fast-forwarded 5179e93..b77f6db (pushed from
+`five-dice-3d`, no branch switch), tag `v7.1` on b77f6db,
+[GitHub release 7.1](https://github.com/donpark2000/Web-Games/releases/tag/v7.1).
+
+**Checked live** (the built-in browser): `sw.js` RELEASE 7.1, version
+437a0c58bad6, served on the first look; the home page's version line
+"Version 7.1 · Nov 8, 2026 · 437a0c"; Five Dice 3D: a roll's 5 dice
+lined up along the front, the 2s box showed its one die forward, no die
+under Roll, no console errors. Not checked: a real phone.
+
+**Local servers:** Claude's `tools/serve.js` on 8123 stopped; no other
+`serve.js` running.
+
+**Status:** 7.1 live. Open: Q47 (the kids' devices).
+
+**Next:**
+1. The developer tries 7.1 on the phone (a reload brings it if the old
+   site shows): rolls with dice kept, a few boxes (a full house or a run
+   if one comes up: only checked in Node and the mockup), Undo, the
+   robot's turns, upright and sideways.
+2. Left over, only if wanted: Five Dice and Laser Lab on a small phone
+   sideways (667 × 375) still scroll; Rock paper scissors' picks narrower
+   than their column on a tablet. Nothing to purge.
