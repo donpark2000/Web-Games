@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-08, latest): **Five Dice 3D: the rolled dice go into
+*Status (2026-11-08, latest): **Five Dice 3D: a full house shows its
+smaller number first** (built, not published; see "3D games"). Earlier
+the same day: **Five Dice 3D: the rolled dice go into
 order in one step** (release 7.3; see "3D games"). Earlier the
 same day: **Five Dice 3D: Roll off the tray (over
 it, or beside it on an upright phone), the dice centred along the front
@@ -1845,7 +1847,9 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   they landed, square to the front; the kept dice stay along the back.
   When a box is picked, **the dice that score it stand forward** in that
   row, grouped like the box's picture (the number's dice for 1s-6s; the
-  dice the same; 3 + 2 with a wider gap for a full house; one of each
+  dice the same; the 3 and the 2 with a wider gap for a full house, the
+  smaller number first (since 2026-11-08, after 7.3; until then the 3
+  first, as the picture); one of each
   number low to high for a run, 4 for the small run; all five low to high
   for "?"), and hop once; the rest step back to the back row; a box
   scoring 0 moves nothing; **Undo** puts every die back. The robot's

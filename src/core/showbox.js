@@ -7,7 +7,10 @@
 // - 1s-6s: the dice of that number;
 // - 3 the same, 4 the same, 5 the same: the dice of the number there are
 //   most of;
-// - full house: the three, then the two (a wider gap between groups);
+// - full house: the three and the two, the smaller number first (a wider
+//   gap between groups; developer, 2026-11-08, after 7.3: two 1s and
+//   three 5s showed the 5s first, "not what I expected"; until then the
+//   three first, as the box's picture);
 // - small run: one die of each number of the first run of 4 (as its
 //   picture), low to high; big run: all five, low to high;
 // - ?: all five, low to high.
@@ -26,8 +29,10 @@ export function showBox(box, dice) {
   switch (box) {
     case 'three': case 'four': case 'five':
       return [of(c.indexOf(Math.max(...c)))];
-    case 'house':
-      return [of(c.indexOf(3)), of(c.indexOf(2))];
+    case 'house': {
+      const three = c.indexOf(3), two = c.indexOf(2);
+      return two < three ? [of(two), of(three)] : [of(three), of(two)];
+    }
     case 'small': case 'big': {
       const n = box === 'small' ? 4 : 5;
       for (let v0 = 1; v0 + n - 1 <= SIDES; v0++) {

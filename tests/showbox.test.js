@@ -16,7 +16,9 @@ test('showbox: each box shows the dice that score it, as its picture', () => {
     ['three', [3, 3, 3, 3, 1], [[3, 3, 3, 3]]],   // 4 the same: all four count
     ['four', [2, 5, 5, 5, 5], [[5, 5, 5, 5]]],
     ['five', [6, 6, 6, 6, 6], [[6, 6, 6, 6, 6]]],
-    ['house', [2, 5, 2, 5, 5], [[5, 5, 5], [2, 2]]],   // the three, then the two
+    ['house', [2, 5, 2, 5, 5], [[2, 2], [5, 5, 5]]],   // the smaller number first
+    ['house', [1, 5, 5, 1, 5], [[1, 1], [5, 5, 5]]],   // the developer's roll after 7.3
+    ['house', [6, 1, 6, 1, 1], [[1, 1, 1], [6, 6]]],   // the three first when it's smaller
     ['small', [4, 1, 3, 2, 6], [[1, 2, 3, 4]]],
     ['small', [5, 3, 3, 4, 6], [[3, 4, 5, 6]]],     // one of the two 3s
     ['small', [2, 3, 4, 5, 6], [[2, 3, 4, 5]]],     // a big run: the first 4, as the picture
@@ -30,7 +32,7 @@ test('showbox: each box shows the dice that score it, as its picture', () => {
     assert.equal(new Set(flat).size, flat.length, `${box} ${dice}: a die shown twice`);
     assert.ok(flat.every(i => i >= 0 && i < 5), `${box} ${dice}: an index outside the dice`);
   }
-  assert.equal(cases.length, 12);
+  assert.equal(cases.length, 14);
 });
 
 test('showbox: the dice shown add up to the box’s points (the boxes that add)', () => {

@@ -12594,3 +12594,37 @@ the dice ending 2 4 4 6 6 along the front; no console errors.
    phone upright (375 x 667) scrolls; Five Dice and Laser Lab on a small
    phone sideways (667 x 375) still scroll; Rock paper scissors' picks
    narrower than their column on a tablet. Nothing to purge.
+
+## 2026-11-08: 7.3 tried; a full house shows its smaller number first (not published)
+
+**7.3 on the phone** (developer): "It looks great." One thing noticed:
+"I had a full house (two 1's and three 5's). After I selected full house
+option to score it did show the 5s and 1s together but the 5's were
+first. Not a big deal, but not what I expected."
+
+**Cause:** as designed, not a bug: `showBox` (`src/core/showbox.js`)
+gave a full house the three, then the two, copying the box's picture on
+the sheet (three dice, then two under the roof; `fivedice-pics.js`).
+Since 7.2 every row stands smallest to highest, so the picture's order
+now reads as out of order.
+
+**Changed:** a full house's two groups go smallest number first (two 1s
+and three 5s: 1 1, gap, 5 5 5; three 1s and two 6s: 1 1 1, gap, 6 6).
+The sheet's picture is unchanged (it shows no numbers). Not asked; the
+2D Five Dice has no dice showing a box.
+
+**Tests** (`tests/showbox.test.js`): the old case's expected groups
+swapped (`[2, 5, 2, 5, 5]` now `[[2, 2], [5, 5, 5]]`: under the old code
+it fails), plus the developer's roll `[1, 5, 5, 1, 5]` and a smaller
+three `[6, 1, 6, 1, 1]`. `npm test` 468 passed (after `node
+tools/offline.js`: version 994efa5c36cd).
+
+**Checked** in the built-in browser (393 x 760, a Long game): with the
+page's `Math.random` stubbed for one roll to give two 1s and three 5s,
+scoring Full house logged `show box` `groups: [[2,0],[4,3,1]]` (the 1s
+first), and the tray showed 1 1, a gap, 5 5 5 standing forward; no
+console errors. Server stopped after.
+
+**Open questions:** Q47 unchanged. **Proposed skill additions:** none.
+
+**Next:** the developer's OK to publish as **7.4**.
