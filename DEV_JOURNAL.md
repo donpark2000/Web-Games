@@ -13187,3 +13187,18 @@ see the entry before).
    scrolls; Rock paper scissors' picks narrower than their column on a
    tablet; `css/five-dice.css`'s unused flat-row rules. Nothing to purge.
 Open: Q47.
+
+## 2026-11-08: 7.6 tried; the cup cut off while pouring is fine
+
+**Developer** (on the phone with 7.6): "I like it all. I don't think the
+top of the cup being cut off in portrait mode is a problem. It seems more
+realistic than shrinking the cup and the dice." So the dice into the
+cup, a tap on the cup, and the bigger cup's top cut off at the tray
+picture's top edge while it pours, on an upright phone, all stay as
+built. Nothing to change.
+
+**Next:** Q47 when the grandkids try it. Left over, only if wanted:
+Five Dice 3D on a small phone upright (375 x 667) scrolls; Laser Lab on
+a small phone sideways (667 x 375) scrolls; Rock paper scissors' picks
+narrower than their column on a tablet; `css/five-dice.css`'s unused
+flat-row rules. Open: Q47. Nothing to purge.
