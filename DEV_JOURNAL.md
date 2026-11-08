@@ -12977,3 +12977,32 @@ waiting cup rolls. Mockup v2 waits for the developer.
    (`src/core/release.js` 7.6, `node tools/offline.js`, `RELEASES.md`,
    `node tools/release.js`).
 Open: Q47, Q60. Nothing to purge.
+
+## 2026-11-08: Cup start mockup v2 tried; full-size dice heaped in the cup
+
+**Developer:** "The last mockup showing dice in the cup before each roll
+is an improvement. However, the dice visibly shrink when going into the
+cup and get bigger when they come out. ... In reality, the dice would be
+on top of each other in the cup. You would definitely see that there
+were dice in the cup but you could not count them without turning the
+cup over." So: dice in the cup on every roll, agreed; their own count
+on show, dropped as a goal.
+
+**Why v2 shrank them:** the cup is narrow for a die. Its inside is about
+0.74-0.82 across the middle from its axis (`src/ui/tray3d.js`, the
+lathe), so about 1.5-1.6 die widths across (a die is about 1: `DIE_GAP`
+1.3 centre to centre), 1.9-2.1 at the 1.3 times size waiting on the
+felt, and 1.4 deep (1.8 on the felt). Five full-size dice don't fit
+side by side, so v2 used half-size ones to show each count.
+
+**Claude's view: yes, it makes sense.**
+- Full-size dice, the same size going in, in the cup and coming out.
+- Heaped as real dice would be: the first ones flat on the bottom, the
+  later ones on top, tilted against each other and the wall. With 4 or 5
+  the top one or two stick up over the rim; with fewer they sit lower.
+- Seeing that there are dice in it, even 1 or 2: the cup a little wider
+  (a real dice cup holds five loosely) and tipped a little towards the
+  camera, so the inside shows. To check by eye in a mockup, on an
+  upright phone's shallow tray (the inside 3.6 deep at its shallowest).
+
+**Next:** the developer: mockup v3 with this.
