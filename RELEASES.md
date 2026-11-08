@@ -7,6 +7,15 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 7.3 (2026-11-08, version c7b285f400d4)
+
+Five Dice 3D: the dice go into order in one move:
+
+- **After a roll each die goes straight to its place in order**,
+  smallest to highest, instead of lining up first and then sorting. A
+  die whose way would meet another goes over it.
+- **The dice kept at the back sort at the same time**, not after.
+
 ## 7.2 (2026-11-08, version 0fba33ebf855)
 
 Five Dice 3D: Roll off the tray, the dice in order:
