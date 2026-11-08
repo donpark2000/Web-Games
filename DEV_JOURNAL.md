@@ -29,6 +29,10 @@ time, each tried before publishing:
   Also to learn from it: is the tunnel's depth readable for ages 5-7
   with the spot (and which helps are needed), how fast is right, and
   what new ideas it gives. A name to choose later.
+  2026-11-08, after v1: the table "more like the classic"; the tunnel's
+  spot and ring distracting, its one layer of bricks no depth; speed-ups
+  and getting behind the bricks missing. Mockup v2 adds those, and the
+  developer's **paddle or aimed shots** to choose as well.
 
 ## Proposed additions to the standards skill
 
@@ -13289,3 +13293,71 @@ frame rate on a phone (37 fps in the built-in browser's pane, which may
 have been in the background).
 
 **Open questions:** Q61 added. Q47 unchanged.
+
+## 2026-11-08: Mockup v1 tried; mockup v2 (speed-ups, room behind the bricks, aimed shots)
+
+**Developer** (mockup v1, in the app): "They are both interesting."
+- Tunnel: "the ring and spot were more distracting than helpful"; the
+  shadow "hard to say since the color scheme made shadow hard to see";
+  the bricks "just one layer - no depth there".
+- "The table version is more like the classic breakout I remember."
+- Missing: "punching a hole that allowed the ball to get behind the
+  barrier and that's when a lot of stuff happens fast."
+- "I did not notice the speed of the ball in either version ...
+  changing. I seem to recall that the classic games did change speed a
+  lot."
+- Then, while v2 was being built: "Another approach, rather than the
+  'paddle' metaphor, would be aiming shots. no catching rebounds."
+
+**Why** (Claude): v1's ball kept one speed all game, and A's back row was
+0.625 from the rail, with the ball 0.5 across: a gap it could only just
+fit through, behind five rows. The original 1976 arcade game, as it is
+usually described: the ball sped up after 4 hits, after 12, and on its
+first hit on the orange row and on the red row; reaching the back wall
+halved the paddle. (From memory of published descriptions, not checked
+against a source here.)
+
+**Mockup v2** (same link, version 2; "v2: speed-ups, aimed shots"):
+- **Speed-ups (on by default):** +15% of the start speed each after 4
+  hits, after 12 hits, the first hit on the second-deepest row/layer and
+  the first on the deepest; at most 4 (1.6 times the start). ⚡ 1-5 in
+  the play area's top line, "Faster!" flashes with a rising tone. A miss
+  (or, with shots, each new shot) goes back to the start speed: Claude's
+  choice, gentler for kids than the arcade's.
+- **Shrink paddle (off by default):** the arcade rule; the first time the
+  ball reaches the back wall the paddle shrinks (A to 55% wide, B to 70%
+  each way) until the next miss; "Smaller paddle!".
+- **A:** six rows, the back two red and orange (the speed-up rows), the
+  back row 2 units from the rail (1.7 of room behind it); table 13 long.
+- **B:** the bricks a block three deep (4 × 5 × 3 = 60, deeper layers
+  darker), 2.4 of room behind it; the tunnel light (walls with a little
+  glow), the ball dark, so the floor shadow shows; Spot and Ring off by
+  default (still there to try).
+- **Play with: Paddle / Aimed shots** (the developer's idea), both
+  versions. Shots: no paddle; an orange launcher at the near end; point
+  (mouse) or drag (finger) to aim, dots show the path up to the first
+  brick (at most 2 bounces), click or let go to shoot; the ball bounces
+  until it comes back past the launcher, then the next aim; "Shots N"
+  counts, the end "All N bricks in K shots! 🎉". A: aimed along the
+  table (up to about 70° either side); B: aimed at a point 6 deep, so up
+  and down as well as sideways.
+
+**Checked** (served on 8130 as before; built-in browser): no console
+errors (only a missing favicon). The pane was hidden for part of it, and
+a hidden pane's animation hardly runs (a 15 s run moved the ball almost
+nothing), so a test hook, `bb3d.step(dt)`, steps the game directly. 90 s
+of game time each, a script playing: A paddle cleared all 36 (in 80 s),
+⚡ reaching 5; B paddle 47 of 60, ⚡ 5; A shots 32 bricks in 30 shots;
+B shots 33 in 29. Each trigger seen on its own: hits 4 and 12 (6.0 →
+6.9 → 7.8), the orange and red rows (`deep1`, `deep2`), the back wall
+shrinking the paddle (1.9 → 1.045, "Smaller paddle!"), a miss putting
+⚡ back to 1 and the paddle back. A real mouse aim and shot on both (dots
+drawn, "Shots 1", the ball back to the launcher). 375 × 812: no
+sideways scroll. Not checked: a phone, a finger.
+
+**Seen while testing:** one shot usually breaks one brick and comes
+straight back, so a board takes about as many shots as bricks. Games of
+this kind often shoot several balls in a row per shot, which makes the
+"lot of stuff fast" happen; an idea for v3 if aimed shots are liked.
+
+**Open questions:** Q61 now also: paddle or aimed shots. Q47 unchanged.
