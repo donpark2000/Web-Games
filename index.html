@@ -40,10 +40,6 @@
         <span class="pic snl" id="snlPic" aria-hidden="true"></span>
         Snakes and Ladders
       </a>
-      <a class="game" id="diceLink" href="five-dice.html">
-        <span class="pic" id="dicePic" aria-hidden="true"></span>
-        Five Dice
-      </a>
       <a class="game" id="dice3dLink" href="five-dice-3d.html">
         <span class="pic" id="dice3dPic" aria-hidden="true"></span>
         Five Dice 3D
@@ -107,7 +103,7 @@
   import { CARD_BACK } from './src/ui/cardback.js';
   import { numberSvg } from './src/ui/numbercard.js';
   import { PICTURES } from './src/ui/rpspics.js';
-  import { ladderSvg, snakeSvg, dotsSvg, cubeSvg } from './src/ui/snlart.js';
+  import { ladderSvg, snakeSvg, cubeSvg } from './src/ui/snlart.js';
   import { MATCH_SVG } from './src/ui/matchstick.js';
   import { padsFor } from './src/core/follow-me.js';
   import { padStyle } from './src/ui/fmpads.js';
@@ -158,9 +154,6 @@
   document.getElementById('snlPic').innerHTML = `<svg class="snlmini" viewBox="0 200 400 400">${sq}${snakeSvg(15, 4)}${ladderSvg(2, 14)}</svg>`
     + `<span class="tok o1" style="left: 37.5%; top: 37.5%">${svg('bear', 'winner')}</span>`
     + `<span class="tok o2" style="left: 37.5%; top: 86%">${svg('robot')}</span>`;
-  // Five Dice: a full house, and the bear who rolled it.
-  document.getElementById('dicePic').innerHTML = [5, 5, 5, 2, 2].map(n => `<span class="die">${dotsSvg(n)}</span>`).join('')
-    + `<span class="o1">${svg('bear', 'winner')}</span>`;
   // Five Dice 3D: five dice seen at an angle on the tray's green felt, and the bear.
   document.getElementById('dice3dPic').innerHTML = Array.from({ length: 5 }, () => `<span class="die3d">${cubeSvg('#A9703F')}</span>`).join('')
     + `<span class="o1">${svg('bear', 'winner')}</span>`;

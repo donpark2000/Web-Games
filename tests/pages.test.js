@@ -18,9 +18,11 @@ const html = Object.fromEntries(await Promise.all(pages.map(async p => [p, await
 const localRefs = s => [...s.matchAll(/(?:href|src)="([^"]+)"|from '(\.\/[^']+)'/g)]
   .map(m => m[1] ?? m[2]).filter(u => !/^(https?:|mailto:|#)/.test(u)).map(u => u.replace(/[?#].*$/, ''));
 
-test('pages: the home page and the sixteen games exist', () => {
+// The 2D Five Dice retired 2026-11-08 (Q59): Five Dice 3D is the only one.
+test('pages: the home page and the fifteen games exist, and only those', () => {
   assert.ok(pages.includes('index.html'));
-  for (const g of ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html', 'five-dice-3d.html', 'nim.html', 'dots-boxes.html', 'reversi.html', 'rock-paper-scissors.html', 'follow-me.html', 'bridges.html', 'hidden-faces.html', 'colour-sudoku.html', 'laser-lab.html']) assert.ok(games.includes(g), `${g} missing: ${games.join()}`);
+  const want = ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice-3d.html', 'nim.html', 'dots-boxes.html', 'reversi.html', 'rock-paper-scissors.html', 'follow-me.html', 'bridges.html', 'hidden-faces.html', 'colour-sudoku.html', 'laser-lab.html'];
+  assert.deepEqual([...games].sort(), [...want].sort());
 });
 
 test('pages: every page has the footer, and "Source code" opens in a new tab', () => {
@@ -109,7 +111,7 @@ test('pages: the home page groups the games: two players, one player, puzzles', 
   const groups = [...html['index.html'].matchAll(/<section class="group" id="(\w+)"[\s\S]*?<h2[^>]*>([\s\S]*?)<\/h2>([\s\S]*?)<\/section>/g)]
     .map(([, id, title, body]) => ({ id, title: title.replace(/<[^>]+>/g, '').trim(), games: [...body.matchAll(/<a class="game"[^>]*href="([^"]+)"/g)].map(m => m[1]) }));
   assert.deepEqual(groups.map(g => [g.id, g.title]), [['twoGroup', '👥 Two players'], ['oneGroup', '👤 One player'], ['puzGroup', '🧩 Puzzles for grown-ups']]);
-  assert.deepEqual(groups[0].games, ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice.html', 'five-dice-3d.html', 'nim.html', 'dots-boxes.html', 'reversi.html']);
+  assert.deepEqual(groups[0].games, ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice-3d.html', 'nim.html', 'dots-boxes.html', 'reversi.html']);
   // Bridges (2026-10-24): for the kids and the grown-ups, listed once,
   // with the kids (developer: "I do not want to list the same game twice").
   assert.deepEqual(groups[1].games, ['rock-paper-scissors.html', 'follow-me.html', 'bridges.html']);
@@ -120,18 +122,20 @@ test('pages: the home page groups the games: two players, one player, puzzles', 
 });
 
 // Five Dice 3D (DESIGN.md "3D games"): its setup screen is Five Dice's with
-// the dice's colour (white first), and a device that can't show 3D sees
-// only a way to Five Dice. Checked in the browser too (2026-11-07: the
-// note was hidden with the other panels, a blank page).
-test('pages: Five Dice 3D picks the dice’s colour, and points a device without 3D to Five Dice', async () => {
+// the dice's colour (white first), and a device that can't show 3D is
+// told so (Q59, 2026-11-08: the 2D Five Dice retired, so no way to it).
+// Checked in the browser too (2026-11-07: the note was hidden with the
+// other panels, a blank page).
+test('pages: Five Dice 3D picks the dice’s colour, and tells a device without 3D it can’t show it', async () => {
   const page = html['five-dice-3d.html'];
   const colours = [...page.matchAll(/<button [^>]*class="dcolour" data-colour="(\w+)" aria-pressed="(\w+)"/g)].map(m => `${m[1]}:${m[2]}`);
   assert.deepEqual(colours, ['white:true', 'red:false', 'blue:false', 'black:false']);
   const no3d = page.match(/<div class="panel no3d" id="no3d" hidden>([\s\S]*?)<\/div>/)?.[1] ?? '';
-  assert.match(no3d, /<a class="big" href="five-dice\.html">Play Five Dice<\/a>/);
+  assert.match(no3d, /<p>This phone or tablet can’t show the 3D dice\.<\/p>/);
+  assert.doesNotMatch(no3d, /<a /, 'a link left in the note (the 2D Five Dice is retired)');
   const js = await readFile(path.join(root, 'src/ui/five-dice-3d.js'), 'utf8');
   assert.match(js, /for \(const el of document\.querySelectorAll\('#setup > \.panel, #setup > \.go'\)\) el\.hidden = el\.id !== 'no3d';/);
-  // three.js loaded inside a try, so a browser that can't run it still gets the way to Five Dice
+  // three.js loaded inside a try, so a browser that can't run it still gets the note
   assert.match(js, /try \{\s*tray3d = await import\('\.\/tray3d\.js'\);/);
   assert.doesNotMatch(js, /^import .*tray3d/m);
 });

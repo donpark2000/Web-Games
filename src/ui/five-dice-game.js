@@ -6,8 +6,9 @@
 // src/core/five-dice-best.js; this file draws the sheet and scoreboard,
 // keeps time, handles taps and loads the long game's values for the robot.
 //
-// The dice are the page's tray (src/ui/five-dice.js: a row of flat dice;
-// src/ui/tray3d.js: the 3D tray), made by makeTray(hooks) with
+// The dice are the page's tray (src/ui/tray3d.js: the 3D tray; until the
+// 2D Five Dice was retired, 2026-11-08, also src/ui/five-dice.js, a row of
+// flat dice, kept in tag v7.5), made by makeTray(hooks) with
 //   hooks: { tapDie(i), tapRoll(), tapUndo(), later(fn, ms), L(msg, data) }
 // and returning
 //   render(view)        draw the dice and Roll (or Undo): view is

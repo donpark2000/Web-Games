@@ -4,8 +4,11 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-08, latest): **Five Dice 3D: a full house shows its
-smaller number first** (release 7.4; see "3D games"). Earlier
+*Status (2026-11-08, latest): **the 2D Five Dice retired**, Five Dice 3D
+the only one (built, not published; see "Five Dice" and "3D games").
+Earlier the same day: **Five Dice 3D: no double-tap zoom on the tray**
+(release 7.5). Earlier the same day: **Five Dice 3D: a full house shows
+its smaller number first** (release 7.4; see "3D games"). Earlier
 the same day: **Five Dice 3D: the rolled dice go into
 order in one step** (release 7.3; see "3D games"). Earlier the
 same day: **Five Dice 3D: Roll off the tray (over
@@ -91,9 +94,9 @@ page. So far:
 - **Connect Four** (drop pieces into columns; 4 in a row wins)
 - **Count to 9** (turn over numbered cards in order, 1 to 9)
 - **Snakes and Ladders** (roll the die, climb ladders, slide down snakes)
-- **Five Dice** (Yahtzee-style: roll five dice up to 3 times, fill the boxes)
-- **Five Dice 3D** (2026-11-07; Five Dice with its dice in a 3D tray,
-  poured from a cup; see "3D games")
+- **Five Dice 3D** (2026-11-07; Five Dice, Yahtzee-style: roll five dice
+  up to 3 times, fill the boxes, with its dice in a 3D tray, poured from
+  a cup; see "3D games"; the 2D **Five Dice** retired 2026-11-08)
 - **Nim** (take matches from one row; whoever takes the last one wins)
 - **Dots and Boxes** (2026-10-24; draw lines between dots, close a box
   to win it and go again)
@@ -518,6 +521,13 @@ Yahtzee-style, agreed 2026-10-06 from mockup v5 (journal):
 [Five Dice Mockup](https://claude.ai/artifact/JJKuS2fc4kpTo7YDdDDWKk)
 (private Claude artifact, version 5). Not called "Yahtzee" (Hasbro's
 trademark); "Five Dice" agreed by the developer (2026-10-06).
+
+**Retired 2026-11-08** (Q58, Q59; developer: "removing access to the 2D
+version is fine for now ... if it becomes one, we could revisit the
+approach or just restore the 2D version"): **Five Dice 3D** (see "3D
+games") is the only one. Its rules, robot, setup, sheet and scoreboard
+are this game's, as below; only the flat row of dice and its fit went
+(`five-dice.html`, `src/ui/five-dice.js`; kept in tag `v7.5` to restore).
 
 - **Setup:** Count to 9's **Who's playing?** (Just me / Me and the robot,
   preselected / Two players) and face pickers, then **How long?**: 🎲
@@ -1802,11 +1812,15 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
 - **Published as new games beside the 2D ones until proven** (the
   phone and tablet can only try what's published): first **Five Dice
   3D**, next to Five Dice, as release 7.0. Whether it later replaces the
-  2D game is the developer's call.
+  2D game is the developer's call. **Five Dice 3D replaced it**
+  (2026-11-08, Q58, Q59): the 2D page is gone, fallback included; the
+  name stays "Five Dice 3D" (developer: "so it is clear which version of
+  the game I want feedback on once my grandkids try it").
 - **three.js**, one pinned copy in the repo (MIT), cached by the offline
   app like any other file (about 0.7 MB, downloaded by every install).
   No model or image files: shapes and dots are made in code. A device
-  without WebGL is pointed to the 2D game. **A fixed camera**: no
+  without WebGL is told it can't show it (until 2026-11-08 pointed to
+  the 2D game). **A fixed camera**: no
   turning or zooming; tap to pick.
 - **Five Dice 3D's dice tray**, agreed from mockup v2
   ([Five Dice 3D Tray](https://claude.ai/artifact/XsCVMyHvGaGVmaSqq3oHqR),
@@ -1905,7 +1919,8 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   middle, dice 55 and rows 48; an upright tablet 800 × 1280, dice 77 and
   rows 64; fitted in 40-270 ms (the mockup's 0.9-1.6 s). **A device that
   can't show 3D** (no WebGL, or three.js won't load) sees only "This phone
-  or tablet can't show the 3D dice" and a **Play Five Dice** button.
+  or tablet can't show the 3D dice" (until 2026-11-08 with a **Play Five
+  Dice** button to the 2D game).
   Logged: the fit (layout, sizes, tries, ms), each roll's spots (where:
   front, tray or rows; how far apart), each landing (the rules' numbers
   and the faces seen), the dice colour, taps on the tray, and why 3D

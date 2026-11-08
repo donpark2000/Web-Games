@@ -90,12 +90,13 @@ test('wide: an upright screen never tries the wide layout; no room keeps tall', 
   });
 });
 
-const GAMES = ['tic-tac-toe', 'matching', 'connect-four', 'count-to-9', 'snakes-ladders', 'five-dice', 'nim', 'dots-boxes', 'reversi',
+const GAMES = ['tic-tac-toe', 'matching', 'connect-four', 'count-to-9', 'snakes-ladders', 'nim', 'dots-boxes', 'reversi',
   'rock-paper-scissors', 'follow-me', 'bridges', 'hidden-faces', 'colour-sudoku', 'laser-lab'];
 
-// A game's screen code: its own file, and Five Dice's shared with Five
-// Dice 3D (2026-11-07).
-const SHARED_UI = { 'five-dice': ['five-dice-game'], 'five-dice-3d': ['five-dice-game', 'tray3d'] };
+// A game's screen code: its own file, and Five Dice 3D's shared game code
+// (2026-11-07; shared with the 2D Five Dice until it was retired,
+// 2026-11-08). Five Dice 3D fits its own way: its own test below.
+const SHARED_UI = { 'five-dice-3d': ['five-dice-game', 'tray3d'] };
 const uiOf = async g => (await Promise.all([g, ...(SHARED_UI[g] ?? [])].map(f => read(`src/ui/${f}.js`)))).join('\n');
 
 test('wide: every game fits both ways, refits on a turn, logs it, and goes back to one column for setup', async () => {
@@ -111,7 +112,6 @@ test('wide: every game fits both ways, refits on a turn, logs it, and goes back 
     assert.ok(/wide \? (Math\.min\()?wideRoom\(\)/.test(call), `${g}: the wide board isn’t limited by the room beside the column`);
     assert.ok(/if \([^)]*wide[^)]*\) return null;/.test(call), `${g}: no way out when the wide layout has no room`);
     assert.ok(/fitPlayScreen\(/.test(call), `${g}: fitPlayScreen not used`);
-    // (Five Dice: its fit returns { ...r, die }, which five-dice-game.js logs)
     assert.ok(/r\.layout|L\('fit', (r|\{ \.\.\.r)|return \{ \.\.\.r, [\s\S]*L\('fit', tray\.fit\(\)\)/.test(js), `${g}: the layout kept isn’t logged`);
     assert.ok(/addEventListener\('resize', (fit\)|[\s\S]{0,120}?(fit\w*|layoutGrid)\(\))/.test(js), `${g}: not refitted when the screen turns`);
     // Every way to the setup screen puts the footer back under main.
@@ -124,7 +124,7 @@ test('wide: every game fits both ways, refits on a turn, logs it, and goes back 
     assert.equal((play.match(/class="[^"]*\bstage\b/g) ?? []).length, 1, `${g}: one .stage in the play screen`);
     checked++;
   }
-  assert.equal(checked, 15);
+  assert.equal(checked, 14);
 });
 
 // Five Dice 3D fits its own way (src/ui/tray3d.js: the tray's height and
@@ -182,7 +182,8 @@ test('wide: the home page has more games a row on a screen wider than tall, and 
 
 test('wide: every play screen shows its game’s name, the setup screen’s heading, at the top', async () => {
   let checked = 0;
-  for (const g of GAMES) {
+  // (Five Dice 3D too: it fits its own way, but shows its name the same)
+  for (const g of [...GAMES, 'five-dice-3d']) {
     const html = await read(`${g}.html`);
     const h1 = html.match(/<section id="setup"[\s\S]*?<h1>([^<]+)<\/h1>/)?.[1];
     const top = html.match(/<section id="play"[^>]*>\s*<div class="top[^"]*">([\s\S]*?)\n    <\/div>/)?.[1] ?? '';
@@ -261,21 +262,6 @@ test('wide: words fitted once per screen are fitted again in each layout (fitFor
     assert.ok(/L\('tools fit', \{[^}]*for: fitFor\(\)/.test(js), `${g}: the tools fit's layout isn't logged`);
   }
   assert.ok(checked >= 10, `checked ${checked}`);
-});
-
-test('wide: Five Dice stands the dice and Roll beside the sheet (option B)', async () => {
-  const js = await read('src/ui/five-dice.js');
-  const call = js.match(/const r = fitEitherWay\(wide => \{[\s\S]*?\n  \}\);/)?.[0] ?? '';
-  // the dice are as tall as the sheet's rows let them be, the sheet kept at
-  // least WIDE_SHEET wide; no room for that: one column
-  assert.match(js, /const WIDE_W = 600, WIDE_DIE = 1\.3, WIDE_SHEET = 240;/);
-  assert.match(call, /\? Math\.min\(MAX_DIE, width - 10 - WIDE_SHEET\)/);
-  assert.match(call, /if \(wide && dieMax < MIN_ROW\) return null;/);
-  assert.match(call, /Math\.round\(px \* \(wide \? WIDE_DIE : 1\.2\)\)/);
-  const css = await read('css/five-dice.css');
-  assert.match(css, /body\.wide-layout #play > \.stage\.stack \{ width: var\(--stagew\); justify-items: stretch; grid-template-columns: auto minmax\(0, 1fr\);/);
-  assert.match(css, /body\.wide-layout \.tray \{ flex-direction: column;/);
-  assert.match(css, /body\.wide-layout \.dz\.up \{ transform: translateX\(-9px\)/);
 });
 
 test('wide: Laser Lab’s shop stands beside the board, the board’s room less the shop’s', async () => {

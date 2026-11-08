@@ -165,8 +165,8 @@ const GAME_SOUNDS = {
   matching: ['swish', 'ding', 'uhoh'],
   'count-to-9': ['swish', 'ding', 'uhoh', 'ping'],
   'snakes-ladders': ['shake', 'tick', 'climb', 'wheee', 'ping'],
-  'five-dice': ['shake', 'tick', 'thud', 'ping'],
-  // Five Dice's, the shake as the cup shakes, and a clack as each die lands.
+  // Five Dice's (the 2D game's, retired 2026-11-08), the shake as the cup
+  // shakes, and a clack as each die lands.
   'five-dice-3d': ['shake', 'tick', 'thud', 'ping', 'clack'],
   nim: ['tick', 'uhoh', 'thud', 'ping'],
   // A tick per line, a ding per box won (2026-10-24, the mockup's).
@@ -186,7 +186,7 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
   let checked = 0;
   // A game's screen code: its own file, and Five Dice's shared with Five
   // Dice 3D (2026-11-07).
-  const SHARED_UI = { 'five-dice': ['five-dice-game'], 'five-dice-3d': ['five-dice-game', 'tray3d'] };
+  const SHARED_UI = { 'five-dice-3d': ['five-dice-game', 'tray3d'] };
   for (const [game, want] of Object.entries(GAME_SOUNDS)) {
     const files = [game, ...(SHARED_UI[game] ?? [])];
     const src = (await Promise.all(files.map(f => readFile(path.join(root, 'src/ui', `${f}.js`), 'utf8')))).join('\n');
@@ -200,7 +200,7 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 40);
+  assert.equal(checked, 36);
 });
 
 // 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (developer, 2026-10-09; was

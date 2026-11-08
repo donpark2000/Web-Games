@@ -12742,3 +12742,73 @@ here).
 
 **Next:** the developer's answers to Q58 and Q59; then publish the zoom
 fix, with or without the retiring, as **7.5**.
+
+## 2026-11-08: Release 7.5 published (no double-tap zoom on the tray); the 2D Five Dice retired (not published); status (start here next session)
+
+**Developer:** "I think I'll leave the name as 5 Dice 3D for now so it is
+clear which version of the game I want feedback on once my grandkids try
+it. And removing access to the 2D version is fine for now. ... But I
+would like to re-publish with the zoom fix". Q58 and Q59 settled
+(Resolved). Published the zoom fix on its own, as asked, and built the
+retiring after it, so each can be tried apart (as the open-questions
+list asks: one thing at a time, each tried before publishing).
+
+**Published 7.5:** `main` fast-forwarded 5162114..2af68f8 (pushed from
+`five-dice-3d`), tag `v7.5`,
+[GitHub release 7.5](https://github.com/donpark2000/Web-Games/releases/tag/v7.5);
+the Pages build done (success). Before it: `node tools/release.js`
+"Release 7.5 is ready: version efcded3b8f19", `npm test` 469 passed.
+**Checked live:** `sw.js` RELEASE 7.5, VERSION efcded3b8f19; the live
+`src/ui/tray3d.js` has the touch-end block. In the built-in browser the
+game page first ran 7.4 from the offline copy and logged "a new version
+found: installing"; after a reload it logged `saved for offline`
+release 7.5, version efcded3b8f19, `version.js` efcded3b8f19; no console
+errors.
+
+**The 2D Five Dice retired** (for 7.6, not published):
+- Gone: `five-dice.html`, `src/ui/five-dice.js` (the flat row of dice,
+  its tumble and its fit), the home page's Five Dice button and picture
+  (and its `dotsSvg` import), Five Dice 3D's **Play Five Dice** button
+  for a device that can't show 3D (the note stays: "This phone or tablet
+  can't show the 3D dice."; logged `no 3D: told this device can't show
+  it`), and `five-dice.html` from `GAME_PAGES` (`src/core/resume.js`).
+  `tools/offline.js`: 119 files (121 before).
+- Kept: the shared game (`src/ui/five-dice-game.js`, its tray interface
+  unchanged), the rules and robot (`src/core/five-dice*.js`, their
+  tests), and `css/five-dice.css` (Five Dice 3D loads it; its flat-row
+  rules are now unused, left rather than risk the 3D page's look; a
+  tidy-up only if wanted). Everything gone is in tag `v7.5` to restore.
+- An address saved for `five-dice.html` now finds nothing (GitHub's 404
+  page). The home page and the installed app's icon don't use it.
+
+**Tests:** `pages.test.js`: the games are now exactly the fifteen (was:
+sixteen, each only checked present); the two-players group without Five
+Dice; the no-3D note has its words and no link. `sound.test.js` and
+`wide.test.js`: Five Dice's entries, and the "option B" test of its flat
+row, removed (checked counts 40 to 36, 15 to 14). Found in passing: the
+"every play screen shows its game's name" check never covered Five Dice
+3D (it isn't in `GAMES`, fitting its own way); now it does, so that
+check stays at 15. The existing "every local file a page refers to
+exists" test would catch a link left to the removed page. `npm test` 468
+passed (version e0efb00d37c0).
+
+**Checked** in the built-in browser: the home page at 393 x 760 and 1280
+x 720: Two players has nine games, Five Dice 3D after Snakes and
+Ladders, its picture drawn; no console errors. Five Dice 3D with the
+page's no-3D steps run by hand: just the note under the 🏠 and the name,
+no link. (Not checked: a real device without WebGL.) Server stopped.
+
+**Open questions:** Q47 (the kids' devices; now there's no 2D game to
+fall back on, so a device that can't show 3D can't play Five Dice: Q59's
+"restore the 2D version" if so). **Proposed skill additions:** none.
+
+**Next:**
+1. The developer on the phone with 7.5: no zoom from quick taps on the
+   dice? If it zooms again, the log's `[zoom] page zoom changed` says
+   where.
+2. Publish the retiring as **7.6** on the developer's OK (release
+   number, `node tools/offline.js`, `RELEASES.md`, `node tools/release.js`).
+3. Left over, only if wanted: Five Dice 3D on a small phone upright (375
+   x 667) scrolls; Laser Lab on a small phone sideways (667 x 375)
+   scrolls; Rock paper scissors' picks narrower than their column on a
+   tablet; `css/five-dice.css`'s unused flat-row rules. Nothing to purge.

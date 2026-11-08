@@ -1,7 +1,9 @@
 // Five Dice 3D (DESIGN.md "3D games"): Five Dice with its dice in a 3D
 // tray (src/ui/tray3d.js), the dice's colour picked on the setup screen.
 // The game is Five Dice's (src/ui/five-dice-game.js). A device that can't
-// draw 3D (no WebGL, or three.js won't load) is pointed to Five Dice.
+// draw 3D (no WebGL, or three.js won't load) is told so (Q59: since the 2D
+// Five Dice was retired, 2026-11-08, no way to it; restore it from tag
+// v7.5 if the kids' devices need it).
 
 import { fiveDice } from './five-dice-game.js';
 import { log, startLog } from './debuglog.js';
@@ -9,7 +11,7 @@ import { log, startLog } from './debuglog.js';
 const L = (msg, data) => log.add('dice', msg, data);
 
 // three.js is loaded here, not imported at the top, so a browser that
-// can't run it still gets this page's words and its way to Five Dice.
+// can't run it still gets this page's words.
 let tray3d = null, why = '';
 try {
   tray3d = await import('./tray3d.js');
@@ -33,7 +35,7 @@ if (!why) {
 }
 if (why) {
   startLog('five-dice-3d');
-  L('no 3D: pointed to Five Dice', { why, ua: navigator.userAgent });
+  L('no 3D: told this device can’t show it', { why, ua: navigator.userAgent });
   document.getElementById('play').hidden = true;
   document.getElementById('setup').hidden = false;
   for (const el of document.querySelectorAll('#setup > .panel, #setup > .go')) el.hidden = el.id !== 'no3d';

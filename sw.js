@@ -20,7 +20,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'efcded3b8f19';
+const VERSION = 'e0efb00d37c0';
 const MADE = '2026-11-08';
 const RELEASE = '7.5';
 const FILES = [
@@ -55,7 +55,6 @@ const FILES = [
   'data/laser-lab.json',
   'dots-boxes.html',
   'five-dice-3d.html',
-  'five-dice.html',
   'follow-me.html',
   'hidden-faces.html',
   'icons/apple-touch-icon.png',
@@ -112,7 +111,6 @@ const FILES = [
   'src/ui/fit.js',
   'src/ui/five-dice-3d.js',
   'src/ui/five-dice-game.js',
-  'src/ui/five-dice.js',
   'src/ui/fivedice-pics.js',
   'src/ui/fmpads.js',
   'src/ui/follow-me.js',
