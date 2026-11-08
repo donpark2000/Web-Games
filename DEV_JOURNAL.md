@@ -13006,3 +13006,66 @@ side by side, so v2 used half-size ones to show each count.
   upright phone's shallow tray (the inside 3.6 deep at its shallowest).
 
 **Next:** the developer: mockup v3 with this.
+
+## 2026-11-08: Cup start mockup v3 (full-size dice heaped in a wider cup)
+
+**Developer:** "yes" (to mockup v3 as proposed).
+
+**Mockup v3** ([Five Dice 3D Cup Start](https://claude.ai/artifact/HBjnrfUnApYoMHNDTZnvkD),
+version 3, the same link; opened for the developer). v2's published
+files fetched with the Artifact tool's read; all but `src/ui/tray3d.js`
+matched this branch byte for byte. Changed in the copies (marked "v3"):
+- **The cup** 1.7 times as wide (`CUP_R` in the copy of
+  `src/core/dice3d.js`) and taller, `CUP_H` 1.6 (was 1.4), so the mouth
+  the dice pour from moves with it. The same size waiting and pouring
+  (v2: 1.3 times while waiting); waiting, set 0.25 further back, as the
+  wider cup would touch the front rim.
+- **Full-size dice in one heap**, in the order they go in: two flat on
+  the bottom, the 3rd and 4th lying on them, the 5th on top (tops at
+  0.30, 0.30, 1.23, 1.27, 1.76; the rim at 0.80). So 1-2 show inside the
+  cup, 3+ stick up over the rim. Each die gets one of the 24 turns that
+  look the same, at random, so the heap keeps its shape and its numbers
+  change.
+- **Going in at turn's end:** each die hops up over the rim and drops onto
+  its place in the heap at full size (0.5 s each, 0.12 s apart; v2: 0.38 s,
+  shrinking to 0.65), so the die in the heap takes over where it lies.
+  On a 2nd or 3rd roll the dice hop into the pouring cup as before, and
+  each shows in the heap as it goes in.
+
+**How the heap was made:** a script in Claude's scratchpad
+(`heap.mjs`) drops five unit cubes one at a time into the cup. Each one
+goes to the lowest place where it doesn't overlap the dice already in
+(a separating-axis test, the corners pulled in for the rounding), stays
+inside the lining and is on the bottom; between places at the same
+height it picks the one nearest the wall. Tried, by the heights printed:
+- The cup 1.5 times as wide: the dice stacked in a tower (two under the
+  rim, three over it, the top at 2.2 for a rim at 0.84). The bottom
+  couldn't hold two side by side.
+- 1.7 to 1.9 times, 1.5 to 1.6 tall: two on the bottom (1.8 times: three
+  with one seed), the rest on them.
+- Picked 1.7 times by 1.6 tall, seed 7 (die 3 lies tilted).
+
+**Checked** (served on 8130 with `tools/serve.js`'s `createServer` from
+a scratchpad script; a temporary launch entry, removed after), Just me:
+- **Upright phone (393 x 760):** a new game shows the cup with five
+  full-size dice heaped in it (`inCup()`: count 5, all size 1). Roll
+  pours and they land and line up.
+- **2nd roll, 2 dice picked up:** both shown in the cup at full size
+  while it shakes. A 3rd roll the same.
+- **A box scored:** after Undo's time the cup came and the dice hopped
+  into it one by one, full size.
+- **Sideways phone (780 x 340) and sideways tablet (1280 x 720),** after a
+  reload (the game picked up at a turn's start): the dice in the cup.
+- No errors but the offline worker's 404 (a mockup has no `sw.js`).
+
+**Seen, for the developer to judge:**
+- On the upright phone's shallow tray the bigger cup stands taller than
+  the back rim in the picture.
+- While pouring, the wider cup hides more of the tray's right side, and
+  its top touches the top of the tray's picture as it tips (clipped for
+  a moment).
+**Not checked:** the published page itself (sign-in), a real phone.
+
+**Open questions:** Q47; Q60 (mockup v3 to try). **Next:** the developer
+tries mockup v3; then build what's agreed (see the status entry before
+this one for the plan) and publish 7.6 with the retiring.
