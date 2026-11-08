@@ -23,6 +23,16 @@ time, each tried before publishing:
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
 
+- **Q55. Five Dice 3D: the rolled dice's row isn't always in the same
+  place** (2026-11-08, developer, after 7.1 on the phone: "Sometimes
+  after the roll, the dice are lined up at the bottom and are 'left
+  justified'. Sometimes centred. And once ... in the centre of the
+  board instead of the bottom", seen sideways). Causes found (see
+  "Line-up: three places, one rule wanted"); the fix to agree.
+- **Q56. Five Dice 3D: the rolled dice lined up smallest to highest**
+  (2026-11-08, developer's suggestion; until now left to right as they
+  landed).
+
 ## Proposed additions to the standards skill
 
 None waiting. (2026-11-07: "Key a remembered result by everything it
@@ -12308,3 +12318,35 @@ under Roll, no console errors. Not checked: a real phone.
 2. Left over, only if wanted: Five Dice and Laser Lab on a small phone
    sideways (667 × 375) still scroll; Rock paper scissors' picks narrower
    than their column on a tablet. Nothing to purge.
+
+## 2026-11-08: Line-up: three places, one rule wanted (Q55, Q56)
+
+**The developer**, after 7.1 on the phone: "It plays well but I notice a
+few inconsistent behaviors" (Q55), and a suggestion: line the rolled
+dice up smallest to highest (Q56).
+
+**Causes** (`rowAt` and `lineUp` in `src/core/dice3d.js`; the numbers
+from the debug log of the 7.1 checks in the built-in browser, and one
+roll again today at 393 x 760):
+- **Centred or "left justified":** a row starts centred along the front
+  and moves left 0.1 at a time until no die is under Roll (the front
+  right corner). A few dice clear Roll centred (2 dice: x -0.65, 0.65);
+  4 or 5 don't, so they move left (upright phone, 5 dice: x -2.84 to
+  1.64, 0.6 left, spaced 1.12; sideways tablet: 4 dice x -2.5 to 1.1).
+  So how many dice were rolled decides which.
+- **The middle of the tray:** where 5 dice can't fit at the front beside
+  Roll even pushed left, the row steps back towards the middle: the
+  sideways phone (780 x 340, tray 3.3 x 2.1): z -0.19 (the front is 1.48);
+  also an **upright tablet** (800 x 1280, the same tray shape): z 0.06.
+  So not only sideways: it's the 3.3-wide tray (the narrowest), on which
+  5 dice and Roll don't fit in one row. Fewer dice on that tray still go
+  to the front.
+
+**What a fix could be** (die sizes from `dieAt` for each tray shape,
+Claude's scratchpad `shapes.mjs`): one rule everywhere, the row always
+along the front starting from the left wall. For 5 dice to fit there on
+every screen, the sideways phone and upright tablet need the wider tray
+(3.7): their dice 8% smaller (sideways phone 34 → 31 px, upright tablet
+77 → 71 px); or Roll moves out of the tray on those screens. Sorting
+(Q56): dice sliding into a new order cross each other's paths, so they
+would need to hop over (or around) one another.
