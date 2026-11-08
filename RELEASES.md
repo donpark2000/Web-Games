@@ -7,6 +7,14 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 7.4 (2026-11-08, version 67d5dd098efe)
+
+Five Dice 3D: a full house shows its smaller number first:
+
+- **Pick Full house and its dice stand in order**, like every other row:
+  two 1s and three 5s show 1 1, then 5 5 5 (until now the three came
+  first).
+
 ## 7.3 (2026-11-08, version c7b285f400d4)
 
 Five Dice 3D: the dice go into order in one move:
