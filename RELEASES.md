@@ -7,6 +7,20 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 7.2 (2026-11-08, version 0fba33ebf855)
+
+Five Dice 3D: Roll off the tray, the dice in order:
+
+- **Roll has moved off the tray:** in its own row just above it, or
+  beside it on an upright phone, where that keeps the dice bigger. So
+  the dice always line up **centred** along the front (they used to move
+  aside, or back, to clear Roll).
+- **The dice put themselves in order, smallest to highest:** after a
+  roll they line up as they landed, then hop over each other into order.
+  The dice kept at the back do the same.
+- **Clearer words:** "Tap dice to roll again, or pick your score", and
+  "Pick your score" after the third roll.
+
 ## 7.1 (2026-11-08, version 437a0c58bad6)
 
 Five Dice 3D: the dice line up and show the score:

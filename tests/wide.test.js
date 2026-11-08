@@ -130,11 +130,14 @@ test('wide: every game fits both ways, refits on a turn, logs it, and goes back 
 // Five Dice 3D fits its own way (src/ui/tray3d.js: the tray's height and
 // shape with the rows; play screen mockup v2), but like the others: tried
 // both ways on a screen wider than tall, refitted on a turn, logged, and
-// one column again for the setup screen.
+// one column again for the setup screen. One column is tried with Roll
+// over the tray and beside it (7.2, Q55: an upright phone's dice 22 px
+// over it, 33 beside).
 test('wide: Five Dice 3D fits one column, the tray in the middle, or the tray on the right', async () => {
   const js = await uiOf('five-dice-3d');
-  assert.match(js, /const kinds = innerWidth > innerHeight \? \['tall', 'mid', 'side'\] : \['tall'\];/);
-  assert.match(js, /setWide\(kind !== 'tall'\);/);
+  assert.match(js, /const kinds = innerWidth > innerHeight \? \['tall', 'tall-rollside', 'mid', 'side'\] : \['tall', 'tall-rollside'\];/);
+  assert.match(js, /const tall = kind\.startsWith\('tall'\), side = kind === 'side';\s*setWide\(!tall\);/);
+  assert.match(js, /document\.body\.classList\.toggle\('roll-side', kind === 'tall-rollside'\);/);
   assert.match(js, /bestRow\(MIN_ROW, MAX_ROW, 2, r => \{/);
   assert.match(js, /addEventListener\('resize', \(\) => \{ if \(match && !\$\('play'\)\.hidden\) fit\(\); \}\);/);
   assert.match(js, /const fit = \(\) => L\('fit', tray\.fit\(\)\);/);
@@ -147,6 +150,10 @@ test('wide: Five Dice 3D fits one column, the tray in the middle, or the tray on
   const css = await read('css/five-dice-3d.css');
   assert.match(css, /body\.tray-side #play > \.controls \{[^}]*grid-column: 1; grid-row: 1 \/ -1;/);
   assert.match(css, /body\.tray-side #play > \.stage > \.scoreboard \{/);
+  // Roll off the tray: over it, or in a column at its right
+  assert.match(play, /<div class="traybox" id="trayBox">\s*<div class="rollrow" id="rollRow"><button type="button" class="roll" id="rollBtn">/);
+  assert.ok(!/class="tray3d"[^>]*>[^<]*<canvas[^>]*><\/canvas>\s*<button/.test(play), 'Roll still on the tray');
+  assert.match(css, /body\.roll-side #play \.traybox \{ grid-template-columns: minmax\(0, 1fr\) auto;/);
 });
 
 test('wide: the wide layout’s styles: three columns, the board at full height, the footer at the foot', async () => {

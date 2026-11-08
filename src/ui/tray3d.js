@@ -50,7 +50,7 @@ const RING = { 1: 0xF2724F, 2: 0x3A94D4 };   // css: --p1, --p2
 const FELT = '#2F7A57', WOOD = 0xA9703F, SKY = 0xE4F1EE;
 
 export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
-  const tray = $('tray'), canvas = $('c'), rollBtn = $('rollBtn'), rollRow = $('rollRow');
+  const tray = $('tray'), canvas = $('c'), rollBtn = $('rollBtn'), trayBox = $('trayBox');
   let view = null, rollDone = null, lastYay = false, lastScored = null;
 
   /* ---------- the scene ---------- */
@@ -585,20 +585,23 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
   // tray in the right column under the turn line with the sheet in the
   // middle, Play again / New game in the left column between the 🏠 and
   // the 🔊 and the scoreboard upright beside the sheet (option A of play
-  // screen mockup v2), so nothing scrolls. Each is fitted for the biggest
-  // dice and score rows together; the biggest wins.
+  // screen mockup v2), so nothing scrolls. One column is tried with Roll
+  // over the tray and (tall-rollside) beside it at its right (Q55: over it,
+  // an upright phone's dice were 22px, 35 in 7.1). Each is fitted for the
+  // biggest dice and score rows together; the biggest wins (a tie: the
+  // first tried).
   const MIN_ROW = 28, MAX_ROW = 64, MIN_TRAY = 90, STAGE_MAX = 760;
   const play = $('play'), stage = $('stage'), board = $('scoreboard');
   function applyLayout(kind) {
-    setWide(kind !== 'tall');
-    const side = kind === 'side';
+    const tall = kind.startsWith('tall'), side = kind === 'side';
+    setWide(!tall);
     document.body.classList.toggle('tray-side', side);
-    if (side) play.insertBefore(tray, stage);
-    else if (tray.parentElement !== stage) stage.prepend(tray);
-    tray.before(rollRow);   // Roll always just over the tray
+    document.body.classList.toggle('roll-side', kind === 'tall-rollside');
+    if (side) play.insertBefore(trayBox, stage);
+    else if (trayBox.parentElement !== stage) stage.prepend(trayBox);
     if (side) stage.append(board);
     else if (board.parentElement !== play) stage.after(board);
-    if (kind !== 'tall') play.style.setProperty('--stagew', `${Math.min(wideRoom(), STAGE_MAX)}px`);
+    if (!tall) play.style.setProperty('--stagew', `${Math.min(wideRoom(), STAGE_MAX)}px`);
   }
   const setRow = r => play.style.setProperty('--row', `${r}px`);
   const setTrayH = h => play.style.setProperty('--trayh', `${h}px`);
@@ -646,6 +649,9 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     play.style.setProperty('--rollh', `${h}px`);
     play.style.setProperty('--rollw', `${Math.round(h * 3.3)}px`);
     play.style.setProperty('--rollfont', `${Math.round(h * .42)}px`);
+    // beside the tray: a column, about 64 x 122 on a phone
+    play.style.setProperty('--rollsw', `${Math.round(clamp(innerWidth * .16, 56, 76))}px`);
+    play.style.setProperty('--rollsh', `${Math.round(h * 2.4)}px`);
     return h;
   }
   function fit() {
@@ -654,7 +660,7 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     const turn = $('turn'), said = turn.innerHTML, cls = turn.className;
     turn.className = 'turn';
     turn.innerHTML = `<span class="chip"></span><span class="say">${LONGEST}</span>`;
-    const kinds = innerWidth > innerHeight ? ['tall', 'mid', 'side'] : ['tall'];
+    const kinds = innerWidth > innerHeight ? ['tall', 'tall-rollside', 'mid', 'side'] : ['tall', 'tall-rollside'];
     const tried = kinds.map(tryLayout);
     const pick = tried.reduce((a, b) => ((b?.value ?? -1) > (a?.value ?? -1) ? b : a), null);
     const kind = pick?.kind ?? 'tall';

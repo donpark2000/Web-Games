@@ -4,7 +4,11 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-07, latest): **Five Dice 3D built** from the agreed
+*Status (2026-11-08, latest): **Five Dice 3D: Roll off the tray (over
+it, or beside it on an upright phone), the dice centred along the front
+and in order, smallest to highest; new turn-line words** (release 7.2;
+see "3D games"). Earlier the same day: the dice line up and show the
+score (7.1). 2026-11-07: **Five Dice 3D built** from the agreed
 tray and play screen mockups, with three.js in the repo, and published
 (release 7.0; see "3D games"). Earlier the same day: **3D games** started:
 Five Dice 3D's dice
@@ -1819,7 +1823,7 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   sideways"): Five Dice's play screen with the tray in the dice row's
   place, over the sheet; **Roll on the tray's front right corner**, where
   the cup comes (no die lands under it; it fades while the cup is out and
-  is ↩ Undo there after scoring); the dice waiting along the back at a
+  is ↩ Undo there after scoring; off the tray since 7.2, see below); the dice waiting along the back at a
   turn's start; the tray's shape following the room; the play screen up
   to 680 px wide; a sideways tablet with the tray over the sheet in the
   middle column. **A sideways phone: option A** of version 2 (developer,
@@ -1843,10 +1847,31 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   number low to high for a run, 4 for the small run; all five low to high
   for "?"), and hop once; the rest step back to the back row; a box
   scoring 0 moves nothing; **Undo** puts every die back. The robot's
-  boxes too, its turn passing after 2.4 s (1.5 s in Five Dice). Where
-  Roll leaves no room at the front (a sideways phone), the row closes up
-  and then steps back towards the back row. A game picked up again shows
-  its dice lined up along the front.
+  boxes too, its turn passing after 2.4 s (1.5 s in Five Dice). (Until
+  7.2, where Roll left no room at the front, the row moved left or stepped
+  back towards the back row.) A game picked up again shows its dice lined
+  up along the front.
+- **Roll off the tray, the rows centred and in order, new words**
+  (release 7.2; Q55-Q57; developer, 2026-11-08, after 7.1 on the phone:
+  the row was sometimes left, sometimes centred, once mid-tray; no
+  mockup: "part of what we need to verify is spacing on the phone"):
+  **Roll in its own row just over the tray** ("Maybe above the board"),
+  or **beside it at its right where that gives bigger dice** (an upright
+  phone: over it, dice 22 px; beside, 33; developer: "Beside"); greyed
+  while the dice roll. So **every row is centred along the front**.
+  **Both rows in order, smallest to highest** (developer's suggestion;
+  the kept row too, agreed): once a roll lands, the dice line up as they
+  landed, then each row puts itself in order where it stands, dice
+  passing others going over them (`sortRow`); the kept dice move only
+  then, never on their own. **The turn line** (Five Dice 3D only; the 2D
+  game "very close to" being replaced): "Tap dice to roll again, or pick
+  your score", "Pick your score" after the third roll, "Five the same!
+  Pick your score" ("tap", not "select"; the sheet "does not really look
+  like boxes"). Sizes (the built-in browser): upright phone 393 × 760,
+  Roll beside, dice 33, rows 28; sideways phone 780 × 340, dice 34, rows
+  34; upright tablet 800 × 1280, dice 76, rows 64; sideways tablet 1280 ×
+  720, dice 49, rows 42 (55 and 48 in 7.1); a small phone upright 375 ×
+  667 still scrolls (as in 7.1, by 59 px more).
 - **As built** (2026-11-07): `five-dice-3d.html`, in 👥 Two players after
   Five Dice, its home picture five dice seen at an angle on green felt.
   **The game is Five Dice's**, shared: `src/ui/five-dice-game.js` (setup,
@@ -1861,7 +1886,8 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   two at its tightest spacing): on an upright phone's shallow tray, 4
   dice thrown beside 1 kept nearly always need the whole tray, so they
   may land beside the kept one in the back row. **Fitted with the longest
-  turn line** ("Five the same! Pick a box, or tap dice to roll again"),
+  turn line** ("Tap dice to roll again, or pick your score"; until 7.2
+  "Five the same! Pick a box, or tap dice to roll again"),
   so no words make the page scroll. Sizes (the built-in browser): an
   upright phone 393 × 760, dice 35 px and rows 28; a sideways phone 780 ×
   340, option A, dice 34 and rows 34; 667 × 375 and 852 × 393, option A,

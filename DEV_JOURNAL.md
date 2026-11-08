@@ -12433,3 +12433,52 @@ order in the back row on screen (Node only); a real phone.
 
 **Next:** the developer picks Roll's place on an upright phone (above,
 22 px dice; or beside, about 33 px), then 7.2.
+
+## 2026-11-08: Roll beside the tray on an upright phone; 7.2 ready
+
+**The developer:** "Beside, then 7.2".
+
+**Built:** the tray and Roll's row in one box (`#trayBox`); the fit tries
+one column with Roll over the tray (`tall`) and beside it at its right
+(`tall-rollside`: a column 56-76 px wide, the button up to 2.4 x Roll's
+height, its dots under the word), with the sideways layouts as before;
+the biggest dice wins, a tie the one over the tray. Logged in `fit`
+(`layout`, both tries' dice).
+
+**Checked in the built-in browser** (die px; `tried` from the log):
+- upright phone 393 x 760: **beside**, 33 (over: 22); tray 290 x 152,
+  Roll 63 x 122; no scroll. A game against the robot: 5 rolled landed
+  1 2 6 5 5 in another order and stood in order 1 2 5 5 6 (3 moved, 3
+  heights); the 2 and two 5s rolled again (the kept 1 and 6 along the
+  back); then a 1 and a 2 from the front rolled again with the other 2
+  kept: the back row 1 6 2 put itself in order **1 2 6** (2 moved, 2
+  heights), the front 2 3; the words "Pick your score" after the third
+  roll; the 2s box stood the two 2s forward, Undo put every die back
+  exactly (positions read back).
+- sideways phone 780 x 340: over (the `side` layout), 34; the rows kept
+  through the turn of the screen.
+- upright tablet 800 x 1280: over, 76 (beside 68).
+- sideways tablet 1280 x 720: over (`mid`), 49 (7.1: 55).
+- small phone upright 375 x 667: nothing fits either way, the page
+  scrolls 846 px for 667. **7.1 did the same** (a temporary checkout of
+  v7.1 served on 8124: 787 px for 667, `tried: [null]`), so not new;
+  59 px more now. Added to the leftovers.
+- No console errors. Once (from 1280 x 720 to 375 x 667) the fit logged
+  Roll 64 px tall at 375 x 667, where 49 is right; after a reload 49.
+  The browser's emulation passes through an in-between size; a fit on
+  each resize event follows the last one. Not seen otherwise; to watch
+  on the phone when it turns (the log says `rollH`).
+
+**Tests:** `tests/wide.test.js` checks the two one-column layouts, the
+`roll-side` class, Roll in the tray's box and not on the tray, and the
+beside style (shown to fail: the box's class changed, caught). 467, all
+passing.
+
+**Release 7.2 prepared** (not published): `src/core/release.js` 7.2,
+`node tools/offline.js` (version 0fba33ebf855, 121 files), notes in
+`RELEASES.md`, `node tools/release.js`: "Release 7.2 is ready". DESIGN.md
+"3D games": Roll off the tray, rows centred and in order, the words,
+the sizes. Q55, Q56, Q57 to close once tried on the phone.
+
+**Next:** on the developer's "publish": merge to `main`, tag `v7.2`,
+the GitHub release; then the developer tries it on the phone.

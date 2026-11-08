@@ -72,7 +72,7 @@
   </section>
 
   <!-- PLAY: Five Dice's, the 3D tray in place of the row of dice, Roll
-       over the tray (Q55: off it, so the dice line up centred) -->
+       over or beside the tray (Q55: off it, so the dice line up centred) -->
   <section id="play" class="app" aria-label="Game" hidden>
     <div class="top">
       <a class="homebtn" href="index.html" aria-label="All games"></a>
@@ -80,8 +80,10 @@
       <div class="turn" id="turn" aria-live="polite"></div>
     </div>
     <div class="stage stack" id="stage">
-      <div class="rollrow" id="rollRow"><button type="button" class="roll" id="rollBtn">Roll<span class="pips"><i></i><i></i><i></i></span></button></div>
-      <div class="tray3d" id="tray"><canvas id="c" aria-label="Five dice in a tray"></canvas></div>
+      <div class="traybox" id="trayBox">
+        <div class="rollrow" id="rollRow"><button type="button" class="roll" id="rollBtn">Roll<span class="pips"><i></i><i></i><i></i></span></button></div>
+        <div class="tray3d" id="tray"><canvas id="c" aria-label="Five dice in a tray"></canvas></div>
+      </div>
       <div class="sheet" id="sheet"></div>
     </div>
     <div class="tip" id="tip" role="dialog" aria-live="polite" hidden></div>

@@ -31,10 +31,18 @@ main.app, #play.app { max-width: 680px; }
 
 /* Roll (and Undo after scoring) in its own row over the tray, centred,
    its rolls-left dots beside the word (Q55: until 7.1 on the tray's front
-   right corner, and the dice lined up beside it). Its size is set from
-   the screen before the page is fitted (src/ui/tray3d.js), so it can't
-   change the fit; greyed while the dice roll. */
+   right corner, and the dice lined up beside it); or (body.roll-side,
+   where that gives bigger dice: an upright phone) in a column at the
+   tray's right, the dots under the word. Its size is set from the screen
+   before the page is fitted (src/ui/tray3d.js), so it can't change the
+   fit; greyed while the dice roll. */
+#play .traybox { display: grid; grid-template-columns: minmax(0, 1fr); row-gap: 10px; width: 100%; }
 #play .rollrow { display: flex; justify-content: center; width: 100%; }
+body.roll-side #play .traybox { grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: stretch; }
+body.roll-side #play .rollrow { order: 2; width: auto; align-items: center; }
+body.roll-side #play .rollrow .roll {
+  width: var(--rollsw, 64px); height: min(100%, var(--rollsh, 120px)); grid-auto-flow: row; gap: 6px; padding: 0 2px;
+}
 #play .rollrow .roll {
   flex: none; width: var(--rollw, 160px); height: var(--rollh, 50px); min-width: 0; max-width: 100%;
   padding: 0 8px; font-size: var(--rollfont, 21px); grid-auto-flow: column; align-items: center; gap: 12px;
@@ -43,7 +51,6 @@ main.app, #play.app { max-width: 680px; }
 #play .rollrow .roll.undo { gap: 8px; }
 /* the 2D game's sideways rule for its dice column's Roll, undone */
 body.wide-layout #play .rollrow .roll { width: var(--rollw, 160px); height: var(--rollh, 50px); font-size: var(--rollfont, 21px); }
-body.wide-layout #play > .stage.stack > .rollrow { margin-bottom: -2px; }
 
 /* Sideways, the tray over the sheet in the middle column (a tablet) */
 body.wide-layout #play > .stage.stack { width: var(--stagew); grid-template-columns: minmax(0, 1fr); justify-items: stretch; align-items: start; }
