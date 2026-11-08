@@ -12564,3 +12564,33 @@ screenshots can't follow 0.7 s), so how it looks is for the phone.
 **Next:** the developer's OK to publish as **7.3** (a change to a
 game), then tries it on the phone: do the dice go to their places in one
 move, and do the ones going over others look right?
+
+## 2026-11-08: Release 7.3 published (the rolled dice into order in one move); status (start here next session)
+
+**Published** on the developer's "Yes - publish 7.3": `main`
+fast-forwarded d87da48..5d5aba4 (pushed from `five-dice-3d`, no branch
+switch), tag `v7.3` on 5d5aba4,
+[GitHub release 7.3](https://github.com/donpark2000/Web-Games/releases/tag/v7.3);
+the Pages build done (built, 5d5aba4). Before it: `node tools/release.js`
+"Release 7.3 is ready: version c7b285f400d4", `npm test` 468 passed.
+
+**Checked live** (the built-in browser, 393 x 760): `sw.js` RELEASE 7.3,
+VERSION c7b285f400d4. After a reload, a game's first roll: the log's
+`line up` has `heights: 2` (the new code; two dice over the others),
+the dice ending 2 4 4 6 6 along the front; no console errors.
+
+**Local servers:** Claude's `tools/serve.js` on 8123 stopped; no
+`serve.js` left running.
+
+**Status:** 7.3 live. Open: Q47 (the kids' devices).
+
+**Next:**
+1. The developer tries 7.3 on the phone, upright and sideways: after a
+   roll, do the dice go to their places in order in one move, and do
+   the ones going over others look right (up to three heights; the log's
+   `line up` gives each die's `over`)? The kept row sorting at the same
+   time? A reload brings 7.3 if the old one shows.
+2. Left over, only if wanted (as after 7.2): Five Dice 3D on a small
+   phone upright (375 x 667) scrolls; Five Dice and Laser Lab on a small
+   phone sideways (667 x 375) still scroll; Rock paper scissors' picks
+   narrower than their column on a tablet. Nothing to purge.

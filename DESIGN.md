@@ -5,7 +5,7 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-11-08, latest): **Five Dice 3D: the rolled dice go into
-order in one step** (built, not published; see "3D games"). Earlier the
+order in one step** (release 7.3; see "3D games"). Earlier the
 same day: **Five Dice 3D: Roll off the tray (over
 it, or beside it on an upright phone), the dice centred along the front
 and in order, smallest to highest; new turn-line words** (release 7.2;
