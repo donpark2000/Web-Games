@@ -12966,9 +12966,10 @@ waiting cup rolls. Mockup v2 waits for the developer.
 
 **Next:**
 1. The developer tries mockup v2 (1-4 dice shown in the cup).
-2. Build what's agreed into `src/ui/tray3d.js` (the mockup's copy is in
-   Claude's scratchpad, which a new session won't have: rebuild from
-   this entry and "Q60: cup start mockup v1"; the cup's rest pose and the
+2. Build what's agreed into `src/ui/tray3d.js` (the mockup's changed
+   copy is the artifact's published `src/ui/tray3d.js`: the Artifact
+   tool's read with that path fetches it; its changes are marked "Q60"
+   and "v2"; the cup's rest pose and the
    heaps' maths into `src/core/dice3d.js` with tests: the waiting cup
    inside the tray on every tray shape, each heap's top over the rim, a
    tap on a hidden die ignored), with debug log lines as in the mockup.
