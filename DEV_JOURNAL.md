@@ -23,6 +23,13 @@ time, each tried before publishing:
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
 
+- **Q61. A 3D brick breaker: table (A) or tunnel (B)?** (2026-11-08,
+  from the developer's question whether the table's play is still 2D.)
+  Mockup v1 has both to try, with depth helps and curve shots in B.
+  Also to learn from it: is the tunnel's depth readable for ages 5-7
+  with the spot (and which helps are needed), how fast is right, and
+  what new ideas it gives. A name to choose later.
+
 ## Proposed additions to the standards skill
 
 None waiting. (2026-11-07: "Key a remembered result by everything it
@@ -13202,3 +13209,83 @@ Five Dice 3D on a small phone upright (375 x 667) scrolls; Laser Lab on
 a small phone sideways (667 x 375) scrolls; Rock paper scissors' picks
 narrower than their column on a tablet; `css/five-dice.css`'s unused
 flat-row rules. Open: Q47. Nothing to purge.
+
+## 2026-11-08: A new 3D game: a brick breaker; mockup v1 (table or tunnel)
+
+**Developer:** a new 3D game; they've seen many (billiards, bowling,
+golf, shooting) and asked whether classics like Pong, Breakout and Tetris
+have 3D versions, and what is practical ("I value your opinion").
+
+**Claude's view** (in chat):
+- All three have 3D forms: falling blocks into a pit seen from above, a
+  paddle game down a tunnel with a paddle at each end, a brick breaker
+  with the ball flying at a wall of bricks.
+- **New for the site: real time.** Every game so far is turn by turn.
+  Frame rate becomes part of play (so Q47 matters more), and a finger
+  covers what it touches (control from anywhere, not on the paddle). The
+  rules (ball, bounces, bricks) can still go in `src/core/` and be tested
+  in Node, three.js only drawing; no physics library needed.
+- **Names:** Pong, Breakout and Tetris are trademarks, so each would get
+  its own name and look, as Yahtzee became Five Dice.
+- **Ranking:** a brick breaker first (one finger, one player, no robot,
+  easy to make gentle); a paddle game against the robot or a second
+  player second, from the same ball and paddle code; falling blocks
+  skipped, or for grown-ups (turning pieces three ways against a clock,
+  by touch, is hard for ages 5-7, and a flat well drawn in 3D only
+  changes the look).
+
+**Developer:** on a table, isn't the play still "classic 2D", the 3D only
+the bricks breaking? **Claude:** yes. For depth in the play, the ball has
+to move in depth: a **tunnel**, the paddle a see-through square at the
+near end moving up/down and left/right, the bricks at the far end; where
+the ball meets the paddle aims it; depth judged with an arrival spot and
+a ring on the walls. The tunnel is also the paddle game's scene with the
+robot's paddle in place of the bricks. **Developer:** "Mockups for sure.
+This is new territory for me so the mockups will help me become familiar
+with what is possible, limitations, and probably new ideas."
+
+**Mockup v1** ([Brick Breaker 3D Mockup](https://claude.ai/artifact/LCgkqRZyqbyEMyNdvAJ4gR),
+private, version 1; "Brick Breaker 3D" a working name only). Both
+playable, three.js r160 from jsDelivr (the mockup only), the site's
+palette and font:
+- **A · Table:** green felt in a wooden rail, 6 × 5 bricks at the far
+  end, an orange paddle that slides sideways, the ball flat on the table
+  (a shadow under it). A hit brick breaks into 8 pieces that fly, tumble,
+  bounce and fade, falling off the table at the edges. The paddle sends
+  the ball off at up to 60° by where it hits. Choice: **Camera** Low /
+  High.
+- **B · Tunnel:** a dark tunnel with grid lines, 4 × 5 bricks filling the
+  far end; the paddle a see-through orange square with a solid frame at
+  the near end; its pieces fall to the floor. Where the ball meets the
+  paddle sets its sideways and up/down slant. **Depth help** (each on or
+  off): **Spot** (a yellow ring where the ball will arrive, worked out
+  ahead with the bounces), **Ring** (a yellow frame on the walls at the
+  ball's depth), **Shadow** (on the floor, smaller and darker as the ball
+  is lower). **Curve shots** Off / On: the paddle's movement as it hits
+  bends the ball, fading out.
+- Both: **Ball speed** Slow (preselected) / Normal / Fast; a miss says
+  "Missed! Tap to launch" and counts (no game over); all bricks: "All N
+  bricks! 🎉"; Restart; sound (a knock per wall, a pop per brick, a tone
+  per paddle hit, a falling tone on a miss); switching versions pauses
+  the other ("Tap to go on"). A mouse moves the paddle to the pointer; a
+  finger drags it like a trackpad (1.4 times the finger's movement), from
+  anywhere on the play area. A debug line: WebGL version, fps, the ball's
+  place.
+
+**Checked** (scratchpad served on 8130 through `tools/serve.js`
+`createServer`, a temporary `.claude/launch.json` entry, removed after;
+built-in browser): WebGL 2, no console errors. A: a launch broke a brick
+into 8 pieces in flight (`debris: 8`, 29 left); the paddle moved away,
+"Missed! Tap to launch", misses 1. B: with the paddle kept on the ball
+for 9 s, 18 → 16 bricks and no miss; kept away, a miss in 6 s;
+all but one brick taken away and the ball aimed at it: "All 20 bricks!
+🎉". Switching A ↔ B mid-play held the game ("Tap to go on"); Restart
+gave 30 bricks, misses 0. At 375 × 812 (the page in the viewer's own
+skeleton, as a local copy: the bare file has no viewport line, so it
+first measured 980 wide) no sideways scroll, the play area 343 × 457.
+The HUD's white words were unreadable on A's light sky: put on dark
+pills before publishing. Not checked: a real phone, a finger's drag, the
+frame rate on a phone (37 fps in the built-in browser's pane, which may
+have been in the background).
+
+**Open questions:** Q61 added. Q47 unchanged.
