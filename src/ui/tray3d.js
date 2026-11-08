@@ -3,7 +3,9 @@
 // three.js (src/vendor/three). Tap a die to pick it up (it lifts over a
 // ring); on Roll the dice kept slide to a row along the back, the picked
 // ones hop into a leather cup that shakes, tips and pours them onto the
-// felt. The maths (the throw, landing spots, camera, the tray's shape for
+// felt, and once landed they line up along the front (Q53). A box picked:
+// the dice that score it stand forward, grouped like its picture, and hop
+// (Q54); Undo puts them back. The maths (the throw, landing spots, camera, the tray's shape for
 // the room) is src/core/dice3d.js; this file draws it and fits the play
 // screen. Made by src/ui/five-dice-3d.js for src/ui/five-dice-game.js
 // (its "tray").
@@ -12,8 +14,9 @@ import * as THREE from '../vendor/three/three.module.min.js';
 import { RoundedBoxGeometry } from '../vendor/three/RoundedBoxGeometry.js';
 import {
   v3, upright, topFace, trayPlaces, trayCorners, backRow, pickSpots, planThrow, throwPose, slide, slidePose, cupPose, restPose,
-  aim, project, trayShape, bestRow, FOV, TRAY, CUP_H, CORNER, DIE_GAP,
+  aim, project, trayShape, bestRow, lineUp, flat, FOV, TRAY, CUP_H, CORNER, DIE_GAP,
 } from '../core/dice3d.js';
+import { showBox } from '../core/showbox.js';
 import { UNDO_MS } from './five-dice-game.js';
 import { pageHeight, setWide, wideRoom } from './fit.js';
 import { sound } from './sound.js';
@@ -41,7 +44,7 @@ const FELT = '#2F7A57', WOOD = 0xA9703F, SKY = 0xE4F1EE;
 
 export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
   const tray = $('tray'), canvas = $('c'), rollBtn = $('rollBtn');
-  let view = null, rollDone = null, lastYay = false;
+  let view = null, rollDone = null, lastYay = false, lastScored = null;
 
   /* ---------- the scene ---------- */
 
@@ -101,13 +104,17 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     const was = places;
     places = trayPlaces(ix, iz);
     // a different tray (the screen turned): the dice at rest come back in,
-    // and any in the back row stand in the new one
+    // and any in the back row stand in the new one (the rows lined up are
+    // worked out again once the camera is aimed: reline); so do the places
+    // Undo would put them back to
     if (was) {
-      for (const d of dice) {
-        if (Math.abs(d.pos.z - was.backZ) < .05) d.pos.z = places.backZ;
-        d.pos.x = Math.min(ix - .6, Math.max(-ix + .6, d.pos.x));
-        d.pos.z = Math.min(iz - .6, Math.max(-iz + .6, d.pos.z));
-      }
+      const inside = p => {
+        if (Math.abs(p.z - was.backZ) < .05) p.z = places.backZ;
+        p.x = Math.min(ix - .6, Math.max(-ix + .6, p.x));
+        p.z = Math.min(iz - .6, Math.max(-iz + .6, p.z));
+      };
+      for (const d of dice) { settle(d); inside(d.pos); }
+      for (const s of shown?.was ?? []) inside(s.pos);
     }
   }
 
@@ -224,6 +231,10 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
       d.hop = null;
     }
     const kept = dice.filter(d => !rolled[d.i]);
+    // a kept die still lining up is put where it was going first
+    for (const d of kept) settle(d);
+    row = null; shown = null;
+    justThrown = idx;
     const plan = planThrow({
       thrown: thrown.map(d => ({ i: d.i, pos: v3(d.mesh.position.x, d.mesh.position.y, d.mesh.position.z), quat: qOf(d.mesh.quaternion) })),
       kept: kept.map(d => ({ i: d.i, pos: d.pos, quat: d.quat })),
@@ -246,8 +257,103 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     L('landed', { rules: view.dice, seen, same });
     const done = rollDone;
     rollDone = null;
+    tidy();   // first, so a hop for five the same waits for it
     renderRoll();
     done?.();
+  }
+
+  /* ---------- the dice lined up: after a roll (Q53), a box (Q54) ---------- */
+
+  // row: the dice standing in a row along the front ({ groups, backFree },
+  // groups of die indices left to right), worked out again when the tray
+  // changes. shown: a box's dice standing forward, with where every die
+  // was (Undo puts them back) and the row before.
+  let row = null, shown = null, justThrown = [], tidyUntil = 0;
+  const LINE_T = .4;                 // s: a die's slide into the row
+  const HOP_T = .45, HOP_STAG = .09;  // a scoring die's hop, one after another
+  // The robot waits this much longer after scoring, for its dice to show
+  // (five-dice-game.js; 2.4 s in all, as in the mockup): the slide, the
+  // hops, a moment to look.
+  const SHOW_MS = 900;
+  const r2 = x => Math.round(x * 100) / 100;
+  // A die still sliding is put where it was going.
+  function settle(d) {
+    if (d.move) { d.pos = { ...d.move.p1 }; d.quat = d.move.q1; d.move = null; }
+  }
+  const spot = s => v3(s.x, 0, s.z);
+  const lineFor = (r, groups) => lineUp({ groups: groups ?? r.groups, places, blocked: underRoll, backFree: r.backFree });
+
+  // Q53: the dice just rolled slide into a row along the front, left to
+  // right as they landed, square to the front; the kept dice stay along
+  // the back. Every die rolled leaves the back row free.
+  function tidy() {
+    if (!justThrown.length) return;
+    const ds = justThrown.map(i => dice[i]).sort((a, b) => a.pos.x - b.pos.x);
+    justThrown = [];
+    const r = { groups: [ds.map(d => d.i)], backFree: ds.length === 5 };
+    const line = lineFor(r);
+    if (!line) return L('line up: no row clear of Roll', { dice: r.groups[0], tray: [places.ix, places.iz] });
+    ds.forEach((d, j) => { d.move = slide(d, spot(line.spots[j]), clock, LINE_T); });
+    row = r;
+    tidyUntil = clock + LINE_T;
+    L('line up', { dice: r.groups[0], z: r2(line.z), gap: line.gap, x: line.spots.map(s => r2(s.x)) });
+    wake();
+  }
+
+  // Q54: a box just scored: the dice that make its score stand forward in
+  // a row, grouped as its picture, and hop once, one after another; the
+  // others step back to the back row. A box scoring 0 moves nothing.
+  function showScored(box) {
+    for (const d of dice) settle(d);
+    const groups = showBox(box, view.dice);
+    if (!groups.length) return L('show box', { box, dice: 'none (0 points)' });
+    // dice of one number keep their left-to-right order
+    const ordered = groups.map(g => [...g].sort((a, b) => view.dice[a] - view.dice[b] || dice[a].pos.x - dice[b].pos.x));
+    const counted = ordered.flat(), rest = dice.filter(d => !counted.includes(d.i)).sort((a, b) => a.pos.x - b.pos.x);
+    const r = { groups: ordered, backFree: !rest.length };
+    const line = lineFor(r);
+    if (!line) return L('show box: no row clear of Roll', { box, groups: ordered });
+    shown = { box, was: dice.map(d => ({ pos: { ...d.pos }, quat: { ...d.quat } })), row };
+    row = r;
+    const back = backRow(rest.length, places.backZ);
+    counted.forEach((i, j) => {
+      const d = dice[i];
+      d.move = slide(d, spot(line.spots[j]), clock, LINE_T);
+      d.hop = { t0: clock + LINE_T + .1 + j * HOP_STAG };
+    });
+    rest.forEach((d, j) => { if (flat(d.pos, back[j]) > .05) d.move = slide(d, back[j], clock, LINE_T); });
+    L('show box', { box, groups: ordered, back: rest.map(d => d.i), z: r2(line.z), gap: line.gap, x: line.spots.map(s => r2(s.x)) });
+    wake();
+  }
+  // Undo: every die back where it was before the box.
+  function unshow() {
+    if (!shown) return;
+    const { was } = shown;
+    row = shown.row;
+    shown = null;
+    for (const d of dice) {
+      settle(d);
+      d.hop = null;
+      const w = was[d.i];
+      if (flat(d.pos, w.pos) > .05) d.move = { t0: clock, dur: LINE_T, p0: { ...d.pos }, p1: { ...w.pos }, q0: { ...d.quat }, q1: w.quat };
+      else { d.pos = w.pos; d.quat = w.quat; }
+    }
+    L('show box undone');
+    wake();
+  }
+  // The tray changed (the screen turned): the rows lined up are worked out
+  // again for the new tray, straight to their places.
+  function reline() {
+    if (!row && !shown?.row) return;
+    if (row) {
+      const line = lineFor(row);
+      if (line) row.groups.flat().forEach((i, j) => { settle(dice[i]); dice[i].pos = spot(line.spots[j]); });
+      L('lined up again', { dice: row.groups, z: line && r2(line.z), found: !!line });
+    }
+    if (shown?.row) {
+      const line = lineFor(shown.row);
+      if (line) shown.row.groups.flat().forEach((i, j) => { shown.was[i].pos = spot(line.spots[j]); });
+    }
   }
 
   // Stops a roll being shown: every die straight to where it was going,
@@ -261,31 +367,39 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     cupPlan = null;
     cup.visible = false;
     rollDone = null;
+    row = null; shown = null; justThrown = [];
     wake();
   }
 
   // A turn's start: the dice wait in a row along the back, not rolled.
   function newTurn() {
     if (!places) return;
+    row = null; shown = null; justThrown = [];
     backRow(5, places.backZ).forEach((p, j) => {
       const d = dice[j];
+      settle(d);
+      d.hop = null;
       if (Math.hypot(d.pos.x - p.x, d.pos.z - p.z) > .05) d.move = slide(d, p, clock);
     });
     wake();
   }
 
   // The dice where they'd be with nothing moving: waiting along the back,
-  // or (a game picked up again) resting on the felt showing their numbers.
+  // or (a game picked up again) lined up along the front showing their
+  // numbers, as after a roll.
   let placed = false;
   function place(v) {
     placed = true;
+    row = null; shown = null; justThrown = [];
     if (v.wait) {
       backRow(5, places.backZ).forEach((p, j) => { dice[j].pos = p; });
       return;
     }
-    const spots = pickSpots({ n: 5, fixed: [], places, kept: 0, blocked: underRoll })?.spots ?? backRow(5, places.backZ);
+    const r = { groups: [[0, 1, 2, 3, 4]], backFree: true }, line = lineFor(r);
+    if (line) row = r;
+    const spots = line?.spots ?? pickSpots({ n: 5, fixed: [], places, kept: 0, blocked: underRoll })?.spots ?? backRow(5, places.backZ);
     dice.forEach((d, j) => { d.pos = v3(spots[j].x, 0, spots[j].z); d.quat = upright(v.dice[j], spots[j].yaw ?? 0); });
-    L('dice placed', { dice: v.dice });
+    L('dice placed', { dice: v.dice, lined: !!line });
   }
 
   function show(setup) {
@@ -297,9 +411,12 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     view = v;
     for (const d of dice) d.ring.material.color.setHex(RING[v.turn] ?? RING[1]);
     if (!placed && places) place(v);
-    // five the same: the dice hop, one after another
-    if (v.yay && !lastYay) dice.forEach((d, j) => { d.hop = { t0: clock + j * .08 }; });
+    // five the same: the dice hop, one after another, once lined up
+    if (v.yay && !lastYay) dice.forEach((d, j) => { d.hop = { t0: Math.max(clock, tidyUntil) + j * .08 }; });
     lastYay = v.yay;
+    // a box just scored: its dice show it (Q54; Undo: undone)
+    if (v.scored && v.scored !== lastScored && placed) showScored(v.scored);
+    lastScored = v.scored ?? null;
     renderRoll();
     wake();
   }
@@ -407,6 +524,9 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     const r = rolling();
     if (wasRolling && !r) landed();
     wasRolling = r;
+    // landing starts the line-up in this very frame (without this the
+    // drawing stopped with the slides pending: mockup v1)
+    if (dice.some(d => d.move)) moving = true;
     renderer.render(scene, camera);
     frames++;
     return moving || r;
@@ -516,6 +636,7 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     turn.className = cls;
     sizeCanvas();
     if (view && !placed) place(view);
+    else reline();
     wake();
     if (!running) renderer.render(scene, camera);
     return {
@@ -537,6 +658,6 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
 
   L('3D ready', { webgl2: renderer.capabilities.isWebGL2, revision: THREE.REVISION, pixelRatio: renderer.getPixelRatio() });
   // for checking from the console
-  window.dice3d = { dice, places: () => places, camera: () => cam, frames: () => frames, rolling, underRoll };
-  return { render, roll, stop, newTurn, show, fit };
+  window.dice3d = { dice, places: () => places, camera: () => cam, frames: () => frames, rolling, underRoll, row: () => row, shown: () => shown };
+  return { render, roll, stop, newTurn, show, fit, undone: unshow, scoreShowMs: SHOW_MS };
 }

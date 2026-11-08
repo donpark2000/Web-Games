@@ -205,6 +205,57 @@ export function fallbackSpots({ n, places, kept }) {
   return Array.from({ length: n }, (_, k) => ({ ...v3(x0 + (x1 - x0) * (n > 1 ? k / (n - 1) : .5), 0, k % 2 ? z1 : z0), yaw: 0 }));
 }
 
+/* ---------- dice lined up (Q53, Q54) ---------- */
+
+// After a roll the dice just rolled line up at the front (Q53), and when a
+// box is picked the dice that score it stand in a row there, grouped like
+// the box's picture (Q54; src/core/showbox.js). From the dice moves mockup
+// (developer, 2026-11-08: "line up at front", "Dice show score").
+// Spacing tried in turn: centre to centre, and the extra gap between
+// groups. An upright phone's tray (3.7 x 1.8) has no room for 5 dice at
+// 1.3 beside Roll in the middle; 1.2 fit (mockup v1).
+export const ROW_GAPS = [[DIE_GAP, .45], [1.2, .35], [1.12, .28]];
+const EDGE = .6;   // a die's centre this far in from the tray's sides
+
+// A row across the tray at depth z for `groups` (die indices, each group
+// left to right), centred, moved left a step at a time while a die would
+// be under Roll (blocked(spot)); closer together when no spacing clears
+// it. Returns { spots, gap } (spots in groups' order), or null.
+export function rowAt(z, groups, places, blocked = () => false) {
+  const n = groups.reduce((a, g) => a + g.length, 0);
+  for (const [gap, extra] of ROW_GAPS) {
+    const span = (n - 1) * gap + (groups.length - 1) * extra;
+    const xs = [];
+    let x = -span / 2;
+    for (const g of groups) { for (let j = 0; j < g.length; j++) { xs.push(x); x += gap; } x += extra; }
+    for (let shift = 0; shift <= places.ix; shift += .1) {
+      const spots = xs.map(px => ({ ...v3(px - shift, 0, z), yaw: 0 }));
+      // (centred, then only moved left: the left end is the one to check)
+      if (spots[0].x < -places.ix + EDGE - 1e-9) break;
+      if (!spots.some(s => blocked(s))) return { spots, gap };
+    }
+  }
+  return null;
+}
+
+// Where a row goes: along the front; where Roll leaves no room there, from
+// halfway back a step at a time, as far as the back row when no die stays
+// in it (backFree), else 1.1 in front of it. (A sideways phone's tray, 780
+// x 340: 5 dice fit neither at the front nor halfway beside Roll.) Returns
+// { spots, gap, z }, or null when there's no room anywhere.
+export function lineUp({ groups, places, blocked = () => false, backFree = false }) {
+  const { iz, backZ } = places;
+  const last = backFree ? backZ : backZ + 1.1;
+  const zs = [iz - .62];
+  for (let z = (backZ + iz - EDGE) / 2; z > last; z -= .25) zs.push(z);
+  zs.push(last);
+  for (const z of zs) {
+    const r = rowAt(z, groups, places, blocked);
+    if (r) return { ...r, z: Math.round(z * 1000) / 1000 };
+  }
+  return null;
+}
+
 /* ---------- a throw ---------- */
 
 const BOUNCE = .42;

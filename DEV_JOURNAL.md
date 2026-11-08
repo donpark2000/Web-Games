@@ -22,19 +22,6 @@ time, each tried before publishing:
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
-- **Q53. Five Dice 3D: tidy the new dice into a row after a roll?**
-  (2026-11-07, developer, with Q52: "after the roll is complete, we could
-  actually move the dice ... the results of the new roll get re-aligned
-  in the middle or at the bottom. I'm not convinced it is worth it or
-  even a good idea.") To discuss before any change. In the
-  [Five Dice 3D Dice Moves](https://claude.ai/artifact/FZvYxrkGijE5quRBPSH9vW)
-  mockup (version 1) on a switch, with Q54; see "Dice moves mockup v1".
-- **Q54. Five Dice 3D: the dice show the box picked** (2026-11-07,
-  developer: "after the player selects the score card option they want,
-  we redraw the dice to reflect that option. Basically treat selecting
-  the score card in the same way we treat selecting which dice to roll
-  again.") To discuss before any change. In the dice moves mockup with
-  Q53.
 
 ## Proposed additions to the standards skill
 
@@ -96,6 +83,12 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q53, Q54. Five Dice 3D: the dice lined up after a roll; the dice
+  show the box picked.** (2026-11-07, developer's ideas; tried in the
+  [Five Dice 3D Dice Moves](https://claude.ai/artifact/FZvYxrkGijE5quRBPSH9vW)
+  mockup, version 1, with switches.) Closed 2026-11-08, developer: "Q53
+  - line up at front. Q54 Dice show score". Built in the game (see
+  "Dice moves built: line up at the front, show the score").
 - **Q52. Five Dice 3D: dice landing beside a kept one.** (2026-11-07,
   Claude, from the build: on an upright phone, 4 dice thrown beside 1
   kept had room in front of the back row only 1-3 times in 50, so they
@@ -12209,3 +12202,79 @@ phone.
 **Next:** the developer tries the mockup (Q53, Q54), then build what's
 agreed in the game (with tests: `showBox` and the rows' room), as 7.1.
 Q47 open. No local server running; nothing to purge.
+
+## 2026-11-08: Dice moves built: line up at the front, show the score
+
+**The developer**, after trying the dice moves mockup (opened for them in
+the app's viewer: a link in a message didn't show it): "Q53 - line up at
+front. Q54 Dice show score". Q53 and Q54 closed (Resolved).
+
+**Built** on `five-dice-3d` from the mockup's own code (read back from the
+artifact and diffed against the repo: only `tray3d.js`, `five-dice-game.js`
+and the new `showbox.js` differed), the switches gone:
+- **After a roll** the dice just rolled slide (0.4 s) into one row along
+  the front, left to right as they landed, square to the front; the kept
+  dice stay along the back. Where Roll leaves no room at the front, the
+  row steps back from halfway, 0.25 at a time, as far as the back row
+  (every die rolled) or 1.1 in front of it; the dice close up (1.3, 1.2,
+  1.12 apart) before it moves.
+- **A box picked**: its dice stand forward in that row, grouped like the
+  box's picture, and hop one after another; the rest step back to the
+  back row; a box scoring 0 moves nothing; Undo puts every die back. The
+  robot's boxes too: it passes the turn 2.4 s after scoring (was 1.5 s;
+  the tray's `scoreShowMs`, 900, so the 2D game keeps 1.5 s).
+- **The row's maths** moved to `src/core/dice3d.js` (`rowAt`, `lineUp`,
+  with Roll as a `blocked` check, as `pickSpots` has), tested under Node;
+  `src/core/showbox.js` as in the mockup.
+- **Differences from the mockup:** (1) Undo is told to the tray
+  (`undone()`), not read from `scored` going empty: the game's end also
+  empties it, which would have put the last box's dice back. (2) A game
+  picked up again shows its dice lined up along the front (the mockup and
+  7.0: scattered). (3) The screen turned: the rows lined up are worked out
+  again for the new tray (7.0 only pulled dice back inside it), and so
+  are the places Undo puts dice back to. (4) The mockup's check that a
+  row's right end is inside the tray was dead code: a row is centred and
+  only moved left, so its left end goes out first (removed after breaking
+  it changed no test result).
+
+**Tests** (465, all passing; `node tools/offline.js` run for the new
+file: version 9b30dda5d3aa, 121 files): `tests/showbox.test.js` (each
+box's groups as its picture; over all 7776 rolls, every box that scores
+shows dice and the adding boxes' dice add up to their points: 39240
+checked; a 0 shows nothing); in `tests/dice3d.test.js`, rows on all 12
+tray shapes with a Roll 1.2, 1.6 and 2.0 wide over the front right
+corner: inside the tray, one row square to the front, apart, clear of
+Roll and of the back row's dice, groups further apart (720 dice); a row
+with nothing in the way centred along the front; a full house closed up
+on the narrowest tray; no room anywhere is null. **First run:** two
+counts I had guessed (40000, 800) were wrong, now the exact counts; and a
+2.4-wide Roll left no room for 4 dice in front of a kept one on the
+shallowest tray (3.3 x 1.8). The real Roll is about 1.2 wide there (the
+mockup: a die at most 1.95 across a 3.7 tray), so the widths are now
+1.2-2.0 and the 2.4 case is its own check that it's null (the tray then
+logs "line up: no row clear of Roll" and leaves the dice where they
+landed). **Shown to fail:** six breaks, each caught (Roll ignored, no
+group gap, the back row not kept free, a full house's two first, a run
+of 4 showing 5, a 0 showing dice; Claude's scratchpad `mutate.sh`, on a
+temp copy).
+
+**Checked in the built-in browser** (`tools/serve.js` on 8123):
+- Upright phone 393 x 760 (tray 3.7 x 1.8): 5 rolled lined up along the
+  front, 1.12 apart; 2 picked up and rolled, they lined up at the front,
+  the 3 kept in the back row; the 2s scored (the two 2s forward, three
+  back), Undo (every die exactly back), "?" (2 2 4 5 6 low to high).
+- Sideways phone 780 x 340 (3.3 x 2.1): 5 rolled stepped back to z -0.19,
+  as in the mockup; the robot's 4s (four 4s forward 1.2 apart, one back),
+  its turn passing 2.40 s after scoring.
+- Turned to upright with 5 lined up: lined up again along the new front,
+  same order. A reload mid-turn: lined up along the front.
+- Sideways tablet 1280 x 720 (4.1 x 1.8): the robot's 5 at the front,
+  1.3 apart. Upright tablet 800 x 1280 (3.3 x 2.1, dice 77 px): 5 at z
+  0.06, a box's dice at the front.
+- No die ever under Roll; no console errors; no "no row" line in the
+  log. Five Dice (2D) still scores and undoes.
+- Not checked: a real phone; a full house or a run on screen (Node only,
+  and the mockup).
+
+**Next:** publish as **7.1** on the developer's "publish", then try it on
+the phone. Q47 open (the kids' devices). Claude's server on 8123 running.

@@ -8,6 +8,7 @@ import {
   v3, qAxis, qMul, qRotate, qFromUnitVectors, qSlerp, qRandom, UP, FACES, upright, topFace, support,
   trayCorners, trayPlaces, backRow, pickSpots, fallbackSpots, planThrow, throwPose, slide, slidePose, cupPose, cupTimes,
   bounces, heightAt, restPose, project, aim, dieAt, trayShape, shapesKnown, bestRow, flat, apart, DIE_GAP, THROW_T, RATIO,
+  lineUp, TRAY,
 } from '../src/core/dice3d.js';
 
 // The same numbers every run.
@@ -127,6 +128,81 @@ test('dice3d: thrown dice rest apart, inside the tray, clear of the kept dice an
     if (key !== '3.3x1.8/1') assert.equal(n.tray, 0, `${key}: beside the kept dice ${n.tray} times`);
   }
   assert.ok(found['3.3x1.8/1'].tray > 0, 'the whole tray never tried');
+});
+
+test('dice3d: dice line up along the front, inside the tray, apart, clear of Roll and the back row', () => {
+  // every tray shape the fit can pick, a pretend Roll button over the
+  // front right corner (where the real one is), and the rows the game
+  // makes: 5 rolled, 2 or 4 rolled beside kept ones, a box's groups
+  const shapes = [];
+  for (let ix = TRAY.xRange[0]; ix <= TRAY.xRange[1] + 1e-9; ix += TRAY.xStep) for (let iz = TRAY.zRange[0]; iz <= TRAY.zRange[1] + 1e-9; iz += TRAY.zStep) shapes.push([ix, iz]);
+  const rows = [
+    { groups: [[0, 1, 2, 3, 4]], backFree: true },
+    { groups: [[3, 1]], backFree: false, kept: 3 },
+    { groups: [[0, 1, 2, 4]], backFree: false, kept: 1 },
+    { groups: [[0, 2, 4], [1, 3]], backFree: true },      // a full house
+    { groups: [[2, 0, 4, 1]], backFree: false, kept: 1 }, // a small run
+  ];
+  let checked = 0, front = 0, back = 0, closer = 0;
+  // Roll's width as far as the dice go (the real one, upright phone, 3.7 x
+  // 1.8 tray: a die's centre at most 1.95 across, mockup v1, so about 1.2)
+  for (const [ix, iz] of shapes) for (const rollW of [1.2, 1.6, 2.0]) {
+    const places = trayPlaces(ix, iz);
+    const blocked = s => s.x + .55 > ix - rollW && s.z + .55 > iz - 1.3;
+    for (const r of rows) {
+      const got = lineUp({ ...r, places, blocked });
+      const n = r.groups.flat().length, key = `${ix.toFixed(1)}x${iz.toFixed(1)} roll ${rollW} ${JSON.stringify(r.groups)}`;
+      assert.ok(got, `${key}: no room`);
+      const { spots, gap, z } = got;
+      assert.equal(spots.length, n, key);
+      if (z === Math.round((iz - .62) * 1000) / 1000) front++; else back++;
+      if (gap < DIE_GAP) closer++;
+      const kept = backRow(r.kept ?? 0, places.backZ);
+      for (const [k, s] of spots.entries()) {
+        assert.ok(Math.abs(s.x) <= ix - .6 + 1e-9 && Math.abs(s.z) <= iz - .6 + 1e-9, `${key}: outside: ${JSON.stringify(s)}`);
+        assert.ok(!blocked(s), `${key}: under Roll`);
+        assert.ok(near(s.z, z) && s.yaw === 0, `${key}: not in one row, square to the front`);
+        if (!r.backFree) assert.ok(s.z >= places.backZ + 1.1 - 1e-9, `${key}: in the back row`);
+        if (k) assert.ok(s.x - spots[k - 1].x >= gap - 1e-9, `${key}: not left to right, ${gap} apart`);
+        for (const o of [...spots.slice(k + 1), ...kept]) assert.ok(apart(s, o), `${key}: touching: ${JSON.stringify([s, o])}`);
+        checked++;
+      }
+      // a wider gap between a box's groups
+      if (r.groups.length > 1) {
+        const a = r.groups[0].length;
+        assert.ok(spots[a].x - spots[a - 1].x > gap + .2, `${key}: groups not apart`);
+      }
+    }
+  }
+  // 12 tray shapes x 3 Rolls x 20 dice in the rows
+  assert.equal(checked, 720, `${checked} dice checked`);
+  assert.ok(front > 0 && back > 0, `the front ${front} times, further back ${back}: both tried`);
+  assert.ok(closer > 0, 'the dice never closed up: that spacing untried');
+});
+
+test('dice3d: a row with nothing in the way is centred along the front; no room anywhere is null', () => {
+  const places = trayPlaces(3.3, 1.8);
+  const got = lineUp({ groups: [[4, 3, 2, 1, 0]], places, backFree: true });
+  assert.equal(got.z, Math.round((1.8 - .62) * 1000) / 1000);
+  assert.equal(got.gap, DIE_GAP);
+  assert.ok(near(got.spots.reduce((a, s) => a + s.x, 0), 0, 1e-9), 'centred');
+  // a full house at 1.3 with its wider gap spans 5.65: wider than the
+  // narrowest tray's room (5.4), so it's closed up rather than off the edge
+  const house = lineUp({ groups: [[0, 1, 2], [3, 4]], places, backFree: true });
+  assert.ok(house.spots.every(s => Math.abs(s.x) <= 3.3 - .6 + 1e-9), JSON.stringify(house.spots));
+  assert.ok(house.gap < DIE_GAP, `gap ${house.gap}`);
+  // Roll everywhere, or a tray too narrow for 5 dice: no room
+  assert.equal(lineUp({ groups: [[0, 1, 2, 3, 4]], places, blocked: () => true, backFree: true }), null);
+  assert.equal(lineUp({ groups: [[0, 1, 2, 3, 4]], places: trayPlaces(2, 1.8), backFree: true }), null);
+  // a single die: at the front, beside Roll
+  const one = lineUp({ groups: [[2]], places, blocked: s => s.x > -.5 && s.z > 0 });
+  assert.ok(one.spots[0].x <= -.5 + 1e-9 && one.z > 0, JSON.stringify(one));
+  // a Roll wider than any real one (2.4) on the shallowest tray: no room
+  // for 4 dice in front of a kept one (the tray then leaves them where they
+  // landed, and logs it)
+  const wide = s => s.x + .55 > 3.3 - 2.4 && s.z + .55 > 1.8 - 1.3;
+  assert.equal(lineUp({ groups: [[0, 1, 2, 4]], places, blocked: wide }), null);
+  assert.ok(lineUp({ groups: [[0, 1, 2, 4]], places, blocked: wide, backFree: true }), 'the back row free: room there');
 });
 
 test('dice3d: with no room found, the dice rest in two rows inside the tray (and it says so)', () => {

@@ -12,13 +12,18 @@
 // and returning
 //   render(view)        draw the dice and Roll (or Undo): view is
 //                       { dice, up, wait, canPick, canRoll, showUndo,
-//                         rolls, left, turn, yay, rolling }
+//                         rolls, left, turn, yay, rolling, scored }
+//                       (scored: the box just scored, until Undo or the
+//                       turn passes or the game ends, else null)
 //   roll(rolled, done)  show the roll just made (match.dice), then done()
 //   stop()              stop showing a roll (Play again, New game)
 //   newTurn()           the dice waiting for a turn's first roll
 //   show(setup)         the play screen is showing, with these picks
 //   fit()               fit the play screen to the screen; returns the
 //                       debug log's fit line
+//   undone()            (optional) the box just scored was taken back out
+//   scoreShowMs         (optional) ms more the robot waits after scoring,
+//                       for the dice to show its box (the 3D tray: 900)
 
 import {
   MODES, LENGTHS, BOXES, ROLLS, BONUS_AT, score, upper, points, openBoxes, players,
@@ -319,8 +324,10 @@ export function fiveDice({ game, makeTray, extraSetup = {} }) {
     sound.play('thud');
     sayP(p, r.points ? `<b>+${r.points}</b>` : 'Zero this time', true);
     render();
-    passTimer = later(finishTurn, isRobot(p) ? ROBOT_WAIT.after : UNDO_MS);
+    passTimer = later(finishTurn, isRobot(p) ? robotAfter() : UNDO_MS);
   }
+  // after the robot scores: as long again as its dice take to show the box
+  const robotAfter = () => ROBOT_WAIT.after + (tray.scoreShowMs ?? 0);
 
   function tapUndo() {
     if (!match || robotsTurn()) return L('undo ignored', { why: "robot's turn" });
@@ -331,6 +338,7 @@ export function fiveDice({ game, makeTray, extraSetup = {} }) {
     passTimer = null;
     just = null;
     L('undo', { player: faceOf(match.turn), box: r.box });
+    tray.undone?.();
     sayP(match.turn, pickWords());
     render();
   }
@@ -407,6 +415,7 @@ export function fiveDice({ game, makeTray, extraSetup = {} }) {
       canPick: human && !rolling && match.rolls > 0 && match.rolls < ROLLS && !match.scored,
       canRoll: human && !rolling && match.rolls < ROLLS && !match.scored,
       showUndo: human && !!match.scored,
+      scored: match.scored || null,
     });
   }
 
@@ -552,7 +561,7 @@ export function fiveDice({ game, makeTray, extraSetup = {} }) {
         const pts = match.cards[p][match.scored];
         sayP(p, pts ? `<b>+${pts}</b>` : 'Zero this time');
         render();
-        passTimer = later(finishTurn, isRobot(p) ? ROBOT_WAIT.after : UNDO_MS);
+        passTimer = later(finishTurn, isRobot(p) ? robotAfter() : UNDO_MS);
       } else if (match.rolls === 0) {
         beginTurn();
       } else if (robotsTurn()) {

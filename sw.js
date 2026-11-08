@@ -20,8 +20,8 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '06f7612aeeec';
-const MADE = '2026-11-07';
+const VERSION = '9b30dda5d3aa';
+const MADE = '2026-11-08';
 const RELEASE = '7.0';
 const FILES = [
   'bridges.html',
@@ -93,6 +93,7 @@ const FILES = [
   'src/core/resume.js',
   'src/core/reversi.js',
   'src/core/rock-paper-scissors.js',
+  'src/core/showbox.js',
   'src/core/snakes-ladders.js',
   'src/core/stats.js',
   'src/core/tic-tac-toe.js',

@@ -1831,13 +1831,30 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   "when we do the set up for the game, can we keep the option of
   selecting dice color?"): white, red, blue or black, as in tray mockup
   v1; white preselected, kept with the other picks.
+- **The dice line up, and show the score** (Q53, Q54; agreed from the
+  [Five Dice 3D Dice Moves](https://claude.ai/artifact/FZvYxrkGijE5quRBPSH9vW)
+  mockup, version 1; developer, 2026-11-08: "Q53 - line up at front. Q54
+  Dice show score"; built the same day): once a roll has landed, the dice
+  just rolled slide into **one row along the front**, left to right as
+  they landed, square to the front; the kept dice stay along the back.
+  When a box is picked, **the dice that score it stand forward** in that
+  row, grouped like the box's picture (the number's dice for 1s-6s; the
+  dice the same; 3 + 2 with a wider gap for a full house; one of each
+  number low to high for a run, 4 for the small run; all five low to high
+  for "?"), and hop once; the rest step back to the back row; a box
+  scoring 0 moves nothing; **Undo** puts every die back. The robot's
+  boxes too, its turn passing after 2.4 s (1.5 s in Five Dice). Where
+  Roll leaves no room at the front (a sideways phone), the row closes up
+  and then steps back towards the back row. A game picked up again shows
+  its dice lined up along the front.
 - **As built** (2026-11-07): `five-dice-3d.html`, in 👥 Two players after
   Five Dice, its home picture five dice seen at an angle on green felt.
   **The game is Five Dice's**, shared: `src/ui/five-dice-game.js` (setup,
   turns, the robot, the sheet, pop-ups, coming back to a game) with each
   page's own dice, `src/ui/five-dice.js` (the flat row) and
   `src/ui/tray3d.js` (the 3D tray, three.js); the tray's maths with no
-  DOM or three.js in `src/core/dice3d.js` (tested under Node). three.js
+  DOM or three.js in `src/core/dice3d.js` (tested under Node), and which
+  dice show a box in `src/core/showbox.js`. three.js
   r160 in `src/vendor/three/` (the minified build, the rounded box, the
   MIT licence; its README says where from), saved for offline with the
   rest. **Dice never touch where they land** (the mockup could overlap
