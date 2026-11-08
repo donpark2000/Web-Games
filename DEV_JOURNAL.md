@@ -12854,3 +12854,57 @@ the same back row.
 **Open questions:** Q47; Q60 (new). **Next:** the developer: publish
 7.6 (the 2D Five Dice retired) now, with Q60 as its own release after;
 and Q60 as a mockup first, or built straight away.
+
+## 2026-11-08: Q60: cup start mockup v1
+
+**Developer:** "Lets see a mockup of the cup first and when we get it
+right, publish both changes as 7.6". So 7.6 waits for Q60: the 2D Five
+Dice retired and the cup start together.
+
+**Mockup** ([Five Dice 3D Cup Start](https://claude.ai/artifact/HBjnrfUnApYoMHNDTZnvkD),
+private, version 1; opened for the developer in the app's viewer): as
+the dice moves mockup, **this branch's own files** copied (by a script in
+Claude's scratchpad that follows every import from the page), the game
+as `play.html` in a frame of the screen picked, an outer page with the
+switches and notes. Only the copy of `src/ui/tray3d.js` changed:
+- **Dice in the cup** (preselected) / **Dice along the back (as now)**,
+  read at each turn's start: when the turn passes (`newTurn`), the cup
+  comes onto the felt where it pours from (the tray's front right,
+  standing on the felt, 1.3 times its pouring size) and all five dice hop
+  into it, nearest first (0.38 s each, 0.08 s apart); five small dice
+  (half size, in the cup's group) show over the rim, turned at random.
+  A game started or picked up at a turn's start: the dice already in the
+  cup. On the first Roll the cup lifts from the felt to where it pours in
+  the time the dice used to hop in (so a roll takes as long as now),
+  then shakes, tips and pours as now; the real dice are hidden until
+  they fly out, the small ones go as they do. The 2nd and 3rd rolls are
+  unchanged.
+- **The cup rolls too** (preselected) / **Only Roll rolls**: a tap on the
+  waiting cup is Roll (refused on the robot's turn, as Roll is).
+- The dice in the cup are hidden but a ray still finds them, so a tap
+  only looks at visible dice.
+- Logged: `dice into the cup` (which hop, how many already in),
+  `dice placed in the cup`, `roll from the cup`, `cup tapped: roll` (or
+  `: off`).
+
+**Checked** (the mockup's folder served on 8130 by `tools/serve.js`'s
+`createServer`, a temporary launch entry removed after): upright phone
+(393 x 760, Roll beside, dice 33): a new game shows the cup with the dice
+in it, the felt empty; Roll: `roll from the cup`, landed as the rules
+rolled (`same: true`), lined up; a box scored; on the robot's turn the
+dice hopped into the cup (all five) and it rolled from the cup; a tap on
+the cup rolled; a 2nd roll with two dice picked up as now (three kept at
+the back). The "as now" switch: the robot's turn started with all five
+along the back (z = backZ). Play again: back into the cup. Sideways
+phone (780 x 340): the cup and its dice on the tray's right. No console
+errors but the offline worker's 404 (a mockup has no `sw.js`). Found:
+the outer page (as the dice moves mockup's) was 8 px too wide at 322 px:
+the frame's room counted the page's side padding; fixed. **Not checked:**
+the published page itself (claude.ai sign-in in the built-in browser);
+a real phone; the built-in browser's screenshots at phone size were
+cropped, so the look was judged from the outer page's scaled frame.
+
+**Open questions:** Q47; Q60 (the developer to try the mockup).
+**Next:** the developer's verdict on the mockup; then build what's
+agreed in the game (with tests) and publish it with the retiring as
+**7.6**.
