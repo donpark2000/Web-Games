@@ -32,6 +32,17 @@ time, each tried before publishing:
 - **Q56. Five Dice 3D: the rolled dice lined up smallest to highest**
   (2026-11-08, developer's suggestion; until now left to right as they
   landed).
+  2026-11-08, developer on Q55: "I'm leaning towards moving roll off the
+  board so the dice can always been centred. Maybe above the board in
+  between the avatar icon and the top of the board." Asked for Claude's
+  feedback before any change.
+- **Q57. Five Dice (both): the turn line's "Pick a box, or tap dice to
+  roll again"** (2026-11-08, developer: "Potentially confusing. The
+  score card does not really look like boxes - especially in portrait
+  mode. Maybe something like 'Select the dice to roll again. Turn ends
+  when you select your score'"). The words are shared by Five Dice and
+  Five Dice 3D (`pickWords` in `src/ui/five-dice-game.js`; after the
+  third roll just "Pick a box").
 
 ## Proposed additions to the standards skill
 
