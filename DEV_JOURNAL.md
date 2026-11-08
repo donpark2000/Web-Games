@@ -12482,3 +12482,39 @@ the sizes. Q55, Q56, Q57 to close once tried on the phone.
 
 **Next:** on the developer's "publish": merge to `main`, tag `v7.2`,
 the GitHub release; then the developer tries it on the phone.
+
+## 2026-11-08: Release 7.2 published (Roll off the tray, dice in order, new words); status (start here next session)
+
+**Published** on the developer's "Publish 7.2": `main` fast-forwarded
+b77f6db..d87da48 (pushed from `five-dice-3d`, no branch switch), tag
+`v7.2` on d87da48,
+[GitHub release 7.2](https://github.com/donpark2000/Web-Games/releases/tag/v7.2);
+the Pages build done (success). Before it: `node tools/release.js`
+"Release 7.2 is ready", `npm test` 467 passed.
+
+**Checked live** (the built-in browser, 393 x 760): `sw.js` RELEASE 7.2,
+VERSION 0fba33ebf855. The first look ran 7.1 from the saved copy and
+saved 7.2 behind it (as designed); the next opened 7.2 on the setup
+screen (a new version starts fresh). A game: Roll beside the tray
+(`tall-rollside`, dice 33), five dice landed and stood in order 1 4 4 6
+6; no console errors.
+
+**Local servers:** Claude's `tools/serve.js` on 8123 stopped (and the
+temporary 7.1 one on 8124 earlier); no `serve.js` left running.
+
+**Status:** 7.2 live. Open: Q47 (the kids' devices); Q55, Q56, Q57
+until the developer has tried 7.2 on the phone.
+
+**Next:**
+1. The developer tries 7.2 on the phone, upright and sideways: Roll
+   beside the tray upright (and above it sideways), the row always
+   centred, both rows putting themselves in order (do the hops over
+   each other look right, and the kept row moving after the roll?), the
+   new words. A reload brings 7.2 if the old one shows. If Roll looks
+   the wrong size after turning the phone, the log's `fit` says `rollH`.
+   Then close Q55-Q57 (or note what to change).
+2. Left over, only if wanted: Five Dice 3D on a small phone upright (375
+   x 667) scrolls (it did in 7.1 too; 59 px more now); Five Dice and
+   Laser Lab on a small phone sideways (667 x 375) still scroll; Rock
+   paper scissors' picks narrower than their column on a tablet. Nothing
+   to purge.
