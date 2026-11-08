@@ -13150,3 +13150,40 @@ row" (no die is in the back row at a turn's start), and the top die
 tools/release.js` "Release 7.6 is ready: version 4cfe4b907888".
 
 **Open questions:** Q47. **Proposed skill additions:** none.
+
+## 2026-11-08: Release 7.6 published (the dice start in the cup; the 2D Five Dice retired); status (start here next session)
+
+**Published 7.6:** `main` fast-forwarded 2af68f8..46f6f90 (pushed from
+`five-dice-3d`), tag `v7.6`,
+[GitHub release 7.6](https://github.com/donpark2000/Web-Games/releases/tag/v7.6);
+the Pages build done (success). Before it: `node tools/release.js`
+"Release 7.6 is ready: version 4cfe4b907888", `npm test` 474 passed.
+**Checked live:**
+- `sw.js`: RELEASE 7.6, VERSION 4cfe4b907888; the live
+  `src/core/dice3d.js` has `CUP_HEAP`; `five-dice.html` gives 404.
+- In the built-in browser the game page first ran 7.5 from the offline
+  copy (no `inCup` in its `window.dice3d`). After a reload it logged
+  `saved for offline`: release 7.6, version 4cfe4b907888, 119 files.
+- A new game (Just me) logged `dice placed in the cup` (`inCup()`: the
+  cup waiting, 5 shown).
+- No local servers left running (none on 8123 or 8130).
+
+**Status:** 7.6 live: Five Dice 3D starts each turn with the dice in the
+cup (a tap on the cup rolls; full-size dice heaped in a wider cup), and
+the 2D Five Dice is gone. Q60 closed. The mockup
+[Five Dice 3D Cup Start](https://claude.ai/artifact/HBjnrfUnApYoMHNDTZnvkD)
+stays as a record (version 3 is what was built, except the hop's timing:
+see the entry before).
+
+**Next:**
+1. The developer on the phone with 7.6:
+   - do the dice go into the cup cleanly when a turn passes;
+   - does a tap on the cup roll;
+   - while the cup pours, is the moment its top is cut off at the tray
+     picture's top edge (seen in mockup v3) all right?
+2. Q47 when the grandkids try it (the log says WebGL and each fit's ms).
+3. Left over, only if wanted: Five Dice 3D on a small phone upright (375
+   x 667) scrolls; Laser Lab on a small phone sideways (667 x 375)
+   scrolls; Rock paper scissors' picks narrower than their column on a
+   tablet; `css/five-dice.css`'s unused flat-row rules. Nothing to purge.
+Open: Q47.
