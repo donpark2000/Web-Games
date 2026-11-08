@@ -12628,3 +12628,41 @@ console errors. Server stopped after.
 **Open questions:** Q47 unchanged. **Proposed skill additions:** none.
 
 **Next:** the developer's OK to publish as **7.4**.
+
+**The order asked about** (developer: "My intuition was consistent sort.
+But if conventions in games like this or poker for full house is to
+show 'the 3 before the 2' maybe that is best."): Claude's view, given
+then: poker names and shows the three first ("fives full of ones"); no
+convention known for Yahtzee-style dice. Smallest first kept, for the
+5-7s, who don't know poker naming and see every other row smallest to
+highest. Developer: "OK. Publish 7.4."
+
+## 2026-11-08: Release 7.4 published (a full house's smaller number first); status (start here next session)
+
+**Published** on the developer's "Publish 7.4": `main` fast-forwarded
+5d5aba4..5162114 (pushed from `five-dice-3d`, no branch switch), tag
+`v7.4` on 5162114,
+[GitHub release 7.4](https://github.com/donpark2000/Web-Games/releases/tag/v7.4);
+the Pages build done (built, 5162114). Before it: `node tools/release.js`
+"Release 7.4 is ready: version 67d5dd098efe", `npm test` 468 passed.
+
+**Checked live:** `sw.js` RELEASE 7.4, VERSION 67d5dd098efe; the live
+`src/core/showbox.js` has the change; the game page in the built-in
+browser after a reload logs version 67d5dd098efe, no console errors.
+(The full house itself checked locally before, with a stubbed roll; not
+again live.)
+
+**Local servers:** Claude's `tools/serve.js` on 8123 stopped; no
+`serve.js` left running.
+
+**Status:** 7.4 live. Open: Q47 (the kids' devices).
+
+**Next:**
+1. The developer, when a full house comes up on the phone: 1 1 then
+   5 5 5 (the smaller number first)? 7.3's one-step line-up was liked
+   ("It looks great").
+2. Left over, only if wanted: Five Dice 3D on a small phone upright (375
+   x 667) scrolls; Five Dice and Laser Lab on a small phone sideways (667
+   x 375) still scroll; Rock paper scissors' picks narrower than their
+   column on a tablet. Whether Five Dice 3D replaces the 2D Five Dice
+   (DESIGN.md "3D games": the developer's call). Nothing to purge.

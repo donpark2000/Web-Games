@@ -5,7 +5,7 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-11-08, latest): **Five Dice 3D: a full house shows its
-smaller number first** (built, not published; see "3D games"). Earlier
+smaller number first** (release 7.4; see "3D games"). Earlier
 the same day: **Five Dice 3D: the rolled dice go into
 order in one step** (release 7.3; see "3D games"). Earlier the
 same day: **Five Dice 3D: Roll off the tray (over
