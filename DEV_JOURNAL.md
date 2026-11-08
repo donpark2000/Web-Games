@@ -22,6 +22,11 @@ time, each tried before publishing:
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
+- **Q60. Five Dice 3D: a turn starts with the dice in the cup?**
+  (2026-11-08, developer: "show no dice on the board, and maybe the cup
+  that clearly has some dice in it before roll is pressed"). Claude's
+  view: yes; see "Q60: the dice in the cup at a turn's start". Mockup
+  first or build straight away: the developer's call.
 
 ## Proposed additions to the standards skill
 
@@ -12812,3 +12817,40 @@ fall back on, so a device that can't show 3D can't play Five Dice: Q59's
    x 667) scrolls; Laser Lab on a small phone sideways (667 x 375)
    scrolls; Rock paper scissors' picks narrower than their column on a
    tablet; `css/five-dice.css`'s unused flat-row rules. Nothing to purge.
+
+## 2026-11-08: Q60: the dice in the cup at a turn's start
+
+**Developer** (after asking for 7.6: "I think we can retire 2D and
+publish a 7.6. Before we do, I had one more thought ..."): "At the end
+of a turn, the dice are shown at the top of the board and then go into
+the cup when roll is pressed. I wonder if it would make more sense to
+show no dice on the board, and maybe the cup that clearly has some dice
+in it before roll is pressed."
+
+**How it works now** (`src/ui/tray3d.js` `newTurn`, `place`, `roll`):
+when the turn passes, all five dice slide to a row along the back
+(`backRow`), still showing the last roll's numbers; they can't be picked
+(the view's `wait`). On Roll they hop into the cup, which appears, shakes,
+tips and pours (about 2.5 s). A game picked up at a turn's start shows
+the same back row.
+
+**Claude's view: yes.**
+- It's what players do with a real cup: scoop the dice in, then roll.
+- The waiting dice show the last player's numbers and look tappable, but
+  aren't. An empty felt with a full cup says "roll" with no words.
+- The roll starts sooner: the cup is already there, with no hop in.
+- The 2nd and 3rd rolls stay as they are: the picked dice hop into the
+  cup, the kept ones stay at the back.
+
+**To settle** (a mockup would answer these by eye):
+- The dice must read as *in* the cup: tops showing over the rim, the
+  cup maybe tipped a little towards the camera.
+- Where it waits: where the pour starts (the tray's front right), and
+  how big, on an upright phone's shallow tray.
+- When the dice go in: when the turn passes, not when a box is scored
+  (the scored dice stay standing through the 3 s Undo).
+- Maybe: a tap on the cup rolls too (Roll stays).
+
+**Open questions:** Q47; Q60 (new). **Next:** the developer: publish
+7.6 (the 2D Five Dice retired) now, with Q60 as its own release after;
+and Q60 as a mockup first, or built straight away.
