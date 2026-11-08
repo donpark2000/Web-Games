@@ -59,8 +59,13 @@ const $ = id => document.getElementById(id);
 // game: the page's name, for the debug log and what's kept on the device
 // ('five-dice', 'five-dice-3d'). extraSetup: setup picks of the page's own
 // with their first values (Five Dice 3D's { colour: 'white' }), each a row
-// of buttons with data-<pick> on the setup screen.
-export function fiveDice({ game, makeTray, extraSetup = {} }) {
+// of buttons with data-<pick> on the setup screen. words: the turn line
+// once the dice are rolled, { more } with rolls left and { last } after
+// the third, and { yay } (optional) for five the same (else "Five the
+// same!" before the others) (Five Dice 3D's, Q57: the sheet doesn't look
+// like boxes).
+const PICK_WORDS = { more: 'Pick a box, or tap dice to roll again', last: 'Pick a box' };
+export function fiveDice({ game, makeTray, extraSetup = {}, words = PICK_WORDS }) {
   const L = (msg, data) => log.add('dice', msg, data);
 
   // Setup screen picks. "New game" comes back here with the last picks kept.
@@ -213,7 +218,7 @@ export function fiveDice({ game, makeTray, extraSetup = {} }) {
     if (pop) { void t.offsetWidth; t.classList.add('pop'); }
   }
   const sayP = (p, words, pop) => say(`${chipOf(p)}<span class="say">${words}</span>`, pop);
-  const pickWords = () => (match.rolls < ROLLS ? 'Pick a box, or tap dice to roll again' : 'Pick a box');
+  const pickWords = () => (match.rolls < ROLLS ? words.more : words.last);
 
   function startRound() {
     const midRound = !match.result && players(match).some(p => Object.keys(match.cards[p]).length);
@@ -280,7 +285,7 @@ export function fiveDice({ game, makeTray, extraSetup = {} }) {
       later(robotThink, ROBOT_WAIT.look);
       return;
     }
-    sayP(p, `${yay ? 'Five the same! ' : ''}${pickWords()}`, yay);
+    sayP(p, yay ? (words.yay ?? `Five the same! ${pickWords()}`) : pickWords(), yay);
   }
 
   // A die: pick it up to roll again (tap again to put it back).

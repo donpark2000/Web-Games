@@ -336,12 +336,60 @@ export function planThrow({ thrown, kept, values, places, blocked, rand = Math.r
 export function slide(d, to, now, dur = .45) {
   return { t0: now, dur, p0: { ...d.pos }, p1: { ...to }, q0: { ...d.quat }, q1: upright(topFace(d.quat), 0) };
 }
-// Where a sliding die is, t after its start; done at the end.
+// Where a sliding die is, t after its start (before it: where it starts);
+// done at the end. A slide with `over` (sortRow's) rises that high in its
+// first quarter, moves across in the middle half, and comes down in the
+// last quarter; over 0 moves across on the felt in that same middle half.
 export function slidePose(m, t) {
-  const k = Math.min(1, t / m.dur), e = ease(k);
+  const k = clamp(t / m.dur, 0, 1);
+  if (m.over == null) {
+    const e = ease(k), q = qSlerp(m.q0, m.q1, e), p = lerp(m.p0, m.p1, e);
+    p.y = support(q) + .7 * Math.sin(Math.PI * k);
+    return { p, q, done: k >= 1 };
+  }
+  const e = ease(clamp((k - .25) / .5, 0, 1)), up = Math.min(ease(clamp(k / .25, 0, 1)), ease(clamp((1 - k) / .25, 0, 1)));
   const q = qSlerp(m.q0, m.q1, e), p = lerp(m.p0, m.p1, e);
-  p.y = support(q) + .7 * Math.sin(Math.PI * k);
+  p.y = support(q) + m.over * up;
   return { p, q, done: k >= 1 };
+}
+
+/* ---------- a row put in order (Q56) ---------- */
+
+// Dice smallest to highest (developer, 2026-11-08: clearer which to roll
+// again), dice of one number in their left-to-right order. ds: [{ value,
+// pos }]; returns them sorted (a new array).
+export const inOrder = ds => [...ds].sort((a, b) => a.value - b.value || a.pos.x - b.pos.x);
+
+// A row of dice put in order where they stand: each die to the place of
+// its number's order (the row's own places, so the row doesn't move). The
+// longest run already in order slides along the felt; the others pass
+// over them, and over each other, at heights by layer: each layer the
+// longest run in order of those left, so no two dice of one layer ever
+// cross. All move across together in the middle half of the move (none
+// while any is rising), so a die can only meet one of its own layer,
+// which it never passes. ds: [{ value, pos }] in one row. Returns
+// [{ to, over }] for each of ds (to: its place, over: its height), and
+// layers (how many heights: 1 when the row was in order already).
+export const LAYER_UP = 1.2;   // a die is 1 high
+export function sortRow(ds) {
+  const byX = ds.map((d, k) => k).sort((a, b) => ds[a].pos.x - ds[b].pos.x);
+  const places = byX.map(k => ds[k].pos);
+  const rank = new Map(inOrder(ds.map((d, k) => ({ ...d, k }))).map((d, j) => [d.k, j]));
+  const out = ds.map(() => null);
+  let left = byX, layer = 0;
+  while (left.length) {
+    // the longest run of `left` (in x order) whose places are in order too
+    const best = left.map(() => 1), prev = left.map(() => -1);
+    for (let a = 0; a < left.length; a++) for (let b = 0; b < a; b++)
+      if (rank.get(left[b]) < rank.get(left[a]) && best[b] + 1 > best[a]) { best[a] = best[b] + 1; prev[a] = b; }
+    let end = best.indexOf(Math.max(...best));
+    const run = new Set();
+    for (; end >= 0; end = prev[end]) run.add(left[end]);
+    for (const k of run) out[k] = { to: { ...places[rank.get(k)] }, over: layer * LAYER_UP };
+    left = left.filter(k => !run.has(k));
+    layer++;
+  }
+  return { moves: out, layers: layer };
 }
 
 // A thrown die t after Roll: hopping into the cup (hidden once inside),

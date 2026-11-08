@@ -8,7 +8,7 @@ import {
   v3, qAxis, qMul, qRotate, qFromUnitVectors, qSlerp, qRandom, UP, FACES, upright, topFace, support,
   trayCorners, trayPlaces, backRow, pickSpots, fallbackSpots, planThrow, throwPose, slide, slidePose, cupPose, cupTimes,
   bounces, heightAt, restPose, project, aim, dieAt, trayShape, shapesKnown, bestRow, flat, apart, DIE_GAP, THROW_T, RATIO,
-  lineUp, TRAY,
+  lineUp, TRAY, inOrder, sortRow, LAYER_UP,
 } from '../src/core/dice3d.js';
 
 // The same numbers every run.
@@ -237,6 +237,89 @@ test('dice3d: kept dice slide to the back row in their left-to-right order; ones
   assert.ok(nearV(qRotate(end.q, v3(0, 0, 1)), qRotate(upright(5, 0), v3(0, 0, 1))), 'square to the front');
   assert.equal(slidePose(plan.moves[4], .1).done, false);
   assert.deepEqual(Object.keys(plan.anims).map(Number).sort(), [1, 3]);
+});
+
+// Whether two dice ever meet on their slides (both start together), at
+// 120 points along the way (a die moves at most 0.1 between two): within 1.05 across (a die is 1, square to the front
+// here) and under 1
+// apart in height. { m } a slide, { p } a die standing still.
+function everMeet(a, b) {
+  for (let s = 0; s <= 120; s++) {
+    const at = x => (x.m ? slidePose(x.m, x.m.t0 + s / 120 * x.m.dur).p : { ...x.p, y: .5 });
+    const pa = at(a), pb = at(b);
+    if (flat(pa, pb) < 1.05 && Math.abs(pa.y - pb.y) < 1) return true;
+  }
+  return false;
+}
+// A row's dice put in order as the tray does it (sortRow, then a slide
+// each with its height), for dice showing `values` standing at xs.
+function sortSlides(values, xs, z = 1.18) {
+  const ds = values.map((value, k) => ({ value, pos: v3(xs[k], 0, z) }));
+  const { moves, layers } = sortRow(ds);
+  const q = upright(3, 0);
+  const slides = ds.map((d, k) => ({ m: { t0: 0, dur: .55, p0: d.pos, p1: moves[k].to, q0: q, q1: q, over: moves[k].over } }));
+  return { ds, moves, layers, slides };
+}
+
+test('dice3d: dice in order smallest to highest, one number left to right (Q56)', () => {
+  const d = (value, x) => ({ value, pos: v3(x, 0, 0) });
+  assert.deepEqual(inOrder([d(5, 0), d(2, 1), d(5, -2), d(1, 3), d(2, -1)]).map(o => [o.value, o.pos.x]), [[1, 3], [2, -1], [2, 1], [5, -2], [5, 0]]);
+  assert.deepEqual(inOrder([]), []);
+  // a row put in order keeps its own places
+  const { moves, layers } = sortSlides([6, 1, 4], [-1.3, 0, 1.3]);
+  assert.deepEqual(moves.map(m => m.to.x), [1.3, -1.3, 0]);
+  assert.equal(layers, 2, 'the 6 passes over the 1 and the 4');
+  assert.deepEqual(moves.map(m => m.over), [LAYER_UP, 0, 0]);
+  // in order already: nothing moves, one height
+  const same = sortSlides([2, 2, 5], [-1, .2, 1.5]);
+  assert.deepEqual(same.moves.map(m => [m.to.x, m.over]), [[-1, 0], [.2, 0], [1.5, 0]]);
+  assert.equal(same.layers, 1);
+  // a die of the same number keeps its left-to-right place
+  assert.deepEqual(sortSlides([3, 3], [1, -1]).moves.map(m => m.to.x), [1, -1]);
+  assert.deepEqual(sortRow([]), { moves: [], layers: 0 });
+});
+
+test('dice3d: a row put in order: dice pass over each other, never through (Q56)', () => {
+  // two dice side by side swapping: on the felt they'd meet (the check can
+  // fail); planned, one goes over and lands where it was going
+  const swap = sortSlides([5, 2], [-.65, .65]);
+  const felt = swap.slides.map(x => ({ m: { ...x.m, over: 0 } }));
+  assert.ok(everMeet(felt[0], felt[1]), 'a swap on the felt meets');
+  assert.ok(!everMeet(swap.slides[0], swap.slides[1]), 'planned: still meet');
+  const up = swap.slides.find(x => x.m.over).m;
+  assert.ok(slidePose(up, .55 / 2).p.y > 1.6, 'not lifted over');
+  assert.ok(nearV(slidePose(up, .55).p, { ...up.p1, y: .5 }, 1e-6) && slidePose(up, .55).done, 'lands where it was going');
+  assert.ok(nearV(slidePose(up, -1).p, { ...up.p0, y: .5 }, 1e-6), 'waits where it starts');
+  // every order of 1 to 5 dice, ties too (n dice showing 1 to n have
+  // them all), in the closest spacing a row
+  // has (1.12) and the widest (1.3): none ever meets another; the heights
+  // are as many as the longest run out of order needs
+  let rows = 0, pairs = 0, moved = 0, maxLayers = 0, lifted = 0;
+  for (let n = 1; n <= 5; n++) for (let code = 0; code < n ** n; code++) for (const gap of [1.12, 1.3]) {
+    const values = Array.from({ length: n }, (_, k) => 1 + Math.floor(code / n ** k) % n);
+    const xs = values.map((_, k) => (k - (n - 1) / 2) * gap);
+    const { moves, layers, slides } = sortSlides(values, xs);
+    // in order at the end, in the row's own places
+    const end = moves.map((m, k) => [m.to.x, values[k]]).sort((a, b) => a[0] - b[0]);
+    assert.deepEqual(end.map(e => e[1]), [...values].sort((a, b) => a - b), `${values}: not in order`);
+    assert.deepEqual(end.map(e => e[0]), xs, `${values}: not the row's places`);
+    for (const [k, a] of slides.entries()) {
+      for (const b of slides.slice(k + 1)) { assert.ok(!everMeet(a, b), `${values} at ${gap}: dice meet`); pairs++; }
+      if (a.m.p0.x !== a.m.p1.x) moved++;
+      if (a.m.over) lifted++;
+    }
+    maxLayers = Math.max(maxLayers, layers);
+    rows++;
+  }
+  assert.equal(rows, 2 * (1 + 4 + 27 + 256 + 3125));
+  assert.equal(pairs, 2 * (4 * 1 + 27 * 3 + 256 * 6 + 3125 * 10));
+  // the front row and the kept dice's row put in order together, 1.1
+  // apart (lineUp keeps them at least that): no die meets one in the other
+  const front = sortSlides([6, 5, 4], [-1.3, 0, 1.3], 1.18), back = sortSlides([3, 1], [-.65, .65], .08);
+  for (const a of front.slides) for (const b of back.slides) assert.ok(!everMeet(a, b), 'the rows meet');
+  assert.equal(maxLayers, 5, '5 dice from highest to lowest: five heights');
+  assert.ok(moved > 0 && lifted > 0);
+  console.log(`# sortRow: ${rows} rows, ${pairs} pairs of dice checked, ${moved} slides, ${lifted} over others, at most ${maxLayers} heights`);
 });
 
 test('dice3d: a die picked up rises; slides and the cup end where they should', () => {

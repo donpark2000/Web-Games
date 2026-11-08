@@ -26,7 +26,7 @@ const dieSvg = ({ body, pip }) => `<svg class="av" viewBox="0 0 100 100" aria-hi
 if (!why) {
   for (const b of document.querySelectorAll('[data-colour]')) b.querySelector('.ico').innerHTML = dieSvg(tray3d.COLOURS[b.dataset.colour]);
   try {
-    fiveDice({ game: 'five-dice-3d', makeTray: tray3d.makeTray3d, extraSetup: { colour: 'white' } });
+    fiveDice({ game: 'five-dice-3d', makeTray: tray3d.makeTray3d, extraSetup: { colour: 'white' }, words: tray3d.PICK_WORDS });
   } catch (e) {
     why = `3D not started: ${e.message ?? e}`;
   }

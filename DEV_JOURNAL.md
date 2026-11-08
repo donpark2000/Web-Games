@@ -12361,3 +12361,75 @@ every screen, the sideways phone and upright tablet need the wider tray
 77 → 71 px); or Roll moves out of the tray on those screens. Sorting
 (Q56): dice sliding into a new order cross each other's paths, so they
 would need to hop over (or around) one another.
+
+## 2026-11-08: Roll over the tray, rows in order, new words: built; Roll's place on an upright phone to agree
+
+**The developer:** "tap" over "select" (Q57); on the kept dice's row in
+order (Q56): torn ("could make people think the game changed the dice
+... does make it clearer what your options are"), then agreed with
+Claude's suggestion; no mockup ("part of what we need to verify is
+spacing on the phone. Maybe we should just publish 7.2"); the 2D game
+not changed ("we are very close to just replacing it with the 3D
+version").
+
+**Built** on `five-dice-3d` (not published):
+- **Roll in its own row just over the tray** (Q55), centred, its dots
+  beside the word, greyed while the dice roll (it faded on the tray, for
+  the cup); its height set from the screen before fitting (13% of the
+  short side, 44-64 px), since sized from the dice after the fit it would
+  change the page's height. The game passes no Roll check to the tray
+  any more (`underRoll` gone), so every row is centred along the front.
+- **Rows in order** (Q56): after a roll the dice line up as they landed
+  (7.1's slide, no die crossing another), then both rows put themselves
+  in order where they stand (`sortRow` in `src/core/dice3d.js`, 0.55 s):
+  the longest run already in order slides on the felt, the rest go over
+  it at heights by layer (1.2 a layer; each layer a run in order, so
+  never crossing one another), all moving across only in the middle half
+  of the move. A game picked up again shows its row in order.
+- **Words** (Q57), Five Dice 3D only (`PICK_WORDS` in `src/ui/tray3d.js`,
+  passed to `five-dice-game.js` as `words`): "Tap dice to roll again, or
+  pick your score", after the third roll "Pick your score", five the same
+  "Five the same! Pick your score" (with "Five the same!" before the
+  others it took a 4th line on an upright phone).
+- **Logged:** `line up` with the landed order, the order after, the
+  numbers, how many moved and the heights used, for both rows; `fit` with
+  Roll's height (`rollH`).
+
+**First try, dropped:** every die straight from where it landed to its
+place in order, those meeting another passing over at one of three
+heights (a planner checking each pair along the way). On 300 line-ups
+from the real landing spots (every tray shape) 57 still had dice
+meeting: five dice crossing a 2D tray at once is too tangled for
+heights alone. Hence the two steps, where it can be proved: in one row,
+dice of one layer keep their order, so they never pass each other.
+
+**Tests** (467, all passing; `node tools/offline.js` run, version
+1cd29291b26b): `inOrder`, `sortRow` (places kept, in order, ties left to
+right); every order of 1 to 5 dice, ties too, at the closest row spacing
+(1.12) and the widest (1.3): 6826 rows, 65742 pairs, none ever meeting
+(at 120 points, a die 1.05 across), five heights for 5 dice highest to
+lowest; the front and back rows together. **Shown to fail** (Claude's
+scratchpad `mutate-sort.sh`, on a temp copy): heights 0.9 apart, all on
+the felt, a run not in order, moving across while rising: each caught.
+(The exhaustive check at 400 points and all 6^n numbers took 28 s; 1 to
+n numbers give every order of n dice, ties too, and 120 points is under
+0.1 a step: 3.9 s.)
+
+**Measured** (built-in browser; die px, 7.1 → built):
+- upright phone 393 x 760: **35 → 22** (tray 168 → 107 px tall: Roll's
+  row and its gap take 61 px; the rows were already the least, 28)
+- sideways phone 780 x 340: 34 → 34 (tray 3.3 x 1.8 now)
+- upright tablet 800 x 1280: 76 → 76
+- sideways tablet 1280 x 720: 55 → 49 (rows 48 → 42)
+- no page scrolls; no console errors.
+
+**Roll beside the tray on an upright phone** (`dieAt` for the canvas
+left, Claude's scratchpad `beside.mjs`): Roll 52-72 px wide at the
+tray's right, the tray its 7.1 height: **32-34 px** dice (tray 3.3 x 1.8).
+
+**Checked:** five dice landed 1 2 2 1 1, lined up, then in order 1 1 1 2
+2 in the row's five places (1280 x 720). Not checked: a kept die out of
+order in the back row on screen (Node only); a real phone.
+
+**Next:** the developer picks Roll's place on an upright phone (above,
+22 px dice; or beside, about 33 px), then 7.2.
