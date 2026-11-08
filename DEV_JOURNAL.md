@@ -12934,3 +12934,45 @@ cup as it pops up and are hidden once inside, so the cup shakes empty.
 
 **Next:** the developer: mockup v2 with this, or build it straight into
 the game for 7.6.
+
+## 2026-11-08: Cup start mockup v2 (the dice in the cup on every roll); status (start here next session)
+
+**Developer:** "Mockup v2 first".
+
+**Mockup v2** ([Five Dice 3D Cup Start](https://claude.ai/artifact/HBjnrfUnApYoMHNDTZnvkD),
+version 2, the same link; opened for the developer): only the copy of
+`src/ui/tray3d.js` and the notes changed. The small dice in the cup now
+show on every roll: a later roll's cup starts empty and, as each tapped
+die hops in (hidden inside), one more shows; all go as the real ones fly
+out. Each count has its own heap (`HEAPS[1..5]`, in the cup's own units:
+the rim at 0.70), so the top die always shows over the rim. Tapped dice
+stay lifted on the felt until Roll, as now (Claude's view, given: their
+numbers stay in sight, and one can be tapped back).
+
+**Checked** (the mockup served on 8130 as before; a `window.dice3d.inCup()`
+added to the mockup for this): Just me, upright phone. A turn's start: 5
+in the cup, tops at 0.53-0.89. Sampled 0.6 s into a roll with 1, 2, 3
+dice picked up: 1, 2, 3 shown, tops 0.83 / 0.65, 0.85 / 0.57, 0.59, 0.85;
+1.0 s into one with 4: 4 shown, the top at 0.87; the first roll's 5 at
+1.0 s. After every roll: none shown, the cup gone. (At 1.0 s the 1-die
+roll had already poured: with 1 die the shake ends at 0.84 s.) No errors
+but the offline worker's 404. Server stopped, launch entry removed.
+**Not checked:** the published page; a real phone.
+
+**Status:** 7.5 live (no double-tap zoom on the tray). On the branch,
+not published: the 2D Five Dice retired (07dc0d9). Q60 agreed so far
+(mockup v1): a turn starts with the dice in the cup; a tap on the
+waiting cup rolls. Mockup v2 waits for the developer.
+
+**Next:**
+1. The developer tries mockup v2 (1-4 dice shown in the cup).
+2. Build what's agreed into `src/ui/tray3d.js` (the mockup's copy is in
+   Claude's scratchpad, which a new session won't have: rebuild from
+   this entry and "Q60: cup start mockup v1"; the cup's rest pose and the
+   heaps' maths into `src/core/dice3d.js` with tests: the waiting cup
+   inside the tray on every tray shape, each heap's top over the rim, a
+   tap on a hidden die ignored), with debug log lines as in the mockup.
+3. Publish 7.6: the 2D Five Dice retired and the cup start
+   (`src/core/release.js` 7.6, `node tools/offline.js`, `RELEASES.md`,
+   `node tools/release.js`).
+Open: Q47, Q60. Nothing to purge.
