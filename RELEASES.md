@@ -7,6 +7,19 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 7.1 (2026-11-08, version 437a0c58bad6)
+
+Five Dice 3D: the dice line up and show the score:
+
+- **After a roll** the dice just rolled slide into a row along the
+  front of the tray, so they're easy to read and tap. The dice kept stay
+  in the row at the back.
+- **Pick a box and its dice show the score:** the dice that count step
+  forward, grouped like the box's picture, and hop; the others step back.
+  Undo puts them all back. The robot's boxes show the same way, and it
+  waits a little longer before passing the turn.
+- A game picked up again shows its dice in a row along the front.
+
 ## 7.0 (2026-11-07, version 06f7612aeeec)
 
 A new game, the site's first in 3D:
