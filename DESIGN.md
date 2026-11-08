@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-08, latest): **Five Dice 3D: Roll off the tray (over
+*Status (2026-11-08, latest): **Five Dice 3D: the rolled dice go into
+order in one step** (built, not published; see "3D games"). Earlier the
+same day: **Five Dice 3D: Roll off the tray (over
 it, or beside it on an upright phone), the dice centred along the front
 and in order, smallest to highest; new turn-line words** (release 7.2;
 see "3D games"). Earlier the same day: the dice line up and show the
@@ -1860,10 +1862,14 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   phone: over it, dice 22 px; beside, 33; developer: "Beside"); greyed
   while the dice roll. So **every row is centred along the front**.
   **Both rows in order, smallest to highest** (developer's suggestion;
-  the kept row too, agreed): once a roll lands, the dice line up as they
-  landed, then each row puts itself in order where it stands, dice
-  passing others going over them (`sortRow`); the kept dice move only
-  then, never on their own. **The turn line** (Five Dice 3D only; the 2D
+  the kept row too, agreed): once a roll lands, **in one step** (developer,
+  2026-11-08, after 7.2: "they move into their sorted order instead of
+  'jumping' around"; until then they lined up as they landed, then
+  sorted) each rolled die goes from where it landed straight to its
+  place in order, at the lowest height where it meets no other die
+  (`intoRow`), and the kept row puts itself in order where it stands at
+  the same time, dice passing others going over them (`sortRow`); 0.7 s
+  in all. The kept dice move only then, never on their own. **The turn line** (Five Dice 3D only; the 2D
   game "very close to" being replaced): "Tap dice to roll again, or pick
   your score", "Pick your score" after the third roll, "Five the same!
   Pick your score" ("tap", not "select"; the sheet "does not really look

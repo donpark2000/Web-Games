@@ -23,27 +23,6 @@ time, each tried before publishing:
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
 
-- **Q55. Five Dice 3D: the rolled dice's row isn't always in the same
-  place** (2026-11-08, developer, after 7.1 on the phone: "Sometimes
-  after the roll, the dice are lined up at the bottom and are 'left
-  justified'. Sometimes centred. And once ... in the centre of the
-  board instead of the bottom", seen sideways). Causes found (see
-  "Line-up: three places, one rule wanted"); the fix to agree.
-- **Q56. Five Dice 3D: the rolled dice lined up smallest to highest**
-  (2026-11-08, developer's suggestion; until now left to right as they
-  landed).
-  2026-11-08, developer on Q55: "I'm leaning towards moving roll off the
-  board so the dice can always been centred. Maybe above the board in
-  between the avatar icon and the top of the board." Asked for Claude's
-  feedback before any change.
-- **Q57. Five Dice (both): the turn line's "Pick a box, or tap dice to
-  roll again"** (2026-11-08, developer: "Potentially confusing. The
-  score card does not really look like boxes - especially in portrait
-  mode. Maybe something like 'Select the dice to roll again. Turn ends
-  when you select your score'"). The words are shared by Five Dice and
-  Five Dice 3D (`pickWords` in `src/ui/five-dice-game.js`; after the
-  third roll just "Pick a box").
-
 ## Proposed additions to the standards skill
 
 None waiting. (2026-11-07: "Key a remembered result by everything it
@@ -104,6 +83,17 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q55-Q57. Five Dice 3D: where the rolled dice line up, in order,
+  the turn line's words.** (2026-11-08, developer, after 7.1 on the
+  phone: the row sometimes left, sometimes centred, once mid-tray; the
+  dice smallest to highest; "Pick a box" confusing.) Built in release
+  7.2: Roll off the tray (beside it on an upright phone), every row
+  centred along the front, both rows in order, "Tap dice to roll again,
+  or pick your score" (see "Roll beside the tray on an upright phone;
+  7.2 ready"). Closed 2026-11-08 after 7.2 on the developer's phone:
+  "Everything we fixed is working well in both orientations." One change
+  asked for then: the rolled dice into order in one step (see "The
+  rolled dice into order in one step").
 - **Q53, Q54. Five Dice 3D: the dice lined up after a roll; the dice
   show the box picked.** (2026-11-07, developer's ideas; tried in the
   [Five Dice 3D Dice Moves](https://claude.ai/artifact/FZvYxrkGijE5quRBPSH9vW)
@@ -12518,3 +12508,59 @@ until the developer has tried 7.2 on the phone.
    Laser Lab on a small phone sideways (667 x 375) still scroll; Rock
    paper scissors' picks narrower than their column on a tablet. Nothing
    to purge.
+
+## 2026-11-08: The rolled dice into order in one step (not published)
+
+**7.2 tried** on the developer's phone: "Everything we fixed is working
+well in both orientations" (Q55-Q57 closed, "Resolved"). One change
+asked for: "after a roll, the rolled dice line up at the bottom and then
+they move after sorting ... could it be one step - they move into their
+sorted order instead of 'jumping' around."
+
+**Built:** once a roll lands, each rolled die goes from where it landed
+straight to its place in order along the front (`intoRow` in
+`src/core/dice3d.js`), in 0.7 s (until now 0.4 s to line up as they
+landed, then 0.55 s to sort: 0.95 s). The kept row sorts itself at the
+same moment, also 0.7 s, instead of after the line-up. How a die avoids
+the others: it moves as the sort did (rising, across with all the
+others, down), and gets the lowest height (0, 1.2, 2.4, ...) where its
+way meets no die already planned and none of the kept dice (their sort,
+or standing still). Dice are planned in the sort's old order (the
+longest run already in order first, on the felt). Dice the same distance
+apart at the start or end as they are now (never touching) count only
+if they come closer. `sortRow`'s run-finding is shared (`runLayers`);
+`sortRow` is still what sorts the kept row. "Five the same" hops wait
+for the new 0.7 s.
+
+**Why a check instead of `sortRow`'s layers alone:** the rolled dice
+start scattered over the tray (front, middle, or in the back row beside
+a kept die), not in one row, so "keeps its left-to-right order" no
+longer proves two dice never meet; and the kept dice now move at the
+same time.
+
+**Tests** (`tests/dice3d.test.js`, "the rolled dice go straight to
+their places in order"): two dice swapping places meet on the felt (the
+check can fail) and not as planned; a die standing in the way is gone
+over; 180 real throws (`planThrow` on the three tray shapes, 0-4 kept
+with their row sorting together): in order at the row's places, no pair
+meets (by `slidesMeet` at 240 points and by the test's own `everMeet`),
+1440 pairs checked, 165 dice over others, 112 throws would have met on
+the felt, at most 4 heights. Broken once on purpose (every die kept on
+the felt): the test failed, "planned: they meet". `npm test`: 468
+passed (after `node tools/offline.js`: version 04c81db2aba4).
+
+**Checked** in the built-in browser (`tools/serve.js` on 8123): upright
+393 x 760, a roll of five ended 2 3 5 5 6 along the front, the log's
+`line up` with `heights: 3` (two dice over); a reroll of three with two
+kept; sideways 780 x 340, the robot's roll of five in order (2 2 3 3 3);
+no console errors. The motion itself only at a few frames (the pane's
+screenshots can't follow 0.7 s), so how it looks is for the phone.
+
+**Debug output:** the `line up` entry now has `heights` and each die's
+`over` (its height) in place of `moved` and `layers` for the front row.
+
+**Open questions:** Q47 unchanged. **Proposed skill additions:** none.
+
+**Next:** the developer's OK to publish as **7.3** (a change to a
+game), then tries it on the phone: do the dice go to their places in one
+move, and do the ones going over others look right?

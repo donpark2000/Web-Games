@@ -15,7 +15,7 @@ import * as THREE from '../vendor/three/three.module.min.js';
 import { RoundedBoxGeometry } from '../vendor/three/RoundedBoxGeometry.js';
 import {
   v3, upright, topFace, trayPlaces, trayCorners, backRow, pickSpots, planThrow, throwPose, slide, slidePose, cupPose, restPose,
-  aim, project, trayShape, bestRow, lineUp, flat, FOV, TRAY, CUP_H, CORNER, DIE_GAP, sortRow,
+  aim, project, trayShape, bestRow, lineUp, flat, FOV, TRAY, CUP_H, CORNER, DIE_GAP, sortRow, intoRow,
 } from '../core/dice3d.js';
 import { showBox } from '../core/showbox.js';
 import { UNDO_MS } from './five-dice-game.js';
@@ -261,8 +261,8 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
   // changes. shown: a box's dice standing forward, with where every die
   // was (Undo puts them back) and the row before.
   let row = null, shown = null, justThrown = [], tidyUntil = 0;
-  const LINE_T = .4;                 // s: a die's slide into the row
-  const SORT_T = .55;                // s: the row put in order, after it
+  const LINE_T = .4;                 // s: a die's slide into a box's row
+  const ONE_T = .7;                  // s: the rolled dice into the row in order, the kept row too
   const HOP_T = .45, HOP_STAG = .09;  // a scoring die's hop, one after another
   // The robot waits this much longer after scoring, for its dice to show
   // (five-dice-game.js; 2.4 s in all, as in the mockup): the slide, the
@@ -279,11 +279,12 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
   const spot = s => v3(s.x, 0, s.z);
   const lineFor = (r, groups) => lineUp({ groups: groups ?? r.groups, places, backFree: r.backFree });
 
-  // Q53: the dice just rolled slide into a row centred along the front,
-  // left to right as they landed (so none crosses another), square to the
-  // front; the kept dice stay along the back. Every die rolled leaves the
-  // back row free. Q56: then each row puts itself in order, smallest to
-  // highest, where it stands (sortRow: dice passing others go over them).
+  // Q53: the dice just rolled go to a row centred along the front, square
+  // to the front; the kept dice stay along the back. Every die rolled
+  // leaves the back row free. Q56, in one step (since 7.3): each rolled
+  // die goes straight to its place in order, smallest to highest, going
+  // over the others where their ways would meet (intoRow); the kept row
+  // puts itself in order where it stands at the same time (sortRow).
   function tidy() {
     if (!justThrown.length) return;
     const ds = justThrown.map(i => dice[i]).sort((a, b) => a.pos.x - b.pos.x);
@@ -292,15 +293,20 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
     const r = { groups: [ds.map(d => d.i)], backFree: ds.length === 5 };
     const line = lineFor(r);
     if (!line) return L('line up: no row', { dice: r.groups[0], tray: [places.ix, places.iz] });
-    ds.forEach((d, j) => { d.move = slide(d, spot(line.spots[j]), clock, LINE_T); });
-    const t1 = clock + LINE_T;
-    const front = inOrderRow(ds, t1), back = inOrderRow(kept, t1);
-    r.groups = [front.order];
+    const back = inOrderRow(kept, clock);
+    // the kept dice as the rolled ones must miss them: their sort, or still
+    const others = kept.map(d => { let m = d.move; while (m?.then) m = m.then; return m?.t0 === clock ? m : { pos: d.pos }; });
+    for (const d of ds) settle(d);
+    const into = intoRow({ ds: ds.map(d => ({ value: view.dice[d.i], pos: d.pos, quat: d.quat })), spots: line.spots.map(spot), others, dur: ONE_T });
+    ds.forEach((d, k) => { d.move = { ...into.moves[k], t0: clock }; });
+    const order = into.order.map(k => ds[k].i);
+    r.groups = [order];
     row = r;
-    tidyUntil = t1 + (front.moved || back.moved ? SORT_T : 0);
+    tidyUntil = clock + ONE_T;
     L('line up', {
       landed: ds.map(d => d.i), z: r2(line.z), gap: line.gap, x: line.spots.map(s => r2(s.x)),
-      order: front.order, shows: front.order.map(i => view.dice[i]), moved: front.moved, layers: front.layers,
+      order, shows: order.map(i => view.dice[i]), heights: into.heights,
+      over: Object.fromEntries(ds.map((d, k) => [d.i, r2(into.moves[k].over)])),
       back: back.order, backShows: back.order.map(i => view.dice[i]), backMoved: back.moved, backLayers: back.layers,
     });
     wake();
@@ -317,7 +323,7 @@ export function makeTray3d({ tapDie, tapRoll, tapUndo, L }) {
       const { to, over } = moves[k], { pos, quat } = now[k];
       if (!over && flat(pos, to) < .05) return;
       if (flat(pos, to) >= .05) moved++;
-      const m = { t0, dur: SORT_T, p0: { ...pos }, p1: spot(to), q0: quat, q1: quat, over };
+      const m = { t0, dur: ONE_T, p0: { ...pos }, p1: spot(to), q0: quat, q1: quat, over };
       if (d.move) { let last = d.move; while (last.then) last = last.then; last.then = m; } else d.move = m;
     });
     const order = ds.map((d, k) => [d.i, moves[k].to.x]).sort((a, b) => a[1] - b[1]).map(([i]) => i);

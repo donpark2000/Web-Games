@@ -371,25 +371,81 @@ export const inOrder = ds => [...ds].sort((a, b) => a.value - b.value || a.pos.x
 // [{ to, over }] for each of ds (to: its place, over: its height), and
 // layers (how many heights: 1 when the row was in order already).
 export const LAYER_UP = 1.2;   // a die is 1 high
-export function sortRow(ds) {
+// Each of ds's layer, and its place in order (rank), as above: layer 0
+// the longest run (left to right) already in order, layer 1 the longest
+// of those left, and so on.
+function runLayers(ds) {
   const byX = ds.map((d, k) => k).sort((a, b) => ds[a].pos.x - ds[b].pos.x);
-  const places = byX.map(k => ds[k].pos);
   const rank = new Map(inOrder(ds.map((d, k) => ({ ...d, k }))).map((d, j) => [d.k, j]));
-  const out = ds.map(() => null);
-  let left = byX, layer = 0;
+  const layer = ds.map(() => 0);
+  let left = byX, n = 0;
   while (left.length) {
-    // the longest run of `left` (in x order) whose places are in order too
     const best = left.map(() => 1), prev = left.map(() => -1);
     for (let a = 0; a < left.length; a++) for (let b = 0; b < a; b++)
       if (rank.get(left[b]) < rank.get(left[a]) && best[b] + 1 > best[a]) { best[a] = best[b] + 1; prev[a] = b; }
     let end = best.indexOf(Math.max(...best));
     const run = new Set();
     for (; end >= 0; end = prev[end]) run.add(left[end]);
-    for (const k of run) out[k] = { to: { ...places[rank.get(k)] }, over: layer * LAYER_UP };
+    for (const k of run) layer[k] = n;
     left = left.filter(k => !run.has(k));
-    layer++;
+    n++;
   }
-  return { moves: out, layers: layer };
+  return { byX, rank, layer, layers: n };
+}
+export function sortRow(ds) {
+  const { byX, rank, layer, layers } = runLayers(ds);
+  const places = byX.map(k => ds[k].pos);
+  return { moves: ds.map((d, k) => ({ to: { ...places[rank.get(k)] }, over: layer[k] * LAYER_UP })), layers };
+}
+
+// Whether two dice ever meet on their way: a and b slides started
+// together, or { pos } a die standing still. Checked at n points (a die
+// moves at most about 0.1 between two): closer across than 1.05 (a die is
+// 1) and under 1 apart in height. Dice already that close where they
+// start or end (they don't touch) count only if they come closer.
+const poseAt = (x, t) => (x.p1 ? slidePose(x, t).p : { ...x.pos, y: .5 });
+export function slidesMeet(a, b, n = 120) {
+  const T = Math.max(a.dur ?? 0, b.dur ?? 0);
+  const ends = [0, T].map(t => flat(poseAt(a, t), poseAt(b, t)));
+  const near = Math.min(1.05, ...ends) - 1e-6;
+  for (let s = 0; s <= n; s++) {
+    const pa = poseAt(a, s / n * T), pb = poseAt(b, s / n * T);
+    if (flat(pa, pb) < near && Math.abs(pa.y - pb.y) < 1) return true;
+  }
+  return false;
+}
+
+// Q56 in one step (developer, 2026-11-08: "they move into their sorted
+// order instead of 'jumping' around"): the dice just rolled go from where
+// they landed straight to their places in order along the row (until 7.2
+// they lined up as they landed, then sorted). Each moves as sortRow's do
+// (rising, across with all the others, down), turning square to the
+// front, at the lowest height where it meets no die placed before it and
+// none of `others` (the kept dice: slides from t 0, or { pos } standing
+// still). Tried in sortRow's layer order, so the longest run already in
+// order goes first, on the felt. ds: [{ value, pos, quat }]; spots: the
+// row's places left to right, one per die. Returns moves (one slide per
+// die, from t 0, dur long), order (ds's indices left to right once in
+// place) and heights (how many used).
+export function intoRow({ ds, spots, others = [], dur = .7 }) {
+  const { rank, layer } = runLayers(ds);
+  const moves = ds.map(() => null);
+  const turns = ds.map((d, k) => k).sort((a, b) => layer[a] - layer[b] || ds[a].pos.x - ds[b].pos.x);
+  let top = 0;
+  for (const k of turns) {
+    const d = ds[k];
+    const m = { t0: 0, dur, p0: { ...d.pos, y: 0 }, p1: { ...spots[rank.get(k)], y: 0 }, q0: { ...d.quat }, q1: upright(topFace(d.quat), 0), over: 0 };
+    delete m.p1.yaw;
+    const placed = [...moves.filter(Boolean), ...others];
+    for (let h = 0; h < ds.length + others.length + 2; h++) {
+      m.over = h * LAYER_UP;
+      if (!placed.some(o => slidesMeet(m, o))) break;
+    }
+    top = Math.max(top, m.over / LAYER_UP + 1);
+    moves[k] = m;
+  }
+  const order = ds.map((d, k) => k).sort((a, b) => rank.get(a) - rank.get(b));
+  return { moves, order, heights: Math.round(top) };
 }
 
 // A thrown die t after Roll: hopping into the cup (hidden once inside),
