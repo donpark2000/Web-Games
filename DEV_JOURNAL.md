@@ -22,13 +22,6 @@ time, each tried before publishing:
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
-- **Q58. Five Dice 3D's name once the 2D game is retired** (2026-11-08,
-  developer: "happy to retire the 2D version"): "Five Dice" or "Five
-  Dice 3D"? Claude's view: "Five Dice". See "Five Dice 3D: no double-tap
-  zoom on the tray".
-- **Q59. A device that can't show 3D, once the 2D game is retired**
-  (2026-11-08): keep the 2D page, off the home page, as its fallback, or
-  drop it? Claude's view: keep it until Q47 is closed. Same entry.
 
 ## Proposed additions to the standards skill
 
@@ -89,6 +82,16 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q58, Q59. Retiring the 2D Five Dice: the name, and a device that
+  can't show 3D.** (2026-11-08.) Developer: "I'll leave the name as 5
+  Dice 3D for now so it is clear which version of the game I want
+  feedback on once my grandkids try it. And removing access to the 2D
+  version is fine for now. My gut feeling is that 3D will not be a
+  problem but if it becomes one, we could revisit the approach or just
+  restore the 2D version." So: the name stays "Five Dice 3D"; the 2D
+  page goes, fallback included (Claude had suggested "Five Dice" and
+  keeping the fallback until Q47). See "Release 7.5 published".
 
 - **Q55-Q57. Five Dice 3D: where the rolled dice line up, in order,
   the turn line's words.** (2026-11-08, developer, after 7.1 on the

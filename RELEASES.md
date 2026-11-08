@@ -7,6 +7,14 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 7.5 (2026-11-08, version efcded3b8f19)
+
+Five Dice 3D: no zooming in on the dice:
+
+- **Two quick taps on a die no longer zoom the screen in** (picking a
+  die up and putting it straight back). The tray now stops the phone's
+  double-tap zoom, as every other game's board does.
+
 ## 7.4 (2026-11-08, version 67d5dd098efe)
 
 Five Dice 3D: a full house shows its smaller number first:
