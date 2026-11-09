@@ -5,8 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-11-09, latest): **Tin Can Alley** (knock the cans off a
-fairground stall's shelf, 3D) agreed from mockup v4, not built yet (see
-"Tin Can Alley"). 2026-11-08: **the 2D Five Dice retired**, Five Dice 3D
+fairground stall's shelf, 3D) built on branch `tin-can-alley`, not
+published (see "Tin Can Alley"); agreed from mockup v4 earlier the same day. 2026-11-08: **the 2D Five Dice retired**, Five Dice 3D
 the only one (release 7.6, published; see "Five Dice" and "3D games").
 Earlier the same day: **Five Dice 3D: no double-tap zoom on the tray**
 (release 7.5). Earlier the same day: **Five Dice 3D: a full house shows
@@ -150,7 +150,7 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   the second player a person or the robot: tic-tac-toe, matching cards,
   Connect Four, Count to 9, Snakes and Ladders, Five Dice, Five Dice 3D,
   Nim, Dots and Boxes, Reversi), then **👤 One player** (no way to play
-  another person: rock paper scissors, Follow Me, Bridges), then **🧩 Puzzles for
+  another person: rock paper scissors, Follow Me, Tin Can Alley, Bridges), then **🧩 Puzzles for
   grown-ups** (Find the Stars, Colour Sudoku, Laser Lab; developer, 2026-10-13: one
   site, kept apart). Each game in one group only (developer, 2026-10-24,
   of Bridges, for the kids and grown-ups alike: "I do not want to list
@@ -1958,7 +1958,8 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
 The second 3D game (named by the developer, 2026-11-09), agreed from the
 [Fairground Stall Mockup](https://claude.ai/artifact/DTqc3rqnWY2juJ2SsR188X)
 (private, version 4; journal, "Fairground stall mockup v1" to "Stall
-mockup v4 tried"). Not built yet.
+mockup v4 tried"). Built 2026-11-09 (journal, "Tin Can Alley built"), not
+published.
 
 - **A fairground stall** seen from behind the thrower, a fixed camera: a
   wooden counter in front, a shelf of stacked cans on a red cabinet ("KNOCK
@@ -1991,6 +1992,47 @@ mockup v4 tried"). Not built yet.
   three.js, cached for offline.
 - Sound as the mockup: a tin clink for each can hit, a thud for the ball,
   a whoosh for a throw, a tune at the end.
+
+**As built** (2026-11-09; developer: "Set up screen: Can config, and
+avatar. Place with other one player games. It should work in either
+orientation but the buttons and score can move so we maximize the
+actually game play area for each orientation"):
+
+- **Setup:** the rules line with the stall in small, **Pick your face**
+  (the 14 faces, the bear first), **Which cans?** (Pyramid 6 preselected,
+  10, 15, Wall 9, each drawn), Play!. **Home:** 👤 One player, after
+  Follow Me; its picture the stall in small, the top can falling off.
+- **Play: the stall fills the screen**, the footer hidden while playing.
+  Upright: the 🏠, the name and the 🔊 in a row over it; your face, "N of
+  6 off" and the 3 balls (white with the orange band, used ones faint)
+  in a bar under it, with **↺ Start again**. Sideways: all of that in one
+  column at its left (the 🔊 at its foot), fitting a phone 320 px tall.
+  The stall takes 67 % of a 320 × 568 screen, 75 % of 393 × 760, 80-84 %
+  of sideways phones, 85-90 % of tablets. No fitting search: the canvas
+  takes its grid cell, and the camera's field of view follows the
+  stall's shape: upright as the mockup (at least 50°, wider on a narrow
+  stall); sideways narrower, down to 44°, so the stall fills the width
+  (44 keeps the ball in the hand and Pyramid 15's top in view).
+- **Over the stall:** "Drag back, then let go to throw" until the first
+  throw; the round's end in a card: your face (smiling or sad), "Teddy
+  knocked all 6 off with 2 balls! 🎉", "Teddy knocked 4 of 6 off" or
+  "None off this time", **Play again** (the same cans) and **New game**.
+  Start again asks first ("Start this round again?" Yes / No).
+- **Code:** the rules, the stall's measurements and the camera in
+  `src/core/tin-can-alley.js`; the physics in
+  `src/core/tin-can-alley-physics.js` (tested under Node); the drawing in
+  `src/ui/tin-can-alley-stall.js`; the screens in `src/ui/tin-can-alley.js`.
+  A device that can't run three.js, cannon-es or WebGL sees only "This
+  phone or tablet can't show the 3D stall".
+- **Sounds:** `clink` (louder the harder the knock) and `whoosh` (louder
+  the harder the throw), new; `thud` for the ball on wood; `win` when
+  all are off, `aww` when some are left. The clinks stay out of the log.
+- **Coming back:** the round as it last stood still is kept (the cans'
+  poses, the balls used); a ball in flight comes back to the hand.
+- **Logged:** 3D started (WebGL, versions), the fit (the stall's size,
+  the field of view, upright or sideways), each throw, the first can
+  hit, cans off, the camera's moves, the round's end (with fps and the
+  physics' ms), Start again, resumed, why 3D couldn't start.
 
 ## Later
 

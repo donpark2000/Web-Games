@@ -1,0 +1,124 @@
+/* Tin Can Alley (DESIGN.md "Tin Can Alley"). The setup screen as the
+   other games'; the play screen fills the screen, the stall taking all the
+   room the rest leaves (developer, 2026-11-09: "the buttons and score can
+   move so we maximize the actual game play area for each orientation").
+   No fitting search: the stall's canvas takes whatever size its grid cell
+   is, and the camera keeps the stall in view at any shape
+   (src/core/tin-can-alley.js, fovFor). */
+
+/* ---------- setup ---------- */
+
+.rulesbox { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.rulespic { width: 76px; height: 76px; }
+.rulespic svg { display: block; width: 100%; height: 100%; }
+.rules { font-size: 17px; font-weight: 700; line-height: 1.35; margin: 0; }
+.rules b { white-space: nowrap; }
+.layouts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.layout {
+  border: 3px solid var(--line); background: var(--card); border-radius: 16px; padding: 8px 2px; cursor: pointer;
+  font-size: 15px; font-weight: 800; display: grid; gap: 2px; justify-items: center; text-align: center; min-width: 0;
+}
+.layout .ico { width: 56px; height: 56px; }
+.layout small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.layout[aria-pressed="true"] { border-color: var(--sun); background: var(--sun-soft); }
+.no3d { text-align: center; font-size: 18px; }
+.no3d p { margin: 0; }
+
+/* ---------- play ---------- */
+
+/* The whole screen (over the page, its footer hidden while playing:
+   body.tca-playing). Upright: the 🏠, the name and the 🔊 in a row; the
+   stall; the score and Start again in a bar under it. */
+body.tca-playing { overflow: hidden; }
+body.tca-playing .site-foot { display: none; }
+#play {
+  position: fixed; inset: 0; z-index: 1; background: var(--sky);
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  display: grid; gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: "top top" "stall stall" "tally restart";
+}
+#play[hidden] { display: none; }
+#play > .top { grid-area: top; grid-template-columns: auto minmax(0, 1fr) auto; }
+#play .gname { font-size: 13px; line-height: 16px; }
+#play > .stall { grid-area: stall; }
+#play > .tally { grid-area: tally; }
+#play > .restart { grid-area: restart; align-self: center; }
+
+.stall {
+  position: relative; min-width: 0; min-height: 0; border-radius: 14px; overflow: hidden; background: #BFDCEB;
+  touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+}
+.stall canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+
+/* the score: your face, how many off of how many, the balls left */
+.tally {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  background: var(--card); border-radius: 16px; padding: 4px 12px 4px 4px; box-shadow: 0 3px 0 var(--line);
+}
+.tally .chip { width: 48px; height: 48px; flex: none; }
+.tally .offs { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; }
+.tally .n { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.tally .who { font-size: 15px; font-weight: 700; color: var(--muted); }
+.tally .balls { display: flex; gap: 5px; margin-left: auto; }
+/* a ball: white with the orange band, as in the stall; used ones faint */
+.balls i {
+  width: 18px; height: 18px; border-radius: 50%; display: block;
+  background: linear-gradient(#FFFFFF 0 40%, var(--p1) 40% 60%, #FFFFFF 60%); box-shadow: inset 0 0 0 1.5px #1E344555;
+  transition: opacity .3s;
+}
+.balls i.used { opacity: .2; }
+.restart .pill { padding: 8px 14px; font-size: 16px; white-space: nowrap; }
+.restart.ended { visibility: hidden; }
+
+/* over the stall: the hint until the first throw, the round's end, Start again's question */
+.hint {
+  position: absolute; left: 50%; top: 12px; transform: translateX(-50%); margin: 0;
+  width: max-content; max-width: calc(100% - 24px); text-align: center;
+  background: rgba(18, 30, 42, .8); color: #FFFFFF; border-radius: 999px; padding: 8px 16px;
+  font-size: 16px; font-weight: 700; pointer-events: none;
+}
+.over { position: absolute; inset: 0; display: grid; place-items: center; z-index: 3; background: rgba(228, 241, 238, .25); }
+.overcard {
+  display: grid; gap: 12px; justify-items: stretch; padding: 16px 20px 18px; width: min(320px, calc(100% - 24px));
+  background: var(--card); border-radius: 24px; box-shadow: 0 6px 0 var(--line), 0 10px 30px #1E344533;
+  animation: bounce .45s ease;
+}
+.overcard .chip { width: 64px; height: 64px; justify-self: center; }
+.overtitle { margin: 0; text-align: center; font-size: 22px; font-weight: 800; line-height: 1.25; text-wrap: balance; }
+.overcard .big { padding: 12px 24px; font-size: 22px; }
+.overcard .pill { padding: 10px 8px; font-size: 18px; }
+#ask .overcard { grid-template-columns: 1fr 1fr; }
+#ask .overtitle { grid-column: 1 / -1; }
+
+/* Sideways: the stall at the screen's full height; the 🏠, the name, the
+   score, Start again and (at the foot) the 🔊 in one column at its left. */
+@media (orientation: landscape) {
+  #play {
+    grid-template-columns: var(--homebtn) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas: "home stall" "name stall" "tally stall" "restart stall" ". stall" "sound stall";
+    column-gap: 10px; row-gap: 5px;
+  }
+  #play > .top { display: contents; }
+  /* as specific as game.css's upright top row (body:not(.wide-layout)
+     #play > .top > ...), which would otherwise put them over the stall */
+  body:not(.wide-layout) #play > .top > .homebtn { grid-area: home; }
+  body:not(.wide-layout) #play > .top > .gname { grid-area: name; justify-self: stretch; align-self: start; white-space: normal; font-size: 12px; line-height: 14px; letter-spacing: .04em; }
+  body:not(.wide-layout) #play > .top > .soundbtn { grid-area: sound; justify-self: center; align-self: end; }
+  #play > .restart { align-self: start; }
+  /* the score in the column's width: the face and the number side by
+     side, "of 6 off" and the balls under them. The column fits a phone
+     320px tall (Safari's bars showing): 🏠 80, name 28, score 74, Start
+     again 44, 🔊 48 and the gaps (a sideways phone at 340 measured the
+     first try 16px too tall, the stall pushed off the screen's foot) */
+  .tally { display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center; column-gap: 4px; row-gap: 2px; padding: 4px 2px; }
+  .tally .chip { width: 34px; height: 34px; }
+  .tally .offs { display: contents; }
+  .tally .n { font-size: 24px; }
+  .tally .who { grid-column: 1 / -1; text-align: center; font-size: 12px; line-height: 14px; }
+  .tally .balls { grid-column: 1 / -1; justify-content: center; margin: 0; gap: 4px; }
+  .balls i { width: 14px; height: 14px; }
+  .restart .pill { width: 100%; white-space: normal; padding: 5px 2px; font-size: 13px; line-height: 15px; border-width: 2px; }
+}

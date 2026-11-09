@@ -33,6 +33,11 @@ const MEANT_SHARED = new Set([
   // "Sideways screens", 2026-10-29; a stack of pieces there, 6.3: Five Dice's
   // dice beside its sheet)
   'stack', 'stage', 'wide-layout',
+  // the top row's pieces, placed (not resized) by a game's own play
+  // screen, and the footer hidden while it plays: Tin Can Alley's stall
+  // fills the screen (developer, 2026-11-09: "maximize the actual game
+  // play area for each orientation")
+  'top', 'gname', 'homebtn', 'soundbtn', 'site-foot',
 ]);
 
 test('css: classesIn finds selector classes, not numbers, files or comments', () => {

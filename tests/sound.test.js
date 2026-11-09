@@ -14,11 +14,11 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 // Enough of an AudioContext for the recipes. Like the real one, a ramp to
 // 0 or below throws, and so does a stop before its start.
 function fakeContext({ state = 'running' } = {}) {
-  const ctx = { currentTime: 10, sampleRate: 8000, state, destination: {}, nodes: 0, starts: [], ends: [] };
+  const ctx = { currentTime: 10, sampleRate: 8000, state, destination: {}, nodes: 0, starts: [], ends: [], peaks: [] };
   const param = () => ({
     value: 0,
     setValueAtTime(v) { if (!Number.isFinite(v)) throw new TypeError(`bad value ${v}`); },
-    exponentialRampToValueAtTime(v, t) { if (!(v > 0) || !Number.isFinite(t)) throw new RangeError(`bad ramp ${v} at ${t}`); },
+    exponentialRampToValueAtTime(v, t) { if (!(v > 0) || !Number.isFinite(t)) throw new RangeError(`bad ramp ${v} at ${t}`); ctx.peaks.push(v); },
   });
   const node = extra => { ctx.nodes++; return { connect() {}, ...extra }; };
   const playable = () => {
@@ -54,9 +54,10 @@ function setupSound({ ctx = fakeContext(), storage = fakeStorage(), noAudio = fa
 
 // The developer's picks (sampler v1, 2026-10-09) plus the tie.
 // clack: a die landing in Five Dice 3D's tray (2026-11-07, the mockups' click).
-const NAMES = ['tick', 'thud', 'win', 'aww', 'tie', 'swish', 'shake', 'ding', 'uhoh', 'climb', 'wheee', 'ping', 'clack'];
+// clink and whoosh: a tin can knocked, a throw (Tin Can Alley, 2026-11-09, the stall mockup's).
+const NAMES = ['tick', 'thud', 'win', 'aww', 'tie', 'swish', 'shake', 'ding', 'uhoh', 'climb', 'wheee', 'ping', 'clack', 'clink', 'whoosh'];
 
-test('sound: the thirteen sounds, each scheduling audio that starts now and ends within 2 s', () => {
+test('sound: the fifteen sounds, each scheduling audio that starts now and ends within 2 s', () => {
   assert.deepEqual(Object.keys(RECIPES).sort(), [...NAMES].sort());
   for (const name of NAMES) {
     const { s, ctx } = setupSound();
@@ -76,6 +77,27 @@ test('sound: a delay moves the start; the log names each sound', () => {
   assert.ok(lines.includes('ding {"delay":0.5}'), lines.join(' | '));
   s.play('thud');
   assert.equal(lines.at(-1), 'thud');
+});
+
+// Tin Can Alley (2026-11-09): how hard a can is knocked sets its clink's
+// loudness; its many clinks stay out of the log.
+test('sound: a level sets the loudness; quiet leaves it out of the log', () => {
+  const peakOf = level => {
+    const { s, ctx } = setupSound();
+    const before = ctx.peaks.length;
+    s.play('clink', 0, { level });
+    return Math.max(...ctx.peaks.slice(before));
+  };
+  const soft = peakOf(0), hard = peakOf(1), over = peakOf(5);
+  assert.ok(soft > 0 && soft < hard, `soft ${soft}, hard ${hard}`);
+  assert.equal(over, hard, 'a level over 1 is louder than 1');
+  const { s, lines } = setupSound();
+  s.play('tick');   // the audio made ('ready' logged)
+  const n = lines.length;
+  assert.equal(s.play('clink', 0, { quiet: true }), true);
+  assert.equal(lines.length, n, `logged: ${lines.slice(n)}`);
+  s.play('whoosh', 0, { level: 0.5 });
+  assert.equal(lines.at(-1), 'whoosh');
 });
 
 test('sound: on when nothing is kept; "off" kept: silent, and no audio is even made', () => {
@@ -180,6 +202,9 @@ const GAME_SOUNDS = {
   // No ding for a right order either (developer, 2026-10-09): it covered
   // the last note.
   'follow-me': ['uhoh'],
+  // A whoosh for a throw, a clink per can knocked, a thud for the ball on
+  // wood; 'aww' for a round with cans left (2026-11-09, the stall mockup's).
+  'tin-can-alley': ['whoosh', 'clink', 'thud', 'aww'],
 };
 
 test('sound: each game plays its agreed sounds, all real ones, and the end-of-round sound', async () => {
@@ -200,7 +225,7 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 36);
+  assert.equal(checked, 40);
 });
 
 // 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (developer, 2026-10-09; was

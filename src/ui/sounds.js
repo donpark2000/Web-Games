@@ -98,6 +98,15 @@ export const RECIPES = {
   wheee: (k, t) => k.tone(t, 1000, { to: 220, dur: 0.9, peak: 0.22, attack: 0.03, vib: 25, vibRate: 7 }),
   // Your turn, A "Ping".
   ping: (k, t) => k.bell(t, N.A5, 0.4, 0.14),
+  // A tin can knocked (Tin Can Alley; the stall mockup's): three partials
+  // of a thin can, a random pitch; `level` 0-1 for how hard (0.3 of it at
+  // the least, so a soft knock is still heard).
+  clink: (k, t, level = 1) => {
+    const base = 820 + Math.random() * 420, peak = 0.32 * (0.3 + 0.7 * level);
+    [1, 2.76, 5.4].forEach(m => k.tone(t, base * m, { dur: 0.3, peak: peak / (m * m), attack: 0.002 }));
+  },
+  // A throw (Tin Can Alley; the stall mockup's): noise swept up.
+  whoosh: (k, t, level = 1) => k.noise(t, { dur: 0.25, peak: 0.2 + 0.25 * level, f: 500, to: 1800, q: 1.2, attack: 0.02 }),
 };
 
 // makeContext: () => an AudioContext, or null where there is none.
@@ -138,19 +147,21 @@ export function createSound({ makeContext, storage = null, log = () => {} }) {
     }
   }
   // Plays a sound now, or `delay` seconds from now. Returns true when it
-  // was scheduled.
-  function play(name, delay = 0) {
+  // was scheduled. `level` (0-1) for the sounds that take one (clink,
+  // whoosh); `quiet` leaves it out of the log (Tin Can Alley's many
+  // clinks: the game logs the hits itself).
+  function play(name, delay = 0, { level = 1, quiet = false } = {}) {
     const recipe = RECIPES[name];
     if (!recipe) { log('unknown sound', { name }); return false; }
     if (!on || !audio()) return false;
     try {
-      recipe(tools, ctx.currentTime + LEAD + delay);
+      recipe(tools, ctx.currentTime + LEAD + delay, Math.min(1, Math.max(0, level)));
     } catch (e) {
       log('sound failed', { name, error: String(e.message ?? e) });
       return false;
     }
     // The state too when it isn't running: a suspended context plays nothing.
-    log(name, ctx.state === 'running' ? (delay ? { delay } : undefined) : { delay, state: ctx.state });
+    if (!quiet || ctx.state !== 'running') log(name, ctx.state === 'running' ? (delay ? { delay } : undefined) : { delay, state: ctx.state });
     return true;
   }
   function setOn(value) {

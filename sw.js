@@ -20,8 +20,8 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '4cfe4b907888';
-const MADE = '2026-11-08';
+const VERSION = '8ace4abc36e7';
+const MADE = '2026-11-09';
 const RELEASE = '7.6';
 const FILES = [
   'bridges.html',
@@ -48,6 +48,7 @@ const FILES = [
   'css/site.css',
   'css/snakes-ladders.css',
   'css/tic-tac-toe.css',
+  'css/tin-can-alley.css',
   'data/bridges.json',
   'data/colour-sudoku.json',
   'data/five-dice-long.bin',
@@ -96,6 +97,8 @@ const FILES = [
   'src/core/snakes-ladders.js',
   'src/core/stats.js',
   'src/core/tic-tac-toe.js',
+  'src/core/tin-can-alley-physics.js',
+  'src/core/tin-can-alley.js',
   'src/core/version.js',
   'src/ui/brboard.js',
   'src/ui/bridges.js',
@@ -137,12 +140,18 @@ const FILES = [
   'src/ui/sound.js',
   'src/ui/sounds.js',
   'src/ui/stats.js',
+  'src/ui/tcapics.js',
   'src/ui/tic-tac-toe.js',
+  'src/ui/tin-can-alley-stall.js',
+  'src/ui/tin-can-alley.js',
   'src/ui/tray3d.js',
+  'src/vendor/cannon-es/LICENSE',
+  'src/vendor/cannon-es/cannon-es.js',
   'src/vendor/three/LICENSE',
   'src/vendor/three/RoundedBoxGeometry.js',
   'src/vendor/three/three.module.min.js',
   'tic-tac-toe.html',
+  'tin-can-alley.html',
 ];
 // ---- end ----
 

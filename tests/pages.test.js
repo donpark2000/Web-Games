@@ -19,9 +19,9 @@ const localRefs = s => [...s.matchAll(/(?:href|src)="([^"]+)"|from '(\.\/[^']+)'
   .map(m => m[1] ?? m[2]).filter(u => !/^(https?:|mailto:|#)/.test(u)).map(u => u.replace(/[?#].*$/, ''));
 
 // The 2D Five Dice retired 2026-11-08 (Q59): Five Dice 3D is the only one.
-test('pages: the home page and the fifteen games exist, and only those', () => {
+test('pages: the home page and the sixteen games exist, and only those', () => {
   assert.ok(pages.includes('index.html'));
-  const want = ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice-3d.html', 'nim.html', 'dots-boxes.html', 'reversi.html', 'rock-paper-scissors.html', 'follow-me.html', 'bridges.html', 'hidden-faces.html', 'colour-sudoku.html', 'laser-lab.html'];
+  const want = ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice-3d.html', 'nim.html', 'dots-boxes.html', 'reversi.html', 'rock-paper-scissors.html', 'follow-me.html', 'tin-can-alley.html', 'bridges.html', 'hidden-faces.html', 'colour-sudoku.html', 'laser-lab.html'];
   assert.deepEqual([...games].sort(), [...want].sort());
 });
 
@@ -114,7 +114,8 @@ test('pages: the home page groups the games: two players, one player, puzzles', 
   assert.deepEqual(groups[0].games, ['tic-tac-toe.html', 'matching.html', 'connect-four.html', 'count-to-9.html', 'snakes-ladders.html', 'five-dice-3d.html', 'nim.html', 'dots-boxes.html', 'reversi.html']);
   // Bridges (2026-10-24): for the kids and the grown-ups, listed once,
   // with the kids (developer: "I do not want to list the same game twice").
-  assert.deepEqual(groups[1].games, ['rock-paper-scissors.html', 'follow-me.html', 'bridges.html']);
+  // Tin Can Alley (2026-11-09) after Follow Me, with the other one-player games.
+  assert.deepEqual(groups[1].games, ['rock-paper-scissors.html', 'follow-me.html', 'tin-can-alley.html', 'bridges.html']);
   assert.deepEqual(groups[2].games, ['hidden-faces.html', 'colour-sudoku.html', 'laser-lab.html']);
   const all = groups.flatMap(g => g.games);
   assert.deepEqual([...all].sort(), [...games].sort(), 'every game in exactly one group');

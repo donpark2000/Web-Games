@@ -13869,3 +13869,120 @@ four mockup rounds):**
    as before. Nothing to purge.
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: Tin Can Alley built (not published)
+
+**Developer** (the choices left from the status entry): "Set up screen:
+Can config, and avatar. Place with other one player games. It should work
+in either orientation but the buttons and score can move so we maximize
+the actually game play area for each orientation."
+
+**Branch `tin-can-alley`**, from `five-dice-3d`'s tip (the journal comes
+along).
+
+**What was built** (DESIGN.md "Tin Can Alley", "As built"):
+- **cannon-es 0.20.0** in `src/vendor/cannon-es/` (`npm pack`, integrity
+  and sha256 in its README, the MIT licence). Its `dist/cannon-es.js`
+  imports nothing (no `import` or `require` in it): it runs as it is in
+  the browser and under Node. Saved for offline by `tools/offline.js`
+  as the rest of `src/` (128 files).
+- **The rules in `src/core/tin-can-alley.js`** (no DOM, three.js or
+  physics): the stall's measurements and solid parts (one list for the
+  physics and the drawing), the cans' places, off the shelf, the drag to
+  power and aim, the throw's velocity, the ring's point, the camera's
+  cut and glide, the field of view, a round's balls and end, the end's
+  words. `tests/tin-can-alley.test.js`, 13 tests.
+- **The physics in `src/core/tin-can-alley-physics.js`**: the mockup's
+  cannon-es world, run under Node by `tests/tin-can-alley-physics.test.js`
+  (5 tests, about 10 s): every lot of cans still and asleep for 10 s
+  (drift 0); a straight throw at power 0.4 knocks Pyramid 6's cans off;
+  a short throw leaves them asleep and the ball is taken away after 8 s;
+  12 rounds of 3 throws (every lot, aimed all over) all end, no can left
+  hanging on the curtain; a round's cans put back where they came to
+  rest stay asleep, within 1 mm.
+- **The drawing in `src/ui/tin-can-alley-stall.js`** (three.js r160, the
+  mockup's scene), **the screens in `src/ui/tin-can-alley.js`**, the
+  pictures (the setup's cans, the home tile: the stall in small, the top
+  can falling) in `src/ui/tcapics.js`. Both 3D modules loaded with
+  `import()`, so a device that can't run them is told "This phone or
+  tablet can't show the 3D stall" (as Five Dice 3D).
+- **Setup:** a rules line with the stall picture, "Pick your face" (the
+  14 faces), "Which cans?" (Pyramid 6, 10, 15, Wall 9; each with its cans
+  drawn), Play!.
+- **Play:** the stall fills the screen (the page's footer hidden while
+  playing). Upright: the 🏠, the name and the 🔊 in a row over it, your
+  face, "N of 6 off" and the 3 balls in a bar under it with
+  "↺ Start again". Sideways: all of that in one column at its left, the
+  🔊 at the foot. "Drag back, then let go to throw" over the stall until
+  the first throw. The round's end in a card over the stall: your face
+  (smiling or sad), "Teddy knocked all 6 off with 2 balls! 🎉" / "Teddy
+  knocked 4 of 6 off" / "None off this time", **Play again** (a new
+  round, the same cans) and **New game** (the setup screen). Start again
+  asks first ("Start this round again?"), as Follow Me's Give up.
+- **Sounds:** two new in `src/ui/sounds.js`, the mockup's: `clink` (a
+  can knocked, louder the harder) and `whoosh` (a throw); the ball on
+  wood `thud`; the end `win` or `aww`. `sound.play` now takes `{ level,
+  quiet }`: a clink per knock would flood the debug log, so they are
+  quiet and the game logs the hits.
+- **Coming back to a game:** the round as it last stood still (the cans'
+  poses, the balls used) is kept; a ball in flight when the page is left
+  comes back to the hand.
+- **Logged** ("tin-can-alley"): 3D started (WebGL, three, cannon, pixel
+  ratio), the fit (the stall's px, the field of view, the screen, upright
+  or sideways), each throw (power, aim, speed, turn, where it heads),
+  the first can hit, cans off, the camera's moves, the round's end (with
+  fps and the physics' ms a frame), Start again, resumed, no 3D.
+- The home page: Tin Can Alley in 👤 One player, after Follow Me.
+
+**A decision made in the build (to confirm):** `tests/css.test.js` lets
+a game sheet restyle only classes meant to be shared ("a new name here
+is a decision"). Added: `top`, `gname`, `homebtn`, `soundbtn` (placed,
+not resized: the 🏠 stays the site's one size) and `site-foot` (hidden
+while playing), for this full-screen play screen.
+
+**Findings, with evidence** (the built-in browser, hidden: its screenshots
+were stale, so the stall's canvas was copied into an image with the
+page's boxes drawn over it, and saved in
+`Web-Games-testing\2026-11-09_tin-can-alley\`):
+- **Sideways, the shared top-row rules won.** At 780 × 340 the 🔊 and
+  the name sat over the stall: game.css's `body:not(.wide-layout) #play
+  > .top > .gname` is more specific than this sheet's `#play .gname`.
+  Fixed with selectors as specific (this sheet loads later).
+- **A field of view of 38 cut the ball off** at 780 × 340 (the held
+  ball is 20° under the camera's middle). The narrowest is now 44; a test
+  checks the ball and Pyramid 15's top are in view at it (it fails at 38).
+- **The side column was 16 px too tall at 340**: the stall measured
+  674 × 341 on a 340 screen, its foot off it. The score box laid out
+  in two columns (face and number side by side): the column now fits
+  320. Then measured at 320 × 568, 393 × 760, 800 × 1280 (upright) and
+  667 × 320, 780 × 340, 852 × 393, 1280 × 720 (sideways): nothing over
+  the stall or off the screen, no page scroll; the stall 67 % of the
+  screen (320 × 568), 75 % (393 × 760), 80-84 % (sideways phones), 85-90 %
+  (tablets).
+- **Played in the page:** throws by the test hook and a real mouse drag
+  (power 0.35 from a 120 px drag down): the camera cut to the side and
+  back, cans off counted, a round of 3 balls ended "Teddy knocked 3 of 6
+  off" with `aww`; a reload picked the round up again (2 balls used, 3
+  off, the cans where they lay). The page's fps in this hidden pane was
+  5 (the browser slows a hidden page): not a measurement; the phone's log
+  will have it. Physics 0.24 ms a frame.
+- The whole suite: 499 tests pass (25 of them new).
+
+**Not checked:** a real phone (touch, the safe areas, fps); the look
+(the pane hidden: copies of the canvas only). Pyramid 15 at power 0.5
+straight knocked none off in one Node run (the ball bounced off the
+middle): to see whether that feels unfair when played.
+
+**Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: Status (start here next session)
+
+**Status:** Tin Can Alley built on branch `tin-can-alley` (pushed), not
+published. Next: the developer's OK to publish it as **release 8.0** (a
+new game), then try it on the phone. The steps at publish: release.js,
+offline.js, RELEASES.md, `node tools/release.js` ready, merge, tag
+`v8.0`, the GitHub release. Then, as before: the block game's mockup.
+Test output in `Web-Games-testing\2026-11-09_tin-can-alley\` (7
+pictures, recorded here): to purge with the developer's OK.
+
+**Open questions:** none new. Q47 unchanged.
