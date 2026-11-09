@@ -13618,3 +13618,65 @@ Heavy); in the side view, should pulling back be to the left (away from
 the cans) rather than down.
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-08: Stall mockup v2 tried; mockup v3 (aim from behind, watch from the side); status (start here next session)
+
+**Developer** (v2, in the app): "I like 'ring where it will hit'. I don't
+like path dots. The camera is best to be behind when aiming but it might
+be a nice touch to switch to from the side view after the shot is fired.
+What do you think?"
+
+**Claude:** agreed, with one catch: the flight is only 0.3-0.4 s, so a
+camera swing would still be moving when the ball lands. So a TV replay's
+way: **cut** to the side on letting go, **slow motion** for the flight
+(to try), hold while the cans fall, **glide back** behind for the next
+ball; about 2.5 s between balls instead of 0.9. **Developer:** "OK."
+
+**Mockup v3** (same artifact, version 3):
+- **Ring where it will hit** always; path dots, Aim help and View
+  dropped (Behind, higher too).
+- **After the throw** (choice): **Cut to the side** (preselected): the
+  camera jumps to the side view (outside the stall, the near wall cut
+  away) as the ball leaves, holds 1.8 s once the flight is at full speed,
+  then glides back behind in 0.6 s (eased); **Cut to the side, slow
+  motion**: the same, the world at 0.35 speed until the ball first
+  touches something (at most 2.5 s); **Stay behind** (as v2).
+- The next ball waits for the camera to be back behind.
+- Logged: `camera: cut to the side` (slow or not), `camera: ball touched
+  something` (when), `camera: back behind`; the debug line shows the
+  camera and the choice.
+
+**Checked** (built-in browser; a throw at power 0.4 with each choice,
+stepped 0.1 s at a time): slow motion: the side view at 0.35 speed until
+the ball touched a can at 0.97 s (0.33 s at full speed), full speed to
+2.8 s, gliding back to 3.4 s, the next ball ready at 3.4 s; cut to the
+side: back at 1.9 s, ready at 2.5 s; stay behind: ready at 0.9 s. A
+screenshot mid-flight in slow motion shows the ball halfway along its
+curve with its path behind it. No console errors.
+
+**Status:** fairground stall mockup v3 published
+([Fairground Stall Mockup](https://claude.ai/artifact/DTqc3rqnWY2juJ2SsR188X),
+private, version 3), for the developer to try (not tonight; feedback in a
+new session). Agreed so far: pulling back to throw; the ring where it will
+hit; aim from behind. Not checked: a real phone, a finger, sound, fps on
+a phone.
+
+**Next (a fresh session, this one being long):**
+1. The developer's feedback on v3: Cut, Slow motion or Stay behind; is
+   Medium hard enough; 3 balls; off or knocked over; which cans.
+2. The mockup's source is the artifact itself: read it with the Artifact
+   tool (`action: "read"`), save it to the new session's scratchpad, and
+   publish changes to the same URL. To check it as before: serve the
+   scratchpad on 8130 through `tools/serve.js` `createServer` with a
+   temporary `.claude/launch.json` entry (removed after), wrapping the page
+   in a skeleton with a viewport line for phone widths; drive it with
+   `window.stall` (`step` draws only the last frame, `throw(power, aim)`,
+   `set`, `newRound({ noSleep })`, `ballKg`, `state`, `log`); the hidden
+   pane's screenshot needs a 1 s wait to show a new WebGL frame.
+3. Once the mockup is agreed: a name, then building it as a game
+   (cannon-es in the repo beside three.js; its rules and tuning in
+   `src/core/`, tested under Node).
+4. Q47 when the grandkids try Five Dice 3D. Left over, only if wanted
+   (from the last status). Nothing to purge.
+
+**Open questions:** none new. Q47 unchanged.
