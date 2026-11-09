@@ -13794,3 +13794,30 @@ ideas, in order:
    scratchpad).
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: Stall mockup v4 tried; how hard you throw
+
+**Developer** (v4, in the app): "The cans are not getting stuck. 3 balls
+seems fine. I think cans should be off the shelf. Its nice to have the
+option of the pyramids or the wall. The wall seems harder. I think medium
+or light cans is good unless we can control how hard we throw as well as
+aim. I only see how to aim but I do not see how to control how hard we
+throw."
+
+**Agreed for the stall:** no can sticks (v4's gap); **3 balls** a round;
+a can counts when it's **off the shelf**; the **pyramids and the wall**
+both offered.
+
+**Claude, on how hard:** the stall does set the throw's speed (how far
+you drag down: 3-12 m/s), but every throw leaves at 20° up, so a harder
+throw only lands higher: the ring moving up the stack. Speed and height
+are one control, so it reads as aiming, and a low hit is always a slow
+one. Setting both (the angle up and the speed) is the slingshot idea,
+agreed 2026-11-09 for the block game. Suggested: the stall stays as it
+is (the drag sets where it hits; one control is simpler for the kids),
+cans Medium (measured in v2: three good straight throws took 4 of 6, so
+a round needs aiming at what's left; Light not measured with the 0.2 kg
+ball); the separate speed waits for the block game. Asked, with the
+stall's name.
+
+**Open questions:** none new. Q47 unchanged.
