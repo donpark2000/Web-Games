@@ -14148,3 +14148,37 @@ block game's mockup. Test output in
 in "The view fitted to the cans"): to purge with the developer's OK.
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: Release 8.1 published (the view fitted to the cans); status (start here next session)
+
+**Developer:** "Publish 8.1".
+
+**Published 8.1:** `main` fast-forwarded e97d470..b658007 (pushed from
+`tin-can-alley`), tag `v8.1`,
+[GitHub release 8.1](https://github.com/donpark2000/Web-Games/releases/tag/v8.1);
+the Pages build done (success). Before it: `node tools/release.js`
+"Release 8.1 is ready: version 4f6f55052884", `npm test` 501 passed.
+**Checked live:**
+- `sw.js`: RELEASE 8.1, VERSION 4f6f55052884; the live
+  `src/core/tin-can-alley.js` has `fitView`.
+- In the built-in browser the game first ran the offline copy of 8.0
+  (version fd055c7b0842, as at 7.6 and 8.0); after the service worker's
+  update (cache `lets-play-4f6f55052884`) and a reload: version
+  4f6f55052884, Pyramid 6 at 31.49°, the hint at `calc(30.72% + 6px)`
+  from the foot, a throw at power 0.4 took 3 off, the side view at 50°
+  (the pane's own shape) and back behind at 31.49°.
+- The local servers stopped (the preview on 8123, Claude's picture
+  receiver on 8124); nothing listening on 8123, 8124 or 8130.
+
+**Status:** 8.1 live: Tin Can Alley's cans bigger.
+
+**Next:**
+1. The developer on the phone with 8.1, upright and sideways: the cans'
+   size; whether the shelf's ends off the sides upright matter; the hint
+   over the ball.
+2. Purge `Web-Games-testing\2026-11-09_tin-can-framing\` (7 pictures,
+   in "The view fitted to the cans") with the developer's OK.
+3. Then the block game's mockup (the entry "Stall mockup v3 tried").
+   Q47 when the grandkids try the 3D games.
+
+**Open questions:** none new. Q47 unchanged.
