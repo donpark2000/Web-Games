@@ -38,6 +38,7 @@ export function createStall({ onHit = () => {} } = {}) {
   for (const s of STALL_BOXES) {
     const b = new CANNON.Body({ mass: 0, material: matWood, shape: new CANNON.Box(new CANNON.Vec3(s.w / 2, s.h / 2, s.d / 2)) });
     b.position.set(s.x, s.y, s.z);
+    b.aabbNeedsUpdate = true;   // its box was worked out at the origin (Q63)
     b.kind = 'stall';
     world.addBody(b);
   }
@@ -72,6 +73,10 @@ export function createStall({ onHit = () => {} } = {}) {
         body.position.set(...pose.p);
         body.quaternion.set(...pose.q);
       } else body.position.set(s.x, s.y, s.z);
+      // cannon-es worked out its box (AABB) at the origin as it was made,
+      // and won't again until it moves: asleep, the broadphase would sort
+      // it as if there and the ball could fly through it (Q63).
+      body.aabbNeedsUpdate = true;
       body.kind = 'can';
       body.row = s.row;
       body.start = { x: s.x, y: s.y, z: s.z };

@@ -31,7 +31,10 @@ time, each tried before publishing:
   a two-line fix with a test, as release 8.2; waiting for the developer's
   OK. 2026-11-09, developer: "Can we save the bug fix for the first time
   we publish the new game?" So: no 8.2; the fix and its test go in the
-  block game's first release (x.0), and its notes list it.
+  block game's first release (x.0), and its notes list it. Then: "You
+  can actually change the code now, just not publish it yet or change
+  the version yet ... V9." **Fixed on `block-game`** (not published;
+  "Q63 fixed on the branch"); open until 9.0 is live.
 
 ## Proposed additions to the standards skill
 
@@ -14418,4 +14421,36 @@ the bug fix for the first time we publish the new game?"
   wanted on the list in "Block game mockup v1".
 
 **Open questions:** Q63 (deferred to the block game's release), Q47
+unchanged.
+
+## 2026-11-09: Q63 fixed on the branch (not published)
+
+**Developer:** "You can actually change the code now, just not publish it
+yet or change the version yet. I assume the first time we publish the new
+game it will be V9. That is when we can deliver the bug fix."
+
+- **Fix** (`src/core/tin-can-alley-physics.js`): `aabbNeedsUpdate = true`
+  after placing each stall box and each can (both the shelf's places and a
+  round picked up again).
+- **Tests** (`tests/tin-can-alley-physics.test.js`, two new):
+  - every body's collision box holds the body, after one step, for every
+    lot of cans, fresh and picked up again (the ground's plane skipped:
+    it's endless);
+  - 10 throws at power 0.35 aimed off the middle (Pyramid 6 at ±0.1, ±0.2;
+    Pyramid 15 at ±0.1-0.3) each touch a can.
+  - **Shown to fail without the fix** (the fix stashed, the tests run):
+    "a stall's box is at 0.00,0.00,0.00, the body at 0.00,0.97,-2.40";
+    5 of the 10 throws went through, all aimed left (6 at -0.2, -0.1; 15
+    at -0.3, -0.2, -0.1), as the sweep in "Block game mockup v1" found.
+  - Pyramid 6 at ±0.3 was first in the list and missed on **both** sides
+    with the fix too: a real miss (the pile is narrow), not Q63, so left
+    out.
+- `node tools/offline.js` (as for the unpublished 7.3-7.5 changes): release
+  still **8.1**, version 9cd22f10965c, 128 files. `npm test`: 503 pass, 0
+  fail.
+- **For 9.0's notes in `RELEASES.md`:** "Tin Can Alley: the ball no longer
+  flies through cans on a throw aimed off the middle."
+- Not checked in the browser: physics only, run directly by the tests.
+
+**Open questions:** Q63 fixed on the branch, open until 9.0 is live. Q47
 unchanged.

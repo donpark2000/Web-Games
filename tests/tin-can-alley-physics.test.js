@@ -107,6 +107,54 @@ test('tin can alley physics: rounds of 3 throws end, and no can is left hanging 
   assert.ok(offTotal > 0, 'no throw knocked any can off');
 });
 
+// Q63 (journal, "Block game mockup v1"): cannon-es works out a body's box
+// (AABB) as it's made, at the origin, and again only when it moves; the
+// cans and the stall's boxes are placed after they're made and never move
+// until hit, so the broadphase sorted them as if at the origin and some
+// throws aimed off the middle went through the cans.
+test('tin can alley physics: every body\'s collision box is where the body is (Q63)', () => {
+  let checked = 0;
+  for (const layout of LAYOUTS) {
+    for (const poses of [null, 'picked up']) {
+      const s = createStall();
+      let p = null;
+      if (poses) { s.setCans(layout); p = s.poses(); }
+      s.setCans(layout, p);
+      s.step(DT);
+      for (const b of s.world.bodies) {
+        if (b.shapes[0].type === 2 /* a plane: endless */) continue;
+        const { lowerBound: lo, upperBound: hi } = b.aabb;
+        const inside = ['x', 'y', 'z'].every(k => lo[k] - 1e-9 <= b.position[k] && b.position[k] <= hi[k] + 1e-9);
+        assert.ok(inside, `${layout}${poses ? ' (picked up)' : ''}: a ${b.kind}'s box is at ${['x', 'y', 'z'].map(k => ((lo[k] + hi[k]) / 2).toFixed(2))}, the body at ${['x', 'y', 'z'].map(k => b.position[k].toFixed(2))}`);
+        checked++;
+      }
+    }
+  }
+  assert.ok(checked >= LAYOUTS.length * 2 * 10, `only ${checked} bodies checked`);
+});
+
+// Throws aimed left and right of the middle, each at a pile it reaches:
+// every one touches a can. (As built in 8.1, Pyramid 6 at power 0.35, aim
+// -0.1, touched none, and 30 of 189 such throws missed.)
+test('tin can alley physics: throws aimed left and right of the middle touch a can (Q63)', () => {
+  const missed = [];
+  let n = 0;
+  // (Pyramid 6 is too narrow for ±0.3: those miss on both sides, fixed or not.)
+  for (const [layout, aims] of [['6', [-0.2, -0.1, 0.1, 0.2]], ['15', [-0.3, -0.2, -0.1, 0.1, 0.2, 0.3]]]) {
+    for (const aim of aims) {
+      const s = createStall();
+      const m = createMatch({ p1: 'bear', layout });
+      s.setCans(layout);
+      toss(s, m, 0.35, aim);
+      play(s, m, 2);
+      n++;
+      if (s.hits === 0) missed.push(`${layout} aim ${aim}`);
+    }
+  }
+  assert.equal(n, 10);
+  assert.deepEqual(missed, [], `the ball went through the cans: ${missed.join(', ')}`);
+});
+
 test('tin can alley physics: a round picked up again: the cans where they had come to rest, asleep', () => {
   const s = createStall();
   const m = createMatch({ p1: 'bear', layout: '10' });
