@@ -14454,3 +14454,31 @@ game it will be V9. That is when we can deliver the bug fix."
 
 **Open questions:** Q63 fixed on the branch, open until 9.0 is live. Q47
 unchanged.
+
+## 2026-11-09: Block game mockup v1 tried: the right idea; the aiming isn't
+
+**Developer:** "I tried the mockup. Its definitely the right idea. I do
+find the aiming and speed controls non-intuitive. The drag to aim and hold
+for speed version just seems to keep randomly changing even if I don't
+move the ball. The first option sees a bit easier to understand but the
+appearance of the circle which seems like it is supposed to help me see
+where I am going to hit is confusing."
+
+- **The game: the right idea.**
+- **B (drag to aim, hold for speed): out.** Its speed rises and falls by
+  itself while held (by design: let go when it's right), which reads as
+  random.
+- **A (drag back, slider for how high): easier**, but **the ring
+  confuses**. Claude's reading of why, from the code: the ring is drawn
+  over everything (no depth test) and turned to face the camera, so from
+  behind it looks the same on the net in front, a block, or the table
+  behind it, with no clue how far away it is; and as the drag or the
+  slider changes it jumps between those (net, the table's edge, a block,
+  the lawn) with nothing showing the path between.
+- Not yet said: the ring past one bounce, Distance, the side cut, nets or
+  walls, how many balls, the puzzles themselves.
+
+**Proposed for mockup v2** (to agree): A only; in place of the ring, a
+switch between (1) **the path as a line of dots** from the slingshot to
+where it first touches, (2) the dots plus **the block it will hit lit
+up**, (3) v1's ring, to compare.
