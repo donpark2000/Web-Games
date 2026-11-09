@@ -13986,3 +13986,41 @@ Test output in `Web-Games-testing\2026-11-09_tin-can-alley\` (7
 pictures, recorded here): to purge with the developer's OK.
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: Release 8.0 published (Tin Can Alley); status (start here next session)
+
+**Developer:** "Publish 8.0".
+
+**Published 8.0:** `main` fast-forwarded 46f6f90..e97d470 (pushed from
+`tin-can-alley`), tag `v8.0`,
+[GitHub release 8.0](https://github.com/donpark2000/Web-Games/releases/tag/v8.0);
+the Pages build done (success). Before it: `node tools/release.js`
+"Release 8.0 is ready: version fd055c7b0842", `npm test` 499 passed.
+**Checked live:**
+- `sw.js`: RELEASE 8.0, VERSION fd055c7b0842; `tin-can-alley.html` and
+  `src/vendor/cannon-es/cannon-es.js` 200; the home page links the game.
+- In the built-in browser the game page ran from the network with
+  `src/core/version.js` still 7.6's from the offline copy (as at 7.6): a
+  game started, a throw at power 0.4 took 3 off. After a reload it
+  logged `saved for offline`: release 8.0, version fd055c7b0842, 128
+  files.
+- The local servers stopped (the preview on 8123, Claude's picture
+  receiver on 8124); nothing listening on 8123, 8124 or 8130.
+
+**Status:** 8.0 live: Tin Can Alley in 👤 One player.
+
+**Next:**
+1. The developer on the phone with 8.0, upright and sideways:
+   - does the drag feel right (how far down for a throw that reaches,
+     the ring), and does the stall feel big enough each way;
+   - the camera's cut to the side and back: too long, too short;
+   - Pyramid 15 (a straight middle throw once bounced off in a test);
+   - the fps in the log (`round over` lines), and the decisions to
+     confirm (journal, "Tin Can Alley built"): the footer hidden while
+     playing; the top row's pieces added to the CSS test's shared list.
+2. Purge `Web-Games-testing\2026-11-09_tin-can-alley\` (7 pictures, in
+   the entry "Tin Can Alley built") with the developer's OK.
+3. Then the block game's mockup (the entry "Stall mockup v3 tried").
+   Q47 when the grandkids try the 3D games.
+
+**Open questions:** none new. Q47 unchanged.

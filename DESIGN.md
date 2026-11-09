@@ -5,8 +5,8 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-11-09, latest): **Tin Can Alley** (knock the cans off a
-fairground stall's shelf, 3D) built on branch `tin-can-alley`, not
-published (see "Tin Can Alley"); agreed from mockup v4 earlier the same day. 2026-11-08: **the 2D Five Dice retired**, Five Dice 3D
+fairground stall's shelf, 3D) published as release 8.0 (see "Tin Can Alley"); agreed from mockup v4
+earlier the same day. 2026-11-08: **the 2D Five Dice retired**, Five Dice 3D
 the only one (release 7.6, published; see "Five Dice" and "3D games").
 Earlier the same day: **Five Dice 3D: no double-tap zoom on the tray**
 (release 7.5). Earlier the same day: **Five Dice 3D: a full house shows
@@ -1958,8 +1958,7 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
 The second 3D game (named by the developer, 2026-11-09), agreed from the
 [Fairground Stall Mockup](https://claude.ai/artifact/DTqc3rqnWY2juJ2SsR188X)
 (private, version 4; journal, "Fairground stall mockup v1" to "Stall
-mockup v4 tried"). Built 2026-11-09 (journal, "Tin Can Alley built"), not
-published.
+mockup v4 tried"). Built 2026-11-09 (journal, "Tin Can Alley built"); release 8.0.
 
 - **A fairground stall** seen from behind the thrower, a fixed camera: a
   wooden counter in front, a shelf of stacked cans on a red cabinet ("KNOCK
