@@ -7,6 +7,25 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 8.0 (2026-11-09, version fd055c7b0842)
+
+A new game: **Tin Can Alley**, a fairground stall in 3D (in 👤 One
+player):
+
+- **Knock every can off the shelf with 3 balls.** Drag back and let go
+  to throw, like a catapult: drag further down to throw harder and hit
+  higher on the stack, and sideways to aim. A ring shows where the ball
+  will hit.
+- **After each throw the camera cuts to the side** to watch the cans
+  fall, then goes back behind you for the next ball.
+- **Pick your face and the cans:** a pyramid of 6, 10 or 15, or a wall
+  of 9 (harder).
+- **The stall fills the screen** held either way: upright, the score
+  and Start again sit under it; sideways, in a column beside it.
+- Tin clinks, a whoosh for each throw, and a tune when all the cans are
+  off.
+- A phone or tablet that can't show 3D says so.
+
 ## 7.6 (2026-11-08, version 4cfe4b907888)
 
 Five Dice 3D: the dice start each turn in the cup; the flat Five Dice is
