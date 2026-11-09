@@ -22,6 +22,14 @@ time, each tried before publishing:
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
+- **Q63. Tin Can Alley: the ball can fly through cans** (2026-11-09,
+  found building the block game's mockup; "Block game mockup v1"). The
+  cans keep a collision box at the origin until hit (cannon-es works it
+  out as a body is made), so the physics sometimes never tests the ball
+  against them: in 30 of 189 throws aimed across the pile (mostly left)
+  the ball touched no can, where refreshed boxes gave 1-5 off. Proposed:
+  a two-line fix with a test, as release 8.2; waiting for the developer's
+  OK.
 
 ## Proposed additions to the standards skill
 
@@ -14241,3 +14249,156 @@ branch from `main`; the plan above to agree first. Claude suggested a
 fresh session for it (this one has been a build and a release).
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: Block game mockup v1
+
+**Developer:** "Sounds like a good plan. I will be away for a few hours but
+you can go ahead with the V1 mockup and I will review when I return."
+
+**Branch `block-game`**, from `main` (release 8.1), then fast-forwarded to
+`tin-can-alley`'s tip so the last two journal commits came along (they
+were only on `tin-can-alley`).
+
+**Mockup v1** ([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+private, version 1; "block game" a working name). Playable; three.js r160
+and cannon-es 0.20.0 from jsDelivr (the mockup only); the stall mockup's
+physics set-up, ring, camera cut, sounds, debug line and test hook reused.
+- **The scene:** a park: a mown lawn whose stripes run across the throw,
+  1 m each (a fixed size, so they show distance), trees far off. **A
+  slingshot** drawn at the bottom of the view (a fork, two bands, the ball
+  in the pouch at the stall's hand, 0, 1.25, -0.2; the camera the stall's,
+  0, 1.55, 0.6). Toy wooden blocks in the cans' colours.
+- **Three puzzles**, each on a wooden table 0.8 m high; a block counts once
+  it's off the table (below its top, or its middle past an edge):
+  - **Arch** (6 blocks): two posts and a beam over a cube, two small cubes
+    on the beam; 2.4 m away.
+  - **Over the net** (5): a little tower (beam, two posts, beam, cube)
+    behind a net 1.6 m tall, 1.2 wide, 0.9 m in front of it: a lob.
+  - **Bank shot** (4): two cubes, a plank, a cube, behind a net 2.0 tall
+    and 1.0 wide; a bouncy board to the left, turned so a ball from the
+    hand to its middle goes on to the blocks' middle.
+- **Barriers are see-through nets** (Claude's choice; switch: solid wall):
+  from behind, a wall taller than the throw hides what's behind it (the
+  camera is only 0.3 m over the hand), so the target couldn't be seen.
+- **Slingshot (switch):** **A** drag back as in the stall (how far down:
+  the speed; sideways: aim the other way, up to 22°), a slider at the
+  stage's right for how high (0-70° up, 20 to start); **B** drag to aim
+  (sideways as A; down aims higher, 0-70°), and holding sets the speed: it
+  goes up and down (empty to full in 1.2 s, a meter at the right), so you
+  can wait for the ring to be right and let go. A readout at the bottom
+  while aiming: "Up 20° · 6.6 m/s · 18° left".
+- **Speed 2-10 m/s at Near.** The stall's 3-12 m/s first: at 20° up,
+  every throw from power 0.4 to 0.7 went over the arch to the ground
+  behind (nothing stops it, as the stall's curtain did); the useful range
+  was 0.2-0.35 of the drag.
+- **The ring (switch):** **Stops at the first touch** (the stall's), or
+  **Shows one bounce**: a small white ring where it first touches and the
+  yellow one where it goes next. The path is flown as the physics flies it
+  (the same 1/120 s steps) against the tables, nets, board, ground and the
+  blocks where they are now; a bounce reflects it keeping each thing's
+  bounciness (board 0.9, net 0.1, the rest 0.3), with no spin or friction.
+  Flat on the ground, otherwise **facing the camera** (first drawn flat on
+  the face it hits: a ball coming in from the board hit a block's side,
+  and the ring was edge-on, a line, from behind).
+- **Distance (switch): Near, Far (2×), Farther (3×)**: everything s times
+  bigger and s times further from the hand (the angles from above stay
+  the same), heights from the ground; the ball keeps its size (so it
+  looks smaller by the blocks), weighs s³ as much and is thrown √s as
+  fast (so a hit does the same and it reaches s times as far). The view
+  from behind is fitted to the puzzle each time, as Tin Can Alley's (from
+  the slingshot to the puzzle's top, 3° spare, turned sideways to the
+  middle of what's there, so the board on the left fits).
+- **After the throw (switch):** cut to the side (fitted to the throw's
+  path and the puzzle; holds 1.8 s, or until 1.3 s after the first touch,
+  then glides back), or stay behind.
+- **Balls a puzzle:** 5 (3, no limit). Blocks of light toy wood (90 kg/m³:
+  0.09-0.56 kg at Near); the ball 0.25 kg.
+- Debug line: WebGL, fps, physics ms, blocks awake, the last throw (speed,
+  angle up, aim), the camera and its field of view, the distance and the
+  ball's weight. Logged: each throw with where the ring said, then **where
+  the ball really touched first and second and how far from the ring**
+  (`ball touched`, `offCm`), blocks off, the camera, round ends. Test hook
+  `window.blocks` (`step`, `throw(power, aim, up)`, `predict`, `drag`,
+  `setAngle`, `tune`, `set`, `state`, `blocks`, `wakeAll`, `log`).
+
+**Checked** (the page served on 8130 by a small scratchpad script that
+wraps it in the viewer's skeleton, read fresh on each request so edits
+show on a reload (until now `tools/serve.js` `createServer` over a wrapped
+copy, rebuilt by hand); a temporary `.claude/launch.json` entry, removed
+after; built-in browser at 375 × 812 and at desktop width; no console
+errors, no sideways scroll):
+- **Still until hit:** every puzzle at every distance, left 10 s asleep,
+  moved 0 m. Woken with no hit, they sank 4-15 mm and went back to sleep
+  (Over the net at Near: 5 still awake at 10 s, 15 mm).
+- **Solvable at Near and Farther:** shots whose ring is on a block (Over
+  the net) or on the board then a block (Bank shot), from a grid (up 0-70°
+  by 10, power by 0.04, aim by 0.1): Arch 232 at Near / 95 at Farther;
+  Over the net 38 (30-70° up) / 10 (60-70° only); Bank shot 26 (10-50°) /
+  19 (20-50°).
+- **The ring against the real first touch** (8 of those shots each at
+  Near, 6 at Farther, thrown and stepped 6 s):
+
+  | Puzzle | Near | Farther (3×) |
+  |---|---|---|
+  | Arch | 1-6 cm | 3-9 cm |
+  | Over the net | 0-3 cm | 2-7 cm (2 of 6 touched the table's edge first) |
+  | Bank shot: the board | 0-5 cm | 3-10 cm |
+  | Bank shot: the block after the bounce | 2-5 cm | 10-44 cm |
+
+  After a block the second touch is anyone's guess (the blocks move): 6
+  cm to 3 m, as expected.
+- **Blocks off with one throw on the ring's block:** Arch 3, 0, 5, 5, 1,
+  5, 5, 4 of 6; Over the net 1, 4, 0, 0, 4, 0, 0, 0 of 5 (a steep lob on
+  the top cube moves little); Bank shot 1, 2, 2, 1, 0, 1, 0, 1 of 4. So
+  the arch usually falls to one good shot; the other two need several.
+- A real mouse drag (80 px down, 4 left, A at 20°): power 0.41, the ring
+  on the red cube under the arch, the ball touched it 0 cm from the ring.
+- **A cannon-es catch** (the bank shot's ball flew through the board,
+  every time): cannon-es works out a body's box (AABB) as it's made, at the
+  origin, and again only when it moves; the SAP broadphase sorts the
+  bodies by that box but stops looking by their positions. A static body
+  placed after it's made (the board at x -0.85) kept its box at the
+  origin, so the sort put it in the wrong place and the ball-board pair
+  was never tested (confirmed: with the naive broadphase the bounce
+  happened, 0 cm from the ring; a sphere placed at the contact spot
+  touched the board). Fixed in the mockup by `body.aabbNeedsUpdate = true`
+  after placing each body. See Q63 for Tin Can Alley.
+- Looks (screenshots): Near, the slingshot's ball large at the bottom
+  (as the stall's) with the table and blocks over it; Farther, the
+  slingshot small against a 4.8 m net and the tower, the lawn's stripes
+  narrowing with distance; through the net the blocks show clearly. The
+  side view on an upright stage is small: the whole throw from the
+  slingshot to the puzzle across a narrow frame.
+
+**For the developer to judge:** A or B; the ring at the first touch or
+past one bounce; Near, Far or Farther (**at Farther the heights grow from
+the ground while the hand stays at 1.25 m**, so the 4.8 m net needs a
+60-70° lob: Farther changes the play, not only the look; a slingshot
+raised with the distance would keep it the same); cut to the side or stay
+behind; nets or walls; 5 balls or 3; are the puzzles fun, too easy (the
+arch) or too hard (the bank shot).
+
+Not checked: a real phone, a finger, sound, fps on a phone, B's feel.
+
+**Q63: Tin Can Alley has the same catch, and it shows** (a scratchpad
+script under Node, `src/core/tin-can-alley-physics.js` as published in
+8.1; the same 189 throws twice, Pyramid 6, Pyramid 15 and Wall 9, power
+0.3-0.6 by 0.05, aim -0.4 to 0.4 by 0.1, 5 s each: as built, and with
+every body's box refreshed after `setCans`):
+- Before any step, 16 of the world's 25 bodies had their box at the
+  origin: every can (they're placed after they're made, then put to
+  sleep, so they never move until hit) and the stall's boxes.
+- **50 of 189 throws came out differently; in 30 the ball never touched a
+  can as built, but did with the boxes refreshed** (e.g. Pyramid 6, power
+  0.35, aim -0.1: as built nothing off, refreshed 5 off). The misses are
+  aimed left (aim -0.1 to -0.4). Others touched a can late (0.53-0.58 s
+  instead of 0.30-0.33: through the front cans, then something behind).
+- So in the live game, a throw whose ring sits on a can can fly through
+  it. The stall mockup's sweeps were nearly all straight (aim 0, ±0.15),
+  and 8.1 on the phone was "All good".
+- The fix: `aabbNeedsUpdate = true` after placing each can and each stall
+  box (two lines in `src/core/tin-can-alley-physics.js`), with a test that
+  throws left and right of the middle and expects a can touched. A release
+  8.2, with the developer's OK.
+
+**Open questions:** Q63 new. Q47 unchanged.
