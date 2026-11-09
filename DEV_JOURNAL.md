@@ -13429,13 +13429,21 @@ record, the table with the paddle a fallback); knock-down chosen.
 **Status:** knock-down chosen for the next 3D game; nothing built.
 Brick Breaker 3D mockup (private artifact, version 2) parked.
 
+**Developer, after that:** "Lets start simple and see where that gets
+us. And I was not suggesting to copy angry birds - I was just testing if
+I understood the suggestion. I like the idea of fair ground stall
+metaphor." So: **the fairground stall** (a shelf of stacked cans, a few
+balls, knock them all off), simple first; robots, targets inside
+structures and materials only later, if wanted.
+
 **Next (Claude suggested a fresh session, this one being long):**
-1. Knock-down **mockup v1**, playable in the app's viewer: a fixed
-   camera behind the launcher looking at a tower on a platform; **drag
-   back to aim and set power**, dots showing the start of the arc, let
-   go to throw; targets in the tower (robots, unless the developer
-   picks otherwise); a level ends when every target is knocked off,
-   throws counted; a few tower layouts; choices such as camera height
+1. **Fairground stall mockup v1**, playable in the app's viewer, simple:
+   a stall's counter and shelf seen from behind the thrower (a fixed
+   camera), cans stacked in a pyramid (a few layouts, e.g. 6 and 10
+   cans); **drag back to aim and set power**, dots showing the start of
+   the arc, let go to throw; the cans tumble and fall with real physics;
+   a round ends when every can is off the shelf, balls counted (perhaps
+   a limit, as at a real stall, to try); choices such as camera height
    and throw strength; the debug line with WebGL, fps and the physics'
    step time. three.js r160 and cannon-es from jsDelivr, the mockup only.
 2. Check it as before: scratchpad served on 8130 through `tools/serve.js`
@@ -13448,4 +13456,4 @@ Brick Breaker 3D mockup (private artifact, version 2) parked.
    a small phone sideways scrolls; Rock paper scissors' picks narrower
    than their column on a tablet; `css/five-dice.css`'s unused flat-row
    rules. Nothing to purge.
-Open: Q47; the targets (robots?) and the game's name to agree.
+Open: Q47; the game's name to agree later.
