@@ -13457,3 +13457,92 @@ structures and materials only later, if wanted.
    than their column on a tablet; `css/five-dice.css`'s unused flat-row
    rules. Nothing to purge.
 Open: Q47; the game's name to agree later.
+
+## 2026-11-08: Fairground stall mockup v1
+
+**Developer:** "lets build mockup v1" (the plan in the last status entry).
+
+**Mockup v1** ([Fairground Stall Mockup](https://claude.ai/artifact/DTqc3rqnWY2juJ2SsR188X),
+private, version 1; "Fairground stall" a working name only). Playable;
+three.js r160 and **cannon-es 0.20.0** (MIT) from jsDelivr, the mockup
+only; the site's palette and font.
+- **The scene** (metres): the thrower at z 0.6 behind a wooden counter
+  (z -0.75); a shelf 1.7 wide and 0.26 deep at 1.0 high, 2.4 away, on a
+  red cabinet whose front says "KNOCK THEM ALL OFF!" ("ALL DOWN!" with
+  the other rule); a teal curtain 0.25 behind the shelf; red and white
+  striped side walls and roof, a scalloped valance with bulbs. A fixed
+  camera. Cans 0.15 across and 0.22 tall, coloured by row, a white band
+  with stars; a white ball with an orange band, held at the bottom of the
+  view.
+- **The throw:** press anywhere on the stall and drag; **Pulling back**
+  (preselected) sets the power by how far down you drag, and aims the
+  other way from a sideways drag, as a catapult; **Pushing forward**
+  drags up toward the cans, aiming the same way. Let go to throw; a drag
+  under 6% of the power does nothing. Every throw leaves at 20° up, so
+  **the power sets the height it reaches** (left/right up to 22°). Yellow
+  dots show the path while dragging. A next ball is ready 0.9 s later.
+- **Cans sleep until something hits them** (cannon-es sleeping); when
+  the ball first touches a can, all wake.
+- **A round:** "Off n / N" and the balls left (●●○) on dark pills; all
+  off: "All 6 off with 2 balls! 🎉", tap for a new round; out of balls,
+  once the cans are still (2-7 s after the last throw): "4 of 6 off", tap
+  to try again. New round under the stall.
+- **Choices** (kept in the browser): **Cans** Pyramid 6 / 10 / 15 /
+  Wall 9 (3 × 3); **Balls a round** 3 / 5 / No limit; **A can counts when
+  it is** Off the shelf / Knocked over (tipped past 45°, or off);
+  **Throw by** Pulling back / Pushing forward; **Throw strength** Gentle /
+  Normal / Strong (× 0.85 / 1 / 1.2 on the speed, 3-12 m/s at Normal);
+  **Camera** Low / Middle / High (1.3 / 1.55 / 1.95 m); **Arc dots** Start
+  of the arc (0.16 s) / Whole arc / Off; **Sound** On / Off (a tin clink
+  for each can hit, a thud for the ball, a whoosh for a throw, a tune at
+  the end).
+- **Debug line:** WebGL version, fps, the physics' ms a frame, cans
+  awake, balls in play, the last throw's speed and aim, the camera. Test
+  hook `window.stall` (`step`, `throw`, `newRound`, `set`, `state`,
+  `timeDraw`, `log`), since a hidden built-in browser pane doesn't
+  animate.
+
+**Checked** (scratchpad served on 8130 through `tools/serve.js`
+`createServer`, a temporary `.claude/launch.json` entry; the page
+wrapped in a viewer-like skeleton for 375 × 812; built-in browser):
+WebGL 2, no console errors, no sideways scroll at 375 or 1024 wide
+(stage 343 × 457 and 680 × 553).
+- **Do stacks stand still until hit?** Yes, asleep: every layout left 10 s
+  moved 0 m. Awake from the start (a test option) they crept 5-21 mm and
+  the 10 and the wall were still jittering after 10 s, so sleeping until
+  hit is needed, not a nicety.
+- **Physics cost:** 1.4 ms a 1/60 s frame (two 1/120 steps) with a
+  ball among 6 cans; drawing 5.7 ms in the pane. fps on a phone not yet
+  measured.
+- **Tuning, from sweeps of straight throws** (power 0.3-0.65, the same
+  result each time: the physics repeats exactly):
+  - v0 had the shelf 3 m away and the cans 0.13 × 0.2: small on a phone;
+    moved to 2.4 m and 0.15 × 0.22.
+  - Cans of 0.25 kg (and 0.2) against a 0.45 kg ball: a hit took off 1
+    can, the rest standing. Real stall cans are far lighter than the
+    ball; at **0.08 kg**, a hit in the middle rows brings most down.
+  - A 0.36 deep shelf kept fallen cans on it; **0.26** (just wider than a
+    can) lets them roll off.
+  - A can pushed out backwards wedged upright between shelf and curtain
+    (the gap 0.12, narrower than a can) and counted as standing: the gap
+    is now 0.25, and a can counts as off once its middle is past the
+    shelf's edge, as well as below its top.
+  - Now, Middle camera: Pyramid 6 at power 0.35-0.4 (a bottom or middle
+    row hit) all 6 off; higher hits 3-5 off; Pyramid 10 6-8 off per hit.
+    Three good throws win a round of 6; three short ones end "0 of 6 off".
+- A real mouse drag (70 px down, 13 right) threw at power 0.45, aimed 2°
+  left, 3 cans off. The dots were white and hard to see on the sign:
+  now yellow and larger; the hint moved to the top, off the ball.
+- **Seen from behind, the arc looks nearly straight** (a line of dots
+  rising to the stack); the High camera shows it a little more. To see
+  on the phone.
+- My own slip, not the mockup's: a sweep's "no hit" came from the test
+  log keeping only 200 lines (raised to 5000).
+
+Not checked: a real phone, a finger's drag, sound, fps on a phone.
+
+**To try** (in the app): is it fun; Pulling back or Pushing forward;
+which cans; 3 balls or more; off or knocked over; is the arc readable
+from behind, and which camera.
+
+**Open questions:** none new. Q47 unchanged.
