@@ -23,17 +23,6 @@ time, each tried before publishing:
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
 
-- **Q61. A 3D brick breaker: table (A) or tunnel (B)?** (2026-11-08,
-  from the developer's question whether the table's play is still 2D.)
-  Mockup v1 has both to try, with depth helps and curve shots in B.
-  Also to learn from it: is the tunnel's depth readable for ages 5-7
-  with the spot (and which helps are needed), how fast is right, and
-  what new ideas it gives. A name to choose later.
-  2026-11-08, after v1: the table "more like the classic"; the tunnel's
-  spot and ring distracting, its one layer of bricks no depth; speed-ups
-  and getting behind the bricks missing. Mockup v2 adds those, and the
-  developer's **paddle or aimed shots** to choose as well.
-
 ## Proposed additions to the standards skill
 
 None waiting. (2026-11-07: "Key a remembered result by everything it
@@ -93,6 +82,15 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q61. A 3D brick breaker: table (A) or tunnel (B)?** (2026-11-08.)
+  Mockup v1: the table "more like the classic"; the tunnel's spot and
+  ring "more distracting than helpful". Mockup v2 (speed-ups, room behind
+  the bricks, a tunnel block three deep, paddle or aimed shots): the
+  table's speed-ups "work", the tunnel's not noticed and its layers not
+  visible; "not sure we have a compelling game idea yet". Parked; a
+  knock-down game ("3D angry birds") chosen instead. See "Knock-down
+  chosen".
 
 - **Q60. Five Dice 3D: a turn starts with the dice in the cup?**
   (2026-11-08, developer: "show no dice on the board, and maybe the cup
@@ -13400,3 +13398,54 @@ angle, physics that matters):
 
 **Open questions:** Q61 waiting for the developer's choice: knock-down,
 tilt maze, or more brick breaker. Q47 unchanged.
+
+## 2026-11-08: Knock-down chosen ("3D angry birds"); status (start here next session)
+
+**Developer:** "I think the first idea (knock down) sounds potentially
+more interesting and exploiting the 3D aspect. I'm thinking a '3D angry
+birds' sort of idea. Is that what you had in mind?"
+
+**Claude:** yes, and further than the first thought (a fairground stall,
+balls at stacked cans). From the angry-birds kind of game: **targets
+sitting in a structure** (the puzzle is what to hit to bring them down),
+**throws that arc** under gravity (power matters, not just direction),
+and **materials** that behave differently (wood, glass, stone). In 3D:
+throw from behind, aiming left/right and up/down plus power, the
+structure seen at an angle so its weak side shows. A known genre (Boom
+Blox, a Wii game, was 3D block structures to knock down).
+- **Our own version:** Angry Birds is Rovio's trademark and its birds,
+  pigs and look are theirs; ours gets its own name, targets and look (as
+  Yahtzee became Five Dice). Claude's suggestion, not yet agreed: the
+  targets **wobbly toy robots** perched in towers ("Knock the robots
+  down!"), tying in the site's robot; or gems or balloons.
+- **Physics engine needed** for stacks that topple: for the mockup
+  **cannon-es** (MIT, fits GPL-3.0), from jsDelivr; the site would get its
+  own copy (as three.js). To learn: do stacks stand still until hit, and
+  the frame rate.
+
+Q61 closed (Resolved): the brick breaker parked (mockups v1-v2 stay as a
+record, the table with the paddle a fallback); knock-down chosen.
+
+**Status:** knock-down chosen for the next 3D game; nothing built.
+Brick Breaker 3D mockup (private artifact, version 2) parked.
+
+**Next (Claude suggested a fresh session, this one being long):**
+1. Knock-down **mockup v1**, playable in the app's viewer: a fixed
+   camera behind the launcher looking at a tower on a platform; **drag
+   back to aim and set power**, dots showing the start of the arc, let
+   go to throw; targets in the tower (robots, unless the developer
+   picks otherwise); a level ends when every target is knocked off,
+   throws counted; a few tower layouts; choices such as camera height
+   and throw strength; the debug line with WebGL, fps and the physics'
+   step time. three.js r160 and cannon-es from jsDelivr, the mockup only.
+2. Check it as before: scratchpad served on 8130 through `tools/serve.js`
+   `createServer` with a temporary `.claude/launch.json` entry (removed
+   after); the page wrapped in the viewer's skeleton for a phone width
+   (the bare file has no viewport line); a hidden built-in browser pane
+   barely animates, so give the mockup a `step(dt)` test hook.
+3. Q47 when the grandkids try Five Dice 3D. Left over, only if wanted:
+   Five Dice 3D on a small phone upright (375 x 667) scrolls; Laser Lab on
+   a small phone sideways scrolls; Rock paper scissors' picks narrower
+   than their column on a tablet; `css/five-dice.css`'s unused flat-row
+   rules. Nothing to purge.
+Open: Q47; the targets (robots?) and the game's name to agree.
