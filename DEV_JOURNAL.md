@@ -14182,3 +14182,62 @@ the Pages build done (success). Before it: `node tools/release.js`
    Q47 when the grandkids try the 3D games.
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: 8.1 liked; points per can filed; on to the block game; status (start here next session)
+
+**Developer:** "All good. Yes purge. I don't want to change this game
+now, but one idea to file away in case we ever revisit the game -
+different cans could be worth different numbers of points. But for now,
+I think it is OK to move on to the other 3D game we discussed with
+blocks, barriers, and bouncing surfaces."
+
+- **8.1 on the phone:** "All good".
+- **Purged:** `Web-Games-testing\2026-11-09_tin-can-framing\` (the 7
+  pictures, recorded in "The view fitted to the cans") sent to the
+  Recycle Bin. Nothing left to purge.
+- **Filed** in DESIGN.md "Later": Tin Can Alley, different cans worth
+  different points (not now).
+
+**The block game: what's agreed so far** (all from "Stall mockup v3
+tried", 2026-11-09, and DESIGN.md "Tin Can Alley"): a worked-out shot
+puzzle, not a quick throwing game; reusing the stall's cannon-es physics,
+the throw, the ring, the camera cuts, the debug line and tests.
+- **Blocks of different sizes**: posts, beams, cubes; shapes with holes.
+  **Every block counts** (knocked off, it scores).
+- **Things that aren't targets**: barriers that block the ball, and
+  surfaces it bounces off; some targets reachable only by a bounce.
+- **A slingshot**: set the angle up *and* the speed (the stall sets only
+  the speed, at 20° up), so a target can be hit flat and fast or with a
+  lob over a barrier.
+- **Size by distance**: the targets further away and bigger in
+  proportion (a perspective camera does this for real); a Distance choice
+  (Near / Far / Farther) suggested.
+
+**Claude's plan for mockup v1** (to agree or change at its start): one
+playable page in the app's viewer (three.js r160 and cannon-es from the
+repo's copies or jsDelivr, the mockup only), with switches for what's
+still open:
+- **A few puzzles**, each a platform with a structure: an arch (two
+  posts and a beam, a block under it), a tower behind a low wall (a
+  lob), and a target behind a tall wall with an angled bouncy board to
+  the side (a bank shot).
+- **The slingshot's controls: a drag gives only two numbers** (across
+  and down), and the throw needs three (left/right, angle up, speed).
+  Switch A: the drag sets left/right and speed as now, a slider sets the
+  angle up. Switch B: the drag aims (left/right and up/down, where the
+  ring goes) and how long you hold sets the speed. To try which feels
+  right.
+- **The ring:** stops at the first thing the ball touches, or shows the
+  path past one bounce (switch).
+- **Distance:** Near / Far / Farther (switch), scaled to look the same
+  size.
+- **Materials** only as far as bouncy (the board) and solid (the wall);
+  wood, glass, stone later, if wanted.
+- The debug line: WebGL, fps, the physics' ms a frame; a `step(dt)`
+  test hook (the hidden pane barely animates).
+
+**Status:** 8.1 live and liked. Next: **block game mockup v1** on a new
+branch from `main`; the plan above to agree first. Claude suggested a
+fresh session for it (this one has been a build and a release).
+
+**Open questions:** none new. Q47 unchanged.

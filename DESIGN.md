@@ -2051,6 +2051,8 @@ actually game play area for each orientation"):
   worse (developer, 2026-10-04). Its pick is made before yours, so it
   can't cheat; a "better" robot would have to learn from your earlier
   picks.
+- Tin Can Alley: different cans worth different points (developer,
+  2026-11-09: "in case we ever revisit the game"; not now).
 - More games.
 
 ## Process
