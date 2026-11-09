@@ -14024,3 +14024,7 @@ the Pages build done (success). Before it: `node tools/release.js`
    Q47 when the grandkids try the 3D games.
 
 **Open questions:** none new. Q47 unchanged.
+
+**Purged** (developer: "Yes, purge"): `Web-Games-testing‚6-11-09_tin-can-alley\`
+(the 7 pictures, recorded in "Tin Can Alley built") sent to the Recycle
+Bin. Nothing left to purge.
