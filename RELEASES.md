@@ -7,6 +7,19 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 8.1 (2026-11-09, version 4f6f55052884)
+
+Tin Can Alley: bigger cans.
+
+- **The view fits the cans you picked**, from the ball in your hand up
+  to the top of the pile, so less of the screen is stall. A pyramid of
+  6 or the wall of 9 looks about one and a half times bigger; the
+  pyramid of 15 a little bigger. Held upright, the shelf's ends are now
+  off the sides.
+- **The view from the side after a throw still shows the whole stall.**
+- **"Drag back, then let go to throw" sits just over the ball**, so it
+  doesn't cover the cans.
+
 ## 8.0 (2026-11-09, version fd055c7b0842)
 
 A new game: **Tin Can Alley**, a fairground stall in 3D (in 👤 One
