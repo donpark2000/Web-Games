@@ -22,11 +22,6 @@ time, each tried before publishing:
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
-- **Q62. Tin Can Alley: frame the view to each lot of cans?**
-  (2026-11-09, developer: "a big part of the screen is just
-  decoration"). The view is the same for every lot; a fit per lot
-  would make Pyramid 6 and Wall 9 about 1.35-1.6× bigger, Pyramid 15
-  1.1-1.3× (journal, "Tin Can Alley on the phone").
 
 ## Proposed additions to the standards skill
 
@@ -88,6 +83,13 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q62. Tin Can Alley: frame the view to each lot of cans?**
+  (2026-11-09, developer: "a big part of the screen is just
+  decoration".) The view was the same for every lot (set by the stall's
+  width upright, the ball in the hand sideways). Developer: "Yes, build
+  it". Built: the view from behind fitted from the ball to the pile's
+  top; Pyramid 6 31.5° (was 53° upright, 44° sideways). See "The view
+  fitted to the cans"; to try on the phone.
 - **Q61. A 3D brick breaker: table (A) or tunnel (B)?** (2026-11-08.)
   Mockup v1: the table "more like the classic"; the tunnel's spot and
   ring "more distracting than helpful". Mockup v2 (speed-ups, room behind
@@ -14070,3 +14072,79 @@ wide throws' ring) off the sides. Proposed, to the developer.
 
 **Q62. Tin Can Alley: frame the view to each lot of cans?** (2026-11-09,
 developer, above.) Open: the developer's choice.
+
+## 2026-11-09: The view fitted to the cans (built, not published)
+
+**Developer:** "Yes, build it" (Q62, now resolved).
+
+**What was built** (DESIGN.md "Tin Can Alley"):
+- **`fitView(aspect, cans)`** in `src/core/tin-can-alley.js`: the
+  camera where it was (behind the thrower), tilted to the middle of the
+  ball in the hand and the pile's top; the field of view from the foot
+  (the held ball's bottom at rest, or its middle pulled back at full
+  power, the lower; 1° spare) to the pile's top at its front (3° spare),
+  or, if wider, what the pile's width needs (3° spare each side).
+  **`views(aspect, cans)`**: that from behind, the whole stall from the
+  side (`fovFor`, as before). **`cameraAt(t, views)`** now gives a field
+  of view too, blended in the glide back.
+- **The screens:** `fit()` works the views out again on every fit, keyed
+  by the stall's size *and the cans* (a new game with other cans is a
+  new view: "Key a remembered result by everything it depends on"); the
+  `fit` log line has `cans`, `fov`, `sideFov`, `ballTop`.
+- **The hint** ("Drag back, then let go to throw") was at the stall's
+  top; with the pile now reaching up there it covered the top can
+  (sideways 780 × 340: the hint at 4-15 % down, Pyramid 6's top at 10 %).
+  Moved just over the ball in the hand, on the counter: `fit()` places it
+  from where the ball's top shows (6 px over it). A fixed place first
+  (31 % from the foot) clipped Pyramid 15's bottom row sideways (its ball
+  shows lower, 75 % down against 69 %).
+- **Tests** (`tests/tin-can-alley.test.js`, 2 new, 501 in all, all
+  pass): for every lot at 8 shapes (0.4 to 2.3), the pile's top and
+  sides and the ball at rest and pulled back all in view (160 points,
+  counted), never wider than the whole stall's view, the camera not
+  moved; the spare over or beside the pile is 3° (within 0.6°) and at
+  least 1° under the ball; the smaller lots gain the most; an unknown lot
+  throws; the side view keeps the whole stall and the glide blends.
+  **Shown to fail:** the fitted view made 3° narrower fails ("6 at 0.55:
+  ball pulled back cut off").
+
+**Findings, with evidence** (the built-in browser, hidden: the canvas
+copied to pictures in `Web-Games-testing\2026-11-09_tin-can-framing\`,
+7 pictures; the boxes measured from the page):
+- **Measured in the page** (0-1 down the stall), at 320 × 568,
+  393 × 760, 800 × 1280 upright and 667 × 320, 780 × 340, 852 × 393,
+  1280 × 720 sideways, each a new game of Pyramid 6 and 15, and a game
+  resumed after a reload: the field of view 31.49 (Pyramid 6), 40.06
+  (15) at every size; the pile's top at 0.10 / 0.08, the shelf 0.51 /
+  0.61, the ball's top 0.69 / 0.75; the hint's foot 0.67-0.69 / 0.73-0.75
+  (just over the ball), its top below the shelf (Pyramid 15 at 667 × 320:
+  0.62 against 0.61, 3 px clear); no page scroll at any size.
+- **The pictures:** upright, Pyramid 6 fills the upper half (was about a
+  fifth); Pyramid 15 nearly the stall's height; the shelf's ends off the
+  sides upright, as expected. Sideways the side walls still frame it.
+  After a throw (Pyramid 15 at power 0.4, 8 off) the side view at 44°
+  (the whole stall, unchanged), the glide 41.7°, back behind at 40.06°.
+- **A slip found by the measuring:** the hint first landed over the ball
+  for one lot and high for the other: `project()` read the camera's
+  matrices from the last frame drawn (three.js brings them up to date on
+  a render), so right after `setCamera` it gave the previous lot's view.
+  Fixed: `project()` updates them first. A case of "Key a remembered
+  result by everything it depends on" (a matrix kept between draws), not
+  a new lesson.
+
+**Not checked:** a real phone (how the bigger cans feel to aim at;
+whether the shelf's ends being off the sides upright matters).
+
+**Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: Status (start here next session)
+
+**Status:** the view fitted to the cans built on `tin-can-alley`
+(pushed), not published. Proposed: **release 8.1** (a change to a
+game). Next: the developer's OK to publish it, then try it on the phone:
+the cans' size, upright and sideways; the hint over the ball. Then the
+block game's mockup. Test output in
+`Web-Games-testing\2026-11-09_tin-can-framing\` (7 pictures, recorded
+in "The view fitted to the cans"): to purge with the developer's OK.
+
+**Open questions:** none new. Q47 unchanged.

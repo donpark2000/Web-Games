@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-09, latest): **Tin Can Alley** (knock the cans off a
+*Status (2026-11-09, latest): **Tin Can Alley: the view from behind
+fitted to each lot of cans** (built on `tin-can-alley`, not published;
+see "Tin Can Alley"). Earlier the same day: **Tin Can Alley** (knock the cans off a
 fairground stall's shelf, 3D) published as release 8.0 (see "Tin Can Alley"); agreed from mockup v4
 earlier the same day. 2026-11-08: **the 2D Five Dice retired**, Five Dice 3D
 the only one (release 7.6, published; see "Five Dice" and "3D games").
@@ -2008,12 +2010,21 @@ actually game play area for each orientation"):
   column at its left (the 🔊 at its foot), fitting a phone 320 px tall.
   The stall takes 67 % of a 320 × 568 screen, 75 % of 393 × 760, 80-84 %
   of sideways phones, 85-90 % of tablets. No fitting search: the canvas
-  takes its grid cell, and the camera's field of view follows the
-  stall's shape: upright as the mockup (at least 50°, wider on a narrow
-  stall); sideways narrower, down to 44°, so the stall fills the width
-  (44 keeps the ball in the hand and Pyramid 15's top in view).
+  takes its grid cell. **The view from behind is fitted to the cans**
+  (2026-11-09, Q62; developer: "a big part of the screen is just
+  decoration"): from the ball in the hand (its foot) to the pile's top,
+  3° spare over the pile and 1° under the ball, upright wide enough for
+  the pile with 3° spare each side (the shelf's ends may be cut off);
+  the camera stays where it was, tilted to their middle. Pyramid 6 and
+  Wall 9 31.5°, Pyramid 10 36°, Pyramid 15 40° on a phone either way
+  (were 53° upright, 44° sideways): the pile about 1.6× bigger upright
+  and 1.35× sideways (Pyramid 15 1.3× and 1.1×). **The side view keeps
+  the whole stall**: its field of view follows the stall's shape as
+  before (upright at least 50°, wider on a narrow stall; sideways down
+  to 44°), and the glide back blends the two.
 - **Over the stall:** "Drag back, then let go to throw" until the first
-  throw; the round's end in a card: your face (smiling or sad), "Teddy
+  throw, just over the ball in the hand (placed from where the ball
+  shows; the pile now reaches the stall's top); the round's end in a card: your face (smiling or sad), "Teddy
   knocked all 6 off with 2 balls! 🎉", "Teddy knocked 4 of 6 off" or
   "None off this time", **Play again** (the same cans) and **New game**.
   Start again asks first ("Start this round again?" Yes / No).

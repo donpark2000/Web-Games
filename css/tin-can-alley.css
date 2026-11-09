@@ -72,9 +72,13 @@ body.tca-playing .site-foot { display: none; }
 .restart .pill { padding: 8px 14px; font-size: 16px; white-space: nowrap; }
 .restart.ended { visibility: hidden; }
 
-/* over the stall: the hint until the first throw, the round's end, Start again's question */
+/* over the stall: the hint until the first throw, the round's end, Start again's question.
+   The hint just over the ball in the hand, on the counter (the view fitted
+   to the cans puts the pile's top near the stall's top): the page sets its
+   `bottom` from where the ball shows; this one until then (journal,
+   2026-11-09, "The view fitted to the cans"). */
 .hint {
-  position: absolute; left: 50%; top: 12px; transform: translateX(-50%); margin: 0;
+  position: absolute; left: 50%; bottom: calc(31% + 6px); transform: translateX(-50%); margin: 0;
   width: max-content; max-width: calc(100% - 24px); text-align: center;
   background: rgba(18, 30, 42, .8); color: #FFFFFF; border-radius: 999px; padding: 8px 16px;
   font-size: 16px; font-weight: 700; pointer-events: none;

@@ -11,7 +11,7 @@
 
 import {
   FACE_NAMES, LAYOUTS, LAYOUT_NAMES, BALLS, checkSetup, createMatch, newRound, canThrow, throwBall, update, ballsLeft,
-  dragToThrow, predict, cameraAt, endWords, END_WAIT,
+  dragToThrow, predict, cameraAt, views, HAND, BALL, endWords, END_WAIT,
 } from '../core/tin-can-alley.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -124,17 +124,25 @@ function makeStage() {
 }
 
 // The canvas takes the stall's box (upright: between the top row and the
-// bar; sideways: beside the column); the camera keeps the stall in view.
-let lastFit = '';
+// bar; sideways: beside the column); the view from behind is fitted to the
+// round's cans (views()), worked out again on every fit: the size and the
+// cans (a new game) both change it.
+let lastFit = '', camViews = views(1);
 function fit() {
-  if (!stage || $('play').hidden) return;
+  if (!stage || $('play').hidden || !match) return;
   const box = $('stall').getBoundingClientRect(), w = Math.round(box.width), h = Math.round(box.height);
   if (!w || !h) return;
-  const fov = stage.resize(w, h);
-  const key = `${w}x${h}`;
+  const aspect = stage.resize(w, h);
+  camViews = views(aspect, match.layout);
+  // The hint just over the ball in the hand (where it shows from behind;
+  // the next frame sets the camera the round needs).
+  stage.setCamera(cameraAt(null, camViews));
+  const ballTop = stage.project([HAND.x, HAND.y + BALL.r, HAND.z])[1];
+  $('hint').style.bottom = `calc(${r2((1 - ballTop) * 100)}% + 6px)`;
+  const key = `${w}x${h} ${match.layout}`;
   if (key === lastFit) return;
   lastFit = key;
-  L('fit', { stall: key, fov: r2(fov), screen: `${innerWidth}x${innerHeight}`, way: innerWidth > innerHeight ? 'sideways' : 'upright' });
+  L('fit', { stall: `${w}x${h}`, cans: match.layout, fov: r2(camViews.behind.fov), sideFov: r2(camViews.side.fov), ballTop: r2(ballTop), screen: `${innerWidth}x${innerHeight}`, way: innerWidth > innerHeight ? 'sideways' : 'upright' });
 }
 
 function startRound(next = true) {
@@ -238,8 +246,8 @@ function tick(dt, draw = true) {
   const before = match.round.since;
   const { offChanged, ended } = update(match, dt, { off: world.offCount(), still: world.still() });
   if (offChanged) { L('cans off', { off: match.round.off, of: match.round.total, t: r2(match.round.t) }); renderTally(); }
-  const cam = cameraAt(match.round.since);
-  if (before != null && cameraAt(before).view !== cam.view) L(`camera: ${cam.view}`);
+  const cam = cameraAt(match.round.since, camViews);
+  if (before != null && cameraAt(before, camViews).view !== cam.view) L(`camera: ${cam.view}`);
   if (ended) endRound(ended);
   noteSettled(cam);
   if (!draw) return;
@@ -344,6 +352,6 @@ if (why) {
 window.tinCanAlley = {
   step(sec, dt = 1 / 60) { for (let i = 0, n = Math.round(sec / dt); i < n; i++) tick(dt, i === n - 1); return this.state(); },
   throw(power, aim = 0) { return doThrow(power, aim); },
-  state: () => (match ? { ...match.round, cleared: match.cleared, ready: canThrow(match).ok, camera: cameraAt(match.round.since).view, awake: world.awake(), names: LAYOUT_NAMES[match.layout] } : null),
+  state: () => (match ? { ...match.round, cleared: match.cleared, ready: canThrow(match).ok, camera: cameraAt(match.round.since, camViews).view, fov: r2(cameraAt(match.round.since, camViews).fov), awake: world.awake(), names: LAYOUT_NAMES[match.layout] } : null),
   project: p => stage?.project(p),
 };

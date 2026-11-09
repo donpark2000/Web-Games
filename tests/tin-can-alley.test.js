@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   LAYOUTS, DEFAULT_LAYOUT, LAYOUT_NAMES, layoutRows, layoutSpots, isOff, SHELF, SHELF_FRONT, CAN, HAND, BACK, CURTAIN_T, GAP,
-  dragToThrow, MIN_POWER, launchVel, predict, cameraAt, SIDE_HOLD, GLIDE, fovFor, STALL_BOXES,
+  dragToThrow, MIN_POWER, launchVel, predict, cameraAt, SIDE_HOLD, GLIDE, fovFor, fitView, views, FIT_SPARE, FIT_FOOT, BALL, STALL_BOXES,
   BALLS, END_HOLD, END_WAIT, END_MAX, checkSetup, createMatch, newRound, canThrow, throwBall, update, ballsLeft, endWords,
 } from '../src/core/tin-can-alley.js';
 
@@ -118,6 +118,80 @@ test('tin can alley: the camera: behind, then the side, a glide back, behind', (
   const axis = below(cam.look);
   assert.ok(below([0, HAND.y - 0.06, HAND.z]) - axis < half, 'the ball in the hand is cut off');
   assert.ok(axis - below([0, SHELF.y + 5 * CAN.h, SHELF.z]) < half, 'Pyramid 15\'s top is cut off');
+});
+
+// Where a point shows in a view: [-1..1 across, -1..1 up] (as three.js's
+// project(), worked out here: the camera at pos, looking at look).
+function onScreen(v, aspect, p) {
+  const sub = (a, b) => a.map((x, i) => x - b[i]), dot = (a, b) => a.reduce((s, x, i) => s + x * b[i], 0);
+  const norm = a => { const l = Math.hypot(...a); return a.map(x => x / l); };
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const f = norm(sub(v.look, v.pos)), r = norm(cross(f, [0, 1, 0])), u = cross(r, f), d = sub(p, v.pos);
+  const t = Math.tan(v.fov / 2 * Math.PI / 180), z = dot(d, f);
+  return [dot(d, r) / (z * t * aspect), dot(d, u) / (z * t)];
+}
+const inView = (v, aspect, p) => onScreen(v, aspect, p).every(c => Math.abs(c) <= 1);
+// The points a fitted view must show: the pile's top corners (front), its
+// side cans' outer edges, the ball in the hand at rest (its bottom) and
+// pulled back at full power (its middle).
+function mustShow(kind) {
+  const s = layoutSpots(kind), top = Math.max(...s.map(p => p.y)) + CAN.h / 2;
+  const wide = Math.max(...s.map(p => Math.abs(p.x))) + CAN.r, front = SHELF.z + CAN.r;
+  return {
+    'pile top': [0, top, front],
+    'pile left': [-wide, SHELF.y + CAN.h / 2, front],
+    'pile right': [wide, SHELF.y + CAN.h / 2, front],
+    'ball at rest': [0, HAND.y - BALL.r, HAND.z],
+    'ball pulled back': [0, HAND.y - 0.03, HAND.z + 0.1],
+  };
+}
+const ASPECTS = [0.4, 0.55, 0.65, 0.8, 1, 1.3, 1.8, 2.3];
+
+test('tin can alley: the view from behind fits each lot of cans and the ball in the hand', () => {
+  let checked = 0;
+  for (const kind of LAYOUTS) for (const a of ASPECTS) {
+    const v = fitView(a, kind);
+    for (const [what, p] of Object.entries(mustShow(kind))) {
+      assert.ok(inView(v, a, p), `${kind} at ${a}: ${what} cut off (${onScreen(v, a, p).map(x => x.toFixed(2))})`);
+      checked++;
+    }
+    // never a wider view (smaller cans) than the whole stall's
+    assert.ok(v.fov <= fovFor(a) + 1e-9, `${kind} at ${a}: ${v.fov} wider than ${fovFor(a)}`);
+    // the camera stays where the throw is aimed from
+    assert.deepEqual(v.pos, cameraAt(null).pos);
+  }
+  assert.equal(checked, LAYOUTS.length * ASPECTS.length * 5);
+  // tight: the room left (°) over the pile's top or beside it is FIT_SPARE
+  // (whichever sets the view), and under the ball at least FIT_FOOT
+  const R = Math.PI / 180;
+  for (const kind of LAYOUTS) for (const a of ASPECTS) {
+    const v = fitView(a, kind), t = Math.tan(v.fov / 2 * R), pts = mustShow(kind);
+    const upSpare = v.fov / 2 - Math.atan(onScreen(v, a, pts['pile top'])[1] * t) / R;
+    const sideHalf = Math.atan(a * t) / R;
+    const sideSpare = sideHalf - Math.atan(Math.abs(onScreen(v, a, pts['pile right'])[0]) * a * t) / R;
+    const footSpare = v.fov / 2 + Math.min(...['ball at rest', 'ball pulled back'].map(k => Math.atan(onScreen(v, a, pts[k])[1] * t) / R));
+    assert.ok(Math.abs(Math.min(upSpare, sideSpare) - FIT_SPARE) < 0.6, `${kind} at ${a}: spare ${upSpare.toFixed(2)}° over, ${sideSpare.toFixed(2)}° beside`);
+    assert.ok(footSpare > FIT_FOOT - 0.3, `${kind} at ${a}: ${footSpare.toFixed(2)}° under the ball`);
+  }
+  // the smaller lots gain the most (a phone upright, 0.65; sideways, 2)
+  const gain = (k, a) => fovFor(a) / fitView(a, k).fov;
+  assert.ok(gain('6', 0.65) > 1.5 && gain('6', 2) > 1.25, `Pyramid 6: ${gain('6', 0.65)}, ${gain('6', 2)}`);
+  assert.ok(gain('6', 0.65) > gain('10', 0.65) && gain('10', 0.65) > gain('15', 0.65));
+  assert.ok(near(gain('wall', 2), gain('6', 2)), 'Wall 9 is as tall as Pyramid 6');
+  assert.throws(() => fitView(1, '7'), /unknown cans/);
+});
+
+test('tin can alley: views: the side keeps the whole stall; the glide back blends the field of view', () => {
+  const v = views(0.65, '6');
+  assert.equal(v.side.fov, fovFor(0.65));
+  assert.equal(v.behind.fov, fitView(0.65, '6').fov);
+  // no cans: the whole stall from behind, as before
+  assert.equal(views(0.65).behind.fov, fovFor(0.65));
+  assert.deepEqual(views(0.65).behind.look, cameraAt(null).look);
+  assert.equal(cameraAt(0, v).fov, v.side.fov);
+  assert.equal(cameraAt(null, v).fov, v.behind.fov);
+  const g = cameraAt(SIDE_HOLD + GLIDE / 2, v).fov;
+  assert.ok(g < v.side.fov && g > v.behind.fov, String(g));
 });
 
 test('tin can alley: the stall\'s parts: the shelf, cabinet, curtain, 4 posts and the counter', () => {

@@ -8,7 +8,7 @@
 // that can't run three.js still gets the page's words.
 
 import * as THREE from '../vendor/three/three.module.min.js';
-import { SHELF, CAN, BALL, HAND, BACK, SIDE_X, COUNTER_Z, STALL_BOXES, CAN_COLOURS, fovFor } from '../core/tin-can-alley.js';
+import { SHELF, CAN, BALL, HAND, BACK, SIDE_X, COUNTER_Z, STALL_BOXES, CAN_COLOURS } from '../core/tin-can-alley.js';
 
 // Whether this device can draw 3D: a WebGL canvas can be made.
 export function webglOk() {
@@ -194,15 +194,16 @@ export function makeStall3d(canvas) {
     // The camera as cameraAt() gives it (the near wall hidden in the side view).
     setCamera(c) {
       camera.position.set(...c.pos); look.set(...c.look); camera.lookAt(look);
+      if (c.fov && c.fov !== camera.fov) { camera.fov = c.fov; camera.updateProjectionMatrix(); }
       for (const m of rightSide) m.visible = c.view !== 'side';
     },
-    // The canvas' size in CSS px; returns the field of view used.
+    // The canvas' size in CSS px; returns its aspect (the views come from
+    // views(aspect, cans) and setCamera).
     resize(w, h) {
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
-      camera.fov = fovFor(camera.aspect);
       camera.updateProjectionMatrix();
-      return camera.fov;
+      return camera.aspect;
     },
     render() { renderer.render(scene, camera); },
     // ms to draw a frame, averaged over n (the log, once at the start).
@@ -211,8 +212,11 @@ export function makeStall3d(canvas) {
       for (let i = 0; i < n; i++) renderer.render(scene, camera);
       return (performance.now() - t0) / n;
     },
-    // Where a point of the stall shows on the canvas (0-1 across and down): for checks.
+    // Where a point of the stall shows on the canvas (0-1 across and down),
+    // with the camera as last set (its matrices brought up to date first: a
+    // render does that, and setCamera may have come after the last one).
     project(p) {
+      camera.updateMatrixWorld();
       const v = new THREE.Vector3(...p).project(camera);
       return [(v.x + 1) / 2, (1 - v.y) / 2];
     },

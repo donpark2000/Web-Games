@@ -123,14 +123,15 @@ export const VIEWS = {
   side: { pos: [3.6, 1.7, -0.5], look: [0, 1.3, -1.4] },
 };
 export const SIDE_HOLD = 1.8, GLIDE = 0.6;
-// The camera `t` s after a throw: { view: 'side' | 'glide' | 'behind', pos, look }.
-export function cameraAt(t) {
-  const { side, behind } = VIEWS;
-  if (t == null || t >= SIDE_HOLD + GLIDE) return { view: 'behind', pos: behind.pos, look: behind.look };
-  if (t < SIDE_HOLD) return { view: 'side', pos: side.pos, look: side.look };
+// The camera `t` s after a throw: { view: 'side' | 'glide' | 'behind', pos,
+// look, fov }, for the views `v` (views() below; the whole stall if none).
+export function cameraAt(t, v = views(1)) {
+  const { side, behind } = v;
+  if (t == null || t >= SIDE_HOLD + GLIDE) return { view: 'behind', ...behind };
+  if (t < SIDE_HOLD) return { view: 'side', ...side };
   const k = (t - SIDE_HOLD) / GLIDE, e = k * k * (3 - 2 * k);
-  const mix = (a, b) => a.map((v, i) => v + (b[i] - v) * e);
-  return { view: 'glide', pos: mix(side.pos, behind.pos), look: mix(side.look, behind.look) };
+  const mix = (a, b) => a.map((x, i) => x + (b[i] - x) * e);
+  return { view: 'glide', pos: mix(side.pos, behind.pos), look: mix(side.look, behind.look), fov: side.fov + (behind.fov - side.fov) * e };
 }
 // The vertical field of view (°) for a stage of this aspect (width /
 // height). Upright (the mockup's): at least 50, wider on a narrow stage so
@@ -146,6 +147,41 @@ export function fovFor(aspect) {
   const deg = (half, a) => 2 * Math.atan(Math.tan(half * Math.PI / 180) / a) * 180 / Math.PI;
   if (aspect <= 1) return Math.max(50, deg(18, aspect));
   return Math.max(FOV_MIN_WIDE, Math.min(50, deg(30, aspect)));
+}
+
+// The view from behind fitted to a lot of cans (2026-11-09, the developer
+// on the phone: "a big part of the screen is just decoration"): from the
+// ball in the hand to the pile's top, the camera where it was and tilted
+// to their middle. The ball sets the foot: its bottom at rest, or its
+// middle pulled back at full power (the lower), FIT_FOOT° spare; the pile
+// its top, FIT_SPARE° spare (a can knocked up still shows). Upright, wide
+// enough for the pile's width, FIT_SPARE° each side (the shelf's ends may
+// be cut off). Returns { pos, look, fov }.
+export const FIT_SPARE = 3, FIT_FOOT = 1;
+export function fitView(aspect, kind) {
+  const R = Math.PI / 180, pos = VIEWS.behind.pos;
+  const up = (y, z) => Math.atan2(y - pos[1], pos[2] - z) / R;   // ° over level
+  const spots = layoutSpots(kind);
+  const front = SHELF.z + CAN.r;                                  // the cans' front, nearest the camera
+  const top = up(Math.max(...spots.map(p => p.y)) + CAN.h / 2, front) + FIT_SPARE;
+  const foot = Math.min(up(HAND.y - BALL.r, HAND.z), up(HAND.y - 0.03, HAND.z + 0.1)) - FIT_FOOT;
+  const mid = (top + foot) / 2;
+  const halfW = Math.atan((Math.max(...spots.map(p => Math.abs(p.x))) + CAN.r) / (pos[2] - front)) / R + FIT_SPARE;
+  const forWidth = 2 * Math.atan(Math.tan(halfW * R) / aspect) / R;
+  const fov = Math.max(top - foot, forWidth);
+  const dist = pos[2] - SHELF.z;
+  return { pos, look: [0, pos[1] + dist * Math.tan(mid * R), SHELF.z], fov };
+}
+
+// The views for a stage of this aspect: from behind (fitted to the cans
+// `kind`; the whole stall, as before, if none) and the side (the whole
+// stall: the throw's flight and the cans' fall).
+export function views(aspect, kind) {
+  const whole = fovFor(aspect);
+  return {
+    behind: kind ? fitView(aspect, kind) : { ...VIEWS.behind, fov: whole },
+    side: { ...VIEWS.side, fov: whole },
+  };
 }
 
 /* ---------- a round ---------- */
