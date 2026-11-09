@@ -29,7 +29,9 @@ time, each tried before publishing:
   against them: in 30 of 189 throws aimed across the pile (mostly left)
   the ball touched no can, where refreshed boxes gave 1-5 off. Proposed:
   a two-line fix with a test, as release 8.2; waiting for the developer's
-  OK.
+  OK. 2026-11-09, developer: "Can we save the bug fix for the first time
+  we publish the new game?" So: no 8.2; the fix and its test go in the
+  block game's first release (x.0), and its notes list it.
 
 ## Proposed additions to the standards skill
 
@@ -14402,3 +14404,18 @@ every body's box refreshed after `setCans`):
   8.2, with the developer's OK.
 
 **Open questions:** Q63 new. Q47 unchanged.
+
+## 2026-11-09: Q63's fix to go out with the block game
+
+**Developer**, back, shown mockup v1 and asked about Q63: "Can we save
+the bug fix for the first time we publish the new game?"
+
+- **Agreed:** no release 8.2. The Tin Can Alley fix (`aabbNeedsUpdate`
+  after placing each can and stall box) and its test go in the block
+  game's first release, with a line in its notes. Q63 stays open until
+  then.
+- **Mockup v1** opened in the viewer for the developer to try; verdicts
+  wanted on the list in "Block game mockup v1".
+
+**Open questions:** Q63 (deferred to the block game's release), Q47
+unchanged.
