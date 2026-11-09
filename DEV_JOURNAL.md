@@ -13546,3 +13546,75 @@ which cans; 3 balls or more; off or knocked over; is the arc readable
 from behind, and which camera.
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-08: Stall mockup v1 tried; mockup v2 (a ring where it will hit, a side view)
+
+**Developer** (v1, in the app): "It interesting. I find the pyramids to
+easy to topple with a single ball. Pulling back feels more intuitive than
+pushing forward. The camera angle and the arc dots seems to be tightly
+coupled. I did not get an intuitive feel for how. ... as a first time
+player, it was not that helpful. And the start of arc vs whole arc is
+also not that helpful. There is nothing about 'start of arc' that leads
+me to suspect the ball will not hit the target. It is not clear that
+part of the balls journey is 'uncharted'. There is something missing in
+the perspective."
+
+**Claude's reading:**
+- **The coupling was a v1 flaw:** the ball left from just under the
+  camera (0.4 below it), so each camera height threw from a different
+  place and the same drag hit somewhere else.
+- **What's missing is depth:** seen from straight behind, the arc
+  squashes into a near-vertical line ending at the stack, so no dots say
+  where along it the ball arrives. Two answers to try: show **where it
+  will hit**, or **look from the side**, where the arc is a curve.
+
+**Mockup v2** (same artifact, version 2):
+- **The hand is fixed** (0, 1.25, -0.2) for every view; the views only
+  move the camera.
+- **Aim help** (choice): **Ring where it will hit** (preselected): a
+  yellow ring on a dark edge where the path crosses the front of the
+  shelf, drawn over everything, moving as you drag; a throw that lands
+  short shows it flat on the ground. **Path dots**: the whole path, to the
+  same point. **Both**. **None**. "Start of the arc" dropped.
+- **The last throw's path**, always: faint white dots sampled from the
+  flying ball until it first touches something, kept while aiming the
+  next one; cleared by the next throw or a new round.
+- **View** (choice): **Behind** (v1's Middle), **Behind, higher**, **From
+  the side**: outside the stall to the right (3.6, 1.7, -0.5), the stall's
+  right wall and posts hidden (cut away), so the throw reads left to
+  right, the hand to the cans.
+- **Pulling back only**; Throw by and Throw strength dropped (speed 3-12
+  m/s, as Normal).
+- **Harder:** the ball 0.2 kg (v1 0.45); **Cans weigh** Medium 0.14 kg
+  (preselected) / Heavy 0.2 / Light 0.08 (as v1).
+- Debug line: the view and the cans' weight in place of the camera; each
+  throw logs where the aim said it would go.
+
+**Tuning evidence** (straight throws at powers 0.3-0.55, Pyramid 6 and
+10, Behind):
+- Can weight alone barely changed anything with the 0.45 kg ball: one
+  low hit took 5-6 of 6 at 0.08, 0.14 and 0.2 kg. (v1's first try at 0.2
+  kg had taken 1 can, but on the deeper shelf; the narrow shelf since is
+  what lets cans roll off.)
+- The ball's weight did: at 0.2 kg one throw took 1-4 of 6 at Medium and
+  Heavy, never 6 in these sweeps; 4-6 of 10. At 0.3 kg, up to 5 of 6.
+- Three good straight throws (0.45, 0.4, 0.35) at Medium: "4 of 6 off",
+  so a round now needs aiming at what's left.
+
+**Checked** (built-in browser, 375 × 812 and desktop width): no console
+errors, no sideways scroll; the ring on the can the throw goes to
+(Behind, `aim` shelf front at x -0.08, y 1.29); a weak drag's ring on the
+ground at z -2.2; the side view shows the hand, the arc as a curve, the
+ring and the last path; every layout still stands still until hit.
+- The side view's first try (inside the stall, 1.2 from the middle) had
+  the far wall filling half the view and the cans cut off: moved outside
+  with the near wall cut away.
+- The built-in pane, hidden, showed a stale canvas in screenshots; a 1 s
+  wait before the screenshot showed the new frame.
+
+**To try:** does the ring make a first throw make sense; Behind with the
+ring or From the side with the dots; is it now hard enough (Medium,
+Heavy); in the side view, should pulling back be to the left (away from
+the cans) rather than down.
+
+**Open questions:** none new. Q47 unchanged.
