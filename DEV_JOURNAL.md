@@ -13361,3 +13361,42 @@ this kind often shoot several balls in a row per shot, which makes the
 "lot of stuff fast" happen; an idea for v3 if aimed shots are liked.
 
 **Open questions:** Q61 now also: paddle or aimed shots. Q47 unchanged.
+
+## 2026-11-08: Mockup v2 tried: no compelling idea yet; knock-down or tilt maze proposed
+
+**Developer** (v2, in the app): "The speed ups on the table version with
+the paddle work. I did not notice speed ups for the tunnel version. The
+shadow is good now that the background is lighter. The layered bricks in
+the tunnel version 'work' but there is no visibility of the layers so
+what is going on is not clear. it is all interesting. but I'm not sure
+we have a compelling game idea yet."
+
+**Claude's reading:**
+- The tunnel's speed-ups did happen (⚡ reached 5 in the scripted runs,
+  previous entry), but a ball moving straight away mostly shrinks rather
+  than crossing the screen, so a 15% step is easy to see on the table and
+  hard down the tunnel. Bigger steps or a trail would only patch the view.
+- The layers can't be seen because the block is seen head-on: the front
+  hides what is behind it. Here 3D hides things rather than showing them.
+- The brick breaker doesn't need 3D: the table plays well but is the
+  classic with nicer graphics; the tunnel adds depth at the cost of
+  reading the game.
+
+**Proposed** (a game where 3D is the point: things in space seen at an
+angle, physics that matters):
+1. **Knock-down** (Claude's first pick): throw balls at stacks of
+   blocks, cans or towers on a table seen at an angle, and clear them in
+   as few throws as possible. The developer's aimed shots with the aim
+   mattering (high or low, which block brings the rest down); levels easy
+   to make; gentle losing. Cost: toppling stacks need a physics library
+   (a second download beside three.js, smaller than it); the mockups'
+   own bounce code can't do stacking.
+2. **Tilt maze:** tilt a 3D board (the phone, or a drag) to roll a marble
+   through a maze to the hole; physics simple enough to write ourselves;
+   tilting the phone would be new on the site (iPhones ask permission
+   once).
+- The brick breaker parked: the mockup stays as a record; the table with
+  the paddle is a fallback.
+
+**Open questions:** Q61 waiting for the developer's choice: knock-down,
+tilt maze, or more brick breaker. Q47 unchanged.
