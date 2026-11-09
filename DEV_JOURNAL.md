@@ -22,6 +22,11 @@ time, each tried before publishing:
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
+- **Q62. Tin Can Alley: frame the view to each lot of cans?**
+  (2026-11-09, developer: "a big part of the screen is just
+  decoration"). The view is the same for every lot; a fit per lot
+  would make Pyramid 6 and Wall 9 about 1.35-1.6× bigger, Pyramid 15
+  1.1-1.3× (journal, "Tin Can Alley on the phone").
 
 ## Proposed additions to the standards skill
 
@@ -14028,3 +14033,40 @@ the Pages build done (success). Before it: `node tools/release.js`
 **Purged** (developer: "Yes, purge"): `Web-Games-testing\2026-11-09_tin-can-alley\`
 (the 7 pictures, recorded in "Tin Can Alley built") sent to the Recycle
 Bin. Nothing left to purge.
+
+## 2026-11-09: Tin Can Alley on the phone; the cans could be bigger
+
+**Developer** (8.0 on the phone): "It plays well on the phone in both
+orientations. For some configurations of cans, it seems that they could
+be larger - a big part of the screen is just "decoration". I'm assuming
+the size is based on making sure the tallest config (15 can pyramid)
+fits. Is that right?"
+
+**Claude: not quite. The view is the same for every lot of cans**
+(`fovFor(aspect)` in `src/core/tin-can-alley.js` takes only the stage's
+shape). What sets it:
+- **Upright:** the whole stall's width in view (about ±18° across), so
+  the field of view is 50 or more (53 on a 393-wide phone's stage).
+- **Sideways:** 44 at least, set by **the ball in your hand**, not
+  Pyramid 15: the held ball is close to the camera, its bottom 19.5°
+  under the view's middle; Pyramid 15's top is 15.3° over it.
+
+**Measured** (a scratchpad script on the module's own numbers: the
+camera, the hand, the cans' places): the pile's share of the view's
+height, now, and the field of view a fit per lot would need (from the
+ball's bottom to the pile's top, 3° spare at each end):
+
+| Cans | Upright now (fov 53) | Sideways now (fov 44) | Fitted fov | Bigger by (upright / sideways) |
+|---|---|---|---|---|
+| Pyramid 6, Wall 9 | 22 % | 27 % | ~32 | ~1.6× / ~1.35× |
+| Pyramid 10 | 30 % | 37 % | ~37 | ~1.45× / ~1.2× |
+| Pyramid 15 | 37 % | 46 % | ~41 | ~1.3× / ~1.1× |
+
+So a fit per lot would mostly help the small lots. Beyond that the ball
+in the hand is the limit; going further would mean drawing the held ball
+nearer the view's middle (only drawn there: the throw still starts at
+the hand). Upright, a fitted view would cut the shelf's ends (and some
+wide throws' ring) off the sides. Proposed, to the developer.
+
+**Q62. Tin Can Alley: frame the view to each lot of cans?** (2026-11-09,
+developer, above.) Open: the developer's choice.
