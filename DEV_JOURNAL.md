@@ -13821,3 +13821,51 @@ ball); the separate speed waits for the block game. Asked, with the
 stall's name.
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: Tin Can Alley agreed; status (start here next session)
+
+**Developer:** "OK. Keep one control, use medium cans, and for the name I
+like Tin Can Alley" (Claude's suggestions: Tin Can Alley, an old
+fairground name for this stall; Can Toss; Knock 'Em Off).
+
+**Agreed:** recorded in DESIGN.md, "3D games" → "Tin Can Alley": mockup
+v4 as the game, with 3 balls, off the shelf, the pyramids and the wall,
+Medium cans (no weight choice), one control, the cut to the side.
+
+**Status:** Tin Can Alley agreed, not built. Branch `five-dice-3d` holds
+only journal and DESIGN.md commits since release 7.6. Mockup v4 is the
+reference: [Fairground Stall Mockup](https://claude.ai/artifact/DTqc3rqnWY2juJ2SsR188X).
+
+**Next (a fresh session; Claude suggested it, this one having carried
+four mockup rounds):**
+1. **A branch** `tin-can-alley` from `five-dice-3d`'s tip (so the journal
+   comes along).
+2. **Read the mockup's source** with the Artifact tool (`action: "read"`)
+   into the scratchpad; build from it, not from memory.
+3. **cannon-es 0.20.0 in the repo**, `src/vendor/cannon-es/` as three.js
+   is (`npm pack`, integrity and sha256 in a README, the MIT licence; its
+   dist module imports nothing: to confirm), cached for offline.
+4. **Split, as Five Dice 3D:** the rules with no DOM or three.js in
+   `src/core/` (the layouts' spots, off the shelf, a round's state and
+   end, the drag → power and aim, the throw's velocity and the ring's
+   point), tested under Node. **The physics can be tested under Node
+   too** (cannon-es is plain JavaScript): a proposal to try, the world in
+   `src/core/` (no DOM) so tests check what the mockup's sweeps checked:
+   every layout still for 10 s asleep; a throw at power 0.4 takes cans
+   off; no can left hanging on the curtain in the 84-throw sweep;
+   rounds end. The three.js stall in `src/ui/` (as `tray3d.js`).
+5. **The page** `tin-can-alley.html` with the site's 🏠, the game's name
+   at the top, 🔊, the debug log (WebGL, fps, physics ms, each throw, cans
+   off, the camera, round ends), the "can't show 3D" message as Five Dice
+   3D, no double-tap zoom, coming back to a game (`src/core/resume.js`).
+   To propose to the developer before building: the setup screen (pick
+   the cans: Pyramid 6 / 10 / 15 / Wall 9; anything else, e.g. a face?),
+   where it goes on the home page (👤 One player, after Follow Me?), its
+   home picture (cans in a pyramid?), and the fit on phones and tablets
+   upright and sideways.
+6. Release **8.0** (a new game) when asking to publish.
+7. Then the block game's mockup (the entry "Stall mockup v3 tried").
+   Q47 when the grandkids try Five Dice 3D. Left over, only if wanted:
+   as before. Nothing to purge.
+
+**Open questions:** none new. Q47 unchanged.

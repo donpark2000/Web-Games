@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-08, latest): **the 2D Five Dice retired**, Five Dice 3D
+*Status (2026-11-09, latest): **Tin Can Alley** (knock the cans off a
+fairground stall's shelf, 3D) agreed from mockup v4, not built yet (see
+"Tin Can Alley"). 2026-11-08: **the 2D Five Dice retired**, Five Dice 3D
 the only one (release 7.6, published; see "Five Dice" and "3D games").
 Earlier the same day: **Five Dice 3D: no double-tap zoom on the tray**
 (release 7.5). Earlier the same day: **Five Dice 3D: a full house shows
@@ -1950,6 +1952,45 @@ OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
   7.4; developer: the screen zoomed in "a couple of times"): its canvas
   cancels each touch's end, as every other game's board does (its taps
   are pointer events, so they still come); a quick second tap is logged.
+
+### Tin Can Alley
+
+The second 3D game (named by the developer, 2026-11-09), agreed from the
+[Fairground Stall Mockup](https://claude.ai/artifact/DTqc3rqnWY2juJ2SsR188X)
+(private, version 4; journal, "Fairground stall mockup v1" to "Stall
+mockup v4 tried"). Not built yet.
+
+- **A fairground stall** seen from behind the thrower, a fixed camera: a
+  wooden counter in front, a shelf of stacked cans on a red cabinet ("KNOCK
+  THEM ALL OFF!"), a curtain behind, striped walls and roof. The scene in
+  metres as the mockup (the shelf 2.4 away, 1.0 high, 1.7 wide, 0.26
+  deep; cans 0.15 across and 0.22 tall).
+- **Knock every can off the shelf with 3 balls.** A can counts once it's
+  off the shelf (below its top, or its middle past an edge). All off:
+  "All 6 off with 2 balls! 🎉"; out of balls once the cans are still: "4
+  of 6 off"; tap for the next round.
+- **The cans:** Pyramid 6, Pyramid 10, Pyramid 15 or Wall 9 (the wall
+  harder; developer: "nice to have the option of the pyramids or the
+  wall"). **Medium**, 0.14 kg each, against a 0.2 kg ball; no weight
+  choice. **They stand still until hit** (asleep until the ball touches
+  one; awake from the start they creep and jitter).
+- **One control: drag back and let go**, as a catapult: how far down sets
+  the speed (3-12 m/s), and so how high on the stack it hits, every throw
+  leaving at 20° up; sideways aims the other way (up to 22°). **A ring
+  where it will hit** (where the path crosses the shelf's front, or flat
+  on the ground if short), moving as you drag; no path dots. Separate
+  angle and speed (a slingshot) is for the block game, not this one
+  (developer, 2026-11-09).
+- **After each throw the camera cuts to the side** (outside the stall,
+  the near wall cut away), holds 1.8 s, glides back behind in 0.6 s; the
+  next ball then. No slow motion.
+- **The gap behind the shelf 0.45** (the curtain's face; twice a can's
+  height), so a tipped can always falls (v3's 0.22 left cans leaning on
+  the curtain).
+- **Physics: cannon-es 0.20.0** (MIT), one pinned copy in the repo beside
+  three.js, cached for offline.
+- Sound as the mockup: a tin clink for each can hit, a thud for the ball,
+  a whoosh for a throw, a tune at the end.
 
 ## Later
 
