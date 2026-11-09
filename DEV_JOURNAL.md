@@ -13680,3 +13680,117 @@ a phone.
    (from the last status). Nothing to purge.
 
 **Open questions:** none new. Q47 unchanged.
+
+## 2026-11-09: Stall mockup v3 tried; the cans stuck on the curtain; a new game split off; mockup v4
+
+**Developer** (v3, in the app): "I like the side view. Not the slow
+motion. I noticed that the cans are pretty close to the back wall so,
+even when they are knocked over, they often get stuck - knocked over but
+leaning against the back wall instead of falling off. I'm not sure if
+this is an intended part of game play to make it harder or an accidental
+side effect."
+
+**Claude: an accident, a slip of mine in v1.** v1 widened the gap
+behind the shelf to "0.25" so no can would wedge in it, but measured to
+the curtain's middle: the curtain is 0.06 thick, so the open gap was
+**0.22, a can's height exactly**. A can tipped backwards rests on the
+shelf's back edge with its top on the curtain. Measured in v3 (the
+artifact's source, `stall.geometry()`: shelf back -2.53, curtain face
+-2.75).
+
+**v3 measured, then v4** (one throw a round, powers 0.3-0.6 by 0.05,
+aims -0.15 / 0 / 0.15, 21 rounds a layout, 6 s each, Off the shelf,
+Medium cans; a can "hanging" = resting within 1 cm of the curtain with
+its middle above the shelf's top; Pyramid 15 not swept in v3, its 21
+rounds too slow for one call):
+
+| Layout | v3 (gap 0.22): hanging / off | v4 (gap 0.45): hanging / off |
+|---|---|---|
+| Pyramid 6 | 8 / 40 | 0 / 43 |
+| Pyramid 10 | 29 / 68 | 0 / 82 |
+| Wall 9 | 17 / 49 | 1 / 53 |
+
+- In v3 every hanging can still counted as off (its middle past the
+  shelf's edge), so the count was fair, but they looked stuck and many
+  were still awake after 6 s (jiggling, which also holds up the end of a
+  round up to 7 s).
+- v4's one case (Wall 9, power 0.5, straight): two cans jammed side by
+  side across the gap, sliding down slowly; below the shelf's top by
+  6.5 s, at 0.66-0.79 m by 12 s. Rare (1 of 84 rounds), off the shelf
+  throughout, behind the cabinet; left as is.
+
+**Mockup v4** (same artifact,
+[Fairground Stall Mockup](https://claude.ai/artifact/DTqc3rqnWY2juJ2SsR188X),
+private, version 4):
+- **The curtain's face 0.45 behind the shelf** (twice a can's height),
+  its thickness counted; the side walls and roof longer with it.
+- **Cut to the side always**: "After the throw", slow motion and Stay
+  behind dropped. The side view holds 1.8 s, glides back in 0.6 s, the
+  next ball ready at 2.5 s (stepped 0.1 s at a time, as v3).
+- The other choices kept, to settle: Cans, Balls a round, A can counts
+  when it is, Cans weigh, Sound. Kept in the browser as before (the same
+  key, so v3's picks carry over).
+- Test hook: `stall.cans()` (each can's place, how upright, off,
+  against the curtain, asleep) and `stall.geometry()`.
+
+**Checked** (scratchpad served on 8130 through `tools/serve.js`
+`createServer`, a temporary `.claude/launch.json` entry, removed after;
+built-in browser, 375 × 812): every layout left 10 s moved 0 m; no
+console errors; screenshots of the side view mid-throw and the view from
+behind with the curtain further back. Not checked: a real phone, a
+finger, sound, fps on a phone.
+
+**A new game split off** (developer, same conversation, before v4). The
+ideas, in order:
+- "Instead of just stacking cans, we could stack blocks of different
+  sizes. This allows some blocks to be like posts and some to be like
+  beams, which allows more interesting shapes to be created, including
+  shapes with holes." **Every block counts** (developer, asked whether
+  blocks build and cans count).
+- **Size by distance** (developer): "If we drew it in such a way as to
+  make the target look further away, we could still keep the actually
+  sizes small enough to fit the phone but create the impression that they
+  are bigger ... make the ball appear smaller as it approaches the
+  target". Claude: with a perspective camera this is real, not drawn:
+  the targets further away and bigger in proportion fill the same part
+  of the screen (the ball already shrinks to about a quarter by the cans;
+  at 6 m about an eighth); the depth comes from things of known size (the
+  counter, posts, bulbs along a longer tent), the longer flight, and
+  bigger things falling slower (√2.5 ≈ 1.6 times for 2.5 times the size).
+  Costs: the side view must fit a longer throw, small aim errors miss by
+  more, rounds a little longer. Suggested for its mockup: a Distance
+  choice (Near / Far / Farther, scaled to look the same size).
+- "There could be other objects not part of the target but they could
+  possibly interact with the balls. Either blocking them or allow them to
+  bounce the ball in different directions ... targets that can't actually
+  be hit with a straight throw but require you to bounce the ball off
+  something." To decide in its mockup: whether the ring stops at the
+  first thing the ball touches (the bounce the puzzle) or shows the
+  bounce.
+- "Maybe instead of a 'throwing a ball' metaphor where all we do is aim,
+  it could be something like a sling shot where not only we aim but we
+  also control how much velocity the ball is launched with." Claude: the
+  stall already sets the speed (the drag's length, 3-12 m/s) at a fixed
+  20° up; a slingshot would set **the angle up and the speed**, so one
+  target can be hit flat and fast or with a high lob, which is what
+  getting over or around things needs.
+- "If you like all these ideas, I'm thinking it actually feels like a
+  different game." Agreed: the stall is a quick throwing game, this a
+  worked-out shot puzzle. The side view "less important" there; to see.
+- **Order agreed** ("Lets finish with the stall game and then begin work
+  on the new game"): stall v4 → the stall agreed → built as a game →
+  the new game's mockup, reusing the stall's physics, throw, ring,
+  camera cuts, debug line and tests.
+
+**Next:**
+1. The developer's feedback on v4: no can stuck; still to settle Medium
+   or Heavy, 3 balls, off or knocked over, which cans.
+2. Once agreed: the stall's name, then building it (cannon-es in the
+   repo beside three.js; its rules and tuning in `src/core/`, tested under
+   Node).
+3. Then the block game's mockup (above).
+4. Q47 when the grandkids try Five Dice 3D. Left over, only if wanted:
+   as in the last status. Nothing to purge (the sweep ran in the
+   scratchpad).
+
+**Open questions:** none new. Q47 unchanged.

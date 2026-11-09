@@ -5,7 +5,7 @@ reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
 *Status (2026-11-08, latest): **the 2D Five Dice retired**, Five Dice 3D
-the only one (built, not published; see "Five Dice" and "3D games").
+the only one (release 7.6, published; see "Five Dice" and "3D games").
 Earlier the same day: **Five Dice 3D: no double-tap zoom on the tray**
 (release 7.5). Earlier the same day: **Five Dice 3D: a full house shows
 its smaller number first** (release 7.4; see "3D games"). Earlier
