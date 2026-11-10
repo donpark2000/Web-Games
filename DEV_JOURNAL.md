@@ -25,6 +25,17 @@ time, each tried before publishing:
   every scene can be won"): the 21 of 30 was one fixed plan; over 100
   scenes, players throwing anywhere that hits a standing block won all
   100, 874 of 1,000 tries. Open now only as "too hard for a child's aim?".
+- **Q66. The 3D games' home pictures don't look 3D** (2026-11-10,
+  developer: Tin Can Alley, Topple! and Five Dice 3D "do not seem to
+  suggest a 3D experience"; "something like a screen shot of the actual
+  game might be better"). Proposed ("9.2 on the phone; home pictures and
+  aiming"): a still from each game, made by a tool; a mockup first.
+- **Q67. Topple!: the finger hides the aiming dots** (2026-11-10,
+  developer: a kid starts on or near the ball and swipes toward the
+  target, so the finger covers the dots; starting the drag away from the
+  path works, but "might not be obvious to kids"). Proposed (same entry):
+  a pad to start the drag from, beside the path, and the drag's start
+  logged.
 
 ## Proposed additions to the standards skill
 
@@ -16204,3 +16215,53 @@ localhost server stopped; no other was running.
   among them) or another game, as the developer prefers.
 - **Open questions:** Q64 (how hard for a child's aim).
 - **Skill:** none waiting.
+
+## 2026-11-10: 9.2 on the phone; home pictures and aiming
+
+**Developer:** "9.2 looks good. I did not see 'impossible to hit' pieces in
+the tests I did. Trees and bushes look good." Two things to discuss before
+new levels:
+
+**1. The 3D games' home pictures (Q66).** Tin Can Alley, Topple! and Five
+Dice 3D "do not seem to suggest a 3D experience"; "something like a screen
+shot of the actual game might be better." Checked: all three are flat SVGs
+drawn by the site, like the 2D games' (`stallMini` in `src/ui/tcapics.js`,
+`toppleMini` in `src/ui/topplepics.js`, five `cubeSvg` squares for Five
+Dice 3D; `index.html`), in the 150 px picture box every game has.
+**Claude agrees** and proposes:
+- **A still from each game**, framed tight for 150 px (Topple!: the arch
+  close up with a ball arriving; Tin Can Alley: the shelf with a can
+  falling; Five Dice 3D: the dice tumbling in the tray), with the face
+  winning as now. That they look unlike the 2D games' pictures is the point.
+- **Made by a tool, not by hand** (the skill's "derived files come from a
+  tool"): each game draws a fixed scene and camera on request and the tool
+  saves the image (about 300 px square for sharp screens; WebP or JPEG,
+  roughly 20-40 KB each). They go in the offline file list. A test can't
+  redraw a 3D picture to compare, so it checks the images exist, are the
+  right size and are listed; the tool is rerun when a game's look changes.
+- **A mockup first**: the home page with the current and the new pictures
+  side by side.
+
+**2. Topple!: the finger hides the dots (Q67).** "It seem natural on a
+touch screen to start with your finger on or near the ball and then swipe
+towards your target. ... your finger doing the swiping obscures a lot of
+the dots ... just start your swipe nowhere near the trajectory ... might
+not be obvious to kids." Checked: the drag counts only how far the finger
+moves (`frontDrag(dx, dy, ...)` in `src/ui/topple.js`), so it can start
+anywhere on the park; nothing on the screen says so, and the ball in the
+slingshot is what a finger goes to. **Claude agrees it matters** (the dots
+are the only aiming help) and proposes, the drag still working anywhere:
+- **A drag pad**: a round pad with a 👆 low in the park beside the
+  slingshot, away from where the dots go, and the hint "Drag from 👆".
+  Children put a finger on the thing to touch; the hand then stays beside
+  the path, not over it.
+- **The first throw of a game shown once**: a see-through finger swipes up
+  from the pad while the dots follow it, then fades.
+- **Where each drag starts logged** (on the pad, near the ball, elsewhere),
+  to see on the phone and with the kids whether it works.
+- Not proposed: the pull-back (C) again. It keeps the hand below the
+  slingshot, but C fixes the angle per scene (mockup v3: no one angle suits
+  every scene) and the developer chose D.
+
+**Waiting for the developer:** which to do first, and whether the two
+proposals are the right direction.
