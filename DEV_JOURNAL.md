@@ -47,13 +47,12 @@ time, each tried before publishing:
   (a tree hid most of the stack; "Mockup v5 tried; levels ..."). Waiting
   for the developer's view.
 
-- **Compare versions with one test run on both** (2026-11-10, from "Block
-  game mockup v7"; section 3 or 4). To tell whether a change made things
-  better or worse, run the same test on the old and the new version now,
-  not against a number from the notes. *Evidence:* v6's notes said a
-  test player cleared 13 of 14 scenes; v7's player cleared 15 of 20, which
-  looked worse, but that player was a new one; run on v6 it also cleared
-  15 of 20.
+Earlier: (2026-11-10: "Compare versions with one test run on both" (from
+"Block game mockup v7": v6's notes said a test player cleared 13 of 14
+scenes; v7's new player cleared 15 of 20, and also 15 of 20 on v6)
+approved by the developer ("I can add the new skill") and added to the
+skill, section 4, after "Suspect the check before the thing checked";
+ai-dev-practices commit 87a6824, zip rebuilt for the developer to upload.)
 
 Earlier: none waiting. (2026-11-07: "Key a remembered result by everything it
 depends on" (from "Sideways phone fixes and the game's name built",
@@ -15391,5 +15390,5 @@ browser tool, so one choice per call.
 
 **Open questions:** Q63, Q47. None new.
 
-**Skill additions:** two proposed ("Check from where the user stands";
-"Compare versions with one test run on both").
+**Skill additions:** one proposed ("Check from where the user stands");
+"Compare versions with one test run on both" added (commit 87a6824).
