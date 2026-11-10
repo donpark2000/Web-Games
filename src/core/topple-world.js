@@ -11,7 +11,7 @@
 import * as CANNON from '../vendor/cannon-es/cannon-es.js';
 import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel, sideView,
-  sceneParts, makeLayout, sceneSeed, sceneOpts, isDown,
+  sceneParts, makeLayout, sceneSeed, sceneChoice, isDown,
 } from './topple.js';
 import { fixedStepper } from './fixed-step.js';
 
@@ -348,7 +348,7 @@ export function createWorld({ onHit = () => {} } = {}) {
     let best = null, tries = 0, L, p, chk;
     const thrown = [];
     do {
-      L = makeLayout(sceneSeed(gameSeed, level, i, tries), sceneOpts(i));
+      L = makeLayout(sceneSeed(gameSeed, level, i, tries), sceneChoice(gameSeed, level, i));
       tries++;
       p = sceneParts(L);
       setScene(p);

@@ -12,7 +12,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, touch, BUSH_KEEP } from '../src/core/topple-world.js';
 import {
-  SCALE, HAND, BALL, MAX_AIM, MAX_UP, R2D, SCENES, launchVel, sideDrag, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts, rng,
+  SCALE, HAND, BALL, MAX_AIM, MAX_UP, R2D, SCENES, launchVel, sideDrag, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts, sceneSeed, rng,
 } from '../src/core/topple.js';
 
 const DT = 1 / 60;
@@ -343,8 +343,10 @@ test('topple world: a scene no player can win is reported (throws too weak to re
 
 test('topple world: a scene picked up again puts the blocks where they were, the fallen still down', () => {
   const w = createWorld();
-  // the arch behind a tree: this throw knocks the top left cube off (the mockup's too)
-  const s = w.makeScene(12345, 1, 2);
+  // the arch behind a tree: this throw knocks the top left cube off (the mockup's too);
+  // the layout by its seed (game 12345's scene 2 before scenes were dealt)
+  const L = makeLayout(sceneSeed(12345, 1, 2), sceneOpts(2)), s = { layout: L, parts: sceneParts(L) };
+  w.setScene(s.parts);
   w.throwBall(launchVel(s.layout.power, 0.16, 27).vec);
   for (let k = 0; k < 360; k++) w.step(DT);
   const poses = JSON.parse(JSON.stringify(w.poses())), down = w.downCount();

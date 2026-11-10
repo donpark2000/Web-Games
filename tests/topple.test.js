@@ -1,12 +1,12 @@
 // Topple!'s rules, scenes and camera (src/core/topple.js): the drag's
 // aiming in both views (mockup v8's checks), a block down, the game's
 // jewels and hearts, a scene's end, what's kept on the device, the dots,
-// and the views fitted to a scene. Pure functions, nothing written.
+// the views fitted to a scene, and scenes 1-4 dealt so neighbours differ. Pure functions, nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   HAND, CAM, SCALE, MAX_UP, MAX_AIM, R2D, BALLS, SCENES, HEARTS, STACKS, SIZE, KINDS, READY_AFTER, END_WAIT, END_MAX,
-  makeLayout, sceneOpts, sceneSeed, sceneParts, frontDrag, sideDrag, launchVel, isDown, createGame, readGame, sceneOver,
+  makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, sideDrag, launchVel, isDown, createGame, readGame, sceneOver,
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, sideView, dotScaleFor, checkSetup, rng,
 } from '../src/core/topple.js';
 
@@ -25,6 +25,40 @@ test('topple: every block on the ground is upright, so a hit can tip it; scene 5
   assert.deepEqual(sceneOpts(1).stacks, ['arch', 'posts', 'pyramid']);
   assert.deepEqual(sceneOpts(4), sceneOpts(1));
   assert.deepEqual(sceneOpts(5), { n: 2, stacks: ['tower', 'fence'] });
+});
+
+// Developer, 2026-11-10: "Sometimes there seemed to be no difference
+// between scenes" (their game 1288553953: scenes 1-3 all an arch behind a
+// bush). Picked each on its own, 97 of 300 neighbouring scenes had the same
+// structure, 32 the same structure and thing.
+test('topple: scenes 1-4 dealt per game: never the same structure twice in a row, no structure and thing twice', () => {
+  const stacks = sceneOpts(1).stacks;
+  let games = 0;
+  const seenStack = new Set(), seenThing = new Set();
+  for (let g = 1; g <= 500; g++) for (const level of [1, 2]) {
+    const plan = levelPlan(g * 7919, level);
+    assert.equal(plan.length, SCENES - 1);
+    assert.deepEqual(levelPlan(g * 7919, level), plan, `${g}/${level}: not the same each time`);
+    plan.forEach((c, i) => {
+      assert.ok(stacks.includes(c.stack) && KINDS.includes(c.thing), `${g}: ${JSON.stringify(c)}`);
+      seenStack.add(c.stack); seenThing.add(c.thing);
+      if (i) assert.notEqual(c.stack, plan[i - 1].stack, `${g}/${level}: scenes ${i} and ${i + 1} both ${c.stack}`);
+    });
+    assert.equal(new Set(plan.map(c => `${c.stack}+${c.thing}`)).size, plan.length, `${g}/${level}: a pair twice: ${JSON.stringify(plan)}`);
+    games++;
+  }
+  assert.equal(games, 1000);
+  assert.equal(seenStack.size, 3); assert.equal(seenThing.size, 3);
+  assert.notDeepEqual(levelPlan(1, 1), levelPlan(2, 1), 'every game the same plan');
+  // a scene's options carry its dealt structure and thing; the 5th is as before
+  const plan = levelPlan(42, 1);
+  for (let i = 1; i < SCENES; i++) {
+    const o = sceneChoice(42, 1, i), L = makeLayout(sceneSeed(42, 1, i), o);
+    assert.deepEqual([o.stacks, o.kinds], [[plan[i - 1].stack], [plan[i - 1].thing]]);
+    assert.equal(L.stack, plan[i - 1].stack);
+    assert.deepEqual([...L.things.map(t => t.kind), ...L.unplaced], [plan[i - 1].thing]);
+  }
+  assert.deepEqual(sceneChoice(42, 1, SCENES), sceneOpts(SCENES));
 });
 
 test('topple: a layout is the same from the same seed; the 5th scene has two things; each block 1.5× the mockup v5\'s', () => {

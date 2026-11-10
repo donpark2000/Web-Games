@@ -103,6 +103,31 @@ export function rng(seed) {
 export const sceneSeed = (gameSeed, level, i, tryN = 0) =>
   Math.floor(rng((gameSeed ^ Math.imul(level, 0x9E3779B1) ^ Math.imul(i, 0x85EBCA6B) ^ Math.imul(tryN + 1, 0xC2B2AE35)) >>> 0)() * 2 ** 31);
 
+// What scenes 1-4 of a level are (developer, 2026-11-10: "Sometimes there
+// seemed to be no difference between scenes"; scenes picked each on its own
+// had the same structure next door 1 time in 3): dealt once per game and
+// level, so a scene played again is still the same one. Never the same
+// structure twice in a row, never the same structure and thing twice in a
+// level. Returns [{ stack, thing }] for scenes 1 to SCENES - 1.
+export function levelPlan(gameSeed, level) {
+  const random = rng((gameSeed ^ Math.imul(level, 0x27D4EB2F) ^ 0x165667B1) >>> 0);
+  const combos = sceneOpts(1).stacks.flatMap(stack => KINDS.map(thing => ({ stack, thing })));
+  const plan = [];
+  for (let i = 1; i < SCENES; i++) {
+    const prev = plan[plan.length - 1];
+    const left = combos.filter(c => !plan.includes(c) && c.stack !== prev?.stack);
+    plan.push(left[Math.floor(random() * left.length)]);
+  }
+  return plan.map(c => ({ ...c }));
+}
+// Scene i's options for makeLayout: scenes 1-4 their dealt structure and
+// thing (`kinds`, the things to pick from), the 5th as sceneOpts.
+export function sceneChoice(gameSeed, level, i) {
+  if (i >= SCENES) return sceneOpts(i);
+  const { stack, thing } = levelPlan(gameSeed, level)[i - 1];
+  return { ...sceneOpts(i), stacks: [stack], kinds: [thing] };
+}
+
 /* ---------- a layout: the structure and the things in the way ---------- */
 
 // A structure on the ground, a bit nearer or further, left or right; one or
@@ -226,9 +251,11 @@ const CAM_N = { x: CAM[0] / SCALE, y: CAM[1] / SCALE, z: HAND.z + (CAM[2] - HAND
 
 // A layout from its seed: { seed, stack, table (the structure's footprint),
 // blocks, things, power (the throw's strength, the scene's), reach,
-// unplaced (things that found no room in 20 tries), tooNear }. `kinds`: the
-// things to pick from (all three in the game; one, for the tests).
+// unplaced (things that found no room in 20 tries), tooNear }. `pool`: the
+// things to pick from (all three; one, for the tests; opts.kinds, a scene's
+// dealt thing, sceneChoice, wins).
 export function makeLayout(seed, opts = sceneOpts(1), pool = KINDS) {
+  if (opts.kinds) pool = opts.kinds;
   const random = rng(seed), R = (a, b) => a + (b - a) * random(), pick = arr => arr[Math.floor(random() * arr.length)];
   const stack = pick(opts.stacks);
   const rel = STACKS[stack]().map(b => ({ ...b, w: b.w * SIZE, h: b.h * SIZE, d: b.d * SIZE, x: b.x * SIZE, y: b.y * SIZE, z: b.z * SIZE }));

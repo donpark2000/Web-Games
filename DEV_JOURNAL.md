@@ -15999,3 +15999,100 @@ aims sideways too.
 - Next: the developer's log from the phone (the hidden-blocks scene) and
   choices on (1) and (2).
 - Open questions: Q64.
+
+## 2026-11-10: The phone's log: the hidden-blocks scene found; scenes 1-4 dealt so neighbours differ
+
+**Developer:** sent the phone's log (`Downloads\web-games-log_2026-11-10T22-21-14.txt`,
+iPhone, 3,000 lines). On the hidden blocks: "I'm not wild about either
+option. There is no point in having 'obstacles' that hide nothing. Even if
+you add sideways aiming to side view, if balls don't curve, there is no way
+to hit them. So I think a different solution might be needed. Maybe there
+is a way to spin or curve balls, or maybe there is always a barrier/backdrop
+with the right angle that would allow a ball that moves in straight lines
+to reach all blocks. I'm not sure, but to make this playable, it might
+require a 'top view'. I like your proposal for solving the repeated scenes
+problem."
+
+**The log** (9.1, 14:44): game 1288553953. **Scenes 1, 2 and 3 all an arch
+behind a bush** (layout seeds 1299965872, 1078214531, 541934964): the "no
+difference". Earlier (9.0, 12:38) game 504441939's scenes 2 and 3 were both
+posts with a backboard behind. **Scene 5: a fence, a backboard behind, a tree
+left** (layout 2015036129; check ok but share 0.48, seen "5 whole, 2 part,
+1 hidden", seenSide "8 whole"). Lost twice: 4 of 8 down (two balls into the
+trunk, one at the glass that came down short), then 7 of 8 (two balls from
+the side view, both to the ground beyond the fence). fps 57-60, no steps
+dropped.
+
+**That scene replayed** (scratchpad `scene-blocks.mjs`: each block, what the
+front sees, the check's scan of 792 throws by first touch; the side view's
+straight throws at every 1° and 0.01 of drag):
+- The tree at x -0.03, 1.7 m out; the fence's left end behind it. The
+  bottom-left block (x -0.49): **front sees 0 of 5 points**, 6 throws hit it
+  first (round the trunk; 16 with nothing in the way). The purple block on
+  the left top (x -0.16, y 1.24): **no throw hits it first** (15 with nothing
+  in the way); the yellow under it 7. The check lets one block no throw
+  hits through ("a block hidden under others falls with them"), which a
+  fence's end doesn't do.
+- **The side view can hit nothing in this scene: 0 throws for every
+  block.** It throws straight at the structure's middle, and a fence's
+  middle is a gap (blocks at x 0.17 and 0.83; the top row at -0.16 and
+  1.16). So "the side view shows them" was no help: you see them and can't
+  aim at them, as the developer found.
+- A new game in the browser (seed 1127182140) dealt scene 5 as a fence, a
+  backboard behind, the tree left, the trunk in front of the fence's left
+  end: the same trouble (screenshot seen).
+
+**Scenes 1-4 dealt** (the developer's OK): `levelPlan(gameSeed, level)` in
+`src/core/topple.js` deals each game and level's scenes 1-4 from the 9
+structure-and-thing pairs: never the same structure twice in a row, no pair
+twice; `sceneChoice()` gives makeLayout a scene's structure and thing
+(`opts.kinds`); `makeScene` uses it. A scene played again is still the same
+(dealt from the game's seed). Scene 5 as before. Scenes in games already
+under way change (their structures and things are dealt now).
+- Survey again (100 games): neighbours with the same structure **0 of 300**
+  (97 before), the same pair 0 (32). Blocks the front can't see at all: 33
+  scenes (34 before), unchanged as expected. Making 500 scenes 185 s (171).
+- Test "scenes 1-4 dealt per game ..." (1,000 game-levels: no neighbours
+  alike, no pair twice, the same each time, all structures and things used;
+  a scene's options and layout follow the plan; scene 5 as before). With the
+  plan's rule taken out (any pair, any order) it fails; restored.
+- Two tests that played a fixed scene of game 12345 (the stepping test's
+  throw, and "a scene picked up again") now build that layout from its seed
+  (`makeLayout(sceneSeed(12345, 1, i), sceneOpts(i))`), as before dealing,
+  so they don't move with the game's choices; both failed ("the throw
+  knocked nothing down") until then.
+- Checked in the built-in browser (375 × 812): a new game dealt posts,
+  pyramid, posts, pyramid, fence; no console errors.
+- Suite: 544 tests, all pass, 55 s. Not published (version a5da5ed785f6).
+
+**The hidden blocks: what's wrong, for the design talk.** Two needs fail
+together: seeing what's left, and having a throw that can reach it. The
+check counts a block as fine if either view shows it, but only the front
+view can aim sideways, and the side view's one line can miss everything.
+The developer's ideas: curving or spinning balls; an angled backboard so a
+straight ball can reach every block; a top view. Claude's view (put to the
+developer): a **top view** answers both needs if it shows the blocks left
+and the ball's path from above and lets you aim sideways there (round a
+trunk); it could replace the side view, whose straight line is the weak
+part. Curving is harder for a child to control (a later level's special
+ball, maybe). An angled backboard helps only scenes with one. And whatever
+the view, the check should be: every block can be hit by enough throws a
+player can aim in some view, and seen in that view (no "one may be
+missed"). Proposed: a top-view mockup in a fresh session.
+
+**Status:** see the next entry.
+
+## 2026-11-10: Status (start here next session)
+
+- **Live: 9.1.** On `block-game`, not published: scenes 1-4 dealt so
+  neighbours differ; the "can be won" test; `world.frontSeen()`.
+- **Next:** the developer's choices: publish the dealt scenes now as 9.2
+  (the hidden-block trouble still in it), or wait for the hidden-block fix;
+  and the hidden-block design (a top view, Claude's lean; a mockup first).
+- **Test cases for the hidden blocks:** game 1288553953 scene 5 (the
+  developer's, layout 2015036129, as 9.1 made it; with dealt scenes its
+  scene 5 is made the same way, sceneOpts(5), so the same); game 1127182140
+  scene 5 (dealt, the browser check).
+- **Open questions:** Q64 (how hard for a child's aim).
+- **Skill:** none waiting.
+- Claude's localhost server stopped.
