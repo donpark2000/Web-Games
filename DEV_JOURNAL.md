@@ -15652,3 +15652,10 @@ ai-dev-practices README now says where (commit 94b5c7c, pushed).
 
 **Skill additions:** none waiting. The skill uploaded by the developer the same day
 ("I found the skills and updated"; the new place "well hidden").
+
+## 2026-11-10: Test folder purged
+
+**Developer:** "OK to purge." `Web-Games-testing\2026-11-10_block-mockup-tests\`
+sent to the Recycle Bin (its scripts live on as `tests/topple-world.test.js`
+and `tests/topple.test.js`). The developer's Topple! feedback from the
+phone comes next.
