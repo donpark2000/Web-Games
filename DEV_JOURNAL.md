@@ -22,20 +22,6 @@ time, each tried before publishing:
   devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
   2026-11-07, after 7.0: "Looks good on my phone - both orientations"
   (the developer's own phone; the kids' devices still to come).
-- **Q63. Tin Can Alley: the ball can fly through cans** (2026-11-09,
-  found building the block game's mockup; "Block game mockup v1"). The
-  cans keep a collision box at the origin until hit (cannon-es works it
-  out as a body is made), so the physics sometimes never tests the ball
-  against them: in 30 of 189 throws aimed across the pile (mostly left)
-  the ball touched no can, where refreshed boxes gave 1-5 off. Proposed:
-  a two-line fix with a test, as release 8.2; waiting for the developer's
-  OK. 2026-11-09, developer: "Can we save the bug fix for the first time
-  we publish the new game?" So: no 8.2; the fix and its test go in the
-  block game's first release (x.0), and its notes list it. Then: "You
-  can actually change the code now, just not publish it yet or change
-  the version yet ... V9." **Fixed on `block-game`** (not published;
-  "Q63 fixed on the branch"); open until 9.0 is live.
-
 - **Q64. Topple!: how hard are the scenes for the kids?** (2026-11-10,
   building it; "Topple! built"). A perfect-aim player clears 21 of 30
   scenes (the arch 6 of 11); a heart lost to a scene a child can't clear
@@ -115,6 +101,23 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q63. Tin Can Alley: the ball can fly through cans** (2026-11-09,
+  found building the block game's mockup; "Block game mockup v1"). The
+  cans keep a collision box at the origin until hit (cannon-es works it
+  out as a body is made), so the physics sometimes never tests the ball
+  against them: in 30 of 189 throws aimed across the pile (mostly left)
+  the ball touched no can, where refreshed boxes gave 1-5 off. Proposed:
+  a two-line fix with a test, as release 8.2; waiting for the developer's
+  OK. 2026-11-09, developer: "Can we save the bug fix for the first time
+  we publish the new game?" So: no 8.2; the fix and its test go in the
+  block game's first release (x.0), and its notes list it. Then: "You
+  can actually change the code now, just not publish it yet or change
+  the version yet ... V9." **Fixed on `block-game`** (not published;
+  "Q63 fixed on the branch"); open until 9.0 is live.
+  **Resolved 2026-11-10:** published in release 9.0 (live, version
+  671d399e01fa); its two tests in the suite (every box holds its body; ten
+  off-middle throws each touch a can).
 
 - **Q62. Tin Can Alley: frame the view to each lot of cans?**
   (2026-11-09, developer: "a big part of the screen is just
@@ -15615,3 +15618,36 @@ sounds. After that, level 2 (one level a release).
 **Open questions:** Q64, Q63, Q47.
 
 **Skill additions:** none waiting.
+
+## 2026-11-10: Release 9.0 published (Topple!); the skill upload's new place; status (start here next session)
+
+**Developer:** "Lets publish. I will give you feedback in a new session." So
+`block-game` fast-forwarded into `main` (774805d), pushed; tag **v9.0** pushed;
+the [GitHub release 9.0](https://github.com/donpark2000/Web-Games/releases/tag/v9.0)
+made from `node tools/release.js notes`. GitHub Pages built; github.io serves version 671d399e01fa and `topple.html` (checked).
+Q63 moved to Resolved (live). The localhost server (Claude's `tools/serve.js 8123`; no
+other was running) stopped.
+
+**The skill upload has moved** (developer: "The place to do that have moved
+and I forget how to find it"): on claude.ai and in Claude Desktop it is now
+**Customize › Skills**, then **+**, **+ Create skill**, **Upload a skill**
+(Anthropic's help article "How to create custom skills"); the zip's top must
+be the skill's folder, as ours is. The zip
+(`C:\Users\dpark\Documents\ai-dev-practices\software-project-standards.zip`)
+is the same as the repo's SKILL.md (compared byte for byte) and has the last
+addition, "Compare versions with one test run on both" (commit 87a6824); the
+skill loaded in this session didn't have it, so it wasn't uploaded yet. The
+ai-dev-practices README now says where (commit 94b5c7c, pushed).
+
+**Status:**
+- Live: release 9.0, Topple! (level 1) beside Tin Can Alley; Q63's fix.
+- **Next (a new session, the developer's):** Topple! on the phone: the
+  aiming with a finger in both views, how hard the scenes are (Q64), the
+  scene-making time in the debug log (`scene` ... `ms`), the sounds. Then
+  level 2 (one level a release).
+- To purge, with the developer's OK: `Web-Games-testing\2026-11-10_block-mockup-tests\`
+  (its scripts are now `tests/topple-world.test.js` and `tests/topple.test.js`).
+
+**Open questions:** Q64, Q47.
+
+**Skill additions:** none waiting (the last one to upload, above).
