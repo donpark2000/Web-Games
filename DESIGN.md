@@ -1807,9 +1807,9 @@ puzzle game follows the same rule.
 ## 3D games
 
 Started 2026-11-07 (developer: "I wanted to explore 3D games"). Q46 and
-Q48-Q50 closed 2026-11-07 as below (developer: "agreed"); open: Q47, the
-oldest device (journal; developer, 2026-11-07: not known yet, "probably
-OK": the kids play Minecraft). **Five Dice 3D built** 2026-11-07 (journal,
+Q48-Q50 closed 2026-11-07 as below (developer: "agreed"); Q47, the
+oldest device, retired 2026-11-10 (journal; developer: the kids' devices
+not known, "I'll just wait until I hear a complaint"). **Five Dice 3D built** 2026-11-07 (journal,
 "Five Dice 3D built") and published as release 7.0 the same day.
 
 - **In this repo, on a branch**, not a new repo: the 3D version reuses
@@ -1993,6 +1993,12 @@ mockup v4 tried"). Built 2026-11-09 (journal, "Tin Can Alley built"); release 8.
   the curtain).
 - **Physics: cannon-es 0.20.0** (MIT), one pinned copy in the repo beside
   three.js, cached for offline.
+- **Stepped by our own fixed-step loop** (`src/core/fixed-step.js`, Q65;
+  both 3D games): steps of 1/120 s, at most 8 a frame, as cannon-es's own
+  `world.step`. The game hands it the clock, so a slow phone still gives
+  up catching up and drops steps (logged as `stepsDropped` at a round's
+  or scene's end); the tests hand it none, so every step is taken and a
+  throw comes out the same on any machine.
 - Sound as the mockup: a tin clink for each can hit, a thud for the ball,
   a whoosh for a throw, a tune at the end.
 
@@ -2131,7 +2137,7 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
 - **Sizes:** made at "Near" and shown at **Far**: everything twice as
   big and twice as far from the hand, the ball its own size, weighing 8
   times as much (2 kg) and thrown √2 times as fast. Blocks 27 kg/m³.
-- **Physics: cannon-es 0.20.0**, as Tin Can Alley; the blocks asleep
+- **Physics: cannon-es 0.20.0**, stepped as Tin Can Alley; the blocks asleep
   until the ball touches one; every body's collision box refreshed as
   it's placed (Q63's cause).
 - **Setup** (developer: "as Tin Can Alley"): the rules line with the

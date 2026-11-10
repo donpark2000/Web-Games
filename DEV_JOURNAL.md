@@ -10,39 +10,15 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q47. 3D games: the oldest device it must run smoothly on**
-  (2026-11-07, developer; one of five, Q46-Q50, from a discussion in
-  another session; the other four resolved). The developer has asked
-  their daughters which devices the kids use. Claude's proposal in "3D
-  games: the five questions": test on that device before publishing; a
-  device without WebGL, or too slow, is pointed to the 2D game.
-  2026-11-07, developer: "I don't know about the devices yet but I am
-  assuming they are probably OK. They play games like minecraft that has
-  a lot of 3D stuff." Built without waiting; still open until the kids'
-  devices have run it (the debug log says WebGL 2 or 1, and each fit's ms).
-  2026-11-07, after 7.0: "Looks good on my phone - both orientations"
-  (the developer's own phone; the kids' devices still to come).
 - **Q64. Topple!: how hard are the scenes for the kids?** (2026-11-10,
   building it; "Topple! built"). A perfect-aim player clears 21 of 30
   scenes (the arch 6 of 11); a heart lost to a scene a child can't clear
   feels unfair (Claude, "Mockup v5 tried": fairness the first risk).
   To judge on the phone, and with the kids; if too hard, the arch's
   plank lighter or more balls, as the developer prefers.
-- **Q65. Physics steps dropped when the computer is busy** (2026-11-10,
-  "Topple! feedback: leafy bushes and trees..."). Both 3D games step with
-  cannon-es's `world.step(STEP, dt, MAX_SUBSTEPS)`, which gives up and
-  drops the remaining fixed steps once one step takes longer in real time
-  than STEP (8 ms). So the physics depends on the machine's load: the Tin
-  Can Alley test "rounds of 3 throws end" failed once in a full suite run
-  ("throw refused: round-over") and passed 3 times alone and in the next
-  full run. In the game, a slow phone gets slow motion rather than lost
-  frames. Claude's proposal: step the fixed steps ourselves (an
-  accumulator, still capped at MAX_SUBSTEPS), so a test's throws come
-  out the same on any machine; to agree with the developer.
-  2026-11-10, developer: "Q 65 - yes" (explained to them as: the game
-  keeps dropping steps on a slow phone as now, so the kids see no change;
-  only the tests always run every step). To build with a test, then
-  close.
+  2026-11-10, developer: "I don't recall Q 64. So I am not sure what to
+  answer." Explained again in "Q65 built; Q47 retired"; nothing to
+  answer yet: it stays open for the phone and the kids.
 
 ## Proposed additions to the standards skill
 
@@ -125,6 +101,30 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q65. Physics steps dropped when the computer is busy** (2026-11-10,
+  "Topple! feedback: leafy bushes and trees..."). Both 3D games stepped
+  with cannon-es's `world.step(STEP, dt, MAX_SUBSTEPS)`, which reads the
+  real clock and drops the remaining fixed steps once a frame's steps
+  take longer than one step of real time (8 ms). So the physics depended
+  on the machine's load: the Tin Can Alley test "rounds of 3 throws end"
+  failed once in a full suite run ("throw refused: round-over") and
+  passed 3 times alone and in the next full run. Claude's proposal: step
+  the fixed steps ourselves, the clock read only when the game hands one
+  over. 2026-11-10, developer: "Q 65 - yes", then "Go ahead with Q65".
+  **Built** (commit 5317661; "Q65 built; Q47 retired"): `src/core/fixed-step.js`,
+  used by both games; `tests/fixed-step.test.js` shows a busy clock
+  changes a throw under cannon-es's own step and not under ours.
+  Closed: the game's behaviour is unchanged by design, so nothing to
+  try on the phone for it.
+- **Q47. 3D games: the oldest device it must run smoothly on**
+  (2026-11-07, developer; one of five, Q46-Q50). The developer asked
+  their daughters which devices the kids use; built without waiting
+  ("They play games like minecraft that has a lot of 3D stuff"); the
+  developer's own phone ran 7.0 well both ways. **Retired** 2026-11-10,
+  developer: "Lets retire Q47. They are not getting back to me, so I'll
+  just wait until I hear a complaint." Not proven on the kids' devices;
+  the debug log (WebGL 2 or 1, fps, physics ms, steps dropped) is there
+  if a complaint comes.
 - **Q63. Tin Can Alley: the ball can fly through cans** (2026-11-09,
   found building the block game's mockup; "Block game mockup v1"). The
   cans keep a collision box at the origin until hit (cannon-es works it
@@ -15819,3 +15819,61 @@ tools/offline.js`.
   through a library"), to review with the developer.
 - Claude's localhost server (`tools/serve.js 8123`) still running, for the
   next session's checks; stop it once 9.1 is live.
+
+## 2026-11-10: Q65 built; Q47 retired; release 9.1 prepared
+
+**Developer** (the session that was cut off by the usage limit): "I would
+like to try 9.1 on my phone. Lets retire Q47. They are not getting back
+to me, so I'll just wait until I hear a complaint. Go ahead with Q65. I
+don't recall Q 64. So I am not sure what to answer." That session built
+Q65 and committed it (5317661, pushed) before the cut-off; this one wrote
+it up and prepared 9.1. The localhost server on 8123 had already stopped
+(checked then).
+
+**Q65 built** (`src/core/fixed-step.js`): `fixedStepper(world, STEP, MAX)`
+does what cannon-es 0.20.0's `World.step` does (time short of a step
+carried over, at most 8 steps a call, the rest dropped, `world.time`
+moved on by dt), except that it reads a clock only when handed one. The
+games hand it `performance.now`, so a slow phone still gives up catching
+up as before; the tests hand it none. Both worlds' `step(dt, clock)` use
+it; the screens log `stepsDropped` at a round's (Tin Can Alley) or
+scene's (Topple!) end, beside fps and physics ms. Not kept from cannon-es:
+the bodies' in-between poses for drawing (nothing reads them).
+
+**Tests** (`tests/fixed-step.test.js`, 6): the stepper's arithmetic (2
+steps a 1/60 s frame, 3/4-step frames give 0,1,1,1, a 0.2 s frame 8
+taken and 16 dropped); with no clock the clock is never read (a clock
+that throws); with a busy one (20 ms a read) 1 step taken, 3 dropped. For
+each game, a real throw (Tin Can Alley: pyramid of 6, power 0.4; Topple!:
+game 12345 scene 3, 10° up, 3 of 7 down) comes out the same under a busy
+clock, while cannon-es's own step under that clock gives different poses
+(asserted in the test, so the test shows the old way fails it); and given
+the clock, ours matches cannon-es's own step pose for pose, busy or not
+(the game's behaviour kept). Also shown in the cut-off session: with
+cannon-es's step put back inside the stepper, the Topple! check failed.
+
+**Q47 retired; Q65 closed** (both to Resolved). **Q64** stays open,
+explained to the developer again: whether Topple!'s scenes are too hard;
+a test player with perfect aim clears 21 of 30 scenes (the arch 6 of 11);
+nothing to answer until it's been played.
+
+**Release 9.1 prepared, not published:** `src/core/release.js` 9.1, `node
+tools/offline.js` (version 410af978607d, 136 files), notes in
+`RELEASES.md` (the leafy bushes and trees, a ball into a bush drops,
+trees on the left; Q65 not listed: nothing a player sees), `node
+tools/release.js`: "Release 9.1 is ready". DESIGN.md "3D games": Q47
+retired, the stepping. **Suite:** 541 tests, all pass (`npm test`).
+
+## 2026-11-10: Status (start here next session)
+
+- **On `block-game`, ready to publish as 9.1** with the developer's OK:
+  Topple!'s leafy bushes and branched trees, trees on the left, a ball
+  into a bush drops; Q65's stepping. Live: 9.0.
+- **Next:** on "publish": merge to `main`, push, tag `v9.1`, GitHub
+  release (`node tools/release.js notes`), check github.io serves
+  410af978607d. Then the developer tries 9.1 on the phone: the look, the
+  bush drop, the fps and `stepsDropped` in the scene's end log, and Q64.
+- **Open questions:** Q64.
+- **Skill:** one proposal waiting ("Tests don't read the clock, even
+  through a library"), to review with the developer.
+- No localhost server running.

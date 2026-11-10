@@ -7,6 +7,18 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 9.1 (2026-11-10, version 410af978607d)
+
+Topple!: a leafier park.
+
+- **Bushes look like bushes**, full of leaves, not smooth green balls.
+- **Trees have branches**, each ending in a leafy clump, and the trees
+  far off are leafy too.
+- **A ball thrown into a bush drops** to the ground under it, as a real
+  ball would, instead of bouncing off.
+- **Trees stand only on the left** of the throw, so a tree is never in
+  front of the blocks in the side view (it used to be drawn faded there).
+
 ## 9.0 (2026-11-10, version 671d399e01fa)
 
 A new game: **Topple!**, knock blocks down with a slingshot in a 3D park
