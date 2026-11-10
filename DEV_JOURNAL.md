@@ -38,14 +38,11 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
-- **Check from where the user stands** (2026-11-09, from "Block game mockup
-  v5"; section 3 or 4). An automatic check of what's possible must also
-  check what the user can see or reach from their own position. *Evidence:*
-  a layout check that scanned the throws from the slingshot passed a bush
-  that hid the whole stack from the camera (the ball could still be lobbed
-  onto it). 2026-11-10: the developer met the same thing on their phone
-  (a tree hid most of the stack; "Mockup v5 tried; levels ..."). Waiting
-  for the developer's view.
+None waiting. (2026-11-10: "Check from where the user stands" (from
+"Block game mockup v5": a layout check that scanned the throws from the
+slingshot passed a bush that hid the whole stack from the camera) dropped by
+the developer: "very game specific ... I would leave it out"; Claude agreed,
+see "Mockup v7 tried".)
 
 Earlier: (2026-11-10: "Compare versions with one test run on both" (from
 "Block game mockup v7": v6's notes said a test player cleared 13 of 14
@@ -15390,5 +15387,38 @@ browser tool, so one choice per call.
 
 **Open questions:** Q63, Q47. None new.
 
-**Skill additions:** one proposed ("Check from where the user stands");
-"Compare versions with one test run on both" added (commit 87a6824).
+**Skill additions:** none waiting ("Compare versions with one test run on
+both" added, commit 87a6824; "Check from where the user stands" dropped).
+
+## 2026-11-10: Mockup v7 tried: no stuck blocks; the side view's aiming backwards
+
+**The developer on v7** (on the desktop, with a mouse; the phone only sees
+what's published): "not more problems with blocks getting stuck." One
+problem: "the aiming using side view seemed counter-intuitive. I move my
+mouse down to make it aim higher and I move my mouse left to make it go
+further."
+
+**Why:** v6's side view aims as a slingshot is pulled: back (left, away from
+the structure) and down, and the ball goes the other way. The front view aims
+the other way round: drag where to throw ("D", agreed in v3-v4), up for
+higher. So the two views disagree.
+
+**Proposed for v8** (waiting for the developer): the side view aims as the
+front view does, **drag the way the ball should go**: the drag's direction
+sets how high (straight right: flat; up: up to 70°), its length how hard. The
+pull-back kept as a choice beside it, to compare on the phone (a finger may
+feel different from a mouse), the new way first.
+
+**The skill addition "Check from where the user stands" dropped** (developer:
+"That open question sounds very game specific ... I would leave it out").
+Claude agreed: its general part (check what the user can see, not only what
+the system can do) is mostly "Trust running the real thing" and "Check a
+screen after every way into it" already; the rest is this game's. The lesson
+stays in "Block game mockup v5". The developer asked whether aim-and-shoot
+games (this one, Tin Can Alley) should have their own skill. Claude's view:
+not yet; what they share is this project's, so it belongs in DESIGN.md's "3D
+games" section (for example: physics bodies need their boxes refreshed,
+Q63's cause; nothing a falling thing can lean on; the camera fitted to what
+matters). A separate skill pays off only when another project would load it.
+
+**Open questions:** none new. Q63, Q47 unchanged.
