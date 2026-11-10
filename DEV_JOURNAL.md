@@ -14608,3 +14608,57 @@ explanation is not my goal. I want it to be intuative."
   label read "Up 45°".) So **no numbers on the screen**: no degrees, no
   speed; v2's "Speed and angle numbers" switch goes too. Angles and speeds
   stay in the debug line and the log only.
+
+## 2026-11-09: Block game mockup v3: one drag, C or D
+
+**Developer:** "Yes, build v3"
+
+**Mockup v3** ([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+the same link, version 3; from v2's file): the slider and the numbers
+readout gone; nothing on the screen but the stage, the score pills and a
+hint ("Pull back, then let go" / "Drag to aim, then let go"). Defaults are
+the agreed ones: Medium dots, over the shoulder, Far. **Slingshot switch:**
+- **C, pull back:** how far down = how hard; sideways aims the other way;
+  how high is the game's, **per puzzle**.
+- **D, point:** up = higher (flat to 70° over 40% of the stage); sideways
+  aims the same way; how hard is the game's, per puzzle. A drag under 3%
+  of the stage throws nothing (a tap).
+
+**Tuning (at Far, from scans of the paths: power by 0.025-0.05, angle by
+2-4°, aim by 0.1; a hit = the first touch a block, or the board then a
+block; one path ~0.5 ms after the first, 9 ms):**
+- **C: no one angle suits all three.** Over the net needs 52° or more (the
+  net is 3.2 m at Far, the hand 1.25 m): 0 hits at 20-48°, 6-9 at 52-64°.
+  The bank shot does best low: 16 at 20°, 3 at 52°, 0 at 64°. The arch
+  works at any angle, most at 24° (85). Set: **arch 32°, net 60°, bank
+  24°**.
+- **D's strength:** arch at 0.5 gives both flat shots and lobs (15 hits
+  under 35°, 38 at 35° and over; up 26-68°); the net at 0.5 (18, all lobs
+  50-64°); the bank at 0.55 (3 low, 17 high). Set: **0.5, 0.5, 0.55**.
+- **How much room a finger has** (phone stage 343 px; the drags that hit,
+  at the middle's sideways spot):
+
+  | Puzzle | C: the pull's band | D: the up-drag's band |
+  |---|---|---|
+  | Arch | 24 px (68-92 down) | 84 px (51-135 up) |
+  | Over the net | **8 px** (72-80) | 30 px (95-125) |
+  | Bank shot | 22 px (100-122), sideways 28 px | 60 px (61-121), sideways 136 px |
+
+  C's net is narrower than a fingertip: a steep fixed angle turns a small
+  change in pull into a big change in distance. D is roughly 3-4× as
+  forgiving everywhere.
+- **Real throws** from the middle of each band (drag, 6 s): all six hit as
+  the path said, first touch 0-3 cm (the board 0 cm, the block after it
+  7-8 cm). Blocks off: C arch 5/6, net 4/5, bank 3/4; D arch 1/6 (a 27°
+  shot at the red cube), net 4/5, bank 1/4.
+
+Checked as v2 (served on 8130, the temporary `.claude/launch.json` entry
+removed after; 375 × 812): no slider or numbers on the page, the hint per
+control, no console errors, no sideways scroll; screenshot of D on Over the
+net: the dots climb over the net toward the tower.
+
+Not checked: a phone, a finger, sound.
+
+**For the developer to judge:** C or D (Claude's expectation from the
+bands: D is easier to land, C more familiar); then the rest of the list
+(side cut, nets or walls, balls, the puzzles).
