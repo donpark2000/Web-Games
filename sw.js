@@ -20,7 +20,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '7ea9d21fd880';
+const VERSION = '47c5bbca6406';
 const MADE = '2026-11-10';
 const RELEASE = '9.0';
 const FILES = [
@@ -82,6 +82,7 @@ const FILES = [
   'src/core/fit.js',
   'src/core/five-dice-best.js',
   'src/core/five-dice.js',
+  'src/core/fixed-step.js',
   'src/core/follow-me.js',
   'src/core/hidden-faces.js',
   'src/core/laser-lab.js',

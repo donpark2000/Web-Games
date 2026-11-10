@@ -133,7 +133,7 @@ let view = 'front';     // 'front' (from behind) or 'side'
 let camViews = null;    // { front, side } for the park's shape and the scene
 let aspect = 0.75;
 let shot = null;        // the latest throw: { body, at, pred, touches, last }
-const perf = { frames: 0, physMs: 0, at: 0 };
+const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
 
 function showPlay() {
   $('setup').hidden = true;
@@ -225,7 +225,7 @@ async function startScene(kept = null) {
   fit();
   $('hint').textContent = 'Drag to aim, then let go';
   $('hint').hidden = round.used > 0;
-  perf.frames = 0; perf.physMs = 0; perf.at = performance.now();
+  perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
   renderTally();
   const L0 = current.layout;
   L(kept ? 'scene picked up again' : 'scene', {
@@ -354,8 +354,9 @@ function frame(now) {
 function tick(dt, draw = true) {
   if (!round || busy) return;
   const t0 = performance.now();
-  const { down, fell } = world.step(dt);
+  const { down, fell, dropped } = world.step(dt, () => performance.now());   // a slow phone drops steps (Q65)
   perf.physMs += performance.now() - t0;
+  perf.dropped += dropped;
   perf.frames++;
   for (const b of fell) L('block down', { c: b.c, t: r2(round.t) });
   const { downChanged, ended: result } = update(round, dt, { down, still: world.still() });
@@ -401,7 +402,7 @@ function endScene(result, quiet = false) {
   settled = { round: JSON.parse(JSON.stringify(round)), poses: world.poses() };
   showEnd();
   const secs = (performance.now() - perf.at) / 1000;
-  L('scene over', { ...result, outcome, was, now: { ...game }, fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)) });
+  L('scene over', { ...result, outcome, was, now: { ...game }, fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped });
   if (!quiet) sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
 }

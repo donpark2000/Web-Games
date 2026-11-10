@@ -89,7 +89,7 @@ let world = null;       // the physics
 let running = false, last = 0;
 let drag = null;        // { id, x0, y0, x, y } while a finger is down
 let firstHit = false;   // the ball has touched a can this round (logged once)
-const perf = { frames: 0, physMs: 0, at: 0 };
+const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
 
 function showPlay() {
   $('setup').hidden = true;
@@ -154,7 +154,7 @@ function startRound(next = true) {
   $('over').hidden = true;
   $('ask').hidden = true;
   $('hint').hidden = false;
-  perf.frames = 0; perf.physMs = 0; perf.at = performance.now();
+  perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
   renderTally();
   L('round', { n: match.rounds, layout: match.layout, cans: match.round.total, balls: BALLS });
   resume.keep();
@@ -240,8 +240,9 @@ function frame(now) {
 
 function tick(dt, draw = true) {
   const t0 = performance.now();
-  world.step(dt);
+  world.step(dt, () => performance.now());   // a slow phone drops steps (Q65)
   perf.physMs += performance.now() - t0;
+  perf.dropped += world.stepped.dropped;
   perf.frames++;
   const before = match.round.since;
   const { offChanged, ended } = update(match, dt, { off: world.offCount(), still: world.still() });
@@ -282,7 +283,7 @@ function endRound(result, quiet = false) {
   $('over').hidden = false;
   if (quiet) return;
   const secs = (performance.now() - perf.at) / 1000;
-  L('round over', { ...result, cleared: match.cleared, rounds: match.rounds, fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)) });
+  L('round over', { ...result, cleared: match.cleared, rounds: match.rounds, fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped });
   sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
 }

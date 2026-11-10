@@ -9,6 +9,7 @@
 
 import * as CANNON from '../vendor/cannon-es/cannon-es.js';
 import { SHELF, CAN, BALL, HAND, GRAVITY, STALL_BOXES, layoutSpots, isOff } from './tin-can-alley.js';
+import { fixedStepper } from './fixed-step.js';
 
 export const STEP = 1 / 120;     // the physics' fixed step (s)
 export const MAX_SUBSTEPS = 8;
@@ -43,7 +44,8 @@ export function createStall({ onHit = () => {} } = {}) {
     world.addBody(b);
   }
 
-  let cans = [], balls = [], time = 0, hits = 0;
+  const advance = fixedStepper(world, STEP, MAX_SUBSTEPS);
+  let cans = [], balls = [], time = 0, hits = 0, stepped = { steps: 0, dropped: 0 };
   const kindOf = body => body.kind ?? 'stall';
   const wakeCans = () => { for (const c of cans) c.wakeUp(); };
 
@@ -102,9 +104,11 @@ export function createStall({ onHit = () => {} } = {}) {
     return body;
   }
 
-  // dt s on, in fixed steps. Returns the balls taken away.
-  function step(dt) {
-    world.step(STEP, dt, MAX_SUBSTEPS);
+  // dt s on, in fixed steps (fixedStepper: clock the game's, to give up
+  // catching up when out of time; none in the tests, every step). Returns
+  // the balls taken away; `stepped` has the last call's steps and dropped.
+  function step(dt, clock = null) {
+    stepped = advance(dt, clock);
     time += dt;
     const gone = [];
     for (let i = balls.length - 1; i >= 0; i--) {
@@ -125,6 +129,7 @@ export function createStall({ onHit = () => {} } = {}) {
     get balls() { return balls; },
     get time() { return time; },
     get hits() { return hits; },
+    get stepped() { return stepped; },
     setCans,
     throwBall,
     step,

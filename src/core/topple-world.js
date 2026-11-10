@@ -13,6 +13,7 @@ import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel, sideView,
   sceneParts, makeLayout, sceneSeed, sceneOpts, isDown,
 } from './topple.js';
+import { fixedStepper } from './fixed-step.js';
 
 export const MAX_SUBSTEPS = 8;
 export const BALL_LIFE = 10;                         // a thrown ball is taken away after this long (s), or once under the ground
@@ -79,6 +80,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   ground.kind = 'ground';
   world.addBody(ground);
 
+  const advance = fixedStepper(world, STEP, MAX_SUBSTEPS);
   let statics = [], blocks = [], balls = [], time = 0, parts = null;
   const kindOf = body => body.kind ?? 'ground';
   const asleep = b => b.sleepState === CANNON.Body.SLEEPING;
@@ -187,10 +189,12 @@ export function createWorld({ onHit = () => {} } = {}) {
     return body;
   }
 
-  // dt s on, in fixed steps; balls past their time taken away. Returns how
-  // many blocks are down (each, once down, stays down) and the newly down.
-  function step(dt) {
-    world.step(STEP, dt, MAX_SUBSTEPS);
+  // dt s on, in fixed steps (fixedStepper: clock the game's, to give up
+  // catching up when out of time; none in the tests, every step); balls past
+  // their time taken away. Returns how many blocks are down (each, once down,
+  // stays down), the newly down, and the steps taken and dropped.
+  function step(dt, clock = null) {
+    const { steps, dropped } = advance(dt, clock);
     time += dt;
     for (let i = balls.length - 1; i >= 0; i--) {
       const b = balls[i].body;
@@ -198,7 +202,7 @@ export function createWorld({ onHit = () => {} } = {}) {
     }
     const fell = [];
     for (const b of blocks) if (!b.down && isDown(quatOf(b.body), b.body.position.y, b.start.y, b.minDim)) { b.down = true; fell.push(b); }
-    return { down: blocks.filter(b => b.down).length, fell };
+    return { down: blocks.filter(b => b.down).length, fell, steps, dropped };
   }
 
   /* ---------- the path ahead ---------- */
