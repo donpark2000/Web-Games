@@ -15257,3 +15257,30 @@ off, whatever it leaned on.
   bush further out still matters and the bank shots still work.
 
 **Open questions:** none new. Q63, Q47 unchanged.
+
+## 2026-11-10: Status (start here next session)
+
+**Where things are:** the block game is at **mockup v6**
+([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+version 6). The developer tried it: the jewels, the hearts and the side view
+all worked. One problem: a block stuck upright against the backboard's pole
+(entry above, with why).
+
+**Next: make mockup v7** with the fix proposed in the entry above (the
+developer: "I'll start a new session and you can make V7 there"): nothing on
+the ground within reach of a falling block (the tallest block's height plus 10
+cm), the backboard behind hung from an arm, and the perfect-aim player run
+again. Then the developer tries v7.
+
+**How to work on the mockup:** as in the status entry before this one ("Status
+(start here next session)", earlier today): read the artifact, strip the
+viewer's first and last lines, the scratchpad server on 8130 with a temporary
+`launch.json` entry, the test hook (`scene(i)`, `skip()`, `view()`, `hold()`,
+`inside()`), and the player that aims only at blocks still standing.
+
+**Also on this branch, not published:** Q63's Tin Can Alley fix (commit
+62fb198) for release 9.0.
+
+**Open questions:** Q63, Q47. None new.
+
+**Skill additions:** one proposed ("Check from where the user stands").
