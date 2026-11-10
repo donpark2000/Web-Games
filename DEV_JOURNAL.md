@@ -15101,3 +15101,129 @@ in at least one view, and a rough frame of 5 scenes, 3 hearts and jewels (the
 5th scene harder).
 
 **Open questions:** none new. Q63, Q47 unchanged.
+
+## 2026-11-10: Block game mockup v6: level 1, scenes, hearts, jewels, a side view
+
+**Mockup v6** ([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+the same link, version 6; from v5's page).
+
+**What it is:**
+- **Level 1, 5 scenes.** Clear a scene (every block down) with 5 balls: a 💎 and
+  on to the next. Run out: a ❤️ lost and the same scene again; the 3rd heart
+  lost: back to scene 1 with 3 hearts and no jewels, **the same scenes**. All 5
+  jewels: "Level 1 done!", and a tap starts a new game (level 2 isn't in the
+  mockup). **New game** makes new scenes; nothing else does.
+- **Saved on the device** (`block-game-v6-progress`: the game's seed, level,
+  scene, hearts, jewels), as each scene ends; a reload starts the scene reached.
+  Each scene's seed comes from the game's seed, the level and the scene's
+  number; a layout the check throws away moves on to the next try's seed, so a
+  scene comes out the same every time (the check's side camera is worked out at
+  a fixed screen shape for this).
+- **Scenes 1-4** one thing in the way and a smaller structure (arch, posts,
+  pyramid); **scene 5** two things and a bigger one (a two-storey tower, a fence
+  of four posts).
+- **On the ground, knocked down.** No table. **A block is down** once tipped
+  more than 45° or dropped more than 0.6 of its smallest side; once down it
+  stays counted. Every block on the ground is upright (taller than deep), so a
+  hit can tip it. All sizes 1.5× v5's.
+- **The side view**, a button on the stage (Side view / Front view), any time:
+  from the right, looking across the throw and a little forward (25°), so the
+  slingshot is on the left and the structure's front shows at a slant. **Pull
+  back** (left and down) and let go: the pull's direction sets how high (0-70°),
+  its length how hard (0.4-1.15 times the front view's throw), straight at the
+  structure. A tree on the camera's side is see-through in this view. The dots
+  are drawn 4× bigger there (the camera is 10+ m off).
+- Choices: what the side view shows (**the whole way** from the slingshot, or
+  **close up** on the structure), the side view's dots (Medium or to the first
+  touch), which things (to try each), sound. What v1-v5 settled is fixed:
+  Medium dots in front, over the shoulder, Far, stay behind, 5 balls. **Skip
+  scene (mockup only)** counts a scene as cleared, to get to scene 5.
+- **The layout check, changed:** "too little shows" now means in **both** views
+  (in one view or the other every block at least partly seen, a third wholly;
+  v5: half the blocks, front view only). The rest as v5.
+
+**Found while building** (each measured in the built-in browser at 375 × 812):
+- **The bush hid two thirds of a structure** (screenshot: a pyramid behind it,
+  only its top three cubes seen): v5's least height, 0.45 m, was for stacks on
+  tables. Now 0.3 m, its leafy balls sized to it.
+- **Not one block down in 20 throws that hit** (the log: the ball touched a
+  cube within 2 cm of the path; the cube moved 5 cm). At 1.5× size the blocks
+  weighed 3.4 times v5's (a lintel 15 kg, the ball 2 kg). Density 27 instead of
+  90 gives v5's weights: then 34 of 47 blocks down in 8 scenes.
+- **The block left standing** in 10 of the 12 scenes a perfect-aim player
+  didn't clear (of 14): **the short upright in the middle, under the arch's and
+  the posts' plank**, as v5's middle cube, shielded by the blocks fallen in
+  front of it. Taken out (the posts got a second cube on top instead): 9 of 14
+  cleared.
+- **The test player wasted balls on fallen blocks** (it picked any throw whose
+  path hit a block). Picking only throws at blocks still standing, as a person
+  would: **13 of 14 cleared, 2.2 balls each**. The 14th (0 of 5 down) cleared in
+  1 ball when replayed; not pinned down.
+- **A full pull in the side view went twice the structure's distance** (32°,
+  12.5 m against 6 m): the strongest pull cut from 1.3 to 1.15 times the front
+  view's throw.
+
+**Checked:**
+- **Real scenes** (as the game makes them, checked), the perfect-aim player:
+  scenes 1-4 **8 of 8 cleared** (1-5 balls); scene 5 **6 of 8** (2 left 3 of 8
+  and 3 of 7 down); 7 of the 8 scene 5s got two things (one found no room for
+  its second). Made in 61-341 ms, 1-2 tries.
+- **The flow:** Skip → "Scene cleared! 💎", the HUD 💎○○○○; 5 balls into the
+  ground → "Out of balls 💔 2 hearts left", the same scene's seed again; the 3rd
+  heart → "No hearts left / Back to scene 1", progress `scene 1, hearts 3,
+  jewels 0`, and the same scene 1 as before; scene 5 skipped → "Level 1 done!";
+  the tap → a new game seed. A reload at scene 2 with 2 hearts came back to
+  the same scene with 2 hearts and 1 jewel.
+- **Screenshots:** the front view (the arch and a bush, now lower); scene 5
+  from the front (a fence, a tree's trunk hiding its right half: what the side
+  view is for) and the same from the side, close up (the whole fence, the trunk
+  see-through, the dots coming in from the left); the side view "the whole
+  way": the slingshot left, the structure right, small at phone width.
+- No console errors, no sideways scroll.
+
+**Not right yet / for the developer to judge:**
+- **The side view at phone width is small** "the whole way" (the structure
+  about 60 px tall); close up shows it big but not the slingshot. Which, and
+  whether the slant (25°) reads.
+- The perfect-aim player clears nearly everything; a child won't. **How hard it
+  is for a person** is the real test (and whether 5 balls is right with this).
+- Whether scene 5 is harder enough; the 1.5× structures; the look of the
+  see-through tree.
+- Not checked: a phone, a finger (the side view's pull especially), sound.
+
+**Open questions:** none new. Q63, Q47 unchanged.
+
+## 2026-11-10: Status (start here next session)
+
+**Where things are:** the block game is at **mockup v6**
+([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+version 6): level 1 with 5 scenes, 3 hearts and jewels, structures on the
+ground knocked down, a side view to switch to any time (entry above). The plan
+agreed today ("Mockup v5 tried; levels ..."): levels of 5 scenes, each level a
+theme; level 1 first, then one level per release.
+
+**Next:** the developer tries v6 and gives verdicts (the list in the entry
+above: the side view's fit and slant, how hard for a person, scene 5, the
+sizes, the see-through tree); then v7 or the build of level 1.
+
+**How to work on the mockup** (as in "Status", 2026-11-09, with these changes):
+- The scratchpad server wraps the page in the viewer's skeleton, read fresh per
+  request (`node:http`, ~15 lines), with a temporary `.claude/launch.json`
+  entry on 8130, removed after (`launch.json` is tracked).
+- Test hook `window.blocks`, new in v6: `scene(i)` (scene i of the game, its
+  jewels and hearts reset), `skip()`, `newGame()`, `view('side' | 'front')`,
+  `progress()`, `isDown()`, `hold(dx, dy)` and `letGo()` (a drag held, for a
+  screenshot of the dots); `layout(seed)` uses the given layout even if the
+  check would throw it away. The perfect-aim player must pick throws whose path
+  first touches a block **still standing** (`inside()`: `trace`, `obstacles`,
+  `blocks[i].down`); picking any block wastes balls on fallen ones.
+- The built-in browser's screenshot can be a frame behind after a hook call;
+  take it again.
+
+**Also on this branch, not published:** Q63's Tin Can Alley fix (commit
+62fb198) for release 9.0, the block game's first.
+
+**Open questions:** Q63 (fixed on the branch, for 9.0), Q47. None new.
+
+**Skill additions:** one proposed ("Check from where the user stands"; the
+developer met the same case on v5).
