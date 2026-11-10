@@ -54,6 +54,24 @@ body.tp-playing .site-foot { display: none; }
   background: rgba(18, 30, 42, .8); color: #FFFFFF; border-radius: 999px; padding: 5px 11px;
   font-size: 15px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums;
 }
+/* the drag pad (journal, "9.2 on the phone; home pictures and aiming"):
+   placed and sized by src/ui/topple.js (padSpot); the touch goes through it
+   to the park. Faint while a ball's in flight. The finger that shows it: a
+   see-through 👆 whose tip is where the drag is. */
+.pad {
+  position: absolute; z-index: 1; display: grid; place-items: center; border-radius: 50%; pointer-events: none;
+  background: rgba(255, 255, 255, .5); box-shadow: 0 0 0 3px rgba(30, 52, 69, .55), inset 0 0 0 3px #FFFFFF;
+  transition: opacity .25s;
+}
+.pad[hidden] { display: none; }
+.pad span { line-height: 1; }
+.pad.wait { opacity: .3; }
+.ghost {
+  position: absolute; z-index: 2; pointer-events: none; line-height: 1; transform: translate(-50%, -6%);
+  filter: drop-shadow(0 2px 3px rgba(30, 52, 69, .5));
+}
+.ghost[hidden] { display: none; }
+
 /* at the park's foot: the view switch, and the hint until the first throw */
 .viewbtn {
   position: absolute; right: 8px; bottom: 8px; min-height: 44px; padding: 8px 14px; border-radius: 999px;

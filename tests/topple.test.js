@@ -8,6 +8,7 @@ import {
   HAND, CAM, SCALE, MAX_UP, MAX_AIM, R2D, BALLS, SCENES, HEARTS, STACKS, SIZE, KINDS, READY_AFTER, END_WAIT, END_MAX,
   makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, sideDrag, launchVel, isDown, createGame, readGame, sceneOver,
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, sideView, dotScaleFor, checkSetup, rng,
+  PAD, DEMO, DEMO_UPS, padSpot, dragFrom, demoDrag, demoAt,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -159,6 +160,72 @@ test('topple: from the side, drag the way the ball goes: its direction how high,
   const v = p => 2 + p * 8;
   near(v(sideDrag(0.4 * size, 0, size, 0.5, stand).power) / v(0.5), 1.15, 1e-9, 'full');
   assert.equal(sideDrag(10, 0, size, 0.5, stand).ok, false, 'a short drag threw');
+});
+
+// The drag pad (journal, "9.2 on the phone; home pictures and aiming", Q67).
+test('topple: the drag pad sits low, on the right from behind and the left from the side, inside the park', () => {
+  let checked = 0;
+  // an upright phone's park (393 x 760 screen), a sideways one, a tablet's
+  for (const [w, h] of [[377, 592], [760, 377], [740, 900]]) {
+    const s = Math.min(w, h), f = padSpot('front', w, h), sd = padSpot('side', w, h);
+    for (const p of [f, sd]) {
+      assert.ok(p.x - p.r >= 0 && p.x + p.r <= w && p.y - p.r >= 0 && p.y + p.r <= h, `${w}x${h}: the pad runs off the park`);
+      assert.ok(p.y > h / 2, `${w}x${h}: the pad isn't low`);
+      // over the park's foot: the view switch (44 px tall, 8 px up) and the hint
+      assert.ok(p.y + p.r <= h - 56, `${w}x${h}: the pad is over the view switch or hint`);
+      checked++;
+    }
+    assert.ok(f.x > w / 2 && sd.x < w / 2, `${w}x${h}: front on the right, side on the left`);
+    // room to drag: from behind 0.4 of s up; from the side 0.3 of s to the right
+    assert.ok(f.y - 0.4 * s >= 0 && sd.x + 0.3 * s <= w, `${w}x${h}: no room for a full drag`);
+  }
+  assert.equal(checked, 6);
+  assert.equal(padSpot('front', 200, 200).r, PAD.rMin, 'a small park: the smallest pad');
+  assert.equal(padSpot('front', 2000, 1500).r, PAD.rMax, 'a big park: the biggest pad');
+  assert.equal(padSpot('front', 0, 500), null, 'a park of no size');
+});
+
+test('topple: where a drag started: the pad, the ball, or elsewhere', () => {
+  const pad = { x: 300, y: 450, r: 38 }, ball = { x: 80, y: 500 };
+  assert.equal(dragFrom(300, 450, pad, ball), 'pad');
+  assert.equal(dragFrom(300 + 38 * 1.25, 450, pad, ball), 'pad', 'just off its edge still counts');
+  assert.equal(dragFrom(300 + 38 * 1.4, 450, pad, ball), 'elsewhere');
+  assert.equal(dragFrom(100, 520, pad, ball), 'ball');
+  assert.equal(dragFrom(200, 200, pad, ball), 'elsewhere');
+  assert.equal(dragFrom(200, 200, null, null), 'elsewhere', 'before the park is drawn');
+});
+
+test('topple: the pad\'s show: a finger drags from it twice, the dots following, aimed at the structure', () => {
+  const size = 377, stand = { x: 0.6, z: -5.6 };
+  const to = demoDrag('front', size, stand), d = frontDrag(to.dx, to.dy, size, 0.5);
+  near(d.up, 30, 1e-9, 'up');
+  near(d.aim * MAX_AIM, Math.atan2(stand.x - HAND.x, HAND.z - stand.z) * R2D, 1e-9, 'aimed at the structure');
+  assert.ok(d.ok);
+  assert.equal(frontDrag(...Object.values(demoDrag('front', size, { x: 50, z: -1 })), size, 0.5).aim, 1, 'far off to one side: full aim');
+  const side = sideDrag(...Object.values(demoDrag('side', size, stand)), size, 0.5, stand);
+  near(side.up, 35, 1e-9, 'side: up');
+  assert.ok(side.ok && side.pull === 0.75, 'side: three quarters as hard');
+  // the other angles tried, for a show whose path touches a block first
+  for (const v of ['front', 'side']) {
+    assert.equal(DEMO_UPS[v][0], v === 'side' ? 35 : 30);
+    for (const up of DEMO_UPS[v]) {
+      const t = demoDrag(v, size, stand, up), dd = v === 'side' ? sideDrag(t.dx, t.dy, size, 0.5, stand) : frontDrag(t.dx, t.dy, size, 0.5);
+      near(dd.up, up, 1e-9, `${v} ${up}°`);
+      assert.ok(dd.ok, `${v} ${up}°: too short to throw`);
+    }
+  }
+  // the finger over time: fades in at the pad, moves, holds, fades; the gap; again; done
+  assert.deepEqual(demoAt(0, to), { dx: 0, dy: 0, alpha: 0, dots: false });
+  const mid = demoAt(DEMO.in + DEMO.move / 2, to);
+  near(mid.dy, to.dy / 2, 1e-9, 'half way');
+  assert.ok(mid.dots && mid.alpha === 1);
+  assert.deepEqual(demoAt(DEMO.in + DEMO.move + 0.1, to), { ...to, alpha: 1, dots: true });
+  const cycle = DEMO.in + DEMO.move + DEMO.hold + DEMO.out + DEMO.gap;
+  assert.equal(demoAt(cycle - 0.1, to).alpha, 0, 'the gap');
+  assert.deepEqual(demoAt(cycle + DEMO.in + DEMO.move + 0.1, to), { ...to, alpha: 1, dots: true }, 'the second time');
+  assert.equal(demoAt(cycle * DEMO.times - DEMO.gap, to), null, 'done after the second');
+  assert.equal(demoAt(-1, to), null);
+  assert.equal(demoAt(NaN, to), null);
 });
 
 test('topple: the throw\'s speed is √2 times the Near speed; up and sideways turn it', () => {

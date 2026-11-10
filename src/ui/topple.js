@@ -17,6 +17,7 @@
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, frontDrag, sideDrag, launchVel, dotsFor, behindView, sideView, dotScaleFor, sceneParts, END_WAIT,
+  padSpot, dragFrom, demoDrag, demoAt, DEMO_UPS,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -133,6 +134,8 @@ let view = 'front';     // 'front' (from behind) or 'side'
 let camViews = null;    // { front, side } for the park's shape and the scene
 let aspect = 0.75;
 let shot = null;        // the latest throw: { body, at, pred, touches, last }
+let pad = null;         // the drag pad: { x, y, r } px in the park, for the view shown
+let demo = null;        // the pad's show as a scene starts: { t } s, until a finger touches
 const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
 
 function showPlay() {
@@ -148,6 +151,7 @@ function showSetup() {
   running = false;
   playing = false;
   drag = null;
+  stopDemo();
   $('play').hidden = true;
   $('setup').hidden = false;
   document.body.classList.remove('tp-playing');
@@ -181,16 +185,39 @@ function fit() {
   if (!current) return;
   camViews = { front: behindView(aspect, current.parts), side: sideView(aspect, current.parts) };
   placeCamera();
+  placePad();
   const key = `${w}x${h} ${current.layout.seed}`;
   if (key === lastFit) return;
   lastFit = key;
   L('fit', {
-    park: `${w}x${h}`, fov: r2(camViews.front.fov), by: camViews.front.by, sideFov: camViews.side.fov, sideDist: r2(camViews.side.dist),
+    park: `${w}x${h}`, fov: r2(camViews.front.fov), by: camViews.front.by, sideFov: camViews.side.fov, sideDist: r2(camViews.side.dist), pad,
     screen: `${innerWidth}x${innerHeight}`, way: innerWidth > innerHeight ? 'sideways' : 'upright',
   });
 }
 function placeCamera() {
   if (camViews) stage.setCamera(camViews[view]);
+}
+// The drag pad where the view shown puts it (padSpot: away from the dots).
+function placePad() {
+  const box = $('park').getBoundingClientRect();
+  pad = padSpot(view, box.width, box.height);
+  if (demo) demo.to = null;   // the show's drag worked out again for the new size
+  const el = $('pad');
+  el.hidden = !pad;
+  if (!pad) return;
+  Object.assign(el.style, { left: `${pad.x - pad.r}px`, top: `${pad.y - pad.r}px`, width: `${2 * pad.r}px`, height: `${2 * pad.r}px`, fontSize: `${Math.round(pad.r * 0.95)}px` });
+  $('ghost').style.fontSize = `${Math.round(pad.r * 1.25)}px`;
+}
+// The slingshot's ball on the screen, px in the park (for the log's "from").
+function ballPx() {
+  const box = $('park').getBoundingClientRect(), [u, v] = stage.project([HAND.x, HAND.y, HAND.z]);
+  return { x: Math.round(u * box.width), y: Math.round(v * box.height) };
+}
+function stopDemo(why) {
+  if (!demo) return;
+  if (why) L('pad show stopped', { why, t: r2(demo.t) });
+  demo = null;
+  $('ghost').hidden = true;
 }
 
 // The scene the game is at: made from its seed and checked (the same every
@@ -199,6 +226,7 @@ async function startScene(kept = null) {
   if (busy) return;
   busy = true;
   drag = null; shot = null; ended = null;
+  stopDemo();
   $('over').hidden = true;
   $('ask').hidden = true;
   $('hint').hidden = false;
@@ -223,8 +251,10 @@ async function startScene(kept = null) {
   settled = kept?.settled ?? null;
   lastFit = '';
   fit();
-  $('hint').textContent = 'Drag to aim, then let go';
+  $('hint').textContent = HINT;
   $('hint').hidden = round.used > 0;
+  // the pad's show, before the scene's first ball (not on a scene that had ended)
+  if (!round.used && !round.result) demo = { t: 0, t0: performance.now(), to: null };
   perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
   renderTally();
   const L0 = current.layout;
@@ -265,6 +295,7 @@ function renderHud() {
 
 /* ---------- the drag and the throw ---------- */
 
+const HINT = 'Drag from 👆, then let go';
 const parkSize = () => { const b = $('park').getBoundingClientRect(); return Math.min(b.width, b.height); };
 function aimFor(dx, dy) {
   if (!current) return null;
@@ -277,8 +308,13 @@ const ready = () => !!(round && !busy && canThrow(round).ok);
 
 function onDown(e) {
   sound.unlock();
+  stopDemo('a finger');
   if (!ready() || drag) return;
-  drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY };
+  // where it started (the pad, the ball, elsewhere): logged with the throw, to
+  // see whether children start on the pad (Q67)
+  const box = $('park').getBoundingClientRect();
+  const from = dragFrom(e.clientX - box.left, e.clientY - box.top, pad, ballPx());
+  drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, from };
   $('hint').hidden = true;   // out of the dots' way
   try { $('c').setPointerCapture(e.pointerId); } catch { /* an old browser: the drag still works over the canvas */ }
 }
@@ -288,17 +324,17 @@ function onMove(e) {
 function onUp(e) {
   if (!drag || e.pointerId !== drag.id) return;
   drag.x = e.clientX; drag.y = e.clientY;
-  const d = dragNow();
+  const d = dragNow(), from = drag.from;
   drag = null;
   if (!d) return;
   if (!d.ok) {
-    L('drag too short: no throw', { view, up: Math.round(d.up), aim: r2(d.aim) });
+    L('drag too short: no throw', { view, from, up: Math.round(d.up), aim: r2(d.aim) });
     if (!round.used) $('hint').hidden = false;
     return;
   }
-  doThrow(d);
+  doThrow(d, from);
 }
-function doThrow(d) {
+function doThrow(d, from = null) {
   if (!ready()) { L('throw refused', { why: canThrow(round).why ?? 'busy' }); return false; }
   const r = useBall(round);
   const { v, yaw, el, vec } = launchVel(d.power, d.aim, d.up);
@@ -308,7 +344,7 @@ function doThrow(d) {
   $('hint').hidden = true;
   sound.play('whoosh', 0, { level: d.power });
   L('throw', {
-    ball: r.ball, view, speed: r2(v), up: Math.round(el * 180 / Math.PI), aim: Math.round(yaw * 180 / Math.PI), power: r2(d.power), ...(d.pull != null ? { pull: d.pull } : {}),
+    ball: r.ball, view, ...(from ? { from } : {}), speed: r2(v), up: Math.round(el * 180 / Math.PI), aim: Math.round(yaw * 180 / Math.PI), power: r2(d.power), ...(d.pull != null ? { pull: d.pull } : {}),
     toward: aimed.hits.map(h => ({ kind: h.kind, at: h.at.map(r2), t: r2(h.t) })),
   });
   renderTally();
@@ -365,10 +401,46 @@ function tick(dt, draw = true) {
   noteSettled();
   if (!draw) return;
   stage.sync(world.blocks.map(b => b.body), world.balls);
-  const ok = ready(), d = dragNow();
+  const ok = ready();
+  $('pad').classList.toggle('wait', !ok);
+  const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);
   stage.setDots(d && ok && d.show ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0)) : null, camViews ? dotScaleFor(view, camViews.side) : 1);
   stage.render();
+}
+
+// Where the show's drag ends, in the view shown: the first of DEMO_UPS whose
+// path touches a block first (else the first), worked out once a view.
+function demoTarget() {
+  const size = parkSize(), ups = DEMO_UPS[view];
+  let pick = null, tried = 0;
+  for (const up of ups) {
+    tried++;
+    const to = demoDrag(view, size, current.parts.stand, up), d = aimFor(to.dx, to.dy);
+    const first = d ? world.trace(launchVel(d.power, d.aim, d.up).vec, 0).hits[0]?.kind ?? 'nothing' : 'nothing';
+    if (first === 'block') { pick = { ...to, up, first }; break; }
+    if (!pick) pick = { ...to, up, first };
+  }
+  L('pad show', { view, pad, up: pick.up, first: pick.first, tried });
+  return { ...pick, view };
+}
+
+// The pad's show, a frame on: the see-through finger from the pad, and the
+// aim its drag would make (for the dots), or null.
+// On the clock, not the frames (a slow phone's frames are capped at 0.05 s:
+// the finger would crawl).
+function demoFrame() {
+  if (!demo || !pad || !current) return null;
+  demo.t = (performance.now() - demo.t0) / 1000;
+  if (!demo.to || demo.to.view !== view) demo.to = demoTarget();
+  const s = demoAt(demo.t, demo.to);
+  if (!s) { L('pad show done', { view }); stopDemo(); return null; }
+  const g = $('ghost');
+  g.hidden = false;
+  g.style.left = `${pad.x + s.dx}px`;
+  g.style.top = `${pad.y + s.dy}px`;
+  g.style.opacity = String(r2(s.alpha * 0.85));
+  return s.dots ? aimFor(s.dx, s.dy) : null;
 }
 
 // Kept for coming back: the round and the blocks' poses, once no ball is in
@@ -408,6 +480,7 @@ function endScene(result, quiet = false) {
 }
 function showEnd() {
   drag = null;
+  stopDemo();
   renderTally();
   $('hint').hidden = true;
   $('overChip').innerHTML = svg(setup.p1, ended.won ? 'winner' : 'sad');
@@ -425,6 +498,7 @@ $('newBtn').onclick = () => { L('new game: the setup screen'); current = null; r
 $('restartBtn').onclick = () => {
   if (!round || round.result || !round.used) return;
   drag = null;
+  stopDemo();
   L('start again?', { used: round.used, down: round.down });
   $('ask').hidden = false;
   $('restartNo').focus({ preventScroll: true });
@@ -444,8 +518,11 @@ function setView(v) {
   view = v;
   drag = null;
   placeCamera();
+  placePad();
   renderTally();
-  L('view', { view, fov: r2(stage.fov), dotScale: r2(dotScaleFor(view, camViews.side)) });
+  L('view', { view, fov: r2(stage.fov), dotScale: r2(dotScaleFor(view, camViews.side)), pad });
+  // the pad's show again from the start, in this view, while no ball's been thrown
+  if (demo) demo.t0 = performance.now();
 }
 
 /* ---------- coming back to a game ---------- */
@@ -506,7 +583,7 @@ window.topple = {
   state: () => (round ? {
     ...round, game: { ...game }, view, ready: ready(), busy, ended: ended?.outcome ?? null, card: $('over').hidden ? '' : $('overTitle').textContent,
     stack: current?.layout.stack, things: current?.layout.things.map(t => t.kind + (t.where ? ` ${t.where}` : '')), power: current?.layout.power,
-    awake: world.awake(), dots: stage.dotCount(), fov: r2(stage.fov), touches: shot?.touches ?? [],
+    awake: world.awake(), dots: stage.dotCount(), fov: r2(stage.fov), touches: shot?.touches ?? [], pad, demo: demo ? r2(demo.t) : null,
   } : { game: { ...game }, busy }),
   blocks: () => world.blocks.map(b => ({ c: b.c, at: [b.body.position.x, b.body.position.y, b.body.position.z].map(r2), down: b.down })),
   project: p => stage?.project(p),

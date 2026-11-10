@@ -451,6 +451,58 @@ export function sideDrag(dx, dy, size, power, stand) {
   return { power: (v - V_MIN) / (V_MAX - V_MIN), aim, up, pull: +k.toFixed(2), ok: moved >= 0.05, show: moved >= 0.02 };
 }
 
+// The drag pad (developer, 2026-11-10, Q67: a finger that starts on the ball
+// and swipes at the target covers the dots). A round pad with a 👆 to start
+// the drag from, beside the slingshot and away from where the dots go, so the
+// finger and hand move beside them. From behind the ball is low on the left
+// and the dots go up the middle: the pad low on the right. From the side the
+// dots go right across the middle: the pad low on the left, under them. The
+// drag still works from anywhere. In a park w × h px (s its shorter side):
+// the pad's middle and radius, px from the park's top left.
+export const PAD = { front: { fromRight: 0.24, up: 0.27 }, side: { fromLeft: 0.3, up: 0.26 }, r: 0.1, rMin: 30, rMax: 46 };
+export function padSpot(view, w, h) {
+  if (!(w > 0 && h > 0)) return null;
+  const s = Math.min(w, h), r = clamp(PAD.r * s, PAD.rMin, PAD.rMax);
+  const x = view === 'side' ? PAD.side.fromLeft * s : w - PAD.front.fromRight * s;
+  const y = h - (view === 'side' ? PAD.side.up : PAD.front.up) * s;
+  return { x: Math.round(x), y: Math.round(y), r: Math.round(r) };
+}
+// Where a drag started, for the log: 'pad' (on it, or nearly), 'ball' (by
+// the slingshot's ball, px), or 'elsewhere'.
+export function dragFrom(x, y, pad, ball) {
+  if (pad && Math.hypot(x - pad.x, y - pad.y) <= pad.r * 1.3) return 'pad';
+  if (ball && Math.hypot(x - ball.x, y - ball.y) <= 60) return 'ball';
+  return 'elsewhere';
+}
+// The pad shown once a scene starts: a see-through finger drags from it as a
+// throw would, the dots following, twice, until a finger touches the park.
+// `demoDrag` is where its drag ends (px from the pad), `up`° up: from behind
+// aimed at the structure; from the side three quarters as hard as can be.
+// DEMO_UPS are the angles the screen tries, in turn, for a throw whose path
+// touches a block first (a show that hits the bush teaches the wrong thing).
+// `demoAt(t, to)` is the finger at t s: { dx, dy, alpha, dots }, or null once
+// it's done.
+export const DEMO = { in: 0.35, move: 1.2, hold: 0.7, out: 0.35, gap: 1.2, times: 2 };
+export const DEMO_UPS = { front: [30, 25, 35, 20, 40, 45, 15, 50, 55, 60], side: [35, 30, 40, 25, 45, 50, 20, 55, 60] };
+const DEMO_CYCLE = DEMO.in + DEMO.move + DEMO.hold + DEMO.out + DEMO.gap;
+export function demoDrag(view, size, stand, up = DEMO_UPS[view === 'side' ? 'side' : 'front'][0]) {
+  if (view === 'side') { const len = 0.3 * size, a = up / R2D; return { dx: Math.cos(a) * len, dy: -Math.sin(a) * len }; }
+  const aim = clamp(Math.atan2(stand.x - HAND.x, HAND.z - stand.z) * R2D / MAX_AIM, -1, 1);
+  return { dx: aim * 0.35 * size, dy: -(up / MAX_UP) * 0.4 * size };
+}
+export function demoAt(t, to) {
+  if (!(t >= 0) || t >= DEMO_CYCLE * DEMO.times - DEMO.gap) return null;
+  let u = t % DEMO_CYCLE;
+  if (u < DEMO.in) return { dx: 0, dy: 0, alpha: u / DEMO.in, dots: false };
+  u -= DEMO.in;
+  if (u < DEMO.move) { const k = u / DEMO.move, e = k * k * (3 - 2 * k); return { dx: to.dx * e, dy: to.dy * e, alpha: 1, dots: true }; }
+  u -= DEMO.move;
+  if (u < DEMO.hold) return { dx: to.dx, dy: to.dy, alpha: 1, dots: true };
+  u -= DEMO.hold;
+  if (u < DEMO.out) return { dx: to.dx, dy: to.dy, alpha: 1 - u / DEMO.out, dots: false };
+  return { dx: 0, dy: 0, alpha: 0, dots: false };
+}
+
 // The dots: the start of the path, one for every 0.05 s of flight (far apart
 // means fast), for ½ s; where the ball would touch something sooner they
 // stop there, the last one orange. `path` is { hits, pts } (pts every STEP s

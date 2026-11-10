@@ -58,11 +58,15 @@
     </div>
     <div class="park" id="park">
       <canvas id="c" aria-label="A park: a structure of blocks to knock down with a slingshot"></canvas>
+      <!-- the drag pad, beside the dots (the drag works from anywhere), and
+           the finger that shows it as a scene starts -->
+      <div class="pad" id="pad" aria-hidden="true" hidden><span>👆</span></div>
+      <div class="ghost" id="ghost" aria-hidden="true" hidden>👆</div>
       <div class="hud">
         <span class="hudpill" id="hudLevel" role="img" aria-label="Level 1, no jewels yet"></span>
         <span class="hudpill" id="hudHearts" role="img" aria-label="3 hearts"></span>
       </div>
-      <p class="hint" id="hint" aria-live="polite">Drag to aim, then let go</p>
+      <p class="hint" id="hint" aria-live="polite">Drag from 👆, then let go</p>
       <button type="button" class="viewbtn" id="viewBtn">Side view</button>
       <div class="over" id="over" hidden>
         <div class="overcard" role="dialog" aria-labelledby="overTitle">

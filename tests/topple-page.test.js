@@ -94,3 +94,25 @@ test('topple page: logged: 3D start, the fit, each scene, throw, touch, block do
   }
   assert.match(js, /startLog\('topple'\)/);
 });
+
+// The drag pad (journal, "9.2 on the phone; home pictures and aiming", Q67).
+test('topple page: the drag pad and its show: over the park, the touch going through to it, placed by padSpot; where a drag starts logged', () => {
+  assert.match(playHtml, /<div class="pad" id="pad" aria-hidden="true" hidden><span>👆<\/span><\/div>/);
+  assert.match(playHtml, /<div class="ghost" id="ghost" aria-hidden="true" hidden>👆<\/div>/);
+  assert.match(playHtml, /id="hint"[^>]*>Drag from 👆, then let go<\/p>/);
+  assert.match(js, /const HINT = 'Drag from 👆, then let go'/);
+  for (const sel of ['.pad', '.ghost']) {
+    const rule = css.match(new RegExp('\\n\\' + sel + ' \\{[^}]*\\}'))?.[0] ?? '';
+    assert.match(rule, /pointer-events: none/, `${sel} would take the touch from the park`);
+  }
+  assert.match(js, /pad = padSpot\(view, box\.width, box\.height\)/);
+  assert.match(js, /dragFrom\(e\.clientX - box\.left, e\.clientY - box\.top, pad, ballPx\(\)\)/);
+  assert.match(js, /\.\.\.\(from \? \{ from \} : \{\}\)/, 'the throw\'s log line without where the drag started');
+  // the show runs on the clock, stops at a finger, and aims at a block
+  assert.match(js, /demo\.t = \(performance\.now\(\) - demo\.t0\) \/ 1000/);
+  assert.match(js, /function onDown\(e\) \{\s*sound\.unlock\(\);\s*stopDemo\('a finger'\);/);
+  assert.match(js, /if \(first === 'block'\)/);
+  for (const what of ["'pad show'", "'pad show done'", "'pad show stopped'", "'drag too short: no throw', { view, from"]) {
+    assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
+  }
+});

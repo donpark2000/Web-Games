@@ -35,7 +35,9 @@ time, each tried before publishing:
   target, so the finger covers the dots; starting the drag away from the
   path works, but "might not be obvious to kids"). Proposed (same entry):
   a pad to start the drag from, beside the path, and the drag's start
-  logged.
+  logged. 2026-11-10, developer: "I like the drag pad idea"; built on
+  `block-game` and published as the Topple Drag Pad mockup ("Drag pad
+  built; mockup v1"), waiting for the developer to try it.
 
 ## Proposed additions to the standards skill
 
@@ -16265,3 +16267,64 @@ are the only aiming help) and proposes, the drag still working anywhere:
 
 **Waiting for the developer:** which to do first, and whether the two
 proposals are the right direction.
+
+## 2026-11-10: Drag pad built; mockup v1
+
+**Developer:** "I like the drag pad idea. It could be re-usable for
+different levels where we might be shooting different things besides balls
+(arrows, bombs, cutting discs, etc). It could be a concept that 'anchors'
+game play to multiple levels that could look quite different." Claude
+agreed: the gesture learned once stays the same whatever a level throws.
+
+**Measured first** (browser pane, a 393 × 760 phone, the park 377 × 592;
+`topple.project` of the hand): from behind the ball is low on the left
+(86, 596 px) and the dots go up and right across the middle to the
+structure, the path a finger from the ball would take. From the side the
+ball is on the left at mid height (43, 425) and the dots cross the middle;
+the bottom is empty lawn.
+
+**Built** on `block-game` (not published):
+- **Where the pad goes** (`padSpot` in `src/core/topple.js`): low and away
+  from the dots, so the finger moves beside them: from behind on the right
+  (0.24 of the park's shorter side from the right, 0.27 up); from the side
+  on the left (0.3 in, 0.26 up), under the dots. Radius 0.1 of that side,
+  30-46 px. Clear of the view switch and the hint, with room for a full
+  drag (tested on an upright phone, a sideways phone and a tablet).
+- **The drag still works from anywhere**; the pad lets the touch through to
+  the park (`pointer-events: none`). Faint while a ball's in flight. The
+  hint is now "Drag from 👆, then let go".
+- **The show**: as a scene starts (before its first ball), a see-through
+  👆 drags from the pad as a throw would, and the dots and slingshot follow
+  it; twice, then it stops; it stops at once when a finger touches the
+  park, and starts again in the other view if the view is switched first.
+  Its drag ends at the first of a list of angles (from behind 30, 25, 35, 20,
+  40, 45, 15, 50, 55, 60°, aimed at the structure; from the side 35, 30, 40...,
+  three quarters as hard) whose path touches a block first: at a fixed 30°
+  the first try ended orange on the bush, a poor example.
+- **On the clock, not the frames.** In the pane the show crawled: after
+  1.2 s it was at 0.9 s, the frames capped at 0.05 s each as the physics
+  needs. It now runs by `performance.now()`.
+- **Logged**: where each drag started (`from`: pad, ball or elsewhere) on
+  the throw's line and on "drag too short"; the pad's spot on "fit" and
+  "view"; "pad show" (view, the angle picked, what its path touches first,
+  how many tried), "pad show done", "pad show stopped" (by a finger).
+- **Tests**: `tests/topple.test.js` (the pad's spot on three park shapes,
+  where a drag started, the show's path and angles) and
+  `tests/topple-page.test.js` (the elements, the touch passing through, the
+  wiring and log lines). The pass-through check shown to fail with the
+  rule taken out. Suite: 549 tests, all pass; `node tools/offline.js` run.
+
+**Checked in the browser pane** (screenshots): upright, from behind: the
+finger rises from the pad on the right while the dots arc over the bush to
+the blocks, nowhere near it; from the side: the finger moves up and right
+below the dots. Sideways (852 × 393): the same in both views.
+
+**Mockup v1**: [Topple Drag Pad](https://claude.ai/artifact/C3PbCEsxig4pZ1y15eSDxe)
+(private): the real game's files from `block-game`, unchanged; the page is
+`topple.html` without the stats counter, offline worker and manifest. Not
+opened by Claude (the pane isn't signed in to claude.ai). DESIGN.md waits
+for the developer's verdict.
+
+**Waiting for the developer:** try the mockup (the show as a scene starts,
+then dragging from the pad, in both views); then the pad's look and places,
+and whether the show should play on every scene or less often.
