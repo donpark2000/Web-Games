@@ -14817,3 +14817,52 @@ of the list: balls a puzzle (5 or 3), the puzzles themselves.
 
 **Open questions:** none new. Q63 (fixed on the branch, for 9.0), Q47
 unchanged.
+
+## 2026-11-09: Mockup v4 tried: glass; one-answer puzzles too specific; v5 agreed (shuffled scenes)
+
+**Developer:** "Glass panel is better than net. And it helps make bank shots
+playable. But I am wondering if these are too specific. For example, rather
+than a glass panel that requires shot over the panel, maybe something more
+subtle like a tree or a bush covering part of the direct aim but maybe not
+all. And instead of a bank shot where that is the only option to cover a
+vertical barrior it could be something than only impacts part of the field.
+Maybe something like a traffic sign or basketball backboard ... something
+that make the bank shot an option vs being the only possible way. Before
+building anything, lets discuss."
+
+- **Glass over net.** Glass also helped make the bank shot playable.
+- **The point:** each v4 puzzle has one answer (the net: a lob; the
+  barrier: a bank shot). Things that cover **part** of the stack give a
+  choice: a straight shot at what shows, a lob, or a bounce.
+- Claude proposed: park things that partly cover (a bush or hedge, a tree)
+  and things to bounce off as an option (a basketball backboard, which
+  kids know a ball bounces off, made of clear glass as real ones are, so
+  the glass liked stays; behind the table it also sends a throw that went
+  long back into the blocks; a road sign later).
+
+**Developer's answers:**
+1. **Shuffled**, not fixed scenes: "Otherwise it becomes a puzzle that,
+   once solved, offers no new challenge."
+2. **Solid obstacles** (a ball doesn't go through the bush): "Not becasue
+   it is simpler to build - I think it is simpler for the player to grasp
+   the concept."
+3. **A bush, a tree and a clear (glass) backboard** in v5; the road sign
+   left for later ("held back" was unclear; explained).
+
+**Agreed for v5** ("Yes - build V5"):
+- **Each round made fresh:** a stack (the arch, a tower, a little
+  pyramid, posts and a beam) on a table placed a bit nearer or further,
+  left or right; one or two of the bush, the tree and the backboard,
+  hiding part of the stack, never all of it.
+- **Every layout checked before it's shown** (a scan of throws, as for the
+  bank shot): every block that can be hit with nothing in the way can
+  still be hit (straight, lobbed, or off the backboard); the objects
+  matter (fewer straight hits than with nothing in the way); not a
+  pinhole. A layout that fails is thrown away and another made.
+- **How hard the throw is** set by the game from the table's distance, so
+  it's in easy reach; never shown.
+- Mockup switches: one object or two (or shuffled), which objects. The
+  dots (Medium), over the shoulder, Far, stay behind: as agreed. v4's
+  three puzzles and the barrier switch go.
+
+**Open questions:** none new. Q63, Q47 unchanged.
