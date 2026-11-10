@@ -2081,8 +2081,11 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   trunk splits** at 1.3-1.5 m (developer: "a few big main branches
   coming off the trunk"): it goes on up to a clump over the middle, and
   three branches go out and up, each to a clump, spread round so the
-  branches show. The ball touches the clumps, not the branches (drawn
-  only). The far-off trees the same, their leaves 4 times as big.
+  branches show. Each clump is drawn as a **little bush** (mockup v3;
+  developer: "just use 'bush shapes' at the ends of the branches"): a
+  leafy ball in the middle and 6 smaller ones round it, within about the
+  clump's sphere, which the ball touches (not the branches: drawn only).
+  The far-off trees one little bush each, their leaves 4 times as big.
 - **Every scene is checked before it's shown** (the mockup's check):
   every block that can be hit with nothing in the way can still be hit
   (one may be missed); the things matter; in one view or the other every

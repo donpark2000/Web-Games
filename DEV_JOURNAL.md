@@ -15759,3 +15759,27 @@ Not fixed: it changes both games' stepping; to agree with the developer.
   (fixes and changes) to try on the phone (the fps with the leaves).
 - Open questions: Q64, Q65, Q47. Skill: one proposal waiting (tests and
   the clock).
+
+## 2026-11-10: Trees from little bushes (mockup v3)
+
+**Developer on v2:** "I like the bushes. The trees still look funny. Like
+a green sphere with a bit of leaves on top. I think they would look better
+to drop the green sphere and just use 'bush shapes' at the ends of the
+branches." A clump was one big ball: a smooth outline, its dark core
+showing, the leaves reading only at its edge; a bush is many small balls,
+so its outline is lumpy. Now each clump is drawn as a little bush
+(`clumpBalls()` in `topple-scene.js`: a ball of 0.55 r in the middle, 6 of
+0.4-0.5 r round it at 0.45-0.57 r, more sideways than up), and so is each
+far-off tree. Drawing only: the physics keeps each clump's sphere, which
+the little bush fills to within a few cm, so the scene check and its
+timing don't change. Mockup v3 shows it; the developer hadn't seen v3
+before it went into the game.
+
+**Checked in the browser** (localhost, game seed 2, scene 5): the clumps
+lumpy like the bushes (screenshot zoomed on the tree), the far-off trees
+too; no console errors; the scene 2,352 leaves drawn in 18 ms (2,705 in
+v2's), far-off 10,111 (11,060). Suite: 535 tests, all pass, after `node
+tools/offline.js`.
+
+**Status:** as the entry before, with the trees from little bushes. Q65 to
+decide with the developer before the next session.

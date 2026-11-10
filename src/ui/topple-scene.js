@@ -96,6 +96,19 @@ export function makePark3d(canvas) {
     g.userData.leaves = spots.length;
     return g;
   }
+  // A tree's clump drawn as a little bush (developer, 2026-11-10: one big
+  // ball looked "like a green sphere with a bit of leaves on top"): a ball
+  // in the middle and 6 smaller ones round it, more out to the sides than up
+  // or down, all within about the clump's own radius (the ball still
+  // touches the clump's sphere: the physics keeps it).
+  function clumpBalls(c, rand) {
+    const [x, y, z] = c.at, out = [{ r: c.r * 0.55, at: [x, y, z] }], a0 = rand() * Math.PI * 2;
+    for (let i = 0; i < 6; i++) {
+      const a = a0 + i * Math.PI / 3 + (rand() - 0.5) * 0.6, up = (rand() - 0.35) * 0.9, d = c.r * (0.45 + 0.12 * rand());
+      out.push({ r: c.r * (0.4 + 0.1 * rand()), at: [x + d * Math.cos(a) * Math.cos(up), y + d * Math.sin(up), z + d * Math.sin(a) * Math.cos(up)] });
+    }
+    return out;
+  }
   const BUSH_GREENS = ['#3F8A46', '#4C9A50', '#5AA85C'], LEAF_GREENS = ['#4F9A55', '#5DAA5E', '#3E8446'];
   const LEAF = 0.075 * SCALE;
   const barkMat = new THREE.MeshStandardMaterial({ color: '#7A5638', roughness: 1 });
@@ -125,7 +138,7 @@ export function makePark3d(canvas) {
     far.forEach(([x, z], i) => {
       const t = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, 1.6, 8), barkMat); t.position.set(x, 0.8, z); scene.add(t);
       const r = 1.5 + (i % 3) * 0.3, y = 2.6 + (i % 2) * 0.4;
-      const c = leafy([{ r, at: [x, y, z] }], ['#4F9A55', '#5DAA5E', '#478C4E'], y - r, y + r, 0.3, false);
+      const c = leafy(clumpBalls({ r: r * 1.05, at: [x, y, z] }, rng(i + 1)), ['#4F9A55', '#5DAA5E', '#478C4E'], y - r, y + r, 0.3, false);
       scene.add(c); farLeaves += c.userData.leaves;
     });
   }
@@ -169,12 +182,13 @@ export function makePark3d(canvas) {
     return m;
   }
   // A tree: the trunk tapering up into the middle clump, a branch from the
-  // trunk to each other clump, the clumps leafy.
+  // trunk to each other clump, the clumps little leafy bushes.
   function tree(p) {
     const g = new THREE.Group(), [mid, ...side] = p.clumps, base = new THREE.Vector3(...p.at);
     g.add(limb(base, new THREE.Vector3(...mid.at), p.r, p.r * 0.55));
     for (const c of side) g.add(limb(new THREE.Vector3(...c.from), new THREE.Vector3(...c.at), p.r * 0.5, p.r * 0.28));
-    const balls = p.clumps.map(c => ({ r: c.r, at: c.at }));
+    const rand = rng(1 + Math.round(Math.abs(p.at[0] * 7919 + p.at[2] * 104729)));
+    const balls = p.clumps.flatMap(c => clumpBalls(c, rand));
     const leaves = leafy(balls, LEAF_GREENS, Math.min(...balls.map(b => b.at[1] - b.r)), Math.max(...balls.map(b => b.at[1] + b.r)), LEAF);
     g.add(leaves); g.userData.leaves = leaves.userData.leaves;
     return g;
