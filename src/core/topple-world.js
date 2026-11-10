@@ -321,16 +321,21 @@ export function createWorld({ onHit = () => {} } = {}) {
   // through: its top's middle, three points across its front and its right
   // side's middle (whole: all; part: some).
   function viewOfBlocks(cam, keep) {
+    let full = 0, part = 0;
+    for (const k of pointsSeen(cam, keep)) { if (k === SEEN_POINTS) full++; else if (k) part++; }
+    return { full, part };
+  }
+  // How many of those 5 points of each block (in the blocks' order) a
+  // camera at cam sees past the things keep() lets through.
+  const SEEN_POINTS = 5;
+  function pointsSeen(cam, keep) {
     const occ = obstacles(keep);
     const clearTo = p => { for (let i = 1; i < 40; i++) { const q = lerp(cam, p, i / 40); for (const o of occ) if (touch(q, o, 0.001)) return false; } return true; };
-    let full = 0, part = 0;
-    for (const b of blocks) {
+    return blocks.map(b => {
       const p = posOf(b.body), he = b.body.shapes[0].halfExtents;
       const pts = [[0, he.y, 0], [0, 0, he.z], [-0.8 * he.x, 0, he.z], [0.8 * he.x, 0, he.z], [he.x, 0, 0]].map(d => add(p, d));
-      const k = pts.filter(clearTo).length;
-      if (k === pts.length) full++; else if (k) part++;
-    }
-    return { full, part };
+      return pts.filter(clearTo).length;
+    });
   }
 
   // Scene i of a game's level: its layout made from its seed and checked; a
@@ -363,6 +368,9 @@ export function createWorld({ onHit = () => {} } = {}) {
     get time() { return time; },
     get parts() { return parts; },
     setScene, makeScene, throwBall, step, obstacles, trace, check,
+    // Of 5 points on each block, how many the camera behind the throw sees
+    // past the bushes and trees (the tests: a player throws only at what it sees).
+    frontSeen: () => pointsSeen(CAM, b => b.kind === 'bush' || b.kind === 'tree'),
     downCount: () => blocks.filter(b => b.down).length,
     still: () => blocks.every(b => asleep(b.body) || b.body.velocity.length() < STILL_SPEED),
     awake: () => blocks.filter(b => !asleep(b.body)).length,

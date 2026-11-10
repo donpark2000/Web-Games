@@ -5,12 +5,14 @@
 // could lean on is within its reach, measured from the bodies; a scene comes
 // out the same each time; the path's first touch is where the ball touches;
 // a perfect-aim player clears most scenes, leaving no block upright against
-// a thing. Seconds of physics, nothing written.
+// a thing; every scene can be won by a player throwing only as a person can
+// (at what it sees from behind, straight from the side). Seconds of physics,
+// nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, touch, BUSH_KEEP } from '../src/core/topple-world.js';
 import {
-  SCALE, HAND, BALL, MAX_AIM, R2D, SCENES, launchVel, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts,
+  SCALE, HAND, BALL, MAX_AIM, MAX_UP, R2D, SCENES, launchVel, sideDrag, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts, rng,
 } from '../src/core/topple.js';
 
 const DT = 1 / 60;
@@ -252,6 +254,91 @@ test('topple world: a perfect-aim player clears most scenes, no block left uprig
   assert.ok(rows.every(r => r.ended), `a scene never ended: ${summary}`);
   assert.ok(rows.filter(r => r.won).length >= 7, `only ${rows.filter(r => r.won).length} of 10 cleared: ${summary}`);
   assert.equal(rows.filter(r => r.leaningAtEnd).length, 0, `a standing block against a thing: ${summary}`);
+});
+
+// A player that throws as a person can (Q64; developer: "I see no point in
+// publishing a game than can not be won"): from behind, only at blocks it
+// can see (frontSeen); from the side, as the side view lets you, straight at
+// the structure (the game's sideDrag, a few lengths of drag). Each ball a
+// random one of those throws whose path first touches a standing block
+// (seeded, so the same each run). The perfect-aim player above follows one
+// plan; this one shows a scene can be won at all.
+const GLASS_ONLY = new Set(['glass']);
+function personThrows(w, power, stand) {
+  const seen = w.frontSeen(), standing = w.blocks.filter(b => !b.down);
+  if (!standing.length) return [];
+  const visible = new Set(w.blocks.filter((b, i) => !b.down && seen[i] > 0).map(b => b.body)), all = new Set(standing.map(b => b.body));
+  const obs = w.obstacles(), out = [];
+  const add = (vel, targets) => {
+    const h = w.trace(vel.vec, 1, obs, GLASS_ONLY).hits;
+    const t = h[0]?.kind === 'block' ? h[0].body : (h[0]?.kind === 'glass' && h[1]?.kind === 'block' ? h[1].body : null);
+    if (t && targets.has(t)) out.push(vel);
+  };
+  const az = standing.map(b => Math.atan2(b.body.position.x - HAND.x, HAND.z - b.body.position.z) * R2D / MAX_AIM);
+  const a0 = Math.max(-1, Math.min(...az) - 0.2), a1 = Math.min(1, Math.max(...az) + 0.2);
+  for (let up = 0; up <= MAX_UP; up += 3) for (let a = a0; a <= a1 + 1e-9; a += 0.04) add(launchVel(power, a, up), visible);
+  for (let up = 0; up <= MAX_UP; up += 3) for (const m of [0.16, 0.22, 0.28, 0.34, 0.4]) {
+    const d = sideDrag(Math.cos(up / R2D) * m, -Math.sin(up / R2D) * m, 1, power, stand);
+    add(launchVel(d.power, d.aim, d.up), all);
+  }
+  return out;
+}
+// Plays scene s with a fresh world; `weak` scales every throw (the check
+// that the test can fail). Returns { won, down, total }.
+function personPlays(s, random, weak = 1) {
+  const w = createWorld();
+  w.setScene(s.parts);
+  const r = newRound(w.blocks.length);
+  let ended = null;
+  const run = sec => { for (let t = 0; t < sec - 1e-9 && !ended; t += DT) { const { down } = w.step(DT); ended = update(r, DT, { down, still: w.still() }).ended; } };
+  while (!ended && canThrow(r).why !== 'no-balls') {
+    while (!ended && !canThrow(r).ok && canThrow(r).why === 'not-ready') run(DT);
+    if (ended) break;
+    const c = personThrows(w, s.layout.power, s.parts.stand);
+    assert.ok(useBall(r).ok);
+    const vec = (c.length ? c[Math.floor(random() * c.length)] : launchVel(s.layout.power, 0, 30)).vec;
+    w.throwBall(vec.map(v => v * weak));
+    run(3);
+  }
+  run(20);
+  return { won: !!ended?.won, down: r.down, total: r.total };
+}
+// Up to PERSON_TRIES players a scene, stopping at the first win.
+const PERSON_TRIES = 20;
+function canBeWon(s, seed, weak = 1, tries = PERSON_TRIES) {
+  const random = rng(seed);
+  let best = 0, total = 0;
+  for (let k = 1; k <= tries; k++) {
+    const p = personPlays(s, random, weak);
+    best = Math.max(best, p.down); total = p.total;
+    if (p.won) return { won: true, players: k };
+  }
+  return { won: false, players: tries, best, total };
+}
+
+// 2026-11-10: over 100 scenes (20 games) such players won every one; varied
+// players at any block won 874 of 1,000 tries.
+test('topple world: every scene of three games can be won by a player throwing as a person can', () => {
+  const rows = [];
+  for (const seed of GAMES) {
+    const w = createWorld();
+    for (let i = 1; i <= SCENES; i++) {
+      const s = w.makeScene(seed, 1, i);
+      rows.push({ at: `${seed}/${i} ${s.layout.stack}`, ...canBeWon(s, seed * 31 + i) });
+    }
+  }
+  const summary = rows.map(r => `${r.at}: ${r.won ? `won by player ${r.players}` : `NOT WON by ${r.players} players (best ${r.best}/${r.total} down)`}`).join('; ');
+  assert.equal(rows.length, GAMES.length * SCENES, `${rows.length} scenes played`);
+  assert.equal(rows.filter(r => !r.won).length, 0, summary);
+});
+
+test('topple world: a scene no player can win is reported (throws too weak to reach)', () => {
+  const s = createWorld().makeScene(GAMES[0], 1, 1);
+  assert.ok(canBeWon(s, 1).won, 'scene 1 not won at full strength');
+  const r = canBeWon(s, 1, 0.2, 3);
+  assert.equal(r.won, false);
+  assert.equal(r.players, 3);
+  assert.equal(r.best, 0);
 });
 
 test('topple world: a scene picked up again puts the blocks where they were, the fallen still down', () => {

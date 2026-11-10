@@ -15941,3 +15941,61 @@ for a child's aim?", for the phone and the kids.
 - **Open questions:** Q64 (how hard for a child's aim).
 - **Skill:** none waiting.
 - No localhost server running.
+
+## 2026-11-10: 9.1 on the phone; the "can be won" test; scenes alike and blocks behind the trunk looked into
+
+**Developer (9.1 on the phone):** "Yes - add the test." And: "I like the
+look of the trees and bushes now. Sometimes there seemed to be no
+difference between scenes. And there was one example where part of the
+structure was behind a tree trunk. After knocking down the part I could
+see, there were still two blocks standing that I could not see in front
+view and could not hit in side view. The seemed to be unreachable."
+
+**The test** (`tests/topple-world.test.js`): "every scene of three games can
+be won by a player throwing as a person can". The player (`personThrows`)
+throws from behind only at blocks it can see (new `world.frontSeen()`: of
+the 5 points the check looks at on each block, how many the camera behind
+the throw sees past the bushes and trees; `viewOfBlocks` now built on it,
+the check unchanged), and from the side only as the side view lets you:
+straight at the structure (the game's `sideDrag`, 5 lengths of drag, up
+0-70°). Each ball a random such throw whose path first touches a standing
+block; up to 20 players a scene, stopping at the first win. Games 12345,
+777, 4242 (15 scenes): all won, 16 s. A second test shows a failure is
+reported: throws at 0.2 strength, 3 players, scene 1: not won, 0 down. The
+suite: 543 tests, all pass, 65 s (was 39 s; this file is now the longest).
+Not published (version f3f071faaf8c on the branch).
+
+**Scenes alike, measured** (a scratchpad survey, the scenes as the game makes
+them, games 1-100, 500 scenes): of 300 pairs of neighbouring scenes 1-4,
+**97 have the same structure, 32 the same structure and the same thing in
+the way**. Why: each scene picks its structure (arch, posts, pyramid) and
+its thing (bush, tree, backboard) from its own seed, so a repeat next door
+is 1 in 3 (structure) and 1 in 9 (both). Not yet known which the developer
+meant: a new scene like the one before, or the same scene again after a
+lost heart (as designed).
+
+**Blocks behind the trunk:** the scene check passes a scene when every
+block shows at least partly **in one view or the other**. But the side
+view can only throw straight at the structure's middle (`sideDrag`: "always
+straight at the structure"), so a block off to one side that only the side
+view shows can be seen there and not aimed at. In the survey, 34 of 500
+scenes had a block the front view can't see at all (mostly scene 5,
+tower or fence with two things); the person-like player above won all 34
+(1-3 players; most of those blocks are low behind a bush and come into
+view, or fall, once the blocks round them go). So the developer's scene
+isn't reproduced yet. Its game seed and layout seed are in the phone's
+debug log (`scene` lines: `seed`, `scene`, `layoutSeed`, `check.seen`,
+`check.seenSide`); asked for the log.
+
+**Options put to the developer:** (1) scenes alike: scenes 1-4 never the
+same structure twice in a row, and no structure-and-thing pair twice in a
+level (dealt per game, so a scene played again is still the same); (2)
+blocks behind the trunk, once the scene is found: the front view must show
+every block (the side view no longer counts for that), or the side view
+aims sideways too.
+
+**Status:**
+- Live: 9.1. On `block-game`, not published: the test, `frontSeen()`.
+- Next: the developer's log from the phone (the hidden-blocks scene) and
+  choices on (1) and (2).
+- Open questions: Q64.
