@@ -14507,3 +14507,60 @@ away. Points made:
 block; an arc of dots, switch: **Short** (0.25 s of flight), **Medium**
 (0.5 s), **Long** (to the first touch, to feel the difference). The rest
 as v1.
+
+## 2026-11-09: Block game mockup v2: the dots, an over-the-shoulder view
+
+**Developer:** "Yes, build v2."
+
+**Mockup v2** ([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+the same link, version 2; built from v1's published page):
+- **Slingshot A only** (drag back: speed and left/right; the slider: how
+  high). B and its speed meter removed.
+- **The dots** in place of the ring: small white balls with a dark edge,
+  real spheres in the scene (further ones look smaller), one per 0.05 s of
+  flight from the hand, flown as the physics flies (the v1 path's steps).
+  Switch: **Short ¼ s** (5 dots, the default), **Medium ½ s** (10),
+  **Long** (to the first touch). Where the ball would touch something
+  before the dots end, they stop there and the last is orange.
+- **Speed and angle numbers:** hidden by default (switch: show).
+- **Aiming view (new switch):** **over the shoulder** (camera 0.55 m
+  right, 1.95 m up, 0.9 m back; default) or **straight behind** (v1's).
+  Both fitted with room above the puzzle, half way out (its top + 0.6 m),
+  so a lob's dots stay on the screen.
+- Unchanged: puzzles, distance, side cut, nets or walls, balls, sound.
+  Debug line: the dots (setting, how many, the last one's time, what they
+  stop at). Log: each throw with its dots. Test hook: `blocks.dots(power,
+  aim, up)`.
+
+**Checked** (served on 8130 by a scratchpad script wrapping the page as
+the viewer does, read fresh per request; a temporary `.claude/launch.json`
+entry, removed after; built-in browser at 375 × 812; no console errors, no
+sideways scroll):
+- **Dots per puzzle and length** (2 shots each): 5 (Short) and 10
+  (Medium) whenever the first touch is later; Long ends at the first touch
+  (Arch: the lawn at 0.62-0.67 s, 13-14 dots); stops early where they
+  should (Bank shot at power 0.3: the net at 0.46 s, so Medium shows 10 to
+  the net, orange last; Over the net at 10° up: the net at 0.51 s, Long 11).
+  Spacing 15-25 cm at power 0.15-0.4.
+- A throw by drag (power 0.3, Arch): the ball touched 1.4 cm from where the
+  path said.
+- **Medium nearly gives it away at Near:** the arch is ~0.6 s of flight
+  away, so ½ s of dots covers ~80% of the way. **Short made the default**
+  (~40%). At Far and Farther the same time covers less of the way.
+- **Straight behind, the dots are seen end-on** (the camera is 0.3 m over
+  the hand, on the throw's line): a column of dots going up, no curve; and a
+  45° lob's leave the top of the screen (2 of 10 on screen as v1 framed
+  it; the first dot, nearest, the biggest). **Over the shoulder**, the
+  screenshot shows the dots rise, peak over the net and drop toward the
+  tower, smaller with distance. With the room above, 10 of 10 on screen in
+  both views.
+
+Not checked: a phone, a finger, sound, Far/Farther with the new view.
+
+**For the developer to judge:** the dots (Short, Medium or Long); the
+over-the-shoulder view against straight behind; whether the numbers are
+missed; then the rest of v1's list (distance, side cut, nets or walls,
+balls, the puzzles).
+
+**Open questions:** none new. Q63 (fixed on the branch, for 9.0), Q47
+unchanged.
