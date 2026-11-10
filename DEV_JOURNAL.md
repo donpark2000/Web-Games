@@ -14564,3 +14564,13 @@ balls, the puzzles).
 
 **Open questions:** none new. Q63 (fixed on the branch, for 9.0), Q47
 unchanged.
+
+## 2026-11-09: Mockup v2 tried: over the shoulder, Far
+
+**Developer:** "Much better. I like Over the shoulder view. Far distance.
+I did not try the other parameters yet"
+
+- **Aiming view: over the shoulder.** Agreed.
+- **Distance: Far** (2×). Agreed.
+- Still to try: the dots' length (which one was used not said), the
+  numbers, the side cut, nets or walls, balls a puzzle, the puzzles.
