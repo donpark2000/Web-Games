@@ -233,7 +233,7 @@ async function startScene(kept = null) {
     things: L0.things.map(t => ({ kind: t.kind, ...(t.where ? { where: t.where } : {}), gapCm: Math.round(t.gap * 100), ...(t.arm ? { armCm: Math.round(t.arm * 100) } : {}) })),
     ...(L0.unplaced.length ? { noRoomFor: L0.unplaced } : {}), blocks: world.blocks.length, ms: current.ms, tries: current.tries,
     leaves: drawn.leaves, drawMs: drawn.ms,
-    ...(current.check ? { check: { ok: current.check.ok, why: current.check.why, direct: current.check.direct, bank: current.check.bank, share: current.check.share, seen: current.check.seen, seenSide: current.check.seenSide } } : {}),
+    ...(current.check ? { check: { ok: current.check.ok, why: current.check.why, direct: current.check.direct, fewest: current.check.fewest, bank: current.check.bank, share: current.check.share, seen: current.check.seen, seenSide: current.check.seenSide } } : {}),
     ...(kept ? { used: round.used, down: round.down } : {}),
   });
   busy = false;

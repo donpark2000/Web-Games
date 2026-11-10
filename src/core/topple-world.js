@@ -32,6 +32,11 @@ export const BUSH_KEEP = 0.1;
 export const CAUGHT_DAMPING = 0.9;   // the ball's damping once in the bush (keeps 0.1 of its speed a second)
 const BUSH_GROUP = 2;                // the bushes' collision group, which a ball in a bush stops touching
 export const TRIES = 25;   // layouts tried for a scene before taking the best
+// The fewest straight throws of the scene check's scan that must hit each
+// block first. 5, not 3: over 500 scenes it cost 1.82 tries a scene, not
+// 1.63, and none ran out of tries (journal, "Every block seen and hit from
+// the front").
+export const MIN_HITS = 5;
 
 /* ---------- small vector maths (arrays) ---------- */
 
@@ -268,25 +273,28 @@ export function createWorld({ onHit = () => {} } = {}) {
 
   // Before a scene is shown, throws are scanned (up 0-70° by 3°, aimed
   // across everything by 0.04 of the full aim), first with nothing in the
-  // way, then with the things:
-  // - possible: every block that can be hit with nothing in the way can
-  //   still be hit, first or straight after the backboard (one may be missed:
-  //   a block hidden under others falls with them);
+  // way, then with the things. Every block must be seen and hit from the
+  // front with a straight throw (developer, 2026-11-10: bouncing and
+  // curving are hard for a child to grasp, so no obstacle hides a block
+  // completely); no bank shot or side view is ever needed:
+  // - possible: every block that can be hit first with nothing in the way
+  //   is still hit first by at least MIN_HITS straight throws (a block
+  //   under others, never hit first even then, falls with them);
   // - the things matter (a bush or a tree; a backboard only adds a way):
   //   some block at least partly hidden from the camera, or keeping under
   //   half its straight hits, or at most 75% as many first hits in all;
-  // - enough shows, in one view or the other (developer: "At least one view
-  //   should give you something to aim at, and allow you to see if you hit
-  //   it, and if anything is left"): every block at least partly seen, a
+  // - enough shows from the front: every block at least partly seen, a
   //   third wholly;
-  // - not a pinhole: at least 15 throws of the scan hit a block;
-  // - a backboard worth trying: at least 3 throws off it hit a block.
+  // - not a pinhole: at least 15 straight throws of the scan hit a block;
+  // - a backboard worth trying: at least 3 throws off it hit a block (a
+  //   bonus way, never the only one; without this, glass no throw can use
+  //   was let through).
   const GLASS_ONLY = new Set(['glass']);
   function check(L) {
     const all = obstacles(), clear = obstacles(b => b.kind === 'block' || b.kind === 'stand');
     const az = all.filter(o => o.kind === 'block' || o.kind === 'glass').map(o => Math.atan2(o.c[0] - HAND.x, HAND.z - o.c[2]) * R2D / MAX_AIM);
     const a0 = clamp(Math.min(...az) - 0.15, -1, 1), a1 = clamp(Math.max(...az) + 0.15, -1, 1);
-    const base = new Map(), direct = new Map(), banked = new Set();
+    const base = new Map(), direct = new Map();
     const tally = (m, k) => m.set(k, (m.get(k) || 0) + 1);
     let nBase = 0, nDirect = 0, nBank = 0, n = 0;
     for (let up = 0; up <= 70; up += 3) for (let a = a0; a <= a1 + 1e-9; a += 0.04) {
@@ -295,9 +303,10 @@ export function createWorld({ onHit = () => {} } = {}) {
       const h0 = trace(vec, 0, clear).hits[0];
       if (h0 && h0.kind === 'block') { nBase++; tally(base, h0.body); }
       const h = trace(vec, 1, all, GLASS_ONLY).hits;
-      if (h[0] && h[0].kind === 'block') { nDirect++; tally(direct, h[0].body); } else if (h[0] && h[0].kind === 'glass' && h[1] && h[1].kind === 'block') { nBank++; banked.add(h[1].body); }
+      if (h[0] && h[0].kind === 'block') { nDirect++; tally(direct, h[0].body); } else if (h[0] && h[0].kind === 'glass' && h[1] && h[1].kind === 'block') nBank++;
     }
-    const missing = [...base.keys()].filter(b => !direct.has(b) && !banked.has(b)).length;
+    const unhit = [...base.keys()].filter(b => (direct.get(b) || 0) < MIN_HITS).length;
+    const fewest = Math.min(...[...base.keys()].map(b => direct.get(b) || 0));
     const hidden = [...base].filter(([b, c]) => (direct.get(b) || 0) < 0.5 * c).length;
     const front = viewOfBlocks(CAM, b => b.kind === 'bush' || b.kind === 'tree');
     // the side camera at a fixed shape, so a scene comes out the same on any screen
@@ -305,14 +314,14 @@ export function createWorld({ onHit = () => {} } = {}) {
     const enough = v => v.full + v.part === blocks.length && v.full >= blocks.length / 3;
     const hasBoard = L.things.some(t => t.kind === 'backboard'), hides = L.things.some(t => t.kind !== 'backboard');
     const why = [];
-    if (missing > 1) why.push(`${missing} blocks can't be hit`);
+    if (unhit > 0) why.push(`${unhit} block${unhit > 1 ? 's' : ''} hard to hit from the front`);
     if (hides && hidden === 0 && front.full === blocks.length && nDirect > 0.75 * nBase) why.push('the things hardly matter');
-    if (!enough(front) && !enough(side)) why.push('too little shows in either view');
-    if (nDirect + nBank < 15) why.push('too few throws hit');
+    if (!enough(front)) why.push('too little shows from the front');
+    if (nDirect < 15) why.push('too few throws hit');
     if (hasBoard && nBank < 3) why.push('the backboard is no use');
     return {
       ok: why.length === 0, why: why.join('; '), shots: n, clear: nBase, direct: nDirect, bank: nBank, share: +(nDirect / Math.max(1, nBase)).toFixed(2),
-      blocks: blocks.length, missing, hidden,
+      blocks: blocks.length, unhit, fewest, hidden,
       seen: `${front.full} whole, ${front.part} part, ${blocks.length - front.full - front.part} hidden`,
       seenSide: `${side.full} whole, ${side.part} part, ${blocks.length - side.full - side.part} hidden`,
     };
@@ -344,7 +353,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   // the same scene. Returns { layout, parts, check, tries, thrown (why each
   // was thrown away) }, the scene set up in the world.
   function makeScene(gameSeed, level, i) {
-    const score = c => (c.ok ? 1000 : 0) - c.missing * 50 - Math.max(0, c.share - 0.75) * 100 + Math.min(c.direct + c.bank, 15);
+    const score = c => (c.ok ? 1000 : 0) - c.unhit * 50 - Math.max(0, c.share - 0.75) * 100 + Math.min(c.direct, 15);
     let best = null, tries = 0, L, p, chk;
     const thrown = [];
     do {

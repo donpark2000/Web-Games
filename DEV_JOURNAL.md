@@ -16097,3 +16097,87 @@ missed"). Proposed: a top-view mockup in a fresh session.
 - **Open questions:** Q64 (how hard for a child's aim).
 - **Skill:** none waiting.
 - Claude's localhost server stopped.
+
+## 2026-11-10: Every block seen and hit from the front
+
+**Developer** (on the hidden blocks, after the options were talked
+through): "I'm a bit worried that any solution to 'hitting obstructed
+objects' might make game play to hard to comprehend. Bounding and curving
+are challenging concepts. Maybe we just forget about obstacles that hide
+things completely." Claude agreed and proposed the rule: every block can be
+seen and hit from the front with a straight throw; no bank shot or side
+view ever needed; obstacles stay (a lob over the bush, a throw past the
+trunk make sense at a glance). Developer: "Lets try that." No top-view
+mockup.
+
+**Measured before building** (scratchpad `survey-front.mjs`,
+`shown-front.mjs`; 100 games, 500 scenes, games 1000 + 7919k):
+- The scenes 9.1's check shows, judged by the new rule: **98 of 500 fail
+  it**: 21 with too little seen from the front (the side view had let
+  them through), 49 with a block that no straight throw hits first (a bank
+  shot or the "one may be missed" let them through), 84 with a block hit
+  first by under 5 straight throws.
+- Layouts tried until one passes, for the fewest straight first hits on
+  every block of 1 to 5: mean tries 1.62, 1.62, 1.63, 1.67, 1.82; none of
+  500 ran out of 25 tries; at most 13. So **5** (`MIN_HITS`): a window a
+  child can find, for little more making.
+
+**Built** (`src/core/topple-world.js` `check()`):
+- Every block that can be hit first with nothing in the way must still be
+  hit first by at least `MIN_HITS` (5) straight throws of the scan ("N
+  blocks hard to hit from the front"); "one may be missed" dropped (a block
+  under others, never hit first even with nothing in the way, still falls
+  with them).
+- Enough must show **from the front** (every block at least partly seen, a
+  third wholly); the side view no longer counts ("too little shows from the
+  front").
+- At least 15 **straight** throws hit a block (bank shots no longer count).
+- **Changed from what was put to the developer:** Claude had said a
+  backboard's "at least 3 bank shots" would go. Without it, 1288553953's
+  scene 5 came out as a tower with a backboard no throw could use (bank 0),
+  so it stays: the glass must be worth trying, as before, but no block ever
+  needs it.
+- The best-of-25 fallback scores by the blocks hard to hit and straight
+  throws (not bank shots). The check reports `unhit` and `fewest` (the
+  fewest straight first hits on a block); the scene's log line has
+  `fewest`.
+
+**Evidence:**
+- The developer's scene (layout 2015036129): now "2 blocks hard to hit from
+  the front; too little shows from the front", fewest 0 (9.1: ok). Game
+  1288553953's scene 5 is now a tower, bush and backboard (first try,
+  fewest 11); game 1127182140's scene 5 throws away its fence (layout
+  1071192110, "2 blocks hard to hit from the front") and shows a tower,
+  bush and tree (fewest 8).
+- 100 games with the new check: 500 of 500 pass, no block with under 5
+  straight first hits, nothing seen too little from the front.
+- **Time** (the same 20 games, games 5000 + 7919k, one run each on this
+  PC): 0.36 s a scene before, **0.52 s** now; 1.44 tries before, 2.24 now,
+  at most 13 (before 5). Worth watching on the phone: the scene's `ms` in
+  the log.
+- Test "every block of a scene can be seen and hit from the front; the
+  phone's hidden-blocks scene is thrown away": the developer's layout fails
+  with both reasons; both problem games' scene 5 and every scene of the
+  three test games pass with fewest >= 5 and every block seen from behind
+  (17 scenes). Run on the committed (9.1) check it fails ("the
+  hidden-blocks scene passed the check").
+- Built-in browser (375 × 812): the browser's game was still 1127182140 at
+  scene 5; the log showed the fence thrown away and the tower shown (627
+  ms, 2 tries, fewest 8); no console errors; screenshot seen.
+- Suite: 545 tests, all pass (132 s, with a survey running alongside).
+  `node tools/offline.js`: version 66027ac0b0b7.
+
+**Developer's ideas for later levels** (in DESIGN.md "Topple!" Levels):
+structures on curved surfaces; balls that roll down a ramp once something
+blocking them is knocked away.
+
+## 2026-11-10: Status (start here next session)
+
+- **Live: 9.1.** On `block-game`, not published: scenes 1-4 dealt so
+  neighbours differ; every block seen and hit from the front (the
+  hidden-blocks fix); the "can be won" test.
+- **Next:** publish both as **9.2** (with the developer's OK), then try on
+  the phone: scenes look right, no hidden blocks, how long a scene takes
+  to make (`ms` in the scene's log line).
+- **Open questions:** Q64 (how hard for a child's aim).
+- **Skill:** none waiting.

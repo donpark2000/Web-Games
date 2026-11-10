@@ -2093,13 +2093,16 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   clump's sphere, which the ball touches (not the branches: drawn only).
   The far-off trees one little bush each, their leaves 4 times as big.
 - **Every scene is checked before it's shown** (the mockup's check):
-  every block that can be hit with nothing in the way can still be hit
-  (one may be missed); the things matter; in one view or the other every
-  block at least partly seen and a third wholly (developer: "At least
-  one view should give you something to aim at, and allow you to see if
-  you hit it, and if anything is left"); at least 15 throws of a scan
-  hit a block; a backboard has at least 3 bank shots. A layout that
-  fails is thrown away and the next tried (25 at most, else the best).
+  **every block can be seen and hit from the front with a straight
+  throw** (developer, 2026-11-10: bouncing and curving "are challenging
+  concepts", so "forget about obstacles that hide things completely"):
+  every block that can be hit first with nothing in the way is still hit
+  first by at least 5 straight throws of a scan, and seen from behind (every
+  block at least partly, a third wholly); no bank shot or side view is
+  ever needed. The things matter; at least 15 straight throws hit a
+  block; a backboard has at least 3 bank shots (a bonus way, never the
+  only one). A layout that fails is thrown away and the next tried (25 at
+  most, else the best).
 - **Levels** (developer, 2026-11-10): a level is **5 scenes**, the 5th
   harder. A scene cleared wins a **💎** and the next scene; one not
   cleared loses one of **3 ❤️** and is played again; the last heart lost
@@ -2108,7 +2111,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   "lets get the basic idea of a level, hearts, jewels working"); a level
   done starts a new game with new scenes. Each level later gets a theme
   (journal, "Mockup v5 tried": more 3D frames, glass that shatters,
-  metal and dynamite, ropes), one a release.
+  metal and dynamite, ropes; developer, 2026-11-10: structures on curved
+  surfaces, balls that roll down a ramp once something blocking them is
+  knocked away), one a release.
 - **The scenes are made from the game's seed**, so they're the same
   each time; only a new game makes new ones. **The game is kept on the
   device** (`web-games-topple-game`: the seed, level, scene, hearts,

@@ -10,7 +10,7 @@
 // nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createWorld, touch, BUSH_KEEP } from '../src/core/topple-world.js';
+import { createWorld, touch, BUSH_KEEP, MIN_HITS } from '../src/core/topple-world.js';
 import {
   SCALE, HAND, BALL, MAX_AIM, MAX_UP, R2D, SCENES, launchVel, sideDrag, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts, sceneSeed, rng,
 } from '../src/core/topple.js';
@@ -39,6 +39,37 @@ test('topple world: every scene of three games is made, checked and stands still
   }
   assert.equal(made, 15);
   assert.ok(ok >= 14, `only ${ok} of ${made} scenes passed the check`);
+});
+
+// Every block seen and hit from the front (developer, 2026-11-10: no
+// obstacle hides a block completely; bouncing and curving are too hard to
+// grasp). The developer's scene from the phone (layout 2015036129, as 9.1
+// made game 1288553953's scene 5: a fence, a backboard behind, the tree's
+// trunk in front of the fence's left end; 9.1's check let it through) is
+// thrown away; every scene shown has each block partly seen from behind
+// and hit first by MIN_HITS straight throws (game 1127182140: its scene 5
+// was the same trouble in the browser).
+test('topple world: every block of a scene can be seen and hit from the front; the phone\'s hidden-blocks scene is thrown away', () => {
+  const w = createWorld();
+  const L = makeLayout(2015036129, sceneOpts(5));
+  w.setScene(sceneParts(L));
+  const bad = w.check(L);
+  assert.equal(bad.ok, false, 'the hidden-blocks scene passed the check');
+  assert.match(bad.why, /2 blocks hard to hit from the front/);
+  assert.match(bad.why, /too little shows from the front/);
+  assert.equal(bad.fewest, 0);
+  let n = 0;
+  for (const [seed, scenes] of [[1288553953, [5]], [1127182140, [5]], ...GAMES.map(g => [g, [1, 2, 3, 4, 5]])]) {
+    for (const i of scenes) {
+      const s = w.makeScene(seed, 1, i);
+      n++;
+      assert.ok(s.check.ok, `${seed}/${i}: ${s.check.why}`);
+      assert.ok(s.check.fewest >= MIN_HITS, `${seed}/${i}: a block hit first by ${s.check.fewest} straight throws`);
+      assert.ok(w.frontSeen().every(k => k > 0), `${seed}/${i}: a block not seen from behind (${w.frontSeen()})`);
+      assert.notEqual(s.layout.seed, 2015036129);
+    }
+  }
+  assert.equal(n, 2 + 5 * GAMES.length, `${n} scenes checked`);
 });
 
 test('topple world: a scene is the same every time it\'s made, and another scene or game is not', () => {
