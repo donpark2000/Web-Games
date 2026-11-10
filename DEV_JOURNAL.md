@@ -47,6 +47,14 @@ time, each tried before publishing:
   (a tree hid most of the stack; "Mockup v5 tried; levels ..."). Waiting
   for the developer's view.
 
+- **Compare versions with one test run on both** (2026-11-10, from "Block
+  game mockup v7"; section 3 or 4). To tell whether a change made things
+  better or worse, run the same test on the old and the new version now,
+  not against a number from the notes. *Evidence:* v6's notes said a
+  test player cleared 13 of 14 scenes; v7's player cleared 15 of 20, which
+  looked worse, but that player was a new one; run on v6 it also cleared
+  15 of 20.
+
 Earlier: none waiting. (2026-11-07: "Key a remembered result by everything it
 depends on" (from "Sideways phone fixes and the game's name built",
 2026-10-29: the puzzles fitted their buttons' words once per screen
@@ -15284,3 +15292,104 @@ viewer's first and last lines, the scratchpad server on 8130 with a temporary
 **Open questions:** Q63, Q47. None new.
 
 **Skill additions:** one proposed ("Check from where the user stands").
+
+## 2026-11-10: Block game mockup v7: nothing within a falling block's reach, the backboard on an arm
+
+**Mockup v7** ([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+the same link, version 7; from v6's page). The fix proposed in "Mockup v6
+tried" (developer: "Yes").
+
+**What changed:**
+- **The reach:** the layout's tallest block plus 10 cm (Near metres; the
+  arch 61 cm, the posts and the fence 55, the tower 52, the pyramid 40). Every
+  part of a thing low enough for a falling block to lean on (its bottom under
+  the reach) stands at least that far from the structure's footprint (its
+  blocks as they stand), in plan view: the bush's leafy balls, the trunk, the
+  backboard beside (glass and pole), the backboard behind's pole. The tree's
+  leaves (1.65 m up) and the backboard behind (its foot over the structure's
+  top) are out of reach. A thing placed too near is tried again (as one that
+  overlaps another).
+- **The bush** in front by the reach and up to 25 cm more (v6: its back leaves
+  10-45 cm from the structure).
+- **The backboard beside** moved out sideways until its nearest end and its
+  pole are the reach away, turned again each time so a throw at its middle
+  still bounces on to the structure's middle.
+- **The backboard behind on an arm**, as a basketball hoop: the board where it
+  was, an arm straight back from its middle (25-45 cm) to a pole out of reach.
+  The arm is in the physics (a ball can hit it).
+- **The tree beside the bush** (scene 5): with the bush further out, the tree
+  found no room beside it in 3 of 12 scene 5s (v6: 1 of 12). Level with the
+  bush, the trunk now goes just past the bush's end: 24 of 24 got both things.
+- Logged: each thing's gap (`gapCm`) and arm (`armCm`), the reach (`reachCm`),
+  tries thrown away for being too near. Saved under `block-game-v7` keys, so
+  the developer starts at scene 1. The page says what's new.
+
+**A correction to "Mockup v6 tried":** it put v6's pole 14-24 cm from the
+structure. That was from the footprint's edge, which v6 kept 12 cm beyond the
+blocks (the old table's). Measured from the blocks: 26-31 cm (3 v6 scenes).
+
+**Checked** (the built-in browser; scripts in the session's scratchpad, served
+beside the page; v6 served beside v7 for comparison):
+- **The gap, measured from the physics bodies** (not the placing code's own
+  numbers). Shown to fail first: on v6, 13 of 18 scenes had something too near
+  (the pole behind 26-31 cm, the board beside 16-34 cm, the bush 31-46 cm). On
+  v7, **100 of 100 real scenes** (4 new games × 5 scenes × each of the 4
+  "which things" choices) kept the reach, the nearest 1.2 cm over it; all
+  passed the layout check, made in 1-2 tries on average (up to 1.3 s for a
+  scene 5). Bank shots still work: 7-102 throws of each scan off the board
+  onto a block.
+- **The bush matters as much as before:** straight throws kept 89% of their
+  clear-field hits past it (v6: 88%).
+- **The perfect-aim player, the same one on v6 and v7** (this session's; v6's
+  wasn't kept, so its 13 of 14 isn't comparable): 15 of 20 cleared on each, 2.9
+  and 3.0 balls. Backboard only: **v7 20 of 25, v6 16 of 25**. It also watches
+  for a standing block touching a thing: **v6 5 of 45 scenes** (the pole, while
+  the scene played); **v7 none in about 125 scenes**, none left leaning at the
+  end.
+- **Not v7's:** the player's misses. The arch stops at 2 of 5 down when it keeps
+  hitting the plank (a plank on two posts doesn't fall from a hit on the plank;
+  v6 the same); aiming at a post after a hit that knocks nothing down: 46 of 55
+  cleared. Once, 5 hits and 0 of 5 down, cleared in 3 when replayed: as v6's
+  "14th" scene, not pinned down.
+- **Screenshots at 375 × 812:** the hoop from the front (the pole through the
+  arch, well back) and from the side, close up (the arm out to the board over
+  the arch); the beside board clearly apart from a pyramid; a bush. No console
+  errors, no sideways scroll.
+
+**For the developer to judge:**
+- **The bush is nearer the slingshot**, so it looks bigger and hides more of
+  the structure's lower half (an arch: the posts' feet hidden, the top seen).
+- The hoop's look; the beside board further out.
+- As in v6: how hard for a person, scene 5, the side view's fit.
+
+**Open questions:** none new. Q63, Q47 unchanged.
+
+**Skill addition proposed** (below): compare versions with one test run on
+both.
+
+## 2026-11-10: Status (start here next session)
+
+**Where things are:** the block game is at **mockup v7**
+([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+version 7): nothing within a falling block's reach, the backboard behind on an
+arm (entry above).
+
+**Next:** the developer tries v7 (the list in the entry above, the bush's
+size especially); then v8 or the build of level 1.
+
+**How to work on the mockup:** as in "Status (start here next session)",
+earlier today, with these additions: the scratchpad server also serves `.js`
+files beside the page (the test scripts, imported with `import('/x.js?' +
+Date.now())`) and a v6 copy at `/v6` for comparison; the gap check measures
+from the physics bodies (`inside().obstacles`); the player prefers straight
+throws (a bank shot comes off the glass soft) and watches `world.contacts`
+for a standing block touching a thing; a run of over ~40 s times out the
+browser tool, so one choice per call.
+
+**Also on this branch, not published:** Q63's Tin Can Alley fix (commit
+62fb198) for release 9.0.
+
+**Open questions:** Q63, Q47. None new.
+
+**Skill additions:** two proposed ("Check from where the user stands";
+"Compare versions with one test run on both").
