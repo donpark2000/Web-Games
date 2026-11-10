@@ -15457,6 +15457,21 @@ whether to publish so the phone can try it (and the pull-back, with a finger).
 
 **Open questions:** none new. Q63, Q47 unchanged.
 
+## 2026-11-10: Mockup v8 tried: the aiming good; the test scripts saved
+
+**The developer on v8:** "Aiming fix for side view is good." (On the desktop,
+with a mouse; the pull-back with a finger waits for the phone.)
+
+**The test scripts saved** (developer: save them "if they are likely to be
+useful when we start making new levels"; Claude: yes, each new level's
+structures and things need the same reach check and perfect-aim player, and
+they're the start of the built game's tests): in
+`C:\Users\dpark\Documents\Web-Games-testing\2026-11-10_block-mockup-tests\`,
+with v8's and v6's pages, the server and a README on running them. **Not to be
+purged** with other test folders until the block game is built and the checks
+are tests in the repo. (CLAUDE.md keeps Claude's helper scripts in the
+scratchpad; this is the exception, at the developer's word.)
+
 ## 2026-11-10: Status (start here next session)
 
 **Where things are:** the block game is at **mockup v8**
@@ -15465,12 +15480,14 @@ version 8): v7 (nothing within a falling block's reach, the backboard behind on
 an arm; no more stuck blocks, the developer) and the side view aiming the way
 the ball goes (entry above).
 
-**Next:** the developer tries v8's side-view aiming on the desktop. The phone
-can only try what's published, so the developer will say when to publish
+**Next:** v8's side-view aiming is good on the desktop (the developer). The
+phone can only try what's published, so the developer will say when to publish
 (release 9.0 is the block game's first; the mockup itself isn't on the site).
 
 **How to work on the mockup:** as in the status entries earlier today. This
-session's test scripts were in its scratchpad (gone with it): a gap check
+session's test scripts are saved in
+`C:\Users\dpark\Documents\Web-Games-testing\2026-11-10_block-mockup-tests\`
+(its README says how to run them; entry above): a gap check
 measuring from the physics bodies, a perfect-aim player (straight throws first;
 after a hit that knocks nothing down, the lowest standing block; watches
 `world.contacts` for a standing block touching a thing), and the aiming test.
