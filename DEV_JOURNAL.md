@@ -15422,3 +15422,64 @@ Q63's cause; nothing a falling thing can lean on; the camera fitted to what
 matters). A separate skill pays off only when another project would load it.
 
 **Open questions:** none new. Q63, Q47 unchanged.
+
+## 2026-11-10: Block game mockup v8: the side view aims the way the ball goes
+
+**Mockup v8** ([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+the same link, version 8; from v7). As proposed in "Mockup v7 tried"
+(developer: "OK").
+
+**What changed:**
+- **The side view aims as the front view does:** drag the way the ball should
+  go. The drag's direction sets how high (straight right: flat; up: up to
+  70°), its length how hard (as v7's pull: 0.4-1.15 times the front view's
+  throw, full at 0.4 of the stage's width); always straight at the structure.
+  A drag the other way (left or down) throws flat. The hint says "Drag to aim,
+  then let go" in both views.
+- **A choice, "Side view aiming":** Drag where it goes (first) or Pull back
+  (v7), to compare on the phone. Pull back keeps its own hint ("Pull back, then
+  let go"). Each side-view throw logs which (`sideAim`).
+- Saved under `block-game-v8` keys (starts at scene 1). The page says what's
+  new.
+
+**Checked** (the built-in browser):
+- A test of 11 checks, all passed: the front view unchanged (a drag up aims
+  32° up); drag where it goes: right and up 150/100 px → 34°, a shorter drag
+  softer at the same angle, straight right flat, a pull back (left and down)
+  flat, the dots show while dragging, a throw made and logged with `sideAim:
+  point`; pull back: left and down → 34°, right and up → flat; each hint. The
+  two ways' checks mirror each other, each passing only in its own way.
+- **A real mouse drag** on the stage (not the test hook), right and up: a
+  34° throw, 10 dots shown while dragging. No console errors.
+
+**For the developer:** the side view's new aiming, with the mouse; then
+whether to publish so the phone can try it (and the pull-back, with a finger).
+
+**Open questions:** none new. Q63, Q47 unchanged.
+
+## 2026-11-10: Status (start here next session)
+
+**Where things are:** the block game is at **mockup v8**
+([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+version 8): v7 (nothing within a falling block's reach, the backboard behind on
+an arm; no more stuck blocks, the developer) and the side view aiming the way
+the ball goes (entry above).
+
+**Next:** the developer tries v8's side-view aiming on the desktop. The phone
+can only try what's published, so the developer will say when to publish
+(release 9.0 is the block game's first; the mockup itself isn't on the site).
+
+**How to work on the mockup:** as in the status entries earlier today. This
+session's test scripts were in its scratchpad (gone with it): a gap check
+measuring from the physics bodies, a perfect-aim player (straight throws first;
+after a hit that knocks nothing down, the lowest standing block; watches
+`world.contacts` for a standing block touching a thing), and the aiming test.
+Run any comparison on both versions with the same script ("Compare versions
+with one test run on both").
+
+**Also on this branch, not published:** Q63's Tin Can Alley fix (commit
+62fb198) for release 9.0.
+
+**Open questions:** Q63, Q47. None new.
+
+**Skill additions:** none waiting.
