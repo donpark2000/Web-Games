@@ -14662,3 +14662,28 @@ Not checked: a phone, a finger, sound.
 **For the developer to judge:** C or D (Claude's expectation from the
 bands: D is easier to land, C more familiar); then the rest of the list
 (side cut, nets or walls, balls, the puzzles).
+
+## 2026-11-09: Mockup v3 tried: the bank shot isn't playable
+
+**Developer:** "Much better. But bank shot is not playable. Maybe it should
+not not switch to side view. It is really hard to tell where the ball is
+going. And the target seems smaller after selecting bank shot. And if there
+is a net it is almost impossible to see what is behind the net when using
+bank shots"
+
+C or D not said (asked).
+
+Claude's reading, from how the bank shot is built:
+- **The side cut** shows the throw's height and length, but a bank shot's
+  turn is sideways (off the board): the one thing a side view can't show.
+- **Smaller:** the view is fitted to everything in the puzzle, and the
+  board sits well left (x -1.7 m at Far), so the camera widens; and the
+  bank shot's blocks are smaller (13 cm cubes at Near) than the arch's.
+- **The net:** its lines are drawn every 7 cm × the scale, white at 0.9; at
+  Far, 5-6 m away, they blur into a pale screen in front of small blocks.
+
+**Proposed for v4:** stay behind after every throw (the side cut a
+switch, not the default); a more compact bank shot (the board nearer the
+middle, the blocks the arch's size), checked solvable; barriers: a lighter
+net (thinner, fainter, bigger holes) or a glass panel with a frame (both
+bounce the ball); the solid wall dropped.
