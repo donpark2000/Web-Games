@@ -14737,3 +14737,83 @@ None new.
 
 **Skill additions:** none proposed. (Considered: "measure how much room a
 finger has" when tuning a touch control; it's this game's case, kept here.)
+
+## 2026-11-09: Block game mockup v4: D only, stay behind, a compact bank shot, a lighter net or glass
+
+**Developer:** "Build V4. Remove C"
+
+**Mockup v4** ([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+the same link, version 4; from v3's published page):
+- **The slingshot is D only** (point where to throw); C and the Slingshot
+  switch gone. The hint "Drag to aim, then let go" from the start (v3's
+  page opened on the stall's "Drag back, then let go to throw").
+- **After the throw: stay behind** first (the side cut kept as a switch,
+  "Cut to the side (v3)"). The picks are saved under a new key, so v3's
+  saved "side" doesn't carry over.
+- **Barriers: Light net** (first) **or Glass panel**; the solid wall
+  gone. The net: dark thin cord (was white, 3 px of 64), opacity 0.55
+  (was 0.9), holes 12 cm × the scale (were 7). The glass: a faint
+  blue-white pane with two streaks of shine, framed all round; the ball
+  keeps 0.3 off it (v3's wall's).
+- **The bank shot, rebuilt** (Near metres; Far doubles them):
+  - **Why v3's looked small** (measured): the view is fitted by height,
+    and the tallest thing was the barrier (2.0 m, 4 m at Far) plus the
+    lob's room over it: 85°. The board's place didn't matter (v3's board
+    spot gives the same 85°). **Now the view is fitted up to the board's
+    top**, not the barrier's; the barrier runs off the top of the screen:
+    **56°** at Far (arch 71°, Over the net 78°). The stack on an upright
+    phone: 46 px tall, 55 wide. v3's, worked out from its sizes and 85°
+    (not measured): about 25 × 25, so roughly twice as big now.
+  - **More compact:** barrier 0.7 wide (was 1.0; still hides the blocks
+    from a straight throw), the board just past its edge (x -0.62, z
+    -2.65; was -0.85, -2.6), 0.6 long (was 0.8). The board's length
+    turned out not to matter: 0.6, 0.9 and 1.0 all gave 115 hitting
+    shots at 0.5 (the limit is where the bounce lands, not the board).
+  - **The blocks: the arch's pieces**, two posts 0.30 tall, a cube
+    between, a beam, a cube on top (5; were 4: two 13 cm cubes, a plank,
+    a cube). Tried first: a squat stack of 16 cm cubes; the bounce hit it
+    as the dots said (5-11 cm) and **0 fell in 5 hits** (ball after the
+    board slower than the blocks are heavy). The posts alone: still 0 off
+    in 7 of 8, the steep lobs landing on top and pressing down.
+  - **Board lower** (its middle 1.0 m, was 1.3) for a flatter bounce, and
+    **the barrier 2.6 m** (was 2.0) so no lob clears it. **Strength 0.55**
+    (as v3). Swept (Far, 8 real throws each from across the hitting band):
+    board 1.0 or 1.3 high × z -2.65 or -2.8 × strength 0.55 or 0.65; 0.65
+    narrows the up band to 24 px; 1.0 / -2.65 / 0.55 the best spread of
+    knocks with the smallest view. At 0.55 with v3's 2.0 m barrier, 38 of
+    the scan's lobs (60-66° up) went over it onto the blocks; 0 with 2.6.
+
+**Checked** (served on 8130 by `serve-mockup.mjs` in the scratchpad as in
+v2/v3, a temporary `.claude/launch.json` entry removed after; built-in
+browser at 375 × 812; no console errors, no sideways scroll):
+- **The bank shot at Far** (D, strength 0.55; a scan of up 0-70° by 2,
+  aim -1 to 1 by 0.025): 317 shots touch the board first, **74 go on to a
+  block**, 0 hit a block straight; up 28-66°, the widest band at one aim
+  39 px up the screen, 30 px sideways at one angle (v3, coarser scan: 60
+  and 136 px; not the same measure, v3's sideways was across angles).
+  **8 real throws** across the band (drag, 6 s): the board 0-3 cm from
+  the path each time, the block after it 2-8 cm; **off 0, 0, 3, 3, 4, 3,
+  4, 1 of 5** (v3's: 1, 2, 2, 1, 0, 1, 0, 1 of 4).
+- **The Medium dots** of a bank shot: 10 of 10 on the screen, none
+  reaching the board (half the way): the bounce is the player's
+  judgement.
+- **Still until hit:** all three puzzles at Near, Far and Farther with
+  each barrier, 10 s: moved 0, none awake.
+- **Stay behind:** the camera stays behind; the next ball ready at 0.9 s.
+  The side cut, switched on: cuts, back behind by 3 s.
+- Arch and Over the net: as v3 (D at 0.5); real throws Over the net 4/5
+  off (net or glass), the arch 1/6 at 30°; a flat throw (20°) at the
+  glass bounced off it.
+- **Screenshots:** the bank shot (net): the board on the left, the blocks
+  clear through the net, the dots climbing to the board; with glass, a
+  faint pane in a frame, the blocks as clear; Over the net: the dots
+  rising over the net to the tower, the dark net see-through.
+
+Not checked: a phone, a finger, sound.
+
+**For the developer to judge:** the bank shot (playable now? still too
+hard: 30 px sideways is a narrow aim); light net or glass; then the rest
+of the list: balls a puzzle (5 or 3), the puzzles themselves.
+
+**Open questions:** none new. Q63 (fixed on the branch, for 9.0), Q47
+unchanged.
