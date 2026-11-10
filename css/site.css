@@ -183,5 +183,8 @@ h1 { font-size: 32px; margin: 0; text-align: center; letter-spacing: .5px; text-
 /* Tin Can Alley: the stall in small (src/ui/tcapics.js) */
 .game .pic.tca { display: block; width: 150px; }
 .game .pic.tca .tcamini { display: block; width: 100%; height: auto; }
+/* Topple!: the park in small (src/ui/topplepics.js) */
+.game .pic.tp { display: block; width: 150px; }
+.game .pic.tp .tpmini { display: block; width: 100%; height: auto; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

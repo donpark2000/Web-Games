@@ -4,9 +4,11 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-09, latest): **Tin Can Alley: the view from behind
-fitted to each lot of cans** (built on `tin-can-alley`, not published;
-see "Tin Can Alley"). Earlier the same day: **Tin Can Alley** (knock the cans off a
+*Status (2026-11-10, latest): **Topple!**, the block game (knock
+structures down with a slingshot in a 3D park; level 1, 5 scenes,
+hearts and jewels), built from the Block Game Mockup v8 on `block-game`,
+for release 9.0 (see "Topple!"). 2026-11-09: **Tin Can Alley: the view from behind
+fitted to each lot of cans** (release 8.1; see "Tin Can Alley"). Earlier the same day: **Tin Can Alley** (knock the cans off a
 fairground stall's shelf, 3D) published as release 8.0 (see "Tin Can Alley"); agreed from mockup v4
 earlier the same day. 2026-11-08: **the 2D Five Dice retired**, Five Dice 3D
 the only one (release 7.6, published; see "Five Dice" and "3D games").
@@ -2043,6 +2045,114 @@ actually game play area for each orientation"):
   the field of view, upright or sideways), each throw, the first can
   hit, cans off, the camera's moves, the round's end (with fps and the
   physics' ms), Start again, resumed, why 3D couldn't start.
+
+### Topple!
+
+The third 3D game (named by the developer, 2026-11-10; "the block game"
+until then), agreed from the
+[Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT)
+(private, versions 1-8; journal, "Block game mockup v1" to "Mockup v8
+tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
+
+- **Knock every block of a structure down with 5 balls from a
+  slingshot**, in a park (a mown lawn whose stripes are 1 m apart, trees
+  far off), seen over the thrower's right shoulder. The structures stand
+  on the ground: an arch, two posts, a pyramid (scenes 1-4), a two-storey
+  tower or a fence (scene 5); every block on the ground is upright, so a
+  hit can tip it. **A block is down** once tipped more than 45° or
+  dropped 0.6 of its smallest side, and stays counted down. All down for
+  0.35 s: cleared. Out of balls: over 2 s after the last throw once the
+  blocks are still (at most 9.9 s).
+- **Things in the way:** one in scenes 1-4, two in scene 5: a **bush**
+  between (solid, soft: the ball keeps 0.2 of its speed into it), a
+  **tree** to one side (its trunk in the way of a straight throw, its
+  leaves of a lob; see-through in the side view when it's on the
+  camera's side), a **glass backboard** (lively: 0.7) beside, turned so
+  a throw at it bounces on to the structure, or behind it, hung from an
+  arm (as a basketball hoop). **Nothing on the ground within a falling
+  block's reach** (the tallest block plus 10 cm, in plan view; mockup
+  v6: a block came to rest upright against a pole).
+- **Every scene is checked before it's shown** (the mockup's check):
+  every block that can be hit with nothing in the way can still be hit
+  (one may be missed); the things matter; in one view or the other every
+  block at least partly seen and a third wholly (developer: "At least
+  one view should give you something to aim at, and allow you to see if
+  you hit it, and if anything is left"); at least 15 throws of a scan
+  hit a block; a backboard has at least 3 bank shots. A layout that
+  fails is thrown away and the next tried (25 at most, else the best).
+- **Levels** (developer, 2026-11-10): a level is **5 scenes**, the 5th
+  harder. A scene cleared wins a **💎** and the next scene; one not
+  cleared loses one of **3 ❤️** and is played again; the last heart lost
+  goes back to scene 1, **the same scenes** ("to help kids proceed up
+  levels"); 5 💎 finish the level. **Level 1 only** for now (developer:
+  "lets get the basic idea of a level, hearts, jewels working"); a level
+  done starts a new game with new scenes. Each level later gets a theme
+  (journal, "Mockup v5 tried": more 3D frames, glass that shatters,
+  metal and dynamite, ropes), one a release.
+- **The scenes are made from the game's seed**, so they're the same
+  each time; only a new game makes new ones. **The game is kept on the
+  device** (`web-games-topple-game`: the seed, level, scene, hearts,
+  jewels) for every visit, saved as it's made and as each scene ends;
+  the scene under way only for the visit, as every game (its layout,
+  the balls used and the blocks as they last stood still; a ball in
+  flight comes back to the pouch; an ended scene shows its card again).
+- **One drag aims** (mockups v3-v4: "D"; no slider, no numbers: "Kids do
+  not even know what a degree is"). **From behind:** drag where to
+  throw: up aims higher (flat to 70°), sideways the same way (up to
+  22°); how hard is the scene's (a 45° throw reaches about 1.35 times as
+  far as the structure, more to reach a backboard behind). **From the
+  side** (mockup v8; developer: "Aiming fix for side view is good"):
+  drag the way the ball should go: its direction how high, its length
+  how hard (0.4-1.15 times the front's), always straight at the
+  structure. v7's pull-back dropped (developer, 2026-11-10). **The
+  dots:** one for every 0.05 s of flight, for ½ s, stopping where the
+  ball would touch something, the last one orange; bigger in the side
+  view.
+- **The side view, any time** (a button on the park; developer:
+  "free"): from the right, across the throw, 25° forward and 8° down, the
+  slingshot on the left and the structure on the right, fitted to the
+  whole way. The view from behind is fitted to the scene: from the
+  slingshot to the structure's top with room for a lob, 3° spare. The
+  camera stays put after a throw.
+- **Sizes:** made at "Near" and shown at **Far**: everything twice as
+  big and twice as far from the hand, the ball its own size, weighing 8
+  times as much (2 kg) and thrown √2 times as fast. Blocks 27 kg/m³.
+- **Physics: cannon-es 0.20.0**, as Tin Can Alley; the blocks asleep
+  until the ball touches one; every body's collision box refreshed as
+  it's placed (Q63's cause).
+- **Setup** (developer: "as Tin Can Alley"): the rules line with the
+  park in small, **Pick your face**, **Play!** (or **Carry on** with
+  where the game is: "Level 1 · scene 3 of 5 · ❤️❤️🤍 · 💎💎") and **New
+  scenes from scene 1** once a game is under way. **Home:** 👤 One
+  player, after Tin Can Alley; its picture an arch in a park, the top
+  cube knocked off.
+- **Play: the park fills the screen** (as Tin Can Alley's stall):
+  upright, the 🏠, name and 🔊 over it and a bar under it (your face, "N
+  of 7 down" and the 5 balls under it) with **↺ Start again**; sideways,
+  a column at its left. Over the park: **Level 1 💎○○○○** and the
+  hearts at its top, **Side view / Front view** and the hint ("Drag to
+  aim, then let go") at its foot. **Start again** asks first and **costs
+  a ❤️** ("Start this scene again? You lose a ❤️"; else it would be a
+  way round losing one); not before the first ball. The scene's end in
+  a card: your face, "Teddy cleared it! 💎" / **Scene 2 of 5**; "Out of
+  balls 💔", "2 hearts left" / **Try again**; "No hearts left", "Back to
+  scene 1" / **Start again**; "Level 1 done! 💎💎💎💎💎" / **Play
+  again**; and **New game** (the setup screen).
+- **Sounds:** `whoosh` (a throw), `knock` (a wooden block knocked,
+  louder the harder; new), `rustle` (the bush or leaves; new), `boing`
+  (the glass; new), `thud` (the ground, trunk or a pole), `win` /
+  `aww`.
+- **Code:** the rules, scenes and camera in `src/core/topple.js`; the
+  physics, the path ahead and the scene check in
+  `src/core/topple-world.js` (both tested under Node); the drawing in
+  `src/ui/topple-scene.js`; the screens in `src/ui/topple.js`. A device
+  that can't run three.js, cannon-es or WebGL sees only "This phone or
+  tablet can't show the 3D park".
+- **Logged:** 3D started, the game on the device, the fit (both views),
+  each scene (its layout, the check, how long it took to make), layouts
+  thrown away, each throw (view, speed, angle, the path's touches) and
+  where the ball touched against the path, blocks down, the view, the
+  scene's end (with fps and the physics' ms), Start again, resumed.
 
 ## Later
 

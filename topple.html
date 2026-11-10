@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Topple!</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#E4F1EE">
+<meta name="apple-mobile-web-app-title" content="Let's Play!">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/topple.css">
+</head>
+<body>
+<main class="app">
+  <!-- SETUP: your face, and Play! where the game is (level, scene, hearts,
+       jewels), or new scenes from the start (developer, 2026-11-10: "as
+       Tin Can Alley") -->
+  <section id="setup" class="app" aria-label="New game">
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <h1>Topple!</h1>
+    </div>
+
+    <div class="panel no3d" id="no3d" hidden>
+      <p>This phone or tablet can’t show the 3D park.</p>
+    </div>
+
+    <div class="panel rulesbox">
+      <div class="rulespic" id="rulesPic" aria-hidden="true"></div>
+      <p class="rules">Drag to aim, then let go. Knock <b>every block</b> down with <b>5 balls</b> to win a 💎!</p>
+    </div>
+
+    <div class="panel p1">
+      <h2><span>Pick your face</span> <span class="chip" id="p1Chip"></span></h2>
+      <div class="faces" id="p1Faces"></div>
+    </div>
+
+    <div class="go">
+      <p class="where" id="where"></p>
+      <button type="button" class="big" id="playBtn">Play!</button>
+      <button type="button" class="pill" id="freshBtn" hidden>New scenes from scene 1</button>
+      <div class="why" id="why"></div>
+    </div>
+  </section>
+
+  <!-- PLAY: the park fills the screen, as Tin Can Alley's stall. Upright,
+       the 🏠, name and 🔊 in a row over it and the score and Start again in
+       a bar under it; sideways, all of them in a column at its left. The
+       level's jewels and the hearts over the park's top, the view switch at
+       its foot; messages over it. -->
+  <section id="play" aria-label="Game" hidden>
+    <div class="top">
+      <a class="homebtn" href="index.html" aria-label="All games"></a>
+      <div class="gname">Topple!</div>
+    </div>
+    <div class="park" id="park">
+      <canvas id="c" aria-label="A park: a structure of blocks to knock down with a slingshot"></canvas>
+      <div class="hud">
+        <span class="hudpill" id="hudLevel" role="img" aria-label="Level 1, no jewels yet"></span>
+        <span class="hudpill" id="hudHearts" role="img" aria-label="3 hearts"></span>
+      </div>
+      <p class="hint" id="hint" aria-live="polite">Drag to aim, then let go</p>
+      <button type="button" class="viewbtn" id="viewBtn">Side view</button>
+      <div class="over" id="over" hidden>
+        <div class="overcard" role="dialog" aria-labelledby="overTitle">
+          <span class="chip" id="overChip"></span>
+          <p class="overtitle" id="overTitle"></p>
+          <p class="oversub" id="overSub"></p>
+          <button type="button" class="big" id="nextBtn"></button>
+          <button type="button" class="pill" id="newBtn">New game</button>
+        </div>
+      </div>
+      <div class="over" id="ask" hidden>
+        <div class="overcard" role="dialog" aria-labelledby="askTitle">
+          <p class="overtitle" id="askTitle">Start this scene again? You lose a ❤️</p>
+          <button type="button" class="pill primary" id="restartYes">Yes</button>
+          <button type="button" class="pill" id="restartNo">No</button>
+        </div>
+      </div>
+    </div>
+    <div class="tally" id="tally" aria-label="Score">
+      <span class="chip" id="s1Chip"></span>
+      <span class="downs"><span class="n" id="downN">0</span><span class="who" id="downWho">of 5 down</span></span>
+      <span class="balls" id="balls" role="img" aria-label="5 balls left"></span>
+    </div>
+    <div class="restart"><button type="button" class="pill" id="restartBtn">↺ Start again</button></div>
+  </section>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a></footer>
+<script type="module" src="src/ui/topple.js"></script>
+<script type="module" src="src/ui/nozoom.js"></script>
+<script type="module" src="src/ui/stats.js"></script>
+<script type="module" src="src/ui/offline.js"></script>
+</body>
+</html>

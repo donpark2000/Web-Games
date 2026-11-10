@@ -36,6 +36,13 @@ time, each tried before publishing:
   the version yet ... V9." **Fixed on `block-game`** (not published;
   "Q63 fixed on the branch"); open until 9.0 is live.
 
+- **Q64. Topple!: how hard are the scenes for the kids?** (2026-11-10,
+  building it; "Topple! built"). A perfect-aim player clears 21 of 30
+  scenes (the arch 6 of 11); a heart lost to a scene a child can't clear
+  feels unfair (Claude, "Mockup v5 tried": fairness the first risk).
+  To judge on the phone, and with the kids; if too hard, the arch's
+  plank lighter or more balls, as the developer prefers.
+
 ## Proposed additions to the standards skill
 
 None waiting. (2026-11-10: "Check from where the user stands" (from
@@ -15498,5 +15505,113 @@ with one test run on both").
 62fb198) for release 9.0.
 
 **Open questions:** Q63, Q47. None new.
+
+**Skill additions:** none waiting.
+
+## 2026-11-10: Topple! built (release 9.0, not published)
+
+**Developer:** "Lets build 9.0 so I can test on my phone." Asked first (three
+questions): the name **Topple!** (of Claude's three: Topple!, Knock 'Em Down,
+Slingshot Park); the side view's pull-back **dropped** (only "drag where it
+goes"); the setup screen **as Tin Can Alley's** (your face, Play!), in 👤 One
+player after Tin Can Alley. Built on `block-game` from mockup v8 with its agreed
+settings (over the shoulder, Far, 5 balls, the camera staying behind, the
+whole way in the side view, ½ s of dots); the mockup's other choices gone.
+DESIGN.md "Topple!" has the whole design.
+
+**How it's built** (as Tin Can Alley): the rules, the scenes' layouts and the
+camera maths in `src/core/topple.js`; the cannon-es world, the path ahead
+(`trace`) and the scene check in `src/core/topple-world.js`, with no DOM or
+three.js, so **the scene check and the test player now run under Node**; the
+drawing in `src/ui/topple-scene.js`; the screens in `src/ui/topple.js`. New
+sounds `knock`, `rustle`, `boing` (the mockup's, made from the site's kit).
+
+**The port checked against the mockup** (the reference, run in the built-in
+browser from the saved test folder): the same layout seed (866886922, the arch
+behind a tree) gave **the same layout** (the blocks' places to the mm, the same
+check: 61 straight hits, ok), and the same three throws **the same results**
+(a 0.39, 27° up: the purple cube hit, nothing down, in both; a -0.09, 15°: a
+post hit, nothing down; a 0.16, 27°: the green cube down). The mockup's own
+player lost that scene too, 0 of 5 down in 5 balls.
+
+**Tests** (503 → 533, all pass; one command `npm test`, about 31 s):
+- `tests/topple.test.js` (14): the drags (mockup v8's checks: right and up
+  150/100 px → 34°, a shorter drag softer at the same angle, left and down
+  flat; from behind, up 32°), a block down, the game's jewels, hearts and the
+  last heart back to scene 1 with the same seed, a scene's end (all down held
+  0.35 s; out of balls once still, or 9.9 s), what's kept on the device
+  (11 bad shapes refused), the dots, both views taking in every block.
+- `tests/topple-world.test.js` (8): 3 games' 15 scenes made, 14+ passing the
+  check (15 did), each still and asleep for 5 s; a scene the same each time it's
+  made; **the reach from the bodies** in 40 layouts (every kind of thing), and
+  shown to fail with a pole moved beside the structure; the path's first touch
+  where the ball first touches (5 scenes, within 15 cm); `touch()` on each
+  shape; **the perfect-aim player** (the mockup's, kept) clears at least 7 of
+  10 (games 4242 and 2026: 8), no block left upright against a thing; a scene
+  picked up again with the fallen blocks still down.
+- `tests/topple-page.test.js` (8): the page, setup, no mockup choices left, 3D
+  loaded with import(), the park filling the screen, Start again costing a
+  heart, the game kept under its own key, the log lines.
+- The pages, sound and offline tests take in the new page and sounds.
+
+**The perfect-aim player over 30 scenes** (6 games, Node, 2026-11-10): **21
+cleared**, 3.2 balls on average (the mockup's player about 75%: 15 of 20, and
+46 of 55 aiming at a post after a miss). By structure: the pyramid 9 of 9,
+the posts 3 of 4, the tower 3 of 6, **the arch 6 of 11** (a plank on two posts
+doesn't fall from a hit on the plank, and a low hit on a post often slides
+it). None left a block leaning on a thing. A child will do worse than a
+perfect aim: see Q64. Scenes took 130-600 ms each to make and check under Node
+on this PC (1-3 tries); the phone's time is in the log (`scene` ... `ms`).
+
+**Checked in the built-in browser** (393 × 760, then 780 × 340):
+- A real mouse drag up 120 px: a 56° throw, landing where the path said (0 cm
+  off). The setup screen, the park, the side view with the dots (a drag right
+  and up 150/100: 34°, 10 dots), sideways (the park 674 × 324, no scroll), the
+  home tile. No console errors.
+- **Whole scenes, with the player in the page:** scene 1 cleared in 3 balls
+  ("Teddy cleared it! 💎", Scene 2 of 5, the level pill with 1 💎); scene 2
+  lost three times ("Out of balls 💔 / 2 hearts left / Try again", then 1,
+  then "No hearts left / Back to scene 1"), its layout the same each time
+  (seed 1703734259), and scene 1 again the same as before (175090169); scene 5
+  cleared: "Level 1 done!", a new game kept.
+- **Found and fixed while checking:**
+  - **A reload lost the scene under way**: a new game was kept on the device
+    only once a scene ended, so a reload made a new seed and the kept scene
+    no longer matched it. Now kept as it's made; a reload carries on (1 ball
+    used, the same game).
+  - **The 5 balls ran over "of 5 down"** in the bar (Tin Can Alley has 3):
+    now under the count.
+  - "No hearts left" showed 3 full hearts over the park (the game already
+    moved on): the pills now show the scene's end until the next one.
+  - A reload on an ended scene's card showed "6 of 7 down" (the last
+    snapshot was before the last block fell): the blocks are kept as the
+    scene ends too.
+  - "Play again: new scenes" wrapped in two lines: now **Play again**, with
+    "New scenes next time" under the title.
+
+**Not checked:** a phone or a finger (only what's published; the developer's
+next step), the sounds by ear, an older device (Q47).
+
+**Release 9.0 prepared** (not published): `src/core/release.js` 9.0, `node
+tools/offline.js` (version 671d399e01fa, 135 files), RELEASES.md's notes (with
+Q63's Tin Can Alley fix), `node tools/release.js`: "Release 9.0 is ready".
+
+**Open questions:** Q64 new (how hard the scenes are for the kids). Q63 (the
+fix goes out in 9.0), Q47 unchanged.
+
+## 2026-11-10: Status (start here next session)
+
+**Where things are:** **Topple!** built on `block-game` (entry above), release
+9.0 prepared and ready (`node tools/release.js`), **not published**. The
+mockup's test scripts are now the repo's tests; the testing folder
+`Web-Games-testing\2026-11-10_block-mockup-tests\` can be purged (with the
+developer's OK).
+
+**Next:** the developer's OK to publish 9.0 (merge `block-game` to `main`,
+tag v9.0, the GitHub release); then Topple! on the phone: the aiming with a
+finger in both views, how hard (Q64), the scene-making time in the log, the
+sounds. After that, level 2 (one level a release).
+
+**Open questions:** Q64, Q63, Q47.
 
 **Skill additions:** none waiting.

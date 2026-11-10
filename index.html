@@ -77,6 +77,11 @@
         <span class="pic tca" id="tcaPic" aria-hidden="true"></span>
         Tin Can Alley
       </a>
+      <!-- Topple! (2026-11-10): after Tin Can Alley. -->
+      <a class="game" id="tpLink" href="topple.html">
+        <span class="pic tp" id="tpPic" aria-hidden="true"></span>
+        Topple!
+      </a>
       <a class="game" id="brLink" href="bridges.html">
         <span class="pic bridges" id="brPic" aria-hidden="true"></span>
         Bridges
@@ -122,6 +127,7 @@
   import { miniSvg as brMini } from './src/ui/brboard.js';
   import { miniSvg as rvMini } from './src/ui/rvboard.js';
   import { stallMini } from './src/ui/tcapics.js';
+  import { toppleMini } from './src/ui/topplepics.js';
   import { log, startLog } from './src/ui/debuglog.js';
   import { homePage } from './src/ui/resume.js';
   import { logScrollRoom } from './src/ui/scrolllog.js';
@@ -177,6 +183,8 @@
     `<span class="${i === 0 ? 'lit' : ''}" style="${padStyle(p.color)}">${svg(p.face, i === 0 ? 'winner' : 'normal')}</span>`).join('');
   // Tin Can Alley: the stall in small, the top can knocked off.
   document.getElementById('tcaPic').innerHTML = stallMini('tcamini');
+  // Topple!: an arch of blocks in a park, its top cube knocked off.
+  document.getElementById('tpPic').innerHTML = toppleMini('tpmini');
   // Bridges: the setup screen's picture, a Small puzzle solved.
   document.getElementById('brPic').innerHTML = brMini('brmini');
   // Find the Stars: a 5 x 5 under way, two stars found and the ✕s around

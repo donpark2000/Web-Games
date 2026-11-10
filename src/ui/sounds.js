@@ -107,6 +107,16 @@ export const RECIPES = {
   },
   // A throw (Tin Can Alley; the stall mockup's): noise swept up.
   whoosh: (k, t, level = 1) => k.noise(t, { dur: 0.25, peak: 0.2 + 0.25 * level, f: 500, to: 1800, q: 1.2, attack: 0.02 }),
+  // A wooden block knocked (Topple!; the block game mockup's): a short
+  // falling note through a band of wood, a random pitch; `level` 0-1 for how hard.
+  knock: (k, t, level = 1) => {
+    k.tone(t, 380 + Math.random() * 260, { type: 'triangle', to: 180, dur: 0.12, peak: 0.1 + 0.35 * level, attack: 0.002 });
+    k.noise(t, { dur: 0.05, peak: 0.08 + 0.2 * level, f: 900, q: 2 });
+  },
+  // The ball in a bush or a tree's leaves (Topple!): a soft high rustle.
+  rustle: (k, t) => k.rattle(t, 10, 0.25, 2500, 6000, 0.12),
+  // The ball off the glass backboard (Topple!): a note that springs up and settles.
+  boing: (k, t) => k.tone(t, 220, { to: 620, dur: 0.35, peak: 0.25, attack: 0.01, vib: 40, vibRate: 9 }),
 };
 
 // makeContext: () => an AudioContext, or null where there is none.

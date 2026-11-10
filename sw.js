@@ -20,9 +20,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '9cd22f10965c';
-const MADE = '2026-11-09';
-const RELEASE = '8.1';
+const VERSION = '671d399e01fa';
+const MADE = '2026-11-10';
+const RELEASE = '9.0';
 const FILES = [
   'bridges.html',
   'colour-sudoku.html',
@@ -49,6 +49,7 @@ const FILES = [
   'css/snakes-ladders.css',
   'css/tic-tac-toe.css',
   'css/tin-can-alley.css',
+  'css/topple.css',
   'data/bridges.json',
   'data/colour-sudoku.json',
   'data/five-dice-long.bin',
@@ -99,6 +100,8 @@ const FILES = [
   'src/core/tic-tac-toe.js',
   'src/core/tin-can-alley-physics.js',
   'src/core/tin-can-alley.js',
+  'src/core/topple-world.js',
+  'src/core/topple.js',
   'src/core/version.js',
   'src/ui/brboard.js',
   'src/ui/bridges.js',
@@ -144,6 +147,9 @@ const FILES = [
   'src/ui/tic-tac-toe.js',
   'src/ui/tin-can-alley-stall.js',
   'src/ui/tin-can-alley.js',
+  'src/ui/topple-scene.js',
+  'src/ui/topple.js',
+  'src/ui/topplepics.js',
   'src/ui/tray3d.js',
   'src/vendor/cannon-es/LICENSE',
   'src/vendor/cannon-es/cannon-es.js',
@@ -152,6 +158,7 @@ const FILES = [
   'src/vendor/three/three.module.min.js',
   'tic-tac-toe.html',
   'tin-can-alley.html',
+  'topple.html',
 ];
 // ---- end ----
 

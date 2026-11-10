@@ -55,7 +55,8 @@ function setupSound({ ctx = fakeContext(), storage = fakeStorage(), noAudio = fa
 // The developer's picks (sampler v1, 2026-10-09) plus the tie.
 // clack: a die landing in Five Dice 3D's tray (2026-11-07, the mockups' click).
 // clink and whoosh: a tin can knocked, a throw (Tin Can Alley, 2026-11-09, the stall mockup's).
-const NAMES = ['tick', 'thud', 'win', 'aww', 'tie', 'swish', 'shake', 'ding', 'uhoh', 'climb', 'wheee', 'ping', 'clack', 'clink', 'whoosh'];
+// knock, rustle and boing: a block knocked, the ball in leaves, off the glass (Topple!, 2026-11-10, the block game mockup's).
+const NAMES = ['tick', 'thud', 'win', 'aww', 'tie', 'swish', 'shake', 'ding', 'uhoh', 'climb', 'wheee', 'ping', 'clack', 'clink', 'whoosh', 'knock', 'rustle', 'boing'];
 
 test('sound: the fifteen sounds, each scheduling audio that starts now and ends within 2 s', () => {
   assert.deepEqual(Object.keys(RECIPES).sort(), [...NAMES].sort());
@@ -205,6 +206,11 @@ const GAME_SOUNDS = {
   // A whoosh for a throw, a clink per can knocked, a thud for the ball on
   // wood; 'aww' for a round with cans left (2026-11-09, the stall mockup's).
   'tin-can-alley': ['whoosh', 'clink', 'thud', 'aww'],
+  // A whoosh for a throw, a wooden knock per block hit, a rustle in the bush
+  // or the leaves, a boing off the glass backboard, a thud on the ground,
+  // the trunk or a pole; 'aww' for a scene not cleared (2026-11-10, the block
+  // game mockup's).
+  topple: ['whoosh', 'knock', 'rustle', 'boing', 'thud', 'aww'],
 };
 
 test('sound: each game plays its agreed sounds, all real ones, and the end-of-round sound', async () => {
@@ -225,7 +231,7 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 40);
+  assert.equal(checked, 46);
 });
 
 // 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (developer, 2026-10-09; was

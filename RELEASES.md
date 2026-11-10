@@ -7,6 +7,30 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 9.0 (2026-11-10, version 671d399e01fa)
+
+A new game: **Topple!**, knock blocks down with a slingshot in a 3D park
+(in 👤 One player):
+
+- **Knock every block down with 5 balls.** Drag to aim, then let go: up
+  to throw higher, sideways to aim. Dots show the start of the ball's
+  path, stopping orange where it would hit something.
+- **Things in the way:** a bush, a tree, or a glass backboard to bounce
+  the ball off.
+- **Level 1 has 5 scenes.** Clear a scene to win a 💎; run out of balls
+  and lose one of 3 ❤️ and try it again. Lose all 3 and it's back to
+  scene 1, with the same scenes. Five 💎 finish the level. The game
+  remembers where you got to; "New scenes from scene 1" starts afresh.
+- **Side view, any time:** watch the throw from the side, and aim there
+  too (drag the way the ball should go: up for higher, further for
+  harder).
+- **The park fills the screen** held either way, as in Tin Can Alley.
+- Wooden knocks, a rustle in the leaves, a boing off the glass, and a
+  tune when a scene is cleared.
+
+Also: **Tin Can Alley's ball no longer flies through cans** now and then
+(when thrown across the pile).
+
 ## 8.1 (2026-11-09, version 4f6f55052884)
 
 Tin Can Alley: bigger cans.

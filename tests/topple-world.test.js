@@ -1,0 +1,220 @@
+// Topple!'s physics, path and scene check (src/core/topple-world.js) under
+// Node, checking what the mockup's scripts checked in the browser (journal,
+// "Block game mockup v7" and "Mockup v8 tried"; the scripts kept in the
+// testing folder): every scene stands still, asleep; nothing a falling block
+// could lean on is within its reach, measured from the bodies; a scene comes
+// out the same each time; the path's first touch is where the ball touches;
+// a perfect-aim player clears most scenes, leaving no block upright against
+// a thing. Seconds of physics, nothing written.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { createWorld, touch } from '../src/core/topple-world.js';
+import {
+  SCALE, HAND, MAX_AIM, R2D, SCENES, launchVel, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts,
+} from '../src/core/topple.js';
+
+const DT = 1 / 60;
+const GAMES = [12345, 777, 4242];
+
+test('topple world: every scene of three games is made, checked and stands still for 5 s, asleep', () => {
+  let made = 0, ok = 0;
+  for (const seed of GAMES) {
+    const w = createWorld();
+    for (let i = 1; i <= SCENES; i++) {
+      const s = w.makeScene(seed, 1, i);
+      made++;
+      if (s.check.ok) ok++;
+      assert.equal(w.blocks.length, s.parts.blocks.length);
+      assert.equal(w.awake(), 0, `${seed}/${i}: blocks awake at the start`);
+      for (let k = 0; k < 300; k++) w.step(DT);
+      assert.equal(w.awake(), 0, `${seed}/${i}: blocks woke with nothing touching them`);
+      assert.ok(w.drift() < 1e-6, `${seed}/${i}: blocks moved ${w.drift()} m`);
+      assert.equal(w.downCount(), 0, `${seed}/${i}: a block fell`);
+      // scene 5: two things and a bigger structure
+      assert.equal(s.layout.n, i < SCENES ? 1 : 2);
+      assert.ok(s.layout.things.length >= 1, `${seed}/${i}: nothing in the way`);
+    }
+  }
+  assert.equal(made, 15);
+  assert.ok(ok >= 14, `only ${ok} of ${made} scenes passed the check`);
+});
+
+test('topple world: a scene is the same every time it\'s made, and another scene or game is not', () => {
+  const a = createWorld().makeScene(777, 1, 3), b = createWorld().makeScene(777, 1, 3);
+  assert.deepEqual(a.layout, b.layout);
+  assert.deepEqual(a.check, b.check);
+  const c = createWorld().makeScene(777, 1, 4), d = createWorld().makeScene(778, 1, 3);
+  assert.notDeepEqual(c.layout.blocks, a.layout.blocks);
+  assert.notDeepEqual(d.layout.blocks, a.layout.blocks);
+});
+
+// The reach (mockup v7): every part of a thing low enough for a falling
+// block to lean on stands at least the tallest block plus 10 cm (Near
+// metres) from the structure's footprint, in plan view, measured from the
+// physics bodies as built, not the layout's own numbers.
+function measureReach(w) {
+  const blk = w.blocks.map(b => ({ p: b.body.position, he: b.body.shapes[0].halfExtents }));
+  const rect = {
+    x0: Math.min(...blk.map(b => b.p.x - b.he.x)), x1: Math.max(...blk.map(b => b.p.x + b.he.x)),
+    z0: Math.min(...blk.map(b => b.p.z - b.he.z)), z1: Math.max(...blk.map(b => b.p.z + b.he.z)),
+  };
+  const reach = Math.max(...blk.map(b => 2 * b.he.y)) / SCALE + 0.1;
+  const gapAt = (x, z) => Math.hypot(Math.max(rect.x0 - x, 0, x - rect.x1), Math.max(rect.z0 - z, 0, z - rect.z1)) / SCALE;
+  let min = Infinity, parts = 0;
+  for (const o of w.obstacles(b => b.kind !== 'block')) {
+    let low, gap;
+    if (o.r !== undefined) { low = o.c[1] - o.r; gap = gapAt(o.c[0], o.c[2]) - o.r / SCALE; } else if (o.R !== undefined) { low = o.c[1] - o.hh; gap = gapAt(o.c[0], o.c[2]) - o.R / SCALE; } else {
+      // a box turned about the upright: its outline in plan view
+      low = o.c[1] - o.h[1];
+      const yaw = 2 * Math.atan2(o.q[1], o.q[3]), ux = [Math.cos(yaw), -Math.sin(yaw)], uz = [Math.sin(yaw), Math.cos(yaw)];
+      gap = Infinity;
+      for (let i = -4; i <= 4; i++) for (let j = -4; j <= 4; j++) {
+        if (Math.abs(i) !== 4 && Math.abs(j) !== 4) continue;
+        gap = Math.min(gap, gapAt(o.c[0] + ux[0] * o.h[0] * i / 4 + uz[0] * o.h[2] * j / 4, o.c[2] + ux[1] * o.h[0] * i / 4 + uz[1] * o.h[2] * j / 4));
+      }
+    }
+    if (low / SCALE < reach) { parts++; min = Math.min(min, gap); }
+  }
+  return { reach, min, parts };
+}
+
+test('topple world: nothing a falling block could lean on is within its reach (40 scenes, every kind of thing)', () => {
+  const w = createWorld();
+  let checked = 0, parts = 0;
+  for (const pool of [['bush'], ['tree'], ['backboard'], ['bush', 'tree', 'backboard']]) {
+    for (let seed = 1; seed <= 10; seed++) {
+      const L = makeLayout(seed * 7919, sceneOpts(seed % 5 === 0 ? 5 : 1), pool);
+      w.setScene(sceneParts(L));
+      const m = measureReach(w);
+      if (m.parts) assert.ok(m.min >= m.reach - 0.005, `${pool}/${seed}: a part ${m.min.toFixed(3)} m from the structure, reach ${m.reach.toFixed(3)}`);
+      checked++; parts += m.parts;
+    }
+  }
+  assert.equal(checked, 40);
+  assert.ok(parts > 100, `only ${parts} low parts measured`);
+});
+
+test('topple world: the measure catches a thing within reach (a pole moved next to the structure)', () => {
+  const L = makeLayout(4, sceneOpts(1), ['backboard']);
+  const p = sceneParts(L);
+  const pole = p.bodies.find(b => b.kind === 'stand');
+  const s = p.blocks[0];
+  pole.shapes[0].at = [s.x + s.w / 2 + 0.1, pole.shapes[0].at[1], s.z];
+  const w = createWorld();
+  w.setScene(p);
+  const m = measureReach(w);
+  assert.ok(m.min < m.reach - 0.005, `not caught: ${m.min} against ${m.reach}`);
+});
+
+test('topple world: the path\'s first touch is where the thrown ball first touches', () => {
+  const w = createWorld();
+  const touches = [];
+  const ww = createWorld({ onHit: h => { if (h.a === 'ball' && touches.length < 1) touches.push({ kind: h.b, at: [h.ball.position.x, h.ball.position.y, h.ball.position.z] }); } });
+  let checked = 0;
+  for (const i of [1, 2, 3, 4, 5]) {
+    const s = w.makeScene(12345, 1, i);
+    ww.setScene(s.parts);
+    // aimed at the structure's middle, 15° up
+    const st = s.parts.stand, aim = Math.atan2(st.x - HAND.x, HAND.z - st.z) * R2D / MAX_AIM;
+    const { vec } = launchVel(s.layout.power, aim, 15);
+    const pred = ww.trace(vec, 0).hits[0];
+    touches.length = 0;
+    ww.throwBall(vec);
+    for (let k = 0; k < 180 && !touches.length; k++) ww.step(DT);
+    assert.ok(pred && touches.length, `scene ${i}: no touch`);
+    assert.equal(touches[0].kind, pred.kind, `scene ${i}: touched ${touches[0].kind}, the path said ${pred.kind}`);
+    const off = Math.hypot(...touches[0].at.map((v, j) => v - pred.at[j]));
+    assert.ok(off < 0.15, `scene ${i}: ${(off * 100).toFixed(1)} cm from the path's touch`);
+    checked++;
+  }
+  assert.equal(checked, 5);
+});
+
+test('topple world: touch() finds a box\'s, a sphere\'s and the trunk\'s surface, and nothing past it', () => {
+  const box = { type: 1 << 2, c: [0, 1, 0], q: [0, Math.sin(Math.PI / 8), 0, Math.cos(Math.PI / 8)], h: [0.5, 0.2, 0.1], rad: Math.hypot(0.5, 0.2, 0.1) };
+  assert.ok(touch([0, 1.25, 0], box, 0.06), 'just over the top');
+  assert.equal(touch([0, 1.27, 0], box, 0.06), null, 'clear of the top');
+  assert.deepEqual(touch([0, 1.25, 0], box, 0.06).n.map(v => +v.toFixed(6)), [0, 1, 0]);
+  const sphere = { type: 1, c: [0, 0, 0], r: 0.3, rad: 0.3 };
+  assert.ok(touch([0.35, 0, 0], sphere, 0.06));
+  assert.equal(touch([0.37, 0, 0], sphere, 0.06), null);
+  const trunk = { type: 0, c: [0, 1, 0], R: 0.2, hh: 1, rad: Math.hypot(0.2, 1) };
+  assert.ok(touch([0.25, 1.5, 0], trunk, 0.06));
+  assert.equal(touch([0.27, 1.5, 0], trunk, 0.06), null);
+  assert.equal(touch([0, 2.07, 0], trunk, 0.06), null, 'over the trunk\'s top');
+});
+
+// The perfect-aim player (the mockup's, as kept): for each ball, scans the
+// throws as the check does and picks one whose path first touches a block
+// still standing (or the glass, then one), straight throws first; of those,
+// the middle one at the highest standing block (after a ball that knocked
+// nothing down, the lowest).
+function pickThrow(w, power, low) {
+  const obs = w.obstacles(), standing = new Set(w.blocks.filter(b => !b.down).map(b => b.body));
+  if (!standing.size) return null;
+  const az = [...standing].map(b => Math.atan2(b.position.x - HAND.x, HAND.z - b.position.z) * R2D / MAX_AIM);
+  const a0 = Math.max(-1, Math.min(...az) - 0.2), a1 = Math.min(1, Math.max(...az) + 0.2);
+  const GLASS = new Set(['glass']), cands = [];
+  for (let up = 0; up <= 70; up += 3) for (let a = a0; a <= a1 + 1e-9; a += 0.04) {
+    const h = w.trace(launchVel(power, a, up).vec, 1, obs, GLASS).hits;
+    let target = null;
+    if (h[0]?.kind === 'block' && standing.has(h[0].body)) target = h[0].body;
+    else if (h[0]?.kind === 'glass' && h[1]?.kind === 'block' && standing.has(h[1].body)) target = h[1].body;
+    if (target) cands.push({ a, up, target, bank: h[0].kind === 'glass' });
+  }
+  if (!cands.length) return null;
+  const direct = cands.filter(c => !c.bank), pool = direct.length ? direct : cands;
+  const ys = pool.map(c => c.target.position.y), want = low ? Math.min(...ys) : Math.max(...ys);
+  const best = pool.filter(c => Math.abs(c.target.position.y - want) < 1e-6);
+  return best[Math.floor(best.length / 2)];
+}
+function playScene(w, s) {
+  const r = newRound(w.blocks.length);
+  let low = false, lastDown = 0, leaningAtEnd = 0, ended = null;
+  const run = sec => { for (let t = 0; t < sec - 1e-9 && !ended; t += DT) { const { down } = w.step(DT); ended = update(r, DT, { down, still: w.still() }).ended; } };
+  while (!ended && canThrow(r).why !== 'no-balls') {
+    while (!ended && !canThrow(r).ok && canThrow(r).why === 'not-ready') run(DT);
+    if (ended) break;
+    if (r.used) { low = r.down === lastDown; lastDown = r.down; }
+    const p = pickThrow(w, s.layout.power, low);
+    assert.ok(useBall(r).ok);
+    w.throwBall(launchVel(s.layout.power, p ? p.a : 0, p ? p.up : 30).vec);
+    run(3);
+  }
+  run(20);
+  leaningAtEnd = w.leaning();
+  return { won: !!ended?.won, ended: !!ended, down: r.down, total: r.total, balls: r.used, leaningAtEnd };
+}
+
+// Over 6 games (30 scenes, 2026-11-10) it cleared 21 (the mockup's player
+// about 75%), in 3.2 balls; the arch the hardest (6 of 11: a plank on two
+// posts doesn't fall from a hit on the plank). These two games: 8 of 10.
+test('topple world: a perfect-aim player clears most scenes, no block left upright against a thing', () => {
+  const rows = [];
+  for (const seed of [4242, 2026]) {
+    const w = createWorld();
+    for (let i = 1; i <= SCENES; i++) rows.push({ i, ...playScene(w, w.makeScene(seed, 1, i)) });
+  }
+  const summary = rows.map(r => `${r.i}:${r.won ? 'won' : 'lost'} ${r.down}/${r.total} in ${r.balls}${r.leaningAtEnd ? ' LEANING' : ''}`).join(', ');
+  assert.equal(rows.length, 10);
+  assert.ok(rows.every(r => r.ended), `a scene never ended: ${summary}`);
+  assert.ok(rows.filter(r => r.won).length >= 7, `only ${rows.filter(r => r.won).length} of 10 cleared: ${summary}`);
+  assert.equal(rows.filter(r => r.leaningAtEnd).length, 0, `a standing block against a thing: ${summary}`);
+});
+
+test('topple world: a scene picked up again puts the blocks where they were, the fallen still down', () => {
+  const w = createWorld();
+  // the arch behind a tree: this throw knocks the top left cube off (the mockup's too)
+  const s = w.makeScene(12345, 1, 2);
+  w.throwBall(launchVel(s.layout.power, 0.16, 27).vec);
+  for (let k = 0; k < 360; k++) w.step(DT);
+  const poses = JSON.parse(JSON.stringify(w.poses())), down = w.downCount();
+  assert.ok(down > 0, 'the throw knocked nothing down');
+  const w2 = createWorld();
+  w2.setScene(s.parts, poses);
+  assert.equal(w2.downCount(), down);
+  assert.deepEqual(w2.poses(), poses);
+  for (let k = 0; k < 120; k++) w2.step(DT);
+  assert.ok(w2.drift() > 0, 'the blocks put back at their start');
+  assert.equal(w2.downCount(), down, 'a block came back up');
+});
