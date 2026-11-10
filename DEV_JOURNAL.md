@@ -14574,3 +14574,7 @@ I did not try the other parameters yet"
 - **Distance: Far** (2×). Agreed.
 - Still to try: the dots' length (which one was used not said), the
   numbers, the side cut, nets or walls, balls a puzzle, the puzzles.
+- Then: "I was using medium dot lengths". So **Medium (½ s) at Far** is
+  what was liked: at Far the puzzles are twice as far, so ½ s covers
+  about as much of the way as ¼ s at Near (~40%). Taken as the setting
+  unless the developer says otherwise.
