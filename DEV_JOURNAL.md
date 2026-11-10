@@ -16086,9 +16086,10 @@ missed"). Proposed: a top-view mockup in a fresh session.
 
 - **Live: 9.1.** On `block-game`, not published: scenes 1-4 dealt so
   neighbours differ; the "can be won" test; `world.frontSeen()`.
-- **Next:** the developer's choices: publish the dealt scenes now as 9.2
-  (the hidden-block trouble still in it), or wait for the hidden-block fix;
-  and the hidden-block design (a top view, Claude's lean; a mockup first).
+- **Next:** the hidden-block design, in a fresh session: a top-view mockup
+  first (Claude's lean, from the developer's idea), and the check's new rule.
+  The dealt scenes wait for that fix (developer: "Lets wait until we fix
+  'hidden blocks'"); then both go out together as 9.2.
 - **Test cases for the hidden blocks:** game 1288553953 scene 5 (the
   developer's, layout 2015036129, as 9.1 made it; with dealt scenes its
   scene 5 is made the same way, sceneOpts(5), so the same); game 1127182140
