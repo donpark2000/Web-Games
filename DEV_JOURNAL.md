@@ -15650,4 +15650,5 @@ ai-dev-practices README now says where (commit 94b5c7c, pushed).
 
 **Open questions:** Q64, Q47.
 
-**Skill additions:** none waiting (the last one to upload, above).
+**Skill additions:** none waiting. The skill uploaded by the developer the same day
+("I found the skills and updated"; the new place "well hidden").
