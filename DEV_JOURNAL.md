@@ -14604,3 +14604,7 @@ explanation is not my goal. I want it to be intuative."
     solvable on all three puzzles (C's risk: Over the net).
 - This changes the agreed slingshot ("set the angle up *and* the speed",
   "8.1 liked ... on to the block game"): one of the two becomes the game's.
+- **Developer:** "Kds do not even know what a degree is." (The slider's
+  label read "Up 45°".) So **no numbers on the screen**: no degrees, no
+  speed; v2's "Speed and angle numbers" switch goes too. Angles and speeds
+  stay in the debug line and the log only.
