@@ -15227,3 +15227,33 @@ sizes, the see-through tree); then v7 or the build of level 1.
 
 **Skill additions:** one proposed ("Check from where the user stands"; the
 developer met the same case on v5).
+
+## 2026-11-10: Mockup v6 tried: a block stuck upright against the backboard's pole
+
+**The developer on v6:** "Everything worked well - the jewels, the hearts, the
+side view." One problem: with a backboard, "one of the blocks ended up upright
+but right in front of the pole holding up the backboard. I could not knock it
+down. I hit the block but it just hit the pole and stayed upright."
+
+**Why** (from v6's placement code; not reproduced in the browser): the
+backboard behind stands 8-18 cm behind the structure's back, its pole 6 cm
+further, so **14-24 cm** behind it (Near metres; twice that on the screen at
+Far). The tallest blocks on the ground are 51 cm (the arch's posts). A block
+falling back can come to rest against the pole, still upright (not tipped 45°,
+not dropped), and a hit only pushes it into the pole. The same can happen
+elsewhere: the backboard beside has its glass from 10-40 cm off the ground,
+about 10-30 cm from the structure's side; the bush's nearest leaves are about
+10-45 cm in front. v5's table hid this: a block that fell off the table was
+off, whatever it leaned on.
+
+**Proposed for v7** (waiting for the developer):
+- **Nothing standing on the ground within reach of a falling block:** the bush,
+  the tree, the beside backboard and every pole at least the tallest block's
+  height plus 10 cm from the structure (Near: about 60 cm).
+- **The backboard behind on an arm**, like a basketball hoop: its pole out of
+  reach behind, an arm over to the board, the board where it is now (its foot
+  over the structure's top, so nothing falls against it).
+- The scenes then made and checked again (the perfect-aim player), to see the
+  bush further out still matters and the bank shots still work.
+
+**Open questions:** none new. Q63, Q47 unchanged.
