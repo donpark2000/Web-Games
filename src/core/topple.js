@@ -159,20 +159,31 @@ const PLACE = {
     }
     return { kind: 'bush', x, z, W, H, balls, foot: { x0: x - W / 2 - 0.05, x1: x + W / 2 + 0.05, z0: z - 0.3, z1: z + 0.3 } };
   },
-  // Between, 15-55 cm to one side of the line: a trunk 1.9 m tall, leaves
-  // from about 1.65 m up (a flat shot goes under them, a lob into them); no
-  // nearer the slingshot than 1.5 m (nearer, its trunk filled the screen's
-  // middle). With a bush level with it, just past the bush's end.
+  // Between, 15-55 cm left of the line: a trunk 1.9 m tall, leaves from
+  // about 1.6 m up (a flat shot goes under them, a lob into them); no nearer
+  // the slingshot than 1.5 m (nearer, its trunk filled the screen's middle).
+  // With a bush level with it, just past the bush's end.
+  // Only on the left: on the right it stood between the side view's camera
+  // and the throw, so it was see-through there (developer, 2026-11-10: "much
+  // lighter coloring"). The draw that picked the side is still made, so the
+  // rest of the layout comes out as before.
+  // The leaves in 4 clumps (developer, 2026-11-10: "a few big main branches
+  // coming off the trunk"): the trunk splits at 1.3-1.5 m (`from`) and goes
+  // on up to a clump over the middle; three branches go out and up, each to
+  // a clump, spread round so the branches show between them.
   tree(R, table, rng, stackTop, camN, room, placed = []) {
-    const side = rng() < 0.5 ? -1 : 1;
+    rng();
     const z = Math.min(-1.7, table.z + R(0.55, 1.6)), r = R(0.07, 0.11), trunkH = 1.9;
-    let x = lineX(table, z) + side * R(0.15, 0.55);
+    let x = lineX(table, z) - R(0.15, 0.55);
     const bush = placed.find(t => t.kind === 'bush');
-    if (bush && z + 0.2 > bush.foot.z0 && z - 0.2 < bush.foot.z1) x = side > 0 ? Math.max(x, bush.foot.x1 + 0.21) : Math.min(x, bush.foot.x0 - 0.21);
-    const leaves = [];
-    for (let i = 0; i < 4; i++) leaves.push({ x: x + R(-0.3, 0.3), y: R(2.25, 2.55), z: z + R(-0.25, 0.25), r: R(0.45, 0.6) });
-    // right of the line is the side view camera's side: see-through in that view
-    return { kind: 'tree', where: side > 0 ? 'right' : 'left', x, z, r, trunkH, leaves, foot: { x0: x - 0.2, x1: x + 0.2, z0: z - 0.2, z1: z + 0.2 } };
+    if (bush && z + 0.2 > bush.foot.z0 && z - 0.2 < bush.foot.z1) x = Math.min(x, bush.foot.x0 - 0.21);
+    const fork = R(1.3, 1.5), a0 = R(0, 2 * Math.PI);
+    const leaves = [{ x: x + R(-0.05, 0.05), y: R(2.35, 2.5), z: z + R(-0.05, 0.05), r: R(0.36, 0.42), from: fork }];
+    for (let i = 0; i < 3; i++) {
+      const a = a0 + i * 2 * Math.PI / 3 + R(-0.4, 0.4), d = R(0.4, 0.52);
+      leaves.push({ x: x + d * Math.cos(a), y: R(1.95, 2.25), z: z + d * Math.sin(a), r: R(0.28, 0.35), from: fork + R(-0.12, 0.12) });
+    }
+    return { kind: 'tree', where: 'left', x, z, r, trunkH, leaves, foot: { x0: x - 0.2, x1: x + 0.2, z0: z - 0.2, z1: z + 0.2 } };
   },
   // A glass backboard, 0.9 × 0.6: beside, turned so a throw at its middle
   // bounces on to the structure's middle (moved out sideways until its
@@ -265,7 +276,7 @@ export function makeLayout(seed, opts = sceneOpts(1), pool = KINDS) {
 
 // A layout in the world's metres, for the physics and the drawing alike:
 // { blocks: [{ w, h, d, x, y, z, c }], bodies: the fixed things' physics
-// ({ kind, faded, shapes: [{ type: 'box', half, at, yaw } | { type: 'sphere',
+// ({ kind, shapes: [{ type: 'box', half, at, yaw } | { type: 'sphere',
 // r, at } | { type: 'cyl', r, hh, at }] }), props: what's drawn of them
 // ({ part, ... }), stand (the structure's footprint), bounds (what the view
 // must show: { min, max }) }.
@@ -276,13 +287,16 @@ export function sceneParts(L) {
     if (t.kind === 'bush') {
       const shapes = t.balls.map(b => ({ type: 'sphere', r: X(b.r), at: [X(b.x), Y(b.y), Z(b.z)] }));
       bodies.push({ kind: 'bush', shapes });
-      shapes.forEach((sh, i) => { props.push({ part: 'bush', i, r: sh.r, at: sh.at }); fitBox(...sh.at, sh.r, sh.r, sh.r); });
+      // drawn as one leafy bush over all its balls
+      props.push({ part: 'bush', balls: shapes.map(sh => ({ r: sh.r, at: sh.at })) });
+      shapes.forEach(sh => fitBox(...sh.at, sh.r, sh.r, sh.r));
     } else if (t.kind === 'tree') {
-      const r = X(t.r), h = Y(t.trunkH), x = X(t.x), z = Z(t.z), faded = t.where === 'right';
+      const r = X(t.r), h = Y(t.trunkH), x = X(t.x), z = Z(t.z);
       const leaves = t.leaves.map(l => ({ type: 'sphere', r: X(l.r), at: [X(l.x), Y(l.y), Z(l.z)] }));
-      bodies.push({ kind: 'tree', faded, shapes: [{ type: 'cyl', r, hh: h / 2, at: [x, h / 2, z] }, ...leaves] });
-      props.push({ part: 'trunk', r, h, at: [x, h / 2, z], faded });
-      leaves.forEach((l, i) => props.push({ part: 'leaves', i, r: l.r, at: l.at, faded }));
+      bodies.push({ kind: 'tree', shapes: [{ type: 'cyl', r, hh: h / 2, at: [x, h / 2, z] }, ...leaves] });
+      // drawn: the trunk up into the middle clump, a branch to each other
+      // clump from where it leaves the trunk (drawn only: a ball passes them)
+      props.push({ part: 'tree', r, at: [x, 0, z], clumps: leaves.map((l, i) => ({ r: l.r, at: l.at, from: [x, Y(t.leaves[i].from), z] })) });
       // the view takes in the trunk up to just over the ground, not the leaves (they may run off the top)
       extra.push([x, 0.05, z], [x, Y(L.table.top + 0.6), z]);
     } else {

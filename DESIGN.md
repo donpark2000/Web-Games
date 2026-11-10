@@ -2064,14 +2064,25 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   0.35 s: cleared. Out of balls: over 2 s after the last throw once the
   blocks are still (at most 9.9 s).
 - **Things in the way:** one in scenes 1-4, two in scene 5: a **bush**
-  between (solid, soft: the ball keeps 0.2 of its speed into it), a
-  **tree** to one side (its trunk in the way of a straight throw, its
-  leaves of a lob; see-through in the side view when it's on the
-  camera's side), a **glass backboard** (lively: 0.7) beside, turned so
+  between (a ball that touches it keeps 0.1 of its speed and drops
+  through it to the ground; developer: "if a ball hit a bush it would
+  just fall to the ground"), a **tree** to the left (its trunk in the
+  way of a straight throw, its leaf clumps of a lob; only on the left,
+  so it never stands between the side view's camera and the throw: on
+  the right it had to be see-through there), a **glass backboard**
+  (lively: 0.7) beside, turned so
   a throw at it bounces on to the structure, or behind it, hung from an
   arm (as a basketball hoop). **Nothing on the ground within a falling
   block's reach** (the tallest block plus 10 cm, in plan view; mockup
   v6: a block came to rest upright against a pole).
+- **Leafy** (the [Bush Looks](https://claude.ai/artifact/7yYyVzSf7Cdd4BfPvoaco8)
+  mockup, private, v2; developer, 2026-11-10: "B - leafy bush"): small
+  leaves at odd angles over a dark core, darker low down. The **tree's
+  trunk splits** at 1.3-1.5 m (developer: "a few big main branches
+  coming off the trunk"): it goes on up to a clump over the middle, and
+  three branches go out and up, each to a clump, spread round so the
+  branches show. The ball touches the clumps, not the branches (drawn
+  only). The far-off trees the same, their leaves 4 times as big.
 - **Every scene is checked before it's shown** (the mockup's check):
   every block that can be hit with nothing in the way can still be hit
   (one may be missed); the things matter; in one view or the other every
@@ -2148,8 +2159,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   `src/ui/topple-scene.js`; the screens in `src/ui/topple.js`. A device
   that can't run three.js, cannon-es or WebGL sees only "This phone or
   tablet can't show the 3D park".
-- **Logged:** 3D started, the game on the device, the fit (both views),
-  each scene (its layout, the check, how long it took to make), layouts
+- **Logged:** 3D started (with the far-off trees' leaves), the game on
+  the device, the fit (both views), each scene (its layout, the check,
+  how long it took to make, its leaves and how long they took to draw), layouts
   thrown away, each throw (view, speed, angle, the path's touches) and
   where the ball touched against the path, blocks down, the view, the
   scene's end (with fps and the physics' ms), Start again, resumed.

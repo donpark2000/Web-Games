@@ -9,7 +9,7 @@
 // gets the page's words.
 
 import * as THREE from '../vendor/three/three.module.min.js';
-import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS } from '../core/topple.js';
+import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng } from '../core/topple.js';
 
 // Whether this device can draw 3D: a WebGL canvas can be made.
 export function webglOk() {
@@ -51,8 +51,65 @@ export function makePark3d(canvas) {
   fill.position.set(-2, 3, 3); fill.target.position.set(0, 1, -4);
   scene.add(fill, fill.target);
 
+  /* ---------- leaves (the Bush Looks mockup v2's "leafy") ---------- */
+
+  // Small leaves all over a set of balls ([{ r, at }]), pointing outwards at
+  // odd angles, over a dark core so the gaps look like shade; darker low down
+  // (y0-y1: the heights it darkens over). L: a leaf's length. The same leaves
+  // each time for the same balls (seeded by them). A group; its leaf count
+  // in userData.leaves.
+  const DARK = new THREE.Color('#24502A');
+  const leafShape = new THREE.Shape();
+  leafShape.moveTo(0, -0.5); leafShape.quadraticCurveTo(0.42, -0.05, 0, 0.5); leafShape.quadraticCurveTo(-0.42, -0.05, 0, -0.5);
+  const leafGeo = new THREE.ShapeGeometry(leafShape, 3);
+  const leafMat = new THREE.MeshStandardMaterial({ roughness: 0.9, side: THREE.DoubleSide });
+  const coreMats = {};
+  const tmp = new THREE.Object3D(), col = new THREE.Color(), dir = new THREE.Vector3();
+  function leafy(balls, pal, y0, y1, L, shadow = true) {
+    const g = new THREE.Group(), rand = rng(1 + Math.round(Math.abs(balls[0].at[0] * 7919 + balls[0].at[2] * 104729 + balls.length)));
+    const core = coreMats[pal[0]] ??= new THREE.MeshStandardMaterial({ color: new THREE.Color(pal[0]).lerp(DARK, 0.6), roughness: 1 });
+    for (const b of balls) {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(b.r * 0.9, 14, 10), core);
+      m.position.set(...b.at); m.castShadow = shadow; m.receiveShadow = true; g.add(m);
+    }
+    const inOther = (p, self) => balls.some(o => o !== self && Math.hypot(p[0] - o.at[0], p[1] - o.at[1], p[2] - o.at[2]) < o.r * 0.86);
+    const spots = [];
+    for (const b of balls) {
+      const n = Math.round(4 * Math.PI * b.r * b.r / (L * L * 0.5));
+      for (let i = 0; i < n; i++) {
+        const u = rand() * 2 - 1, a = rand() * Math.PI * 2, s = Math.sqrt(1 - u * u), d = [s * Math.cos(a), u, s * Math.sin(a)];
+        const k = b.r * (0.93 + 0.14 * rand()), p = [b.at[0] + d[0] * k, b.at[1] + d[1] * k, b.at[2] + d[2] * k];
+        if (p[1] < 0.02 || inOther(p, b)) continue;
+        spots.push([p, d]);
+      }
+    }
+    const leaves = new THREE.InstancedMesh(leafGeo, leafMat, spots.length);
+    const cols = pal.map(c => new THREE.Color(c));
+    spots.forEach(([p, d], i) => {
+      tmp.position.set(...p); tmp.lookAt(dir.set(...p).add(new THREE.Vector3(...d)));
+      tmp.rotateZ(rand() * Math.PI * 2); tmp.rotateX((rand() - 0.5) * 1.1);
+      tmp.scale.setScalar(L * (0.8 + 0.5 * rand())); tmp.updateMatrix(); leaves.setMatrixAt(i, tmp.matrix);
+      leaves.setColorAt(i, col.copy(cols[Math.floor(rand() * 3)]).offsetHSL(0, 0, (rand() - 0.5) * 0.06)
+        .lerp(DARK, Math.max(0, Math.min(0.4, 0.4 * (y1 - p[1]) / (y1 - y0)))));
+    });
+    leaves.castShadow = shadow; leaves.receiveShadow = true; g.add(leaves);
+    g.userData.leaves = spots.length;
+    return g;
+  }
+  const BUSH_GREENS = ['#3F8A46', '#4C9A50', '#5AA85C'], LEAF_GREENS = ['#4F9A55', '#5DAA5E', '#3E8446'];
+  const LEAF = 0.075 * SCALE;
+  const barkMat = new THREE.MeshStandardMaterial({ color: '#7A5638', roughness: 1 });
+  // a tapering limb from a to b, radius r0 to r1
+  function limb(a, b, r0, r1) {
+    const v = b.clone().sub(a), m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, v.length(), 10), barkMat);
+    m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.normalize());
+    m.castShadow = m.receiveShadow = true;
+    return m;
+  }
+
   /* ---------- the park ---------- */
 
+  let farLeaves = 0;
   {
     const lawn = canvasTex(64, 256, (g, w, h) => {
       g.fillStyle = '#8DBE72'; g.fillRect(0, 0, w, h / 2);
@@ -62,12 +119,14 @@ export function makePark3d(canvas) {
     }, [60, 60]);
     const m = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshStandardMaterial({ map: lawn, roughness: 1 }));
     m.rotation.x = -Math.PI / 2; m.receiveShadow = true; scene.add(m);
-    const trunk = new THREE.MeshStandardMaterial({ color: '#7A5638', roughness: 1 });
-    const leaves = ['#4F9A55', '#5DAA5E', '#478C4E'].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 1 }));
+    // the trees far off: the same leaves 4 times as big (they still read from
+    // that far), casting no shadow (out of the shadows' reach anyway)
     const far = [[-9, -22], [-5, -27], [-1.5, -31], [3, -26], [7.5, -23], [12, -29], [-13, -30], [16, -21], [-17, -19], [0.5, -40], [-7, -38], [9, -36]];
     far.forEach(([x, z], i) => {
-      const t = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, 1.6, 8), trunk); t.position.set(x, 0.8, z); scene.add(t);
-      const c = new THREE.Mesh(new THREE.SphereGeometry(1.5 + (i % 3) * 0.3, 14, 10), leaves[i % 3]); c.position.set(x, 2.6 + (i % 2) * 0.4, z); scene.add(c);
+      const t = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, 1.6, 8), barkMat); t.position.set(x, 0.8, z); scene.add(t);
+      const r = 1.5 + (i % 3) * 0.3, y = 2.6 + (i % 2) * 0.4;
+      const c = leafy([{ r, at: [x, y, z] }], ['#4F9A55', '#5DAA5E', '#478C4E'], y - r, y + r, 0.3, false);
+      scene.add(c); farLeaves += c.userData.leaves;
     });
   }
 
@@ -99,40 +158,44 @@ export function makePark3d(canvas) {
     g.lineWidth = 6; g.strokeRect(w / 2 - 40, h - 82, 80, 58);
   });
   const boardMat = new THREE.MeshBasicMaterial({ map: boardTex, transparent: true, depthWrite: false, side: THREE.DoubleSide });
-  const bushMats = ['#3F8A46', '#4C9A50', '#5AA85C'].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.95 }));
-  const barkMat = new THREE.MeshStandardMaterial({ color: '#7A5638', roughness: 1 });
-  const leafMats = ['#4F9A55', '#5DAA5E', '#3E8446'].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 1 }));
-  // a tree between the side view's camera and the throw is see-through in that view
-  const faded = m => { const f = m.clone(); f.transparent = true; f.opacity = 0.22; f.depthWrite = false; return f; };
-  const barkFade = faded(barkMat), leafFades = leafMats.map(faded);
 
   /* ---------- a scene's things and blocks ---------- */
 
   let built = [], blockMeshes = [];
-  const fades = [];   // [mesh, its material, see-through]
   function box(o, mat, shadow = true) {
     const m = new THREE.Mesh(new THREE.BoxGeometry(o.w, o.h, o.d), mat);
     m.position.set(o.x, o.y, o.z); if (o.yaw) m.rotation.y = o.yaw;
     m.castShadow = shadow; m.receiveShadow = true; scene.add(m);
     return m;
   }
-  function ball(at, r, mat) {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), mat);
-    m.position.set(...at); m.castShadow = true; m.receiveShadow = true; scene.add(m);
-    return m;
+  // A tree: the trunk tapering up into the middle clump, a branch from the
+  // trunk to each other clump, the clumps leafy.
+  function tree(p) {
+    const g = new THREE.Group(), [mid, ...side] = p.clumps, base = new THREE.Vector3(...p.at);
+    g.add(limb(base, new THREE.Vector3(...mid.at), p.r, p.r * 0.55));
+    for (const c of side) g.add(limb(new THREE.Vector3(...c.from), new THREE.Vector3(...c.at), p.r * 0.5, p.r * 0.28));
+    const balls = p.clumps.map(c => ({ r: c.r, at: c.at }));
+    const leaves = leafy(balls, LEAF_GREENS, Math.min(...balls.map(b => b.at[1] - b.r)), Math.max(...balls.map(b => b.at[1] + b.r)), LEAF);
+    g.add(leaves); g.userData.leaves = leaves.userData.leaves;
+    return g;
   }
+  // What a scene drew: { leaves, ms }.
   function setScene(parts) {
-    for (const m of built) { scene.remove(m); m.geometry.dispose(); }
-    built = []; blockMeshes = []; fades.length = 0;
+    const t0 = performance.now();
+    for (const m of built) {
+      scene.remove(m);
+      m.traverse(o => { if (o.isInstancedMesh) o.dispose(); if (o.geometry && o.geometry !== leafGeo) o.geometry.dispose(); });
+    }
+    built = []; blockMeshes = [];
+    let leaves = 0;
     for (const p of parts.props) {
       let m;
-      if (p.part === 'bush') m = ball(p.at, p.r, bushMats[p.i % 3]);
-      else if (p.part === 'leaves') { m = ball(p.at, p.r, leafMats[p.i % 3]); if (p.faded) fades.push([m, leafMats[p.i % 3], leafFades[p.i % 3]]); } else if (p.part === 'trunk') {
-        m = new THREE.Mesh(new THREE.CylinderGeometry(p.r, p.r, p.h, 16), barkMat);
-        m.position.set(...p.at); m.castShadow = m.receiveShadow = true; scene.add(m);
-        if (p.faded) fades.push([m, barkMat, barkFade]);
-      } else if (p.part === 'board') m = box(p, [boardMat, boardMat, frameMat, frameMat, frameMat, frameMat], false);
+      if (p.part === 'bush') {
+        const ys = p.balls.map(b => b.at[1] + b.r);
+        m = leafy(p.balls, BUSH_GREENS, 0, Math.max(...ys), LEAF); scene.add(m);
+      } else if (p.part === 'tree') { m = tree(p); scene.add(m); } else if (p.part === 'board') m = box(p, [boardMat, boardMat, frameMat, frameMat, frameMat, frameMat], false);
       else m = box(p, postMat);   // the pole and the arm
+      leaves += m.userData.leaves || 0;
       built.push(m);
     }
     for (const b of parts.blocks) { const m = box(b, blockMat(b.c)); built.push(m); blockMeshes.push(m); }
@@ -143,6 +206,7 @@ export function makePark3d(canvas) {
     sun.position.set(c.x + 1.4 * SCALE, 4.2 * SCALE + 1, c.z + 2.6 * SCALE); sun.target.position.copy(c);
     Object.assign(sun.shadow.camera, { left: -R, right: R, top: R, bottom: -R, near: 0.5, far: 12 * SCALE + 6 });
     sun.shadow.camera.updateProjectionMatrix();
+    return { leaves, ms: Math.round(performance.now() - t0) };
   }
 
   /* ---------- the slingshot (drawn only; not in the physics) ---------- */
@@ -191,6 +255,7 @@ export function makePark3d(canvas) {
 
   return {
     webgl,
+    farLeaves,
     setScene,
     // Each block's mesh where the physics has it; the balls in flight (meshes of balls gone taken away).
     sync(blockBodies, ballBodies) {
@@ -231,11 +296,10 @@ export function makePark3d(canvas) {
       if (dots.instanceColor) dots.instanceColor.needsUpdate = true;
     },
     dotCount: () => dots.count,
-    // The camera ({ pos, look, fov }); `side`: the tree on the camera's side see-through.
-    setCamera(c, side = false) {
+    // The camera ({ pos, look, fov }).
+    setCamera(c) {
       camera.position.set(...c.pos); look.set(...c.look); camera.lookAt(look);
       if (c.fov && Math.abs(c.fov - camera.fov) > 1e-3) { camera.fov = c.fov; camera.updateProjectionMatrix(); }
-      for (const [m, solid, see] of fades) m.material = side ? see : solid;
     },
     // The canvas' size in CSS px; returns its aspect.
     resize(w, h) {

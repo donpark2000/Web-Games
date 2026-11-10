@@ -42,6 +42,28 @@ test('topple: a layout is the same from the same seed; the 5th scene has two thi
   L.blocks.forEach((b, i) => near(b.h, raw[i].h * SIZE, 1e-12, 'height'));
 });
 
+// On the right of the throw a tree stood between the side view's camera and
+// the structure, and was drawn see-through there (developer, 2026-11-10:
+// "much lighter coloring"); now every tree is on the left, nothing faded.
+test('topple: every tree stands left of the throw, alone or beside a bush or a backboard; none is faded', () => {
+  const lineX = (table, z) => HAND.x + (table.x - HAND.x) * (z - HAND.z) / (table.z - HAND.z);
+  let trees = 0;
+  for (const pool of [['tree'], ['bush', 'tree'], ['tree', 'backboard']]) {
+    for (let seed = 1; seed <= 40; seed++) {
+      const L = makeLayout(seed * 7919, sceneOpts(pool.length === 1 ? 1 : 5), pool);
+      assert.ok(!L.unplaced.includes('tree'), `${pool}/${seed}: the tree found no room`);
+      for (const t of L.things.filter(t => t.kind === 'tree')) {
+        trees++;
+        assert.equal(t.where, 'left');
+        assert.ok(t.x + t.r < lineX(L.table, t.z), `${pool}/${seed}: the trunk reaches the line (x ${t.x.toFixed(2)})`);
+      }
+      const p = sceneParts(L);
+      assert.ok(![...p.bodies, ...p.props].some(o => 'faded' in o), `${pool}/${seed}: something faded`);
+    }
+  }
+  assert.equal(trees, 120);
+});
+
 test('topple: scene seeds differ by scene, level, try and game, and stay the same', () => {
   const s = sceneSeed(1234, 1, 1);
   assert.equal(sceneSeed(1234, 1, 1), s);

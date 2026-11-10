@@ -18,9 +18,18 @@ export const MAX_SUBSTEPS = 8;
 export const BALL_LIFE = 10;                         // a thrown ball is taken away after this long (s), or once under the ground
 export const STILL_SPEED = 0.05 * Math.sqrt(SCALE);  // a block slower than this (m/s) counts as still
 // How much of its speed into a surface the ball keeps off each kind of thing
-// (the physics and the path alike): the glass backboard lively, the bush
-// soft (developer: "simpler for the player to grasp").
-export const BOUNCE = { block: 0.3, stand: 0.3, glass: 0.7, bush: 0.2, tree: 0.3, ground: 0.3 };
+// (the physics and the path alike): the glass backboard lively (developer:
+// "simpler for the player to grasp"); the bush none.
+export const BOUNCE = { block: 0.3, stand: 0.3, glass: 0.7, bush: 0, tree: 0.3, ground: 0.3 };
+// A ball that touches the bush keeps only this much of its speed, all ways,
+// and drops through it to the ground, slowed as if caught in the leaves
+// (developer, 2026-11-10: "if a ball hit a bush it would just fall to the
+// ground"). Only slowed, it was pushed back out (it had sunk 7 cm into the
+// bush in a step) and rolled 1.6 m back towards the thrower; so that first
+// contact is switched off and the ball goes on through every bush.
+export const BUSH_KEEP = 0.1;
+export const CAUGHT_DAMPING = 0.9;   // the ball's damping once in the bush (keeps 0.1 of its speed a second)
+const BUSH_GROUP = 2;                // the bushes' collision group, which a ball in a bush stops touching
 export const TRIES = 25;   // layouts tried for a scene before taking the best
 
 /* ---------- small vector maths (arrays) ---------- */
@@ -86,6 +95,33 @@ export function createWorld({ onHit = () => {} } = {}) {
     onHit({ a: 'ball', b: kind, v, y: e.target.position.y, ball: e.target, other: e.body });
   }
 
+  // No ball touches a bush in the physics (a ball's collision mask leaves the
+  // bushes out). Instead, before each step's move (after the solving), a ball
+  // about to reach one of a bush's balls is put where it touches, slowed to
+  // BUSH_KEEP and damped, and left to drop through to the ground. (Slowed at
+  // the physics' own touch, it was pushed back out: it had sunk 7 cm in.)
+  let bushBalls = [];   // [{ c, r, body }]
+  function catchInBush() {
+    for (const { body: b } of balls) {
+      if (b.inBush) continue;
+      const p = [b.position.x, b.position.y, b.position.z], d = [b.velocity.x * STEP, b.velocity.y * STEP, b.velocity.z * STEP];
+      for (const s of bushBalls) {
+        const k = reachAlong(p, d, s.c, s.r + BALL.r);
+        if (k === null) continue;
+        const at = add(p, scale(d, k)), n = scale(sub(at, s.c), 1 / (dist(at, s.c) || 1));
+        const vn = -dot([b.velocity.x, b.velocity.y, b.velocity.z], n);
+        b.inBush = true;
+        b.position.set(...at);
+        b.velocity.scale(BUSH_KEEP, b.velocity);
+        b.angularVelocity.set(0, 0, 0);
+        b.linearDamping = b.angularDamping = CAUGHT_DAMPING;
+        onHit({ a: 'ball', b: 'bush', v: Math.max(0, vn), y: at[1], ball: b, other: s.body });
+        break;
+      }
+    }
+  }
+  world.addEventListener('preStep', catchInBush);
+
   function addBody(body) {
     body.aabbNeedsUpdate = true;   // its box was worked out at the origin (Q63)
     world.addBody(body);
@@ -103,7 +139,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   // `poses` ([{ p, q, down }], one per block: where they had come to rest).
   function setScene(p, poses = null) {
     for (const s of [...statics, ...blocks, ...balls]) world.removeBody(s.body);
-    statics = []; blocks = []; balls = []; parts = p;
+    statics = []; blocks = []; balls = []; bushBalls = []; parts = p;
     for (const b of p.bodies) {
       // one shape: the body where the shape is (a box turned as it is); more: each at its place
       const body = new CANNON.Body({ mass: 0, material: M[b.kind] });
@@ -114,7 +150,10 @@ export function createWorld({ onHit = () => {} } = {}) {
         if (sh.yaw) body.quaternion.setFromEuler(0, sh.yaw, 0);
       } else for (const sh of b.shapes) body.addShape(shapeOf(sh), new CANNON.Vec3(...sh.at));
       body.kind = b.kind;
-      body.faded = !!b.faded;
+      if (b.kind === 'bush') {
+        body.collisionFilterGroup = BUSH_GROUP;
+        for (const sh of b.shapes) bushBalls.push({ c: sh.at, r: sh.r, body });
+      }
       statics.push({ body: addBody(body) });
     }
     p.blocks.forEach((o, i) => {
@@ -141,6 +180,7 @@ export function createWorld({ onHit = () => {} } = {}) {
     body.velocity.set(...vec);
     body.kind = 'ball';
     body.thrownAt = time;
+    body.collisionFilterMask = ~BUSH_GROUP;   // the bush catches it instead (catchInBush)
     body.addEventListener('collide', onBallCollide);
     world.addBody(body);
     balls.push({ body });
@@ -185,7 +225,8 @@ export function createWorld({ onHit = () => {} } = {}) {
   // dt s of the ball's path from the hand, as the physics flies it (the same
   // steps: gravity, then move), against `obs` and the ground. A bounce
   // reflects it off the surface keeping BOUNCE[kind] of its speed into it (no
-  // spin or friction). bounces: how many to follow; bounceOn: bounce only off
+  // spin or friction); a bush slows it, and it goes on through the bushes.
+  // bounces: how many to follow; bounceOn: bounce only off
   // these kinds (stop at others). Returns { hits: [{ kind, body, at, n, t }],
   // pts: [[x, y, z], ...] every STEP s }.
   function trace(vec, bounces = 0, obs = obstacles(), bounceOn = null) {
@@ -206,7 +247,8 @@ export function createWorld({ onHit = () => {} } = {}) {
         hits.push(hit);
         if (hits.length > bounces || (bounceOn && !bounceOn.has(hit.kind))) break;
         const vn = dot(v, hit.n);
-        if (vn < 0) v = add(v, scale(hit.n, -(1 + BOUNCE[hit.kind]) * vn));
+        // into a bush: slowed, and on through the bushes (as catchInBush; its damping left out)
+        if (hit.kind === 'bush') { v = scale(v, BUSH_KEEP); obs = obs.filter(o => o.kind !== 'bush'); } else if (vn < 0) v = add(v, scale(hit.n, -(1 + BOUNCE[hit.kind]) * vn));
         p = add(hit.at, scale(hit.n, 0.002));
         pts.push(p);
         continue;
@@ -255,7 +297,7 @@ export function createWorld({ onHit = () => {} } = {}) {
     const hidden = [...base].filter(([b, c]) => (direct.get(b) || 0) < 0.5 * c).length;
     const front = viewOfBlocks(CAM, b => b.kind === 'bush' || b.kind === 'tree');
     // the side camera at a fixed shape, so a scene comes out the same on any screen
-    const side = viewOfBlocks(sideView(0.75, parts).pos, b => b.kind === 'bush' || (b.kind === 'tree' && !b.faded));
+    const side = viewOfBlocks(sideView(0.75, parts).pos, b => b.kind === 'bush' || b.kind === 'tree');
     const enough = v => v.full + v.part === blocks.length && v.full >= blocks.length / 3;
     const hasBoard = L.things.some(t => t.kind === 'backboard'), hides = L.things.some(t => t.kind !== 'backboard');
     const why = [];
@@ -335,6 +377,17 @@ export function createWorld({ onHit = () => {} } = {}) {
 const r4 = v => Math.round(v * 1e4) / 1e4;
 
 // Does a ball of radius r at p touch the obstacle o? { n: the way out of o } if so.
+// How far along a move d from p (0-1) a point first comes within rr of c: 0
+// if it is already; null if not on this move.
+export function reachAlong(p, d, c, rr) {
+  const pc = sub(p, c), cc = dot(pc, pc) - rr * rr;
+  if (cc <= 0) return 0;
+  const a = dot(d, d), b = 2 * dot(d, pc), disc = b * b - 4 * a * cc;
+  if (a === 0 || disc < 0) return null;
+  const k = (-b - Math.sqrt(disc)) / (2 * a);
+  return k >= 0 && k <= 1 ? k : null;
+}
+
 export function touch(p, o, r) {
   if (dist(p, o.c) > o.rad + r) return null;
   if (o.type === CANNON.Shape.types.SPHERE) {

@@ -8,9 +8,9 @@
 // a thing. Seconds of physics, nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createWorld, touch } from '../src/core/topple-world.js';
+import { createWorld, touch, BUSH_KEEP } from '../src/core/topple-world.js';
 import {
-  SCALE, HAND, MAX_AIM, R2D, SCENES, launchVel, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts,
+  SCALE, HAND, BALL, MAX_AIM, R2D, SCENES, launchVel, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts,
 } from '../src/core/topple.js';
 
 const DT = 1 / 60;
@@ -128,6 +128,58 @@ test('topple world: the path\'s first touch is where the thrown ball first touch
     checked++;
   }
   assert.equal(checked, 5);
+});
+
+// Developer, 2026-11-10: "if a ball hit a bush it would just fall to the
+// ground". Throws straight at the bush (flat and a little up) of 8 layouts;
+// a throw at a block, as the same check, still bounces.
+function bushThrow(seed, up, at = 'bush') {
+  let touched = null, landed = null, before = 0;
+  const w = createWorld({
+    onHit: h => {
+      if (h.a !== 'ball') return;
+      if (!touched) touched = { kind: h.b, at: [h.ball.position.x, h.ball.position.z] };
+      else if (!landed && h.b === 'ground') landed = [h.ball.position.x, h.ball.position.y, h.ball.position.z];
+    },
+  });
+  const L = makeLayout(seed, sceneOpts(1), ['bush']);
+  w.setScene(sceneParts(L));
+  const st = w.parts.stand, aim = Math.atan2(st.x - HAND.x, HAND.z - st.z) * R2D / MAX_AIM;
+  // a throw at the middle whose first touch is `at`: the bush, or a block over it
+  let vec = null;
+  for (let u = up; u <= 70 && !vec; u += 1) { const v = launchVel(L.power, aim, u).vec; if (w.trace(v, 0).hits[0]?.kind === at) vec = v; }
+  if (!vec) return null;
+  const ball = w.throwBall(vec);
+  let after = null, k = 0;
+  for (; k < 240; k++) {
+    const speed = ball.velocity.length();
+    w.step(DT);
+    if (touched && after === null) { before = speed; after = ball.velocity.length(); }
+  }
+  const p = ball.position, path = w.trace(vec, 1).hits;
+  return {
+    kind: touched.kind, keep: after / before, onGround: p.y < BALL.r * 1.3, moved: Math.hypot(p.x - touched.at[0], p.z - touched.at[1]),
+    // the path's second touch against where the ball came down
+    pathNext: path[1]?.kind, pathOff: landed && path[1] ? Math.hypot(...landed.map((x, i) => x - path[1].at[i])) : null,
+  };
+}
+
+test('topple world: a ball into the bush loses its speed and drops to the ground near it; one at a block bounces on', () => {
+  const rows = [];
+  for (const seed of [11, 22, 33, 44, 55, 66, 77, 88]) for (const up of [0, 12]) {
+    const r = bushThrow(seed, up);
+    if (!r) continue;
+    rows.push(r);
+    assert.equal(r.kind, 'bush');
+    assert.ok(r.keep <= BUSH_KEEP + 0.05, `${seed}/${up}°: kept ${r.keep.toFixed(2)} of its speed`);
+    assert.ok(r.onGround, `${seed}/${up}°: not on the ground after 4 s`);
+    assert.ok(r.moved < 0.6 * SCALE, `${seed}/${up}°: rolled ${r.moved.toFixed(2)} m from the bush`);
+    assert.equal(r.pathNext, 'ground', `${seed}/${up}°: the path's next touch`);
+    assert.ok(r.pathOff < 0.35, `${seed}/${up}°: the path came down ${r.pathOff?.toFixed(2)} m from the ball`);
+  }
+  assert.ok(rows.length >= 8, `only ${rows.length} throws hit the bush`);
+  const block = bushThrow(11, 25, 'block');
+  assert.ok(block && block.keep > 0.25, `a block's bounce kept only ${block?.keep.toFixed(2)}`);
 });
 
 test('topple world: touch() finds a box\'s, a sphere\'s and the trunk\'s surface, and nothing past it', () => {

@@ -28,10 +28,29 @@ time, each tried before publishing:
   feels unfair (Claude, "Mockup v5 tried": fairness the first risk).
   To judge on the phone, and with the kids; if too hard, the arch's
   plank lighter or more balls, as the developer prefers.
+- **Q65. Physics steps dropped when the computer is busy** (2026-11-10,
+  "Topple! feedback: leafy bushes and trees..."). Both 3D games step with
+  cannon-es's `world.step(STEP, dt, MAX_SUBSTEPS)`, which gives up and
+  drops the remaining fixed steps once one step takes longer in real time
+  than STEP (8 ms). So the physics depends on the machine's load: the Tin
+  Can Alley test "rounds of 3 throws end" failed once in a full suite run
+  ("throw refused: round-over") and passed 3 times alone and in the next
+  full run. In the game, a slow phone gets slow motion rather than lost
+  frames. Claude's proposal: step the fixed steps ourselves (an
+  accumulator, still capped at MAX_SUBSTEPS), so a test's throws come
+  out the same on any machine; to agree with the developer.
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-11-10: "Check from where the user stands" (from
+- **Tests don't read the clock, even through a library** (2026-11-10,
+  Q65): a physics library's frame-catching step reads the wall clock and
+  drops steps when the machine is busy, so a deterministic-looking test
+  failed once in a full run and passed alone. Candidate rule for section
+  3: anything a test runs must not depend on real time (step fixed
+  amounts; look for clock reads inside libraries too). To review with the
+  developer.
+
+Earlier: (2026-11-10: "Check from where the user stands" (from
 "Block game mockup v5": a layout check that scanned the throws from the
 slingshot passed a bush that hid the whole stack from the camera) dropped by
 the developer: "very game specific ... I would leave it out"; Claude agreed,
@@ -15659,3 +15678,84 @@ ai-dev-practices README now says where (commit 94b5c7c, pushed).
 sent to the Recycle Bin (its scripts live on as `tests/topple-world.test.js`
 and `tests/topple.test.js`). The developer's Topple! feedback from the
 phone comes next.
+
+## 2026-11-10: Topple! feedback: leafy bushes and trees, the tree on the left, a ball into a bush drops; Q65 found
+
+**Developer (9.0 on the phone):** "Pretty good. I tried both orientations
+and both are good." Two things: the bushes "look more like 3 watermelons
+than a bush" (smooth balls in three greens in turn); and a tree "in side
+view ... drawn really with much lighter coloring. Almost like it was semi
+transparent". The second was on purpose (a tree right of the throw stood
+between the side view's camera and the structure, so it was drawn at
+opacity 0.22 there), but it read as a fault.
+
+**Choices:** the tree only on the left (developer: "ok"; the other ways
+were a stronger fade, or the side view from the left for those scenes,
+which swaps the slingshot's side between scenes). The bush: the
+[Bush Looks](https://claude.ai/artifact/7yYyVzSf7Cdd4BfPvoaco8) mockup v1
+(now, A chunky, B leafy, C puffy with flowers) → "B - leafy bush", and the
+trees "a similar treatment ... a few big main branches coming off the
+trunk and each could have something like this new bush shape"; v2 shows
+that (the trunk splits, three branches and the trunk each to a clump) and
+leafy far-off trees, with "Compare with now". And: "I don't think balls
+need to 'bounce' off bushes. In real life, if a ball hit a bush it would
+just fall to the ground."
+
+**The tree on the left** (`topple.js` tree(); the fade taken out of
+`topple-scene.js`, the world's side-view check and `sceneParts()`). The
+draw that picked the side is still made, so the rest of each layout comes
+out as before. Over 1,200 layouts (400 each: the tree alone, all three in
+scene 5, tree + backboard) every tree still found room: 1,057 of 1,057
+placed, all left; the old code put 536 left and 521 right. New test
+"every tree stands left of the throw ..."; on the old code it fails.
+
+**A ball into a bush drops.** First try: slow the ball (keep 0.1) in its
+`collide` event. Traced flat into a bush (seed 11): 8.6 m/s → 1.7 m/s,
+but *back towards the thrower* (vz +1.5), then rolled 1.6 m that way. The
+ball had sunk 7 cm into the bush in one 8 ms step, and the contact solve
+pushed it out. Switching the contact off (`contact.enabled = false`) in
+the event changed nothing: cannon-es reads `enabled` only when the
+contact is handed to the solver (`addEquation`), which is before `collide`
+fires (read in `src/vendor/cannon-es`: contacts added, then first-contact
+events, then `solver.solve`; `preStep` comes after the solve, before the
+move). So now: a ball's collision mask leaves the bushes out, and before
+each step's move (`preStep`) a ball about to reach a bush ball is put
+where it touches (`reachAlong()`), slowed to 0.1, damped (0.9) and left to
+drop through. Traced: 8.4 → 0.9 m/s, straight down, at rest under the
+bush 30 cm from the touch. The path (`trace()`) does the same (slowed, on
+through the bushes), so the throw's log says where it comes down. New
+test "a ball into the bush loses its speed and drops ..." (8 layouts,
+flat and 12° up; at least 8 throws reach the bush; a throw at a block
+still bounces): without the catch it fails ("kept 0.27 of its speed");
+with the old path, "the path's next touch". The scene check is
+unchanged (it stops at a bush).
+
+**Leafy drawing** (`topple-scene.js` leafy(), seeded by the balls so the
+same scene draws the same leaves; the props now one per bush and per
+tree; the trunk tapers up into the middle clump; branches drawn only).
+The tree's clumps are new in `topple.js` (one over the middle, 0.36-0.42
+m; three at 0.4-0.52 m out, 0.28-0.35 m), so trees in the scenes differ
+from 9.0's (the rest of each layout the same). Logged: `farLeaves` at "3D
+started", `leaves` and `drawMs` per scene.
+
+**Checked in the browser** (localhost, game seed 2, scene 5: a bush and a
+tree): front and side views drawn (screenshots seen), no console errors;
+the scene drew 2,705 leaves in 19 ms, far-off trees 11,060; a flat throw
+touched the bush where the path said (0 cm off) and the ground 0.53 s
+later, 25 cm on, under the bush. Not yet on the phone: how fast it draws
+there (the scene's end logs fps).
+
+**Q65 found** (Open questions): the full suite failed once on a Tin Can
+Alley physics test, then passed 3 times alone and in the next full run;
+cannon-es drops fixed steps when one takes longer than 8 ms of real time.
+Not fixed: it changes both games' stepping; to agree with the developer.
+
+**Suite:** 535 tests, all pass (`npm test`), after `node tools/offline.js`.
+
+**Status:**
+- On `block-game`, not published: the leafy bush and branched trees, the
+  tree on the left, a ball into a bush drops.
+- Next: the developer's look at the mockup v2 and, on an OK, release 9.1
+  (fixes and changes) to try on the phone (the fps with the leaves).
+- Open questions: Q64, Q65, Q47. Skill: one proposal waiting (tests and
+  the clock).

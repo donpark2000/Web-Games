@@ -159,7 +159,7 @@ function makeStage() {
   const canvas = $('c');
   stage = park3d.makePark3d(canvas);
   world = physics.createWorld({ onHit });
-  L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2) });
+  L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2), farLeaves: stage.farLeaves });
   new ResizeObserver(fit).observe($('park'));
   canvas.addEventListener('pointerdown', onDown);
   canvas.addEventListener('pointermove', onMove);
@@ -190,7 +190,7 @@ function fit() {
   });
 }
 function placeCamera() {
-  if (camViews) stage.setCamera(camViews[view], view === 'side');
+  if (camViews) stage.setCamera(camViews[view]);
 }
 
 // The scene the game is at: made from its seed and checked (the same every
@@ -217,7 +217,7 @@ async function startScene(kept = null) {
     for (const t of s.thrown) L('layout thrown away', t);
   }
   current.ms = Math.round(performance.now() - t0);
-  stage.setScene(current.parts);
+  const drawn = stage.setScene(current.parts);
   round = kept?.settled?.round ?? newRound(world.blocks.length);
   if (round.since != null) round.since = 99;   // a ball in flight when the page was left comes back to the pouch
   settled = kept?.settled ?? null;
@@ -232,6 +232,7 @@ async function startScene(kept = null) {
     ...game, stack: L0.stack, layoutSeed: L0.seed, power: L0.power, reachCm: Math.round(L0.reach * 100),
     things: L0.things.map(t => ({ kind: t.kind, ...(t.where ? { where: t.where } : {}), gapCm: Math.round(t.gap * 100), ...(t.arm ? { armCm: Math.round(t.arm * 100) } : {}) })),
     ...(L0.unplaced.length ? { noRoomFor: L0.unplaced } : {}), blocks: world.blocks.length, ms: current.ms, tries: current.tries,
+    leaves: drawn.leaves, drawMs: drawn.ms,
     ...(current.check ? { check: { ok: current.check.ok, why: current.check.why, direct: current.check.direct, bank: current.check.bank, share: current.check.share, seen: current.check.seen, seenSide: current.check.seenSide } } : {}),
     ...(kept ? { used: round.used, down: round.down } : {}),
   });
