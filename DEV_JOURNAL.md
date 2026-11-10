@@ -39,6 +39,10 @@ time, each tried before publishing:
   frames. Claude's proposal: step the fixed steps ourselves (an
   accumulator, still capped at MAX_SUBSTEPS), so a test's throws come
   out the same on any machine; to agree with the developer.
+  2026-11-10, developer: "Q 65 - yes" (explained to them as: the game
+  keeps dropping steps on a slow phone as now, so the kids see no change;
+  only the tests always run every step). To build with a test, then
+  close.
 
 ## Proposed additions to the standards skill
 
@@ -15781,5 +15785,37 @@ too; no console errors; the scene 2,352 leaves drawn in 18 ms (2,705 in
 v2's), far-off 10,111 (11,060). Suite: 535 tests, all pass, after `node
 tools/offline.js`.
 
-**Status:** as the entry before, with the trees from little bushes. Q65 to
-decide with the developer before the next session.
+**Status:** as the entry before, with the trees from little bushes.
+
+## 2026-11-10: Status (start here next session)
+
+**Developer:** "Q 65 - yes."
+
+- **On `block-game`, not published** (commits 1c95ba7, 017e131): Topple!'s
+  leafy bushes, trees whose branches end in little bushes, trees only left
+  of the throw (no see-through tree), a ball into a bush drops. Release 9.0
+  is live.
+- **Next, in order:**
+  1. **Q65:** both 3D games step their physics with their own fixed-step
+     loop (`src/core/topple-world.js` and `src/core/tin-can-alley-physics.js`,
+     each `world.step(STEP, dt, MAX_SUBSTEPS)` now). The game keeps
+     cannon-es's behaviour (stop catching up when a frame's steps take
+     longer than real time, drop the rest); a test steps every fixed step,
+     whatever the machine's load. A test that shows a busy machine doesn't
+     change a throw's result, and that fails on the old stepping. Then
+     close Q65.
+  2. **Release 9.1** (fixes and changes), with the developer's OK: set it
+     in `src/core/release.js`, `node tools/offline.js`, notes in
+     `RELEASES.md` (the bushes and trees, a ball into a bush drops, trees on
+     the left; Q65 only if it's in), `node tools/release.js` says ready;
+     after the merge, tag, GitHub release, stop the localhost servers.
+  3. The developer tries 9.1 on the phone: the look, the bush drop, how
+     smoothly it runs with the leaves (fps in the scene's end log), and
+     still Q64 (how hard the scenes are).
+- **Mockup:** [Bush Looks](https://claude.ai/artifact/7yYyVzSf7Cdd4BfPvoaco8)
+  v3 matches the game; its source is the published page.
+- **Open questions:** Q64, Q65 (decided, to build), Q47.
+- **Skill:** one proposal waiting ("Tests don't read the clock, even
+  through a library"), to review with the developer.
+- Claude's localhost server (`tools/serve.js 8123`) still running, for the
+  next session's checks; stop it once 9.1 is live.
