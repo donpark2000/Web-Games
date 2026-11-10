@@ -14579,3 +14579,28 @@ I did not try the other parameters yet"
   faster, so ½ s covers about 0.71 of what it does at Near (~80%): about
   55-60% of the way (an estimate from the scaling, not measured). Taken as
   the setting unless the developer says otherwise.
+
+## 2026-11-09: The slider has to go: one drag, no explaining
+
+**Developer:** "Something strange is happening. the mockup seems to have
+changes. The slide for the angle seems to have come back, but the dots
+mapping trajectory was supposed to have replaced that." Checked: nothing
+was published after v2 (the gallery's only update is v2's). The slider was
+in v1's A and kept in v2; the dots replaced the ring, not the slider.
+Claude's words ("A only: drag back, slider for how high") hadn't made that
+clear. Then: "I find the slider confusing. A game control that needs
+explanation is not my goal. I want it to be intuative."
+
+- **The constraint:** a throw needs three numbers (left/right, how high,
+  how hard); a drag gives two. To keep to one drag, the game fixes one.
+- **Proposed for v3, a switch between:**
+  - **C, pull back as in Tin Can Alley:** further = harder, sideways aims
+    the other way; the angle up fixed (35-40°, to be tuned). Familiar;
+    loses flat-and-fast against a lob.
+  - **D, point where to throw:** up = higher, sideways = left/right; the
+    strength fixed per puzzle. Keeps flat against lob (at one speed two
+    angles reach the same spot); loses harder against softer.
+  - The dots (Medium), Far and over the shoulder stay. Each control checked
+    solvable on all three puzzles (C's risk: Over the net).
+- This changes the agreed slingshot ("set the angle up *and* the speed",
+  "8.1 liked ... on to the block game"): one of the two becomes the game's.
