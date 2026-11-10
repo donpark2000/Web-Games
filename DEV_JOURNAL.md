@@ -14575,6 +14575,7 @@ I did not try the other parameters yet"
 - Still to try: the dots' length (which one was used not said), the
   numbers, the side cut, nets or walls, balls a puzzle, the puzzles.
 - Then: "I was using medium dot lengths". So **Medium (½ s) at Far** is
-  what was liked: at Far the puzzles are twice as far, so ½ s covers
-  about as much of the way as ¼ s at Near (~40%). Taken as the setting
-  unless the developer says otherwise.
+  what was liked: at Far the puzzles are twice as far and the ball √2
+  faster, so ½ s covers about 0.71 of what it does at Near (~80%): about
+  55-60% of the way (an estimate from the scaling, not measured). Taken as
+  the setting unless the developer says otherwise.
