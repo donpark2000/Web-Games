@@ -19,16 +19,24 @@ time, each tried before publishing:
   2026-11-10, developer: "I don't recall Q 64. So I am not sure what to
   answer." Explained again in "Q65 built; Q47 retired"; nothing to
   answer yet: it stays open for the phone and the kids.
+  2026-11-10, developer: "In my own testing, it seemed fairly easy ... I
+  see no point in publishing a game than can not be won. Does [21 of 30]
+  imply the games can not be won?" **No** ("Release 9.1 published; Q64:
+  every scene can be won"): the 21 of 30 was one fixed plan; over 100
+  scenes, players throwing anywhere that hits a standing block won all
+  100, 874 of 1,000 tries. Open now only as "too hard for a child's aim?".
 
 ## Proposed additions to the standards skill
 
-- **Tests don't read the clock, even through a library** (2026-11-10,
-  Q65): a physics library's frame-catching step reads the wall clock and
-  drops steps when the machine is busy, so a deterministic-looking test
-  failed once in a full run and passed alone. Candidate rule for section
-  3: anything a test runs must not depend on real time (step fixed
-  amounts; look for clock reads inside libraries too). To review with the
-  developer.
+None waiting.
+
+Earlier: (2026-11-10: "Tests don't read the clock, even through a
+library" (from Q65: cannon-es's catch-up step read the real clock and
+dropped steps on a busy machine, so a Tin Can Alley test failed once in
+a full run and passed alone) approved by the developer ("OK for skill
+update") and added to the skill, section 3, after "Hermetic";
+ai-dev-practices commit e41589e, zip rebuilt for the developer to
+upload.)
 
 Earlier: (2026-11-10: "Check from where the user stands" (from
 "Block game mockup v5": a layout check that scanned the throws from the
@@ -15876,4 +15884,60 @@ retired, the stepping. **Suite:** 541 tests, all pass (`npm test`).
 - **Open questions:** Q64.
 - **Skill:** one proposal waiting ("Tests don't read the clock, even
   through a library"), to review with the developer.
+- No localhost server running.
+
+## 2026-11-10: Release 9.1 published; skill rule added; Q64: every scene can be won
+
+**Developer:** "Ok to publish and OK for skill update." So `block-game`
+fast-forwarded into `main` (0b63247), pushed; tag **v9.1** pushed; the
+[GitHub release 9.1](https://github.com/donpark2000/Web-Games/releases/tag/v9.1)
+made from `node tools/release.js notes`. GitHub Pages built 0b63247;
+github.io serves version 410af978607d and release 9.1 (checked). No
+localhost server was running (port 8123 free).
+
+**The skill:** "Tests don't read the clock, even through a library" added to
+section 3 after "Hermetic" (ai-dev-practices e41589e, pushed); the zip
+rebuilt, its SKILL.md the same as the repo's byte for byte; for the
+developer to upload (Customize > Skills).
+
+**Q64. Developer:** "In my own testing, it seemed fairly easy ... I see no
+point in publishing a game than can not be won. Does 'A test player that
+always aims perfectly clears only 21 of 30 scenes, and the arch only 6 of
+11.' imply the games can not be won?" It doesn't: that player
+(`tests/topple-world.test.js` `pickThrow`) is accurate but follows one fixed
+plan (the middle throw at the highest standing block, the lowest after a
+ball that knocks nothing down), so it plays a scene the same way each time.
+Measured (a scratchpad script, the test's player plus varied players: each
+ball a random throw among those whose path first touches a standing block;
+still perfectly accurate, but not one plan), 20 games, 100 scenes (games
+12345, 777, 4242, 2026, 1-16), 10 varied players a scene:
+- **Every one of the 100 scenes was won** by some player; the varied
+  players won **874 of 1,000** tries, in 2-3 balls of 5 mostly (1.4-3.9 on
+  average a scene). The hardest scenes: 6/3 (an arch, backboard) 5 of 10;
+  12345/3, 12345/2, 4/5, 9/1, 14/4 6 of 10.
+- The fixed plan won 80 of 100 (it was 21 of 30, the same rate); every
+  scene it lost, varied players won (5-10 of 10). Two it lost with 0 of 5
+  down (7/2, 14/4, arches with a backboard): won 8 and 6 of 10 varied.
+- By structure (varied): arch 242/280 (86%), pyramid 265/310 (85%), tower
+  106/120 (88%), posts 194/210 (92%), fence 67/80 (84%). The arch is not
+  the hard one it looked: the fixed plan's aim at the plank was the problem.
+- About 5 s a scene for 11 plays under Node, 8.5 minutes in all.
+What it doesn't show: a child's aim (every throw here hits a block). The
+game itself doesn't promise a win: a scene's check is that enough throws
+reach the blocks, not that 5 balls clear it. Q64 stays open as "too hard
+for a child's aim?", for the phone and the kids.
+
+**Suite:** 541 tests, all pass (before the publish).
+
+## 2026-11-10: Status (start here next session)
+
+- **Live: release 9.1** (Topple!'s leafy park; Q65's stepping).
+- **Next:** the developer tries 9.1 on the phone: the look, the bush drop,
+  the fps and `stepsDropped` in the scene's end log, how hard it feels.
+  The developer uploads the rebuilt skill zip.
+- **Proposed, waiting for the developer:** a test that every scene of a few
+  games can be won (varied players, stopping at the first win), so a
+  later change can't make an unwinnable scene unnoticed.
+- **Open questions:** Q64 (how hard for a child's aim).
+- **Skill:** none waiting.
 - No localhost server running.
