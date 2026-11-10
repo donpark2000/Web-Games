@@ -14482,3 +14482,28 @@ where I am going to hit is confusing."
 switch between (1) **the path as a line of dots** from the slingshot to
 where it first touches, (2) the dots plus **the block it will hit lit
 up**, (3) v1's ring, to compare.
+
+**Developer, before v2 was built:** "Instead of just a circle or 'site'
+(like a gun), they draw an arc (line or dots) that show part of the
+trajectory you are setting up. The cool thing about only showing part of
+the trajectory is that there is still a judgement to be made by the
+player to hit the target. If the path spanned the whole distance between
+ball and target, there would be no more 'play' in the game."
+
+Claude agreed: v1's ring was 0-6 cm from the real first touch at Near
+(the table in "Block game mockup v1"), so it already gave the answer
+away. Points made:
+- Dots spaced in **time** (one per 0.05 s of flight) show the speed (far
+  apart: fast) as well as the direction and the climb, so the numbers
+  readout may not be needed.
+- **The arc's length is the difficulty knob** (longer: easier); later
+  perhaps Easy / Hard, as in the other games.
+- The arc stops where it touches something within its length (the net):
+  it says "too low" without saying where the ball ends up. The
+  developer's view not yet asked.
+- A short arc won't reach the bank shot's board: the bounce is judged.
+
+**Mockup v2 plan (replaces the one above):** A only; no ring, no lit-up
+block; an arc of dots, switch: **Short** (0.25 s of flight), **Medium**
+(0.5 s), **Long** (to the first touch, to feel the difference). The rest
+as v1.
