@@ -16181,3 +16181,26 @@ blocking them is knocked away.
   to make (`ms` in the scene's log line).
 - **Open questions:** Q64 (how hard for a child's aim).
 - **Skill:** none waiting.
+
+## 2026-11-10: Release 9.2 published
+
+**Developer:** "Publish 9.2". Release set to 9.2, `node tools/offline.js`
+(version b31722df4efd), notes in RELEASES.md, `node tools/release.js`
+ready; suite 545 tests, all pass. `block-game` fast-forwarded into `main`
+(cbc4202), pushed; tag **v9.2** pushed; the
+[GitHub release 9.2](https://github.com/donpark2000/Web-Games/releases/tag/v9.2)
+made from `node tools/release.js notes`. GitHub Pages built cbc4202;
+github.io serves version b31722df4efd and release 9.2 (checked). Claude's
+localhost server stopped; no other was running.
+
+## 2026-11-10: Status (start here next session)
+
+- **Live: 9.2** (no hidden blocks; scenes 1-4 dealt). `block-game` and
+  `main` the same.
+- **Next:** the developer tries 9.2 on the phone: no hidden blocks, scenes
+  varied, how long a scene takes to make (`ms` in the scene's log line;
+  0.52 s a scene on the PC). Then the next level's theme (DESIGN.md
+  "Topple!" Levels: the developer's curved surfaces and rolling balls
+  among them) or another game, as the developer prefers.
+- **Open questions:** Q64 (how hard for a child's aim).
+- **Skill:** none waiting.
