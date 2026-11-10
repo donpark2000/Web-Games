@@ -7,6 +7,18 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 9.2 (2026-11-10, version b31722df4efd)
+
+Topple!: no hidden blocks, and more varied scenes.
+
+- **Every block can be seen and hit from behind with a straight throw.**
+  A bush or a tree can still be in the way, but never hides a block
+  completely, and no block needs a bounce off the glass or the side view
+  to reach it.
+- **Scenes 1 to 4 differ:** never the same structure twice in a row, and
+  never the same structure with the same thing in the way twice in a
+  level. A game already under way gets its scenes dealt this way too.
+
 ## 9.1 (2026-11-10, version 410af978607d)
 
 Topple!: a leafier park.
