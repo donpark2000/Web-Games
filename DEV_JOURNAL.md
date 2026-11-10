@@ -38,7 +38,14 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-11-07: "Key a remembered result by everything it
+- **Check from where the user stands** (2026-11-09, from "Block game mockup
+  v5"; section 3 or 4). An automatic check of what's possible must also
+  check what the user can see or reach from their own position. *Evidence:*
+  a layout check that scanned the throws from the slingshot passed a bush
+  that hid the whole stack from the camera (the ball could still be lobbed
+  onto it). Waiting for the developer's view.
+
+Earlier: none waiting. (2026-11-07: "Key a remembered result by everything it
 depends on" (from "Sideways phone fixes and the game's name built",
 2026-10-29: the puzzles fitted their buttons' words once per screen
 width; sideways both layouts are tried at one width, so the narrower one
@@ -14866,3 +14873,155 @@ building anything, lets discuss."
   three puzzles and the barrier switch go.
 
 **Open questions:** none new. Q63, Q47 unchanged.
+
+## 2026-11-09: Block game mockup v5: shuffled layouts (bush, tree, glass backboard), each checked
+
+**Mockup v5** ([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+the same link, version 5; from v4's page, the scene code rewritten). The
+developer is away until tomorrow.
+
+**What it is:**
+- **Every round a new layout** (New one; **Same again** replays it): a stack
+  (the arch, a tower, a little pyramid of 6 cubes, posts with a beam) on a
+  table placed 2.5-3.1 m out (Near metres; Far doubles), up to 35 cm left or
+  right; one or two (shuffled) of:
+  - **a bush**, solid (the ball bounces off softly, 0.2): rows of leafy balls
+    from the ground up, no gap a ball fits through, just in front of the
+    table, near the line to it;
+  - **a tree**: a trunk 1.9 m tall to one side of the line, leaves from
+    about 1.65 m up (a flat throw goes under them, a lob into them);
+  - **a glass backboard** (v4's glass, liked; an orange border and square):
+    beside the table, turned so a throw at it bounces on to the stack, or
+    just behind it, its foot above the stack, so a throw that clears the
+    stack comes back down on it. The ball keeps 0.7 off it.
+- **How hard** set per layout from the table's distance (a 45° throw reaches
+  1.35 times as far), more with a board behind (enough to reach its foot).
+  Never shown.
+- **Seeded:** each layout has a seed (in the log and the debug line; the
+  test hook's `layout(seed)` makes it again).
+- Switches: things in the way (one or two shuffled, one, two), which things
+  (any, bush only, tree only, backboard only), and as v4 (dots, view,
+  distance, after the throw, balls, sound). Changing the distance or view
+  makes a new layout (the bush's height depends on them).
+
+**The layout check** (before a layout is shown; a scan of throws, up 0-70°
+by 3°, aimed across everything by about 0.9°, first with nothing in the way,
+then with the things):
+- every block that can be hit with nothing in the way can still be hit,
+  straight or off the board (one may be missed: a block under others falls
+  with them);
+- the things matter (with a bush or tree): from the camera some block is at
+  least partly hidden, or some block keeps under half its straight hits, or
+  at most 75% of the straight hits are left;
+- enough shows: from the camera half the blocks at least partly, a third
+  wholly;
+- at least 15 throws of the scan hit a block; with a board, at least 3 off
+  it.
+- A layout that fails is thrown away (logged with why) and another made, 25
+  tries at most (then the best).
+
+**Found while building** (each measured in the built-in browser, the page
+served as for v4):
+- **Bush too low at first** (0.85-1.05 m): throws that reach the table arc
+  over it; 24 of 61 layouts thrown away as "hardly matter". Then sized to the
+  stack (its top less 8-25 cm): **at Far it hid the whole stack from the
+  camera** (screenshot), while the check, which works from the hand, passed
+  it (lobs could still drop on it). The camera stays at a person's height
+  while Far doubles everything, so in Near metres it's at 0.98 m. **Now the
+  bush's top is just under the camera's sightline to 40% of the stack's
+  height.** A bush the camera sees over is one the throws arc over too: it
+  hides the lower blocks from a straight line, lobs still get them (in all
+  it left 86-96% of the straight hits). So "matters" also counts what the
+  camera can't see.
+- **The board behind: 0 throws off it hit a block in 17 layouts** at first
+  (25-40 cm behind, foot 1.0-1.15 m: the ball came back on to the table's
+  empty back half). Moved just behind with its foot over the stack: then no
+  throw reached it (the strength too low to climb that high). With the
+  strength raised to reach it: useful in 13 of 17.
+- **The glass's physics 4 cm thick: the ball went through.** First touches
+  matched the path (0-6 cm on blocks, the bush's spheres, the trunk, the
+  glass), but after the glass the next touch was 0.1-2.8 m off. Made 10 cm
+  thick in the physics, set back so its face is where it's drawn: 21 of 24
+  bank throws then touched a block next, 1-20 cm from the path.
+- **Few rounds cleared.** A "player" with perfect aim (5 balls, each at a
+  random throw the path says hits a block, rescanned after each): 1 of 10
+  layouts cleared, 70% of the blocks off. Faster throws (reach 1.8) or
+  lighter blocks (density 50) helped a little (78-80%, 1-2 of 10). **The
+  block left was nearly always a low one in the middle**: v4's tower's flat
+  base plank (8 cm tall, the ball flies over it) in 3 of 6, or a cube left
+  when the rest fell. Now the tower stands on its posts, and the table is 8
+  cm wider than the stack each side (was 15) and 30 cm deep (was 40): **7 of
+  10 cleared, 89% off**, mostly with 1-3 balls. Glass 0.85 instead of 0.7,
+  and table friction 0.3 instead of 0.5, made no difference (the friction
+  run gave the very same results: the leftover low cubes are never hit, so
+  friction never comes in; not pursued).
+- **Two things often came as one:** the bush placed first left a tree no
+  room (20 tries), and the layout quietly went ahead with the bush alone (6
+  of 15 with "Two"). Now placed bush, board, tree in that order, the tree
+  15-55 cm to one side of the line, and what finds no room is logged
+  (`noRoomFor`): 17 of 20 with "Two" have two.
+- **The tree near the camera filled the screen's middle:** now at least 1.5
+  m from the slingshot (was 1 m) and to one side.
+
+**Checked** (375 × 812; no console errors, no sideways scroll):
+- The trunk's cylinder stands upright in cannon-es (y ±height/2), as the
+  path assumes.
+- **Making a layout:** 20 rounds, default mix: 1-2 tries, 67-479 ms on this
+  computer (likely a few times slower on a phone; not measured).
+- **Still until hit:** 8 layouts × Near, Far, Farther, 10 s: none moved.
+  Same again: the same seed, the blocks back.
+- **Rounds by the perfect-aim player** on fresh checked layouts: 6 of 10
+  cleared, 84% of blocks off (before the last two placement changes).
+- Screenshots: a bush and a glass board behind (the stack's top over the
+  bush), a bush and a tree (the arch's top over the bush, the trunk to the
+  left, the dots climbing between).
+
+**Not right yet / for the developer to judge:**
+- **The stack looks small** (the view 70-82° tall, made room for lobs and
+  the board; v4's bank shot 56°); and the tree, nearer the camera, is big on
+  the screen.
+- Whether shuffled layouts with these three things are fun; whether one or
+  two things; Same again (wanted in the game?); 5 balls or 3.
+- Not checked: a phone (and how long a layout takes there), a finger,
+  sound (a rustle for the bush and the leaves is new).
+
+**Open questions:** none new. Q63, Q47 unchanged.
+
+## 2026-11-09: Status (start here next session)
+
+**Where things are:** the block game is at **mockup v5**
+([Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT),
+version 5): shuffled layouts with a bush, a tree or a glass backboard, each
+checked before it's shown (entry above). The developer tries it on the next
+day and gives feedback. Agreed so far: D (point where to throw), Medium dots,
+over the shoulder, Far, stay behind, glass over net, shuffled, solid
+obstacles.
+
+**Next:** the developer's verdicts on v5 (the list in the entry above), then
+v6 or the build. Known to look at: the stack's size on the screen (the view's
+height), the tree's size.
+
+**How to work on the mockup** (it lives only as the artifact):
+- Read it with the Artifact tool's `read` (it saves the page); strip the
+  viewer's first line (`<!doctype ...><body>`) and last (`</body></html>`)
+  for the working copy; publish back to the same link.
+- To check it in the built-in browser: a small scratchpad server wrapping the
+  page in the viewer's skeleton, read fresh per request (~20 lines of
+  `node:http`), a temporary `.claude/launch.json` entry on 8130, removed
+  after.
+- Test hook `window.blocks`: `layout(seed)`, `current()`, `check()`,
+  `predict`, `dots`, `drag(dx, dy)`, `step`, `state`, `blocks()`,
+  `tune({ reach, density, glass, tableSide, tableD, tableFriction })`,
+  `inside()`. A "perfect aim" player (5 balls at random throws the path says
+  hit) is a few lines over `predict` and `drag`; a round takes ~3 s, so keep
+  a call under ~25 s (longer ones failed with "Internal error").
+- The built-in browser's phone size gets reset when the pane changes; set it
+  again before a screenshot.
+
+**Also on this branch, not published:** Q63's Tin Can Alley fix (commit
+62fb198) for release 9.0, the block game's first.
+
+**Open questions:** Q63 (fixed on the branch, for 9.0), Q47. None new.
+
+**Skill additions:** one proposed (see the list at the top): "Check from
+where the user stands".
