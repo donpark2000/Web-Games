@@ -43,7 +43,9 @@ time, each tried before publishing:
   check what the user can see or reach from their own position. *Evidence:*
   a layout check that scanned the throws from the slingshot passed a bush
   that hid the whole stack from the camera (the ball could still be lobbed
-  onto it). Waiting for the developer's view.
+  onto it). 2026-11-10: the developer met the same thing on their phone
+  (a tree hid most of the stack; "Mockup v5 tried; levels ..."). Waiting
+  for the developer's view.
 
 Earlier: none waiting. (2026-11-07: "Key a remembered result by everything it
 depends on" (from "Sideways phone fixes and the game's name built",
@@ -15025,3 +15027,77 @@ height), the tree's size.
 
 **Skill additions:** one proposed (see the list at the top): "Check from
 where the user stands".
+
+## 2026-11-10: Mockup v5 tried; levels, scenes, hearts and jewels agreed
+
+**The developer on v5** (on their phone):
+- **The things in the way: liked as an idea, but a tree hid most of the
+  stack.** "I could only see the top ones, which I knocked off, but then I
+  had no idea what was left behind the tree. That seems pointless." v5's
+  check counted what the camera can't see only as "the things matter", never
+  as a reason to throw a layout away (see the skill addition at the top: the
+  same lesson, now seen by the developer).
+- **No table: the structures stand on the ground and the goal is to knock
+  them over.** Knocking off a table vs. over (as in Tin Can Alley) "doesn't
+  enhance things" here.
+- **A second view, switched to mid-game:** a side view ("kind of like" the
+  well-known side-on slingshot games), aiming only how hard and how high.
+
+**Answers to Claude's questions:**
+1. A block counts **when it has fallen**. Claude's rule (developer didn't
+   object): tipped more than about 45°, or dropped well below where it
+   started; a bottom block pushed along the ground upright hasn't fallen. A
+   scene is cleared when every block has fallen.
+2. The view switch is **free**: any time between throws, as often as wanted.
+3. The side view's aiming: **drag back from the slingshot**, the drag's
+   direction how high, its length how hard, the dots showing the arc; the
+   throw always straight at the structure.
+4. Hidden layouts: **"At least one view should give you something to aim at,
+   and allow you to see if you hit it, and if anything is left."** So the
+   layout check throws away a layout that fails that in both views.
+
+**Levels** (the developer's idea, overnight): a game is levels, each of
+**5 scenes** (developer: "agreed"). Clearing a scene in 5 balls wins a
+**jewel** (or star); failing loses one of **3 hearts** and the scene starts
+again; losing all 3 sends you back to the level's first scene. 5 jewels: on
+to the next level. Each level has a theme running through it; the
+developer's examples:
+1. blocks in one plane (what's built so far);
+2. more 3D, like the frame of a building;
+3. glass blocks that shatter;
+4. hard and glass blocks together;
+5. metal that a ball can't knock down, with a keg of dynamite in the
+   structure to hit (or some of the 5 balls are bombs);
+6. structures hung on ropes, with discs (saw blades) thrown to cut them.
+
+"Not necessarily a full definition of all the different levels", the idea.
+Then:
+- **Scenes:** "to help kids proceed up levels" the scenes are **the same
+  whenever you go back** (a scene lost, or 3 hearts lost); **new scenes when
+  the whole game starts again**, each level keeping its theme. Built as: a
+  game's scenes are made once (seeded) and kept; only **New game** makes
+  fresh ones.
+- **Saved, and pick a level:** the game remembers the level reached, and a
+  player can start any level they've reached (developer: "Yes to both"); New
+  game starts from level 1 with fresh scenes.
+- **First:** "lets get the basic idea of a level, hearts, jewels working",
+  level 1 only; the lessons then are the building blocks for new levels (one
+  level per release after that).
+- **How hard:** the first 4 scenes of a level about the same, **the 5th
+  harder**.
+
+Asked whether this is a good direction, Claude's view: yes. It gives the
+throwing a purpose, adds one new thing per level on a game that works, and
+keeps the physics, aiming and layout check. The risks: **fairness** (a heart
+lost to a scene that can't be cleared feels unfair; v5's perfect-aim player
+cleared 7 of 10 layouts in 5 balls, a child will do worse, so the check must
+make sure a scene is clearable with room for poor aim, tuned by trying it);
+**later levels are each new physics** (shattering, explosions, ropes); and
+**older devices** (Q47) with busier scenes.
+
+**Next: mockup v6**, level 1: structures on the ground, the fallen rule, the
+side view switched any time, a layout check that keeps the structure visible
+in at least one view, and a rough frame of 5 scenes, 3 hearts and jewels (the
+5th scene harder).
+
+**Open questions:** none new. Q63, Q47 unchanged.
