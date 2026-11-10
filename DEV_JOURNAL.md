@@ -14687,3 +14687,53 @@ switch, not the default); a more compact bank shot (the board nearer the
 middle, the blocks the arch's size), checked solvable; barriers: a lighter
 net (thinner, fainter, bigger holes) or a glass panel with a frame (both
 bounce the ball); the solid wall dropped.
+
+## 2026-11-09: D chosen; status (start here next session)
+
+**Developer:** "I think 'point where to throw' is better. I will start a
+new session when you are ready. Then we can build a V4 that includes
+'stay behind after the throw'."
+
+**Agreed for the block game so far** (mockups v1-v3, all this day):
+- **Slingshot: D, point where to throw.** One drag: up aims higher (flat to
+  70°), sideways aims the same way; how hard is the game's, per puzzle
+  (0.5, 0.5, 0.55 at Far). No slider, **no numbers on the screen** (kids
+  don't know degrees).
+- **The dots:** Medium (½ s of flight, one dot per 0.05 s), stopping early
+  at anything touched sooner (the last one orange). Not the whole path:
+  the rest is the player's judgement (the developer's idea).
+- **Aiming view: over the shoulder** (camera 0.55 m right, 1.95 m up, 0.9
+  m back), with room above the puzzle for a lob's dots.
+- **Distance: Far** (2×).
+- **After the throw: stay behind** (the developer, for v4).
+
+**Next: mockup v4**, as proposed in "Mockup v3 tried": stay behind by
+default; a compact bank shot (the board nearer the middle, the arch's
+block size), checked solvable with D; barriers a lighter net or glass (the
+solid wall dropped). C can go from the switch (D chosen), or stay to
+compare; Claude's suggestion: drop it.
+
+**How to work on the mockup** (it lives only as the artifact; the scratchpad
+copy goes with this session):
+- Read [Block Game Mockup](https://claude.ai/artifact/BM1XFGo1q8gkX7dYqaAzrT)
+  (version 3) with the Artifact tool's `read`; it saves the page. Strip the
+  viewer's first line (`<!doctype ...><body>`) and last (`</body></html>`)
+  for the working copy; publish back to the same link.
+- To check it in the built-in browser: a small scratchpad server that wraps
+  the page in the viewer's skeleton and reads it fresh per request (written
+  this session as `serve-mockup.mjs`: ~20 lines of `node:http`), a temporary
+  `.claude/launch.json` entry on 8130, removed after. The test hook
+  `window.blocks` has `predict`, `dots`, `drag`, `tuneControls`, `step`,
+  `state`; scans of ~1,000 paths take ~5 s.
+- A hidden browser pane barely animates: step the world through the hook
+  and fake a held drag with pointer events to get the dots on screen.
+
+**Also on this branch, not published:** Q63's Tin Can Alley fix (commit
+62fb198) for release 9.0, the block game's first; its notes line is in
+"Q63 fixed on the branch".
+
+**Open questions:** Q63 (fixed on the branch, for 9.0), Q47 unchanged.
+None new.
+
+**Skill additions:** none proposed. (Considered: "measure how much room a
+finger has" when tuning a touch control; it's this game's case, kept here.)
