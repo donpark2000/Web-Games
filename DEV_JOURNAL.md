@@ -25,6 +25,9 @@ time, each tried before publishing:
   every scene can be won"): the 21 of 30 was one fixed plan; over 100
   scenes, players throwing anywhere that hits a standing block won all
   100, 874 of 1,000 tries. Open now only as "too hard for a child's aim?".
+- **Q73. Topple! level 2, 3D frames: the targets, the hidden-blocks rule,
+  the "Level N" screen** (2026-11-11; "Level 2 picked: 3D frames").
+  Claude's suggestions and questions put to the developer; waiting.
 
 
 ## Proposed additions to the standards skill
@@ -17145,3 +17148,45 @@ we've been automatically notified. Errors are sometimes temporary").
   for the developer's pick.
 - **Open questions:** Q64 (how hard for a child's aim; with the kids).
 - **Skill:** none waiting.
+
+## 2026-11-11: Level 2 picked: 3D frames (Q73)
+
+**Developer:** "Lets try 3D frames." Lessons from level 1 apply; **no
+scene impossible to win**. Parts of a frame may be **hidden until
+something in front is knocked down, but none hidden for the whole scene**.
+Level 1's targets were all short: explore **2 and 3 storeys or more**.
+Blocks only for now; spheres and ramps "maybe best saved for a later
+level". Mock up a few sample targets before a playable scene, to see if
+the look is heading the right way. **Levels made explicit**, with the
+change between them: perhaps a **"Level N" screen** at each level's
+start, with a picture of what makes the level different and a start
+button. "Before beginning, ask questions or make suggestions."
+
+**Claude's suggestions and questions** (put to the developer; answers to
+follow):
+- **Mockup v1: sample targets only**, not playable: about 6 frames in the
+  park from the play view (one storey with depth, two and three storeys, a
+  stepped frame whose front hides the back's lower part, two towers joined
+  by a beam, a frame with a roof), each with a **Knock** button that hits
+  it where a good throw would, so the fall can be watched, and "N of M
+  down" after it settles. The "Level 2" screen in the same mockup.
+- **Risks the mockup measures:** a frame collapsing into a tangle with
+  posts leaning on each other (counted up, Q69's rule), so a scene can't
+  be cleared in 5 balls; tall thin posts unsteady in cannon-es once woken;
+  more pieces (a two-storey 2x2 frame is 16) against 5 balls; a tall frame
+  making everything small in the fitted view.
+- **The hidden rule, as Claude would check it:** in the test plays, after
+  every throw, each block still up is either seen (at least partly) or
+  behind a block still up that is seen and can be hit. So there is always
+  something to aim at, and every block gets uncovered before it's needed.
+  At the start, as now: the front can be hit by straight throws.
+- **Views and backboards (Q70's placeholder):** one view, from behind, as
+  level 1, perhaps a little higher so the depth reads; no backboards (the
+  rule above makes them unneeded).
+- **Spheres and ramps:** agreed to save for a later level (the curved
+  surfaces and rolling balls idea).
+- **Balls:** keep 5 (the level 1 "anchor"); if test players can't clear
+  frames, change the frames, not the count.
+- **The "Level N" screen:** asked when it shows, what it says, whether
+  levels get names, and whether to build now the agreed "start any level
+  you've reached" ("Mockup v5 tried": "Yes to both").
