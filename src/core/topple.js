@@ -440,7 +440,8 @@ export function frontDrag(dx, dy, size, power) {
 // From the side (mockup v8): drag the way the ball should go. Its direction
 // sets how high (straight right: flat; up: up to 70°; left or down: flat),
 // its length how hard (0.4-1.15 times the front view's throw, full at 0.4 of
-// the size); always straight at the structure (`stand`).
+// the size); always straight at `stand` (the game passes sideTarget's: a
+// block still standing).
 export function sideDrag(dx, dy, size, power, stand) {
   if (!(size > 0)) return null;
   const x = dx / size, y = dy / size, moved = Math.hypot(x, y);
@@ -449,6 +450,22 @@ export function sideDrag(dx, dy, size, power, stand) {
   const v = (V_MIN + power * (V_MAX - V_MIN)) * (0.4 + 0.75 * k);
   const aim = Math.atan2(stand.x - HAND.x, HAND.z - stand.z) * R2D / MAX_AIM;
   return { power: (v - V_MIN) / (V_MAX - V_MIN), aim, up, pull: +k.toFixed(2), ok: moved >= 0.05, show: moved >= 0.02 };
+}
+
+// What the side view throws at (Q68): a block still standing, not the
+// structure's middle. The fence's middle is the gap between its two halves:
+// 0 of 720 side throws touched a block there (journal, "Side view through
+// the fence's gap"). The standing block nearest the middle (sideways, m), on
+// a near tie (1 cm) the one nearer straight ahead; none standing: the
+// middle. blocks: [{ x, z, down, c }]; returns { x, z, c? }.
+export function sideTarget(blocks, stand) {
+  let best = null, bestOff = Infinity, bestAhead = Infinity;
+  for (const b of blocks) {
+    if (b.down) continue;
+    const off = Math.abs(b.x - stand.x), ahead = Math.abs(Math.atan2(b.x - HAND.x, HAND.z - b.z));
+    if (off < bestOff - 0.01 || (off <= bestOff + 0.01 && ahead < bestAhead)) { best = b; bestOff = Math.min(off, bestOff); bestAhead = ahead; }
+  }
+  return best ? { x: best.x, z: best.z, c: best.c } : { x: stand.x, z: stand.z };
 }
 
 // The drag pad (developer, 2026-11-10, Q67: a finger that starts on the ball

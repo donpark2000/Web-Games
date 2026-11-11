@@ -17,7 +17,7 @@
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, frontDrag, sideDrag, launchVel, dotsFor, behindView, sideView, dotScaleFor, sceneParts, END_WAIT,
-  padSpot, dragFrom, demoDrag, demoAt, DEMO_UPS,
+  padSpot, dragFrom, demoDrag, demoAt, DEMO_UPS, sideTarget,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -300,9 +300,11 @@ const parkSize = () => { const b = $('park').getBoundingClientRect(); return Mat
 function aimFor(dx, dy) {
   if (!current) return null;
   return view === 'side'
-    ? sideDrag(dx, dy, parkSize(), current.layout.power, current.parts.stand)
+    ? sideDrag(dx, dy, parkSize(), current.layout.power, sideAt())
     : frontDrag(dx, dy, parkSize(), current.layout.power);
 }
+// The side view's target: a block still standing (sideTarget), as they stand now.
+const sideAt = () => sideTarget(world.blocks.map(b => ({ x: b.body.position.x, z: b.body.position.z, down: b.down, c: b.c })), current.parts.stand);
 const dragNow = () => (drag ? aimFor(drag.x - drag.x0, drag.y - drag.y0) : null);
 const ready = () => !!(round && !busy && canThrow(round).ok);
 
@@ -344,7 +346,7 @@ function doThrow(d, from = null) {
   $('hint').hidden = true;
   sound.play('whoosh', 0, { level: d.power });
   L('throw', {
-    ball: r.ball, view, ...(from ? { from } : {}), speed: r2(v), up: Math.round(el * 180 / Math.PI), aim: Math.round(yaw * 180 / Math.PI), power: r2(d.power), ...(d.pull != null ? { pull: d.pull } : {}),
+    ball: r.ball, view, ...(from ? { from } : {}), ...(view === 'side' ? { at: sideAt().c ?? 'middle' } : {}), speed: r2(v), up: Math.round(el * 180 / Math.PI), aim: Math.round(yaw * 180 / Math.PI), power: r2(d.power), ...(d.pull != null ? { pull: d.pull } : {}),
     toward: aimed.hits.map(h => ({ kind: h.kind, at: h.at.map(r2), t: r2(h.t) })),
   });
   renderTally();

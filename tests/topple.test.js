@@ -8,7 +8,7 @@ import {
   HAND, CAM, SCALE, MAX_UP, MAX_AIM, R2D, BALLS, SCENES, HEARTS, STACKS, SIZE, KINDS, READY_AFTER, END_WAIT, END_MAX,
   makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, sideDrag, launchVel, isDown, createGame, readGame, sceneOver,
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, sideView, dotScaleFor, checkSetup, rng,
-  PAD, DEMO, DEMO_UPS, padSpot, dragFrom, demoDrag, demoAt,
+  PAD, DEMO, DEMO_UPS, padSpot, dragFrom, demoDrag, demoAt, sideTarget,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -160,6 +160,27 @@ test('topple: from the side, drag the way the ball goes: its direction how high,
   const v = p => 2 + p * 8;
   near(v(sideDrag(0.4 * size, 0, size, 0.5, stand).power) / v(0.5), 1.15, 1e-9, 'full');
   assert.equal(sideDrag(10, 0, size, 0.5, stand).ok, false, 'a short drag threw');
+});
+
+// The side view's target (Q68): a block still standing, not the fence's gap.
+test('topple: from the side, the throw goes at a standing block nearest the middle, not the gap between the fence\'s halves', () => {
+  const p = sceneParts(makeLayout(7, { n: 2, stacks: ['fence'] }));
+  const stand = p.stand, blocks = p.blocks.map(b => ({ x: b.x, z: b.z, down: false, c: b.c }));
+  assert.equal(blocks.length, 8, 'the fence\'s blocks');
+  assert.ok(!blocks.some(b => Math.abs(b.x - stand.x) < 0.05), 'no block in the fence\'s middle: the test proves nothing');
+  const t = sideTarget(blocks, stand);
+  assert.ok(Math.abs(Math.abs(t.x - stand.x) - Math.min(...blocks.map(b => Math.abs(b.x - stand.x)))) < 0.011, 'not the nearest the middle');
+  assert.equal(t.c, 'blue', 'an inner post');
+  // of the two inner posts (a tie), the one nearer straight ahead
+  const inner = blocks.filter(b => Math.abs(Math.abs(b.x - stand.x) - Math.abs(t.x - stand.x)) < 0.011);
+  assert.equal(inner.length, 2);
+  const ahead = b => Math.abs(Math.atan2(b.x - HAND.x, HAND.z - b.z));
+  assert.equal(ahead(t), Math.min(...inner.map(ahead)));
+  // that post down: the other inner post; all down: the middle
+  const next = sideTarget(blocks.map(b => (b.x === t.x && b.z === t.z ? { ...b, down: true } : b)), stand);
+  assert.ok(next.x !== t.x && Math.abs(Math.abs(next.x - stand.x) - Math.abs(t.x - stand.x)) < 0.011, 'not the other inner post');
+  assert.deepEqual(sideTarget(blocks.map(b => ({ ...b, down: true })), stand), { x: stand.x, z: stand.z });
+  assert.deepEqual(sideTarget([], stand), { x: stand.x, z: stand.z });
 });
 
 // The drag pad (journal, "9.2 on the phone; home pictures and aiming", Q67).

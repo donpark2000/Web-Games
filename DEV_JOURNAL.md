@@ -38,6 +38,27 @@ time, each tried before publishing:
   logged. 2026-11-10, developer: "I like the drag pad idea"; built on
   `block-game` and published as the Topple Drag Pad mockup ("Drag pad
   built; mockup v1"), waiting for the developer to try it.
+  2026-11-10, developer: "The drag pad idea helps a lot." Its look,
+  places and how often the show plays still to settle.
+- **Q68. Topple!: the side view can't hit the fence** (2026-11-10,
+  developer: two structures side by side; "impossible to hit them in side
+  view - the ball just went between them"). Found: the side view throws at
+  the structure's middle, the fence's gap: 0 of 720 side throws touched a
+  block ("Mockup v1 tried: the fence's gap, blocks counted down, the side
+  view and backboards"). Fixed on `block-game` (a standing block's the
+  target), but the developer asks whether the side view is needed at all
+  (Q70).
+- **Q69. Topple!: tall blocks counted down while still leaning**
+  (2026-11-10, developer: two tall blocks leaning against each other after
+  a first shot, counted down). Found (same entry): 2 of 299 first throws;
+  a block counts down once it has tipped past 45° or dropped, even if it
+  ends leaning. Proposed: a tall block is down only while it lies tipped
+  past 45°.
+- **Q70. Topple!: keep the side view and the backboards?** (2026-11-10,
+  developer: "Maybe side view was a bad idea? Is it relevant now that
+  targets can not be completely obscured?" and backboards aren't useful
+  "unless they need to be part of the solution", perhaps in a later level
+  of 3D frames). Proposed (same entry): both out of level 1.
 
 ## Proposed additions to the standards skill
 
@@ -16328,3 +16349,62 @@ for the developer's verdict.
 **Waiting for the developer:** try the mockup (the show as a scene starts,
 then dragging from the pad, in both views); then the pad's look and places,
 and whether the show should play on every scene or less often.
+
+## 2026-11-10: Mockup v1 tried: the fence's gap, blocks counted down, the side view and backboards
+
+**Developer:** "The drag pad idea helps a lot." Two things seen, not about
+the aiming: "two tall/vertical blocks leaning against each other after a
+first shot. I would not have considered them to be 'down' but the game
+did", and "two structures side by side. Hitting them in front view works
+fine. But it was impossible to hit them in side view - the ball just went
+between them." Then: "Maybe side view was a bad idea? Is it relevant now
+that targets can not be completely obscured?" and "for backboards .... I
+don't see them as useful unless they need to be part of the solution.
+Perhaps that becomes more relevant in a new level where targets are more
+3D - more like 'frames of structures' vs blocks piled up in a single plane."
+
+**The side view and the fence (Q68).** The "two structures" are scene 5's
+fence: two halves, each two posts, a plank and a cube, with a 42 cm gap
+between them. The side view throws straight at the structure's middle
+(`stand`), which for the fence is the gap. Measured (browser pane, every
+side drag from flat to 70° in 2° steps and 0.15-0.4 of the park in 0.0125
+steps, 720 throws, the path's first touch): **fence (seeds 1 and 3) 0 of
+720 touch a block** (ground 433-442, bush 215-218, tree 60-72); tower
+(seeds 2, 4, 5, 6) 160-199 of 720. From behind the same fences: 140 and 174
+of 1,440 throws. **Fixed** on `block-game`: the side view throws at a
+standing block (`sideTarget` in `src/core/topple.js`: the one nearest the
+middle; on a near tie, the one nearer straight ahead; none standing, the
+middle), worked out as the blocks stand; the throw's log line says which
+(`at`). Test: the fence, the inner post picked, the other once it's down,
+the middle once all are. Suite 550, all pass.
+
+**Blocks counted down (Q69).** The rule: down once tipped past 45° or
+dropped 0.6 of its smallest side, **and kept counted** (no reason recorded
+for keeping it; "Block game mockup v6" only says so). The mockup has no log
+to read, so measured: 299 first throws (seeds 2-31, scenes 1-5, two each,
+each a throw whose path touches a block first), stepped until still, then
+every block counted down looked at again. 1,110 counted down; **95 now
+tipped under 45°**: 92 cubes and planks that fell off (they land flat,
+rightly down), and **2 tall blocks**: a post (seed 17, scene 1, posts)
+tipped to 48° and rocked back to rest at 41°, leaning; and the tower's
+upper upright (seed 28, scene 5) that fell 1 m to the ground and rests at
+29°, counted down because it dropped. Both look standing to a child.
+**Proposed:** a tall block (taller than wide and deep) is down only while
+it lies tipped past 45°, judged as it lies now, not kept; cubes and planks
+as now. A tall block that falls off the tower's upper storey and lands
+upright is then still to knock over, as every block on the ground is.
+
+**The side view and backboards (Q70).** Claude agrees with both. Since
+"Every block seen and hit from the front", every scene is checked to be
+clearable with straight throws from behind; the side view and a bank shot
+are never needed. The side view is a second gesture (drag right and up,
+its length how hard) and moves the pad; backboards add bounces that are
+only ever a bonus. **Proposed:** level 1 without the side view (its
+button, the camera, the pad's second place and the fence fix go with it)
+and without backboards (bushes and trees only; scene 5 then a bush and a
+tree). Both kept in the journal and git history for a later level that
+needs them (3D frames, a bank shot as part of the answer).
+
+**Waiting for the developer:** the side view and backboards out of level 1;
+the tall-block rule; and from mockup v1, the pad's look and how often the
+show plays.

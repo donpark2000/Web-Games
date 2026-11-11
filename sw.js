@@ -20,7 +20,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '232aa43c45f1';
+const VERSION = '3285e5046b05';
 const MADE = '2026-11-10';
 const RELEASE = '9.2';
 const FILES = [

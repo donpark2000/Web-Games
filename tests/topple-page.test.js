@@ -46,7 +46,9 @@ test('topple page: the setup screen: your face, Play! or Carry on where the game
 test('topple page: no mockup choices left; the side view aims only the way the ball goes (developer: drop the pull back)', () => {
   assert.doesNotMatch(page + js + core, /mockup only|Skip scene|sideAim|Pull back|'pull'|sideFit|Which things/i, 'a mockup choice left');
   assert.match(core, /export function sideDrag\(dx, dy, size, power, stand\)/);
-  assert.match(js, /\? sideDrag\(dx, dy, parkSize\(\), current\.layout\.power, current\.parts\.stand\)/);
+  // at a block still standing (Q68: the structure's middle is the fence's gap)
+  assert.match(js, /\? sideDrag\(dx, dy, parkSize\(\), current\.layout\.power, sideAt\(\)\)/);
+  assert.match(js, /const sideAt = \(\) => sideTarget\(world\.blocks\.map\(/);
 });
 
 test('topple page: a device that can\'t show 3D is told so; three.js and cannon-es loaded with import()', () => {
