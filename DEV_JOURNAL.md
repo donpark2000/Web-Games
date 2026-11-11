@@ -17302,3 +17302,55 @@ child's play):
 **Asked of the developer:** the site's look, the frames (which ones,
 how tall), the blocks (building site or toy), the camera (as level 1 or
 higher), the Level screen and the map.
+
+## 2026-11-11: Mockup v1 tried; v2: the stage full size, cameras that fill the view with the frame
+
+**Developer on v1:** "The map and level starting screen look good." The
+Frames tab "was too small to see. The buttons fill the screen and the
+actual frame being drawn was a tiny square in the top left corner." And:
+"I did get the impression that the actual target took up much less of
+the screen than it should. Most of the space was background that has no
+impact on game play."
+
+**The tiny stage: a mockup bug.** The tab was a grid whose first column
+was `auto` while the stage's width was `min(100%, 390px)`: a percentage
+of a column sized by its own content, so on a wide window the column
+shrank almost to nothing. Claude's check had run in a narrow pane (322 px),
+where the tab stacks to one column and looked right. Fixed: the stage is
+an upright phone's shape as tall as the window allows (82% of its
+height), or the full width sideways; checked at 1100 × 800: 457 × 656 px.
+
+**The frame's share of the view: real, and level 1's too.** Level 1's
+camera (`behindView`) fits the slingshot at the foot, room for a high lob
+over the top (1.2 m), the things in the way, and 3° spare all round.
+Measured in v2 (at the start, the frame's blocks' corners on the screen,
+% of height / width; sand and light on):
+
+| Frame | As level 1, upright | Further back, upright | Fitted, upright | As level 1, sideways | Further back, sideways | Fitted, sideways |
+|---|---|---|---|---|---|---|
+| One storey | 19/26 | 22/30 | 49/67 | 21/9 | 39/17 | 70/31 |
+| Two storeys | 25/23 | 33/30 | 64/58 | 25/7 | 44/13 | 64/19 |
+| Three storeys | 29/13 | 46/21 | 63/28 | 29/4 | 46/7 | 63/9 |
+| Four storeys | 33/11 | 52/17 | 63/21 | 33/3 | 52/6 | 63/7 |
+| Steps | 24/23 | 30/28 | 64/62 | 24/7 | 44/13 | 65/20 |
+| Bridge | 18/34 | 19/37 | 38/75 | 21/13 | 40/25 | 68/42 |
+| Building frame | 26/24 | 35/32 | 63/57 | 26/8 | 45/13 | 63/18 |
+
+So with level 1's camera a frame fills only 18-33% of the height.
+**Mockup v2's camera switch** (published as version 2 of the same link):
+- **As level 1** (as before).
+- **Further back, zoomed in** (now the default): the camera 1.6 m further
+  back and 0.65 m higher (0.45, 2.6, 2.5) with a narrower view, room over
+  the top 0.3 m: the slingshot still shows, smaller. Sideways the frame
+  fills 39-52% of the height; upright it gains little for the short
+  frames, because the width must still take in the sand and the light.
+- **Fitted to the frame:** level 1's spot, the view fitted to the frame
+  alone: the slingshot out of sight below (the dots would come in from
+  the bottom), and the sand and light may run off the edges. 49-70% of
+  the height. (First tried with the sand and light kept in: 18-50%
+  upright, so they were what held it back.)
+- Under the picture, a line says how much of it the frame fills.
+
+**Open, for the developer:** which camera; whether the slingshot must
+show; whether level 1's camera should change too (it has the same
+empty space).
