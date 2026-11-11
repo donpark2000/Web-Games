@@ -17354,3 +17354,41 @@ So with level 1's camera a frame fills only 18-33% of the height.
 **Open, for the developer:** which camera; whether the slingshot must
 show; whether level 1's camera should change too (it has the same
 empty space).
+
+## 2026-11-11: Mockup v2 tried: level 1's camera, building-site blocks; the sand, materials and the ball (Q73)
+
+**Developer on v2:** "I can see it now."
+- **Things in the way:** the light and sand are "OK ideas but sand does
+  not look like sand - its just [a] sphere. It suffers from the same
+  problem our original bushes and tree leaves had in level 1 - just not
+  real enough to even be recognizable."
+- **Camera: "as in level 1 looks best"** (so the frame keeps its 18-33%
+  of the height; the measured table above stays as the record).
+- **Hidden parts stay hidden**: "Drawing them in pink is confusing" (it
+  was the mockup's aid; the game never draws them).
+- **Building-site blocks**, not toy: "it makes more sense".
+- "Something about a block of bricks and a block of wood responding to a
+  hit the same way feels off. Maybe the ball should change too - look
+  more like a sledge hammer or an iron wrecking ball. Thoughts?"
+
+**Claude's thoughts, put to the developer:**
+- **Swap the sand for something a child knows at a glance**, made of
+  flat shapes that are easy to make look real (as the leafy bushes had
+  to be): a yellow **skip** (a ball that lands in it stays there: the
+  bush's job). Other choices: sandbags, a wheelbarrow, a pallet of
+  bricks. The light stays.
+- **Materials that feel different:** each kind its own weight (wood
+  lightest, then bricks, concrete, steel heaviest, but closer together
+  than real ones, so the ball can still tip a steel post), its own bounce
+  and its own sound (steel clangs, concrete thuds, bricks clunk, wood
+  knocks). Sound is the cheapest, clearest difference. Bricks breaking
+  apart is new physics, for a later level (with the glass or ice).
+- **The ball:** an iron ball, dark and heavy-looking with a lifting ring,
+  thrown from the same slingshot, heavier so it hits harder. Same pad,
+  same aiming (the pad is the "anchor ... whatever they throw"). A real
+  wrecking ball swinging from a crane would be a new way to aim (pull
+  back, let go; it only hits at its own height), a level of its own
+  later. A thrown sledgehammer tumbles, hard to aim and to read.
+- Asked: the skip (or which); the iron ball from the slingshot;
+  materials by weight, bounce and sound, tried in mockup v3 with the
+  frames still all clearable in 5 balls.
