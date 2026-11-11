@@ -32,7 +32,14 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-11-11: "Wait for a page's code, not its HTML" (from
+- **Check a layout at the sizes it will be seen at** (2026-11-11, "Mockup
+  v1 tried; v2"): a page checked only in a narrow pane can break wide (or
+  the other way). *Evidence:* the level 2 mockup's Frames tab looked
+  right at 322 px, where it stacks to one column; in the developer's wide
+  viewer the 3D view was a tiny square (a column sized by its contents
+  holding a box sized as a percentage of it). Waiting for the developer.
+
+(Earlier, 2026-11-11: "Wait for a page's code, not its HTML" (from
 "Mockup v2 tried; a throw only from the pad; Q66's home pictures": the
 home pictures' tool pressed Five Dice 3D's Play while three.js was still
 loading) approved by the developer ("Seems pretty obvious but worth
@@ -17392,3 +17399,82 @@ empty space).
 - Asked: the skip (or which); the iron ball from the slingshot;
   materials by weight, bounce and sound, tried in mockup v3 with the
   frames still all clearable in 5 balls.
+
+## 2026-11-11: Mockup v3: gravel (a wheelbarrow, a heap), the iron ball, materials by weight, bounce and sound
+
+**Developer:** "1) Maybe a wheel barrow with some sand or gravel in it, or
+just a pile of gravel that is not a perfect 1/2 sphere. 2) OK 3) yes."
+
+**Mockup v3** (version 3 of [Topple! Level 2 Mockup](https://claude.ai/artifact/D5Z6BjfKGhRedxJXLVK1Hc)):
+- **In the way: "Wheelbarrow and light" / "Gravel heap and light" /
+  "Nothing".** Both gravel things are made as the bushes were made real:
+  many small parts over a darker core. Gravel is 1,500 (heap) or 520
+  (barrow) small stones: each a twelve-sided shape, squashed and turned,
+  in 8 greys and browns. The heap is a low, lopsided mound (0.78 × 0.55 m,
+  0.42 m tall, six lumps), not a dome. The wheelbarrow is side on: a green
+  tray narrower at the bottom, a rolled rim, a heap of gravel, a black
+  tyre on a grey hub, handles with black grips, and legs. A ball that
+  lands in either keeps 0.1 of its speed and crunches. In the
+  browser (560 px wide) both read at once as what they are.
+- **The iron ball:** dark iron with a lifting ring on top, 0.07 m (level
+  1's 0.06), 3 kg (level 1's 2 kg), from the same slingshot.
+- **Materials** (kg/m³; level 1's blocks all 27; real ones in the same
+  order, much closer together so a steel post still tips):
+
+  | | Weight | Ball's bounce off it | Grip | Sound |
+  |---|---|---|---|---|
+  | Wood | 18 | 0.30 | 0.50 | level 1's knock |
+  | Brick | 30 | 0.12 | 0.60 | a clunk with grit |
+  | Concrete | 36 | 0.15 | 0.55 | a low dead thump |
+  | Steel | 45 | 0.45 | 0.35 | a ringing clang |
+
+  The sounds are built from the game's own pieces (`src/ui/sounds.js`:
+  a note, filtered noise, a rattle). The same sound plays at most once in
+  45 ms. Wood is new: the steps' front frame and the bridge's plank.
+- **Dropped, as decided:** the toy blocks and the camera choices (level
+  1's camera); hidden parts are no longer drawn. Added: a Sound on/off
+  switch.
+
+**Every frame still clears in 5 balls.** The mockup now has a
+straight-through run: Knock, then the physics stepped in fixed 1/60 s
+steps until still (no clock, the same each run; about 0.1 s a frame).
+The same run with level 1's settings (all blocks 27 kg/m³, the 2 kg ball)
+gives the comparison (balls to clear, down after each):
+
+| Frame | New materials, iron ball | Level 1's settings |
+|---|---|---|
+| One storey | 1 [7] | 1 [7] |
+| Two storeys | 1 [11] | 1 [11] |
+| Three storeys | 1 [16] | 2 [15, 16] |
+| Four storeys | 2 [0, 21] | 2 [0, 21] |
+| Steps | 2 [9, 16] | 5 [0, 0, 10, 15, 16] |
+| Bridge | 2 [7, 12] | 4 [8, 9, 10, 12] |
+| Building frame | 1 [14] | 1 [14] |
+
+The same with the wheelbarrow, the heap or nothing in the way: Knock aims
+at posts it can see, so it never hits them. **The new setup is easier**:
+the heavier ball outweighs the heavier blocks. How hard level 2 should
+be is for the scene check and the kids (Q64, Q72), not this mockup.
+(These runs differ from v1's table, which was timed by the page's
+frames; this one is the record.)
+
+## 2026-11-11: Status (start here next session)
+
+- **Live: 9.4.** Nothing in the game has changed this session; only the
+  journal is committed on `block-game`.
+- **Level 2 so far (Q73):** "The building site". Agreed: building-site
+  blocks (steel, concrete, brick, some wood), level 1's camera, hidden
+  parts not drawn, the Level screen and the map (mockup v1, "look good").
+  Tried in v3, waiting for the developer: the wheelbarrow or the gravel
+  heap, the iron ball, the materials' weight, bounce and sound.
+- **The mockup's page is its source**: read it with the Artifact tool
+  (`read`, the link above); level 1's picture is already in it.
+- **Still to decide before building:** which frames (7 samples), how
+  many storeys; the scene check's new rules (a hidden block must come
+  into view as the front falls; reach = the structure's height; the
+  throw's speed for the top); the map and level picking in the game's
+  saved state.
+- **Open questions:** Q64, Q73.
+- **Skill:** a lesson to propose: "Check a layout at the sizes it will be
+  seen at" (the Frames tab looked right in a 322 px pane and was a tiny
+  square in the developer's wide viewer). Not yet put to the developer.
