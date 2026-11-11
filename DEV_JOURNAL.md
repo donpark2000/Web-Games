@@ -36,21 +36,6 @@ time, each tried before publishing:
   pictures"); waiting for the developer's verdict.
   2026-11-11, developer: likes the idea; changes asked (motion lines, a
   bigger fall, the cup): "Home pictures mockup v1 tried".
-- **Q71. Topple!: the dots show too much of the path** (2026-11-11,
-  developer: "the aiming dots seem to be going all the way to the target.
-  Its pretty hard to miss"). They cover 0.5 s of a 0.65 s flight; proposed
-  0.3 s, about half the way ("The pad tried; ... the dots and one hit
-  measured"). 2026-11-11, developer: "lets try that"; built ("Dots 0.3 s;
-  structures that fall in parts"), for the developer to try.
-- **Q72. Topple!: one hit knocks all or most blocks down** (2026-11-11,
-  developer: "it would be better if some shots just knocked some posts
-  down"; angled structures, less friction suggested). Measured: angle and
-  friction change little; only the fence, two separate halves, never fell
-  whole. Proposed: new structures of separate pieces or more legs, a
-  mockup first (same entry). 2026-11-11, developer: not alternatives, "use
-  both in different scenes", and pieces apart "could still knock down
-  pieces from another". Built and measured ("Dots 0.3 s; structures that
-  fall in parts"), for the developer to try.
 
 ## Proposed additions to the standards skill
 
@@ -142,6 +127,25 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q72. Topple!: one hit knocks all or most blocks down** (2026-11-11,
+  developer: "it would be better if some shots just knocked some posts
+  down"; angled structures, less friction suggested). Measured: angle and
+  friction change little; only the fence, two separate halves, never fell
+  whole. Proposed: new structures of separate pieces or more legs, a
+  mockup first (same entry). 2026-11-11, developer: not alternatives, "use
+  both in different scenes", and pieces apart "could still knock down
+  pieces from another". Built and measured ("Dots 0.3 s; structures that
+  fall in parts"), for the developer to try. **Settled:** 2026-11-11,
+  developer, having tried it: "All the problems we discussed seem to be
+  better now."
+- **Q71. Topple!: the dots show too much of the path** (2026-11-11,
+  developer: "the aiming dots seem to be going all the way to the target.
+  Its pretty hard to miss"). They cover 0.5 s of a 0.65 s flight; proposed
+  0.3 s, about half the way ("The pad tried; ... the dots and one hit
+  measured"). 2026-11-11, developer: "lets try that"; built ("Dots 0.3 s;
+  structures that fall in parts"), for the developer to try.
+  **Settled:** 2026-11-11, developer, having tried it: "All the problems
+  we discussed seem to be better now."
 - **Q67. Topple!: the finger hides the aiming dots** (2026-11-10,
   developer: a kid starts on or near the ball and swipes toward the
   target, so the finger covers the dots; starting the drag away from the
@@ -16861,5 +16865,47 @@ pair and row (with three, only never the same twice in a row).
 - **Then:** the home pictures' changes (the first 2026-11-11 status), and
   publish as **9.3**.
 - **Open questions:** Q64, Q66, Q71 and Q72 (built, to try).
+- **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
+  review with the developer.
+
+## 2026-11-11: Tried: all better; the cleared card's button says "Next ▸"
+
+**Developer** (the branch, from the local server): "All the problems we
+discussed seem to be better now." Q71 and Q72 moved to Resolved. "One
+minor issue - after clearing a scene the pop up just says the number of
+the scene that was cleared and a new game button. It is not clear that
+the note about which scene was cleared is actually a button and its
+purpose is to load the next scene." The button's words were "Scene 2 of
+5" (the scene next, not the one cleared, which shows how unclear it was).
+
+First made "Next scene ▸" with "Scene 2 of 5 next" over it; then the
+developer: "I think the jewels make it clear where you are, so maybe the
+popup could just say 'next'". Now **Next ▸**, as Bridges' button, and no
+line over it (`endWords('won')`).
+- **Test:** the won card's words; every end card's button starts with an
+  action word (Next, Play, Try, Start), so a bare label like "Scene 3 of
+  5" fails it.
+- **Checked** in the browser pane (game seed 1, scene 2, every block tipped
+  through `window.topple.inside()`): the card "Teddy cleared it! 💎" /
+  Next ▸ / New game; Next ▸ loads scene 3 (the pair); no console errors.
+  (A `window.topple.scene()` call made on the setup screen, before 3D
+  started, left the page "Setting up the scene…": `startScene` sets `busy`
+  and then had no world. Only the checking hook can do that; no button
+  starts a scene before 3D is up. Not changed.)
+- `npm test` 555 of 555.
+
+## 2026-11-11: Status (start here next session)
+
+- **Live: 9.2.** On `block-game` (pushed, not published): everything in
+  the earlier 2026-11-11 statuses (the pad, the far-off trees, the dots
+  for 0.3 s, the bench, pair, row and trio), plus the cleared card's
+  **Next ▸**. The developer has tried it: "All the problems we discussed
+  seem to be better now."
+- **Next:** the home pictures' changes (the first 2026-11-11 status:
+  motion lines, Topple!'s bigger fall, the dice cup over the table),
+  mockup v2, then the pictures on the home page and publish as **9.3**
+  (or publish 9.3 first without the pictures, if the developer prefers).
+- **Open questions:** Q64 (how hard for a child's aim), Q66 (home
+  pictures).
 - **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
   review with the developer.

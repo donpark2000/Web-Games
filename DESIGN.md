@@ -2195,7 +2195,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   pad at its foot. **Start again** asks first and **costs
   a ❤️** ("Start this scene again? You lose a ❤️"; else it would be a
   way round losing one); not before the first ball. The scene's end in
-  a card: your face, "Teddy cleared it! 💎" / **Scene 2 of 5**; "Out of
+  a card: your face, "Teddy cleared it! 💎" / **Next ▸** (developer,
+  2026-11-11: the button said "Scene 2 of 5", not clear as a button; "the
+  jewels make it clear where you are"); "Out of
   balls 💔", "2 hearts left" / **Try again**; "No hearts left", "Back to
   scene 1" / **Start again**; "Level 1 done! 💎💎💎💎💎" / **Play
   again**; and **New game** (the setup screen).

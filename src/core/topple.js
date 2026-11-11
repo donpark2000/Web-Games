@@ -687,7 +687,11 @@ export function update(r, dt, { down, still }) {
 // sceneOver()'s outcome and the game after it.
 export function endWords(outcome, g, name) {
   switch (outcome) {
-    case 'won': return { title: `${name} cleared it! 💎`, next: `Scene ${g.scene} of ${SCENES}` };
+    // the button says what it does, as Bridges' "Next ▸" (developer,
+    // 2026-11-11: "Scene 2 of 5" alone wasn't clear as a button "and its
+    // purpose is to load the next scene"; "the jewels make it clear where
+    // you are, so maybe the popup could just say 'next'")
+    case 'won': return { title: `${name} cleared it! 💎`, next: 'Next ▸' };
     case 'level': return { title: `Level ${g.level} done! ${'💎'.repeat(SCENES)}`, sub: 'New scenes next time', next: 'Play again' };
     case 'lost': return { title: `Out of balls 💔`, sub: `${g.hearts} ${g.hearts === 1 ? 'heart' : 'hearts'} left`, next: 'Try again' };
     case 'out': return { title: 'No hearts left', sub: 'Back to scene 1', next: 'Start again' };

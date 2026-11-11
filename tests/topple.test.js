@@ -332,7 +332,10 @@ test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all a
 
 test('topple: the end card\'s words, and a face is needed', () => {
   const g = { level: 1, scene: 3, hearts: 2 };
-  assert.deepEqual(endWords('won', g, 'Teddy'), { title: 'Teddy cleared it! 💎', next: 'Scene 3 of 5' });
+  // the button says what it does; the jewels show where you are (2026-11-11)
+  assert.deepEqual(endWords('won', g, 'Teddy'), { title: 'Teddy cleared it! 💎', next: 'Next ▸' });
+  // every button an action: a verb or "Next" (no bare label like "Scene 3 of 5")
+  for (const o of ['won', 'level', 'lost', 'out']) assert.match(endWords(o, g, 'Teddy').next, /^(Next|Play|Try|Start)\b/, o);
   assert.equal(endWords('level', g, 'Teddy').title, 'Level 1 done! 💎💎💎💎💎');
   assert.equal(endWords('lost', { ...g, hearts: 1 }, 'Teddy').sub, '1 heart left');
   assert.equal(endWords('lost', g, 'Teddy').sub, '2 hearts left');
