@@ -17190,3 +17190,26 @@ follow):
 - **The "Level N" screen:** asked when it shows, what it says, whether
   levels get names, and whether to build now the agreed "start any level
   you've reached" ("Mockup v5 tried": "Yes to both").
+
+**Developer's answers:**
+- **Agreed:** the screen at every level's start (not after hearts lost);
+  on it the name, a picture, one line, 5 empty 💎, 3 ❤️ and Start; after
+  the last level built, "All levels done! 💎" and Play again.
+- **Names: the setting, not the change in targets** ("level 1 could be
+  'The park'"). And a new idea from it: **each level's backdrop changes**:
+  level 1 grass, trees and blue sky; level 2 "more urban with other
+  structures rather than trees"; others winter, dark, mountains...; the
+  glass blocks that break could be **ice, in a winter scene**.
+- **Picking a level: a map** "with nodes on it that suggest the sequence";
+  jump to any level completed or the one you're on, not higher.
+
+**Claude's view, put to the developer:** settings are a good idea: each
+level then looks new, not just plays new, and the setting can explain the
+new thing (ice in winter, dynamite in a quarry). Each is drawing work, so
+each level's release is bigger. For level 2, a **building site** (frames
+are what a building site has): a concrete or dirt ground, distant
+buildings and cranes, and things in the way doing the bush's and tree's
+jobs (a sand pile the ball drops into; a lamp post or a stack of pipes in
+the way of a straight throw). Asked: the building site or a city street;
+the map's flow and how a replayed level keeps its progress; mockup v1's
+scope (the targets in the setting, the Level 2 screen and the map).
