@@ -40,13 +40,17 @@ time, each tried before publishing:
   developer: "the aiming dots seem to be going all the way to the target.
   Its pretty hard to miss"). They cover 0.5 s of a 0.65 s flight; proposed
   0.3 s, about half the way ("The pad tried; ... the dots and one hit
-  measured"). Waiting for the developer.
+  measured"). 2026-11-11, developer: "lets try that"; built ("Dots 0.3 s;
+  structures that fall in parts"), for the developer to try.
 - **Q72. Topple!: one hit knocks all or most blocks down** (2026-11-11,
   developer: "it would be better if some shots just knocked some posts
   down"; angled structures, less friction suggested). Measured: angle and
   friction change little; only the fence, two separate halves, never fell
   whole. Proposed: new structures of separate pieces or more legs, a
-  mockup first (same entry). Waiting for the developer.
+  mockup first (same entry). 2026-11-11, developer: not alternatives, "use
+  both in different scenes", and pieces apart "could still knock down
+  pieces from another". Built and measured ("Dots 0.3 s; structures that
+  fall in parts"), for the developer to try.
 
 ## Proposed additions to the standards skill
 
@@ -16775,5 +16779,87 @@ Of the balls that knocked any block down, all or most fell for the arch
 - **Then:** the home pictures' changes (the earlier 2026-11-11 status),
   and publish as **9.3**.
 - **Open questions:** Q64, Q66, Q71, Q72.
+- **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
+  review with the developer.
+
+## 2026-11-11: Dots 0.3 s; structures that fall in parts
+
+**Developer:** Q71: "lest try that". Q72: "I don't think they are mutually
+exclusive alternatives. It would be good to use both in different scenes.
+... when there is more than one target, I could still be interesting if
+falling pieces from one target could still knock down pieces from another
+target."
+
+**Q71, the dots:** `DOT_SECONDS` 0.5 to 0.3 (6 dots on a free path, was
+10); test and DESIGN updated.
+
+**Q72, built straight into the game, not as a mockup first** (as proposed):
+the measuring needs the game's own physics and scene check, and the
+developer tries the branch on the local server, as with the pad.
+
+Candidates designed and measured in a scratch copy of `src/core/` (not the
+repo), with the same scratch script as before (a person player's one ball
+at a block seen from behind; 6 games, every scene forced to the one
+structure, 120 balls each; "more than one piece": blocks down at more than
+one depth). All passed the scene check and stood still.
+
+| Structure | Hits (any down) | All down | More than one piece |
+|---|---|---|---|
+| bench3 (plank on 3 posts) | 67 | 10 | - |
+| bench (plank on 4 posts) | 70 | 4 | - |
+| pair, pieces ±0.11 apart | 95 | 3 | 4 |
+| **pair, ±0.07** | 99 | 15 | 27 |
+| pair, ±0.04 | 93 | 28 | 49, but every scene failed the check (the far piece hidden) |
+| row, posts 0.14 apart | 108 | 1 | 5 |
+| **row, 0.08 apart** | 104 | 7 | 43 |
+| trio, stacks 0.2 apart | 96 | 0 | 29 |
+| **trio, 0.12 apart** | 87 | 3 | 39 |
+
+Against the arch's 18 all down of 37 hits (the first table). Picked: the
+4-post bench, and the pair, row and trio in bold (pieces slanting away to
+the right: from the camera, over the right shoulder, the far piece shows
+past the near one; slanting the other way the near piece hid it).
+
+**Built** (`src/core/topple.js`): the bench, pair and row join scenes 1-4
+(six structures), the trio scene 5 (three). `SOME_STACKS`: scenes 1-4 are
+dealt four different structures, at least two (`SOME_MIN`) of the bench,
+pair and row (with three, only never the same twice in a row).
+- **A tree with no room:** with the deeper structures a tree in front found
+  no room in 80 of 300 row layouts (13 pair, 33 trio; a scratch script):
+  every try was within a falling post's reach of the row's near post
+  (0.24 m in front of the middle), with the tree kept 1.5 m from the
+  slingshot. Moving the tree nearer by the extra depth barely helped (77
+  of 300). Now a structure with depth is set back by it (`back`), its
+  front where a one-row structure's is, and its footprint is as deep as it
+  is: 0 of 300 for every structure. The old structures' layouts are
+  unchanged (`back` and the deeper footprint are 0 for them).
+- **Tests:** the structures listed; scenes 1-4 four different structures,
+  two or three of the new ones (both seen over 1,000 plans); a new physics
+  test, one ball each at 4 layouts of each new structure: every block down
+  under a third of the hits, more than one piece down at least a tenth
+  (pair, row, trio); it can fail: the arch falls whole a third of the time
+  or more. Two tests that pinned a scene by its seed (the arch, the
+  pyramid) now ask for that structure: one draw picks it whatever the
+  list, so the rest of the layout comes out as before. `npm test` 555 of
+  555 (after `node tools/offline.js`).
+- **Logged:** each scene's `stack` already names it.
+- **Checked** in the browser pane (800 x 600, game seed 1: the bench, the
+  posts, the pair, the row, then the trio in scene 5): each stands; the
+  pair reads as two stacks; **the row's three posts look almost side by
+  side from behind** (the slant away barely shows), for the developer to
+  judge; no console errors.
+
+## 2026-11-11: Status (start here next session)
+
+- **Live: 9.2.** On `block-game` (pushed, not published): everything in
+  the earlier 2026-11-11 statuses, plus the far-off trees' trunks, the
+  dots for 0.3 s (Q71) and the bench, pair, row and trio (Q72).
+- **Waiting for the developer:** to try the dots and the new structures
+  from the local server (`node tools/serve.js`, http://localhost:8123/;
+  a new game deals the new scenes; "New scenes from scene 1"). Does the
+  row read as three separate posts?
+- **Then:** the home pictures' changes (the first 2026-11-11 status), and
+  publish as **9.3**.
+- **Open questions:** Q64, Q66, Q71 and Q72 (built, to try).
 - **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
   review with the developer.

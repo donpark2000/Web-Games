@@ -2068,9 +2068,20 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
 - **Knock every block of a structure down with 5 balls from a
   slingshot**, in a park (a mown lawn whose stripes are 1 m apart, trees
   far off), seen over the thrower's right shoulder. The structures stand
-  on the ground: an arch, two posts, a pyramid (scenes 1-4), a two-storey
-  tower or a fence (scene 5); every block on the ground is upright, so a
-  hit can tip it. **A block is down** once tipped more than 45° or
+  on the ground: an arch, two posts, a pyramid, a bench, a pair, a row
+  (scenes 1-4), a two-storey tower, a fence or a trio (scene 5); every
+  block on the ground is upright, so a hit can tip it. **Some structures
+  fall whole, some in parts** (developer, 2026-11-11, Q72: "it would be
+  better if some shots just knocked some posts down"; "use both in
+  different scenes"): the arch, posts, pyramid and tower are posts
+  carrying the rest, so a post hit drops it all (the "strategic point");
+  the bench is a plank on four posts, so one knocked leaves it up; the
+  pair, the row and the trio are separate pieces slanting away to the
+  right, close enough that one falling can knock the next ("falling
+  pieces from one target could still knock down pieces from another").
+  Scenes 1-4 are four different structures, at least two of the bench,
+  pair and row. A structure with depth is set back so its front stands
+  where a one-row structure's does. **A block is down** once tipped more than 45° or
   dropped 0.6 of its smallest side, and stays counted down; but **a
   post** (taller than wide and deep) only while it lies tipped past 45°,
   however far it fell, and up again under 40° (developer, 2026-11-10,
@@ -2138,7 +2149,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   not even know what a degree is"): drag where to throw: up aims higher
   (flat to 70°), sideways the same way (up to 22°); how hard is the
   scene's (a 45° throw reaches about 1.35 times as far as the
-  structure). **The dots:** one for every 0.05 s of flight, for ½ s,
+  structure). **The dots:** one for every 0.05 s of flight, for 0.3 s
+  (about half the way to the structure; ½ s until 2026-11-11, Q71:
+  "pretty hard to miss"),
   stopping where the ball would touch something, the last one orange.
 - **The drag pad** (developer, 2026-11-10, Q67: a finger that starts on
   the ball covers the dots; "The drag pad idea helps a lot"; a concept

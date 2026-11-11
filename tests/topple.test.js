@@ -10,7 +10,7 @@ import {
   makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, launchVel, isDown, createGame, readGame, sceneOver,
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, checkSetup, rng,
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
-  FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn,
+  FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn, SOME_STACKS, SOME_MIN,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -24,20 +24,22 @@ test('topple: every block on the ground is upright, so a hit can tip it; scene 5
       checked++;
     }
   }
-  assert.ok(checked >= 13, `only ${checked} ground blocks`);
-  assert.deepEqual(sceneOpts(1).stacks, ['arch', 'posts', 'pyramid']);
+  assert.ok(checked >= 30, `only ${checked} ground blocks`);
+  assert.deepEqual(sceneOpts(1).stacks, ['arch', 'posts', 'pyramid', 'bench', 'pair', 'row']);
   assert.deepEqual(sceneOpts(4), sceneOpts(1));
-  assert.deepEqual(sceneOpts(5), { n: 2, stacks: ['tower', 'fence'] });
+  assert.deepEqual(sceneOpts(5), { n: 2, stacks: ['tower', 'fence', 'trio'] });
+  // the ones where a hit knocks only some (Q72), in both lists
+  assert.deepEqual(SOME_STACKS.filter(k => sceneOpts(1).stacks.includes(k) || sceneOpts(5).stacks.includes(k)), SOME_STACKS);
 });
 
 // Developer, 2026-11-10: "Sometimes there seemed to be no difference
 // between scenes" (their game 1288553953: scenes 1-3 all an arch behind a
 // bush). Picked each on its own, 97 of 300 neighbouring scenes had the same
 // structure, 32 the same structure and thing.
-test('topple: scenes 1-4 dealt per game: never the same structure twice in a row, no structure and thing twice', () => {
+test('topple: scenes 1-4 dealt per game: a different structure each, at least two where a hit knocks only some', () => {
   const stacks = sceneOpts(1).stacks;
   let games = 0;
-  const seenStack = new Set(), seenThing = new Set();
+  const seenStack = new Set(), seenThing = new Set(), someCounts = new Set();
   for (let g = 1; g <= 500; g++) for (const level of [1, 2]) {
     const plan = levelPlan(g * 7919, level);
     assert.equal(plan.length, SCENES - 1);
@@ -45,13 +47,16 @@ test('topple: scenes 1-4 dealt per game: never the same structure twice in a row
     plan.forEach((c, i) => {
       assert.ok(stacks.includes(c.stack) && KINDS.includes(c.thing), `${g}: ${JSON.stringify(c)}`);
       seenStack.add(c.stack); seenThing.add(c.thing);
-      if (i) assert.notEqual(c.stack, plan[i - 1].stack, `${g}/${level}: scenes ${i} and ${i + 1} both ${c.stack}`);
     });
-    assert.equal(new Set(plan.map(c => `${c.stack}+${c.thing}`)).size, plan.length, `${g}/${level}: a pair twice: ${JSON.stringify(plan)}`);
+    assert.equal(new Set(plan.map(c => c.stack)).size, plan.length, `${g}/${level}: a structure twice: ${JSON.stringify(plan)}`);
+    const some = plan.filter(c => SOME_STACKS.includes(c.stack)).length;
+    assert.ok(some >= SOME_MIN, `${g}/${level}: only ${some} where a hit knocks only some`);
+    someCounts.add(some);
     games++;
   }
   assert.equal(games, 1000);
-  assert.equal(seenStack.size, 3); assert.equal(seenThing.size, KINDS.length);
+  assert.equal(seenStack.size, stacks.length); assert.equal(seenThing.size, KINDS.length);
+  assert.deepEqual([...someCounts].sort(), [2, 3], 'two or three of the four, as dealt');
   assert.notDeepEqual(levelPlan(1, 1), levelPlan(2, 1), 'every game the same plan');
   // a scene's options carry its dealt structure and thing; the 5th is as before
   const plan = levelPlan(42, 1);
@@ -69,7 +74,7 @@ test('topple: a layout is the same from the same seed; the 5th scene has two thi
   assert.notDeepEqual(makeLayout(42).blocks, makeLayout(43).blocks);
   for (let seed = 1; seed <= 20; seed++) {
     const L = makeLayout(seed * 101, sceneOpts(5));
-    assert.ok(['tower', 'fence'].includes(L.stack));
+    assert.ok(['tower', 'fence', 'trio'].includes(L.stack));
     assert.equal(L.things.length + L.unplaced.length, 2, `${seed}: ${L.things.length} things`);
     assert.ok(L.power >= 0.3 && L.power <= 0.8);
     for (const t of L.things) assert.ok(KINDS.includes(t.kind));
@@ -338,17 +343,17 @@ test('topple: the end card\'s words, and a face is needed', () => {
   assert.equal(checkSetup({ p1: 'unicorn' }), 'unknown-face');
 });
 
-test('topple: the dots: one every 0.05 s for ½ s, stopping orange where the path touches sooner', () => {
+test('topple: the dots: one every 0.05 s for 0.3 s, stopping orange where the path touches sooner', () => {
   const pts = Array.from({ length: 200 }, (_, i) => [0, 1, -i / 100]);
   const free = dotsFor({ hits: [], pts });
-  assert.equal(free.pts.length, 10);
+  assert.equal(free.pts.length, 6);
   assert.deepEqual(free.pts[0], pts[6]);
   assert.equal(free.stopped, null);
   const hit = dotsFor({ hits: [{ kind: 'bush', t: 0.21, at: [0, 1, -0.5] }], pts });
   assert.equal(hit.stopped, 'bush');
   assert.equal(hit.pts.length, 5, '4 dots and the touch');
   assert.deepEqual(hit.pts.at(-1), [0, 1, -0.5]);
-  assert.equal(dotsFor({ hits: [{ kind: 'block', t: 0.9, at: [0, 0, 0] }], pts }).stopped, null, 'a touch after ½ s isn\'t shown');
+  assert.equal(dotsFor({ hits: [{ kind: 'block', t: 0.4, at: [0, 0, 0] }], pts }).stopped, null, 'a touch after 0.3 s isn\'t shown');
 });
 
 test('topple: the view takes in the whole scene and the slingshot, upright and sideways', () => {

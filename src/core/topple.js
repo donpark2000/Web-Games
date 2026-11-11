@@ -84,12 +84,51 @@ export const STACKS = {
     Bk(0.3, 0.06, 0.12, -0.22, 0.33 + 2 * e, 0, 'yellow'), Bk(0.3, 0.06, 0.12, 0.22, 0.33 + 2 * e, 0, 'yellow'),
     Bk(0.1, 0.1, 0.1, -0.22, 0.41 + 3 * e, 0, 'purple'), Bk(0.1, 0.1, 0.1, 0.22, 0.41 + 3 * e, 0, 'red'),
   ],
+  // Structures where one hit knocks only some (developer, 2026-11-11, Q72:
+  // "it would be better if some shots just knocked some posts down"; the
+  // ones above are posts carrying the rest, so a post hit drops it all).
+  // More legs: a long plank on four posts, so one knocked leaves it up.
+  bench: () => [
+    ...[-0.27, -0.09, 0.09, 0.27].map(x => Bk(0.07, 0.28, 0.11, x, 0.14 + e, 0, 'blue')),
+    Bk(0.66, 0.07, 0.14, 0, 0.315 + 2 * e, 0, 'yellow'),
+    Bk(0.1, 0.1, 0.1, -0.18, 0.40 + 3 * e, 0, 'green'), Bk(0.1, 0.1, 0.1, 0.18, 0.40 + 3 * e, 0, 'red'),
+  ],
+  // Separate pieces, close enough that one falling can knock the next
+  // (developer: "falling pieces from one target could still knock down
+  // pieces from another"): two small stacks, the near one on the left, the
+  // far one on the right (seen past the near one from behind).
+  pair: () => [0, 1].flatMap(k => {
+    const cx = k ? 0.07 : -0.07, cz = k ? -0.13 : 0.13;
+    return [
+      Bk(0.07, 0.26, 0.1, cx - 0.08, 0.13 + e, cz, 'blue'), Bk(0.07, 0.26, 0.1, cx + 0.08, 0.13 + e, cz, 'blue'),
+      Bk(0.25, 0.06, 0.12, cx, 0.29 + 2 * e, cz, 'yellow'),
+      Bk(0.1, 0.1, 0.1, cx, 0.37 + 3 * e, cz, k ? 'red' : 'green'),
+    ];
+  }),
+  // three posts with a cube on each, in a row slanting away to the right
+  row: () => [-1, 0, 1].flatMap(k => [
+    Bk(0.08, 0.34, 0.12, k * 0.08, 0.17 + e, -k * 0.16, 'blue'),
+    Bk(0.1, 0.1, 0.1, k * 0.08, 0.39 + 2 * e, -k * 0.16, ['green', 'purple', 'red'][k + 1]),
+  ]),
+  // the 5th scene's: three small stacks slanting away to the right
+  trio: () => [-1, 0, 1].flatMap(k => {
+    const cx = k * 0.12, cz = -k * 0.15;
+    return [
+      Bk(0.07, 0.26, 0.1, cx - 0.07, 0.13 + e, cz, 'blue'), Bk(0.07, 0.26, 0.1, cx + 0.07, 0.13 + e, cz, 'blue'),
+      Bk(0.22, 0.06, 0.12, cx, 0.29 + 2 * e, cz, 'yellow'),
+      Bk(0.1, 0.1, 0.1, cx, 0.37 + 3 * e, cz, ['green', 'purple', 'red'][k + 1]),
+    ];
+  }),
 };
+// The ones where a hit knocks only some: at least SOME_MIN of scenes 1-4
+// (levelPlan), so a level has both kinds (developer: "use both in
+// different scenes").
+export const SOME_STACKS = ['bench', 'pair', 'row', 'trio'], SOME_MIN = 2;
 
 // A level's scenes: 1-4 about the same (one thing in the way, a smaller
 // structure), the 5th harder (two things, a bigger structure).
 export const SCENES = 5, HEARTS = 3, BALLS = 5;
-export const sceneOpts = i => (i < SCENES ? { n: 1, stacks: ['arch', 'posts', 'pyramid'] } : { n: 2, stacks: ['tower', 'fence'] });
+export const sceneOpts = i => (i < SCENES ? { n: 1, stacks: ['arch', 'posts', 'pyramid', 'bench', 'pair', 'row'] } : { n: 2, stacks: ['tower', 'fence', 'trio'] });
 // The things in the way in level 1: bushes and trees (developer, 2026-11-10,
 // Q70: backboards aren't useful "unless they need to be part of the
 // solution", perhaps in a later level of 3D frames). The backboard is still
@@ -159,16 +198,18 @@ export const sceneSeed = (gameSeed, level, i, tryN = 0) =>
 // What scenes 1-4 of a level are (developer, 2026-11-10: "Sometimes there
 // seemed to be no difference between scenes"; scenes picked each on its own
 // had the same structure next door 1 time in 3): dealt once per game and
-// level, so a scene played again is still the same one. Never the same
-// structure twice in a row, never the same structure and thing twice in a
-// level. Returns [{ stack, thing }] for scenes 1 to SCENES - 1.
+// level, so a scene played again is still the same one. A different
+// structure each scene (with six to pick from since 2026-11-11, Q72; with
+// three, never the same twice in a row), at least SOME_MIN of them ones
+// where a hit knocks only some. Returns [{ stack, thing }] for scenes 1 to
+// SCENES - 1.
 export function levelPlan(gameSeed, level) {
   const random = rng((gameSeed ^ Math.imul(level, 0x27D4EB2F) ^ 0x165667B1) >>> 0);
   const combos = sceneOpts(1).stacks.flatMap(stack => KINDS.map(thing => ({ stack, thing })));
   const plan = [];
   for (let i = 1; i < SCENES; i++) {
-    const prev = plan[plan.length - 1];
-    const left = combos.filter(c => !plan.includes(c) && c.stack !== prev?.stack);
+    const need = SOME_MIN - plan.filter(c => SOME_STACKS.includes(c.stack)).length;
+    const left = combos.filter(c => !plan.some(p => p.stack === c.stack) && (need < SCENES - i ? true : SOME_STACKS.includes(c.stack)));
     plan.push(left[Math.floor(random() * left.length)]);
   }
   return plan.map(c => ({ ...c }));
@@ -315,7 +356,12 @@ export function makeLayout(seed, opts = sceneOpts(1), pool = KINDS) {
   const rel = STACKS[stack]().map(b => ({ ...b, w: b.w * SIZE, h: b.h * SIZE, d: b.d * SIZE, x: b.x * SIZE, y: b.y * SIZE, z: b.z * SIZE }));
   const half = Math.max(...rel.map(b => Math.abs(b.x) + b.w / 2));
   // "table": the structure's footprint on the ground (top 0), for placing the things round it
-  const table = { w: 2 * half + TABLE.side * 2, d: TABLE.d * SIZE, top: 0, x: R(-0.35, 0.35), z: R(-3.1, -2.5) };
+  // A structure with depth (the pair, the row, the trio): the footprint
+  // deeper, and set back so its front stands where a one-row structure's
+  // does (in front, the row's near post left a tree no room 80 times in 300).
+  const deep = 2 * Math.max(...rel.map(b => Math.abs(b.z) + b.d / 2)) + TABLE.side * 2;
+  const back = Math.max(0, Math.max(...rel.map(b => b.z + b.d / 2)) - 0.07 * SIZE);
+  const table = { w: 2 * half + TABLE.side * 2, d: Math.max(TABLE.d * SIZE, deep), top: 0, x: R(-0.35, 0.35), z: R(-3.1, -2.5) - back };
   const blocks = rel.map(b => ({ ...b, x: table.x + b.x, y: table.top + b.y, z: table.z + b.z }));
   const kinds = [];
   for (let i = 0; i < opts.n; i++) { const left = pool.filter(k => !kinds.includes(k)); kinds.push(pick(left.length ? left : pool)); }
@@ -520,11 +566,13 @@ export function demoAt(t, to) {
 }
 
 // The dots: the start of the path, one for every 0.05 s of flight (far apart
-// means fast), for ½ s; where the ball would touch something sooner they
+// means fast), for 0.3 s, about half the way to the structure (½ s until
+// 2026-11-11, Q71: three quarters of the way; developer: "pretty hard to
+// miss"); where the ball would touch something sooner they
 // stop there, the last one orange. `path` is { hits, pts } (pts every STEP s
 // from the hand, topple-world's trace()). Returns { pts, stopped (what it
 // touches, or null), lastT }.
-export const DOT_DT = 0.05, DOT_SECONDS = 0.5, MAX_DOTS = 90;
+export const DOT_DT = 0.05, DOT_SECONDS = 0.3, MAX_DOTS = 90;
 export function dotsFor(path, limitT = DOT_SECONDS) {
   const per = Math.round(DOT_DT / STEP), hit = path.hits[0];
   const endT = Math.min(limitT, hit ? hit.t : Infinity);

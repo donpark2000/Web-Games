@@ -73,8 +73,10 @@ function tinCanThrow(stepOnce) {
 // its 7 blocks down), 3 s on.
 function toppleThrow(stepOnce) {
   // the layout by its seed (game 12345's scene 3 before scenes were dealt), so
-  // the test doesn't move when the game's choice of scenes does
-  const L = makeLayout(sceneSeed(12345, 1, 3), sceneOpts(3), ALL_KINDS), sc = { layout: L, parts: sceneParts(L) }, w = createWorld();
+  // the test doesn't move when the game's choice of scenes does; the pyramid
+  // asked for, as its first draw picked from three (one draw, whatever the
+  // list, so the rest comes out as before Q72's six)
+  const L = makeLayout(sceneSeed(12345, 1, 3), { ...sceneOpts(3), stacks: ['pyramid'] }, ALL_KINDS), sc = { layout: L, parts: sceneParts(L) }, w = createWorld();
   w.setScene(sc.parts);
   const st = sc.parts.stand, aim = Math.atan2(st.x - HAND.x, HAND.z - st.z) * R2D / MAX_AIM;
   w.throwBall(launchVel(sc.layout.power, aim, 10).vec);

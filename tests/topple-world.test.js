@@ -12,7 +12,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, touch, BUSH_KEEP, MIN_HITS } from '../src/core/topple-world.js';
 import {
-  SCALE, HAND, BALL, MAX_AIM, MAX_UP, R2D, SCENES, KINDS, ALL_KINDS, launchVel, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts, sceneSeed, rng,
+  SCALE, HAND, BALL, MAX_AIM, MAX_UP, R2D, SCENES, KINDS, ALL_KINDS, SOME_STACKS, launchVel, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts, sceneSeed, rng,
 } from '../src/core/topple.js';
 
 const DT = 1 / 60;
@@ -367,11 +367,60 @@ test('topple world: a scene no player can win is reported (throws too weak to re
   assert.equal(r.best, 0);
 });
 
+// Developer, 2026-11-11, Q72: "most of the time, a hit knocks all or most
+// of the blocks down ... it would be better if some shots just knocked some
+// posts down"; and pieces apart "could still knock down pieces from
+// another". One ball each, by the person player, at layouts of one
+// structure: { hits (balls that knocked any down), all (knocked every
+// block), more (knocked blocks of more than one piece) }. A piece: the
+// blocks standing at one depth (the pair, the row and the trio slant away).
+function oneBall(stack, layouts = 4, balls = 5) {
+  const random = rng(stack.length * 977), out = { balls: 0, hits: 0, all: 0, more: 0 };
+  for (let k = 1; k <= layouts; k++) {
+    const L = makeLayout(k * 7919 + 13, { ...sceneOpts(stack === 'trio' ? 5 : 1), stacks: [stack] }), p = sceneParts(L);
+    const w0 = createWorld();
+    w0.setScene(p);
+    const c = personThrows(w0, L.power);
+    for (let b = 0; b < balls && c.length; b++) {
+      const w = createWorld();
+      w.setScene(p);
+      w.throwBall(c[Math.floor(random() * c.length)].vec);
+      for (let t = 0; t < 6; t += DT) w.step(DT);
+      const piece = new Map();
+      for (const bl of w.blocks) { const z = Math.round(bl.start.z * 20); piece.set(z, (piece.get(z) || 0) + (bl.down ? 1 : 0)); }
+      const down = w.downCount();
+      out.balls++;
+      if (down) out.hits++;
+      if (down === w.blocks.length) out.all++;
+      if ([...piece.values()].filter(v => v > 0).length > 1) out.more++;
+    }
+  }
+  return out;
+}
+// 2026-11-11 (200 balls a structure, journal): of the balls that knocked any
+// down, every block fell for the arch 18 of 37; the bench 4 of 70, the pair
+// 15 of 99, the row 7 of 104, the trio 3 of 87; more than one piece fell for
+// the pair 27 of 99, the row 43 of 104, the trio 39 of 87.
+test('topple world: one hit knocks only some of the bench, the pair, the row and the trio; pieces can knock each other', () => {
+  const rows = {};
+  for (const stack of SOME_STACKS) {
+    const r = rows[stack] = oneBall(stack);
+    assert.ok(r.balls >= 15, `${stack}: only ${r.balls} balls thrown`);
+    assert.ok(r.hits >= 8, `${stack}: only ${r.hits} of ${r.balls} balls knocked any down`);
+    assert.ok(r.all / r.hits < 1 / 3, `${stack}: every block down ${r.all} of ${r.hits}`);
+    if (stack !== 'bench') assert.ok(r.more / r.hits >= 0.1, `${stack}: more than one piece down only ${r.more} of ${r.hits}`);
+  }
+  // the check can fail: the arch, posts carrying the rest, falls whole a third of the time or more
+  const arch = oneBall('arch');
+  assert.ok(arch.all / arch.hits >= 1 / 3, `the arch fell whole only ${arch.all} of ${arch.hits}: ${JSON.stringify(rows)}`);
+});
+
 test('topple world: a scene picked up again puts the blocks where they were, the fallen still down', () => {
   const w = createWorld();
   // the arch behind a tree: this throw knocks the top left cube off (the mockup's too);
   // the layout by its seed (game 12345's scene 2 before scenes were dealt)
-  const L = makeLayout(sceneSeed(12345, 1, 2), sceneOpts(2), ALL_KINDS), s = { layout: L, parts: sceneParts(L) };
+  // (the arch asked for: one draw picks the structure, so the rest comes out as before Q72's six)
+  const L = makeLayout(sceneSeed(12345, 1, 2), { ...sceneOpts(2), stacks: ['arch'] }, ALL_KINDS), s = { layout: L, parts: sceneParts(L) };
   w.setScene(s.parts);
   w.throwBall(launchVel(s.layout.power, 0.16, 27).vec);
   for (let k = 0; k < 360; k++) w.step(DT);
