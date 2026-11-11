@@ -17458,15 +17458,43 @@ be is for the scene check and the kids (Q64, Q72), not this mockup.
 (These runs differ from v1's table, which was timed by the page's
 frames; this one is the record.)
 
+## 2026-11-11: Mockup v3 tried: the wheelbarrow, the iron ball; v4: a sound sampler
+
+**Developer on v3:** "Wheelbarrow, and the iron ball feel right. The
+sounds are off. Wood beams and brick hitting tile don't make the same
+sounds as our toy blocks in level 1. BTW - I really like the wheel
+barrow. Well done." So: the **wheelbarrow of gravel** (not the heap) and
+the **iron ball** are agreed. The sounds: v3's wood was level 1's toy
+knock, and nothing sounded like landing on tiles.
+
+**Mockup v4** (version 4 of the same link): a **Sounds** tab, as the
+game's sounds were first picked (versions A, B and C side by side;
+`src/ui/sounds.js` keeps each picked version's name). Five sets, each
+made from the game's own pieces (a note, filtered noise, a rattle). A tap
+plays it hard, then soft, and picks it; the Frames tab uses the picks:
+- A wooden beam on the tiles: A Thock (a low wooden body, a click), B
+  Clatter (one end, then the other), C Hollow plank (two resonances).
+- Bricks on the tiles: A Crack, B Clack and grit, C Dull chunk.
+- A steel post or beam on the tiles: A Clang (v3's), B Clank (heavy,
+  short), C Ring (bright, long).
+- A concrete slab on the tiles: A Thump (v3's), B Slap, C Thud and grit.
+- The iron ball on the tiles: A Clonk, B Heavy thud, C Clonk and roll.
+A block's sound is its own material's, whatever it hits; the ball's on a
+block is the block's; the ball on the light's pole is steel's. Checked in
+the browser: 5 rows, 15 versions, a tap picks; the frames still clear as
+before (one storey 1 ball, steps 2, bridge 2); no script errors (one
+404: the scratch server's root, asked for by the browser).
+
 ## 2026-11-11: Status (start here next session)
 
 - **Live: 9.4.** Nothing in the game has changed this session; only the
   journal is committed on `block-game`.
 - **Level 2 so far (Q73):** "The building site". Agreed: building-site
   blocks (steel, concrete, brick, some wood), level 1's camera, hidden
-  parts not drawn, the Level screen and the map (mockup v1, "look good").
-  Tried in v3, waiting for the developer: the wheelbarrow or the gravel
-  heap, the iron ball, the materials' weight, bounce and sound.
+  parts not drawn, the Level screen and the map (mockup v1, "look good"),
+  the wheelbarrow of gravel and the site light in the way, the iron ball.
+  Waiting for the developer: the sound picks in v4's Sounds tab (wood,
+  brick, steel, concrete, the ball on the tiles).
 - **The mockup's page is its source**: read it with the Artifact tool
   (`read`, the link above); level 1's picture is already in it.
 - **Still to decide before building:** which frames (7 samples), how
