@@ -17077,3 +17077,32 @@ Not published: waiting for the developer's OK and the Pages retry
 (developer: "wait for me to load the actions page first so I can
 watch"; GitHub's error there: "An unexpected error has occurred and
 we've been automatically notified. Errors are sometimes temporary").
+
+## 2026-11-11: Release 9.4 published and live
+
+- **Developer:** "OK. Ready. I am watching the actions page now." `main`
+  fast-forwarded to 2683381 and pushed; tag `v9.4` pushed; the GitHub
+  release made from `node tools/release.js notes`.
+- **The Pages build ran:** "pages build and deployment" for 2683381 went
+  in_progress at 14:51:41 and ended **success** by 14:52:14 (about 30 s,
+  as before 9.3). So 9.3's three startup failures were GitHub's own
+  passing trouble, as the developer thought (nothing in the site
+  changed that a build would care about). 9.3 never went live; its tag
+  and GitHub release stay, with 9.4 the next.
+- **Live:** github.io's `src/core/version.js` says 9af34c850eb9 and
+  `release.js` 9.4 at once; the three pictures served (Topple! 12,608
+  bytes, Tin Can Alley 8,244, Five Dice 3D 6,186, as in the repo).
+- The localhost server (Claude's, the preview pane's `node tools/serve.js
+  8123`) stopped; none other running.
+
+## 2026-11-11: Status (start here next session)
+
+- **Live: 9.4** (9.3's Topple! changes and the 3D games' home pictures,
+  9.4 with Tin Can Alley and Topple!'s pictures adjusted).
+- **Waiting for the developer:** 9.4 on the phone: the home pictures
+  (Q66) and Topple!.
+- **Test folders:** `Web-Games-testing\2026-11-10_home-pics\` and
+  `\2026-11-11_home-pics-v2\`: ask to purge once the pictures are agreed.
+- **Open questions:** Q64 (how hard for a child's aim), Q66 (home
+  pictures: live in 9.4, to judge on the phone).
+- **Skill:** none waiting (the developer has uploaded the new zip).
