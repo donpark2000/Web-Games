@@ -25,20 +25,7 @@ time, each tried before publishing:
   every scene can be won"): the 21 of 30 was one fixed plan; over 100
   scenes, players throwing anywhere that hits a standing block won all
   100, 874 of 1,000 tries. Open now only as "too hard for a child's aim?".
-- **Q66. The 3D games' home pictures don't look 3D** (2026-11-10,
-  developer: Tin Can Alley, Topple! and Five Dice 3D "do not seem to
-  suggest a 3D experience"; "something like a screen shot of the actual
-  game might be better"). Proposed ("9.2 on the phone; home pictures and
-  aiming"): a still from each game, made by a tool; a mockup first.
-  2026-11-10: the tool built (`node tools/home-pics.js`) and the
-  [3D Home Pictures](https://claude.ai/artifact/MoRQjp2Qpq4t4sC1kRStqH)
-  mockup up ("Mockup v2 tried; a throw only from the pad; Q66's home
-  pictures"); waiting for the developer's verdict.
-  2026-11-11, developer: likes the idea; changes asked (motion lines, a
-  bigger fall, the cup): "Home pictures mockup v1 tried".
-  2026-11-11: the changes made and put on the home page without a second
-  mockup (developer: "publish all together as 9.3 and I will test on my
-  phone"): "Home pictures v2 built; release 9.3". To judge on the phone.
+
 
 ## Proposed additions to the standards skill
 
@@ -130,6 +117,23 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q66. The 3D games' home pictures don't look 3D** (2026-11-10,
+  developer: Tin Can Alley, Topple! and Five Dice 3D "do not seem to
+  suggest a 3D experience"; "something like a screen shot of the actual
+  game might be better"). Proposed ("9.2 on the phone; home pictures and
+  aiming"): a still from each game, made by a tool; a mockup first.
+  2026-11-10: the tool built (`node tools/home-pics.js`) and the
+  [3D Home Pictures](https://claude.ai/artifact/MoRQjp2Qpq4t4sC1kRStqH)
+  mockup up ("Mockup v2 tried; a throw only from the pad; Q66's home
+  pictures"); waiting for the developer's verdict.
+  2026-11-11, developer: likes the idea; changes asked (motion lines, a
+  bigger fall, the cup): "Home pictures mockup v1 tried".
+  2026-11-11: the changes made and put on the home page without a second
+  mockup (developer: "publish all together as 9.3 and I will test on my
+  phone"): "Home pictures v2 built; release 9.3". To judge on the phone.
+  **Settled:** 2026-11-11, developer, 9.4 on the phone: "Its looking good
+  on my phone in both orientations."
 
 - **Q72. Topple!: one hit knocks all or most blocks down** (2026-11-11,
   developer: "it would be better if some shots just knocked some posts
@@ -17106,3 +17110,14 @@ we've been automatically notified. Errors are sometimes temporary").
 - **Open questions:** Q64 (how hard for a child's aim), Q66 (home
   pictures: live in 9.4, to judge on the phone).
 - **Skill:** none waiting (the developer has uploaded the new zip).
+
+## 2026-11-11: 9.4 on the phone; Q66 settled; next: Topple!'s next levels
+
+- **Developer:** "Its looking good on my phone in both orientations." Q66
+  moved to Resolved.
+- A warning on the Pages build ("Node.js 20 is deprecated ...
+  actions/upload-artifact@v4"): GitHub's own Pages build (the repo has no
+  workflows; Pages `build_type` legacy); nothing to change here.
+- **Next:** Topple!'s next levels. The developer's ideas so far, gathered
+  from "Mockup v5 tried" (themes 1-6), "The phone's log" entry (curved
+  surfaces, rolling balls) and Q70 (backboards, other views), to discuss.
