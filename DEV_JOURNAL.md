@@ -16454,3 +16454,20 @@ link, version 2 (the five changed files).
 **Note:** the tree is still only ever on the left, as first made for the
 side view; left as seen and liked. With the side view gone it could stand
 on either side, if wanted later.
+
+## 2026-11-10: Status (start here next session)
+
+- **Live: 9.2.** On `block-game` (pushed, not published): the drag pad
+  and its show every scene; one view (side view dropped); no backboards in
+  level 1; a post down only while it lies. Mockup v2 of the
+  [Topple Drag Pad](https://claude.ai/artifact/C3PbCEsxig4pZ1y15eSDxe)
+  is the same files.
+- **Next:** the developer tries mockup v2; then publish as **9.3** (with
+  the developer's OK; the release steps in CLAUDE.md), and try it on the
+  phone: the pad and show, and the log's `from` on each throw.
+- **Then:** Q66, the 3D games' home pictures (a still from each game, made
+  by a tool; a mockup first), or Topple! level 2 (discuss other views
+  first, DESIGN.md "Topple!" Levels).
+- **Open questions:** Q64 (how hard for a child's aim), Q66 (home
+  pictures).
+- **Skill:** none waiting.
