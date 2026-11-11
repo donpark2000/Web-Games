@@ -2100,6 +2100,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   leafy ball in the middle and 6 smaller ones round it, within about the
   clump's sphere, which the ball touches (not the branches: drawn only).
   The far-off trees one little bush each, their leaves 4 times as big.
+  **Every trunk and branch runs into its leaves** (developer,
+  2026-11-11: "a gap between the trunk part and the bush part"; the
+  far-off trunks stopped at 1.6 m): each into its clump's middle.
 - **Every scene is checked before it's shown** (the mockup's check):
   **every block can be seen and hit from the front with a straight
   throw** (developer, 2026-11-10: bouncing and curving "are challenging
@@ -2200,7 +2203,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   stopped by a finger), a press off the pad (by the ball or elsewhere,
   how many px outside it), each throw (speed, angle, the path's touches) and where the ball touched
   against the path, blocks down, a post up again, the scene's end (with
-  fps and the physics' ms), Start again, resumed.
+  fps and the physics' ms), Start again, resumed; how deep the trunks
+  reach into their leaves (the far-off trees' at 3D started, the scene's
+  with each scene).
 
 ## Later
 

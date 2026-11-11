@@ -9,7 +9,7 @@
 // gets the page's words.
 
 import * as THREE from '../vendor/three/three.module.min.js';
-import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng } from '../core/topple.js';
+import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng, FAR_TREES, farBalls, treeBalls, CORE } from '../core/topple.js';
 
 // Whether this device can draw 3D: a WebGL canvas can be made.
 export function webglOk() {
@@ -69,7 +69,7 @@ export function makePark3d(canvas) {
     const g = new THREE.Group(), rand = rng(1 + Math.round(Math.abs(balls[0].at[0] * 7919 + balls[0].at[2] * 104729 + balls.length)));
     const core = coreMats[pal[0]] ??= new THREE.MeshStandardMaterial({ color: new THREE.Color(pal[0]).lerp(DARK, 0.6), roughness: 1 });
     for (const b of balls) {
-      const m = new THREE.Mesh(new THREE.SphereGeometry(b.r * 0.9, 14, 10), core);
+      const m = new THREE.Mesh(new THREE.SphereGeometry(b.r * CORE, 14, 10), core);
       m.position.set(...b.at); m.castShadow = shadow; m.receiveShadow = true; g.add(m);
     }
     const inOther = (p, self) => balls.some(o => o !== self && Math.hypot(p[0] - o.at[0], p[1] - o.at[1], p[2] - o.at[2]) < o.r * 0.86);
@@ -96,19 +96,7 @@ export function makePark3d(canvas) {
     g.userData.leaves = spots.length;
     return g;
   }
-  // A tree's clump drawn as a little bush (developer, 2026-11-10: one big
-  // ball looked "like a green sphere with a bit of leaves on top"): a ball
-  // in the middle and 6 smaller ones round it, more out to the sides than up
-  // or down, all within about the clump's own radius (the ball still
-  // touches the clump's sphere: the physics keeps it).
-  function clumpBalls(c, rand) {
-    const [x, y, z] = c.at, out = [{ r: c.r * 0.55, at: [x, y, z] }], a0 = rand() * Math.PI * 2;
-    for (let i = 0; i < 6; i++) {
-      const a = a0 + i * Math.PI / 3 + (rand() - 0.5) * 0.6, up = (rand() - 0.35) * 0.9, d = c.r * (0.45 + 0.12 * rand());
-      out.push({ r: c.r * (0.4 + 0.1 * rand()), at: [x + d * Math.cos(a) * Math.cos(up), y + d * Math.sin(up), z + d * Math.sin(a) * Math.cos(up)] });
-    }
-    return out;
-  }
+  // (a tree's clump drawn as a little bush: clumpBalls, in src/core/topple.js)
   const BUSH_GREENS = ['#3F8A46', '#4C9A50', '#5AA85C'], LEAF_GREENS = ['#4F9A55', '#5DAA5E', '#3E8446'];
   const LEAF = 0.075 * SCALE;
   const barkMat = new THREE.MeshStandardMaterial({ color: '#7A5638', roughness: 1 });
@@ -132,15 +120,15 @@ export function makePark3d(canvas) {
     }, [60, 60]);
     const m = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshStandardMaterial({ map: lawn, roughness: 1 }));
     m.rotation.x = -Math.PI / 2; m.receiveShadow = true; scene.add(m);
-    // the trees far off: the same leaves 4 times as big (they still read from
-    // that far), casting no shadow (out of the shadows' reach anyway)
-    const far = [[-9, -22], [-5, -27], [-1.5, -31], [3, -26], [7.5, -23], [12, -29], [-13, -30], [16, -21], [-17, -19], [0.5, -40], [-7, -38], [9, -36]];
-    far.forEach(([x, z], i) => {
-      const t = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, 1.6, 8), barkMat); t.position.set(x, 0.8, z); scene.add(t);
-      const r = 1.5 + (i % 3) * 0.3, y = 2.6 + (i % 2) * 0.4;
-      const c = leafy(clumpBalls({ r: r * 1.05, at: [x, y, z] }, rng(i + 1)), ['#4F9A55', '#5DAA5E', '#478C4E'], y - r, y + r, 0.3, false);
+    // the trees far off (FAR_TREES): the same leaves 4 times as big (they
+    // still read from that far), casting no shadow (out of the shadows' reach
+    // anyway); the trunk up into the clump's middle
+    for (const f of FAR_TREES) {
+      const t = limb(new THREE.Vector3(f.x, 0, f.z), new THREE.Vector3(f.x, f.trunk.top, f.z), f.trunk.r0, f.trunk.r1);
+      t.castShadow = false; scene.add(t);
+      const c = leafy(farBalls(f), ['#4F9A55', '#5DAA5E', '#478C4E'], f.y - f.r, f.y + f.r, 0.3, false);
       scene.add(c); farLeaves += c.userData.leaves;
-    });
+    }
   }
 
   /* ---------- materials ---------- */
@@ -187,8 +175,7 @@ export function makePark3d(canvas) {
     const g = new THREE.Group(), [mid, ...side] = p.clumps, base = new THREE.Vector3(...p.at);
     g.add(limb(base, new THREE.Vector3(...mid.at), p.r, p.r * 0.55));
     for (const c of side) g.add(limb(new THREE.Vector3(...c.from), new THREE.Vector3(...c.at), p.r * 0.5, p.r * 0.28));
-    const rand = rng(1 + Math.round(Math.abs(p.at[0] * 7919 + p.at[2] * 104729)));
-    const balls = p.clumps.flatMap(c => clumpBalls(c, rand));
+    const { balls } = treeBalls(p);
     const leaves = leafy(balls, LEAF_GREENS, Math.min(...balls.map(b => b.at[1] - b.r)), Math.max(...balls.map(b => b.at[1] + b.r)), LEAF);
     g.add(leaves); g.userData.leaves = leaves.userData.leaves;
     return g;

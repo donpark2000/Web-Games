@@ -36,6 +36,17 @@ time, each tried before publishing:
   pictures"); waiting for the developer's verdict.
   2026-11-11, developer: likes the idea; changes asked (motion lines, a
   bigger fall, the cup): "Home pictures mockup v1 tried".
+- **Q71. Topple!: the dots show too much of the path** (2026-11-11,
+  developer: "the aiming dots seem to be going all the way to the target.
+  Its pretty hard to miss"). They cover 0.5 s of a 0.65 s flight; proposed
+  0.3 s, about half the way ("The pad tried; ... the dots and one hit
+  measured"). Waiting for the developer.
+- **Q72. Topple!: one hit knocks all or most blocks down** (2026-11-11,
+  developer: "it would be better if some shots just knocked some posts
+  down"; angled structures, less friction suggested). Measured: angle and
+  friction change little; only the fence, two separate halves, never fell
+  whole. Proposed: new structures of separate pieces or more legs, a
+  mockup first (same entry). Waiting for the developer.
 
 ## Proposed additions to the standards skill
 
@@ -16665,5 +16676,104 @@ The developer will give feedback on 9.3's pad change in the next session.
   agreed, then ask to purge.
 - **Open questions:** Q64 (how hard for a child's aim), Q66 (home
   pictures: v1 tried, changes asked).
+- **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
+  review with the developer.
+
+## 2026-11-11: The pad tried; the trees' gap fixed; the dots and one hit measured
+
+**Developer** (the branch, from the local server): "The pad idea works."
+And:
+- "A few trees look funny - there is a gap between the trunk part and the
+  bush part. We should make sure the bush part always [covers] part of the
+  trunk."
+- "I find the aiming dots seem to be going all the way to the target. Its
+  pretty hard to miss unless you do it on purpose."
+- "most of the time, a hit knocks all or most of the blocks down. I like
+  the idea of picking a 'strategic point' that can make this happen, but
+  it would be better if some shots just knocked some posts down. Not sure
+  how. Maybe ... angled a bit?" Then: "Maybe [friction] could be part of
+  the solution. Less friction between one block resting on another."
+
+**localhost:8123 showed "V1.0"** first: no server was running (nothing
+listening on 8000-9999), so the browser showed the copy it had saved
+offline in an earlier local session (`sw.js`: on localhost the network
+first, the saved copy when the server is stopped). `node tools/serve.js`
+started it.
+
+**The trees: fixed.** The gap was the far-off trees': each trunk a 1.6 m
+cylinder, its clump's middle at 2.6 or 3.0 m. Measured (a scratch script,
+the drawn cores, 0.9 of each ball's radius, along the trunk's line): the
+leaves started at 1.51-2.22 m, so 10 of the 12 trunks stopped short of
+them, by 0.06-0.62 m. The scene's tree was fine (its trunk goes into the
+middle clump's middle, each branch into its clump's). Now a far-off trunk
+tapers (0.24 to 0.14 m) from the ground into its clump's middle, as the
+scene tree's does. The far-off trees, `clumpBalls` and a scene tree's
+leaf balls moved into `src/core/topple.js` (`FAR_TREES`, `farBalls`,
+`treeBalls`; `inLeaves`, `trunksIn`), so they're tested under Node.
+- **Test:** every far-off trunk at least 0.3 m into its leaves (the least
+  now 0.78), every trunk and branch end of 60 layouts' trees at least
+  0.1 m; the check can fail: the old 1.6 m trunks give 10 of 12 short.
+- **Logged:** "3D started" `farTrunkInLeavesM`; each scene
+  `trunkInLeavesM`.
+- **Checked** in the browser pane (800 x 600, scene 4, the arch behind a
+  tree): the far-off trunks run up into their leaves; the log 0.78 and
+  0.304; no console errors. `npm test` 554 of 554 (after
+  `node tools/offline.js`).
+
+**The dots, measured** (a scratch script: 10 games, 50 scenes, 4 first
+balls each, each a random throw whose path first touches a standing block
+seen from behind, as the "can be won" test's player): the ball reaches the
+block in 0.65 s (median; 0.58 least; lobs up to 1.71). The dots' 0.5 s
+never reaches it (0 of 200), but covers about three quarters of a flat
+throw's way, and from behind the rest is easy to see. Proposed (Q71):
+0.3 s, about half the way.
+
+**One hit, measured** (the same 200 balls; blocks down 6 s after the one
+ball):
+
+| Structure | Balls | All down | 60%+ | Some | None | Mean down |
+|---|---|---|---|---|---|---|
+| posts | 56 | 19 | 4 | 14 | 19 | 47% |
+| pyramid | 48 | 9 | 16 | 10 | 13 | 51% |
+| arch | 56 | 18 | 15 | 4 | 19 | 55% |
+| tower | 16 | 5 | 0 | 5 | 6 | 46% |
+| fence | 24 | 0 | 0 | 21 | 3 | 34% |
+
+Of the balls that knocked any block down, all or most fell for the arch
+33 of 37, the pyramid 25 of 35, the posts 23 of 37; for the fence never
+(21 of 21 "some"). ("None": a glancing touch.)
+- **Angled** (a prototype in the scratchpad, not the repo: the structure
+  and each block turned 20° or 35°, alternate scenes each way; the same
+  200 balls): mean down posts/pyramid/arch/tower/fence 47/49/48/53/36% at
+  20°, 51/46/37/44/33% at 35°, against 47/51/55/46/34% at 0°. No clear
+  change; at 35° the arch had more glancing touches (26 none).
+- **Friction** (block on block, 0.5 now; the same 200 balls): 0.8 gave
+  exactly 0.5's numbers (nothing slides at 0.5); 0.2 and 0.1 about the
+  same means, a few balls moved from "all" to "60%+" (posts' all down 19
+  to 13 at 0.1).
+- **Why:** every structure is posts carrying a plank carrying cubes, so
+  whatever knocks a post drops everything over it. Only the fence, two
+  halves standing apart, leaves some up. The lever is the structure's
+  shape: parts that stand on their own.
+- **Proposed (Q72)**, a mockup first: a few new structures, each with its
+  measured spread (as the table), from:
+  - **A. Separate pieces:** 2-3 small stacks side by side, some close
+    enough that one falling can knock the next (the "strategic point": a
+    hit on the right one brings the others down, elsewhere only one).
+  - **B. More legs:** a plank on three or four posts, so one post knocked
+    leaves it standing.
+  - Angle and friction kept for looks or feel only, not for this.
+
+## 2026-11-11: Status (start here next session)
+
+- **Live: 9.2.** On `block-game` (pushed, not published): everything in
+  the earlier 2026-11-11 status, plus the far-off trees' trunks up into
+  their leaves.
+- **Pad:** the developer: "The pad idea works."
+- **Waiting for the developer:** Q71 (the dots 0.3 s?), Q72 (structures
+  where one hit knocks only some: a mockup of A and B?).
+- **Then:** the home pictures' changes (the earlier 2026-11-11 status),
+  and publish as **9.3**.
+- **Open questions:** Q64, Q66, Q71, Q72.
 - **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
   review with the developer.

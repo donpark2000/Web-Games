@@ -97,6 +97,53 @@ export const sceneOpts = i => (i < SCENES ? { n: 1, stacks: ['arch', 'posts', 'p
 export const KINDS = ['bush', 'tree'];
 export const ALL_KINDS = ['bush', 'tree', 'backboard'];
 
+/* ---------- the trees' leaves ---------- */
+
+// A tree's clump of leaves ({ r, at }) as a little bush (developer,
+// 2026-11-10: one big ball looked "like a green sphere with a bit of leaves
+// on top"): a ball in the middle and 6 smaller ones round it, more out to
+// the sides than up or down, all within about the clump's own radius (the
+// ball still touches the clump's sphere: the physics keeps it). Drawn by
+// topple-scene.js, each ball a dark core (0.9 of its radius) under leaves.
+export function clumpBalls(c, rand) {
+  const [x, y, z] = c.at, out = [{ r: c.r * 0.55, at: [x, y, z] }], a0 = rand() * Math.PI * 2;
+  for (let i = 0; i < 6; i++) {
+    const a = a0 + i * Math.PI / 3 + (rand() - 0.5) * 0.6, up = (rand() - 0.35) * 0.9, d = c.r * (0.45 + 0.12 * rand());
+    out.push({ r: c.r * (0.4 + 0.1 * rand()), at: [x + d * Math.cos(a) * Math.cos(up), y + d * Math.sin(up), z + d * Math.sin(a) * Math.cos(up)] });
+  }
+  return out;
+}
+export const CORE = 0.9;   // a leaf ball's dark core, of its radius
+// How deep a trunk's (or branch's) top end `p` is inside the leaves (m;
+// negative: that far short of them, a gap). Developer, 2026-11-11: "there
+// is a gap between the trunk part and the bush part ... the bush part
+// always [covers] part of the trunk".
+// A scene's tree (sceneParts's prop: { at: its foot, clumps }), as drawn:
+// its leaf balls, and the ends that must be in them: the trunk's top (the
+// middle clump's middle) and each branch's.
+export function treeBalls(p) {
+  const rand = rng(1 + Math.round(Math.abs(p.at[0] * 7919 + p.at[2] * 104729)));
+  return { balls: p.clumps.flatMap(c => clumpBalls(c, rand)), ends: p.clumps.map(c => c.at) };
+}
+export const inLeaves = (p, balls) => Math.max(...balls.map(b => CORE * b.r - Math.hypot(p[0] - b.at[0], p[1] - b.at[1], p[2] - b.at[2])));
+// The trees far off (world metres), one clump each, its leaves drawn 4
+// times as big. The trunk tapers from the ground up into the clump's middle
+// (until 2026-11-11 it stopped at 1.6 m, short of 10 of the 12 clumps by up
+// to 0.62 m). `seed` for clumpBalls's rng.
+export const FAR_TREES = [[-9, -22], [-5, -27], [-1.5, -31], [3, -26], [7.5, -23], [12, -29], [-13, -30], [16, -21], [-17, -19], [0.5, -40], [-7, -38], [9, -36]]
+  .map(([x, z], i) => {
+    const r = 1.5 + (i % 3) * 0.3, y = 2.6 + (i % 2) * 0.4;
+    return { x, z, r, y, seed: i + 1, trunk: { r0: 0.24, r1: 0.14, top: y } };
+  });
+export const farBalls = f => clumpBalls({ r: f.r * 1.05, at: [f.x, f.y, f.z] }, rng(f.seed));
+// The least depth of any trunk or branch end in its leaves, over the far
+// trees and the scene's trees (sceneParts's props): the log and the tests.
+export function trunksIn(props = []) {
+  const far = FAR_TREES.map(f => inLeaves([f.x, f.trunk.top, f.z], farBalls(f)));
+  const near = props.filter(p => p.part === 'tree').flatMap(p => { const t = treeBalls(p); return t.ends.map(e => inLeaves(e, t.balls)); });
+  return { far: +Math.min(...far).toFixed(3), scene: near.length ? +Math.min(...near).toFixed(3) : null };
+}
+
 /* ---------- seeds ---------- */
 
 export function rng(seed) {

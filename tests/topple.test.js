@@ -10,6 +10,7 @@ import {
   makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, launchVel, isDown, createGame, readGame, sceneOver,
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, checkSetup, rng,
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
+  FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -98,6 +99,26 @@ test('topple: every tree stands left of the throw, alone or beside a bush or a b
     }
   }
   assert.equal(trees, 120);
+});
+
+// Developer, 2026-11-11: "there is a gap between the trunk part and the bush
+// part"; the far-off trees' trunks stopped at 1.6 m, short of 10 of 12 clumps.
+test('topple: every trunk and branch reaches into its leaves, the far-off trees\' and the scenes\'', () => {
+  const t = trunksIn();
+  assert.ok(t.far >= 0.3, `a far-off trunk only ${t.far} m into its leaves`);
+  assert.equal(t.scene, null, 'no scene, no scene trees');
+  let ends = 0, least = Infinity;
+  for (let seed = 1; seed <= 60; seed++) {
+    const p = sceneParts(makeLayout(seed * 104729, sceneOpts(seed % 2 ? 1 : 5), ['bush', 'tree']));
+    for (const pr of p.props.filter(pr => pr.part === 'tree')) ends += treeBalls(pr).ends.length;
+    const s = trunksIn(p.props).scene;
+    if (s != null) least = Math.min(least, s);
+  }
+  assert.ok(ends >= 120, `only ${ends} trunk and branch ends checked`);
+  assert.ok(least >= 0.1, `a scene tree's trunk or branch only ${least} m into its leaves`);
+  // the check can fail: the old trunks, 1.6 m tall, are short of most clumps
+  const short = FAR_TREES.filter(f => inLeaves([f.x, 1.6, f.z], farBalls(f)) < 0);
+  assert.equal(short.length, 10, `${short.length} of 12 old trunks short of their leaves`);
 });
 
 test('topple: scene seeds differ by scene, level, try and game, and stay the same', () => {

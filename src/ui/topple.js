@@ -17,7 +17,7 @@
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
-  padSpot, padPress, demoDrag, demoAt, DEMO_UPS,
+  padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -162,7 +162,7 @@ function makeStage() {
   const canvas = $('c');
   stage = park3d.makePark3d(canvas);
   world = physics.createWorld({ onHit });
-  L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2), farLeaves: stage.farLeaves });
+  L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2), farLeaves: stage.farLeaves, farTrunkInLeavesM: trunksIn().far });
   new ResizeObserver(fit).observe($('park'));
   canvas.addEventListener('pointerdown', onDown);
   canvas.addEventListener('pointermove', onMove);
@@ -258,7 +258,7 @@ async function startScene(kept = null) {
     ...game, stack: L0.stack, layoutSeed: L0.seed, power: L0.power, reachCm: Math.round(L0.reach * 100),
     things: L0.things.map(t => ({ kind: t.kind, ...(t.where ? { where: t.where } : {}), gapCm: Math.round(t.gap * 100), ...(t.arm ? { armCm: Math.round(t.arm * 100) } : {}) })),
     ...(L0.unplaced.length ? { noRoomFor: L0.unplaced } : {}), blocks: world.blocks.length, ms: current.ms, tries: current.tries,
-    leaves: drawn.leaves, drawMs: drawn.ms,
+    leaves: drawn.leaves, drawMs: drawn.ms, trunkInLeavesM: trunksIn(current.parts.props).scene,
     ...(current.check ? { check: { ok: current.check.ok, why: current.check.why, direct: current.check.direct, fewest: current.check.fewest, bank: current.check.bank, share: current.check.share, seen: current.check.seen } } : {}),
     ...(kept ? { used: round.used, down: round.down } : {}),
   });
