@@ -1,7 +1,7 @@
 // Topple!'s page, style and screen code as files (no browser): what the
 // developer agreed (DESIGN.md "Topple!"; 2026-11-10: the name, a setup
-// screen as Tin Can Alley's, with the one-player games after it, the
-// side view aiming only the way the ball goes) is there, and the screen is
+// screen as Tin Can Alley's, with the one-player games after it, one view
+// from behind with the drag pad) is there, and the screen is
 // wired to the site's log, game keeping, sound and stats. Read-only.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -43,12 +43,10 @@ test('topple page: the setup screen: your face, Play! or Carry on where the game
   assert.match(setupHtml, /Knock <b>every block<\/b> down with <b>5 balls<\/b>/);
 });
 
-test('topple page: no mockup choices left; the side view aims only the way the ball goes (developer: drop the pull back)', () => {
+test('topple page: no mockup choices left; no side view (developer, 2026-11-10, Q70: one view, from behind)', () => {
   assert.doesNotMatch(page + js + core, /mockup only|Skip scene|sideAim|Pull back|'pull'|sideFit|Which things/i, 'a mockup choice left');
-  assert.match(core, /export function sideDrag\(dx, dy, size, power, stand\)/);
-  // at a block still standing (Q68: the structure's middle is the fence's gap)
-  assert.match(js, /\? sideDrag\(dx, dy, parkSize\(\), current\.layout\.power, sideAt\(\)\)/);
-  assert.match(js, /const sideAt = \(\) => sideTarget\(world\.blocks\.map\(/);
+  assert.doesNotMatch(page + js + core + css, /sideDrag|sideView|sideTarget|dotScaleFor|viewBtn|viewbtn|Side view|setView/, 'the side view left');
+  assert.match(js, /const aimFor = \(dx, dy\) => \(current \? frontDrag\(dx, dy, parkSize\(\), current\.layout\.power\) : null\)/);
 });
 
 test('topple page: a device that can\'t show 3D is told so; three.js and cannon-es loaded with import()', () => {
@@ -74,10 +72,9 @@ test('topple page: the park: no double-tap zoom, the drag is pointer events, no 
   assert.match(js, /new ResizeObserver\(fit\)\.observe\(\$\('park'\)\)/);
 });
 
-test('topple page: the level\'s jewels, the hearts, the view switch over the park; Start again asks and costs a heart', () => {
+test('topple page: the level\'s jewels and the hearts over the park; Start again asks and costs a heart', () => {
   assert.match(playHtml, /id="hudLevel"/);
   assert.match(playHtml, /id="hudHearts"/);
-  assert.match(playHtml, /<button type="button" class="viewbtn" id="viewBtn">Side view<\/button>/);
   assert.match(playHtml, /<div class="over" id="ask" hidden>[\s\S]*Start this scene again\? You lose a ❤️/);
   assert.match(js, /\$\('restartYes'\)\.onclick = \(\) => \{[\s\S]*?sceneOver\(game, false\)/);
 });
@@ -90,8 +87,8 @@ test('topple page: the game kept on the device for every visit, the scene under 
   assert.match(js, /const outcome = sceneOver\(game, result\.won\);[\s\S]*?saveGame\(\);[\s\S]*?showEnd\(\);/);
 });
 
-test('topple page: logged: 3D start, the fit, each scene, throw, touch, block down, the view, the end', () => {
-  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'blocks down'", "'view'", "'scene over'", "'start again: yes, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
+test('topple page: logged: 3D start, the fit, each scene, throw, touch, block down (and a post up again), the end', () => {
+  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'block up again: a post leaning, not lying'", "'blocks down'", "'scene over'", "'start again: yes, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   }
   assert.match(js, /startLog\('topple'\)/);
@@ -107,14 +104,14 @@ test('topple page: the drag pad and its show: over the park, the touch going thr
     const rule = css.match(new RegExp('\\n\\' + sel + ' \\{[^}]*\\}'))?.[0] ?? '';
     assert.match(rule, /pointer-events: none/, `${sel} would take the touch from the park`);
   }
-  assert.match(js, /pad = padSpot\(view, box\.width, box\.height\)/);
+  assert.match(js, /pad = padSpot\(box\.width, box\.height\)/);
   assert.match(js, /dragFrom\(e\.clientX - box\.left, e\.clientY - box\.top, pad, ballPx\(\)\)/);
   assert.match(js, /\.\.\.\(from \? \{ from \} : \{\}\)/, 'the throw\'s log line without where the drag started');
   // the show runs on the clock, stops at a finger, and aims at a block
   assert.match(js, /demo\.t = \(performance\.now\(\) - demo\.t0\) \/ 1000/);
   assert.match(js, /function onDown\(e\) \{\s*sound\.unlock\(\);\s*stopDemo\('a finger'\);/);
   assert.match(js, /if \(first === 'block'\)/);
-  for (const what of ["'pad show'", "'pad show done'", "'pad show stopped'", "'drag too short: no throw', { view, from"]) {
+  for (const what of ["'pad show'", "'pad show done'", "'pad show stopped'", "'drag too short: no throw', { from"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   }
 });

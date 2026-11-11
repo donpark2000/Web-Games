@@ -6,13 +6,13 @@
 // out the same each time; the path's first touch is where the ball touches;
 // a perfect-aim player clears most scenes, leaving no block upright against
 // a thing; every scene can be won by a player throwing only as a person can
-// (at what it sees from behind, straight from the side). Seconds of physics,
-// nothing written.
+// (at what it sees from behind); a post leaning isn't down. Seconds of
+// physics, nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, touch, BUSH_KEEP, MIN_HITS } from '../src/core/topple-world.js';
 import {
-  SCALE, HAND, BALL, MAX_AIM, MAX_UP, R2D, SCENES, launchVel, sideDrag, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts, sceneSeed, rng,
+  SCALE, HAND, BALL, MAX_AIM, MAX_UP, R2D, SCENES, KINDS, ALL_KINDS, launchVel, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts, sceneSeed, rng,
 } from '../src/core/topple.js';
 
 const DT = 1 / 60;
@@ -35,9 +35,12 @@ test('topple world: every scene of three games is made, checked and stands still
       // scene 5: two things and a bigger structure
       assert.equal(s.layout.n, i < SCENES ? 1 : 2);
       assert.ok(s.layout.things.length >= 1, `${seed}/${i}: nothing in the way`);
+      // level 1: bushes and trees only (Q70: backboards out)
+      for (const t of s.layout.things) assert.ok(KINDS.includes(t.kind), `${seed}/${i}: a ${t.kind}`);
     }
   }
   assert.equal(made, 15);
+  assert.deepEqual(KINDS, ['bush', 'tree']);
   assert.ok(ok >= 14, `only ${ok} of ${made} scenes passed the check`);
 });
 
@@ -51,7 +54,7 @@ test('topple world: every scene of three games is made, checked and stands still
 // was the same trouble in the browser).
 test('topple world: every block of a scene can be seen and hit from the front; the phone\'s hidden-blocks scene is thrown away', () => {
   const w = createWorld();
-  const L = makeLayout(2015036129, sceneOpts(5));
+  const L = makeLayout(2015036129, sceneOpts(5), ALL_KINDS);   // as 9.1 made it, a backboard among the things
   w.setScene(sceneParts(L));
   const bad = w.check(L);
   assert.equal(bad.ok, false, 'the hidden-blocks scene passed the check');
@@ -288,29 +291,21 @@ test('topple world: a perfect-aim player clears most scenes, no block left uprig
 });
 
 // A player that throws as a person can (Q64; developer: "I see no point in
-// publishing a game than can not be won"): from behind, only at blocks it
-// can see (frontSeen); from the side, as the side view lets you, straight at
-// the structure (the game's sideDrag, a few lengths of drag). Each ball a
-// random one of those throws whose path first touches a standing block
-// (seeded, so the same each run). The perfect-aim player above follows one
-// plan; this one shows a scene can be won at all.
-const GLASS_ONLY = new Set(['glass']);
-function personThrows(w, power, stand) {
+// publishing a game than can not be won"): from behind (the only view since
+// Q70), only at blocks it can see (frontSeen). Each ball a random one of
+// those throws whose path first touches a standing block (seeded, so the
+// same each run). The perfect-aim player above follows one plan; this one
+// shows a scene can be won at all.
+function personThrows(w, power) {
   const seen = w.frontSeen(), standing = w.blocks.filter(b => !b.down);
   if (!standing.length) return [];
-  const visible = new Set(w.blocks.filter((b, i) => !b.down && seen[i] > 0).map(b => b.body)), all = new Set(standing.map(b => b.body));
+  const visible = new Set(w.blocks.filter((b, i) => !b.down && seen[i] > 0).map(b => b.body));
   const obs = w.obstacles(), out = [];
-  const add = (vel, targets) => {
-    const h = w.trace(vel.vec, 1, obs, GLASS_ONLY).hits;
-    const t = h[0]?.kind === 'block' ? h[0].body : (h[0]?.kind === 'glass' && h[1]?.kind === 'block' ? h[1].body : null);
-    if (t && targets.has(t)) out.push(vel);
-  };
   const az = standing.map(b => Math.atan2(b.body.position.x - HAND.x, HAND.z - b.body.position.z) * R2D / MAX_AIM);
   const a0 = Math.max(-1, Math.min(...az) - 0.2), a1 = Math.min(1, Math.max(...az) + 0.2);
-  for (let up = 0; up <= MAX_UP; up += 3) for (let a = a0; a <= a1 + 1e-9; a += 0.04) add(launchVel(power, a, up), visible);
-  for (let up = 0; up <= MAX_UP; up += 3) for (const m of [0.16, 0.22, 0.28, 0.34, 0.4]) {
-    const d = sideDrag(Math.cos(up / R2D) * m, -Math.sin(up / R2D) * m, 1, power, stand);
-    add(launchVel(d.power, d.aim, d.up), all);
+  for (let up = 0; up <= MAX_UP; up += 3) for (let a = a0; a <= a1 + 1e-9; a += 0.04) {
+    const vel = launchVel(power, a, up), h = w.trace(vel.vec, 0, obs).hits[0];
+    if (h?.kind === 'block' && visible.has(h.body)) out.push(vel);
   }
   return out;
 }
@@ -325,7 +320,7 @@ function personPlays(s, random, weak = 1) {
   while (!ended && canThrow(r).why !== 'no-balls') {
     while (!ended && !canThrow(r).ok && canThrow(r).why === 'not-ready') run(DT);
     if (ended) break;
-    const c = personThrows(w, s.layout.power, s.parts.stand);
+    const c = personThrows(w, s.layout.power);
     assert.ok(useBall(r).ok);
     const vec = (c.length ? c[Math.floor(random() * c.length)] : launchVel(s.layout.power, 0, 30)).vec;
     w.throwBall(vec.map(v => v * weak));
@@ -376,7 +371,7 @@ test('topple world: a scene picked up again puts the blocks where they were, the
   const w = createWorld();
   // the arch behind a tree: this throw knocks the top left cube off (the mockup's too);
   // the layout by its seed (game 12345's scene 2 before scenes were dealt)
-  const L = makeLayout(sceneSeed(12345, 1, 2), sceneOpts(2)), s = { layout: L, parts: sceneParts(L) };
+  const L = makeLayout(sceneSeed(12345, 1, 2), sceneOpts(2), ALL_KINDS), s = { layout: L, parts: sceneParts(L) };
   w.setScene(s.parts);
   w.throwBall(launchVel(s.layout.power, 0.16, 27).vec);
   for (let k = 0; k < 360; k++) w.step(DT);

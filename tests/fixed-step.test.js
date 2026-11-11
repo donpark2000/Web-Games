@@ -11,7 +11,7 @@ import { fixedStepper } from '../src/core/fixed-step.js';
 import { createStall, STEP as TCA_STEP, MAX_SUBSTEPS as TCA_MAX } from '../src/core/tin-can-alley-physics.js';
 import { createMatch, throwBall, update, cameraAt } from '../src/core/tin-can-alley.js';
 import { createWorld, MAX_SUBSTEPS as TP_MAX } from '../src/core/topple-world.js';
-import { STEP as TP_STEP, HAND, MAX_AIM, R2D, launchVel, makeLayout, sceneSeed, sceneOpts, sceneParts } from '../src/core/topple.js';
+import { STEP as TP_STEP, HAND, MAX_AIM, R2D, ALL_KINDS, launchVel, makeLayout, sceneSeed, sceneOpts, sceneParts } from '../src/core/topple.js';
 
 const DT = 1 / 60;
 
@@ -74,7 +74,7 @@ function tinCanThrow(stepOnce) {
 function toppleThrow(stepOnce) {
   // the layout by its seed (game 12345's scene 3 before scenes were dealt), so
   // the test doesn't move when the game's choice of scenes does
-  const L = makeLayout(sceneSeed(12345, 1, 3), sceneOpts(3)), sc = { layout: L, parts: sceneParts(L) }, w = createWorld();
+  const L = makeLayout(sceneSeed(12345, 1, 3), sceneOpts(3), ALL_KINDS), sc = { layout: L, parts: sceneParts(L) }, w = createWorld();
   w.setScene(sc.parts);
   const st = sc.parts.stand, aim = Math.atan2(st.x - HAND.x, HAND.z - st.z) * R2D / MAX_AIM;
   w.throwBall(launchVel(sc.layout.power, aim, 10).vec);

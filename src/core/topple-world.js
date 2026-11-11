@@ -10,7 +10,7 @@
 
 import * as CANNON from '../vendor/cannon-es/cannon-es.js';
 import {
-  HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel, sideView,
+  HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel,
   sceneParts, makeLayout, sceneSeed, sceneChoice, isDown,
 } from './topple.js';
 import { fixedStepper } from './fixed-step.js';
@@ -175,7 +175,8 @@ export function createWorld({ onHit = () => {} } = {}) {
       body.addEventListener('collide', onBlockCollide);
       addBody(body);
       body.sleep();   // still until the ball touches one
-      blocks.push({ body, start: { x: o.x, y: o.y, z: o.z }, c: o.c, minDim: Math.min(o.w, o.h, o.d), down: !!pose?.down });
+      // tall: a post, down only while it lies tipped (isDown, Q69)
+      blocks.push({ body, start: { x: o.x, y: o.y, z: o.z }, c: o.c, minDim: Math.min(o.w, o.h, o.d), tall: o.h > o.w && o.h > o.d, down: !!pose?.down });
     });
     return blocks;
   }
@@ -196,8 +197,9 @@ export function createWorld({ onHit = () => {} } = {}) {
 
   // dt s on, in fixed steps (fixedStepper: clock the game's, to give up
   // catching up when out of time; none in the tests, every step); balls past
-  // their time taken away. Returns how many blocks are down (each, once down,
-  // stays down), the newly down, and the steps taken and dropped.
+  // their time taken away. Returns how many blocks are down (a cube or plank,
+  // once down, stays down; a post only while it lies tipped: isDown), the
+  // newly down, the posts up again, and the steps taken and dropped.
   function step(dt, clock = null) {
     const { steps, dropped } = advance(dt, clock);
     time += dt;
@@ -205,9 +207,13 @@ export function createWorld({ onHit = () => {} } = {}) {
       const b = balls[i].body;
       if (time - b.thrownAt > BALL_LIFE || b.position.y < -2) { world.removeBody(b); balls.splice(i, 1); }
     }
-    const fell = [];
-    for (const b of blocks) if (!b.down && isDown(quatOf(b.body), b.body.position.y, b.start.y, b.minDim)) { b.down = true; fell.push(b); }
-    return { down: blocks.filter(b => b.down).length, fell, steps, dropped };
+    const fell = [], rose = [];
+    for (const b of blocks) {
+      if (b.down && !b.tall) continue;
+      const now = isDown(quatOf(b.body), b.body.position.y, b.start.y, b.minDim, b.tall, b.down);
+      if (now && !b.down) { b.down = true; fell.push(b); } else if (!now && b.down) { b.down = false; rose.push(b); }
+    }
+    return { down: blocks.filter(b => b.down).length, fell, rose, steps, dropped };
   }
 
   /* ---------- the path ahead ---------- */
@@ -309,8 +315,6 @@ export function createWorld({ onHit = () => {} } = {}) {
     const fewest = Math.min(...[...base.keys()].map(b => direct.get(b) || 0));
     const hidden = [...base].filter(([b, c]) => (direct.get(b) || 0) < 0.5 * c).length;
     const front = viewOfBlocks(CAM, b => b.kind === 'bush' || b.kind === 'tree');
-    // the side camera at a fixed shape, so a scene comes out the same on any screen
-    const side = viewOfBlocks(sideView(0.75, parts).pos, b => b.kind === 'bush' || b.kind === 'tree');
     const enough = v => v.full + v.part === blocks.length && v.full >= blocks.length / 3;
     const hasBoard = L.things.some(t => t.kind === 'backboard'), hides = L.things.some(t => t.kind !== 'backboard');
     const why = [];
@@ -323,7 +327,6 @@ export function createWorld({ onHit = () => {} } = {}) {
       ok: why.length === 0, why: why.join('; '), shots: n, clear: nBase, direct: nDirect, bank: nBank, share: +(nDirect / Math.max(1, nBase)).toFixed(2),
       blocks: blocks.length, unhit, fewest, hidden,
       seen: `${front.full} whole, ${front.part} part, ${blocks.length - front.full - front.part} hidden`,
-      seenSide: `${side.full} whole, ${side.part} part, ${blocks.length - side.full - side.part} hidden`,
     };
   }
   // What a camera at cam sees of each block past the things keep() lets

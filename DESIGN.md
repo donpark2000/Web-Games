@@ -4,7 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-10, latest): **Topple!**, the block game (knock
+*Status (2026-11-10, latest): **Topple!: the drag pad and its show
+every scene; one view (the side view dropped); no backboards in level 1;
+a post down only while it lies** (on `block-game`, not yet published;
+see "Topple!"). Earlier: **Topple!**, the block game (knock
 structures down with a slingshot in a 3D park; level 1, 5 scenes,
 hearts and jewels), built from the Block Game Mockup v8 on `block-game`,
 for release 9.0 (see "Topple!"). 2026-11-09: **Tin Can Alley: the view from behind
@@ -2066,7 +2069,10 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   on the ground: an arch, two posts, a pyramid (scenes 1-4), a two-storey
   tower or a fence (scene 5); every block on the ground is upright, so a
   hit can tip it. **A block is down** once tipped more than 45° or
-  dropped 0.6 of its smallest side, and stays counted down. All down for
+  dropped 0.6 of its smallest side, and stays counted down; but **a
+  post** (taller than wide and deep) only while it lies tipped past 45°,
+  however far it fell, and up again under 40° (developer, 2026-11-10,
+  Q69: two posts leaning on each other were counted down). All down for
   0.35 s: cleared. Out of balls: over 2 s after the last throw once the
   blocks are still (at most 9.9 s).
 - **Things in the way:** one in scenes 1-4, two in scene 5: a **bush**
@@ -2074,11 +2080,11 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   through it to the ground; developer: "if a ball hit a bush it would
   just fall to the ground"), a **tree** to the left (its trunk in the
   way of a straight throw, its leaf clumps of a lob; only on the left,
-  so it never stands between the side view's camera and the throw: on
-  the right it had to be see-through there), a **glass backboard**
-  (lively: 0.7) beside, turned so
-  a throw at it bounces on to the structure, or behind it, hung from an
-  arm (as a basketball hoop). **Nothing on the ground within a falling
+  as first made for the side view, since dropped). **No backboards in
+  level 1** (developer, 2026-11-10, Q70: not useful "unless they need to
+  be part of the solution"; perhaps in a level of 3D frames): the glass
+  backboard (lively: 0.7, beside or hung behind) is still made when a
+  layout asks for it (`ALL_KINDS`). **Nothing on the ground within a falling
   block's reach** (the tallest block plus 10 cm, in plan view; mockup
   v6: a block came to rest upright against a pole).
 - **Leafy** (the [Bush Looks](https://claude.ai/artifact/7yYyVzSf7Cdd4BfPvoaco8)
@@ -2098,11 +2104,10 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   concepts", so "forget about obstacles that hide things completely"):
   every block that can be hit first with nothing in the way is still hit
   first by at least 5 straight throws of a scan, and seen from behind (every
-  block at least partly, a third wholly); no bank shot or side view is
-  ever needed. The things matter; at least 15 straight throws hit a
-  block; a backboard has at least 3 bank shots (a bonus way, never the
-  only one). A layout that fails is thrown away and the next tried (25 at
-  most, else the best).
+  block at least partly, a third wholly). The things matter; at least 15
+  straight throws hit a block (a backboard, when there is one, at least 3
+  bank shots). A layout that fails is thrown away and the next tried (25
+  at most, else the best).
 - **Levels** (developer, 2026-11-10): a level is **5 scenes**, the 5th
   harder. A scene cleared wins a **💎** and the next scene; one not
   cleared loses one of **3 ❤️** and is played again; the last heart lost
@@ -2113,7 +2118,10 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   (journal, "Mockup v5 tried": more 3D frames, glass that shatters,
   metal and dynamite, ropes; developer, 2026-11-10: structures on curved
   surfaces, balls that roll down a ramp once something blocking them is
-  knocked away), one a release.
+  knocked away), one a release. **When designing new levels, discuss
+  whether they need other views** (developer, 2026-11-10: "keep a
+  placeholder for discussing the need for different views when we start
+  designing new levels"): level 1 has one, from behind (Q70).
 - **The scenes are made from the game's seed**, so they're the same
   each time; only a new game makes new ones. **The game is kept on the
   device** (`web-games-topple-game`: the seed, level, scene, hearts,
@@ -2122,23 +2130,28 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   the balls used and the blocks as they last stood still; a ball in
   flight comes back to the pouch; an ended scene shows its card again).
 - **One drag aims** (mockups v3-v4: "D"; no slider, no numbers: "Kids do
-  not even know what a degree is"). **From behind:** drag where to
-  throw: up aims higher (flat to 70°), sideways the same way (up to
-  22°); how hard is the scene's (a 45° throw reaches about 1.35 times as
-  far as the structure, more to reach a backboard behind). **From the
-  side** (mockup v8; developer: "Aiming fix for side view is good"):
-  drag the way the ball should go: its direction how high, its length
-  how hard (0.4-1.15 times the front's), always straight at the
-  structure. v7's pull-back dropped (developer, 2026-11-10). **The
-  dots:** one for every 0.05 s of flight, for ½ s, stopping where the
-  ball would touch something, the last one orange; bigger in the side
-  view.
-- **The side view, any time** (a button on the park; developer:
-  "free"): from the right, across the throw, 25° forward and 8° down, the
-  slingshot on the left and the structure on the right, fitted to the
-  whole way. The view from behind is fitted to the scene: from the
-  slingshot to the structure's top with room for a lob, 3° spare. The
-  camera stays put after a throw.
+  not even know what a degree is"): drag where to throw: up aims higher
+  (flat to 70°), sideways the same way (up to 22°); how hard is the
+  scene's (a 45° throw reaches about 1.35 times as far as the
+  structure). **The dots:** one for every 0.05 s of flight, for ½ s,
+  stopping where the ball would touch something, the last one orange.
+- **The drag pad** (developer, 2026-11-10, Q67: a finger that starts on
+  the ball covers the dots; "The drag pad idea helps a lot"; a concept
+  to "anchor" play across levels, whatever they throw): a round pad with
+  a 👆, low on the right of the park (0.24 of its shorter side in, 0.27
+  up), away from the dots, which go up the middle from the ball on the
+  left. The drag still works from anywhere; the pad is faint while a
+  ball's in flight. **Its show, every scene** (developer: "Every
+  scene"): before the first ball a see-through 👆 drags from the pad as a
+  throw would, the dots and slingshot following, twice; it stops at a
+  touch. Its throw reaches a block first (the first of 30, 25, 35...°
+  that does). [Topple Drag Pad](https://claude.ai/artifact/C3PbCEsxig4pZ1y15eSDxe)
+  mockup (private), v1-v2.
+- **One view, from behind** (developer, 2026-11-10, Q70: "Maybe side view
+  was a bad idea?"; every block can be hit with a straight throw from
+  the front), fitted to the scene: from the slingshot to the structure's
+  top with room for a lob, 3° spare. The camera stays put after a throw.
+  (The side view, 9.0-9.2, dropped: journal, "Mockup v1 tried".)
 - **Sizes:** made at "Near" and shown at **Far**: everything twice as
   big and twice as far from the hand, the ball its own size, weighing 8
   times as much (2 kg) and thrown √2 times as fast. Blocks 27 kg/m³.
@@ -2155,8 +2168,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   upright, the 🏠, name and 🔊 over it and a bar under it (your face, "N
   of 7 down" and the 5 balls under it) with **↺ Start again**; sideways,
   a column at its left. Over the park: **Level 1 💎○○○○** and the
-  hearts at its top, **Side view / Front view** and the hint ("Drag to
-  aim, then let go") at its foot. **Start again** asks first and **costs
+  hearts at its top, the hint ("Drag from 👆, then let go") and the drag
+  pad at its foot. **Start again** asks first and **costs
   a ❤️** ("Start this scene again? You lose a ❤️"; else it would be a
   way round losing one); not before the first ball. The scene's end in
   a card: your face, "Teddy cleared it! 💎" / **Scene 2 of 5**; "Out of
@@ -2165,8 +2178,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   again**; and **New game** (the setup screen).
 - **Sounds:** `whoosh` (a throw), `knock` (a wooden block knocked,
   louder the harder; new), `rustle` (the bush or leaves; new), `boing`
-  (the glass; new), `thud` (the ground, trunk or a pole), `win` /
-  `aww`.
+  (the glass, when there is a backboard; new), `thud` (the ground, trunk
+  or a pole), `win` / `aww`.
 - **Code:** the rules, scenes and camera in `src/core/topple.js`; the
   physics, the path ahead and the scene check in
   `src/core/topple-world.js` (both tested under Node); the drawing in
@@ -2174,11 +2187,13 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   that can't run three.js, cannon-es or WebGL sees only "This phone or
   tablet can't show the 3D park".
 - **Logged:** 3D started (with the far-off trees' leaves), the game on
-  the device, the fit (both views), each scene (its layout, the check,
-  how long it took to make, its leaves and how long they took to draw), layouts
-  thrown away, each throw (view, speed, angle, the path's touches) and
-  where the ball touched against the path, blocks down, the view, the
-  scene's end (with fps and the physics' ms), Start again, resumed.
+  the device, the fit (with the pad's spot), each scene (its layout, the
+  check, how long it took to make, its leaves and how long they took to
+  draw), layouts thrown away, the pad's show (the angle picked; done, or
+  stopped by a finger), each throw (where the drag started: pad, ball or
+  elsewhere; speed, angle, the path's touches) and where the ball touched
+  against the path, blocks down, a post up again, the scene's end (with
+  fps and the physics' ms), Start again, resumed.
 
 ## Later
 
@@ -2189,6 +2204,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   picks.
 - Tin Can Alley: different cans worth different points (developer,
   2026-11-09: "in case we ever revisit the game"; not now).
+- Topple!'s next levels: discuss whether a level needs another view (a
+  side view, as 9.0-9.2 had) or bank shots off a backboard (developer,
+  2026-11-10; see "Topple!" Levels).
 - More games.
 
 ## Process

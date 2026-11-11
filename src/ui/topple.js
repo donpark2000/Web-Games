@@ -16,8 +16,8 @@
 
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
-  update, ballsLeft, endWords, frontDrag, sideDrag, launchVel, dotsFor, behindView, sideView, dotScaleFor, sceneParts, END_WAIT,
-  padSpot, dragFrom, demoDrag, demoAt, DEMO_UPS, sideTarget,
+  update, ballsLeft, endWords, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
+  padSpot, dragFrom, demoDrag, demoAt, DEMO_UPS,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -130,11 +130,10 @@ let stage = null;       // the 3D drawing (made the first time the play screen s
 let world = null;       // the physics
 let running = false, last = 0, busy = false;
 let drag = null;        // { id, x0, y0, x, y } while a finger is down
-let view = 'front';     // 'front' (from behind) or 'side'
-let camViews = null;    // { front, side } for the park's shape and the scene
+let camView = null;     // the view from behind, for the park's shape and the scene
 let aspect = 0.75;
 let shot = null;        // the latest throw: { body, at, pred, touches, last }
-let pad = null;         // the drag pad: { x, y, r } px in the park, for the view shown
+let pad = null;         // the drag pad: { x, y, r } px in the park
 let demo = null;        // the pad's show as a scene starts: { t } s, until a finger touches
 const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
 
@@ -174,8 +173,8 @@ function makeStage() {
 }
 
 // The canvas takes the park's box (upright: between the top row and the
-// bar; sideways: beside the column); both views are fitted to the scene at
-// the park's shape, worked out again on every fit.
+// bar; sideways: beside the column); the view is fitted to the scene at the
+// park's shape, worked out again on every fit.
 let lastFit = '';
 function fit() {
   if (!stage || $('play').hidden) return;
@@ -183,24 +182,21 @@ function fit() {
   if (!w || !h) return;
   aspect = stage.resize(w, h);
   if (!current) return;
-  camViews = { front: behindView(aspect, current.parts), side: sideView(aspect, current.parts) };
-  placeCamera();
+  camView = behindView(aspect, current.parts);
+  stage.setCamera(camView);
   placePad();
   const key = `${w}x${h} ${current.layout.seed}`;
   if (key === lastFit) return;
   lastFit = key;
   L('fit', {
-    park: `${w}x${h}`, fov: r2(camViews.front.fov), by: camViews.front.by, sideFov: camViews.side.fov, sideDist: r2(camViews.side.dist), pad,
+    park: `${w}x${h}`, fov: r2(camView.fov), by: camView.by, pad,
     screen: `${innerWidth}x${innerHeight}`, way: innerWidth > innerHeight ? 'sideways' : 'upright',
   });
 }
-function placeCamera() {
-  if (camViews) stage.setCamera(camViews[view]);
-}
-// The drag pad where the view shown puts it (padSpot: away from the dots).
+// The drag pad where padSpot puts it (away from the dots).
 function placePad() {
   const box = $('park').getBoundingClientRect();
-  pad = padSpot(view, box.width, box.height);
+  pad = padSpot(box.width, box.height);
   if (demo) demo.to = null;   // the show's drag worked out again for the new size
   const el = $('pad');
   el.hidden = !pad;
@@ -263,7 +259,7 @@ async function startScene(kept = null) {
     things: L0.things.map(t => ({ kind: t.kind, ...(t.where ? { where: t.where } : {}), gapCm: Math.round(t.gap * 100), ...(t.arm ? { armCm: Math.round(t.arm * 100) } : {}) })),
     ...(L0.unplaced.length ? { noRoomFor: L0.unplaced } : {}), blocks: world.blocks.length, ms: current.ms, tries: current.tries,
     leaves: drawn.leaves, drawMs: drawn.ms,
-    ...(current.check ? { check: { ok: current.check.ok, why: current.check.why, direct: current.check.direct, fewest: current.check.fewest, bank: current.check.bank, share: current.check.share, seen: current.check.seen, seenSide: current.check.seenSide } } : {}),
+    ...(current.check ? { check: { ok: current.check.ok, why: current.check.why, direct: current.check.direct, fewest: current.check.fewest, bank: current.check.bank, share: current.check.share, seen: current.check.seen } } : {}),
     ...(kept ? { used: round.used, down: round.down } : {}),
   });
   busy = false;
@@ -283,28 +279,20 @@ function renderTally() {
   $('restartBtn').disabled = !!r.result || r.used === 0;
   $('restartBtn').parentElement.classList.toggle('ended', !!r.result);
 }
-// The pills over the park and the view switch (shown as a scene is set up too).
+// The pills over the park (shown as a scene is set up too).
 function renderHud() {
   const g = ended?.shown ?? game;
   $('hudLevel').textContent = `Level ${g.level} ${jewels(g)}`;
   $('hudLevel').setAttribute('aria-label', `Level ${g.level}, ${g.jewels} of ${SCENES} jewels`);
   $('hudHearts').textContent = hearts(g);
   $('hudHearts').setAttribute('aria-label', `${g.hearts} heart${g.hearts === 1 ? '' : 's'}`);
-  $('viewBtn').textContent = view === 'side' ? 'Front view' : 'Side view';
 }
 
 /* ---------- the drag and the throw ---------- */
 
 const HINT = 'Drag from 👆, then let go';
 const parkSize = () => { const b = $('park').getBoundingClientRect(); return Math.min(b.width, b.height); };
-function aimFor(dx, dy) {
-  if (!current) return null;
-  return view === 'side'
-    ? sideDrag(dx, dy, parkSize(), current.layout.power, sideAt())
-    : frontDrag(dx, dy, parkSize(), current.layout.power);
-}
-// The side view's target: a block still standing (sideTarget), as they stand now.
-const sideAt = () => sideTarget(world.blocks.map(b => ({ x: b.body.position.x, z: b.body.position.z, down: b.down, c: b.c })), current.parts.stand);
+const aimFor = (dx, dy) => (current ? frontDrag(dx, dy, parkSize(), current.layout.power) : null);
 const dragNow = () => (drag ? aimFor(drag.x - drag.x0, drag.y - drag.y0) : null);
 const ready = () => !!(round && !busy && canThrow(round).ok);
 
@@ -330,7 +318,7 @@ function onUp(e) {
   drag = null;
   if (!d) return;
   if (!d.ok) {
-    L('drag too short: no throw', { view, from, up: Math.round(d.up), aim: r2(d.aim) });
+    L('drag too short: no throw', { from, up: Math.round(d.up), aim: r2(d.aim) });
     if (!round.used) $('hint').hidden = false;
     return;
   }
@@ -346,7 +334,7 @@ function doThrow(d, from = null) {
   $('hint').hidden = true;
   sound.play('whoosh', 0, { level: d.power });
   L('throw', {
-    ball: r.ball, view, ...(from ? { from } : {}), ...(view === 'side' ? { at: sideAt().c ?? 'middle' } : {}), speed: r2(v), up: Math.round(el * 180 / Math.PI), aim: Math.round(yaw * 180 / Math.PI), power: r2(d.power), ...(d.pull != null ? { pull: d.pull } : {}),
+    ball: r.ball, ...(from ? { from } : {}), speed: r2(v), up: Math.round(el * 180 / Math.PI), aim: Math.round(yaw * 180 / Math.PI), power: r2(d.power),
     toward: aimed.hits.map(h => ({ kind: h.kind, at: h.at.map(r2), t: r2(h.t) })),
   });
   renderTally();
@@ -392,11 +380,12 @@ function frame(now) {
 function tick(dt, draw = true) {
   if (!round || busy) return;
   const t0 = performance.now();
-  const { down, fell, dropped } = world.step(dt, () => performance.now());   // a slow phone drops steps (Q65)
+  const { down, fell, rose, dropped } = world.step(dt, () => performance.now());   // a slow phone drops steps (Q65)
   perf.physMs += performance.now() - t0;
   perf.dropped += dropped;
   perf.frames++;
   for (const b of fell) L('block down', { c: b.c, t: r2(round.t) });
+  for (const b of rose) L('block up again: a post leaning, not lying', { c: b.c, t: r2(round.t) });
   const { downChanged, ended: result } = update(round, dt, { down, still: world.still() });
   if (downChanged) { L('blocks down', { down: round.down, of: round.total, t: r2(round.t) }); renderTally(); }
   if (result) endScene(result);
@@ -407,24 +396,24 @@ function tick(dt, draw = true) {
   $('pad').classList.toggle('wait', !ok);
   const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);
-  stage.setDots(d && ok && d.show ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0)) : null, camViews ? dotScaleFor(view, camViews.side) : 1);
+  stage.setDots(d && ok && d.show ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0)) : null, 1);
   stage.render();
 }
 
-// Where the show's drag ends, in the view shown: the first of DEMO_UPS whose
-// path touches a block first (else the first), worked out once a view.
+// Where the show's drag ends: the first of DEMO_UPS whose path touches a
+// block first (else the first), worked out once a scene and park size.
 function demoTarget() {
-  const size = parkSize(), ups = DEMO_UPS[view];
+  const size = parkSize();
   let pick = null, tried = 0;
-  for (const up of ups) {
+  for (const up of DEMO_UPS) {
     tried++;
-    const to = demoDrag(view, size, current.parts.stand, up), d = aimFor(to.dx, to.dy);
+    const to = demoDrag(size, current.parts.stand, up), d = aimFor(to.dx, to.dy);
     const first = d ? world.trace(launchVel(d.power, d.aim, d.up).vec, 0).hits[0]?.kind ?? 'nothing' : 'nothing';
     if (first === 'block') { pick = { ...to, up, first }; break; }
     if (!pick) pick = { ...to, up, first };
   }
-  L('pad show', { view, pad, up: pick.up, first: pick.first, tried });
-  return { ...pick, view };
+  L('pad show', { pad, up: pick.up, first: pick.first, tried });
+  return pick;
 }
 
 // The pad's show, a frame on: the see-through finger from the pad, and the
@@ -434,9 +423,9 @@ function demoTarget() {
 function demoFrame() {
   if (!demo || !pad || !current) return null;
   demo.t = (performance.now() - demo.t0) / 1000;
-  if (!demo.to || demo.to.view !== view) demo.to = demoTarget();
+  if (!demo.to) demo.to = demoTarget();
   const s = demoAt(demo.t, demo.to);
-  if (!s) { L('pad show done', { view }); stopDemo(); return null; }
+  if (!s) { L('pad show done'); stopDemo(); return null; }
   const g = $('ghost');
   g.hidden = false;
   g.style.left = `${pad.x + s.dx}px`;
@@ -513,20 +502,6 @@ $('restartYes').onclick = () => {
   startScene();
 };
 
-// The view, any time (developer, 2026-11-10: "free", as often as wanted).
-$('viewBtn').onclick = () => setView(view === 'side' ? 'front' : 'side');
-function setView(v) {
-  if (v === view || !camViews) return;
-  view = v;
-  drag = null;
-  placeCamera();
-  placePad();
-  renderTally();
-  L('view', { view, fov: r2(stage.fov), dotScale: r2(dotScaleFor(view, camViews.side)), pad });
-  // the pad's show again from the start, in this view, while no ball's been thrown
-  if (demo) demo.t0 = performance.now();
-}
-
 /* ---------- coming back to a game ---------- */
 
 // The scene kept last time, if it's the one the game is at (another tab may
@@ -575,15 +550,14 @@ if (why) {
 window.topple = {
   step(sec, dt = 1 / 60) { for (let i = 0, n = Math.round(sec / dt); i < n; i++) tick(dt, i === n - 1); return this.state(); },
   throw(aim = 0, up = 20) { return doThrow({ power: current.layout.power, aim, up }); },
-  // a drag on the park, as a finger would (px from where it starts), in the view shown
+  // a drag on the park, as a finger would (px from where it starts)
   drag(dx, dy) { const d = aimFor(dx, dy); if (!d?.ok) return { thrown: false, ...d }; return { thrown: doThrow(d), ...d }; },
   hold(dx, dy) { drag = { id: -1, x0: 0, y0: 0, x: dx, y: dy }; tick(1 / 60); return dragNow(); },
   letGo() { drag = null; tick(1 / 60); },
-  view(v) { setView(v); return { view, fov: r2(stage.fov) }; },
   // a scene of the game (its jewels so far, 3 hearts), for checking it
   async scene(i) { game.scene = i; game.jewels = i - 1; game.hearts = HEARTS; saveGame(); await startScene(); return this.state(); },
   state: () => (round ? {
-    ...round, game: { ...game }, view, ready: ready(), busy, ended: ended?.outcome ?? null, card: $('over').hidden ? '' : $('overTitle').textContent,
+    ...round, game: { ...game }, ready: ready(), busy, ended: ended?.outcome ?? null, card: $('over').hidden ? '' : $('overTitle').textContent,
     stack: current?.layout.stack, things: current?.layout.things.map(t => t.kind + (t.where ? ` ${t.where}` : '')), power: current?.layout.power,
     awake: world.awake(), dots: stage.dotCount(), fov: r2(stage.fov), touches: shot?.touches ?? [], pad, demo: demo ? r2(demo.t) : null,
   } : { game: { ...game }, busy }),

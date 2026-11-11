@@ -4,7 +4,7 @@
    buttons and score can move so we maximize the actual game play area for
    each orientation"). The park's canvas takes whatever size its grid cell
    is, and the camera is fitted to the scene at any shape
-   (src/core/topple.js, behindView and sideView). */
+   (src/core/topple.js, behindView). */
 
 /* ---------- setup ---------- */
 
@@ -72,11 +72,8 @@ body.tp-playing .site-foot { display: none; }
 }
 .ghost[hidden] { display: none; }
 
-/* at the park's foot: the view switch, and the hint until the first throw */
-.viewbtn {
-  position: absolute; right: 8px; bottom: 8px; min-height: 44px; padding: 8px 14px; border-radius: 999px;
-  border: 2px solid #FFFFFF; background: var(--p2); color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
-}
+/* at the park's foot, on the left: the hint until the first throw (the
+   pad is on the right) */
 .hint {
   position: absolute; left: 8px; bottom: 8px; margin: 0; max-width: calc(100% - 150px);
   background: rgba(18, 30, 42, .8); color: #FFFFFF; border-radius: 999px; padding: 8px 14px;

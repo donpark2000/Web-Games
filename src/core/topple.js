@@ -7,8 +7,9 @@
 // park. A game is levels of 5 scenes (level 1 for now): a scene cleared wins
 // a jewel, one not cleared loses one of 3 hearts and is played again; the
 // last heart lost goes back to the level's first scene, the same scenes.
-// One drag aims: from behind, sideways and up (how hard is the scene's); from
-// the side, the drag's direction how high and its length how hard.
+// One drag aims, from behind: sideways and up (how hard is the scene's). (The
+// side view and backboards are out of level 1, 2026-11-10, Q70: every block
+// can be hit from the front with a straight throw.)
 //
 // Sizes are made in "Near" metres (the mockup's) and drawn at Far: SCALE
 // times bigger and further from the hand, so the camera, at a person's
@@ -89,7 +90,12 @@ export const STACKS = {
 // structure), the 5th harder (two things, a bigger structure).
 export const SCENES = 5, HEARTS = 3, BALLS = 5;
 export const sceneOpts = i => (i < SCENES ? { n: 1, stacks: ['arch', 'posts', 'pyramid'] } : { n: 2, stacks: ['tower', 'fence'] });
-export const KINDS = ['bush', 'tree', 'backboard'];
+// The things in the way in level 1: bushes and trees (developer, 2026-11-10,
+// Q70: backboards aren't useful "unless they need to be part of the
+// solution", perhaps in a later level of 3D frames). The backboard is still
+// made when asked for (ALL_KINDS, makeLayout's pool), for that level.
+export const KINDS = ['bush', 'tree'];
+export const ALL_KINDS = ['bush', 'tree', 'backboard'];
 
 /* ---------- seeds ---------- */
 
@@ -191,7 +197,8 @@ const PLACE = {
   // Only on the left: on the right it stood between the side view's camera
   // and the throw, so it was see-through there (developer, 2026-11-10: "much
   // lighter coloring"). The draw that picked the side is still made, so the
-  // rest of the layout comes out as before.
+  // rest of the layout comes out as before. (The side view went since, Q70;
+  // the tree stays on the left, as seen and liked.)
   // The leaves in 4 clumps (developer, 2026-11-10: "a few big main branches
   // coming off the trunk"): the trunk splits at 1.3-1.5 m (`from`) and goes
   // on up to a clump over the middle; three branches go out and up, each to
@@ -385,38 +392,6 @@ export function behindView(aspect, { bounds: b, stand }) {
   return { pos: pos.slice(), look: pos.map((p, i) => p + dir[i] * 5), fov, by: fov === fovW ? 'width' : 'height', pitch, yaw };
 }
 
-// The side view: from the right of the throw, looking across it, a little
-// forward (25°, so the structure's front shows, at a slant) and down (8°):
-// the slingshot on the left, the structure on the right; fitted to the
-// whole way, room over the structure for a lob. Returns { pos, look, fov, dist }.
-export const SIDE_FOV = 35;
-export function sideView(aspect, { bounds: b, stand }) {
-  const pts = [];
-  for (const x of [b.min[0], b.max[0]]) for (const y of [0, b.max[1]]) for (const z of [b.min[2], b.max[2]]) pts.push([x, y, z]);
-  pts.push([stand.x, b.max[1] + 0.5 * SCALE, stand.z]);
-  pts.push([HAND.x, 0, HAND.z + 0.15], [HAND.x, HAND.y + 0.15, HAND.z + 0.15]);
-  const TH = 25 / R2D, PH = 8 / R2D;
-  const f = norm3([-Math.cos(TH) * Math.cos(PH), -Math.sin(PH), -Math.sin(TH) * Math.cos(PH)]);
-  const r = norm3(cross(f, [0, 1, 0])), u = cross(r, f);
-  const lo = [0, 1, 2].map(i => Math.min(...pts.map(p => p[i]))), hi = [0, 1, 2].map(i => Math.max(...pts.map(p => p[i])));
-  const c = lo.map((v, i) => (v + hi[i]) / 2);
-  const tanV = Math.tan(SIDE_FOV / 2 / R2D), tanH = tanV * aspect;
-  let D = 0;
-  for (const p of pts) {
-    const d = sub(p, c), x = dot(d, r), y = dot(d, u), z = dot(d, f);
-    D = Math.max(D, Math.abs(x) / tanH - z, Math.abs(y) / tanV - z);
-  }
-  D *= 1.06;
-  return { pos: c.map((v, i) => v - f[i] * D), look: c, fov: SIDE_FOV, dist: D };
-}
-// The dots are drawn bigger in the side view, the camera being metres off.
-export const dotScaleFor = (view, side) => (view === 'side' ? clamp(side.dist * 0.3, 1, 8) : 1);
-
-const sub = (a, b) => a.map((v, i) => v - b[i]);
-const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-const norm3 = a => { const l = Math.hypot(...a) || 1; return a.map(v => v / l); };
-
 /* ---------- the throw ---------- */
 
 // The ball's speed (× √SCALE), turn and lift, and its velocity.
@@ -429,60 +404,27 @@ export function launchVel(power, aim, up) {
 // from where it started; dy > 0 is down). Returns { power, aim, up, ok (long
 // enough to throw), show (long enough to show the dots) }, or null for a
 // stage of no size.
-// From behind: drag where to throw. Sideways aims the same way (0.35 of the
-// size is full), up aims higher (flat to 70°, full at 0.4); how hard is the
-// scene's (`power`).
+// Drag where to throw: sideways aims the same way (0.35 of the size is
+// full), up aims higher (flat to 70°, full at 0.4); how hard is the scene's
+// (`power`).
 export function frontDrag(dx, dy, size, power) {
   if (!(size > 0)) return null;
   const x = dx / size, y = dy / size, moved = Math.hypot(x, y);
   return { power, aim: clamp(x / 0.35, -1, 1) || 0, up: clamp(-y / 0.4, 0, 1) * MAX_UP, ok: moved >= 0.03, show: moved >= 0.015 };
 }
-// From the side (mockup v8): drag the way the ball should go. Its direction
-// sets how high (straight right: flat; up: up to 70°; left or down: flat),
-// its length how hard (0.4-1.15 times the front view's throw, full at 0.4 of
-// the size); always straight at `stand` (the game passes sideTarget's: a
-// block still standing).
-export function sideDrag(dx, dy, size, power, stand) {
-  if (!(size > 0)) return null;
-  const x = dx / size, y = dy / size, moved = Math.hypot(x, y);
-  const up = clamp(Math.atan2(-y, x) * R2D, 0, MAX_UP);
-  const k = clamp(moved / 0.4, 0, 1);
-  const v = (V_MIN + power * (V_MAX - V_MIN)) * (0.4 + 0.75 * k);
-  const aim = Math.atan2(stand.x - HAND.x, HAND.z - stand.z) * R2D / MAX_AIM;
-  return { power: (v - V_MIN) / (V_MAX - V_MIN), aim, up, pull: +k.toFixed(2), ok: moved >= 0.05, show: moved >= 0.02 };
-}
-
-// What the side view throws at (Q68): a block still standing, not the
-// structure's middle. The fence's middle is the gap between its two halves:
-// 0 of 720 side throws touched a block there (journal, "Side view through
-// the fence's gap"). The standing block nearest the middle (sideways, m), on
-// a near tie (1 cm) the one nearer straight ahead; none standing: the
-// middle. blocks: [{ x, z, down, c }]; returns { x, z, c? }.
-export function sideTarget(blocks, stand) {
-  let best = null, bestOff = Infinity, bestAhead = Infinity;
-  for (const b of blocks) {
-    if (b.down) continue;
-    const off = Math.abs(b.x - stand.x), ahead = Math.abs(Math.atan2(b.x - HAND.x, HAND.z - b.z));
-    if (off < bestOff - 0.01 || (off <= bestOff + 0.01 && ahead < bestAhead)) { best = b; bestOff = Math.min(off, bestOff); bestAhead = ahead; }
-  }
-  return best ? { x: best.x, z: best.z, c: best.c } : { x: stand.x, z: stand.z };
-}
 
 // The drag pad (developer, 2026-11-10, Q67: a finger that starts on the ball
 // and swipes at the target covers the dots). A round pad with a 👆 to start
 // the drag from, beside the slingshot and away from where the dots go, so the
-// finger and hand move beside them. From behind the ball is low on the left
-// and the dots go up the middle: the pad low on the right. From the side the
-// dots go right across the middle: the pad low on the left, under them. The
-// drag still works from anywhere. In a park w × h px (s its shorter side):
-// the pad's middle and radius, px from the park's top left.
-export const PAD = { front: { fromRight: 0.24, up: 0.27 }, side: { fromLeft: 0.3, up: 0.26 }, r: 0.1, rMin: 30, rMax: 46 };
-export function padSpot(view, w, h) {
+// finger and hand move beside them: the ball is low on the left and the dots
+// go up the middle, so the pad is low on the right. The drag still works
+// from anywhere. In a park w × h px (s its shorter side): the pad's middle
+// and radius, px from the park's top left.
+export const PAD = { fromRight: 0.24, up: 0.27, r: 0.1, rMin: 30, rMax: 46 };
+export function padSpot(w, h) {
   if (!(w > 0 && h > 0)) return null;
   const s = Math.min(w, h), r = clamp(PAD.r * s, PAD.rMin, PAD.rMax);
-  const x = view === 'side' ? PAD.side.fromLeft * s : w - PAD.front.fromRight * s;
-  const y = h - (view === 'side' ? PAD.side.up : PAD.front.up) * s;
-  return { x: Math.round(x), y: Math.round(y), r: Math.round(r) };
+  return { x: Math.round(w - PAD.fromRight * s), y: Math.round(h - PAD.up * s), r: Math.round(r) };
 }
 // Where a drag started, for the log: 'pad' (on it, or nearly), 'ball' (by
 // the slingshot's ball, px), or 'elsewhere'.
@@ -493,17 +435,16 @@ export function dragFrom(x, y, pad, ball) {
 }
 // The pad shown once a scene starts: a see-through finger drags from it as a
 // throw would, the dots following, twice, until a finger touches the park.
-// `demoDrag` is where its drag ends (px from the pad), `up`° up: from behind
-// aimed at the structure; from the side three quarters as hard as can be.
+// Every scene (developer, 2026-11-10: "Every scene"). `demoDrag` is where
+// its drag ends (px from the pad), `up`° up, aimed at the structure.
 // DEMO_UPS are the angles the screen tries, in turn, for a throw whose path
 // touches a block first (a show that hits the bush teaches the wrong thing).
 // `demoAt(t, to)` is the finger at t s: { dx, dy, alpha, dots }, or null once
 // it's done.
 export const DEMO = { in: 0.35, move: 1.2, hold: 0.7, out: 0.35, gap: 1.2, times: 2 };
-export const DEMO_UPS = { front: [30, 25, 35, 20, 40, 45, 15, 50, 55, 60], side: [35, 30, 40, 25, 45, 50, 20, 55, 60] };
+export const DEMO_UPS = [30, 25, 35, 20, 40, 45, 15, 50, 55, 60];
 const DEMO_CYCLE = DEMO.in + DEMO.move + DEMO.hold + DEMO.out + DEMO.gap;
-export function demoDrag(view, size, stand, up = DEMO_UPS[view === 'side' ? 'side' : 'front'][0]) {
-  if (view === 'side') { const len = 0.3 * size, a = up / R2D; return { dx: Math.cos(a) * len, dy: -Math.sin(a) * len }; }
+export function demoDrag(size, stand, up = DEMO_UPS[0]) {
   const aim = clamp(Math.atan2(stand.x - HAND.x, HAND.z - stand.z) * R2D / MAX_AIM, -1, 1);
   return { dx: aim * 0.35 * size, dy: -(up / MAX_UP) * 0.4 * size };
 }
@@ -542,10 +483,18 @@ export function dotsFor(path, limitT = DOT_SECONDS) {
 // A block is down once it has fallen: tipped more than 45° (its up side
 // turned away from up), or dropped more than 0.6 of its smallest side below
 // where it stood. One pushed along the ground still upright hasn't fallen.
-// q: [x, y, z, w]. Once down, the game keeps it counted down.
-const TIP = Math.cos(45 / R2D);
-export function isDown(q, y, startY, minDim) {
+// q: [x, y, z, w]. A cube or plank, once down, stays counted down (it lands
+// flat, however it falls).
+// A tall block (taller than wide and deep: a post) is down only while it
+// lies tipped past 45° (developer, 2026-11-10, Q69: two posts leaning on
+// each other, counted down, looked standing; 2 of 299 first throws: a post
+// tipped to 48° that rocked back to 41°, and the tower's upper post that fell
+// to the ground and stood leaning at 29°). `wasDown`: it was counted down,
+// so it's up again only under 40° (no flicker at 45°).
+const TIP = Math.cos(45 / R2D), TIP_BACK = Math.cos(40 / R2D);
+export function isDown(q, y, startY, minDim, tall = false, wasDown = false) {
   const upY = 1 - 2 * (q[0] * q[0] + q[2] * q[2]);
+  if (tall) return upY < (wasDown ? TIP_BACK : TIP);
   return upY < TIP || startY - y > 0.6 * minDim;
 }
 

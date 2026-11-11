@@ -30,35 +30,6 @@ time, each tried before publishing:
   suggest a 3D experience"; "something like a screen shot of the actual
   game might be better"). Proposed ("9.2 on the phone; home pictures and
   aiming"): a still from each game, made by a tool; a mockup first.
-- **Q67. Topple!: the finger hides the aiming dots** (2026-11-10,
-  developer: a kid starts on or near the ball and swipes toward the
-  target, so the finger covers the dots; starting the drag away from the
-  path works, but "might not be obvious to kids"). Proposed (same entry):
-  a pad to start the drag from, beside the path, and the drag's start
-  logged. 2026-11-10, developer: "I like the drag pad idea"; built on
-  `block-game` and published as the Topple Drag Pad mockup ("Drag pad
-  built; mockup v1"), waiting for the developer to try it.
-  2026-11-10, developer: "The drag pad idea helps a lot." Its look,
-  places and how often the show plays still to settle.
-- **Q68. Topple!: the side view can't hit the fence** (2026-11-10,
-  developer: two structures side by side; "impossible to hit them in side
-  view - the ball just went between them"). Found: the side view throws at
-  the structure's middle, the fence's gap: 0 of 720 side throws touched a
-  block ("Mockup v1 tried: the fence's gap, blocks counted down, the side
-  view and backboards"). Fixed on `block-game` (a standing block's the
-  target), but the developer asks whether the side view is needed at all
-  (Q70).
-- **Q69. Topple!: tall blocks counted down while still leaning**
-  (2026-11-10, developer: two tall blocks leaning against each other after
-  a first shot, counted down). Found (same entry): 2 of 299 first throws;
-  a block counts down once it has tipped past 45° or dropped, even if it
-  ends leaning. Proposed: a tall block is down only while it lies tipped
-  past 45°.
-- **Q70. Topple!: keep the side view and the backboards?** (2026-11-10,
-  developer: "Maybe side view was a bad idea? Is it relevant now that
-  targets can not be completely obscured?" and backboards aren't useful
-  "unless they need to be part of the solution", perhaps in a later level
-  of 3D frames). Proposed (same entry): both out of level 1.
 
 ## Proposed additions to the standards skill
 
@@ -142,6 +113,31 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q67. Topple!: the finger hides the aiming dots** (2026-11-10,
+  developer: a kid starts on or near the ball and swipes toward the
+  target, so the finger covers the dots; starting the drag away from the
+  path works, but "might not be obvious to kids"). **Settled:** a drag pad
+  low on the right, away from the dots, and a see-through finger showing
+  it every scene ("Drag pad built; mockup v1"; developer: "The drag pad
+  idea helps a lot", "Every scene"). Where each drag starts is logged
+  (`from`), for the phone and the kids.
+- **Q68. Topple!: the side view can't hit the fence** (2026-11-10,
+  developer: "impossible to hit them in side view - the ball just went
+  between them"). Found: the side view threw at the structure's middle,
+  the fence's gap: 0 of 720 side throws touched a block ("Mockup v1
+  tried..."). Fixed, then **settled by Q70**: the side view is gone.
+- **Q69. Topple!: tall blocks counted down while still leaning**
+  (2026-11-10). Found: 2 of 299 first throws (a post rocked back to 41°;
+  the tower's upper post fell and stood at 29°). **Settled** (developer:
+  "OK"): a post is down only while it lies tipped past 45°, up again
+  under 40° ("Side view and backboards out; a post down only while it
+  lies").
+- **Q70. Topple!: keep the side view and the backboards?** (2026-11-10).
+  **Settled** (developer: "OK to remove. We should just keep a placeholder
+  for discussing the need for different views when we start designing
+  new levels"): both out of level 1; the placeholder in DESIGN.md
+  ("Topple!" Levels, and "Later").
 
 - **Q65. Physics steps dropped when the computer is busy** (2026-11-10,
   "Topple! feedback: leafy bushes and trees..."). Both 3D games stepped
@@ -16408,3 +16404,53 @@ needs them (3D frames, a bank shot as part of the answer).
 **Waiting for the developer:** the side view and backboards out of level 1;
 the tall-block rule; and from mockup v1, the pad's look and how often the
 show plays.
+
+## 2026-11-10: Side view and backboards out; a post down only while it lies
+
+**Developer:** "1) OK to remove. We should just keep a placeholder for
+discussing the need for different views when we start designing new
+levels. 2) OK 3) Every scene"
+
+**Built** on `block-game` (not published):
+- **The side view gone**: its button, camera (`sideView`), aiming
+  (`sideDrag`), the fence fix (`sideTarget`, Q68), the bigger dots, the
+  pad's second place and the show's side throw; the scene check's side
+  camera was only logged (`seenSide`), so which scenes pass is unchanged.
+  The hint stays at the park's foot on the left, the pad on the right where
+  mockup v1 had it. Git history keeps it all.
+- **No backboards in level 1**: `KINDS` (level 1's things) is bush and
+  tree; the backboard is still made when a layout asks for it (`ALL_KINDS`,
+  makeLayout's pool), for a later level, and its tests use that. Scenes
+  1-4 are dealt from 6 structure-and-thing pairs (was 9); scene 5 has a
+  bush and a tree. Tests that pin a layout remembered from before (the
+  phone's hidden-blocks scene, the arch picked up again, the fixed-step
+  throw) pass `ALL_KINDS` so they make the same layout.
+- **A post is down only while it lies tipped past 45°** (`isDown`'s
+  `tall`), judged every step, not kept; up again only under 40°, so it
+  can't flicker at 45°. Dropping doesn't count for a post (it can land
+  standing). Cubes and planks as before (they land flat). The game logs
+  "block up again: a post leaning, not lying"; the count under the park
+  can go back down.
+- **The show every scene**: as it was.
+- **Placeholder** (developer): DESIGN.md "Topple!" Levels says to discuss
+  other views when designing new levels; "Later" lists views and bank
+  shots for Topple!'s next levels.
+
+**Tests:** the player that shows every scene can be won now throws only
+from behind (it had side throws too): **every scene of the three test
+games is still won**; the perfect-aim player still clears at least 7 of 10.
+New: a post leaning at 41°, one fallen and standing at 29°, the 40°/45°
+pair, a cube that dropped; level 1's things bush and tree only; no side
+view left in the page, style or code. Suite: 549 tests, all pass;
+`node tools/offline.js` run.
+
+**Checked in the browser pane:** upright, scene 5 (a fence, a bush and a
+tree, no backboard, no view button): the show's finger rises from the pad,
+the dots arc to the blocks; sideways, scene 3 the same. No console errors.
+
+**Mockup v2:** the same [Topple Drag Pad](https://claude.ai/artifact/C3PbCEsxig4pZ1y15eSDxe)
+link, version 2 (the five changed files).
+
+**Note:** the tree is still only ever on the left, as first made for the
+side view; left as seen and liked. With the side view gone it could stand
+on either side, if wanted later.

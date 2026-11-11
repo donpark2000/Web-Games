@@ -1,14 +1,15 @@
 // Topple!'s rules, scenes and camera (src/core/topple.js): the drag's
-// aiming in both views (mockup v8's checks), a block down, the game's
-// jewels and hearts, a scene's end, what's kept on the device, the dots,
-// the views fitted to a scene, and scenes 1-4 dealt so neighbours differ. Pure functions, nothing written.
+// aiming (mockup v8's checks), the drag pad and its show, a block down, the
+// game's jewels and hearts, a scene's end, what's kept on the device, the
+// dots, the view fitted to a scene, and scenes 1-4 dealt so neighbours
+// differ. Pure functions, nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   HAND, CAM, SCALE, MAX_UP, MAX_AIM, R2D, BALLS, SCENES, HEARTS, STACKS, SIZE, KINDS, READY_AFTER, END_WAIT, END_MAX,
-  makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, sideDrag, launchVel, isDown, createGame, readGame, sceneOver,
-  newRound, useBall, canThrow, update, endWords, dotsFor, behindView, sideView, dotScaleFor, checkSetup, rng,
-  PAD, DEMO, DEMO_UPS, padSpot, dragFrom, demoDrag, demoAt, sideTarget,
+  makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, launchVel, isDown, createGame, readGame, sceneOver,
+  newRound, useBall, canThrow, update, endWords, dotsFor, behindView, checkSetup, rng,
+  PAD, DEMO, DEMO_UPS, padSpot, dragFrom, demoDrag, demoAt,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -49,7 +50,7 @@ test('topple: scenes 1-4 dealt per game: never the same structure twice in a row
     games++;
   }
   assert.equal(games, 1000);
-  assert.equal(seenStack.size, 3); assert.equal(seenThing.size, 3);
+  assert.equal(seenStack.size, 3); assert.equal(seenThing.size, KINDS.length);
   assert.notDeepEqual(levelPlan(1, 1), levelPlan(2, 1), 'every game the same plan');
   // a scene's options carry its dealt structure and thing; the 5th is as before
   const plan = levelPlan(42, 1);
@@ -143,67 +144,24 @@ test('topple: from behind, drag where to throw: up aims higher, sideways the sam
   assert.equal(frontDrag(10, 10, 0, 0.5), null, 'a stage of no size');
 });
 
-test('topple: from the side, drag the way the ball goes: its direction how high, its length how hard', () => {
-  const size = 400, stand = { x: 0.6, z: -5.6 };
-  const d = sideDrag(150, -100, size, 0.5, stand);
-  near(d.up, Math.atan2(100, 150) * R2D, 1e-9, 'up');
-  near(d.up, 34, 0.5, 'up');
-  assert.ok(d.ok && d.show);
-  near(d.aim, Math.atan2(stand.x - HAND.x, HAND.z - stand.z) * R2D / MAX_AIM, 1e-12, 'straight at the structure');
-  const softer = sideDrag(75, -50, size, 0.5, stand);
-  near(softer.up, d.up, 1e-9, 'the same angle');
-  assert.ok(softer.power < d.power, 'a shorter drag isn\'t softer');
-  assert.equal(sideDrag(200, 0, size, 0.5, stand).up, 0, 'straight right: flat');
-  assert.equal(sideDrag(-150, 100, size, 0.5, stand).up, 0, 'left and down (v7\'s pull back): flat');
-  assert.equal(sideDrag(0, -300, size, 0.5, stand).up, MAX_UP, 'straight up: 70°');
-  // 0.4-1.15 times the front view's speed
-  const v = p => 2 + p * 8;
-  near(v(sideDrag(0.4 * size, 0, size, 0.5, stand).power) / v(0.5), 1.15, 1e-9, 'full');
-  assert.equal(sideDrag(10, 0, size, 0.5, stand).ok, false, 'a short drag threw');
-});
-
-// The side view's target (Q68): a block still standing, not the fence's gap.
-test('topple: from the side, the throw goes at a standing block nearest the middle, not the gap between the fence\'s halves', () => {
-  const p = sceneParts(makeLayout(7, { n: 2, stacks: ['fence'] }));
-  const stand = p.stand, blocks = p.blocks.map(b => ({ x: b.x, z: b.z, down: false, c: b.c }));
-  assert.equal(blocks.length, 8, 'the fence\'s blocks');
-  assert.ok(!blocks.some(b => Math.abs(b.x - stand.x) < 0.05), 'no block in the fence\'s middle: the test proves nothing');
-  const t = sideTarget(blocks, stand);
-  assert.ok(Math.abs(Math.abs(t.x - stand.x) - Math.min(...blocks.map(b => Math.abs(b.x - stand.x)))) < 0.011, 'not the nearest the middle');
-  assert.equal(t.c, 'blue', 'an inner post');
-  // of the two inner posts (a tie), the one nearer straight ahead
-  const inner = blocks.filter(b => Math.abs(Math.abs(b.x - stand.x) - Math.abs(t.x - stand.x)) < 0.011);
-  assert.equal(inner.length, 2);
-  const ahead = b => Math.abs(Math.atan2(b.x - HAND.x, HAND.z - b.z));
-  assert.equal(ahead(t), Math.min(...inner.map(ahead)));
-  // that post down: the other inner post; all down: the middle
-  const next = sideTarget(blocks.map(b => (b.x === t.x && b.z === t.z ? { ...b, down: true } : b)), stand);
-  assert.ok(next.x !== t.x && Math.abs(Math.abs(next.x - stand.x) - Math.abs(t.x - stand.x)) < 0.011, 'not the other inner post');
-  assert.deepEqual(sideTarget(blocks.map(b => ({ ...b, down: true })), stand), { x: stand.x, z: stand.z });
-  assert.deepEqual(sideTarget([], stand), { x: stand.x, z: stand.z });
-});
-
 // The drag pad (journal, "9.2 on the phone; home pictures and aiming", Q67).
-test('topple: the drag pad sits low, on the right from behind and the left from the side, inside the park', () => {
+test('topple: the drag pad sits low on the right, inside the park, with room for a full drag', () => {
   let checked = 0;
   // an upright phone's park (393 x 760 screen), a sideways one, a tablet's
   for (const [w, h] of [[377, 592], [760, 377], [740, 900]]) {
-    const s = Math.min(w, h), f = padSpot('front', w, h), sd = padSpot('side', w, h);
-    for (const p of [f, sd]) {
-      assert.ok(p.x - p.r >= 0 && p.x + p.r <= w && p.y - p.r >= 0 && p.y + p.r <= h, `${w}x${h}: the pad runs off the park`);
-      assert.ok(p.y > h / 2, `${w}x${h}: the pad isn't low`);
-      // over the park's foot: the view switch (44 px tall, 8 px up) and the hint
-      assert.ok(p.y + p.r <= h - 56, `${w}x${h}: the pad is over the view switch or hint`);
-      checked++;
-    }
-    assert.ok(f.x > w / 2 && sd.x < w / 2, `${w}x${h}: front on the right, side on the left`);
-    // room to drag: from behind 0.4 of s up; from the side 0.3 of s to the right
-    assert.ok(f.y - 0.4 * s >= 0 && sd.x + 0.3 * s <= w, `${w}x${h}: no room for a full drag`);
+    const s = Math.min(w, h), p = padSpot(w, h);
+    assert.ok(p.x - p.r >= 0 && p.x + p.r <= w && p.y - p.r >= 0 && p.y + p.r <= h, `${w}x${h}: the pad runs off the park`);
+    assert.ok(p.y > h / 2 && p.x > w / 2, `${w}x${h}: the pad isn't low on the right`);
+    // clear of the park's foot (the hint, 8 px up, on the left)
+    assert.ok(p.y + p.r <= h - 56, `${w}x${h}: the pad is down at the park's foot`);
+    // room to drag: 0.4 of s up for the highest throw
+    assert.ok(p.y - 0.4 * s >= 0, `${w}x${h}: no room for a full drag`);
+    checked++;
   }
-  assert.equal(checked, 6);
-  assert.equal(padSpot('front', 200, 200).r, PAD.rMin, 'a small park: the smallest pad');
-  assert.equal(padSpot('front', 2000, 1500).r, PAD.rMax, 'a big park: the biggest pad');
-  assert.equal(padSpot('front', 0, 500), null, 'a park of no size');
+  assert.equal(checked, 3);
+  assert.equal(padSpot(200, 200).r, PAD.rMin, 'a small park: the smallest pad');
+  assert.equal(padSpot(2000, 1500).r, PAD.rMax, 'a big park: the biggest pad');
+  assert.equal(padSpot(0, 500), null, 'a park of no size');
 });
 
 test('topple: where a drag started: the pad, the ball, or elsewhere', () => {
@@ -218,22 +176,17 @@ test('topple: where a drag started: the pad, the ball, or elsewhere', () => {
 
 test('topple: the pad\'s show: a finger drags from it twice, the dots following, aimed at the structure', () => {
   const size = 377, stand = { x: 0.6, z: -5.6 };
-  const to = demoDrag('front', size, stand), d = frontDrag(to.dx, to.dy, size, 0.5);
+  const to = demoDrag(size, stand), d = frontDrag(to.dx, to.dy, size, 0.5);
   near(d.up, 30, 1e-9, 'up');
   near(d.aim * MAX_AIM, Math.atan2(stand.x - HAND.x, HAND.z - stand.z) * R2D, 1e-9, 'aimed at the structure');
   assert.ok(d.ok);
-  assert.equal(frontDrag(...Object.values(demoDrag('front', size, { x: 50, z: -1 })), size, 0.5).aim, 1, 'far off to one side: full aim');
-  const side = sideDrag(...Object.values(demoDrag('side', size, stand)), size, 0.5, stand);
-  near(side.up, 35, 1e-9, 'side: up');
-  assert.ok(side.ok && side.pull === 0.75, 'side: three quarters as hard');
+  assert.equal(frontDrag(...Object.values(demoDrag(size, { x: 50, z: -1 })), size, 0.5).aim, 1, 'far off to one side: full aim');
   // the other angles tried, for a show whose path touches a block first
-  for (const v of ['front', 'side']) {
-    assert.equal(DEMO_UPS[v][0], v === 'side' ? 35 : 30);
-    for (const up of DEMO_UPS[v]) {
-      const t = demoDrag(v, size, stand, up), dd = v === 'side' ? sideDrag(t.dx, t.dy, size, 0.5, stand) : frontDrag(t.dx, t.dy, size, 0.5);
-      near(dd.up, up, 1e-9, `${v} ${up}°`);
-      assert.ok(dd.ok, `${v} ${up}°: too short to throw`);
-    }
+  assert.equal(DEMO_UPS[0], 30);
+  for (const up of DEMO_UPS) {
+    const t = demoDrag(size, stand, up), dd = frontDrag(t.dx, t.dy, size, 0.5);
+    near(dd.up, up, 1e-9, `${up}°`);
+    assert.ok(dd.ok, `${up}°: too short to throw`);
   }
   // the finger over time: fades in at the pad, moves, holds, fades; the gap; again; done
   assert.deepEqual(demoAt(0, to), { dx: 0, dy: 0, alpha: 0, dots: false });
@@ -266,6 +219,22 @@ test('topple: a block is down once tipped over 45° or dropped 0.6 of its smalle
   assert.equal(isDown([0, Math.sin(1), 0, Math.cos(1)], 1, 1, 0.2), false, 'turned about the upright: still standing');
   assert.equal(isDown(tilt(0), 1 - 0.11, 1, 0.2), false, 'dropped 0.55');
   assert.equal(isDown(tilt(0), 1 - 0.13, 1, 0.2), true, 'dropped 0.65');
+});
+
+// Q69 (journal, "Mockup v1 tried"): a post leaning on another looked standing.
+test('topple: a tall block is down only while it lies tipped past 45°; dropping doesn\'t count; up again under 40°', () => {
+  const tilt = deg => [Math.sin(deg / 2 / R2D), 0, 0, Math.cos(deg / 2 / R2D)];
+  const post = (deg, y = 1, was = false) => isDown(tilt(deg), y, 1, 0.2, true, was);
+  assert.equal(post(41), false, 'leaning at 41° (seed 17\'s post)');
+  assert.equal(post(46), true);
+  assert.equal(post(29, 0), false, 'fallen 1 m, standing at 29° (seed 28\'s upper post)');
+  assert.equal(post(90, 0), true, 'lying');
+  // counted down: up again only under 40° (no flicker either side of 45°)
+  assert.equal(post(43, 1, true), true);
+  assert.equal(post(39, 1, true), false);
+  assert.equal(post(43, 1, false), false);
+  // a cube or plank as before: dropping counts
+  assert.equal(isDown(tilt(0), 1 - 0.13, 1, 0.2, false), true);
 });
 
 test('topple: a game: a jewel and the next scene; a heart and the same scene; the last heart back to scene 1', () => {
@@ -347,7 +316,7 @@ test('topple: the dots: one every 0.05 s for ½ s, stopping orange where the pat
   assert.equal(dotsFor({ hits: [{ kind: 'block', t: 0.9, at: [0, 0, 0] }], pts }).stopped, null, 'a touch after ½ s isn\'t shown');
 });
 
-test('topple: the views take in the whole scene and the slingshot, upright and sideways', () => {
+test('topple: the view takes in the whole scene and the slingshot, upright and sideways', () => {
   let checked = 0;
   for (let seed = 1; seed <= 6; seed++) {
     const p = sceneParts(makeLayout(seed * 37, sceneOpts(seed === 6 ? 5 : 1)));
@@ -360,12 +329,8 @@ test('topple: the views take in the whole scene and the slingshot, upright and s
         const el = Math.atan2(k.y + k.h / 2 - CAM[1], CAM[2] - k.z) * R2D;
         assert.ok(el <= b.pitch + b.fov / 2 + 1e-6 && el >= b.pitch - b.fov / 2 - 1e-6, `a block out of view: ${el} vs ${b.pitch} ± ${b.fov / 2}`);
       }
-      const s = sideView(aspect, p);
-      assert.ok(s.pos[0] > p.bounds.max[0], 'the side camera isn\'t to the right');
-      assert.ok(dotScaleFor('side', s) >= 1 && dotScaleFor('side', s) <= 8);
       checked++;
     }
   }
   assert.equal(checked, 12);
-  assert.equal(dotScaleFor('front', { dist: 30 }), 1);
 });
