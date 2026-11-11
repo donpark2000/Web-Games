@@ -16994,3 +16994,19 @@ Sizes: Topple! 12.5 KB, Tin Can Alley 7.8 KB, Five Dice 3D 6.3 KB.
   pictures: built in 9.3, to judge on the phone).
 - **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
   review with the developer.
+
+## 2026-11-11: Release 9.3 merged and tagged; the Pages build doesn't start
+
+- `main` fast-forwarded to ddf273b and pushed; tag `v9.3` pushed; the
+  GitHub release made from `node tools/release.js notes`
+  (github.com/donpark2000/Web-Games/releases/tag/v9.3).
+- **github.io still serves 9.2** (version.js says b31722df4efd 5 min on;
+  `icons/home/topple.webp` 404). The "pages build and deployment" run for
+  ddf273b ended **startup_failure** after 5 min with no jobs; a second
+  build asked for through the API (`POST .../pages/builds`) did the same
+  after about 3 min in the queue. The Pages API says `errored`, with no
+  message; githubstatus.com said "All Systems Operational". Yesterday's
+  builds took 25-28 s. Not caused by the site's files as far as can be
+  seen (no job ran to fail). Next: try again later; if it keeps failing,
+  the developer looks at the repo's Actions page on GitHub.
+- The localhost servers stay up until 9.3 is live.
