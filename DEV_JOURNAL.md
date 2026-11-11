@@ -42,14 +42,15 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
-- **Wait for a page's code, not its HTML** (2026-11-10, "Mockup v2 tried;
-  a throw only from the pad; Q66's home pictures"): a tool or test that
-  drives a page waits for a sign the page's code has run (a hook it sets,
-  a state it reports), not for an element to look ready; HTML can show a
-  button enabled before any handler is on it. *Evidence:* the home
-  pictures' tool pressed Five Dice 3D's Play while the page was still
-  loading three.js; the button wasn't disabled in the HTML, the press did
-  nothing, and the tool waited 15 s for a roll that never started.
+None waiting. (2026-11-11: "Wait for a page's code, not its HTML" (from
+"Mockup v2 tried; a throw only from the pad; Q66's home pictures": the
+home pictures' tool pressed Five Dice 3D's Play while three.js was still
+loading) approved by the developer ("Seems pretty obvious but worth
+adding I guess") and added to the skill, section 3, after "Check a screen
+after every way into it"; ai-dev-practices commit 96a2c81, zip rebuilt
+for the developer to upload. The skill loaded this session lacked
+"Tests don't read the clock" too: the 2026-11-10 zip not uploaded yet;
+the new zip holds both.)
 
 Earlier: (2026-11-10: "Tests don't read the clock, even through a
 library" (from Q65: cannon-es's catch-up step read the real clock and
@@ -17010,3 +17011,16 @@ Sizes: Topple! 12.5 KB, Tin Can Alley 7.8 KB, Five Dice 3D 6.3 KB.
   seen (no job ran to fail). Next: try again later; if it keeps failing,
   the developer looks at the repo's Actions page on GitHub.
 - The localhost servers stay up until 9.3 is live.
+
+## 2026-11-11: The local server; the skill rule added
+
+- **Developer:** "I don't see the new version on localhost. It is still
+  9.2". Nothing was listening on port 8123 any more (no `tools/serve.js`
+  running), so the browser showed the offline copy (9.2). Started again
+  (`node tools/serve.js 8123`, from the preview pane): it serves release
+  9.3, version 322553b0413e.
+- **Skill:** "Wait for a page's code, not its HTML" added (see "Proposed
+  additions").
+- **Pages:** the developer: "it could just be a git hub temporary
+  problem. If we try again, wait for me to load the actions page first
+  so I can watch."
