@@ -17121,3 +17121,27 @@ we've been automatically notified. Errors are sometimes temporary").
 - **Next:** Topple!'s next levels. The developer's ideas so far, gathered
   from "Mockup v5 tried" (themes 1-6), "The phone's log" entry (curved
   surfaces, rolling balls) and Q70 (backboards, other views), to discuss.
+
+## 2026-11-11: Test folders purged; status (start here next session)
+
+- **Purged** (developer: "OK to purge"): `Web-Games-testing\2026-11-10_home-pics\`
+  and `Web-Games-testing\2026-11-11_home-pics-v2\` sent to the Recycle
+  Bin; the journal entries "Home pictures mockup v1 tried", "Home
+  pictures v2 built; release 9.3" and "Home pictures v3" are the record.
+  `Web-Games-testing\` is now empty.
+
+**Status:**
+- **Live: 9.4.** `block-game` and `main` hold the same site; the branch
+  has only journal commits after `main`.
+- **Next: Topple!'s next levels**, in a fresh session (developer). Start
+  from the ideas listed to the developer in this session: the level
+  rules as built (DESIGN.md "Topple!" Levels), the themes 1-6 ("Mockup
+  v5 tried": one plane, 3D frames, glass that shatters, hard and glass,
+  metal with dynamite or bombs, ropes and saw blades), curved surfaces
+  and balls rolling down a ramp ("The phone's log" entry), and for each
+  level whether it needs another view or backboards (Q70). Claude's
+  suggestion: level 2 the 3D frames (same blocks and physics; raises the
+  views and backboards questions); glass the first new physics. Waiting
+  for the developer's pick.
+- **Open questions:** Q64 (how hard for a child's aim; with the kids).
+- **Skill:** none waiting.
