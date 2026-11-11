@@ -1973,9 +1973,12 @@ not known, "I'll just wait until I hear a complaint"). **Five Dice 3D built** 20
   plays each game in headless Edge to a set moment and cuts the picture
   out; run it again when a game's look changes, then `node
   tools/offline.js`). The moments (developer, after mockup v1): **Tin
-  Can Alley** the ball just reaching the top can, **Topple!** the
-  two-storey tower falling as a second ball flies in, both with **motion
-  lines** behind the ball (drawn by the tool, from the ball's path);
+  Can Alley** the ball just reaching the top can, cut close round the
+  cans and the ball (9.4); **Topple!** the two-storey tower 0.2 s after a
+  ball hit its top, leaning over, the ball held where it hit (9.4; 9.3's
+  second ball flying at a tower already falling looked as if it fell
+  before the ball hit); both with light **motion lines** behind the ball
+  (drawn by the tool, from the ball's path in);
   **Five Dice 3D** the cup lifted over the tray with the dice in it, seen
   from lower than the game's camera (the tool moves the camera; the game
   is unchanged). The games' rules pictures stay drawn (`stallMini`,

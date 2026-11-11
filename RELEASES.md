@@ -7,6 +7,16 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 9.4 (2026-11-11, version 9af34c850eb9)
+
+The home page's pictures of Tin Can Alley and Topple!, adjusted.
+
+- **Tin Can Alley:** closer in on the cans and the ball, with lighter
+  speed lines that leave the ball clear.
+- **Topple!:** the ball at the tower it has just hit, the tower leaning
+  over, with short, straighter speed lines (it used to show a second
+  ball flying at a tower that was already falling).
+
 ## 9.3 (2026-11-11, version 322553b0413e)
 
 Topple!: easier to aim, and more ways to fall; new pictures for the 3D

@@ -17024,3 +17024,56 @@ Sizes: Topple! 12.5 KB, Tin Can Alley 7.8 KB, Five Dice 3D 6.3 KB.
 - **Pages:** the developer: "it could just be a git hub temporary
   problem. If we try again, wait for me to load the actions page first
   so I can watch."
+
+## 2026-11-11: Home pictures v3: Tin Can Alley closer, Topple!'s ball at the tower; release 9.4 prepared
+
+**Developer** (9.3's pictures, from the local server): "Tin Can Alley - I
+think the speed lines are a good idea but a bit too much - they almost
+obscure the ball. And the ball and cans only occupy about 1/2 the height
+of the image ... we could crop out a lot of the bench and drapes and zoom
+in a bit on the cans and ball. Five dice - pretty good. Topple is strange.
+The 'speed lines are curving way too much and the structure is toppling
+before the ball hit it. Game play on Topple is good."
+
+Also: the local server had stopped (nothing on port 8123), so the browser
+showed its offline copy, 9.2; started again, it served 9.3. In the
+browser pane the home page then showed the old pictures until each image
+was loaded again: the tab's own memory of the images, not the offline
+copy (`sw.js` fetches every file with `cache: 'reload'`, and
+`tools/serve.js` sends `no-store`).
+
+**Changed** (tries `v3*` in `Web-Games-testing\2026-11-11_home-pics-v2\`):
+- **Motion lines** (`streaks()`): a `weight` (width) option; the dark edge
+  lighter (alpha 0.2, was 0.28).
+- **Tin Can Alley:** lines at 0.6 the width, starting 2 ball radii behind
+  the ball (was 1.7), 3.5 ball widths long; the cut round the cans (x
+  +-0.25 m, the shelf's top to 3.1 cans up) and the ball, margin 0.12
+  (was +-0.4 m, from below the shelf, margin 0.2): the cut's side 371 px
+  of the canvas, was 529.
+- **Topple!:** one ball. *Found:* (1) the flattest throw at 0.75 of the
+  tower (27 deg up) bounced back 1.1 m in 0.2 s and the tower hadn't
+  moved (`v3`, `v3b`); 0.6 s on, still nothing down (`v3c`): that hit
+  barely moved a post. (2) A hit at 0.9 (the top cube, 31.5 deg up)
+  brings the upper storey down (3 blocks down 0.6 s on, `v3d`), but by
+  0.5-0.6 s the ball, held where it hit, floats clear of the blocks
+  (`v3e`), which reads like the same problem. (3) 0.2 s on, the ball
+  (held where it hit) is still against the plank it pushed and the
+  upper storey leans over (`v3f-0.2`): chosen. 0.3 s leans further, the
+  ball a ball's width away (`v3f-0.3`). The picture is put together: the
+  ball, which really bounced back 0.7 m by then, is put back where it
+  touched, touching nothing (`collisionResponse` off), for the last
+  step; its lines are its real path in, the last 3 ball widths (less
+  curve).
+- **Five Dice 3D:** unchanged (developer: "pretty good"); made again.
+- Sizes: Topple! 12.6 KB, Tin Can Alley 8.2 KB, Five Dice 3D 6.2 KB.
+
+**Release 9.4** prepared (9.3 is tagged and has its GitHub release but
+never went live: the Pages build fails to start; these pictures go out
+as 9.4, not as a changed 9.3): `src/core/release.js` 9.4, `node
+tools/offline.js` (version 9af34c850eb9), notes in RELEASES.md, `npm
+test` 556 of 556, `node tools/release.js`: ready. Checked in the browser
+pane: version line "9.4 ... 9af34c", the three pictures load (300 px).
+Not published: waiting for the developer's OK and the Pages retry
+(developer: "wait for me to load the actions page first so I can
+watch"; GitHub's error there: "An unexpected error has occurred and
+we've been automatically notified. Errors are sometimes temporary").

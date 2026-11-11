@@ -90,9 +90,10 @@ function seeded(seed) {
 // down the game's canvas (its project()), the last one where the ball is
 // now; `rPx` the ball's radius in the cut. Three tapering streaks along the
 // path, the middle one longest, white edged a little dark (to read on sky,
-// grass and stripes), from a little behind the ball back `len` ball widths.
-// Returns how long the middle streak is (px), for the log.
-function streaks(shot, src, path, rPx, { len = 5, gap = 1.25 } = {}) {
+// grass and stripes), from `gap` ball radii behind the ball back `len` ball
+// widths; `weight` scales their width (developer, v2: Tin Can Alley's
+// "almost obscure the ball"). Returns how long each streak is (px), for the log.
+function streaks(shot, src, path, rPx, { len = 5, gap = 1.25, weight = 1 } = {}) {
   const { x, y, side } = shot.crop, k = SIZE / side;
   const pts = path.map(([u, v]) => [(u * src.width - x) * k, (v * src.height - y) * k]);
   // back along the path from the ball: [px along, point] until `want` px
@@ -123,11 +124,11 @@ function streaks(shot, src, path, rPx, { len = 5, gap = 1.25 } = {}) {
       return [a, px - dy / d * off * rPx, py + dx / d * off * rPx];
     });
     const a0 = side[0][0], a1 = side.at(-1)[0];
-    for (const [colour, extra, alpha] of [['30,40,50', 2.2, 0.28], ['255,255,255', 0, 0.95]]) {
+    for (const [colour, extra, alpha] of [['30,40,50', 1.6, 0.2], ['255,255,255', 0, 0.9]]) {
       for (let i = 1; i < side.length; i++) {
         const f = 1 - (side[i][0] - a0) / (a1 - a0);   // 1 at the ball's end, 0 at the tail
         g.strokeStyle = `rgba(${colour},${(alpha * f).toFixed(3)})`;
-        g.lineWidth = Math.max(0.5, w * rPx * 2 * f + extra * f);
+        g.lineWidth = Math.max(0.5, w * weight * rPx * 2 * f + extra * f);
         g.beginPath(); g.moveTo(side[i - 1][1], side[i - 1][2]); g.lineTo(side[i][1], side[i][2]); g.stroke();
       }
     }
@@ -140,17 +141,18 @@ const dataUrl = b => new Promise(r => { const fr = new FileReader(); fr.onload =
 
 /* ---------- the games ---------- */
 
-// Topple!: the 5th scene's two-storey tower well into its fall, a second
-// ball on its way in with motion lines behind it (developer, Q66: "a more
-// complex structure that is a little bit further along falling down, and the
-// 'woosh' lines for the ball"). The first ball, which starts the fall,
-// bounces back off the tower, so its lines would point the wrong way: it's
-// taken away once it has hit, and the second (thrown in the physics, as the
-// game waits READY_AFTER between throws) is the one in the picture.
-// `height`: where on the tower the first ball touches (0 its foot, 1 its
-// top); `after`: s from that touch to the picture; `lead`: s the second ball
-// is then short of the tower.
-async function topple({ seed = TOPPLE_SEED, height = 0.72, height2 = 0.6, after = 0.45, lead = 0.1, margin = 0.14, whole = false } = {}) {
+// Topple!: the 5th scene's two-storey tower just hit high (its top cube) and
+// leaning over, the ball at it with motion lines behind it (developer, Q66:
+// "a more complex structure that is a little bit further along falling
+// down, and the 'woosh' lines"). One ball (v2's second ball, flying in while
+// the tower already fell, looked as if "the structure is toppling before the
+// ball hit it"); the flattest throw that reaches the height, and only the
+// last `len` ball widths of its path drawn (v2's lines were "curving way too
+// much"). The ball bounces back off the tower fast (0.7 m in 0.2 s), so the
+// picture is put together: the blocks `after` s past the touch, the ball held
+// where it touched (no longer touching anything), its lines its path in.
+// `height`: where on the tower the ball touches (0 its foot, 1 its top).
+async function topple({ seed = TOPPLE_SEED, height = 0.9, after = 0.2, len = 3, margin = 0.12, whole = false } = {}) {
   localStorage.setItem('web-games-topple-game', JSON.stringify({ seed, level: 1, scene: 5, hearts: 3, jewels: 4 }));
   const { win, doc } = await openGame('../topple.html', 600, 900, { freeze: true });
   await until(() => win.topple && !doc.getElementById('playBtn').disabled, 'Topple! ready');
@@ -161,62 +163,62 @@ async function topple({ seed = TOPPLE_SEED, height = 0.72, height2 = 0.6, after 
   if (tp.state().stack !== 'tower') throw new Error(`topple: seed ${seed}'s 5th scene is ${tp.state().stack}, not the tower`);
   const { world, current, launchVel } = tp.inside();
   const top = Math.max(...world.blocks.map(b => b.body.position.y)) + 0.05;
-  // throws whose path first touches a block: the straightest at `height`
-  // (the first), the quickest there at `height2` (the second)
-  let first = null, second = null;
+  // the flattest throw whose path first touches a block within 6 cm of `height`
+  let best = null;
   for (let up = 4; up <= 45; up += 0.5) {
     for (let aim = -0.6; aim <= 0.6; aim += 0.02) {
       const h = world.trace(launchVel(current.layout.power, aim, up).vec, 0).hits[0];
-      if (h?.kind !== 'block') continue;
-      const miss = Math.abs(h.at[1] - height * top) + 0.05 * Math.abs(aim);
-      if (!first || miss < first.miss) first = { up, aim: +aim.toFixed(2), y: +h.at[1].toFixed(3), t: +h.t.toFixed(3), miss };
-      if (Math.abs(h.at[1] - height2 * top) < 0.08 && (!second || h.t < second.t)) second = { up, aim: +aim.toFixed(2), y: +h.at[1].toFixed(3), t: +h.t.toFixed(3) };
+      if (h?.kind !== 'block' || Math.abs(h.at[1] - height * top) > 0.06) continue;
+      if (!best || up < best.up || (up === best.up && Math.abs(aim) < Math.abs(best.aim))) best = { up, aim: +aim.toFixed(2), y: +h.at[1].toFixed(3), t: +h.t.toFixed(3) };
     }
   }
-  if (!second) throw new Error('topple: no second throw reaches the tower');
+  if (!best) throw new Error('topple: no throw reaches the tower');
   // the pad's show over first (its dots are drawn in the park)
   await until(() => { tp.step(1 / 60); return tp.state().demo == null; }, "the pad's show over", 20000);
   const at0 = tp.blocks().map(b => b.at);
   const lowY = [...at0.map(p => p[1])].sort((x, y) => x - y)[2] - 0.01;   // the lower plank's (above the two posts)
-  tp.throw(first.aim, first.up);
-  const ball1 = world.balls[0];
-  // on, a step at a time; the second ball thrown so it's `lead` s short of the
-  // tower at the picture (the first's touch as its path said, then `after`)
-  const throw2 = first.t + after - (second.t - lead);
+  tp.throw(best.aim, best.up);
+  const ball = world.balls[0];
+  // the ball's places, a step at a time, until a block has moved 3 cm; then `after` s on
   const dt = 1 / 60, path = [];
-  let t = 0, touched = null, ball2 = null;
-  while (t < 4) {
-    if (!ball2 && t >= throw2 - 1e-9) ball2 = world.throwBall(launchVel(current.layout.power, second.aim, second.up).vec);
-    tp.step(dt);
-    t += dt;
-    if (ball2) path.push([ball2.position.x, ball2.position.y, ball2.position.z]);
-    if (touched == null && tp.blocks().some((b, i) => Math.hypot(...b.at.map((v, k) => v - at0[i][k])) > 0.03)) touched = t;
-    if (touched != null && t - touched > 0.1 && world.balls.includes(ball1)) ball1.position.set(0, -5, 0);   // gone on the next step
-    if (ball2 && path.length * dt >= second.t - lead) break;
+  let t = 0;
+  while (t < 3 && !tp.blocks().some((b, i) => Math.hypot(...b.at.map((v, k) => v - at0[i][k])) > 0.03)) {
+    tp.step(dt); t += dt;
+    path.push([ball.position.x, ball.position.y, ball.position.z]);
   }
-  if (!ball2) throw new Error(`topple: the second ball would be thrown before the first (at ${throw2.toFixed(2)} s)`);
+  const touched = t;
+  for (let s = 0; s < after - dt / 2; s += dt) { tp.step(dt); t += dt; }
+  // the ball back where it touched, still and touching nothing, for the last step (drawn)
+  const movedBack = Math.hypot(...['x', 'y', 'z'].map((c, k) => ball.position[c] - path.at(-1)[k]));
+  ball.collisionResponse = false;
+  ball.velocity.set(0, 0, 0);
+  ball.position.set(...path.at(-1));
+  tp.step(dt); t += dt;
   const canvas = doc.getElementById('c');
   if (whole) return { name: 'topple', seed, ...wholeOf(canvas) };
+  const now = [ball.position.x, ball.position.y, ball.position.z];
   // the upper storey and the plank it stands on (where the fall is; the bush
   // in front of the lower storey left mostly out), and the ball
-  const now = path.at(-1);
   const upper = tp.blocks().filter((b, i) => at0[i][1] >= lowY);
   const uvs = upper.flatMap(b => [tp.project(b.at), tp.project([b.at[0], b.at[1] - 0.12, b.at[2]]), tp.project([b.at[0], b.at[1] + 0.12, b.at[2]])]);
-  uvs.push(tp.project(now));
+  // the ball and the last 0.1 s of its path in (where its lines are)
+  for (const p of [now, ...path.slice(-6)]) uvs.push(tp.project([p[0], p[1] + TOPPLE_BALL.r, p[2]]), tp.project([p[0], p[1] - TOPPLE_BALL.r, p[2]]));
   const shot = cut(canvas, boxOf(uvs), margin);
   const [u0, v0] = tp.project(now), [, v1] = tp.project([now[0], now[1] + TOPPLE_BALL.r, now[2]]);
   const rPx = Math.abs(v1 - v0) * canvas.height * SIZE / shot.crop.side;
-  const lines = streaks(shot, canvas, path.map(p => tp.project(p)), rPx);
+  const lines = streaks(shot, canvas, path.map(p => tp.project(p)), rPx, { len, gap: 1.8, weight: 0.65 });
   return {
-    name: 'topple', seed, stack: 'tower', first, second, touchedAt: +(touched ?? -1).toFixed(2), pictureAt: +t.toFixed(2),
+    name: 'topple', seed, stack: 'tower', throw: best, touchedAt: +touched.toFixed(2), pictureAt: +t.toFixed(2),
+    movedBack: +movedBack.toFixed(3),
     ball: { u: +u0.toFixed(3), v: +v0.toFixed(3), rPx: +rPx.toFixed(1) }, lines, down: world.downCount(), ...shot,
   };
 }
 
 // Tin Can Alley: the pyramid of 6 on the shelf, the ball just reaching it,
 // its motion lines behind it (developer, Q66: as it was, "the ball is
-// leaning on the cans"). `after`: s from its first touch to the picture.
-async function tinCanAlley({ after = 0.02, up = 2.5 } = {}) {
+// leaning on the cans"), cut close round the cans and the ball (v2: they
+// filled half the picture). `after`: s from its first touch to the picture.
+async function tinCanAlley({ after = 0.02, up = 2.5, margin = 0.12 } = {}) {
   const { win, doc } = await openGame('../tin-can-alley.html', 600, 900, { freeze: true });
   await until(() => win.tinCanAlley && !doc.getElementById('playBtn').disabled, 'Tin Can Alley ready');
   doc.getElementById('playBtn').click();
@@ -244,11 +246,13 @@ async function tinCanAlley({ after = 0.02, up = 2.5 } = {}) {
   for (let s = 0; s <= t + 1e-9; s += 1 / 120) path.push(at(s));
   const canvas = doc.getElementById('c');
   const pts = [];
-  for (const x of [-0.4, 0.4]) for (const y of [SHELF.y - 0.12, SHELF.y + CAN.h * 3.4]) pts.push(tca.project([x, y, SHELF.z]));
-  const shot = cut(canvas, boxOf(pts), 0.2);
-  const now = path.at(-1), [u0, v0] = tca.project(now), [, v1] = tca.project([now[0], now[1] + TCA_BALL.r, now[2]]);
+  for (const x of [-0.25, 0.25]) for (const y of [SHELF.y - 0.03, SHELF.y + CAN.h * 3.1]) pts.push(tca.project([x, y, SHELF.z]));
+  const now = path.at(-1);
+  pts.push(tca.project(now));
+  const shot = cut(canvas, boxOf(pts), margin);
+  const [u0, v0] = tca.project(now), [, v1] = tca.project([now[0], now[1] + TCA_BALL.r, now[2]]);
   const rPx = Math.abs(v1 - v0) * canvas.height * SIZE / shot.crop.side;
-  const lines = streaks(shot, canvas, path.map(p => tca.project(p)), rPx, { len: 4, gap: 1.7 });
+  const lines = streaks(shot, canvas, path.map(p => tca.project(p)), rPx, { len: 3.5, gap: 2, weight: 0.6 });
   return { name: 'tin-can-alley', power, camera: tca.state().camera, touchAt: +(t - after).toFixed(3), after, ball: { u: +u0.toFixed(3), v: +v0.toFixed(3), rPx: +rPx.toFixed(1) }, lines, ...shot };
 }
 
