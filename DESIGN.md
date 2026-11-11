@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-10, latest): **Topple!: the drag pad and its show
+*Status (2026-11-10, latest): **Topple!: a throw starts only on the
+drag pad; a press elsewhere makes it pulse** (on `block-game`, not yet
+published; see "Topple!"). Earlier the same day: **Topple!: the drag pad and its show
 every scene; one view (the side view dropped); no backboards in level 1;
 a post down only while it lies** (on `block-game`, not yet published;
 see "Topple!"). Earlier: **Topple!**, the block game (knock
@@ -2140,11 +2142,16 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   to "anchor" play across levels, whatever they throw): a round pad with
   a 👆, low on the right of the park (0.24 of its shorter side in, 0.27
   up), away from the dots, which go up the middle from the ball on the
-  left. The drag still works from anywhere; the pad is faint while a
-  ball's in flight. **Its show, every scene** (developer: "Every
+  left. **A throw starts only on the pad** (developer, 2026-11-10: "only
+  starting from the guide is more intuitive ... a game control they can
+  learn and always works as they expect"): a press within 1.5 times its
+  radius counts; a press anywhere else aims nothing and **the pad
+  pulses** (grows and turns yellow for ½ s) to show where to start. No
+  press, no dots (a mouse moving over the park shows nothing). The pad
+  is never faint (it's the one control). **Its show, every scene** (developer: "Every
   scene"): before the first ball a see-through 👆 drags from the pad as a
   throw would, the dots and slingshot following, twice; it stops at a
-  touch. Its throw reaches a block first (the first of 30, 25, 35...°
+  press on the pad. Its throw reaches a block first (the first of 30, 25, 35...°
   that does). [Topple Drag Pad](https://claude.ai/artifact/C3PbCEsxig4pZ1y15eSDxe)
   mockup (private), v1-v2.
 - **One view, from behind** (developer, 2026-11-10, Q70: "Maybe side view
@@ -2190,8 +2197,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   the device, the fit (with the pad's spot), each scene (its layout, the
   check, how long it took to make, its leaves and how long they took to
   draw), layouts thrown away, the pad's show (the angle picked; done, or
-  stopped by a finger), each throw (where the drag started: pad, ball or
-  elsewhere; speed, angle, the path's touches) and where the ball touched
+  stopped by a finger), a press off the pad (by the ball or elsewhere,
+  how many px outside it), each throw (speed, angle, the path's touches) and where the ball touched
   against the path, blocks down, a post up again, the scene's end (with
   fps and the physics' ms), Start again, resumed.
 

@@ -9,7 +9,7 @@ import {
   HAND, CAM, SCALE, MAX_UP, MAX_AIM, R2D, BALLS, SCENES, HEARTS, STACKS, SIZE, KINDS, READY_AFTER, END_WAIT, END_MAX,
   makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, launchVel, isDown, createGame, readGame, sceneOver,
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, checkSetup, rng,
-  PAD, DEMO, DEMO_UPS, padSpot, dragFrom, demoDrag, demoAt,
+  PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -164,14 +164,28 @@ test('topple: the drag pad sits low on the right, inside the park, with room for
   assert.equal(padSpot(0, 500), null, 'a park of no size');
 });
 
-test('topple: where a drag started: the pad, the ball, or elsewhere', () => {
+test('topple: where a press is: the pad, the ball, or elsewhere', () => {
   const pad = { x: 300, y: 450, r: 38 }, ball = { x: 80, y: 500 };
+  assert.equal(PAD.reach, 1.5);
   assert.equal(dragFrom(300, 450, pad, ball), 'pad');
-  assert.equal(dragFrom(300 + 38 * 1.25, 450, pad, ball), 'pad', 'just off its edge still counts');
-  assert.equal(dragFrom(300 + 38 * 1.4, 450, pad, ball), 'elsewhere');
+  assert.equal(dragFrom(300 + 38 * 1.45, 450, pad, ball), 'pad', 'just off its edge still counts');
+  assert.equal(dragFrom(300, 450 - 38 * 1.45, pad, ball), 'pad', 'above it too');
+  assert.equal(dragFrom(300 + 38 * 1.55, 450, pad, ball), 'elsewhere');
   assert.equal(dragFrom(100, 520, pad, ball), 'ball');
   assert.equal(dragFrom(200, 200, pad, ball), 'elsewhere');
   assert.equal(dragFrom(200, 200, null, null), 'elsewhere', 'before the park is drawn');
+});
+
+// A throw starts only on the pad (developer, 2026-11-10: "only starting from
+// the guide is more intuitive").
+test('topple: only a press on the pad (or nearly) starts a drag; a miss says how far off', () => {
+  const pad = { x: 300, y: 450, r: 38 }, ball = { x: 80, y: 500 };
+  assert.deepEqual(padPress(300, 450, pad, ball), { on: true, from: 'pad', offPx: 0 }, 'its middle');
+  assert.deepEqual(padPress(300 + 30, 450, pad, ball), { on: true, from: 'pad', offPx: 0 }, 'inside the drawn pad');
+  assert.deepEqual(padPress(300 + 55, 450, pad, ball), { on: true, from: 'pad', offPx: 17 }, 'a near miss counts (55 px of a 57 px reach)');
+  assert.deepEqual(padPress(300 + 60, 450, pad, ball), { on: false, from: 'elsewhere', offPx: 22 }, 'past the reach');
+  assert.deepEqual(padPress(80, 500, pad, ball), { on: false, from: 'ball', offPx: 188 }, 'the ball itself starts nothing');
+  assert.deepEqual(padPress(200, 200, null, ball), { on: false, from: 'elsewhere', offPx: null }, 'before the park is drawn');
 });
 
 test('topple: the pad\'s show: a finger drags from it twice, the dots following, aimed at the structure', () => {

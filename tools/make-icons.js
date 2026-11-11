@@ -45,7 +45,7 @@ export function pngSize(buf) {
 // is cut off (2026-10-10: a 192 px window gave the icon's left edge only).
 const SHOT = 512;
 
-async function findBrowser() {
+export async function findBrowser() {
   const tries = [process.env.BROWSER,
     'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
     'C:/Program Files/Microsoft/Edge/Application/msedge.exe',

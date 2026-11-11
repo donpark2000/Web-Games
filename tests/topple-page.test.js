@@ -105,13 +105,20 @@ test('topple page: the drag pad and its show: over the park, the touch going thr
     assert.match(rule, /pointer-events: none/, `${sel} would take the touch from the park`);
   }
   assert.match(js, /pad = padSpot\(box\.width, box\.height\)/);
-  assert.match(js, /dragFrom\(e\.clientX - box\.left, e\.clientY - box\.top, pad, ballPx\(\)\)/);
-  assert.match(js, /\.\.\.\(from \? \{ from \} : \{\}\)/, 'the throw\'s log line without where the drag started');
-  // the show runs on the clock, stops at a finger, and aims at a block
+  // a throw starts only on the pad: a press elsewhere makes it pulse, and is logged
+  assert.match(js, /const p = padPress\(e\.clientX - box\.left, e\.clientY - box\.top, pad, ballPx\(\)\);\s*if \(!p\.on\) \{\s*L\('press off the pad', \{ from: p\.from, offPx: p\.offPx,[^\n]*\n\s*pulsePad\(\);\s*return;/);
+  assert.match(css, /\n\.pad\.pulse \{ animation: tp-pad-pulse [^}]*\}/);
+  assert.match(css, /@keyframes tp-pad-pulse/);
+  assert.doesNotMatch(js + css, /\.wait\b|'wait'/, 'the pad never goes faint (it\'s the one control)');
+  // no press, no dots: a mouse moving over the park only follows a drag
+  assert.match(js, /function onMove\(e\) \{\s*if \(drag && e\.pointerId === drag\.id\) \{ drag\.x = e\.clientX; drag\.y = e\.clientY; \}\s*\}/);
+  assert.match(js, /const dragNow = \(\) => \(drag \? /);
+  assert.match(js, /const d = dragNow\(\) \?\? \(ok \? demoFrame\(\) : null\);/, 'the dots come from a drag or the show, nothing else');
+  // the show runs on the clock, stops at a press on the pad, and aims at a block
   assert.match(js, /demo\.t = \(performance\.now\(\) - demo\.t0\) \/ 1000/);
-  assert.match(js, /function onDown\(e\) \{\s*sound\.unlock\(\);\s*stopDemo\('a finger'\);/);
+  assert.match(js, /pulsePad\(\);\s*return;\s*\}\s*stopDemo\('a finger'\);/);
   assert.match(js, /if \(first === 'block'\)/);
-  for (const what of ["'pad show'", "'pad show done'", "'pad show stopped'", "'drag too short: no throw', { from"]) {
+  for (const what of ["'pad show'", "'pad show done'", "'pad show stopped'", "'drag too short: no throw'", "'press off the pad'"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   }
 });

@@ -30,10 +30,21 @@ time, each tried before publishing:
   suggest a 3D experience"; "something like a screen shot of the actual
   game might be better"). Proposed ("9.2 on the phone; home pictures and
   aiming"): a still from each game, made by a tool; a mockup first.
+  2026-11-10: the tool built (`node tools/home-pics.js`) and the
+  [3D Home Pictures](https://claude.ai/artifact/MoRQjp2Qpq4t4sC1kRStqH)
+  mockup up ("Mockup v2 tried; a throw only from the pad; Q66's home
+  pictures"); waiting for the developer's verdict.
 
 ## Proposed additions to the standards skill
 
-None waiting.
+- **Wait for a page's code, not its HTML** (2026-11-10, "Mockup v2 tried;
+  a throw only from the pad; Q66's home pictures"): a tool or test that
+  drives a page waits for a sign the page's code has run (a hook it sets,
+  a state it reports), not for an element to look ready; HTML can show a
+  button enabled before any handler is on it. *Evidence:* the home
+  pictures' tool pressed Five Dice 3D's Play while the page was still
+  loading three.js; the button wasn't disabled in the HTML, the press did
+  nothing, and the tool waited 15 s for a roll that never started.
 
 Earlier: (2026-11-10: "Tests don't read the clock, even through a
 library" (from Q65: cannon-es's catch-up step read the real clock and
@@ -16471,3 +16482,128 @@ on either side, if wanted later.
 - **Open questions:** Q64 (how hard for a child's aim), Q66 (home
   pictures).
 - **Skill:** none waiting.
+
+## 2026-11-10: Mockup v2 tried; a throw only from the pad; Q66's home pictures made by a tool (mockup)
+
+**Developer:** "Problems we discussed have been addressed." Then: "when a
+scene starts, the aiming dots show up right away based on where my mouse
+cursor happens to be on the screen. I don't think they should appear until
+there is a mouse click (or a touch on a phone) on the 'drag pad' finger",
+and "fix the icons on the game launch screen for the 3D games, I would like
+to publish." Asked whether a drag should aim only from the pad or from
+anywhere (Claude first proposed keeping "anywhere"), the developer: "only
+starting from the guide is more intuitive. It makes it more like a game
+control they can learn and always works as they expect." Claude agreed,
+adding a forgiving reach, a pulse for a press elsewhere, and a pad that
+never fades.
+
+**The dots at a scene's start, looked into first** (browser pane, 393 x
+760, scene 1): the code draws dots only from a drag (`dragNow()`, set on
+`pointerdown`) or the pad's show (`demoFrame()`); `onMove` only follows a
+drag. Mouse moves dispatched over the park, no button down, every 0.6 s for
+7 s from the scene's start: dots 10 or 0 while the show ran (its own
+drag: 1.87-6.13 s), then **0 on every move once the show was done**. The
+end card's buttons act on release and cover the park, so no press reaches
+it. So the dots seen at the start were most likely the show's, whose
+see-through 👆 moves while the mouse sits still; not proven. The change
+below rules out any other way in.
+
+**Built** on `block-game` (not published):
+- **A throw starts only on the pad**: `padPress(x, y, pad, ball)` in
+  `src/core/topple.js` (`on` within `PAD.reach` = 1.5 times the pad's
+  radius; `from` pad/ball/elsewhere; `offPx`, how far outside the drawn
+  pad). A press elsewhere starts nothing, logs "press off the pad" (from,
+  offPx, r, where) and **pulses the pad** (`pulsePad`: 0.55 s, up to 1.3
+  times, yellow; started again on every miss). A press off the pad doesn't
+  stop the show; a press on it does.
+- **The pad never faint** (was 0.3 while a ball's in flight; the `wait`
+  class gone). Presses are still ignored until a throw can be made.
+- **The throw's log line** no longer says where the drag started (every
+  drag now starts on the pad); the misses say it.
+- **Tests:** `padPress` on the pad, inside the drawn pad, a near miss at 55
+  of 57 px (counts), past the reach, the ball, no pad yet; `dragFrom`'s
+  reach now 1.5 (1.45 counts, 1.55 doesn't). Page: the gate, the pulse
+  rule and keyframes, no `wait`, `onMove` only follows a drag, the dots
+  only from a drag or the show. The gate's check shown to fail with the
+  gate taken out (1 failure). Suite 553, all pass; `node tools/offline.js`
+  run.
+- **Checked in the browser pane** (events dispatched, scene 1, after the
+  show): mouse moves with no button: 0 dots; a press at (180, 300), 180 px
+  off the pad: the pad pulsed, a drag up from there 0 dots, no ball used,
+  logged `press off the pad {"from":"elsewhere","offPx":180,"r":38}`; a
+  press at 1.4 times the radius and a drag up: 10 dots, let go: a ball
+  thrown; the pad's opacity with the ball in flight: 1. Screenshots in the
+  pane came out cropped by its scaling, so these numbers are the record.
+
+**Q66: the home pictures, made by a tool.** `node tools/home-pics.js`
+(with `tools/home-pics.html` and `tools/home-pics-page.js`, not part of
+the site) serves the site on this computer, opens the page in headless Edge
+and saves `icons/home/<game>.webp` (or `--out <dir>`). The page loads each
+real game page in a frame and plays it to a set moment:
+- **Topple!**: seed 7's arch (scene 4), the throw (of a scan, up 4-45° and
+  aim ±0.6) whose path first touches the highest block, stepped until a
+  block has moved 3 cm and 0.12 s more (0.73 s); cut square round the
+  blocks from the ground up. The game's own frames are held, so only the
+  tool moves it on: the same picture every run (6,960-7,002 bytes over
+  four runs, the crop the same).
+- **Tin Can Alley**: the pyramid of 6, the power whose path reaches the
+  shelf's front 1.5 cans up (0.3275), 0.1 s after it gets there: the
+  game's side view of the cans flying.
+- **Five Dice 3D**: its frames run (the roll is animated); 1.8 s after
+  Roll, cut round the dice. Tried by eye: at 0.38-0.9 s the dice are still
+  in the cup, 1.3 s it's tipping, **1.8 s five tumbling over the felt**,
+  2.2 s landed. `Math.random` seeded (5) for the same throw, as near as the
+  frames' timing lets it.
+- 300 x 300 px (twice the tile), WebP 0.85: 7.7-7.8 KB each.
+
+**What it took** (in order, each found by its own evidence):
+- Edge's launcher exits at once and hands over to another process (the
+  first `--screenshot` file appeared after the command returned), so
+  `--remote-debugging-pipe` went dead; the tool reads the DevTools port
+  from the profile folder (`DevToolsActivePort`) and talks over Node's own
+  WebSocket. Headless Edge draws WebGL (on the PC's Intel GPU; SwiftShader
+  with its flag), checked on a test page first.
+- A first run hung 3 minutes with nothing said and **left 10 Edge
+  processes**: now each stage prints a line, making is capped at 120 s
+  with the page's log on failure, and a browser that can't be told to
+  close is stopped by its profile folder (0 left after each run since).
+- Five Dice 3D got "no frames after Roll" (frames 0, play screen not
+  shown): the tool pressed Play before the page's code had run (it waits
+  for three.js; the button isn't disabled in the HTML, so "not disabled"
+  passed at once). Now it waits for the tray's hook. In the hidden browser
+  pane no animation frames run at all (the tray draws on a timer there),
+  so the tool's frame hook catches timer frames too.
+- Crops: Topple!'s first cut went round the blocks' middles and cut the
+  posts' feet off; now from the ground up.
+
+**Tests:** `tests/home-pics.test.js`: a WebP's size from its header (lossy,
+lossless, extended; made up headers), refused for a PNG, a short buffer and
+an unknown kind; the page's games are the tool's list (shown to fail with a
+game dropped). The pictures themselves can't be redrawn in a test; once
+agreed, a test will check they're there, 300 x 300, small and listed.
+`tools/serve.js` serves `.webp` (`image/webp`); `findBrowser` exported from
+`tools/make-icons.js` for it.
+
+**Mockup:** [3D Home Pictures](https://claude.ai/artifact/MoRQjp2Qpq4t4sC1kRStqH)
+(private, v1): each game's tile now beside the new one, and the three
+together. The stills are in
+`C:\Users\dpark\Documents\Web-Games-testing\2026-11-10_home-pics\`.
+
+**Waiting for the developer:** the pictures (each, or another moment); then
+they go on the home page (and in the offline list), and 9.3 is ready to
+publish with the pad change.
+
+## 2026-11-10: Status (start here next session)
+
+- **Live: 9.2.** On `block-game` (pushed, not published): everything in
+  the last status, plus a throw only from the drag pad (a press elsewhere
+  pulses it). The home pictures' tool is built; the pictures aren't on the
+  home page yet.
+- **Next:** the developer's verdict on the
+  [3D Home Pictures](https://claude.ai/artifact/MoRQjp2Qpq4t4sC1kRStqH)
+  mockup; then `node tools/home-pics.js`, the home page's three tiles as
+  `<img>`, a test that the pictures are there, then publish as **9.3**
+  (the release steps in CLAUDE.md) and try it on the phone.
+- **Open questions:** Q64 (how hard for a child's aim), Q66 (home pictures:
+  mockup up).
+- **Skill:** one proposed ("Wait for a page's code, not its HTML").

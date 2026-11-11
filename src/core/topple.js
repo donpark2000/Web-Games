@@ -417,21 +417,32 @@ export function frontDrag(dx, dy, size, power) {
 // and swipes at the target covers the dots). A round pad with a 👆 to start
 // the drag from, beside the slingshot and away from where the dots go, so the
 // finger and hand move beside them: the ball is low on the left and the dots
-// go up the middle, so the pad is low on the right. The drag still works
-// from anywhere. In a park w × h px (s its shorter side): the pad's middle
-// and radius, px from the park's top left.
-export const PAD = { fromRight: 0.24, up: 0.27, r: 0.1, rMin: 30, rMax: 46 };
+// go up the middle, so the pad is low on the right. A throw starts only on
+// the pad (developer, 2026-11-10: "only starting from the guide is more
+// intuitive", a control they learn that "always works as they expect"): a
+// press within `reach` of its radius counts (a near miss isn't a dead touch).
+// In a park w × h px (s its shorter side): the pad's middle and radius, px
+// from the park's top left.
+export const PAD = { fromRight: 0.24, up: 0.27, r: 0.1, rMin: 30, rMax: 46, reach: 1.5 };
 export function padSpot(w, h) {
   if (!(w > 0 && h > 0)) return null;
   const s = Math.min(w, h), r = clamp(PAD.r * s, PAD.rMin, PAD.rMax);
   return { x: Math.round(w - PAD.fromRight * s), y: Math.round(h - PAD.up * s), r: Math.round(r) };
 }
-// Where a drag started, for the log: 'pad' (on it, or nearly), 'ball' (by
-// the slingshot's ball, px), or 'elsewhere'.
+// Where a press on the park is: 'pad' (on it, or within PAD.reach of its
+// radius), 'ball' (by the slingshot's ball, px), or 'elsewhere'.
 export function dragFrom(x, y, pad, ball) {
-  if (pad && Math.hypot(x - pad.x, y - pad.y) <= pad.r * 1.3) return 'pad';
+  if (pad && Math.hypot(x - pad.x, y - pad.y) <= pad.r * PAD.reach) return 'pad';
   if (ball && Math.hypot(x - ball.x, y - ball.y) <= 60) return 'ball';
   return 'elsewhere';
+}
+// A press on the park: `on` (it starts a drag: on the pad), `from` as
+// dragFrom, and `offPx`, how far outside the drawn pad (0 on it; null with
+// no pad), logged on a miss to see whether the reach is big enough.
+export function padPress(x, y, pad, ball) {
+  const from = dragFrom(x, y, pad, ball);
+  const offPx = pad ? Math.max(0, Math.round(Math.hypot(x - pad.x, y - pad.y) - pad.r)) : null;
+  return { on: from === 'pad', from, offPx };
 }
 // The pad shown once a scene starts: a see-through finger drags from it as a
 // throw would, the dots following, twice, until a finger touches the park.

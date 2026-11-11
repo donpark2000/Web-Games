@@ -17,7 +17,7 @@
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
-  padSpot, dragFrom, demoDrag, demoAt, DEMO_UPS,
+  padSpot, padPress, demoDrag, demoAt, DEMO_UPS,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -296,15 +296,23 @@ const aimFor = (dx, dy) => (current ? frontDrag(dx, dy, parkSize(), current.layo
 const dragNow = () => (drag ? aimFor(drag.x - drag.x0, drag.y - drag.y0) : null);
 const ready = () => !!(round && !busy && canThrow(round).ok);
 
+// A throw starts only on the pad (or within PAD.reach of it); a press
+// anywhere else aims nothing: the pad pulses to show where to start, and the
+// miss is logged (how far off, and whether by the ball) to see whether the
+// reach is big enough for a child's finger. No press, no dots: a mouse
+// moving over the park does nothing (onMove only follows a drag).
 function onDown(e) {
   sound.unlock();
-  stopDemo('a finger');
   if (!ready() || drag) return;
-  // where it started (the pad, the ball, elsewhere): logged with the throw, to
-  // see whether children start on the pad (Q67)
   const box = $('park').getBoundingClientRect();
-  const from = dragFrom(e.clientX - box.left, e.clientY - box.top, pad, ballPx());
-  drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, from };
+  const p = padPress(e.clientX - box.left, e.clientY - box.top, pad, ballPx());
+  if (!p.on) {
+    L('press off the pad', { from: p.from, offPx: p.offPx, r: pad?.r ?? null, at: [Math.round(e.clientX - box.left), Math.round(e.clientY - box.top)] });
+    pulsePad();
+    return;
+  }
+  stopDemo('a finger');
+  drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY };
   $('hint').hidden = true;   // out of the dots' way
   try { $('c').setPointerCapture(e.pointerId); } catch { /* an old browser: the drag still works over the canvas */ }
 }
@@ -314,17 +322,25 @@ function onMove(e) {
 function onUp(e) {
   if (!drag || e.pointerId !== drag.id) return;
   drag.x = e.clientX; drag.y = e.clientY;
-  const d = dragNow(), from = drag.from;
+  const d = dragNow();
   drag = null;
   if (!d) return;
   if (!d.ok) {
-    L('drag too short: no throw', { from, up: Math.round(d.up), aim: r2(d.aim) });
+    L('drag too short: no throw', { up: Math.round(d.up), aim: r2(d.aim) });
     if (!round.used) $('hint').hidden = false;
     return;
   }
-  doThrow(d, from);
+  doThrow(d);
 }
-function doThrow(d, from = null) {
+// The pad grows and glows for a moment (started again on every miss).
+function pulsePad() {
+  const el = $('pad');
+  if (el.hidden) return;
+  el.classList.remove('pulse');
+  void el.offsetWidth;   // so the animation starts again
+  el.classList.add('pulse');
+}
+function doThrow(d) {
   if (!ready()) { L('throw refused', { why: canThrow(round).why ?? 'busy' }); return false; }
   const r = useBall(round);
   const { v, yaw, el, vec } = launchVel(d.power, d.aim, d.up);
@@ -334,7 +350,7 @@ function doThrow(d, from = null) {
   $('hint').hidden = true;
   sound.play('whoosh', 0, { level: d.power });
   L('throw', {
-    ball: r.ball, ...(from ? { from } : {}), speed: r2(v), up: Math.round(el * 180 / Math.PI), aim: Math.round(yaw * 180 / Math.PI), power: r2(d.power),
+    ball: r.ball, speed: r2(v), up: Math.round(el * 180 / Math.PI), aim: Math.round(yaw * 180 / Math.PI), power: r2(d.power),
     toward: aimed.hits.map(h => ({ kind: h.kind, at: h.at.map(r2), t: r2(h.t) })),
   });
   renderTally();
@@ -393,7 +409,6 @@ function tick(dt, draw = true) {
   if (!draw) return;
   stage.sync(world.blocks.map(b => b.body), world.balls);
   const ok = ready();
-  $('pad').classList.toggle('wait', !ok);
   const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);
   stage.setDots(d && ok && d.show ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0)) : null, 1);
