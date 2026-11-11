@@ -34,6 +34,8 @@ time, each tried before publishing:
   [3D Home Pictures](https://claude.ai/artifact/MoRQjp2Qpq4t4sC1kRStqH)
   mockup up ("Mockup v2 tried; a throw only from the pad; Q66's home
   pictures"); waiting for the developer's verdict.
+  2026-11-11, developer: likes the idea; changes asked (motion lines, a
+  bigger fall, the cup): "Home pictures mockup v1 tried".
 
 ## Proposed additions to the standards skill
 
@@ -16593,17 +16595,75 @@ together. The stills are in
 they go on the home page (and in the offline list), and 9.3 is ready to
 publish with the pad change.
 
-## 2026-11-10: Status (start here next session)
+## 2026-11-11: Home pictures mockup v1 tried: motion lines, the cup, a bigger fall
+
+**Developer:** "I like the idea of the pictures but I have a few
+suggestions to change":
+- **Tin Can Alley:** "its good but I wonder if we should add some 'woosh'
+  lines to imply the trajectory the ball had come from and that it was
+  moving. As it is, the static picture just looks like the ball is leaning
+  on the cans."
+- **Five Dice 3D:** "I was wondering if a shot of the cup holding the dice
+  above the table might convey a more 3D feel."
+- **Topple!:** "a more complex structure that is a little bit further
+  along falling down, and the 'woosh' lines for the ball (same as tin can
+  alley) to help reenforce the notion of movement from a static picture."
+
+The developer will give feedback on 9.3's pad change in the next session.
+
+**How Claude plans to do them** (not started; for the next session):
+- **Motion lines (Tin Can Alley, Topple!):** the tool knows the ball's
+  path (Topple!: `world.trace` of the throw, points every step; Tin Can
+  Alley: `launchVel`/`predict`'s parabola, or the ball's positions as it
+  steps). Project the last stretch of the path behind the ball (say its
+  last 0.15-0.25 s) with the game's `project()` and draw it onto the cut
+  picture in 2D: 2-3 tapering white streaks, faint at the tail, edged a
+  little dark to read on sky, grass and stripes. Drawn by the tool page
+  (`tools/home-pics-page.js`), not the game, so the games are unchanged.
+  Check the streak ends at the ball, not past it, after the cut's scaling.
+- **Topple!, a bigger fall:** scene 5's two-storey tower (or the fence) in
+  place of scene 4's arch: look for a seed whose scene 5 is the tower; aim
+  at its upper storey; capture later, when blocks are visibly tipping and
+  one or two in the air (try 0.3, 0.5, 0.8 s after the first touch by eye,
+  as the dice were). The ball may be past the structure by then: the
+  streak shows where it went; or capture when the ball is still in the
+  picture.
+- **Five Dice 3D, the cup over the table:** look at the cup's moments
+  first: 0.38-0.9 s showed the cup on the felt with dice in it, 1.3 s
+  tipping (whole-tray stills in the test folder). Find whether the cup is
+  ever raised above the felt with the dice showing; if not, the tool could
+  hold the moment and lift the cup (its mesh isn't reachable from the page:
+  would need a hook in `src/ui/tray3d.js`'s `window.dice3d`, which ships;
+  ask before adding one). Cut round the cup, a lower camera if the hook
+  allows it.
+- Then the mockup again (same artifact, v2), the developer's OK, the home
+  page's tiles as `<img>` with a test (there, 300 x 300, under 40 KB,
+  listed for offline), and 9.3.
+
+## 2026-11-11: Status (start here next session)
 
 - **Live: 9.2.** On `block-game` (pushed, not published): everything in
-  the last status, plus a throw only from the drag pad (a press elsewhere
-  pulses it). The home pictures' tool is built; the pictures aren't on the
-  home page yet.
-- **Next:** the developer's verdict on the
+  the 2026-11-10 status, plus a throw only from the drag pad (a press
+  elsewhere pulses it); and the home pictures' tool (`node
+  tools/home-pics.js --out <dir>` to try; with no `--out` it writes
+  `icons/home/`), the pictures not on the home page yet.
+- **First:** the developer's feedback on 9.3's pad change (on
+  `block-game`; the developer may try it from the local server or ask for
+  a mockup).
+- **Next:** the home pictures' changes ("Home pictures mockup v1 tried"):
+  motion lines behind the ball (Tin Can Alley, Topple!), Topple!'s bigger
+  structure further into its fall, Five Dice 3D's cup holding the dice over
+  the table. Mockup v2 at the same link,
   [3D Home Pictures](https://claude.ai/artifact/MoRQjp2Qpq4t4sC1kRStqH)
-  mockup; then `node tools/home-pics.js`, the home page's three tiles as
-  `<img>`, a test that the pictures are there, then publish as **9.3**
-  (the release steps in CLAUDE.md) and try it on the phone.
-- **Open questions:** Q64 (how hard for a child's aim), Q66 (home pictures:
-  mockup up).
-- **Skill:** one proposed ("Wait for a page's code, not its HTML").
+  (rebuilt by Claude's own helper script in its scratchpad, which the next
+  session won't have: build the page again from the stills, the tiles now
+  from `stallMini`, `toppleMini` and the dice tile in `index.html`).
+  Then the pictures on the home page and publish as **9.3** (release steps
+  in CLAUDE.md), and try it on the phone.
+- **Test folder:** `Web-Games-testing\2026-11-10_home-pics\` (the v1
+  stills and the dice at other moments): keep until the pictures are
+  agreed, then ask to purge.
+- **Open questions:** Q64 (how hard for a child's aim), Q66 (home
+  pictures: v1 tried, changes asked).
+- **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
+  review with the developer.
