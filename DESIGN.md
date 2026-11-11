@@ -4,7 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-10, latest): **Topple!: a throw starts only on the
+*Status (2026-11-11, latest): **the 3D games' home pictures are stills
+from the games** (motion lines, Topple!'s tower falling, the dice cup
+over the tray; see "3D games", Home pictures), with Topple!'s 2026-11-10/11
+changes below, for release 9.3. 2026-11-10: **Topple!: a throw starts only on the
 drag pad; a press elsewhere makes it pulse** (on `block-game`, not yet
 published; see "Topple!"). Earlier the same day: **Topple!: the drag pad and its show
 every scene; one view (the side view dropped); no backboards in level 1;
@@ -1930,7 +1933,8 @@ not known, "I'll just wait until I hear a complaint"). **Five Dice 3D built** 20
   (the order, when the cup comes, when all are in), `dice placed in the
   cup`, `roll from the cup`, `cup tapped: roll`.
 - **As built** (2026-11-07): `five-dice-3d.html`, in 👥 Two players after
-  Five Dice, its home picture five dice seen at an angle on green felt.
+  Five Dice, its home picture five dice seen at an angle on green felt
+  (until 9.3; see "Home pictures" below).
   **The game is Five Dice's**, shared: `src/ui/five-dice-game.js` (setup,
   turns, the robot, the sheet, pop-ups, coming back to a game) with each
   page's own dice, `src/ui/five-dice.js` (the flat row) and
@@ -1961,6 +1965,22 @@ not known, "I'll just wait until I hear a complaint"). **Five Dice 3D built** 20
   7.4; developer: the screen zoomed in "a couple of times"): its canvas
   cancels each touch's end, as every other game's board does (its taps
   are pointer events, so they still come); a quick second tap is logged.
+
+- **Home pictures** (2026-11-11, release 9.3; Q66: the flat drawings
+  "do not seem to suggest a 3D experience"): each 3D game's home tile is
+  a still from the game itself, `icons/home/<game>.webp`, 300 x 300 (the
+  tile is 150 px), under 40 KB, made by `node tools/home-pics.js` (it
+  plays each game in headless Edge to a set moment and cuts the picture
+  out; run it again when a game's look changes, then `node
+  tools/offline.js`). The moments (developer, after mockup v1): **Tin
+  Can Alley** the ball just reaching the top can, **Topple!** the
+  two-storey tower falling as a second ball flies in, both with **motion
+  lines** behind the ball (drawn by the tool, from the ball's path);
+  **Five Dice 3D** the cup lifted over the tray with the dice in it, seen
+  from lower than the game's camera (the tool moves the camera; the game
+  is unchanged). The games' rules pictures stay drawn (`stallMini`,
+  `toppleMini`). A still that fails to load is logged (`picture
+  missing`).
 
 ### Tin Can Alley
 

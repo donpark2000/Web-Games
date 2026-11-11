@@ -20,9 +20,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'e10c3bfff470';
+const VERSION = '322553b0413e';
 const MADE = '2026-11-11';
-const RELEASE = '9.2';
+const RELEASE = '9.3';
 const FILES = [
   'bridges.html',
   'colour-sudoku.html',
@@ -60,6 +60,9 @@ const FILES = [
   'follow-me.html',
   'hidden-faces.html',
   'icons/apple-touch-icon.png',
+  'icons/home/five-dice-3d.webp',
+  'icons/home/tin-can-alley.webp',
+  'icons/home/topple.webp',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon.svg',

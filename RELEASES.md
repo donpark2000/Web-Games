@@ -7,6 +7,29 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 9.3 (2026-11-11, version 322553b0413e)
+
+Topple!: easier to aim, and more ways to fall; new pictures for the 3D
+games on the home page.
+
+- **A drag pad to throw from.** A throw starts only on the pad beside
+  the slingshot; a press anywhere else makes the pad pulse to show where
+  to start. As a scene starts, a see-through finger shows the drag.
+- **One view, from behind** (the side view is gone), and no glass
+  backboards in level 1.
+- **The dots show the ball's path for 0.3 s** after a throw.
+- **New structures that fall in parts:** a bench, a pair, a row and a
+  trio, so one hit can knock down some pieces and leave others standing.
+  Every level has some of them.
+- **A post counts as down only while it lies down**; one that rocks back
+  up has to be knocked again.
+- **The cleared card's button says "Next ▸"** (the jewels show which
+  scene you're on).
+- The far-off trees' trunks reach up into their leaves.
+- **Home page:** Five Dice 3D, Tin Can Alley and Topple! show a picture
+  of the game itself: the dice cup lifted over the tray, a ball flying
+  at the cans, and a two-storey tower falling as a ball flies in.
+
 ## 9.2 (2026-11-10, version b31722df4efd)
 
 Topple!: no hidden blocks, and more varied scenes.

@@ -36,6 +36,9 @@ time, each tried before publishing:
   pictures"); waiting for the developer's verdict.
   2026-11-11, developer: likes the idea; changes asked (motion lines, a
   bigger fall, the cup): "Home pictures mockup v1 tried".
+  2026-11-11: the changes made and put on the home page without a second
+  mockup (developer: "publish all together as 9.3 and I will test on my
+  phone"): "Home pictures v2 built; release 9.3". To judge on the phone.
 
 ## Proposed additions to the standards skill
 
@@ -16907,5 +16910,87 @@ line over it (`endWords('won')`).
   (or publish 9.3 first without the pictures, if the developer prefers).
 - **Open questions:** Q64 (how hard for a child's aim), Q66 (home
   pictures).
+- **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
+  review with the developer.
+
+## 2026-11-11: Home pictures v2 built; release 9.3
+
+**Developer** (asked whether to publish 9.3 first without the pictures):
+"publish all together as 9.3 and I will test on my phone and get back to
+you." So no mockup v2: the pictures go on the home page in 9.3, judged
+on the phone.
+
+**What the tool (`tools/home-pics-page.js`) now makes** (stills in
+`Web-Games-testing\2026-11-11_home-pics-v2\`, the tries lettered a-e):
+- **Motion lines** (`streaks()`): three tapering white streaks, edged a
+  little dark, along the ball's last places as the game's `project()`
+  puts them, starting a little behind the ball (1.25 ball radii; 1.7 for
+  Tin Can Alley) and running back 4-5 ball widths, the middle one longest.
+- **Tin Can Alley:** stepped 1/120 s at a time until a can wakes (they
+  sleep until the ball touches one), then 0.02 s. The page's ball isn't
+  reachable, so the lines follow the throw's parabola, true up to the
+  touch. *Found:* aimed 1.5 cans up (as v1), the ball was hidden at the
+  touch: the side view looks from the right, and the right-hand column
+  of cans is between the camera and the ball (v1, 0.1 s later, showed it
+  bounced clear). Aimed at the top can (2.5 cans up) it shows, the lines
+  behind it.
+- **Topple!:** the 5th scene's two-storey tower (game seed 7: its 5th
+  scene is the tower; checked as it's made; every tower scene in level 1
+  has the bush in front, so the cut frames the upper storey and the plank
+  under it, the bush at the foot). *Found:* the ball that starts the fall
+  bounces back off the tower and drops, so 0.25-0.8 s later its lines
+  pointed down and back toward the slingshot (tries `s7-*`). Now a
+  second ball, thrown in the physics (`world.throwBall`; the game itself
+  waits 0.9 s between throws) so that 0.45 s after the first touch it is
+  0.1 s short of the tower, its lines behind it; the first ball is taken
+  away 0.1 s after its hit. The pad's show runs first (its dots were in
+  try a). Tries take about 2 min each (the throw search traces ~5,000
+  paths twice); not a problem for a tool run once per look change.
+- **Five Dice 3D:** the roll lifts the cup off the felt (to y 1.95 from
+  0.8) and shakes it; from the game's steep camera that didn't show
+  (v1). The tool now finds the game's three.js camera and scene: a module
+  script added to the game's frame imports the same
+  `src/vendor/three/three.module.min.js`, which is the same module
+  instance as the game's, and wraps `Object3D.prototype.updateMatrixWorld`
+  to catch the camera and scene as they're drawn; the cup is the group
+  holding the lathe-turned body. The camera then sits 1.5 right, 2.2 up
+  and 6.5 in front of the cup, 0.9 s after Roll: the cup in the air with
+  the dice in it, its shadow on the felt, the tray's corner. **The game
+  is unchanged** (no hook added to `window.dice3d`, which the plan had
+  said would need asking).
+
+**Home page:** the three tiles are `<img>` of `icons/home/<game>.webp`
+(class `pic shot`); the drawn tiles (`stallMini`, `toppleMini`, the dice
+cubes) gone from the home page, kept as the games' rules pictures. A
+still that fails to load is logged (`home` / `picture missing`).
+Sizes: Topple! 12.5 KB, Tin Can Alley 7.8 KB, Five Dice 3D 6.3 KB.
+- **Test** (`tests/home-pics.test.js`): each 3D tile is the `<img>` of
+  its still; the file there, 300 x 300, at most 40 KB, in `sw.js`'s
+  files; the missing-still log; no tile drawn the old way. Seen failing
+  before `node tools/offline.js` ("topple: not in sw.js's files"), as the
+  offline test did. The Tin Can Alley and Topple! page tests now expect
+  the `<img>` tiles.
+- **Checked** in the browser pane (the local server, service worker and
+  caches cleared): all three load at 300 px natural, shown at 150; no
+  `picture missing` in the log.
+
+**Release 9.3** (Topple!'s changes since 9.2 and these pictures):
+`src/core/release.js` 9.3, `node tools/offline.js` (version
+322553b0413e, 139 files), notes in RELEASES.md, `npm test` 556 of 556,
+`node tools/release.js`: ready.
+
+## 2026-11-11: Status (start here next session)
+
+- **9.3** built on `block-game`: Topple!'s changes since 9.2 (the pad,
+  one view, the dots, structures that fall in parts, Next ▸) and the 3D
+  games' new home pictures. Published if the developer's "publish" this
+  session went through (see the entry after this one, if any).
+- **Waiting for the developer:** 9.3 on the phone: the home pictures
+  (Q66) and Topple!.
+- **Test folders:** `Web-Games-testing\2026-11-10_home-pics\` and
+  `\2026-11-11_home-pics-v2\` (the tries): keep until the pictures are
+  agreed on the phone, then ask to purge.
+- **Open questions:** Q64 (how hard for a child's aim), Q66 (home
+  pictures: built in 9.3, to judge on the phone).
 - **Skill:** one proposed ("Wait for a page's code, not its HTML"), to
   review with the developer.

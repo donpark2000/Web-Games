@@ -41,7 +41,7 @@
         Snakes and Ladders
       </a>
       <a class="game" id="dice3dLink" href="five-dice-3d.html">
-        <span class="pic" id="dice3dPic" aria-hidden="true"></span>
+        <span class="pic shot" id="dice3dPic" aria-hidden="true"><img src="icons/home/five-dice-3d.webp" alt="" width="150" height="150"></span>
         Five Dice 3D
       </a>
       <a class="game" id="nimLink" href="nim.html">
@@ -74,12 +74,12 @@
            the kids', is preselected. -->
       <!-- Tin Can Alley (2026-11-09): with the other one-player games. -->
       <a class="game" id="tcaLink" href="tin-can-alley.html">
-        <span class="pic tca" id="tcaPic" aria-hidden="true"></span>
+        <span class="pic shot" id="tcaPic" aria-hidden="true"><img src="icons/home/tin-can-alley.webp" alt="" width="150" height="150"></span>
         Tin Can Alley
       </a>
       <!-- Topple! (2026-11-10): after Tin Can Alley. -->
       <a class="game" id="tpLink" href="topple.html">
-        <span class="pic tp" id="tpPic" aria-hidden="true"></span>
+        <span class="pic shot" id="tpPic" aria-hidden="true"><img src="icons/home/topple.webp" alt="" width="150" height="150"></span>
         Topple!
       </a>
       <a class="game" id="brLink" href="bridges.html">
@@ -113,7 +113,7 @@
   import { CARD_BACK } from './src/ui/cardback.js';
   import { numberSvg } from './src/ui/numbercard.js';
   import { PICTURES } from './src/ui/rpspics.js';
-  import { ladderSvg, snakeSvg, cubeSvg } from './src/ui/snlart.js';
+  import { ladderSvg, snakeSvg } from './src/ui/snlart.js';
   import { MATCH_SVG } from './src/ui/matchstick.js';
   import { padsFor } from './src/core/follow-me.js';
   import { padStyle } from './src/ui/fmpads.js';
@@ -126,8 +126,6 @@
   import { miniSvg as dbMini } from './src/ui/dbboard.js';
   import { miniSvg as brMini } from './src/ui/brboard.js';
   import { miniSvg as rvMini } from './src/ui/rvboard.js';
-  import { stallMini } from './src/ui/tcapics.js';
-  import { toppleMini } from './src/ui/topplepics.js';
   import { log, startLog } from './src/ui/debuglog.js';
   import { homePage } from './src/ui/resume.js';
   import { logScrollRoom } from './src/ui/scrolllog.js';
@@ -166,9 +164,6 @@
   document.getElementById('snlPic').innerHTML = `<svg class="snlmini" viewBox="0 200 400 400">${sq}${snakeSvg(15, 4)}${ladderSvg(2, 14)}</svg>`
     + `<span class="tok o1" style="left: 37.5%; top: 37.5%">${svg('bear', 'winner')}</span>`
     + `<span class="tok o2" style="left: 37.5%; top: 86%">${svg('robot')}</span>`;
-  // Five Dice 3D: five dice seen at an angle on the tray's green felt, and the bear.
-  document.getElementById('dice3dPic').innerHTML = Array.from({ length: 5 }, () => `<span class="die3d">${cubeSvg('#A9703F')}</span>`).join('')
-    + `<span class="o1">${svg('bear', 'winner')}</span>`;
   // Nim: the three rows on the wooden tray, two matches picked up (in the
   // bear's colour) from the last row.
   document.getElementById('nimPic').innerHTML = [3, 5, 7].map((n, r) => '<span class="nrow">'
@@ -181,10 +176,8 @@
   // Follow Me: the four pads, the frog lit up.
   document.getElementById('fmPic').innerHTML = padsFor(4, 'bear').map((p, i) =>
     `<span class="${i === 0 ? 'lit' : ''}" style="${padStyle(p.color)}">${svg(p.face, i === 0 ? 'winner' : 'normal')}</span>`).join('');
-  // Tin Can Alley: the stall in small, the top can knocked off.
-  document.getElementById('tcaPic').innerHTML = stallMini('tcamini');
-  // Topple!: an arch of blocks in a park, its top cube knocked off.
-  document.getElementById('tpPic').innerHTML = toppleMini('tpmini');
+  // The 3D games (Five Dice 3D, Tin Can Alley, Topple!): a still from each
+  // game in the HTML, made by tools/home-pics.js (journal, Q66).
   // Bridges: the setup screen's picture, a Small puzzle solved.
   document.getElementById('brPic').innerHTML = brMini('brmini');
   // Find the Stars: a 5 x 5 under way, two stars found and the ✕s around
@@ -202,6 +195,11 @@
   logScrollRoom('home');
   for (const g of document.querySelectorAll('.group')) {
     log.add('home', 'group', { group: g.id, games: [...g.querySelectorAll('.game')].map(a => a.getAttribute('href').replace(/[?#].*$/, '')) });
+  }
+  // A 3D game's still that didn't load (the tile still shows the game's name).
+  for (const img of document.querySelectorAll('.pic.shot img')) {
+    const missing = () => log.add('home', 'picture missing', { src: img.getAttribute('src') });
+    if (img.complete && !img.naturalWidth) missing(); else img.addEventListener('error', missing);
   }
 </script>
 <script type="module" src="src/ui/stats.js"></script>

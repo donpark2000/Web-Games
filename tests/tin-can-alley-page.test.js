@@ -28,8 +28,7 @@ test('tin can alley page: its name, the home tile with the one-player games, kep
   assert.match(playHtml, /<div class="gname">Tin Can Alley<\/div>/);
   const home = await read('index.html');
   const one = home.match(/<section class="group" id="oneGroup"[\s\S]*?<\/section>/)?.[0] ?? '';
-  assert.match(one, /<a class="game" id="tcaLink" href="tin-can-alley.html">\s*<span class="pic tca" id="tcaPic"[^>]*><\/span>\s*Tin Can Alley\s*<\/a>/);
-  assert.match(home, /getElementById\('tcaPic'\)\.innerHTML = stallMini\(/, 'the tile has no picture');
+  assert.match(one, /<a class="game" id="tcaLink" href="tin-can-alley.html">\s*<span class="pic shot" id="tcaPic"[^>]*><img src="icons\/home\/tin-can-alley\.webp"[^>]*><\/span>\s*Tin Can Alley\s*<\/a>/);
   assert.ok(GAME_PAGES.includes('tin-can-alley.html'), 'not one of the games kept one at a time');
   assert.match(js, /resumable\('tin-can-alley', 1,/);
 });
@@ -45,7 +44,7 @@ test('tin can alley page: the setup screen: your face and the four lots of cans,
     const cans = (canStackSvg(l).match(/<g>/g) || []).length;
     assert.equal(cans, { 6: 6, 10: 10, 15: 15, wall: 9 }[l], `${l}: ${cans} cans drawn`);
   }
-  assert.equal((stallMini().match(/<g/g) || []).length, 6, 'the tile\'s cans');
+  assert.equal((stallMini().match(/<g/g) || []).length, 6, 'the rules picture\'s cans');
   assert.doesNotMatch(page + js, /Balls a round|Cans weigh|Knocked over|mockup/i, 'a mockup choice left');
 });
 

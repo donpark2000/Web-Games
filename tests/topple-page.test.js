@@ -27,9 +27,8 @@ test('topple page: its name, the home tile after Tin Can Alley, kept one game at
   assert.match(playHtml, /<div class="gname">Topple!<\/div>/);
   const home = await read('index.html');
   const one = home.match(/<section class="group" id="oneGroup"[\s\S]*?<\/section>/)?.[0] ?? '';
-  assert.match(one, /id="tcaLink"[\s\S]*<a class="game" id="tpLink" href="topple.html">\s*<span class="pic tp" id="tpPic"[^>]*><\/span>\s*Topple!\s*<\/a>/);
-  assert.match(home, /getElementById\('tpPic'\)\.innerHTML = toppleMini\(/, 'the tile has no picture');
-  assert.equal((toppleMini().match(/class="blk"/g) || []).length, 5, 'the tile\'s blocks');
+  assert.match(one, /id="tcaLink"[\s\S]*<a class="game" id="tpLink" href="topple.html">\s*<span class="pic shot" id="tpPic"[^>]*><img src="icons\/home\/topple\.webp"[^>]*><\/span>\s*Topple!\s*<\/a>/);
+  assert.equal((toppleMini().match(/class="blk"/g) || []).length, 5, 'the rules picture\'s blocks');
   assert.ok(GAME_PAGES.includes('topple.html'), 'not one of the games kept one at a time');
   assert.match(js, /resumable\('topple', 1,/);
 });
