@@ -17213,3 +17213,92 @@ jobs (a sand pile the ball drops into; a lamp post or a stack of pipes in
 the way of a straight throw). Asked: the building site or a city street;
 the map's flow and how a replayed level keeps its progress; mockup v1's
 scope (the targets in the setting, the Level 2 screen and the map).
+
+## 2026-11-11: Level 2 mockup v1: frames in a building site, the Level screen, the map (Q73)
+
+**Developer:** "1) Building site 2) OK 3) OK. I would not worry about
+making them playable until we agree on the cosmetic stuff." So: level 2
+is **"The building site"**; the map as proposed (Play! opens it; done
+levels ✔ and tappable, the current one lit, higher ones 🔒; a node opens
+that level's Level screen; each level keeps its own place, and replays
+use the same scenes); mockup v1 has the frames, the Level screen and the
+map.
+
+**Mockup v1** ([Topple! Level 2 Mockup](https://claude.ai/artifact/D5Z6BjfKGhRedxJXLVK1Hc),
+private, version 1). Built from the game's own sizes, camera fit
+(`behindView`), physics settings and down rule (three.js r160 and
+cannon-es 0.20.0 from jsDelivr, the mockup only), not the game's code.
+- **Frames tab:** 7 sample frames in the park's place (the front where a
+  level 1 structure's stands): one storey with depth (7 pieces), two
+  storeys (11), three (16, 3.0 m), four (21, 3.5 m), steps (a low frame
+  in front of a two-storey one, 16), a bridge (two towers and a plank,
+  12), a building frame (two 2-storey frames and a roof, 14). Posts are
+  0.2 m square (both ways, since frames have depth); storeys are 4 posts
+  and a slab. **Knock** throws where a good throw would (the lowest post
+  seen from the slingshot, nearest first); **tap a block** to throw there;
+  5 balls; "N of M down", posts leaning, and how many blocks are hidden
+  from the slingshot (shown as pink ghosts). Switches: blocks as building
+  site (orange steel posts and beams, concrete slabs, brick cubes) or toy
+  (level 1's colours); camera as level 1 or 0.7 m higher; play view or
+  look around (drag); sand and light in the way or nothing; upright or
+  sideways.
+- **The site:** a concrete pad in 1 m squares where you play (the lawn
+  stripes' job), packed earth round it, a blue-banded hoarding, buildings
+  far off in haze, two lattice tower cranes, a steel-frame building going
+  up behind the hoarding, cones, pipes, bricks and a site office. In the
+  way: a **sand pile** (the bush's job: a ball that lands in it keeps 0.1
+  of its speed) and a **site light** on a pole (the tree's: the pole in
+  the way, its lamps of a lob).
+- **Level screen tab:** the card for level 1 ("The park", the home
+  picture) or level 2 ("The building site", a picture the page draws of
+  the building frame as it opens); "Level 1 done!" whose **Level 2 ▸**
+  opens the Level 2 screen; "All levels done!". **Map tab:** three nodes
+  on a path of dots (orange as far as you've got), with "where you are"
+  switches (level 1 scene 3; level 1 done; level 2 scene 3; both done).
+
+**Checked in the built-in browser** (the scratch copy on port 8125, a
+temporary launch.json entry taken out again after): every frame drawn,
+both looks, look around, sideways, the Level screen's flow and the map's
+four states; no console errors. Fixed on the way: the sand pile stood
+right in the camera's line and hid the front posts (moved to the side,
+smaller); the site light stood in front of the frame (moved to the left,
+as the tree, just out of reach); red outlines didn't show on orange steel
+(pink see-through ghosts instead); the Level 2 picture had caught the
+ghosts and the sand (drawn without them); the map's "The building site"
+ran off a narrow phone (names wrap). The "N of M down" line didn't change
+with the frame (reset).
+
+**Knock, one run per frame** (Knock only, so one aim; not a measure of a
+child's play):
+| Frame | Hidden at start | Balls to clear | Notes |
+|---|---|---|---|
+| One storey | 0 | 1 | all 7 down to one ball |
+| Two storeys | 0 | 1 | all 11 |
+| Three storeys | 0 | 1 | all 16 |
+| Four storeys | 0 | 2 | ball 1: 0 down, 1 post leaning |
+| Steps | 0 | 5 | 0, 8, 14, 15 down after balls 1-4; 2 hidden after ball 1 |
+| Bridge | 0 | 2 | ball 1: 9 of 12 |
+| Building frame | 3 | 2 | ball 1: 13 of 14; the 3 hidden: the back right posts and beam |
+
+**Findings:**
+- **Frames that stand on posts fall whole**, as level 1's arch did (Q72):
+  three of seven fell to the first ball. More pieces don't make a scene
+  harder when the bottom posts carry them all. Frames that fall in parts
+  (the steps, the bridge) take more balls.
+- **The camera's place lines things up.** The play camera is 0.55 m right
+  of the slingshot, so posts at x = 0.6 hide the posts straight behind
+  them (the building frame's 3 hidden). The scene check would see this;
+  the frames' widths, or where they stand, can avoid it.
+- **Level 1's "out of reach" rule doesn't cover tall frames.** It keeps
+  things in the way the tallest block (+0.1 m) from the footprint; a 3 m
+  tower falling whole reaches much further, and could come to rest
+  against the light's pole (mockup v6's lesson). For frames the reach
+  should be the structure's height.
+- **The throw's speed:** level 1's rule (a 45° throw reaches 1.35 times
+  as far) gives 8.5 m/s, just under what the four-storey top needs
+  (8.9); the mockup uses the larger, +8% (as the backboard rule), so
+  9.6 m/s.
+
+**Asked of the developer:** the site's look, the frames (which ones,
+how tall), the blocks (building site or toy), the camera (as level 1 or
+higher), the Level screen and the map.
