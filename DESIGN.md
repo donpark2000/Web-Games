@@ -2148,7 +2148,10 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   bank shots). A layout that fails is thrown away and the next tried (25
   at most, else the best).
 - **Levels** (developer, 2026-11-10): a level is **5 scenes**, the 5th
-  harder. A scene cleared wins a **💎** and the next scene; one not
+  harder. **In every level the 5th is the challenge** (developer,
+  2026-11-11): the level's theme kept, a bigger challenge than scenes
+  1-4 before the next level, but always possible and playable (checked
+  as every scene is). Scenes 1-4 vary and get harder too. A scene cleared wins a **💎** and the next scene; one not
   cleared loses one of **3 ❤️** and is played again; the last heart lost
   goes back to scene 1, **the same scenes** ("to help kids proceed up
   levels"); 5 💎 finish the level. **Level 1 only** for now (developer:

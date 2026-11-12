@@ -27,7 +27,10 @@ time, each tried before publishing:
   100, 874 of 1,000 tries. Open now only as "too hard for a child's aim?".
 - **Q73. Topple! level 2, 3D frames: the targets, the hidden-blocks rule,
   the "Level N" screen** (2026-11-11; "Level 2 picked: 3D frames").
-  Claude's suggestions and questions put to the developer; waiting.
+  Agreed so far: the setting, blocks, camera, Level screen, map, things
+  in the way, the iron ball, sounds (mockups v1-v6). 2026-11-11: the
+  developer left the frames to Claude ("Q75 trial wanted; level 2's five
+  scenes picked"): picked, with pass criteria; to build and measure.
 - **Q74. Recorded sounds (CC0 files kept in the repo) for the building
   site, instead of sounds made in the page?** (2026-11-11; "Sounds
   picked; made in the page or recorded?"). DESIGN.md "Sound" says made in
@@ -17651,3 +17654,76 @@ Ring, concrete C Thunderous crash, the ball C Clonk and roll); DESIGN.md
 "Sound" (made in the page) is unchanged. Q74 stays open, parked, until
 the developer brings recordings; the sampler's plan in "Q74 to try"
 holds then. Q75 (photo-real looks, a side-by-side trial) still waiting.
+
+## 2026-11-11: Q75 trial wanted; level 2's five scenes picked; scene 5 the challenge (Q73)
+
+**Developer:** "Q75. I would like to see it. It does not have to be
+playable. I just want to confirm the visual. As far as picking which
+frames from 7 samples goes, I never saw that. I would like you to pick
+the 5 scenes based on the concepts of variety, and making sure that the
+level of difficulty changes - especially for the last level. It should
+be possible and playable, but it should present a bigger challenge.
+This is true for all levels - the 5th scene should preserve theme but
+always present a challenge before allowing to move to the next level."
+(The 7 samples were the Frames tab's ◀ ▶ in mockups v1-v5; the first,
+One storey, is what opens.) The rule for every level went into DESIGN.md
+"Topple!" Levels.
+
+**Level 2's scenes, Claude's picks** (from the 7 samples and the Knock
+runs: v1's table and v3's "New materials, iron ball" column). What makes
+a frame hard is not its piece count: frames standing on posts fall whole
+to one ball (Q72); frames in parts, and blocks hidden until the front
+falls, take more.
+1. **Two storeys** (11; 1 ball in the runs) with the wheelbarrow: the
+   level 1 lesson (hit a bottom post) on a taller frame, in the new
+   materials.
+2. **Three storeys** (16, 3 m; 1 ball): tall and thin; the light in the
+   way.
+3. **Bridge** (12; 2 balls): two towers and a wooden plank: two targets,
+   so the first scene that can't fall to one ball.
+4. **Steps** (16; 2 balls): a low wooden frame hides the steel frame's
+   lower posts behind it until it falls: the first hidden blocks.
+5. **The challenge: the four-storey tower behind a brick wall** (new): the
+   four-storey frame (21, 3.5 m; 2 balls alone, its first ball often
+   downing nothing) set back behind a low wall of upright bricks, which
+   fall in parts and hide the tower's lower posts; the wheelbarrow and the
+   light both in the way. Aim: a planned player needs 3-4 balls.
+   Dropped: One storey (level 1's arch with depth) and Building frame
+   (like Two storeys, 1 ball; its back posts lined up behind the front
+   ones).
+- **Order fixed, details from the seed:** level 2's scenes come in this
+  order every game; the seed moves the things in the way and varies small
+  sizes, so a new game isn't identical (level 1 deals its scenes 1-4 from
+  a pool; a fixed order makes the climb in difficulty sure).
+- **Pass criteria, to measure in the game's "can be won" test** (players
+  throwing anywhere that hits a standing block; "Release 9.1 published;
+  Q64": level 1, 874 of 1,000 tries won): scenes 1-4 won in at least 90%
+  of tries; scene 5 in 50-80%, a planned player clearing it in 3-4 balls,
+  and no seed that can't be won. Numbers to settle once measured.
+- **Level 1's scene 5** (`src/core/topple.js`: "two things, a bigger
+  structure"): not yet measured against scenes 1-4 by this rule. Asked
+  whether to measure it the same way and make it harder if it isn't.
+
+**Q75, the trial:** a page with one frame (Steps: wood, steel, concrete
+and a brick cube, with the wheelbarrow and the light), drawn both ways
+side by side (today's colours; photo textures with a photo sky), turn
+to look around, the download size and fps shown; not playable. Picked
+from Poly Haven (polyhaven.com, all CC0), 1K JPG colour, bump (normal)
+and roughness maps, by their thumbnails:
+
+| For | Poly Haven asset | Size |
+|---|---|---|
+| Steel posts and beams | rusty_metal_02 (orange paint, rust) | 1.1 MB |
+| Concrete slabs | concrete_floor_worn_001 | 0.4 MB |
+| Brick | brick_wall_001 | 1.0 MB |
+| Wood | brown_planks_09 | 1.9 MB |
+| The concrete pad | gravel_concrete | 2.7 MB |
+| The earth round it | dry_mud_field_001 | 1.1 MB |
+| Light and reflections | construction_yard HDRI, 1K | 1.6 MB |
+| The backdrop (seen) | construction_yard, its photo (JPG) | 5.0 MB |
+
+About 14.6 MB in all (the site is 5.7 MB): the trial is to judge the
+look; the game would use smaller copies (512 px, about a quarter). The
+construction_yard photo (a building site going up, blue sky) would
+replace the drawn buildings, cranes and hoarding. Asked for the OK to
+download.
