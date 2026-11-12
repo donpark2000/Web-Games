@@ -18,8 +18,9 @@
 // as far).
 
 import { FACE_NAMES, checkFaces as checkPicks } from './players.js';
+import { LEVELS, MAX_LEVEL, STRUCTURES, MATS, BALLS_BY, levelInfo } from './topple-levels.js';
 
-export { FACE_NAMES };
+export { FACE_NAMES, LEVELS, MAX_LEVEL, MATS, levelInfo };
 
 /* ---------- sizes, in metres ---------- */
 
@@ -246,14 +247,24 @@ const overlaps = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.z0 < b.z1 && b.z0 < a
 
 // The parts of a thing a falling block could lean on, as circles in plan view.
 export function lowParts(t, reachH) {
-  if (t.kind === 'bush') return t.balls.map(b => ({ x: b.x, z: b.z, r: b.r }));
-  if (t.kind === 'tree') return [{ x: t.x, z: t.z, r: t.r }];
+  if (t.kind === 'bush' || t.kind === 'scrub') return t.balls.map(b => ({ x: b.x, z: b.z, r: b.r }));
+  if (t.kind === 'tree' || t.kind === 'pine') return [{ x: t.x, z: t.z, r: t.r }];
+  if (t.kind === 'light') return [{ x: t.x, z: t.z, r: 0.18 }];
+  if (t.kind === 'cactus') return t.arms.map(a => ({ x: a.x, z: a.z, r: a.r })).concat([{ x: t.x, z: t.z, r: t.r }]);
+  if (t.kind === 'barrow' || t.kind === 'drift') return t.parts;
   const out = [{ x: t.pole.x, z: t.pole.z, r: 0.035 }];
   if (t.y - t.H / 2 < reachH) for (let i = -3; i <= 3; i++) out.push({ x: t.x + Math.sin(t.yaw) * t.W / 2 * i / 3, z: t.z + Math.cos(t.yaw) * t.W / 2 * i / 3, r: 0.02 });
   return out;
 }
 // How far the nearest of the parts is from a footprint (a rectangle).
 export const gapFrom = (rect, parts) => Math.min(...parts.map(p => Math.hypot(Math.max(rect.x0 - p.x, 0, p.x - rect.x1), Math.max(rect.z0 - p.z, 0, p.z - rect.z1)) - p.r));
+
+// A tall thing's x at depth z: `off` left of the line, or further left if
+// that's within reach of the structure (a part of radius r out from it).
+function besideX(table, z, room, r, off) {
+  const dz = Math.max(0, z - room.rect.z1, room.rect.z0 - z), need = Math.sqrt(Math.max(0, (room.reach + r) ** 2 - dz * dz));
+  return Math.min(lineX(table, z) - off, room.rect.x0 - need - 0.01);
+}
 
 const PLACE = {
   // Between the hand and the structure, off the line by up to 12 cm: rows of
@@ -339,6 +350,58 @@ const PLACE = {
     t.foot = { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) };
     return t;
   },
+
+  /* ---------- levels 2-4's things (Near metres; drawn by src/ui/topple-sets.js) ---------- */
+  // Soft (the bush's job: a ball that lands in it keeps 0.1 of its speed):
+  // between the hand and the structure, off the line, just out of reach.
+  // A wheelbarrow of gravel, side on (mockup v3: "I really like the wheel
+  // barrow"): 1 m long, its tray 0.38 m deep (world); wheel left or right.
+  barrow(R, table, rng, stackTop, camN, room) {
+    const z = room.rect.z1 + room.reach + 0.2 + R(0, 0.12), x = lineX(table, z) + R(-0.12, 0.12);
+    const yaw = R(-0.45, 0.45) + (rng() < 0.5 ? 0 : Math.PI), c = Math.cos(yaw), s = Math.sin(yaw);
+    const parts = [-1, -0.5, 0, 0.5, 1].map(k => ({ x: x + c * 0.25 * k, z: z - s * 0.25 * k, r: 0.18 }));
+    return { kind: 'barrow', job: 'soft', x, z, yaw, H: 0.33, parts, foot: { x0: x - 0.55, x1: x + 0.55, z0: z - 0.35, z1: z + 0.35 } };
+  },
+  // A heap of snow, low and lopsided (as the mockup's gravel heap): 1.56 x
+  // 1.1 m, 0.42 m tall (world).
+  drift(R, table, rng, stackTop, camN, room) {
+    const z = room.rect.z1 + room.reach + 0.28 + R(0, 0.12), x = lineX(table, z) + R(-0.12, 0.12);
+    const rx = R(0.36, 0.42), rz = R(0.25, 0.3), H = R(0.19, 0.23), yaw = R(-0.5, 0.5), seed = 1 + Math.floor(rng() * 1e6);
+    const parts = [-1, 0, 1].map(k => ({ x: x + Math.cos(yaw) * rx * 0.6 * k, z: z - Math.sin(yaw) * rx * 0.6 * k, r: rz }));
+    return { kind: 'drift', job: 'soft', x, z, rx, rz, H, yaw, seed, parts, foot: { x0: x - rx - 0.05, x1: x + rx + 0.05, z0: z - rx, z1: z + rx } };
+  },
+  // Desert scrub: level 1's bush, lower and greyer (sagebrush).
+  scrub(R, table, rng, stackTop, camN, room, placed) {
+    return { ...PLACE.bush(R, table, rng, stackTop, camN, room, placed), kind: 'scrub', job: 'soft' };
+  },
+  // Tall (the tree's job): to the left of the line, its stem in the way of a
+  // straight throw, its top of a lob; no nearer the slingshot than 1.5 m.
+  // A building site's light on a pole (mockup v1): 3.4 m (world), a
+  // concrete foot, two lamps on a bar at the top.
+  light(R, table, rng, stackTop, camN, room) {
+    rng();
+    const z = Math.min(-1.7, table.z + R(0.55, 1.4)), x = besideX(table, z, room, 0.18, R(0.06, 0.3));
+    return { kind: 'light', job: 'tall', x, z, poleH: 1.7, foot: { x0: x - 0.3, x1: x + 0.3, z0: z - 0.2, z1: z + 0.2 } };
+  },
+  // A snowy pine: a trunk 3.9 m (world) and four tiers of branches, the
+  // lowest 1.15 m up (a flat throw passes under it).
+  pine(R, table, rng, stackTop, camN, room) {
+    rng();
+    const z = Math.min(-1.7, table.z + R(0.55, 1.5)), x = besideX(table, z, room, 0.05, R(0.25, 0.45)), k = R(0.9, 1.08);
+    const tiers = [[0.95, 0.39], [1.3, 0.31], [1.6, 0.23], [1.85, 0.15]].map(([y, r]) => ({ y: y * k, r: r * k }));
+    return { kind: 'pine', job: 'tall', x, z, r: 0.05, trunkH: 1.95 * k, tiers, foot: { x0: x - 0.4, x1: x + 0.4, z0: z - 0.4, z1: z + 0.4 } };
+  },
+  // A saguaro cactus: a ribbed trunk 2.8 m (world) and two arms that bend up.
+  cactus(R, table, rng, stackTop, camN, room) {
+    rng();
+    const z = Math.min(-1.7, table.z + R(0.55, 1.4)), x = besideX(table, z, room, 0.3, R(0.12, 0.35)), h = R(1.3, 1.5);
+    const a0 = R(0, Math.PI);
+    const arms = [[-1, R(0.6, 0.7), R(1.0, 1.1)], [1, R(0.8, 0.9), R(1.15, 1.25)]].map(([side, y0, y1]) => {
+      const out = R(0.2, 0.24), a = a0 + (side < 0 ? Math.PI : 0);
+      return { x: x + Math.cos(a) * out, z: z + Math.sin(a) * out * 0.6, y0, y1, r: 0.065, out, a };
+    });
+    return { kind: 'cactus', job: 'tall', x, z, r: 0.085, h, arms, foot: { x0: x - 0.35, x1: x + 0.35, z0: z - 0.3, z1: z + 0.3 } };
+  },
 };
 
 // The camera in Near metres (sizes scale from the hand), for placing the bush.
@@ -401,6 +464,61 @@ export function makeLayout(seed, opts = sceneOpts(1), pool = KINDS) {
   return { seed, n: opts.n, stack, table, blocks, things, power: +power.toFixed(3), reach: +room.reach.toFixed(2), unplaced: [...new Set(unplaced)], tooNear };
 }
 
+// Levels 2 on: scene i is the level's i-th structure (a fixed order, so
+// the climb in difficulty is sure: journal, "Level 2's scenes"), its small
+// sizes and where it and the things stand from the seed. Scenes 1 and 3
+// have the level's soft thing, 2 and 4 its tall one, the 5th both. The
+// things stand out of reach of the whole structure falling, not only its
+// tallest block (journal, mockup v1: "for frames the reach should be the
+// structure's height"; FRAME_REACH of it, as a frame falls as it tips).
+// The throw is fast enough to reach the top (mockup v1: level 1's rule
+// gives too little for four storeys; +8%).
+export const FRAME_REACH = 0.6;
+export function frameLayout(seed, level, i) {
+  const info = levelInfo(level);
+  if (!info?.scenes) throw new Error(`frameLayout: no level ${level}`);
+  const name = info.scenes[i - 1];
+  const random = rng(seed), R = (a, b) => a + (b - a) * random();
+  const ks = {}, k = key => (ks[key] ??= R(0.95, 1.05));
+  const rel = STRUCTURES[name](k).map(b => ({ ...b, w: b.w / SCALE, h: b.h / SCALE, d: b.d / SCALE, x: b.x / SCALE, y: b.y / SCALE, z: b.z / SCALE, ...(b.r ? { r: b.r / SCALE } : {}) }));
+  const half = Math.max(...rel.map(b => Math.abs(b.x) + b.w / 2));
+  const deep = 2 * Math.max(...rel.map(b => Math.abs(b.z) + b.d / 2)) + TABLE.side * 2;
+  const back = Math.max(0, Math.max(...rel.map(b => b.z + b.d / 2)) - 0.07 * SIZE);
+  const table = { w: 2 * half + TABLE.side * 2, d: Math.max(TABLE.d * SIZE, deep), top: 0, x: R(-0.25, 0.25), z: R(-3.0, -2.6) - back };
+  const blocks = rel.map(b => ({ ...b, x: table.x + b.x, y: b.y, z: table.z + b.z }));
+  const kinds = i === SCENES ? [info.soft, info.tall] : [i % 2 ? info.soft : info.tall];
+  const stackTop = Math.max(...blocks.map(b => b.y + b.h / 2)), tallest = Math.max(...blocks.map(b => b.h));
+  const reach = Math.max(tallest + REACH_SPARE, FRAME_REACH * stackTop);
+  const room = {
+    rect: { x0: Math.min(...blocks.map(b => b.x - b.w / 2)), x1: Math.max(...blocks.map(b => b.x + b.w / 2)), z0: Math.min(...blocks.map(b => b.z - b.d / 2)), z1: Math.max(...blocks.map(b => b.z + b.d / 2)) },
+    reach, reachH: reach, push: 0,
+  };
+  const tableFoot = { x0: room.rect.x0 - 0.05, x1: room.rect.x1 + 0.05, z0: room.rect.z0 - 0.05, z1: room.rect.z1 + 0.05 };
+  const things = [];
+  let tooNear = 0;
+  for (const kd of kinds) {
+    for (let tries = 0; tries < 20; tries++) {
+      room.push = tries * 0.08;
+      const c = PLACE[kd](R, table, random, stackTop, CAM_N, room, things);
+      if (c.job === 'tall') { c.x -= room.push; for (const key of ['x0', 'x1']) c.foot[key] -= room.push; for (const a of c.arms ?? []) a.x -= room.push; }
+      if (things.some(o => overlaps(o.foot, c.foot)) || overlaps(c.foot, tableFoot)) continue;
+      c.gap = gapFrom(room.rect, lowParts(c, room.reachH));
+      if (c.gap < room.reach - 1e-9) { tooNear++; continue; }
+      things.push(c); break;
+    }
+  }
+  const dist = Math.hypot(table.x - HAND.x, table.z - HAND.z), dy = stackTop - HAND.y / SCALE;
+  const v = Math.max(Math.sqrt(GRAVITY * REACH * dist), 1.08 * Math.sqrt(GRAVITY * (dy + Math.hypot(dist, dy))));
+  const power = clamp((v - V_MIN) / (V_MAX - V_MIN), 0.3, 0.8);
+  const unplaced = kinds.filter(kd => !things.some(t => t.kind === kd));
+  return { seed, level, n: kinds.length, stack: name, table, blocks, things, power: +power.toFixed(3), reach: +reach.toFixed(2), unplaced, tooNear, ball: info.ball };
+}
+// Scene i of a game's level, try tryN: level 1's dealt structures, or the level's own.
+export function layoutFor(gameSeed, level, i, tryN = 0) {
+  const seed = sceneSeed(gameSeed, level, i, tryN);
+  return level === 1 ? makeLayout(seed, sceneChoice(gameSeed, level, i)) : frameLayout(seed, level, i);
+}
+
 // A layout in the world's metres, for the physics and the drawing alike:
 // { blocks: [{ w, h, d, x, y, z, c }], bodies: the fixed things' physics
 // ({ kind, shapes: [{ type: 'box', half, at, yaw } | { type: 'sphere',
@@ -411,12 +529,46 @@ export function sceneParts(L) {
   const s = SCALE, bodies = [], props = [], boxes = [], extra = [];
   const fitBox = (cx, cy, cz, hx, hy, hz) => boxes.push([cx - hx, cy - hy, cz - hz, cx + hx, cy + hy, cz + hz]);
   for (const t of L.things) {
-    if (t.kind === 'bush') {
+    if (t.kind === 'bush' || t.kind === 'scrub') {
       const shapes = t.balls.map(b => ({ type: 'sphere', r: X(b.r), at: [X(b.x), Y(b.y), Z(b.z)] }));
-      bodies.push({ kind: 'bush', shapes });
+      bodies.push({ kind: 'bush', thing: t.kind, shapes });
       // drawn as one leafy bush over all its balls
-      props.push({ part: 'bush', balls: shapes.map(sh => ({ r: sh.r, at: sh.at })) });
+      props.push({ part: t.kind, balls: shapes.map(sh => ({ r: sh.r, at: sh.at })) });
       shapes.forEach(sh => fitBox(...sh.at, sh.r, sh.r, sh.r));
+    } else if (t.kind === 'barrow') {
+      // the tray of gravel, as the mockup's (a box 0.88 x 0.38 x 0.64 m, turned as the barrow)
+      const x = X(t.x), z = Z(t.z);
+      bodies.push({ kind: 'soft', thing: 'barrow', shapes: [{ type: 'box', half: [0.44, 0.19, 0.32], at: [x, 0.5, z], yaw: t.yaw }] });
+      props.push({ part: 'barrow', at: [x, 0, z], yaw: t.yaw });
+      extra.push([x - 0.8, 0.7, z], [x + 0.8, 0.7, z], [x, 0.05, z + 0.5]);
+    } else if (t.kind === 'drift') {
+      // the heap as the cap of a big sphere under the ground (the mockup's gravel heap)
+      const x = X(t.x), z = Z(t.z), rx = X(t.rx), rz = X(t.rz), H = Y(t.H), a = (rx + rz) / 2, Rs = (a * a + H * H) / (2 * H);
+      bodies.push({ kind: 'soft', thing: 'drift', shapes: [{ type: 'sphere', r: Rs, at: [x, H - Rs, z] }] });
+      props.push({ part: 'drift', at: [x, 0, z], rx, rz, H, yaw: t.yaw, seed: t.seed });
+      extra.push([x - rx, H, z], [x + rx, H, z], [x, 0.05, z + rz]);
+    } else if (t.kind === 'light') {
+      // the pole (in the way of a straight throw), its concrete foot, the lamps' bar at the top
+      const x = X(t.x), z = Z(t.z), h = Y(t.poleH);
+      bodies.push({ kind: 'stand', thing: 'light', shapes: [{ type: 'cyl', r: 0.07, hh: h / 2, at: [x, h / 2, z] }, { type: 'box', half: [0.25, 0.14, 0.25], at: [x, 0.14, z] }, { type: 'box', half: [0.5, 0.22, 0.1], at: [x, h + 0.15, z] }] });
+      props.push({ part: 'light', at: [x, 0, z], h });
+      extra.push([x, 0.05, z], [x, Y(L.table.top + 0.6), z]);
+    } else if (t.kind === 'pine') {
+      // the trunk and four tiers of branches (spheres to the physics)
+      const x = X(t.x), z = Z(t.z), h = Y(t.trunkH), r = X(t.r);
+      const tiers = t.tiers.map(q => ({ type: 'sphere', r: X(q.r), at: [x, Y(q.y), z] }));
+      bodies.push({ kind: 'tree', thing: 'pine', shapes: [{ type: 'cyl', r, hh: h / 2, at: [x, h / 2, z] }, ...tiers] });
+      props.push({ part: 'pine', r, h, at: [x, 0, z], tiers: tiers.map(q => ({ r: q.r, at: q.at })) });
+      extra.push([x, 0.05, z], [x, Y(L.table.top + 0.6), z]);
+    } else if (t.kind === 'cactus') {
+      // the trunk, and each arm: its elbow (a sphere) and the part that goes up
+      const x = X(t.x), z = Z(t.z), h = Y(t.h), r = X(t.r);
+      const shapes = [{ type: 'cyl', r, hh: h / 2, at: [x, h / 2, z] }];
+      const arms = t.arms.map(a => ({ x: X(a.x), z: Z(a.z), y0: Y(a.y0), y1: Y(a.y1), r: X(a.r), a: a.a, out: X(a.out) }));
+      for (const a of arms) shapes.push({ type: 'sphere', r: a.r * 1.15, at: [a.x, a.y0, a.z] }, { type: 'cyl', r: a.r, hh: (a.y1 - a.y0) / 2, at: [a.x, (a.y0 + a.y1) / 2, a.z] });
+      bodies.push({ kind: 'tree', thing: 'cactus', shapes });
+      props.push({ part: 'cactus', r, h, at: [x, 0, z], arms });
+      extra.push([x, 0.05, z], [x, Y(L.table.top + 0.6), z]);
     } else if (t.kind === 'tree') {
       const r = X(t.r), h = Y(t.trunkH), x = X(t.x), z = Z(t.z);
       const leaves = t.leaves.map(l => ({ type: 'sphere', r: X(l.r), at: [X(l.x), Y(l.y), Z(l.z)] }));
@@ -452,13 +604,13 @@ export function sceneParts(L) {
       }
     }
   }
-  const blocks = L.blocks.map(b => ({ w: X(b.w), h: Y(b.h), d: X(b.d), x: X(b.x), y: Y(b.y), z: Z(b.z), c: b.c }));
+  const blocks = L.blocks.map(b => ({ w: X(b.w), h: Y(b.h), d: X(b.d), x: X(b.x), y: Y(b.y), z: Z(b.z), c: b.c, mat: b.mat ?? 'toy', shape: b.shape ?? 'box', ...(b.r ? { r: X(b.r) } : {}) }));
   for (const b of blocks) fitBox(b.x, b.y, b.z, b.w / 2, b.h / 2, b.d / 2);
   const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
   for (const bx of boxes) for (let i = 0; i < 3; i++) { min[i] = Math.min(min[i], bx[i]); max[i] = Math.max(max[i], bx[i + 3]); }
   for (const p of extra) for (let i = 0; i < 3; i++) { min[i] = Math.min(min[i], p[i]); max[i] = Math.max(max[i], p[i]); }
   const st = L.table;
-  return { blocks, bodies, props, stand: { w: X(st.w), d: X(st.d), top: 0, x: X(st.x), z: Z(st.z) }, bounds: { min, max } };
+  return { blocks, bodies, props, stand: { w: X(st.w), d: X(st.d), top: 0, x: X(st.x), z: Z(st.z) }, bounds: { min, max }, level: L.level ?? 1, ball: BALLS_BY[L.ball ?? 'toy'] };
 }
 
 /* ---------- the camera ---------- */
@@ -608,33 +760,69 @@ export function isDown(q, y, startY, minDim, tall = false, wasDown = false) {
 
 export const checkSetup = ({ p1 }) => checkPicks({ onePlayer: true, p1 });
 
-// A new game: level 1, scene 1, 3 hearts, no jewels; its own scenes (seed).
-export function createGame(seed) {
+// A new game: level 1, scene 1, 3 hearts, no jewels; its own scenes
+// (seed). Levels (developer, 2026-11-11, the map: "jump to any level
+// completed or the one you're on, not higher"): `reached` the highest open,
+// `done` the levels finished; each level keeps its own place (`places`:
+// the levels not being played; the one being played is scene, hearts and
+// jewels), and a level played again has the same scenes. `keep`: a game
+// whose levels reached and done carry on (new scenes, the same progress).
+export function createGame(seed, keep = null) {
   if (!Number.isInteger(seed) || seed <= 0) throw new Error(`createGame: bad seed: ${seed}`);
-  return { seed, level: 1, scene: 1, hearts: HEARTS, jewels: 0 };
+  return { seed, level: 1, scene: 1, hearts: HEARTS, jewels: 0, reached: keep?.reached ?? 1, done: keep?.done ? [...keep.done] : [], places: {} };
 }
-// A game as kept on the device, if it makes sense; else null.
+const freshPlace = () => ({ scene: 1, hearts: HEARTS, jewels: 0 });
+const okPlace = p => !!p && Number.isInteger(p.scene) && p.scene >= 1 && p.scene <= SCENES
+  && Number.isInteger(p.hearts) && p.hearts >= 1 && p.hearts <= HEARTS && Number.isInteger(p.jewels) && p.jewels >= 0 && p.jewels < SCENES;
+const okLevel = n => Number.isInteger(n) && n >= 1 && n <= MAX_LEVEL;
+// A game as kept on the device, if it makes sense; else null. One kept
+// before levels (9.4: level 1 only) carries on at level 1.
 export function readGame(g) {
   if (!g || typeof g !== 'object') return null;
-  const ok = Number.isInteger(g.seed) && g.seed > 0 && g.level === 1 && Number.isInteger(g.scene) && g.scene >= 1 && g.scene <= SCENES
-    && Number.isInteger(g.hearts) && g.hearts >= 1 && g.hearts <= HEARTS && Number.isInteger(g.jewels) && g.jewels >= 0 && g.jewels < SCENES;
-  return ok ? { seed: g.seed, level: g.level, scene: g.scene, hearts: g.hearts, jewels: g.jewels } : null;
+  if (!(Number.isInteger(g.seed) && g.seed > 0 && okLevel(g.level) && okPlace(g))) return null;
+  const reached = okLevel(g.reached) && g.reached >= g.level ? g.reached : g.level;
+  const done = Array.isArray(g.done) ? [...new Set(g.done.filter(n => okLevel(n) && n <= reached))].sort() : [];
+  const places = {};
+  for (const [k, p] of Object.entries(g.places && typeof g.places === 'object' ? g.places : {})) {
+    const n = Number(k);
+    if (okLevel(n) && n !== g.level && n <= reached && okPlace(p)) places[n] = { scene: p.scene, hearts: p.hearts, jewels: p.jewels };
+  }
+  return { seed: g.seed, level: g.level, scene: g.scene, hearts: g.hearts, jewels: g.jewels, reached, done, places };
+}
+// Level n's place: { scene, hearts, jewels }.
+export const placeOf = (g, n) => (n === g.level ? { scene: g.scene, hearts: g.hearts, jewels: g.jewels } : { ...(g.places[n] ?? freshPlace()) });
+export const isOpen = (g, n) => okLevel(n) && n <= g.reached;
+// Play level n (the map): the level being played keeps its place, n's is
+// picked up. False (nothing changed) for a level not open yet.
+export function switchLevel(g, n) {
+  if (!isOpen(g, n)) return false;
+  if (n === g.level) return true;
+  g.places[g.level] = placeOf(g, g.level);
+  Object.assign(g, placeOf(g, n));
+  delete g.places[n];
+  g.level = n;
+  return true;
 }
 
-// A scene over: won, a jewel and the next scene ('won'), or the level done
-// ('level': the caller starts a new game; level 2 isn't made yet); lost, a
-// heart and the same scene again ('lost'), or the last heart gone: back to
-// scene 1 with 3 hearts and no jewels, the same scenes ('out').
+// A scene over: won, a jewel and the next scene ('won'); the level's last
+// scene won: the level done, its place back to scene 1, and on to the next
+// level ('level'), or every level done ('all'); lost, a heart and the same
+// scene again ('lost'), or the last heart gone: back to scene 1 with 3
+// hearts and no jewels, the same scenes ('out').
 export function sceneOver(g, won) {
   if (won) {
     g.jewels++;
-    if (g.scene >= SCENES) return 'level';
-    g.scene++;
-    return 'won';
+    if (g.scene < SCENES) { g.scene++; return 'won'; }
+    if (!g.done.includes(g.level)) g.done = [...g.done, g.level].sort();
+    Object.assign(g, freshPlace());
+    if (g.level >= MAX_LEVEL) return 'all';
+    g.reached = Math.max(g.reached, g.level + 1);
+    switchLevel(g, g.level + 1);
+    return 'level';
   }
   g.hearts--;
   if (g.hearts > 0) return 'lost';
-  g.scene = 1; g.hearts = HEARTS; g.jewels = 0;
+  Object.assign(g, freshPlace());
   return 'out';
 }
 
@@ -692,7 +880,9 @@ export function endWords(outcome, g, name) {
     // purpose is to load the next scene"; "the jewels make it clear where
     // you are, so maybe the popup could just say 'next'")
     case 'won': return { title: `${name} cleared it! 💎`, next: 'Next ▸' };
-    case 'level': return { title: `Level ${g.level} done! ${'💎'.repeat(SCENES)}`, sub: 'New scenes next time', next: 'Play again' };
+    // `g` the game before the scene ended (the level just done)
+    case 'level': return { title: `Level ${g.level} done! ${'💎'.repeat(SCENES)}`, sub: `On to ${levelInfo(g.level + 1).name}`, next: `Level ${g.level + 1} ▸` };
+    case 'all': return { title: `All levels done! 💎`, sub: 'More levels coming', next: 'Play again' };
     case 'lost': return { title: `Out of balls 💔`, sub: `${g.hearts} ${g.hearts === 1 ? 'heart' : 'hearts'} left`, next: 'Try again' };
     case 'out': return { title: 'No hearts left', sub: 'Back to scene 1', next: 'Start again' };
     default: throw new Error(`endWords: unknown outcome: ${outcome}`);

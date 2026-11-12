@@ -117,7 +117,58 @@ export const RECIPES = {
   rustle: (k, t) => k.rattle(t, 10, 0.25, 2500, 6000, 0.12),
   // The ball off the glass backboard (Topple!): a note that springs up and settles.
   boing: (k, t) => k.tone(t, 220, { to: 620, dur: 0.35, peak: 0.25, attack: 0.01, vib: 40, vibRate: 9 }),
+
+  // Topple!'s levels 2-4: each material its own sound, `level` 0-1 for how
+  // hard, each through its own gain (SITE_GAIN) so they're about as loud as
+  // each other (level 2 mockup v5: some picks were up to 26 times quieter
+  // than others, measured). The building site's are the developer's picks
+  // from mockup v4-v6 (2026-11-11): wood C, brick B, steel C, concrete C,
+  // the iron ball C.
+  // A wooden beam on the tiles, C "Hollow plank".
+  plank: (k, t, l = 1) => site(k, 'plank', g => { g.noise(t, { dur: 0.28, peak: 0.12 + 0.35 * l, f: 340, q: 9 }); g.noise(t, { dur: 0.18, peak: 0.08 + 0.2 * l, f: 690, q: 9 }); g.noise(t, { dur: 0.015, peak: 0.05 + 0.1 * l, type: 'highpass', f: 2500 }); }),
+  // Bricks on the tiles, B "Clack and grit".
+  brick: (k, t, l = 1) => site(k, 'brick', g => { g.noise(t, { dur: 0.035, peak: 0.12 + 0.3 * l, f: 1800, q: 5 }); g.rattle(t + 0.02, 12, 0.25, 3000, 6000, 0.03 + 0.07 * l); }),
+  // A steel post or beam on the tiles, C "Ring (bright, long)"; the light's pole.
+  ring: (k, t, l = 1) => site(k, 'ring', g => { const base = 520 + Math.random() * 80, peak = 0.12 * (0.3 + 0.7 * l); [1, 2.32, 3.86].forEach((m, i) => g.tone(t, base * m, { dur: 1.4 / (1 + i * 0.7), peak: peak / (1 + i), attack: 0.002 })); g.noise(t, { dur: 0.02, peak: 0.1 * l + 0.001, type: 'highpass', f: 4000 }); }),
+  // A concrete slab crashing down, C "Thunderous crash" (developer, v4: "something more dramatic. Like a crash").
+  crash: (k, t, l = 1) => site(k, 'crash', g => { [0, 0.09].forEach((dt, i) => g.tone(t + dt, 60, { to: 30, dur: 0.7, peak: (0.3 + 0.4 * l) * (i ? 0.7 : 1) })); g.noise(t, { dur: 1.2, peak: 0.15 + 0.3 * l, type: 'lowpass', f: 1800, to: 200, attack: 0.004 }); g.rattle(t + 0.06, 25, 0.9, 600, 3500, 0.05 + 0.07 * l); }),
+  // The iron ball on the ground, C "Clonk and roll".
+  clonk: (k, t, l = 1) => site(k, 'clonk', g => { g.tone(t, 110, { to: 70, dur: 0.14, peak: 0.25 + 0.45 * l }); g.noise(t, { dur: 0.03, peak: 0.1 + 0.2 * l, f: 1500, q: 2 }); g.rattle(t + 0.08, 14, 0.45, 250, 800, 0.04 + 0.06 * l); }),
+  // The ball into the wheelbarrow's gravel (the mockup's).
+  crunch: (k, t, l = 1) => site(k, 'crunch', g => g.rattle(t, 16, 0.22, 1200, 4500, 0.1 + 0.15 * l)),
+  // Level 3 (Claude's, to review): ice knocked (a glassy clink), ice
+  // shattering (a crack and a shower of tinkles), the ball into snow (a soft
+  // muffled puff).
+  iceknock: (k, t, l = 1) => site(k, 'iceknock', g => { const b = 1500 + Math.random() * 500; [1, 2.1, 3.3].forEach((m, i) => g.tone(t, b * m, { dur: 0.25 / (1 + i), peak: (0.08 + 0.2 * l) / (1 + i), attack: 0.001 })); g.noise(t, { dur: 0.02, peak: 0.08 + 0.15 * l, type: 'highpass', f: 3000 }); }),
+  shatter: (k, t) => site(k, 'shatter', g => { g.noise(t, { dur: 0.08, peak: 0.4, type: 'highpass', f: 2000 }); g.noise(t, { dur: 0.35, peak: 0.18, f: 5000, to: 2500, q: 1 }); g.rattle(t + 0.03, 28, 0.6, 3000, 9000, 0.12); [0.05, 0.13, 0.22, 0.34].forEach((dt, i) => g.tone(t + dt, 2400 + i * 700 + Math.random() * 400, { dur: 0.3, peak: 0.06, attack: 0.001 })); }),
+  poof: (k, t, l = 1) => site(k, 'poof', g => { g.noise(t, { dur: 0.22, peak: 0.15 + 0.3 * l, type: 'lowpass', f: 700, to: 250, attack: 0.008 }); g.tone(t, 90, { to: 60, dur: 0.12, peak: 0.1 + 0.15 * l }); }),
+  // Level 4 (Claude's, to review): a full barrel knocked (a hollow wooden
+  // thunk), a barrel bursting (a crack, a gush of water, drips).
+  barrel: (k, t, l = 1) => site(k, 'barrel', g => { g.tone(t, 150 + Math.random() * 20, { type: 'triangle', to: 95, dur: 0.22, peak: 0.15 + 0.4 * l, attack: 0.002 }); g.noise(t, { dur: 0.16, peak: 0.1 + 0.25 * l, f: 420, q: 4 }); g.noise(t, { dur: 0.1, peak: 0.06 + 0.12 * l, f: 260, q: 6 }); }),
+  splash: (k, t) => site(k, 'splash', g => { g.noise(t, { dur: 0.04, peak: 0.3, f: 1200, q: 2 }); g.tone(t, 80, { to: 45, dur: 0.2, peak: 0.25 }); g.noise(t + 0.02, { dur: 0.7, peak: 0.3, f: 2600, to: 500, q: 0.8, attack: 0.02 }); g.rattle(t + 0.25, 20, 0.9, 1500, 4500, 0.06); }),
 };
+
+// Each of the sounds above through its own gain, to bring its loudest 50 ms
+// to about the same loudness (the crash and the burst a little louder, as
+// they should be): measured by rendering each offline (window.topple's
+// soundLevels, in the browser), as the level 2 mockup v5 did at load.
+// 2026-11-11 (rendered at 0.9 through the game's 0.5 master; loudest 50 ms RMS before -> after): level 1's knock 0.046 the
+// yardstick; plank 0.007, brick 0.003, ring 0.040, crash 0.179 (to 0.09, a crash), clonk 0.096 (the ball, a little
+// quieter), crunch 0.005, iceknock 0.056, shatter 0.040 and splash 0.048 (to 0.07), poof 0.035, barrel 0.072.
+export const SITE_GAIN = { plank: 7, brick: 16, ring: 1.2, crash: 0.5, clonk: 0.45, crunch: 8.5, iceknock: 0.9, shatter: 1.75, poof: 1.15, barrel: 0.7, splash: 1.45 };
+// Runs `play` with the kit's peaks scaled by the sound's gain.
+function site(k, name, play) {
+  const g = SITE_GAIN[name] ?? 1;
+  if (g === 1) return play(k);
+  return play({
+    tone: (t, f, o = {}) => k.tone(t, f, { ...o, peak: (o.peak ?? 0.3) * g }),
+    noise: (t, o = {}) => k.noise(t, { ...o, peak: (o.peak ?? 0.3) * g }),
+    rattle: (t, n, span, lo, hi, peak) => k.rattle(t, n, span, lo, hi, peak * g),
+    bell: (t, f, dur, peak = 0.22) => k.bell(t, f, dur, peak * g),
+  });
+}
+// The kit made for a context (for measuring a sound offline: window.topple's soundLevels).
+export const kitFor = (ctx, out, noiseBuf) => kit(ctx, out, noiseBuf);
 
 // makeContext: () => an AudioContext, or null where there is none.
 // storage: localStorage or null. log(msg, data): the debug log.

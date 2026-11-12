@@ -11,7 +11,7 @@
 import * as CANNON from '../vendor/cannon-es/cannon-es.js';
 import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel,
-  sceneParts, makeLayout, sceneSeed, sceneChoice, isDown,
+  sceneParts, layoutFor, isDown, MATS,
 } from './topple.js';
 import { fixedStepper } from './fixed-step.js';
 
@@ -21,7 +21,9 @@ export const STILL_SPEED = 0.05 * Math.sqrt(SCALE);  // a block slower than this
 // How much of its speed into a surface the ball keeps off each kind of thing
 // (the physics and the path alike): the glass backboard lively (developer:
 // "simpler for the player to grasp"); the bush none.
-export const BOUNCE = { block: 0.3, stand: 0.3, glass: 0.7, bush: 0, tree: 0.3, ground: 0.3 };
+export const BOUNCE = { block: 0.3, stand: 0.3, glass: 0.7, bush: 0, tree: 0.3, ground: 0.3, soft: 0 };
+// A block's own bounce (its material's: level 1's toy blocks 0.3, as BOUNCE.block).
+const bounceOf = h => (h.kind === 'block' ? MATS[h.body?.mat]?.bounce ?? BOUNCE.block : BOUNCE[h.kind]);
 // A ball that touches the bush keeps only this much of its speed, all ways,
 // and drops through it to the ground, slowed as if caught in the leaves
 // (developer, 2026-11-10: "if a ball hit a bush it would just fall to the
@@ -73,20 +75,30 @@ export function createWorld({ onHit = () => {} } = {}) {
   world.allowSleep = true;
   world.broadphase = new CANNON.SAPBroadphase(world);
   world.solver.iterations = 20;
-  const M = Object.fromEntries(['block', 'ball', 'stand', 'glass', 'bush', 'tree'].map(k => [k, new CANNON.Material(k)]));
+  // Each block material its own (MATS: weight, bounce, grip; mockup v3);
+  // level 1's toy blocks as before (a block on a block 0.5, on the ground 0.5).
+  const mats = Object.keys(MATS);
+  const M = Object.fromEntries(['ball', 'stand', 'glass', 'bush', 'tree', 'soft', ...mats].map(k => [k, new CANNON.Material(k)]));
   world.defaultContactMaterial.friction = 0.4;
   world.defaultContactMaterial.restitution = 0.15;
   const CM = (a, b, friction, restitution) => world.addContactMaterial(new CANNON.ContactMaterial(M[a], M[b], { friction, restitution }));
-  CM('block', 'block', 0.5, 0.05); CM('block', 'stand', 0.5, 0.05); CM('block', 'glass', 0.2, 0.05); CM('block', 'bush', 0.6, 0.02); CM('block', 'tree', 0.4, 0.05);
-  CM('ball', 'block', 0.3, BOUNCE.block); CM('ball', 'stand', 0.4, BOUNCE.stand); CM('ball', 'glass', 0.05, BOUNCE.glass);
-  CM('ball', 'bush', 0.8, BOUNCE.bush); CM('ball', 'tree', 0.5, BOUNCE.tree);
+  for (const a of mats) {
+    for (const b of mats) if (a <= b) CM(a, b, Math.min(MATS[a].friction, MATS[b].friction), 0.05);
+    CM(a, 'stand', MATS[a].friction, 0.05); CM(a, 'glass', 0.2, 0.05); CM(a, 'bush', 0.6, 0.02); CM(a, 'tree', 0.4, 0.05); CM(a, 'soft', 0.8, 0.02);
+    CM('ball', a, 0.3, MATS[a].bounce);
+  }
+  CM('ball', 'stand', 0.4, BOUNCE.stand); CM('ball', 'glass', 0.05, BOUNCE.glass);
+  CM('ball', 'bush', 0.8, BOUNCE.bush); CM('ball', 'tree', 0.5, BOUNCE.tree); CM('ball', 'soft', 0.9, BOUNCE.soft);
   const ground = new CANNON.Body({ mass: 0, material: M.stand, shape: new CANNON.Plane() });
   ground.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
   ground.kind = 'ground';
   world.addBody(ground);
 
   const advance = fixedStepper(world, STEP, MAX_SUBSTEPS);
-  let statics = [], blocks = [], balls = [], time = 0, parts = null;
+  let statics = [], blocks = [], balls = [], time = 0, parts = null, ball = { r: BALL.r, kg: BALL.kg * SCALE ** 3 };
+  let toBreak = new Set();   // blocks knocked hard enough to break this step (ice, a barrel)
+  const breakAt = (rec, v) => { if (rec && !rec.broken && rec.breaks && v >= rec.breaks) toBreak.add(rec); };
+  const recOf = new Map();   // a block's body -> its record
   const kindOf = body => body.kind ?? 'ground';
   const asleep = b => b.sleepState === CANNON.Body.SLEEPING;
   const wakeBlocks = () => { for (const b of blocks) b.body.wakeUp(); };
@@ -94,12 +106,15 @@ export function createWorld({ onHit = () => {} } = {}) {
   function onBlockCollide(e) {
     if (e.body.kind === 'ball') return;   // the ball's own listener has it
     const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
-    if (v >= 0.5) onHit({ a: 'block', b: kindOf(e.body), v });
+    breakAt(recOf.get(e.target), v);
+    if (v >= 0.5) onHit({ a: 'block', b: kindOf(e.body), v, mat: e.target.mat, other: e.body });
   }
   function onBallCollide(e) {
-    const v = Math.abs(e.contact.getImpactVelocityAlongNormal()), kind = kindOf(e.body);
-    if (kind === 'block') wakeBlocks();
-    onHit({ a: 'ball', b: kind, v, y: e.target.position.y, ball: e.target, other: e.body });
+    const v = Math.abs(e.contact.getImpactVelocityAlongNormal()), kind = kindOf(e.body), b = e.target;
+    if (kind === 'block') { wakeBlocks(); breakAt(recOf.get(e.body), v); }
+    // gravel or snow (the bush's job, a solid heap): it keeps BUSH_KEEP of its speed and stays in it
+    if (kind === 'soft' && !b.inBush) { b.inBush = true; b.velocity.scale(BUSH_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); b.linearDamping = b.angularDamping = CAUGHT_DAMPING; }
+    onHit({ a: 'ball', b: kind, v, y: b.position.y, ball: b, other: e.body, mat: e.body.mat, thing: e.body.thing });
   }
 
   // No ball touches a bush in the physics (a ball's collision mask leaves the
@@ -137,7 +152,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   function shapeOf(sh) {
     if (sh.type === 'sphere') return new CANNON.Sphere(sh.r);
     if (sh.type === 'box') return new CANNON.Box(new CANNON.Vec3(...sh.half));
-    const c = new CANNON.Cylinder(sh.r, sh.r, sh.hh * 2, 16);   // upright, along y
+    const c = new CANNON.Cylinder(sh.r, sh.r, sh.hh * 2, 16);   // along y (upright, until turned)
     c.trunkR = sh.r; c.trunkHH = sh.hh;
     return c;
   }
@@ -145,8 +160,9 @@ export function createWorld({ onHit = () => {} } = {}) {
   // A scene's things and blocks (sceneParts()), the blocks asleep; or at
   // `poses` ([{ p, q, down }], one per block: where they had come to rest).
   function setScene(p, poses = null) {
-    for (const s of [...statics, ...blocks, ...balls]) world.removeBody(s.body);
-    statics = []; blocks = []; balls = []; bushBalls = []; parts = p;
+    for (const s of [...statics, ...blocks, ...balls]) if (!s.broken) world.removeBody(s.body);
+    statics = []; blocks = []; balls = []; bushBalls = []; parts = p; toBreak = new Set(); recOf.clear();
+    if (p.ball) ball = { ...p.ball };
     for (const b of p.bodies) {
       // one shape: the body where the shape is (a box turned as it is); more: each at its place
       const body = new CANNON.Body({ mass: 0, material: M[b.kind] });
@@ -157,6 +173,7 @@ export function createWorld({ onHit = () => {} } = {}) {
         if (sh.yaw) body.quaternion.setFromEuler(0, sh.yaw, 0);
       } else for (const sh of b.shapes) body.addShape(shapeOf(sh), new CANNON.Vec3(...sh.at));
       body.kind = b.kind;
+      body.thing = b.thing ?? b.kind;
       if (b.kind === 'bush') {
         body.collisionFilterGroup = BUSH_GROUP;
         for (const sh of b.shapes) bushBalls.push({ c: sh.at, r: sh.r, body });
@@ -164,26 +181,36 @@ export function createWorld({ onHit = () => {} } = {}) {
       statics.push({ body: addBody(body) });
     }
     p.blocks.forEach((o, i) => {
+      const mat = MATS[o.mat ?? 'toy'] ? (o.mat ?? 'toy') : 'toy', cyl = o.shape === 'cyl';
+      // a barrel: an upright cylinder (its trunkR for the path, as the trunk's)
+      let shape;
+      if (cyl) { shape = new CANNON.Cylinder(o.r, o.r, o.h, 14); shape.trunkR = o.r; shape.trunkHH = o.h / 2; } else shape = new CANNON.Box(new CANNON.Vec3(o.w / 2, o.h / 2, o.d / 2));
+      const vol = cyl ? Math.PI * o.r * o.r * o.h : o.w * o.h * o.d;
       const body = new CANNON.Body({
-        mass: DENSITY * o.w * o.h * o.d, material: M.block, shape: new CANNON.Box(new CANNON.Vec3(o.w / 2, o.h / 2, o.d / 2)),
+        mass: MATS[mat].density * vol, material: M[mat], shape,
         linearDamping: 0.05, angularDamping: 0.1, sleepSpeedLimit: 0.1 * Math.sqrt(SCALE), sleepTimeLimit: 0.4,
       });
       const pose = poses?.[i];
       body.position.set(...(pose ? pose.p : [o.x, o.y, o.z]));
       if (pose) body.quaternion.set(...pose.q);
       body.kind = 'block';
+      body.mat = mat;
+      // tall: a post, down only while it lies tipped (isDown, Q69); broken: shattered or burst, gone and down for good
+      const rec = { body, start: { x: o.x, y: o.y, z: o.z }, c: o.c, mat, breaks: MATS[mat].breaks, he: { x: o.w / 2, y: o.h / 2, z: o.d / 2 },
+        minDim: Math.min(o.w, o.h, o.d), tall: o.h > o.w && o.h > o.d, down: !!pose?.down, broken: !!pose?.broken };
+      blocks.push(rec);
+      recOf.set(body, rec);
+      if (rec.broken) return;
       body.addEventListener('collide', onBlockCollide);
       addBody(body);
       body.sleep();   // still until the ball touches one
-      // tall: a post, down only while it lies tipped (isDown, Q69)
-      blocks.push({ body, start: { x: o.x, y: o.y, z: o.z }, c: o.c, minDim: Math.min(o.w, o.h, o.d), tall: o.h > o.w && o.h > o.d, down: !!pose?.down });
     });
     return blocks;
   }
 
   // A ball from the slingshot at velocity vec ([x, y, z] m/s).
   function throwBall(vec) {
-    const body = new CANNON.Body({ mass: BALL.kg * SCALE ** 3, material: M.ball, shape: new CANNON.Sphere(BALL.r), linearDamping: 0, angularDamping: 0.3 });
+    const body = new CANNON.Body({ mass: ball.kg, material: M.ball, shape: new CANNON.Sphere(ball.r), linearDamping: 0, angularDamping: 0.3 });
     body.position.set(HAND.x, HAND.y, HAND.z);
     body.velocity.set(...vec);
     body.kind = 'ball';
@@ -203,17 +230,27 @@ export function createWorld({ onHit = () => {} } = {}) {
   function step(dt, clock = null) {
     const { steps, dropped } = advance(dt, clock);
     time += dt;
+    // blocks knocked hard enough to break: taken out of the world, down for good
+    const broke = [];
+    for (const rec of toBreak) {
+      if (rec.broken) continue;
+      rec.broken = true; rec.down = true;
+      broke.push({ rec, at: posOf(rec.body), q: quatOf(rec.body), v: [rec.body.velocity.x, rec.body.velocity.y, rec.body.velocity.z] });
+      world.removeBody(rec.body);
+      for (const r of blocks) if (!r.broken) r.body.wakeUp();
+    }
+    toBreak = new Set();
     for (let i = balls.length - 1; i >= 0; i--) {
       const b = balls[i].body;
       if (time - b.thrownAt > BALL_LIFE || b.position.y < -2) { world.removeBody(b); balls.splice(i, 1); }
     }
     const fell = [], rose = [];
     for (const b of blocks) {
-      if (b.down && !b.tall) continue;
+      if (b.broken || (b.down && !b.tall)) continue;
       const now = isDown(quatOf(b.body), b.body.position.y, b.start.y, b.minDim, b.tall, b.down);
       if (now && !b.down) { b.down = true; fell.push(b); } else if (!now && b.down) { b.down = false; rose.push(b); }
     }
-    return { down: blocks.filter(b => b.down).length, fell, rose, steps, dropped };
+    return { down: blocks.filter(b => b.down).length, fell, rose, broke, steps, dropped };
   }
 
   /* ---------- the path ahead ---------- */
@@ -225,7 +262,7 @@ export function createWorld({ onHit = () => {} } = {}) {
     const out = [];
     for (const s of [...statics, ...blocks]) {
       const b = s.body;
-      if (keep && !keep(b)) continue;
+      if (s.broken || (keep && !keep(b))) continue;
       const bq = quatOf(b), bp = posOf(b);
       b.shapes.forEach((sh, i) => {
         const off = b.shapeOffsets[i], so = b.shapeOrientations[i];
@@ -245,7 +282,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   // these kinds (stop at others). Returns { hits: [{ kind, body, at, n, t }],
   // pts: [[x, y, z], ...] every STEP s }.
   function trace(vec, bounces = 0, obs = obstacles(), bounceOn = null) {
-    const r = BALL.r;
+    const r = ball.r;
     let p = [HAND.x, HAND.y, HAND.z], v = vec.slice();
     const hits = [], pts = [p], tMax = 4 * Math.sqrt(SCALE);
     for (let i = 1; i * STEP < tMax; i++) {
@@ -263,7 +300,7 @@ export function createWorld({ onHit = () => {} } = {}) {
         if (hits.length > bounces || (bounceOn && !bounceOn.has(hit.kind))) break;
         const vn = dot(v, hit.n);
         // into a bush: slowed, and on through the bushes (as catchInBush; its damping left out)
-        if (hit.kind === 'bush') { v = scale(v, BUSH_KEEP); obs = obs.filter(o => o.kind !== 'bush'); } else if (vn < 0) v = add(v, scale(hit.n, -(1 + BOUNCE[hit.kind]) * vn));
+        if (hit.kind === 'bush') { v = scale(v, BUSH_KEEP); obs = obs.filter(o => o.kind !== 'bush'); } else if (hit.kind === 'soft') v = scale(add(v, scale(hit.n, -Math.min(0, vn))), BUSH_KEEP); else if (vn < 0) v = add(v, scale(hit.n, -(1 + bounceOf(hit)) * vn));
         p = add(hit.at, scale(hit.n, 0.002));
         pts.push(p);
         continue;
@@ -296,8 +333,11 @@ export function createWorld({ onHit = () => {} } = {}) {
   //   bonus way, never the only one; without this, glass no throw can use
   //   was let through).
   const GLASS_ONLY = new Set(['glass']);
+  // What can hide a block from the camera: the bush and tree, and levels 2-4's things (the wheelbarrow and snow, the light)
+  const inTheWay = b => b.kind === 'bush' || b.kind === 'tree' || b.kind === 'soft' || b.thing === 'light';
   function check(L) {
-    const all = obstacles(), clear = obstacles(b => b.kind === 'block' || b.kind === 'stand');
+    const all = obstacles(), clear = obstacles(b => b.kind === 'block' || (b.kind === 'stand' && b.thing !== 'light'));
+    const later = (parts?.level ?? 1) > 1;
     const az = all.filter(o => o.kind === 'block' || o.kind === 'glass').map(o => Math.atan2(o.c[0] - HAND.x, HAND.z - o.c[2]) * R2D / MAX_AIM);
     const a0 = clamp(Math.min(...az) - 0.15, -1, 1), a1 = clamp(Math.max(...az) + 0.15, -1, 1);
     const base = new Map(), direct = new Map();
@@ -311,15 +351,21 @@ export function createWorld({ onHit = () => {} } = {}) {
       const h = trace(vec, 1, all, GLASS_ONLY).hits;
       if (h[0] && h[0].kind === 'block') { nDirect++; tally(direct, h[0].body); } else if (h[0] && h[0].kind === 'glass' && h[1] && h[1].kind === 'block') nBank++;
     }
-    const unhit = [...base.keys()].filter(b => (direct.get(b) || 0) < MIN_HITS).length;
+    // (from level 2, a back post glimpsed between the front ones by a throw or two is fine: only hits the things take away count)
+    const unhit = [...base].filter(([b, c]) => (direct.get(b) || 0) < (later ? Math.min(MIN_HITS, c) : MIN_HITS)).length;
     const fewest = Math.min(...[...base.keys()].map(b => direct.get(b) || 0));
     const hidden = [...base].filter(([b, c]) => (direct.get(b) || 0) < 0.5 * c).length;
-    const front = viewOfBlocks(CAM, b => b.kind === 'bush' || b.kind === 'tree');
-    const enough = v => v.full + v.part === blocks.length && v.full >= blocks.length / 3;
+    const front = viewOfBlocks(CAM, inTheWay);
+    // (only the things count here, not other blocks: from level 2 a block may hide behind another until it
+    // falls, but never behind a thing for the whole scene: developer, Q73. The saloon's front barrels behind
+    // the scrub, let through while this was loosened, were never hit.)
+    const live = blocks.filter(b => !b.broken).length;
+    const enough = v => v.full + v.part === live && v.full >= live / 3;
     const hasBoard = L.things.some(t => t.kind === 'backboard'), hides = L.things.some(t => t.kind !== 'backboard');
     const why = [];
     if (unhit > 0) why.push(`${unhit} block${unhit > 1 ? 's' : ''} hard to hit from the front`);
-    if (hides && hidden === 0 && front.full === blocks.length && nDirect > 0.75 * nBase) why.push('the things hardly matter');
+    // (from level 2 the frames are the challenge; a wheelbarrow or a pole seldom takes a straight throw: Claude's pick)
+    if (!later && hides && hidden === 0 && front.full === live && nDirect > 0.75 * nBase) why.push('the things hardly matter');
     if (!enough(front)) why.push('too little shows from the front');
     if (nDirect < 15) why.push('too few throws hit');
     if (hasBoard && nBank < 3) why.push('the backboard is no use');
@@ -344,7 +390,8 @@ export function createWorld({ onHit = () => {} } = {}) {
     const occ = obstacles(keep);
     const clearTo = p => { for (let i = 1; i < 40; i++) { const q = lerp(cam, p, i / 40); for (const o of occ) if (touch(q, o, 0.001)) return false; } return true; };
     return blocks.map(b => {
-      const p = posOf(b.body), he = b.body.shapes[0].halfExtents;
+      if (b.broken) return 0;
+      const p = posOf(b.body), he = b.he;
       const pts = [[0, he.y, 0], [0, 0, he.z], [-0.8 * he.x, 0, he.z], [0.8 * he.x, 0, he.z], [he.x, 0, 0]].map(d => add(p, d));
       return pts.filter(clearTo).length;
     });
@@ -360,7 +407,7 @@ export function createWorld({ onHit = () => {} } = {}) {
     let best = null, tries = 0, L, p, chk;
     const thrown = [];
     do {
-      L = makeLayout(sceneSeed(gameSeed, level, i, tries), sceneChoice(gameSeed, level, i));
+      L = layoutFor(gameSeed, level, i, tries);
       tries++;
       p = sceneParts(L);
       setScene(p);
@@ -382,14 +429,15 @@ export function createWorld({ onHit = () => {} } = {}) {
     setScene, makeScene, throwBall, step, obstacles, trace, check,
     // Of 5 points on each block, how many the camera behind the throw sees
     // past the bushes and trees (the tests: a player throws only at what it sees).
-    frontSeen: () => pointsSeen(CAM, b => b.kind === 'bush' || b.kind === 'tree'),
+    frontSeen: () => pointsSeen(CAM, inTheWay),
     downCount: () => blocks.filter(b => b.down).length,
-    still: () => blocks.every(b => asleep(b.body) || b.body.velocity.length() < STILL_SPEED),
-    awake: () => blocks.filter(b => !asleep(b.body)).length,
+    still: () => blocks.every(b => b.broken || asleep(b.body) || b.body.velocity.length() < STILL_SPEED),
+    awake: () => blocks.filter(b => !b.broken && !asleep(b.body)).length,
     // Each block's pose, and whether it's down: kept for a scene picked up again.
-    poses: () => blocks.map(b => ({ p: posOf(b.body).map(r4), q: quatOf(b.body).map(r4), down: b.down })),
+    poses: () => blocks.map(b => ({ p: posOf(b.body).map(r4), q: quatOf(b.body).map(r4), down: b.down, ...(b.broken ? { broken: true } : {}) })),
+    get ball() { return ball; },
     // How far the furthest block has moved from its place (m): the log and the tests.
-    drift: () => Math.max(0, ...blocks.map(b => dist(posOf(b.body), [b.start.x, b.start.y, b.start.z]))),
+    drift: () => Math.max(0, ...blocks.filter(b => !b.broken).map(b => dist(posOf(b.body), [b.start.x, b.start.y, b.start.z]))),
     // Blocks still standing that touch a fixed thing (the bush, a pole...): the tests.
     leaning: () => {
       const standing = new Set(blocks.filter(b => !b.down).map(b => b.body)), fixed = new Set(statics.map(s => s.body));
@@ -419,14 +467,14 @@ export function touch(p, o, r) {
     if (d >= o.r + r) return null;
     return { n: d > 1e-6 ? scale(diff, 1 / d) : [0, 1, 0] };
   }
-  if (o.R) {   // the trunk: an upright cylinder
-    const lx = p[0] - o.c[0], ly = p[1] - o.c[1], lz = p[2] - o.c[2], hd = Math.hypot(lx, lz);
+  if (o.R) {   // a cylinder along its own y: the trunk (upright), a barrel (as it lies)
+    const oq = o.q ?? [0, 0, 0, 1], [lx, ly, lz] = rotBack(oq, sub(p, o.c)), hd = Math.hypot(lx, lz);
     const k = hd > o.R ? o.R / hd : 1, cy = Math.max(-o.hh, Math.min(o.hh, ly));
     let diff = [lx - lx * k, ly - cy, lz - lz * k];
     const d = len(diff);
     if (d >= r) return null;
     if (d < 1e-6) diff = [hd > 1e-6 ? lx / hd : 1, 0, hd > 1e-6 ? lz / hd : 0];
-    return { n: scale(diff, 1 / (len(diff) || 1)) };
+    return { n: rot(oq, scale(diff, 1 / (len(diff) || 1))) };
   }
   const l = rotBack(o.q, sub(p, o.c));
   const c = [0, 1, 2].map(i => Math.max(-o.h[i], Math.min(o.h[i], l[i])));

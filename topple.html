@@ -44,6 +44,28 @@
       <button type="button" class="pill" id="freshBtn" hidden>New scenes from scene 1</button>
       <div class="why" id="why"></div>
     </div>
+
+    <!-- THE MAP (level 2 mockup v1, "look good"): Play! opens it; a level
+         done or the one you're on opens its Level screen; higher ones locked -->
+    <div class="panel tpmap" id="mapView" hidden>
+      <h2 class="maptitle">Levels</h2>
+      <div class="mapbox" id="mapBox"></div>
+      <p class="maptoast" id="mapToast" aria-live="polite"></p>
+      <button type="button" class="pill" id="mapBack">◀ Faces</button>
+    </div>
+
+    <!-- A LEVEL'S SCREEN: at each level's start and from the map: its name
+         (the setting), a picture, one line, the jewels and hearts, Start -->
+    <div class="panel lvcard" id="levelView" hidden>
+      <p class="lvnum" id="lvNum"></p>
+      <h2 class="lvname" id="lvName"></h2>
+      <div class="lvpic" id="lvPic" aria-hidden="true"></div>
+      <p class="lvline" id="lvLine"></p>
+      <p class="lvwhere" id="lvWhere"></p>
+      <div class="lvstate"><span id="lvJewels"></span><span id="lvHearts"></span></div>
+      <button type="button" class="big" id="lvGo">Start ▸</button>
+      <button type="button" class="pill" id="lvMap">◀ Map</button>
+    </div>
   </section>
 
   <!-- PLAY: the park fills the screen, as Tin Can Alley's stall. Upright,
@@ -57,7 +79,7 @@
       <div class="gname">Topple!</div>
     </div>
     <div class="park" id="park">
-      <canvas id="c" aria-label="A park: a structure of blocks to knock down with a slingshot"></canvas>
+      <canvas id="c" aria-label="A structure to knock down with a slingshot"></canvas>
       <!-- the drag pad, beside the dots (the drag works from anywhere), and
            the finger that shows it as a scene starts -->
       <div class="pad" id="pad" aria-hidden="true" hidden><span>👆</span></div>

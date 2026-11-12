@@ -150,3 +150,43 @@ body.tp-playing .site-foot { display: none; }
   .balls i { width: 12px; height: 12px; }
   .restart .pill { width: 100%; white-space: normal; padding: 5px 2px; font-size: 13px; line-height: 15px; border-width: 2px; }
 }
+
+/* ---------- the map and a level's screen (level 2 mockup v1) ---------- */
+
+/* On the setup screen, in place of the faces: the map of levels, a path of
+   dots (orange as far as you've got) up from level 1; a level's screen. */
+#setup.tp-map > .panel:not(#mapView), #setup.tp-map > .go,
+#setup.tp-level > .panel:not(#levelView), #setup.tp-level > .go { display: none; }
+.tpmap { display: grid; gap: 6px; justify-items: center; }
+.maptitle { margin: 0; font-size: 22px; text-align: center; }
+.mapbox { position: relative; width: 100%; max-width: 380px; height: min(70vh, 560px); min-height: 420px; }
+.mapbox svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.node { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 3px; border: 0; background: none; padding: 0; width: 150px; cursor: pointer; }
+.node .disc { position: relative; width: 84px; height: 84px; }
+.node .pic { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; font-size: 42px; border: 5px solid var(--card); box-shadow: 0 4px 0 var(--line); overflow: hidden; }
+.node .pic svg { width: 100%; height: 100%; display: block; }
+.node.done .pic { border-color: #4DB37A; }
+.node.now .pic { border-color: var(--sun); animation: tpglow 1.6s ease-in-out infinite; }
+@keyframes tpglow { 0%, 100% { box-shadow: 0 4px 0 var(--line), 0 0 0 0 #F7B92888; } 50% { box-shadow: 0 4px 0 var(--line), 0 0 0 12px #F7B92800; } }
+.node.locked .pic { background: #D5DEE0 !important; border-color: #A9B6BA; font-size: 34px; }
+.node .badge { position: absolute; right: -4px; top: -4px; width: 30px; height: 30px; border-radius: 50%; background: #4DB37A; color: #FFFFFF; display: grid; place-items: center; font-size: 17px; font-weight: 800; border: 3px solid #FFFFFF; }
+.node .you { position: absolute; left: 50%; top: -24px; transform: translateX(-50%); background: var(--ink); color: #FFFFFF; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.node .nname { font-size: 15px; font-weight: 800; line-height: 1.15; background: var(--card); border-radius: 12px; padding: 2px 10px; box-shadow: 0 3px 0 var(--line); text-align: center; max-width: 150px; }
+.node .nsub { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.node.locked .nname { color: var(--muted); }
+.node.shake { animation: tpshake .4s ease; }
+@keyframes tpshake { 20% { transform: translate(-54%, -50%); } 40% { transform: translate(-46%, -50%); } 60% { transform: translate(-53%, -50%); } 80% { transform: translate(-48%, -50%); } }
+.maptoast { margin: 0; min-height: 22px; font-size: 16px; font-weight: 800; color: var(--muted); text-align: center; }
+#mapBack, #lvMap { padding: 8px 18px; font-size: 16px; }
+
+.lvcard { display: grid; gap: 10px; justify-items: center; text-align: center; max-width: 420px; margin: 0 auto; }
+.lvnum { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+.lvname { margin: -4px 0 0; font-size: 30px; font-weight: 800; line-height: 1.1; }
+.lvpic { width: 100%; aspect-ratio: 3 / 2; border-radius: 16px; display: grid; place-items: center; font-size: 84px; overflow: hidden; }
+.lvpic svg { width: 100%; height: 100%; display: block; }
+.lvline { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.35; }
+.lvwhere { margin: 0; font-size: 16px; font-weight: 700; color: var(--muted); }
+.lvwhere:empty { display: none; }
+.lvstate { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; font-size: 20px; font-weight: 800; }
+.lvcard .big { width: 100%; font-size: 24px; padding: 14px 20px; }
+@media (prefers-reduced-motion: reduce) { .node.now .pic, .node.shake { animation: none; } }

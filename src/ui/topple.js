@@ -17,7 +17,7 @@
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
-  padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn,
+  padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, placeOf, isOpen,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -100,6 +100,7 @@ function renderSetup() {
   $('p1Chip').innerHTML = setup.p1 ? svg(setup.p1) : '';
   const fresh = isFresh(game);
   $('where').textContent = fresh ? '' : `Level ${game.level} · scene ${game.scene} of ${SCENES} · ${hearts(game)} · ${'💎'.repeat(game.jewels)}`;
+  if (fresh && game.reached > 1) $('where').textContent = `Level ${game.reached} reached`;
   $('playBtn').textContent = fresh ? 'Play!' : 'Carry on';
   $('freshBtn').hidden = fresh;
   const code = checkSetup(setup);
@@ -108,21 +109,102 @@ function renderSetup() {
   resume.keep();
 }
 $('rulesPic').innerHTML = toppleMini('av');
+// Play! opens the map (level 2 mockup v1); a level on it opens its screen.
 $('playBtn').onclick = () => {
   if (checkSetup(setup)) return;
-  L('play', { face: setup.p1, ...game });
-  showPlay();
-  startScene();
+  L('play: the map', { face: setup.p1, ...game });
+  showMap();
 };
+// New scenes: a new seed, every level from scene 1; the levels reached and done are kept (Claude's pick).
 $('freshBtn').onclick = () => {
   if (checkSetup(setup)) return;
   const was = { ...game };
-  game = createGame(newSeed());
+  game = createGame(newSeed(), game);
   saveGame();
-  L('new scenes from scene 1', { was, seed: game.seed });
-  showPlay();
-  startScene();
+  L('new scenes from scene 1', { was, seed: game.seed, reached: game.reached });
+  showMap();
 };
+
+/* ---------- the map and a level's screen ---------- */
+
+// Each level's picture on the map and its screen: level 1's drawing (the
+// home tile's), the others a sign of their setting (Claude's pick, to
+// review: the mockup's were pictures the 3D drew).
+const LOOKS = {
+  1: { pic: () => toppleMini('lvsvg'), bg: '#7DBCE6' },
+  2: { pic: () => '🏗️', bg: 'linear-gradient(#8FB8D8, #C9BFAE)' },
+  3: { pic: () => '❄️', bg: 'linear-gradient(#8DB7DC, #F2F7FB)' },
+  4: { pic: () => '🌵', bg: 'linear-gradient(#7FB3E0, #E2B48A)' },
+};
+// The setup screen's view: 'faces' (the picks), 'map' or 'level'.
+function setView(v) {
+  $('setup').classList.toggle('tp-map', v === 'map');
+  $('setup').classList.toggle('tp-level', v === 'level');
+  $('mapView').hidden = v !== 'map';
+  $('levelView').hidden = v !== 'level';
+  scrollTo(0, 0);
+}
+const NODES = [{ x: 30, y: 86 }, { x: 68, y: 62 }, { x: 32, y: 38 }, { x: 68, y: 14 }];
+function showMap() {
+  if (playing) showSetup();
+  setView('map');
+  const P = NODES.map(n => [n.x, n.y]);
+  const seg = (a, b) => `M${a[0]} ${a[1]} C ${a[0] + (b[0] - a[0]) * 0.9} ${a[1]}, ${b[0] - (b[0] - a[0]) * 0.1} ${b[1] + 14}, ${b[0]} ${b[1]}`;
+  const dots = (d, on) => `<path d="${d}" fill="none" stroke="${on ? '#F2724F' : '#9FB0B7'}" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:10px;stroke-dasharray:0 22px"/>`;
+  const road = d => `<path d="${d}" fill="none" stroke="#FFFFFF" stroke-opacity=".75" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:30px"/>`;
+  const segs = P.slice(1).map((p, i) => seg(P[i], p));
+  $('mapBox').innerHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${segs.map(road).join('')}${segs.map((d, i) => dots(d, game.reached >= i + 2)).join('')}</svg>`;
+  NODES.slice(0, MAX_LEVEL).forEach((n, i) => {
+    const lv = i + 1, info = levelInfo(lv), done = game.done.includes(lv), now = game.level === lv, locked = !isOpen(game, lv);
+    const pl = placeOf(game, lv), mid = pl.scene > 1 || pl.jewels > 0 || pl.hearts < HEARTS;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = `node ${locked ? 'locked' : now ? 'now' : done ? 'done' : 'open'}`;
+    b.style.left = `${n.x}%`; b.style.top = `${n.y}%`;
+    const sub = locked ? 'Locked' : mid ? `Scene ${pl.scene} of ${SCENES}` : done ? '💎💎💎💎💎' : 'Start here';
+    b.innerHTML = `<span class="disc"><span class="pic" style="background:${LOOKS[lv].bg}">${locked ? '🔒' : LOOKS[lv].pic()}</span>${done ? '<span class="badge">✔</span>' : ''}${now && !locked ? '<span class="you">You</span>' : ''}</span>`
+      + `<span class="nname">${lv} · ${info.name}</span><span class="nsub">${sub}</span>`;
+    b.setAttribute('aria-label', `Level ${lv}, ${info.name}${locked ? ', locked' : ''}`);
+    b.onclick = () => {
+      if (locked) {
+        b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+        $('mapToast').textContent = `Finish level ${lv - 1} first`;
+        L('map: a locked level', { level: lv, reached: game.reached });
+        return;
+      }
+      L('map: a level', { level: lv });
+      showLevelCard(lv);
+    };
+    $('mapBox').append(b);
+  });
+  $('mapToast').textContent = '';
+  resume.keep();
+}
+// Level n's screen: its name, picture and line; where you are in it; Start or Carry on.
+function showLevelCard(n) {
+  if (playing) showSetup();
+  setView('level');
+  const info = levelInfo(n), pl = placeOf(game, n), mid = pl.scene > 1 || pl.jewels > 0 || pl.hearts < HEARTS;
+  $('lvNum').textContent = `Level ${n}`;
+  $('lvName').textContent = info.name;
+  $('lvPic').innerHTML = LOOKS[n].pic();
+  $('lvPic').style.background = LOOKS[n].bg;
+  $('lvLine').textContent = info.line;
+  $('lvWhere').textContent = mid ? `Scene ${pl.scene} of ${SCENES}` : game.done.includes(n) ? 'Done ✔ · the same scenes again' : '';
+  $('lvJewels').textContent = jewels(pl);
+  $('lvHearts').textContent = hearts(pl);
+  $('lvGo').textContent = mid ? 'Carry on ▸' : game.done.includes(n) ? 'Play again ▸' : 'Start ▸';
+  $('lvGo').onclick = () => {
+    if (!switchLevel(game, n)) { L('level not open', { level: n, reached: game.reached }); showMap(); return; }
+    saveGame();
+    L('level: start', { ...game });
+    showPlay();
+    startScene();
+  };
+  resume.keep();
+}
+$('lvMap').onclick = () => showMap();
+$('mapBack').onclick = () => { setView('faces'); renderSetup(); };
 
 /* ---------- the play screen ---------- */
 
@@ -154,6 +236,7 @@ function showSetup() {
   $('play').hidden = true;
   $('setup').hidden = false;
   document.body.classList.remove('tp-playing');
+  setView('faces');
   renderSetup();
   scrollTo(0, 0);
 }
@@ -230,6 +313,10 @@ async function startScene(kept = null) {
   renderHud();
   // let the words show before the scene's made (up to a second or so on a phone)
   await new Promise(r => setTimeout(r, 30));
+  if (stage.level !== game.level) {
+    const r = await stage.setLevel(game.level);
+    L('setting', { ...r, name: levelInfo(game.level).name });
+  }
   const t0 = performance.now();
   if (kept) {
     const parts = sceneParts(kept.layout);
@@ -361,7 +448,8 @@ function doThrow(d) {
 /* ---------- sounds, and where the ball touched ---------- */
 
 let lastKnock = 0, lastThud = 0;
-function onHit({ a, b, v, y, ball, other }) {
+const MAT_SOUND = { wood: 'plank', brick: 'brick', steel: 'ring', concrete: 'crash', ice: 'iceknock', barrel: 'barrel' };
+function onHit({ a, b, v, y, ball, other, mat, thing }) {
   const now = performance.now(), vs = v / Math.sqrt(SCALE);
   if (a === 'ball' && shot && shot.body === ball && shot.touches.length < 2 && shot.last !== other) {
     // where it touched, against the path worked out for it (its first two touches)
@@ -375,11 +463,14 @@ function onHit({ a, b, v, y, ball, other }) {
   if (a === 'block' || b === 'block') {
     if (v < 0.5 || now - lastKnock < 30) return;
     lastKnock = now;
-    sound.play('knock', 0, { level: Math.min(1, (vs + (a === 'ball' ? 1 : 0)) / 6), quiet: true });
+    // each material its own (level 2 mockup v4-v6: wood C, brick B, steel C, concrete C); level 1's toy knock
+    sound.play(MAT_SOUND[mat] ?? 'knock', 0, { level: Math.min(1, (vs + (a === 'ball' ? 1 : 0)) / 6), quiet: true });
   } else if (a === 'ball' && v >= 0.5) {
     if (b === 'glass') sound.play('boing', 0, { quiet: true });
-    else if (b === 'bush' || (b === 'tree' && y > 1.6 * SCALE)) sound.play('rustle', 0, { quiet: true });
-    else if (vs > 0.6 && now - lastThud > 60) { lastThud = now; sound.play('thud', 0, { quiet: true }); }
+    else if (b === 'soft') sound.play(thing === 'drift' ? 'poof' : 'crunch', 0, { level: Math.min(1, vs / 6), quiet: true });
+    else if (thing === 'light') sound.play('ring', 0, { level: Math.min(1, vs / 6), quiet: true });
+    else if (b === 'bush' || (b === 'tree' && thing !== 'cactus' && y > 1.0 * SCALE)) sound.play('rustle', 0, { quiet: true });
+    else if (vs > 0.6 && now - lastThud > 60) { lastThud = now; sound.play(stage.level > 1 ? 'clonk' : 'thud', 0, { level: Math.min(1, vs / 6), quiet: true }); }
   }
 }
 
@@ -396,7 +487,8 @@ function frame(now) {
 function tick(dt, draw = true) {
   if (!round || busy) return;
   const t0 = performance.now();
-  const { down, fell, rose, dropped } = world.step(dt, () => performance.now());   // a slow phone drops steps (Q65)
+  const { down, fell, rose, broke, dropped } = world.step(dt, () => performance.now());   // a slow phone drops steps (Q65)
+  for (const k of broke) brokeUp(k);
   perf.physMs += performance.now() - t0;
   perf.dropped += dropped;
   perf.frames++;
@@ -407,12 +499,22 @@ function tick(dt, draw = true) {
   if (result) endScene(result);
   noteSettled();
   if (!draw) return;
-  stage.sync(world.blocks.map(b => b.body), world.balls);
+  stage.sync(world.blocks, world.balls);
+  stage.tick(dt);
   const ok = ready();
   const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);
   stage.setDots(d && ok && d.show ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0)) : null, 1);
   stage.render();
+}
+
+// A block broke (ice shattered, a barrel burst): its pieces fly, a sound, the log.
+function brokeUp({ rec, at, q, v }) {
+  const i = world.blocks.indexOf(rec), b = current?.parts.blocks[i];
+  if (!b) return;
+  stage.burst(b, at, q, v);
+  sound.play(b.mat === 'barrel' ? 'splash' : 'shatter', 0, { level: 1, quiet: true });
+  L('block broke', { mat: b.mat, i, t: r2(round.t), at: at.map(r2), speed: r2(Math.hypot(...v)) });
 }
 
 // Where the show's drag ends: the first of DEMO_UPS whose path touches a
@@ -468,13 +570,13 @@ function noteSettled() {
 // done: a new game (level 2 isn't made yet), new scenes.
 function endScene(result, quiet = false) {
   const was = { ...game };
-  const outcome = sceneOver(game, result.won);
-  if (outcome === 'level') game = createGame(newSeed());
+  // a level done: the game is on to the next level (or every level done: 'all')
+  const outcome = sceneOver(game, result.won), lvDone = outcome === 'level' || outcome === 'all';
   saveGame();
-  const words = endWords(outcome, outcome === 'level' ? was : game, nameOf(setup.p1));
+  const words = endWords(outcome, lvDone ? was : game, nameOf(setup.p1));
   // the pills over the park show the scene's end until the next one starts
   // (no hearts left, or all 5 jewels), not the game already moved on
-  const shown = outcome === 'out' ? { ...game, hearts: 0, jewels: was.jewels } : outcome === 'level' ? { ...was, jewels: SCENES } : null;
+  const shown = outcome === 'out' ? { ...game, hearts: 0, jewels: was.jewels } : lvDone ? { ...was, jewels: SCENES } : null;
   ended = { outcome, words, won: result.won, shown };
   // the blocks as the scene ended (the last may still be falling): a reload shows it as it was
   settled = { round: JSON.parse(JSON.stringify(round)), poses: world.poses() };
@@ -496,7 +598,14 @@ function showEnd() {
   $('over').hidden = false;
 }
 
-$('nextBtn').onclick = () => { L('next', { outcome: ended?.outcome, ...game }); startScene(); };
+// After a level: the next level's screen; after the last: a new game's scenes, the map.
+$('nextBtn').onclick = () => {
+  const o = ended?.outcome;
+  L('next', { outcome: o, ...game });
+  if (o === 'level') { current = null; round = null; ended = null; settled = null; showLevelCard(game.level); return; }
+  if (o === 'all') { game = createGame(newSeed(), game); saveGame(); current = null; round = null; ended = null; settled = null; showMap(); return; }
+  startScene();
+};
 $('newBtn').onclick = () => { L('new game: the setup screen'); current = null; round = null; ended = null; settled = null; showSetup(); };
 
 // Start again (every game has one: developer, 2026-10-15): asks first, over
@@ -571,6 +680,27 @@ window.topple = {
   letGo() { drag = null; tick(1 / 60); },
   // a scene of the game (its jewels so far, 3 hearts), for checking it
   async scene(i) { game.scene = i; game.jewels = i - 1; game.hearts = HEARTS; saveGame(); await startScene(); return this.state(); },
+  // level n open and being played (for checking it; not a way the page offers)
+  async level(n, i = 1) { game.reached = Math.max(game.reached, n); switchLevel(game, n); saveGame(); showPlay(); return this.scene(i); },
+  map: () => showMap(), card: n => showLevelCard(n),
+  // Each sound's loudness, rendered offline as the game plays it (hard,
+  // 0.9): its peak and its loudest 50 ms RMS (for SITE_GAIN in sounds.js).
+  async soundLevels(names) {
+    const { RECIPES, kitFor } = await import('./sounds.js');
+    const out = {};
+    for (const name of names ?? Object.keys(RECIPES)) {
+      const sr = 44100, oc = new OfflineAudioContext(1, sr * 2, sr), buf = oc.createBuffer(1, sr, sr), d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const g = oc.createGain(); g.gain.value = 0.5; g.connect(oc.destination);
+      RECIPES[name](kitFor(oc, g, buf), 0.02, 0.9);
+      const data = (await oc.startRendering()).getChannelData(0), W = Math.round(sr * 0.05);
+      let peak = 0, s = 0, best = 0;
+      for (let i = 0; i < data.length; i++) { peak = Math.max(peak, Math.abs(data[i])); s += data[i] * data[i]; if (i >= W) s -= data[i - W] * data[i - W]; if (i >= W - 1) best = Math.max(best, s / W); }
+      out[name] = { peak: +peak.toFixed(3), rms: +Math.sqrt(best).toFixed(4) };
+    }
+    return out;
+  },
+  broken: () => world.blocks.filter(b => b.broken).length,
   state: () => (round ? {
     ...round, game: { ...game }, ready: ready(), busy, ended: ended?.outcome ?? null, card: $('over').hidden ? '' : $('overTitle').textContent,
     stack: current?.layout.stack, things: current?.layout.things.map(t => t.kind + (t.where ? ` ${t.where}` : '')), power: current?.layout.power,

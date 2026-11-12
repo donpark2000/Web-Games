@@ -10,6 +10,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng, FAR_TREES, farBalls, treeBalls, CORE } from '../core/topple.js';
+import { makeSetting } from './topple-sets.js';
 
 // Whether this device can draw 3D: a WebGL canvas can be made.
 export function webglOk() {
@@ -37,13 +38,14 @@ export function makePark3d(canvas) {
     if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...repeat); }
     return t;
   }
-  scene.background = canvasTex(4, 256, (g, w, h) => {
+  const parkSky = scene.background = canvasTex(4, 256, (g, w, h) => {
     const gr = g.createLinearGradient(0, 0, 0, h);
     gr.addColorStop(0, '#7DBCE6'); gr.addColorStop(0.7, '#CFE7F0'); gr.addColorStop(1, '#E4F1EE');
     g.fillStyle = gr; g.fillRect(0, 0, w, h);
   });
 
-  scene.add(new THREE.HemisphereLight('#FFFFFF', '#7E9A6A', 1.6));
+  const hemi = new THREE.HemisphereLight('#FFFFFF', '#7E9A6A', 1.6);
+  scene.add(hemi);
   const sun = new THREE.DirectionalLight('#FFF6E4', 2.4);
   sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0005;
   scene.add(sun, sun.target);
@@ -111,6 +113,8 @@ export function makePark3d(canvas) {
   /* ---------- the park ---------- */
 
   let farLeaves = 0;
+  const parkGroup = new THREE.Group();   // the lawn and the trees far off: level 1's setting
+  scene.add(parkGroup);
   {
     const lawn = canvasTex(64, 256, (g, w, h) => {
       g.fillStyle = '#8DBE72'; g.fillRect(0, 0, w, h / 2);
@@ -119,15 +123,15 @@ export function makePark3d(canvas) {
       for (let i = 0; i < 90; i++) g.fillRect(Math.random() * w, Math.random() * h, 1.5, 3);
     }, [60, 60]);
     const m = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshStandardMaterial({ map: lawn, roughness: 1 }));
-    m.rotation.x = -Math.PI / 2; m.receiveShadow = true; scene.add(m);
+    m.rotation.x = -Math.PI / 2; m.receiveShadow = true; parkGroup.add(m);
     // the trees far off (FAR_TREES): the same leaves 4 times as big (they
     // still read from that far), casting no shadow (out of the shadows' reach
     // anyway); the trunk up into the clump's middle
     for (const f of FAR_TREES) {
       const t = limb(new THREE.Vector3(f.x, 0, f.z), new THREE.Vector3(f.x, f.trunk.top, f.z), f.trunk.r0, f.trunk.r1);
-      t.castShadow = false; scene.add(t);
+      t.castShadow = false; parkGroup.add(t);
       const c = leafy(farBalls(f), ['#4F9A55', '#5DAA5E', '#478C4E'], f.y - f.r, f.y + f.r, 0.3, false);
-      scene.add(c); farLeaves += c.userData.leaves;
+      parkGroup.add(c); farLeaves += c.userData.leaves;
     }
   }
 
@@ -163,6 +167,8 @@ export function makePark3d(canvas) {
   /* ---------- a scene's things and blocks ---------- */
 
   let built = [], blockMeshes = [];
+  let set = null, level = 1;   // the setting drawn (levels 2-4: topple-sets.js), null for the park
+  const sets = new Map();      // level -> its setting (made once a visit), or null if its photos didn't load
   function box(o, mat, shadow = true) {
     const m = new THREE.Mesh(new THREE.BoxGeometry(o.w, o.h, o.d), mat);
     m.position.set(o.x, o.y, o.z); if (o.yaw) m.rotation.y = o.yaw;
@@ -195,16 +201,26 @@ export function makePark3d(canvas) {
         const ys = p.balls.map(b => b.at[1] + b.r);
         m = leafy(p.balls, BUSH_GREENS, 0, Math.max(...ys), LEAF); scene.add(m);
       } else if (p.part === 'tree') { m = tree(p); scene.add(m); } else if (p.part === 'board') m = box(p, [boardMat, boardMat, frameMat, frameMat, frameMat, frameMat], false);
-      else m = box(p, postMat);   // the pole and the arm
+      else if (p.part === 'pole' || p.part === 'arm') m = box(p, postMat);   // the backboard's pole and arm
+      else { m = set?.thing(p) ?? new THREE.Group(); scene.add(m); }   // levels 2-4's things
       leaves += m.userData.leaves || 0;
       built.push(m);
     }
-    for (const b of parts.blocks) { const m = box(b, blockMat(b.c)); built.push(m); blockMeshes.push(m); }
+    parts.blocks.forEach((b, i) => {
+      let m;
+      if (set && b.mat !== 'toy') {
+        const geo = set.blockGeo(b); set.prepare(geo, b, i);
+        m = new THREE.Mesh(geo, set.blockMat(b)); m.position.set(b.x, b.y, b.z); m.castShadow = m.receiveShadow = true; scene.add(m);
+      } else m = box(b, blockMat(b.c));
+      built.push(m); blockMeshes.push(m);
+    });
+    set?.clearEffects();
     // the shadows cover what the view shows
     const { min, max } = parts.bounds;
     const c = new THREE.Vector3((min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2);
     const R = Math.max(max[0] - min[0], max[2] - min[2], max[1] - min[1]) * 0.75 + 0.5 + 1.2 * SCALE;
-    sun.position.set(c.x + 1.4 * SCALE, 4.2 * SCALE + 1, c.z + 2.6 * SCALE); sun.target.position.copy(c);
+    const sd = set?.sun ?? [1.4, 4.2, 2.6];
+    sun.position.set(c.x + sd[0] * SCALE, sd[1] * SCALE + 1, c.z + sd[2] * SCALE); sun.target.position.copy(c);
     Object.assign(sun.shadow.camera, { left: -R, right: R, top: R, bottom: -R, near: 0.5, far: 12 * SCALE + 6 });
     sun.shadow.camera.updateProjectionMatrix();
     return { leaves, ms: Math.round(performance.now() - t0) };
@@ -212,17 +228,19 @@ export function makePark3d(canvas) {
 
   /* ---------- the slingshot (drawn only; not in the physics) ---------- */
 
-  const ballGeo = new THREE.SphereGeometry(BALL.r, 24, 16);
+  let ballGeo = new THREE.SphereGeometry(BALL.r, 24, 16);
   const ballMat = new THREE.MeshStandardMaterial({
     roughness: 0.55,
     map: canvasTex(128, 64, (g, w, h) => { g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, w, h); g.fillStyle = '#F2724F'; g.fillRect(0, h * 0.4, w, h * 0.2); }),
   });
   const tips = TIPS.map(t => new THREE.Vector3(...t));
+  const slingParts = [];
   {
     const wood = new THREE.MeshStandardMaterial({ color: '#8A5A3B', roughness: 0.8 });
     const stick = (a, b, r) => {
       const dir = b.clone().sub(a), m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, dir.length(), 10), wood);
       m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize()); scene.add(m);
+      m.userData.wood = wood; slingParts.push(m);
     };
     const crotch = new THREE.Vector3(0, FORK_CROTCH_Y, FORK_Z);
     stick(new THREE.Vector3(0, 0.95, FORK_Z), crotch, 0.018);
@@ -234,7 +252,16 @@ export function makePark3d(canvas) {
     const dir = b.clone().sub(a); m.position.copy(a).add(b).multiplyScalar(0.5);
     m.scale.set(1, dir.length(), 1); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
   }
-  const held = new THREE.Mesh(ballGeo, ballMat); held.castShadow = true; scene.add(held);
+  // the ball: level 1's painted one; from level 2 the iron ball with a lifting ring (mockup v3)
+  let ballLook = null;
+  function makeBall() {
+    if (!ballLook) { const m = new THREE.Mesh(ballGeo, ballMat); m.castShadow = true; return m; }
+    const { r, mat } = ballLook, m = new THREE.Mesh(ballGeo, mat); m.castShadow = true;
+    const boss = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.22, r * 0.3, r * 0.25, 12), mat); boss.position.y = r * 0.98; m.add(boss);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 0.42, r * 0.11, 8, 20), mat); ring.position.y = r * 1.42; m.add(ring);
+    return m;
+  }
+  let held = makeBall(); scene.add(held);
   const rest = new THREE.Vector3(0, 1.22, FORK_Z + 0.02);
 
   /* ---------- the dots ---------- */
@@ -259,10 +286,11 @@ export function makePark3d(canvas) {
     farLeaves,
     setScene,
     // Each block's mesh where the physics has it; the balls in flight (meshes of balls gone taken away).
-    sync(blockBodies, ballBodies) {
-      blockBodies.forEach((b, i) => {
-        const m = blockMeshes[i];
+    sync(blockRecs, ballBodies) {
+      blockRecs.forEach((rec, i) => {
+        const m = blockMeshes[i], b = rec.body ?? rec;
         if (!m) return;
+        m.visible = !rec.broken;
         m.position.set(b.position.x, b.position.y, b.position.z);
         m.quaternion.set(b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w);
       });
@@ -270,7 +298,7 @@ export function makePark3d(canvas) {
       for (const [b, m] of ballMeshes) if (!live.has(b)) { scene.remove(m); ballMeshes.delete(b); }
       for (const b of ballBodies) {
         let m = ballMeshes.get(b);
-        if (!m) { m = new THREE.Mesh(ballGeo, ballMat); m.castShadow = true; scene.add(m); ballMeshes.set(b, m); }
+        if (!m) { m = makeBall(); scene.add(m); ballMeshes.set(b, m); }
         m.position.set(b.position.x, b.position.y, b.position.z);
         m.quaternion.set(b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w);
       }
@@ -310,6 +338,39 @@ export function makePark3d(canvas) {
       return camera.aspect;
     },
     render() { renderer.render(scene, camera); },
+    // The setting for level n: the park (1), or a photo setting (2-4: its
+    // photos loaded the first time). Resolves to { level, photos (true: the
+    // photo look; false: the park drawn instead, its photos not loaded),
+    // ms, error }.
+    async setLevel(n) {
+      const t0 = performance.now();
+      let error = null;
+      if (n > 1 && !sets.has(n)) {
+        try { sets.set(n, await makeSetting(n, { renderer, leafy, LEAF })); } catch (e) { error = String(e.message ?? e); sets.set(n, null); }
+      }
+      if (set) scene.remove(set.group);
+      set = n > 1 ? sets.get(n) ?? null : null;
+      level = n;
+      parkGroup.visible = !set;
+      if (set) scene.add(set.group);
+      scene.background = set ? set.background : parkSky;
+      scene.environment = set ? set.environment : null;
+      scene.fog = set ? set.fog : null;
+      hemi.intensity = set ? set.hemi : 1.6;
+      // the ball and the slingshot
+      ballLook = set ? { r: 0.07, mat: set.ballMat } : null;
+      ballGeo = new THREE.SphereGeometry(ballLook ? 0.07 : BALL.r, 28, 18);
+      scene.remove(held); held = makeBall(); scene.add(held);
+      for (const m of ballMeshes.values()) scene.remove(m);
+      ballMeshes.clear();
+      for (const m of slingParts) m.material = set ? set.slingMat : m.userData.wood;
+      return { level: n, photos: !!set, ms: Math.round(performance.now() - t0), ...(error ? { error } : {}) };
+    },
+    // A block broke (ice shattered, a barrel burst): its pieces fly.
+    burst(b, at, q, v) { set?.burst(b, at, q, v); },
+    // The setting's moving parts (the effects, the snake) dt s on.
+    tick(dt) { set?.tick(dt, performance.now() / 1000); },
+    get level() { return level; },
     // ms to draw a frame, averaged over n (the log).
     timeDraw(n = 10) {
       const t0 = performance.now();

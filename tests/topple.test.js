@@ -11,6 +11,7 @@ import {
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, checkSetup, rng,
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
   FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn, SOME_STACKS, SOME_MIN,
+  MAX_LEVEL, LEVELS, switchLevel, placeOf, isOpen,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -277,30 +278,73 @@ test('topple: a tall block is down only while it lies tipped past 45°; dropping
   assert.equal(isDown(tilt(0), 1 - 0.13, 1, 0.2, false), true);
 });
 
+const FRESH = { scene: 1, hearts: HEARTS, jewels: 0 };
 test('topple: a game: a jewel and the next scene; a heart and the same scene; the last heart back to scene 1', () => {
   const g = createGame(77);
-  assert.deepEqual(g, { seed: 77, level: 1, scene: 1, hearts: HEARTS, jewels: 0 });
+  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {} });
   assert.equal(sceneOver(g, true), 'won');
   assert.deepEqual([g.scene, g.jewels, g.hearts], [2, 1, 3]);
   assert.equal(sceneOver(g, false), 'lost');
   assert.deepEqual([g.scene, g.jewels, g.hearts], [2, 1, 2]);
   assert.equal(sceneOver(g, false), 'lost');
   assert.equal(sceneOver(g, false), 'out');
-  assert.deepEqual(g, { seed: 77, level: 1, scene: 1, hearts: HEARTS, jewels: 0 }, 'the same scenes: the seed kept');
+  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {} }, 'the same scenes: the seed kept');
   for (let i = 1; i < SCENES; i++) assert.equal(sceneOver(g, true), 'won');
   assert.equal(g.scene, SCENES);
-  assert.equal(sceneOver(g, true), 'level');
   assert.throws(() => createGame(0));
   assert.throws(() => createGame(1.5));
+});
+
+// Levels (developer, 2026-11-11): a level done opens the next and goes on
+// to it; each level keeps its own place; the map plays any level open, not
+// higher; the last level done: 'all'.
+test('topple: levels: a level done opens the next; each keeps its place; only open levels can be played', () => {
+  assert.equal(MAX_LEVEL, 4);
+  assert.deepEqual(LEVELS.map(l => l.name), ['The park', 'The building site', 'Frosty Times', 'Cactus Canyon']);
+  const g = createGame(9);
+  assert.equal(isOpen(g, 2), false);
+  assert.equal(switchLevel(g, 2), false, 'level 2 before level 1 is done');
+  assert.equal(g.level, 1);
+  for (let i = 1; i < SCENES; i++) sceneOver(g, true);
+  assert.equal(sceneOver(g, true), 'level');
+  assert.deepEqual({ level: g.level, reached: g.reached, done: g.done }, { level: 2, reached: 2, done: [1] });
+  assert.deepEqual(placeOf(g, 2), FRESH);
+  assert.deepEqual(placeOf(g, 1), FRESH, 'level 1 done: played again from scene 1');
+  // part way into level 2, then back to level 1 and level 2 again: its place kept
+  sceneOver(g, true); sceneOver(g, false);
+  assert.deepEqual(placeOf(g, 2), { scene: 2, hearts: 2, jewels: 1 });
+  assert.equal(switchLevel(g, 1), true);
+  assert.deepEqual([g.level, g.scene], [1, 1]);
+  sceneOver(g, true);
+  assert.equal(switchLevel(g, 2), true);
+  assert.deepEqual({ level: g.level, scene: g.scene, hearts: g.hearts, jewels: g.jewels }, { level: 2, scene: 2, hearts: 2, jewels: 1 });
+  assert.deepEqual(placeOf(g, 1), { scene: 2, hearts: 3, jewels: 1 });
+  assert.equal(switchLevel(g, 3), false);
+  // through to the last level: 'all', every level done
+  for (const n of [2, 3]) { switchLevel(g, n); Object.assign(g, FRESH); for (let i = 1; i < SCENES; i++) sceneOver(g, true); assert.equal(sceneOver(g, true), 'level'); }
+  assert.equal(g.level, 4);
+  for (let i = 1; i < SCENES; i++) sceneOver(g, true);
+  assert.equal(sceneOver(g, true), 'all');
+  assert.deepEqual({ level: g.level, reached: g.reached, done: g.done, ...placeOf(g, 4) }, { level: 4, reached: 4, done: [1, 2, 3, 4], ...FRESH });
+  // new scenes keep the levels reached
+  const h = createGame(10, g);
+  assert.deepEqual({ level: h.level, reached: h.reached, done: h.done, places: h.places }, { level: 1, reached: 4, done: [1, 2, 3, 4], places: {} });
 });
 
 test('topple: a game kept on the device is used only if it makes sense', () => {
   const g = createGame(5);
   assert.deepEqual(readGame(JSON.parse(JSON.stringify(g))), g);
   assert.deepEqual(readGame({ ...g, extra: 1 }), g);
-  for (const bad of [null, 'x', {}, { ...g, seed: 0 }, { ...g, scene: 6 }, { ...g, scene: 0 }, { ...g, hearts: 0 }, { ...g, hearts: 4 }, { ...g, jewels: 5 }, { ...g, level: 2 }, { ...g, scene: '2' }]) {
+  for (const bad of [null, 'x', {}, { ...g, seed: 0 }, { ...g, scene: 6 }, { ...g, scene: 0 }, { ...g, hearts: 0 }, { ...g, hearts: 4 }, { ...g, jewels: 5 }, { ...g, level: 0 }, { ...g, level: 5 }, { ...g, scene: '2' }]) {
     assert.equal(readGame(bad), null, JSON.stringify(bad));
   }
+  // one kept by 9.4 (level 1 only) carries on
+  assert.deepEqual(readGame({ seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2 }), { seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2, reached: 1, done: [], places: {} });
+  // levels and places that don't make sense are dropped, not the game
+  const odd = readGame({ seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 1, done: [1, 7, 'x', 1], places: { 1: { scene: 9, hearts: 1, jewels: 0 }, 3: FRESH, 2: FRESH } });
+  assert.deepEqual(odd, { seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 2, done: [1], places: {} });
+  const kept = readGame({ seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 3, done: [1, 2], places: { 1: { scene: 4, hearts: 1, jewels: 3 } } });
+  assert.deepEqual(kept.places, { 1: { scene: 4, hearts: 1, jewels: 3 } });
 });
 
 test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all are down for 0.35 s; out of balls once still', () => {
@@ -335,8 +379,10 @@ test('topple: the end card\'s words, and a face is needed', () => {
   // the button says what it does; the jewels show where you are (2026-11-11)
   assert.deepEqual(endWords('won', g, 'Teddy'), { title: 'Teddy cleared it! 💎', next: 'Next ▸' });
   // every button an action: a verb or "Next" (no bare label like "Scene 3 of 5")
-  for (const o of ['won', 'level', 'lost', 'out']) assert.match(endWords(o, g, 'Teddy').next, /^(Next|Play|Try|Start)\b/, o);
+  for (const o of ['won', 'level', 'all', 'lost', 'out']) assert.match(endWords(o, g, 'Teddy').next, /^(Next|Play|Try|Start|Level \d ▸)/, o);
   assert.equal(endWords('level', g, 'Teddy').title, 'Level 1 done! 💎💎💎💎💎');
+  assert.deepEqual(endWords('level', g, 'Teddy'), { title: 'Level 1 done! 💎💎💎💎💎', sub: 'On to The building site', next: 'Level 2 ▸' });
+  assert.deepEqual(endWords('all', { ...g, level: 4 }, 'Teddy'), { title: 'All levels done! 💎', sub: 'More levels coming', next: 'Play again' });
   assert.equal(endWords('lost', { ...g, hearts: 1 }, 'Teddy').sub, '1 heart left');
   assert.equal(endWords('lost', g, 'Teddy').sub, '2 hearts left');
   assert.equal(endWords('out', g, 'Teddy').next, 'Start again');
