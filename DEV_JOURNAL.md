@@ -17865,7 +17865,7 @@ Level 2 updated; Q76 resolved).
   scenes picked"); the photo look; the materials, iron ball, sounds,
   wheelbarrow and site light (mockups v3-v6); the Level screen and the
   map (mockup v1).
-- **Next, in a fresh session:** mockup v8: photo surfaces on the things
+- **Next, in a fresh session (superseded below: no v8, build level 2):** mockup v8: photo surfaces on the things
   still drawn (the light's pole galvanised steel, the wheelbarrow's tray
   painted metal, the slingshot wood, the ball cast iron; a Poly Haven
   model only where that isn't enough; any new download needs the
@@ -17878,3 +17878,16 @@ Level 2 updated; Q76 resolved).
   the page's files can be read back from the artifact.
 - **Open questions:** Q64, Q73, Q74 (parked).
 - **Skill:** none waiting.
+
+**Later, developer:** "I suggest we move to publish rather than just
+another mockup. My feeling is that we have enough 'lessons learned' to
+make that practical. And my next planned step is to give you more
+latitude to proceed with new levels so when I leave tonight I can leave
+you with some significant goals that I can validate tomorrow." So **no
+mockup v8**: the next session builds level 2 in the game, the photo
+surfaces on the drawn things included (judged in the game, not a
+mockup), to a release ready to publish. Claude agreed. What would
+otherwise stop work while the developer is away: a download (needs the
+developer's OK: asked to give it for Poly Haven CC0 files at the new
+session's start) and the publish itself (merging to `main` needs the
+developer's OK; the release number proposed then).
