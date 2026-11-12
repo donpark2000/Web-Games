@@ -42,11 +42,20 @@
       <p class="where" id="where"></p>
       <button type="button" class="big" id="playBtn">Play!</button>
       <button type="button" class="pill" id="freshBtn" hidden>New scenes from scene 1</button>
+      <!-- the whole game over, only level 1 open (developer, 2026-11-12, Q92); asks first -->
+      <button type="button" class="pill" id="overBtn" hidden>Start over from level 1</button>
+      <div class="overask" id="overAsk" role="dialog" aria-labelledby="overAskTitle" hidden>
+        <p id="overAskTitle">Start over from level 1? The other levels lock again.</p>
+        <button type="button" class="pill primary" id="overYes">Yes</button>
+        <button type="button" class="pill" id="overNo">No</button>
+      </div>
       <div class="why" id="why"></div>
     </div>
 
     <!-- THE MAP (level 2 mockup v1, "look good"): Play! opens it; a level
-         done or the one you're on opens its Level screen; higher ones locked -->
+         done or the one you're on starts it straight away (developer,
+         2026-11-12, Q90: no Level screen, "I have to "start" 3 times");
+         higher ones locked -->
     <div class="panel tpmap" id="mapView" hidden>
       <h2 class="maptitle">Levels</h2>
       <div class="mapbox" id="mapBox"></div>
@@ -54,19 +63,6 @@
       <!-- after a level: the next one started from here once your face has walked there (Q81) -->
       <button type="button" class="big" id="mapGo" hidden>Play ▸</button>
       <button type="button" class="pill" id="mapBack">◀ Faces</button>
-    </div>
-
-    <!-- A LEVEL'S SCREEN: at each level's start and from the map: its name
-         (the setting), a picture, one line, the jewels and hearts, Start -->
-    <div class="panel lvcard" id="levelView" hidden>
-      <p class="lvnum" id="lvNum"></p>
-      <h2 class="lvname" id="lvName"></h2>
-      <div class="lvpic" id="lvPic" aria-hidden="true"></div>
-      <p class="lvline" id="lvLine"></p>
-      <p class="lvwhere" id="lvWhere"></p>
-      <div class="lvstate"><span id="lvJewels"></span><span id="lvHearts"></span></div>
-      <button type="button" class="big" id="lvGo">Start ▸</button>
-      <button type="button" class="pill" id="lvMap">◀ Map</button>
     </div>
   </section>
 

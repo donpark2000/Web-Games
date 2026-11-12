@@ -262,18 +262,22 @@ test('topple: a block is down once tipped over 45° or dropped 0.6 of its smalle
   assert.equal(isDown(tilt(0), 1 - 0.13, 1, 0.2), true, 'dropped 0.65');
 });
 
-// Q69 (journal, "Mockup v1 tried"): a post leaning on another looked standing.
-test('topple: a tall block is down only while it lies tipped past 45°; dropping doesn\'t count; up again under 40°', () => {
+// Q69 (journal, "Mockup v1 tried"): a post leaning on another looked
+// standing; Q91 (2026-11-12): posts leaning on the debris looked down, so
+// a post's lean counts from 30°, not 45°.
+test('topple: a tall block is down only while it lies tipped past 30°; dropping doesn\'t count; up again under 25°', () => {
   const tilt = deg => [Math.sin(deg / 2 / R2D), 0, 0, Math.cos(deg / 2 / R2D)];
   const post = (deg, y = 1, was = false) => isDown(tilt(deg), y, 1, 0.2, true, was);
-  assert.equal(post(41), false, 'leaning at 41° (seed 17\'s post)');
-  assert.equal(post(46), true);
   assert.equal(post(29, 0), false, 'fallen 1 m, standing at 29° (seed 28\'s upper post)');
+  assert.equal(post(31), true, 'leaning at 31°');
+  assert.equal(post(41), true, 'leaning at 41° (seed 17\'s post: up under the 45° rule)');
   assert.equal(post(90, 0), true, 'lying');
-  // counted down: up again only under 40° (no flicker either side of 45°)
-  assert.equal(post(43, 1, true), true);
-  assert.equal(post(39, 1, true), false);
-  assert.equal(post(43, 1, false), false);
+  // counted down: up again only under 25° (no flicker either side of 30°)
+  assert.equal(post(27, 1, true), true);
+  assert.equal(post(24, 1, true), false);
+  assert.equal(post(27, 1, false), false);
+  // a cube or plank keeps 45°
+  assert.equal(isDown(tilt(40), 1, 1, 0.2, false), false);
   // a cube or plank as before: dropping counts
   assert.equal(isDown(tilt(0), 1 - 0.13, 1, 0.2, false), true);
 });

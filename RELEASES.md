@@ -7,6 +7,17 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.2 (2026-11-12, version adf2a9d5750c)
+
+Topple!: quicker into play, a way to start over, and leaning posts count.
+
+- **A level on the map starts it** straight away: no extra screen to
+  press Start on.
+- **Start over from level 1** on the setup screen (it asks first): a new
+  game with the other levels locked again.
+- **A post leaning on the rubble counts as down** once it leans 30° or
+  more (it was 45°), so a scene doesn't go on when everything looks down.
+
 ## 10.1 (2026-11-12, version 380ff25f9d38)
 
 Topple!: a fifth level, Star Light.

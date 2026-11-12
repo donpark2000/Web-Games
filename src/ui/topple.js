@@ -107,6 +107,8 @@ function renderSetup() {
   if (fresh && game.reached > 1) $('where').textContent = `Level ${game.reached} reached`;
   $('playBtn').textContent = fresh ? 'Play!' : 'Carry on';
   $('freshBtn').hidden = fresh;
+  // Start over only once another level is open (before that, New scenes from scene 1 does the same)
+  $('overBtn').hidden = game.reached <= 1 || !$('overAsk').hidden;
   const code = checkSetup(setup);
   $('playBtn').disabled = !!code;
   $('why').textContent = code ? WHY[code] : '';
@@ -128,6 +130,24 @@ $('freshBtn').onclick = () => {
   L('new scenes from scene 1', { was, seed: game.seed, reached: game.reached });
   showMap();
 };
+// Start over (developer, 2026-11-12, Q92: "start the whole game over with no
+// memory of levels" and "the map locking everything but level 1"): asks
+// first; then a new game, level 1 the only one open, new scenes.
+$('overBtn').onclick = () => {
+  L('start over: asked', { reached: game.reached, done: game.done });
+  $('overAsk').hidden = false;
+  renderSetup();
+};
+$('overNo').onclick = () => { L('start over: no'); $('overAsk').hidden = true; renderSetup(); };
+$('overYes').onclick = () => {
+  const was = { ...game };
+  game = createGame(newSeed());
+  parked = null;
+  saveGame();
+  $('overAsk').hidden = true;
+  L('start over: a new game, level 1 only', { was, seed: game.seed, reached: game.reached });
+  renderSetup();
+};
 
 /* ---------- the map and a level's screen ---------- */
 
@@ -141,12 +161,11 @@ const LOOKS = {
   4: { pic: () => '🌵', bg: 'linear-gradient(#7FB3E0, #E2B48A)' },
   5: { pic: () => '🌙', bg: 'linear-gradient(#0B1430, #2A3A6A)' },
 };
-// The setup screen's view: 'faces' (the picks), 'map' or 'level'.
+// The setup screen's view: 'faces' (the picks) or 'map'.
 function setupView(v) {
   $('setup').classList.toggle('tp-map', v === 'map');
-  $('setup').classList.toggle('tp-level', v === 'level');
   $('mapView').hidden = v !== 'map';
-  $('levelView').hidden = v !== 'level';
+  if (v !== 'faces') $('overAsk').hidden = true;   // Start over's question doesn't wait behind the map
   scrollTo(0, 0);
 }
 // The map: the levels on a road, your face at the one you're on. After a
@@ -196,9 +215,9 @@ function showMap(walk = null) {
         L('map: a locked level', { level: lv, reached: game.reached });
         return;
       }
-      if (lv === arrived) { L('map: the level just walked to', { level: lv }); startLevel(lv); return; }
-      L('map: a level', { level: lv });
-      showLevelCard(lv);
+      // straight into play (developer, 2026-11-12, Q90: no Level screen): carry on, start, or play a done level again
+      L('map: a level, straight into play', { level: lv, walkedTo: lv === arrived, done, place: pl });
+      startLevel(lv);
     };
     $('mapBox').append(b);
   });
@@ -268,7 +287,7 @@ function stopWalk() {
   for (const t of walking.timers) clearTimeout(t);
   walking = null;
 }
-// Play level n straight from the map (after a walk), or from its screen.
+// Play level n straight from the map (a tap on it, or Play after a walk).
 function startLevel(n) {
   if (!switchLevel(game, n)) { L('level not open', { level: n, reached: game.reached }); showMap(); return; }
   saveGame();
@@ -277,24 +296,6 @@ function startLevel(n) {
   startScene();
 }
 $('mapGo').onclick = () => { if (arrived) startLevel(arrived); };
-// Level n's screen: its name, picture and line; where you are in it; Start or Carry on.
-function showLevelCard(n) {
-  if (playing) showSetup();
-  setupView('level');
-  const info = levelInfo(n), pl = placeOf(game, n), mid = pl.scene > 1 || pl.jewels > 0 || pl.hearts < HEARTS;
-  $('lvNum').textContent = `Level ${n}`;
-  $('lvName').textContent = info.name;
-  $('lvPic').innerHTML = LOOKS[n].pic();
-  $('lvPic').style.background = LOOKS[n].bg;
-  $('lvLine').textContent = info.line;
-  $('lvWhere').textContent = mid ? `Scene ${pl.scene} of ${SCENES}` : game.done.includes(n) ? 'Done ✔ · the same scenes again' : '';
-  $('lvJewels').textContent = jewels(pl);
-  $('lvHearts').textContent = hearts(pl);
-  $('lvGo').textContent = mid ? 'Carry on ▸' : game.done.includes(n) ? 'Play again ▸' : 'Start ▸';
-  $('lvGo').onclick = () => startLevel(n);
-  resume.keep();
-}
-$('lvMap').onclick = () => showMap();
 $('mapBack').onclick = () => { setupView('faces'); renderSetup(); };
 
 /* ---------- the play screen ---------- */
@@ -825,7 +826,7 @@ window.topple = {
   async scene(i) { game.scene = i; game.jewels = i - 1; game.hearts = HEARTS; saveGame(); await startScene(); return this.state(); },
   // level n open and being played (for checking it; not a way the page offers)
   async level(n, i = 1) { game.reached = Math.max(game.reached, n); switchLevel(game, n); saveGame(); showPlay(); return this.scene(i); },
-  map: () => showMap(), card: n => showLevelCard(n),
+  map: () => showMap(),
   // the walk after a level (Q81), without clearing one: from level a to b, its lock popping if unlock
   walk: (from, to, unlock = true) => showMap({ from, to, unlock }),
   walkState: () => ({ walking: !!walking, arrived, go: !$('mapGo').hidden, face: $('mapFace')?.style.cssText }),

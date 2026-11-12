@@ -756,12 +756,16 @@ export function dotsFor(path, limitT = DOT_SECONDS) {
 // lies tipped past 45° (developer, 2026-11-10, Q69: two posts leaning on
 // each other, counted down, looked standing; 2 of 299 first throws: a post
 // tipped to 48° that rocked back to 41°, and the tower's upper post that fell
-// to the ground and stood leaning at 29°). `wasDown`: it was counted down,
-// so it's up again only under 40° (no flicker at 45°).
-const TIP = Math.cos(45 / R2D), TIP_BACK = Math.cos(40 / R2D);
+// to the ground and stood leaning at 29°). A post's lean counts from 30°
+// (developer, 2026-11-12, Q91: on the building site everything was down
+// "or leaning at a pretty pronounced angle on other debris. It was not
+// clear what we left to hit"; "relax the rule a bit (say 60 degrees
+// instead of 45)": 60° above the ground, 30° from upright). `wasDown`: it
+// was counted down, so it's up again only under 25° (no flicker at 30°).
+const TIP = Math.cos(45 / R2D), POST_TIP = Math.cos(30 / R2D), POST_BACK = Math.cos(25 / R2D);
 export function isDown(q, y, startY, minDim, tall = false, wasDown = false) {
   const upY = 1 - 2 * (q[0] * q[0] + q[2] * q[2]);
-  if (tall) return upY < (wasDown ? TIP_BACK : TIP);
+  if (tall) return upY < (wasDown ? POST_BACK : POST_TIP);
   return upY < TIP || startY - y > 0.6 * minDim;
 }
 

@@ -169,6 +169,31 @@ test('topple page: a level done shows the map, the next level unlocking and your
   assert.match(css, /\.mapface \{ position: absolute;/);
 });
 
+// Developer, 2026-11-12 (Q90): "I have to "start" 3 times before
+// starting": a level on the map starts it, no Level screen.
+test('topple page: a level on the map goes straight into play; no Level screen', () => {
+  assert.doesNotMatch(page, /id="levelView"|id="lvGo"|class="panel lvcard"/);
+  assert.doesNotMatch(js, /showLevelCard|\$\('lv[A-Z]/);
+  assert.doesNotMatch(css, /\.lvcard|tp-level/);
+  // a level open: logged and started (locked ones still shake)
+  assert.match(js, /L\('map: a level, straight into play', \{[^}]*\}\);\s*startLevel\(lv\);\s*\};/);
+  assert.match(js, /if \(!isOpen\(game, lv\)\) \{[\s\S]*?\$\('mapToast'\)\.textContent = `Finish level \$\{lv - 1\} first`;/);
+});
+
+// Developer, 2026-11-12 (Q92): "no way to start the whole game over with
+// no memory of levels ... locking everything but level 1".
+test('topple page: Start over from level 1 asks first, then a new game with only level 1 open', () => {
+  assert.match(setupHtml, /<button type="button" class="pill" id="overBtn" hidden>Start over from level 1<\/button>/);
+  assert.match(setupHtml, /<div class="overask" id="overAsk" role="dialog" aria-labelledby="overAskTitle" hidden>\s*<p id="overAskTitle">Start over from level 1\? The other levels lock again\.<\/p>\s*<button type="button" class="pill primary" id="overYes">Yes<\/button>\s*<button type="button" class="pill" id="overNo">No<\/button>/);
+  // shown only once another level is open; the question hidden behind the map
+  assert.match(js, /\$\('overBtn'\)\.hidden = game\.reached <= 1 \|\| !\$\('overAsk'\)\.hidden;/);
+  assert.match(js, /if \(v !== 'faces'\) \$\('overAsk'\)\.hidden = true;/);
+  // Yes: a new game keeping nothing (New scenes keeps the levels: createGame(newSeed(), game))
+  assert.match(js, /\$\('overYes'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\)\);[\s\S]*?saveGame\(\);/);
+  assert.match(js, /\$\('freshBtn'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), game\);/);
+  for (const what of ["'start over: asked'", "'start over: no'", "'start over: a new game, level 1 only'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
+});
+
 // Developer, 2026-11-12: "there seems to be no way to get to the map";
 // Start again was cut off and did nothing (before the first ball).
 test('topple page: a Map button on the play screen keeps the scene; Start again shows only once it can be used', () => {

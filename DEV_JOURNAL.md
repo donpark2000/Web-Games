@@ -78,12 +78,20 @@ time, each tried before publishing:
   scenes in one) to discuss.
 - **Q90. Three "starts" before play: skip the Level screen** (2026-11-12,
   developer; "10.1 on the phone: three starts; ..."): a tap on the map
-  to go straight into play.
+  to go straight into play. Built (10.2, "Q90-Q92 built and measured"):
+  to try.
 - **Q91. Not clear what's left to hit** (2026-11-12, developer, the
   building site: everything down or leaning on debris): likely a post
-  leaning under 45° still counting as standing (same entry).
+  leaning under 45° still counting as standing (same entry). Developer:
+  no marker over the blocks left ("visually noisy"); "relax the rule".
+  Built (10.2): a post down from 30°; measured; to try.
 - **Q92. No way to start the whole game over** with only level 1 open
-  (2026-11-12, developer; same entry).
+  (2026-11-12, developer; same entry). Built (10.2): Start over from
+  level 1; to try.
+- **Q93. Worlds of five levels** (2026-11-12, the developer's idea; "Q90-Q92
+  built and measured"): after 5 levels, 5 new levels in a new world (the
+  moon, Mars, something quite different), instead of adding levels; "a
+  lot of symmetry - 5 balls, 5 scenes per level, 5 levels". To discuss.
 
 ## Proposed additions to the standards skill
 
@@ -18867,3 +18875,57 @@ everything but level 1." (Q92)
 - **Q92**: "New scenes from scene 1" keeps the levels reached and done
   (`createGame(seed, keep)`; Claude's pick, to review, DESIGN.md "The
   map"); there's no way to lock them again.
+
+## 2026-11-12: Q90-Q92 built and measured; release 10.2; worlds of five levels? (Q93)
+
+**Developer**: "Yes to 90, and 92. I don't like the bobbing arrow idea
+for 91. I think it would be visually noisy and distracting. Maybe relax
+the rule a bit (say 60 degrees instead of 45)". Later: "Please publish
+when done. I will test on my phone and get back to you."
+
+- **Q90 built**: a level on the map starts it (`startLevel`, logged
+  "map: a level, straight into play" with its place); the Level screen
+  is gone (`showLevelCard`, `#levelView` and its CSS removed). Its one
+  line about each level (`LEVELS[].line`) is no longer shown anywhere;
+  the data is kept.
+- **Q92 built**: **Start over from level 1** on the setup screen, shown
+  once another level is open (before that, New scenes does the same);
+  it asks in place ("Start over from level 1? The other levels lock
+  again." Yes / No), then `createGame(newSeed())`, nothing kept. Logged:
+  asked, no, done.
+- **Q91 built**: "60 degrees" read as 60° above the ground, so a post
+  counts as down once it leans **30°** from upright (up again under
+  25°); 60° from upright would have made it harder to count down. Cubes
+  and slabs keep 45° and the drop rule. Q69's two cases: the post
+  leaning at 41° (seed 17) now counts as down; the upper post standing
+  at 29° (seed 28) is still up.
+- **Measured** (Claude's script, scratchpad: a person-like player,
+  `tests/topple-players.js`'s, 20 games x 5 levels x 5 scenes, the same
+  seeds on both rules, about 8 min each):
+
+  | | 45° (10.1) | 30° (10.2) |
+  |---|---|---|
+  | scenes won, levels 1-5 (of 100 each) | 92, 81, 76, 95, 89 | 93, 83, 76, 97, 89 |
+  | posts leaning 30-45° left up in scenes not won | 4 (all level 2) | 0 |
+  | scenes not won with only such posts left | 2 (level 2) | 0 |
+
+  The developer's case is level 2's and is gone. 11 of 500 scenes
+  changed outcome, both ways, mostly with posts at 0-5° left: the
+  player's throws differ once a block counts down sooner (it aims only
+  at standing blocks), so those are the run's noise, not the rule.
+- Tests: `tests/topple.test.js` (the 30°/25° rule, 41° now down, 29°
+  still up, a cube at 40° still up), `tests/topple-page.test.js` (no
+  Level screen; the map starts the level; Start over asks, keeps
+  nothing, logged). In the browser (localhost): a game at level 2 with
+  3 open: Start over → asked → Yes → level 1 only, "Play!"; the map's
+  level 1 → play at once; level 2 locked ("Finish level 1 first"); the
+  log lines there; no console errors. Full suite 591 pass.
+- **Release 10.2** (x.2: changes): `src/core/release.js`, `node
+  tools/offline.js` (version adf2a9d5750c, 185 files), `RELEASES.md`,
+  `node tools/release.js` ready.
+
+**Developer** (same message): "after completing 5 levels, instead of
+just adding levels, we go to 5 new levels in a new world. For example,
+it could be "on the moon" or "on mars" or something quite different ...
+Right now we have a lot of symmetry - 5 balls, 5 scenes per level, 5
+levels." (Q93; Claude's view in chat, to discuss next session.)

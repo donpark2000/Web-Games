@@ -4,9 +4,11 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-12, latest): **Topple!'s animals take fright when a
-block falls** and run off (on `block-game`, not yet published; see
-"Topple!", The animals). 2026-11-11: **the 3D games' home pictures are stills
+*Status (2026-11-12, latest): **Topple!: a level on the map starts it
+(no Level screen); Start over from level 1; a post leaning past 30°
+counts as down** (release 10.2; see "Topple!"). Earlier the same day:
+Star Light, level 5 (10.1); levels 2-4, the map and the animals taking
+fright (10.0). 2026-11-11: **the 3D games' home pictures are stills
 from the games** (motion lines, Topple!'s tower falling, the dice cup
 over the tray; see "3D games", Home pictures), with Topple!'s 2026-11-10/11
 changes below, for release 9.3. 2026-11-10: **Topple!: a throw starts only on the
@@ -2108,9 +2110,12 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   pair and row. A structure with depth is set back so its front stands
   where a one-row structure's does. **A block is down** once tipped more than 45° or
   dropped 0.6 of its smallest side, and stays counted down; but **a
-  post** (taller than wide and deep) only while it lies tipped past 45°,
-  however far it fell, and up again under 40° (developer, 2026-11-10,
-  Q69: two posts leaning on each other were counted down). A block
+  post** (taller than wide and deep) only while it lies tipped past 30°,
+  however far it fell, and up again under 25° (developer, 2026-11-10,
+  Q69: two posts leaning on each other were counted down, so 45°;
+  2026-11-12, Q91: posts leaning on the debris left it unclear what was
+  left to hit: "relax the rule a bit (say 60 degrees instead of 45)",
+  60° above the ground). A block
   knocked further sideways than a throw can aim (22° and 2° more) counts
   as down (developer, 2026-11-12, Q85: a cube slid out of reach). All down
   and everything still (the blocks, and the shards and spray) for 0.35 s:
@@ -2186,10 +2191,10 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   screen: a node per level up a path of dots, orange as far as you've
   got; done levels ✔, the one you're on lit with your face on it
   (2026-11-12; was "You"), higher ones 🔒
-  ("Finish level N first"). A node opens its **Level screen**: "Level N",
-  the name (the setting), a picture, one line, where you are in it, its
-  jewels and hearts, **Start ▸** / **Carry on ▸** / **Play again ▸**, and
-  ◀ Map. **Each level keeps its own place**, and a level played again
+  ("Finish level N first"). **A node starts its level** straight away:
+  carried on where it was, or played again once done (developer,
+  2026-11-12, Q90: Play!, the map and a Level screen were "start" 3
+  times; the Level screen dropped). **Each level keeps its own place**, and a level played again
   has the same scenes. **The level after a done one is always open**,
   so a level added later opens for a game that had finished them all
   (developer, 2026-11-12: level 4 done in 10.0, level 5 locked until
@@ -2373,7 +2378,10 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
 - **Setup** (developer: "as Tin Can Alley"): the rules line with the
   park in small, **Pick your face**, **Play!** (or **Carry on** with
   where the game is: "Level 1 · scene 3 of 5 · ❤️❤️🤍 · 💎💎") and **New
-  scenes from scene 1** once a game is under way. **Home:** 👤 One
+  scenes from scene 1** once a game is under way (the levels kept open).
+  **Start over from level 1** once another level is open (developer,
+  2026-11-12, Q92): it asks first ("Start over from level 1? The other
+  levels lock again."), then a new game with only level 1 open. **Home:** 👤 One
   player, after Tin Can Alley; its picture an arch in a park, the top
   cube knocked off.
 - **Play: the park fills the screen** (as Tin Can Alley's stall):
@@ -2414,8 +2422,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   that can't run three.js, cannon-es or WebGL sees only "This phone or
   tablet can't show the 3D park".
 - **Logged** (levels 2-4 too): the setting drawn (its photos, ms, or why
-  not), the map (a level picked, a locked one), the Level screen's
-  start, a block broken (its material, speed), each knock's material in
+  not), the map (a level picked and started, a locked one), Start over
+  (asked, no, done), a block broken (its material, speed), each knock's material in
   the sound; an animal frightened (where it was, the block's x, whether
   it turned back, by a fall or a break); the owl's hoots; the night sky (ms to make, the skyline found); 3D started (with the far-off trees' leaves), the game on
   the device, the fit (with the pad's spot), each scene (its layout, the
