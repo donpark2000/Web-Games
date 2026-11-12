@@ -76,11 +76,6 @@ time, each tried before publishing:
   Star Light first; many targets (Q88)"): same play, more balls. Asked
   "Would that be easier?": answered there. Where it goes (a level, or
   scenes in one) to discuss.
-- **Q89. Star Light: little or no sky in some views** (2026-11-12; "Star
-  Light tried: level 5 locked; the moon and cloud ..."): the moon now
-  goes only where there's sky; in 3 of 5 scenes on a wide screen there
-  is none. Leave it, or tilt the night view up a little? For the
-  developer.
 
 ## Proposed additions to the standards skill
 
@@ -194,6 +189,12 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q89. Star Light: little or no sky in some views** (2026-11-12; "Star
+  Light tried: level 5 locked; the moon and cloud ..."): the moon goes
+  only where there's sky; in 3 of 5 scenes on a wide screen there is
+  none. Leave it, or tilt the night view up? 2026-11-12, developer:
+  "leave it. The background stuff is not as important as game play."
+  **Settled: left as it is** ("Release 10.1 published").
 - **Q77. Levels 2-4: Claude's picks, to review** (2026-11-11 night;
   "Levels 2-4 built (overnight)"). The developer left these to Claude:
   level 4's name "Cactus Canyon"; levels 3 and 4's structures and their
@@ -18804,3 +18805,29 @@ could use a photo or make it look whispier?"
   targets: to discuss).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q89.
+
+## 2026-11-12: Release 10.1 published and live
+
+**Developer**: "1) leave it. The background stuff is not as important as
+game play. 2) yes" (Q89: the night view left as it is; publish as 10.1).
+
+- **Q89** settled, moved to Resolved.
+- 10.1 (version 380ff25f9d38; Star Light, a new level, so x.1):
+  `src/core/release.js` 10.1, `node tools/offline.js` (185 files),
+  `RELEASES.md` notes, 589 tests pass, `node tools/release.js` ready;
+  `main` fast-forwarded to 69b3644, tag `v10.1` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (success); the live `src/core/version.js` reads 380ff25f9d38.
+- The local server (`tools/serve.js 8123`, PID 21908, the developer's)
+  stopped, and Claude's browser tab on it; none left.
+
+**Status (start here next session)**
+- **Live: 10.1** (Topple! levels 1-5). `block-game` = `main` plus this
+  entry. Nothing waiting to publish.
+- **For the developer:** Star Light on the phone (the moon and cloud,
+  level 5 opening from your saved game); Q79's frame rate can be read
+  there (the log's fps at each scene's end).
+- **Next candidates:** Q88 (several targets in a scene), the other new
+  levels from Q87 (Water world, Tubular Bells, a chain-reaction level),
+  Q78 (map pictures).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88.
