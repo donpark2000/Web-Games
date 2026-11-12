@@ -85,9 +85,18 @@ export function createWorld({ onHit = () => {} } = {}) {
   world.defaultContactMaterial.friction = 0.4;
   world.defaultContactMaterial.restitution = 0.15;
   const CM = (a, b, friction, restitution) => world.addContactMaterial(new CANNON.ContactMaterial(M[a], M[b], { friction, restitution }));
+  // cannon-es caps each friction equation at friction x g x mass but uses
+  // that as the push of one step, not a force over it: friction acts
+  // 1/STEP (120) times its number, and a box resting on its 4 corners 4
+  // times again (measured 2026-11-12, Q84: a box pushed at 1 m/s on a plane
+  // stopped in one step, 1 to 0.39 m/s, the same at friction 0.06 or 0.4;
+  // at 0 it slid on). Every material is gripping hard; that's how levels
+  // 1-4 were tuned, so it stays, except for ice (developer, 2026-11-12:
+  // ice should slide), whose grip is put back to its number.
+  const grip = (a, b, f) => (MATS[a]?.slides || MATS[b]?.slides ? f * STEP / 4 : f);
   for (const a of mats) {
-    for (const b of mats) if (a <= b) CM(a, b, Math.min(MATS[a].friction, MATS[b].friction), 0.05);
-    CM(a, 'stand', MATS[a].friction, 0.05); CM(a, 'glass', 0.2, 0.05); CM(a, 'bush', 0.6, 0.02); CM(a, 'tree', 0.4, 0.05); CM(a, 'soft', 0.8, 0.02);
+    for (const b of mats) if (a <= b) CM(a, b, grip(a, b, Math.min(MATS[a].friction, MATS[b].friction)), 0.05);
+    CM(a, 'stand', grip(a, 'stand', MATS[a].friction), 0.05); CM(a, 'glass', 0.2, 0.05); CM(a, 'bush', 0.6, 0.02); CM(a, 'tree', 0.4, 0.05); CM(a, 'soft', 0.8, 0.02);
     CM('ball', a, 0.3, MATS[a].bounce);
   }
   CM('ball', 'stand', 0.4, BOUNCE.stand); CM('ball', 'glass', 0.05, BOUNCE.glass);

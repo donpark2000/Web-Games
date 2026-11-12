@@ -88,7 +88,23 @@ test('topple levels: nothing in the way stands within reach of the structure fal
 
 test('topple levels: the materials: wood lightest to steel heaviest; ice slippery; ice and barrels break, the rest never', () => {
   assert.ok(MATS.wood.density < MATS.brick.density && MATS.brick.density < MATS.concrete.density && MATS.concrete.density < MATS.steel.density);
-  assert.ok(MATS.ice.friction < 0.1);
+  // ice slides (2026-11-12, Q84: cannon-es's friction acts 1/STEP x 4 its number; ice's is put back):
+  // a lone cube on the ground pushed at 1 m/s slides at least 25 cm (friction 0.15: 0.34 m); wood hardly moves
+  assert.ok(MATS.ice.slides && !MATS.wood.slides);
+  const L3 = frameLayout(5, 3, 3), p3 = sceneParts(L3), lo = Math.min(...p3.blocks.map(b => b.y));
+  const slid = mat => {
+    const one = { ...p3, blocks: [{ ...p3.blocks.find(b => b.y < lo + 0.01), mat }] }, w = createWorld();
+    w.setScene(one);
+    const b = w.blocks[0].body;
+    for (let i = 0; i < 60; i++) { b.wakeUp(); w.step(1 / 60); }
+    const x0 = b.position.x;
+    b.velocity.set(1, 0, 0);
+    for (let i = 0; i < 300; i++) w.step(1 / 60);
+    return b.position.x - x0;
+  };
+  const ice = slid('ice'), wood = slid('wood');
+  assert.ok(ice > 0.25, `ice slid ${ice.toFixed(2)} m`);
+  assert.ok(wood < 0.05, `wood slid ${wood.toFixed(2)} m`);
   for (const [k, m] of Object.entries(MATS)) assert.equal(!!m.breaks, k === 'ice' || k === 'barrel', k);
   // a steel post weighs more than a wooden one of the same size, in the world as built
   const w = createWorld();

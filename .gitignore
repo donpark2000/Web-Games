@@ -9,3 +9,6 @@ Thumbs.db
 
 # Claude Code per-user settings
 .claude/settings.local.json
+
+# editors' swap files (2026-11-12: one was committed by mistake)
+*.swp

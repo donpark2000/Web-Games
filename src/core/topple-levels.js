@@ -35,7 +35,7 @@ export const MATS = {
   steel: { density: 45, bounce: 0.45, friction: 0.35, breaks: null },
   // ice down (fallen, tipped) shatters as it lands (developer, 2026-11-12, Q83: a cube that fell
   // whole looked like one still to knock down): whole ice is always ice still standing
-  ice: { density: 22, bounce: 0.25, friction: 0.06, breaks: 2.2, downBreaks: true },
+  ice: { density: 22, bounce: 0.25, friction: 0.15, breaks: 2.2, downBreaks: true, slides: true },
   barrel: { density: 24, bounce: 0.25, friction: 0.5, breaks: 3.0 },
 };
 
