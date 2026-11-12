@@ -66,24 +66,13 @@ time, each tried before publishing:
   photos add 5.57 MB to the offline app (now 9.08 MB, 183 files); each
   sky is a 4096 x 2048 photo. To measure on the phone before release
   (the log's fps at each scene's end).
-- **Q80. Topple!'s score bar isn't clear** (2026-11-12; "Levels 2-4
-  tried"). Developer: beside the scene "it shows the number 10 beside my
-  icon and then in small print below that it says 'of 10 down' and then
-  there is a picture of a line with a ball on it. I'm not sure what all
-  of that means." It is: your face, blocks knocked down of the scene's
-  blocks, and the 5 balls (used ones faded to 0.2, so 4 used look like a
-  line and one ball). To redesign; the developer's call.
-  2026-11-12, developer: a mockup, yes. Mockup v1 (artifact "Topple!
-  score bar"): now, A (an ice block and the number left, counting down;
-  the balls as iron balls, a thrown one an empty dashed place; a word
-  under each), B (a small block per block, green with a tick as it
-  falls); upright and sideways; a Throw button.
 - **Q81. A level done: the map, the next level unlocking, your face
   moving there** (2026-11-12): the developer's idea, instead of the
   Level screen. A mockup first.
   2026-11-12, developer: "Not sure. How does the cost of a mockup
   compare to a build?" Answered in chat ("Q82 drift built; Q83
-  measured").
+  measured"). 2026-11-12, developer: "We can go straight to the build."
+  Built ("Balls left; the map walk; ..."): to try.
 - **Q82. Level 3's snow drift doesn't look like snow** (2026-11-12):
   "Maybe a snowman would look better." The drift is in play (level 3's
   'soft' thing: it catches the ball, as level 1's bush); a snowman
@@ -92,15 +81,15 @@ time, each tried before publishing:
   shaped by the wind tend to be longer and not symmetrical, with peaks
   that are thinner than the base and can even look like they are
   curling." Built (entry below); for the developer to look at.
-- **Q83. Ice cubes on the ground vs. cubes that fell there** (2026-11-12,
-  the ice pyramid): a cube that falls from above counts down (dropped
-  more than 0.6 of its size), but a bottom-row cube can't drop, and a
-  cube slid or rolled over looks the same as one standing: it has to be
-  smashed. "It can be a bit confusing to have 2 cubes side by side that
-  look the same, but require different treatment."
-  2026-11-12, developer: "Why don't the blocks break when they fall?"
-  They do, at 2.2 m/s along the knock, the same as a ball's hit;
-  measured (entry below): a cube tumbling a row lands just under it.
+  2026-11-12, developer: "Its better but still not very real looking.
+  Maybe a rock with a bit of snow on top and/or one side would look
+  better." Built ("Balls left; the map walk; ..."): to look at.
+- **Q84. Ice hardly slides** (2026-11-12, found writing the ice test):
+  level 3's line says "Ice blocks slide", but a ground cube of the ice
+  pyramid pushed at 2.5 m/s moved 10 cm, and the top cube nudged at
+  0.6-1.2 m/s any way moved 1-2 cm and stopped. Likely the cubes resting
+  on it (asleep, so held still) grip it; not measured further. Does ice
+  need to slide more for the level to feel icy? The developer's call.
 
 ## Proposed additions to the standards skill
 
@@ -203,6 +192,34 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q80. Topple!'s score bar isn't clear** (2026-11-12; "Levels 2-4
+  tried"). Developer: beside the scene "it shows the number 10 beside my
+  icon and then in small print below that it says 'of 10 down' and then
+  there is a picture of a line with a ball on it. I'm not sure what all
+  of that means." It is: your face, blocks knocked down of the scene's
+  blocks, and the 5 balls (used ones faded to 0.2, so 4 used look like a
+  line and one ball). To redesign; the developer's call.
+  2026-11-12, developer: a mockup, yes. Mockup v1 (artifact "Topple!
+  score bar"): now, A (an ice block and the number left, counting down;
+  the balls as iron balls, a thrown one an empty dashed place; a word
+  under each), B (a small block per block, green with a tick as it
+  falls); upright and sideways; a Throw button.
+  2026-11-12, developer: "I think the count of number of blocks down is
+  unnecessary. Just 'balls left' (and draw the balls as they appear in
+  the scene) is all that we need." **Built** ("Balls left; the map walk;
+  ...").
+- **Q83. Ice cubes on the ground vs. cubes that fell there** (2026-11-12,
+  the ice pyramid): a cube that falls from above counts down (dropped
+  more than 0.6 of its size), but a bottom-row cube can't drop, and a
+  cube slid or rolled over looks the same as one standing: it has to be
+  smashed. "It can be a bit confusing to have 2 cubes side by side that
+  look the same, but require different treatment."
+  2026-11-12, developer: "Why don't the blocks break when they fall?"
+  They do, at 2.2 m/s along the knock, the same as a ball's hit;
+  measured (entry below): a cube tumbling a row lands just under it.
+  2026-11-12, developer, to "any ice block counted down shatters": "Yes".
+  **Built** ("Balls left; the map walk; ..."): 200 of 200 cubes broken in
+  the same measurement (was 194).
 - **Q76. The photo look's loose ends** (2026-11-11; "Photo look picked
   (Q75)"): the things still drawn beside the photo surfaces looked like
   plastic; level 1's park; the files' size on a phone. **Settled
@@ -18206,3 +18223,90 @@ game's own pills and pad hidden for it.
   the overnight picks (Q77).
 - **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
 - **Open questions:** Q64, Q73, Q74 (parked), Q77-Q83.
+
+## 2026-11-12: Balls left; the map walk; a snowy rock; animals; ice down shatters
+
+**Developer**: "1) I think the count of number of blocks down is
+unnecessary. Just 'balls left' (and draw the balls as they appear in the
+scene) is all that we need. ... 2) We can go straight to the build. BUT
+I like the snake in the cactus level. Can we add something to the other
+levels? Like maybe a bird or two for the first level, a rat on the
+construction site, a snow bunny for the winter level? 3) Its better but
+still not very real looking. Maybe a rock with a bit of snow on top
+and/or one side would look better. 4) Yes".
+
+**Q83, ice down shatters** (MATS ice `downBreaks`; src/core/topple-world.js:
+a block of it counted down is marked, and shatters at its next knock of
+0.3 m/s or more, or once it is still, `LAND_KNOCK`). Measured with the
+same scratch script as before (the ice pyramid, 20 players, 200 cubes):
+200 broken, none down whole (was 194 and 6). Test: a cube moved off the
+top falls and shatters; a ground cube pushed sideways stays whole and
+standing; a cube turned onto its side where it stands (no knock near
+2.2 m/s) shatters. The test without the rule failed only on the last
+(the moved cube's fall broke it anyway, at 2.2 m/s or more): so the last
+case is the one that proves the rule. Found on the way: Q84.
+
+**Q80, the score bar**: your face and the 5 balls, "balls left" under
+them; level 1's painted ball, levels 2-4 the iron ball with its ring (as
+the scene's, by the scene's own level, so a level's end still shows its
+ball); a thrown one an empty dashed place. Checked in the browser at
+this PC's size (the sideways column: 3 and 2 balls, the words under)
+and level 1's.
+
+**Q81, the map walk** (built, no mockup): the end card's "Level N ▸"
+opens the map, not the Level screen. The new level shows locked; at
+0.5 s its lock shakes, at 1 s it pops off (a clink) and the level's
+picture shows with a glow; at 1.5 s your face walks the road (1.6 s,
+easing in and out, a little hop; the climb sound) as its dots turn
+orange behind it (the road travelled drawn as its own curve:
+`roadTo`), lands with a bounce (a ding), and **Play level N ▸** shows;
+a tap on that level starts it too (other levels still open their Level
+screen). A level played again (its next already open): the face walks,
+no lock. Reduced motion: all at once. Your face also replaces "You" on
+the map. The road's maths in the core (`MAP_NODES`, `mapRoad`,
+`roadAt`, `roadTo`), tested: the travelled part ends at the face and
+follows the road at a quarter and half way. That test passed at first
+with two control points swapped (halfway weighs them equally): the
+quarter-way check catches it. Checked in the browser: level 3's last
+scene cleared (every block tipped by hand), "Level 4 ▸", the lock
+(`locked` at once, `shake` at 0.7 s, `unlocked` at 1.2 s), the walk,
+"Play level 4 ▸"; and **Play level 3 ▸** starting level 3 scene 1;
+phone width: no sideways scroll.
+
+**Q82, the snowy rock**: level 3's thing in the way is a grey boulder
+half buried (level 4's boulder shape, now one function for both) with a
+skin of snow on its top and lower down one side (the wind's side, by its
+seed), the edge wavy. First tries: the cliff photo came out rusty brown
+like wood, and the snow, pushed out along the cut faces' normals, tore
+into facets; now the building site's worn concrete photo (grey stone,
+no new download) and the snow pushed out from the rock's middle. Its
+job is the heap's (the ball stays against it), with the iron ball's
+clonk. Placed as the heap and the drift were (the same random numbers),
+1.2-1.44 x 0.96-1.12 m, 0.38-0.46 m tall. **Level 3's win rates** (the
+tests' person player, 4 games x 8 players, all 5 scenes, the same run on
+the last commit and now): 32, 31, 31, 30, 11 of 32 before; 32, 31, 31,
+30, 10 now.
+
+**Animals** (decor, out of play, as the snake): two birds circling over
+the park's far trees (flapping, then gliding), a rat scurrying in dashes
+to the right of the building site's structure and stopping to sniff, a
+white snow bunny hopping to the left of the ice and sitting with its
+ears twitching. Drawn at twice life size: at life size the bunny was a
+few pixels from the slingshot (about 15 m away); the birds first flew
+along the view's top edge, now lower (3.2-4.1 m).
+
+**Sounds**: the agreed list for Topple! now has clink, climb and ding
+(the map) and no poof (the snow's); the test checks 59 sounds (was 57).
+
+**Tests**: 573 of 573 pass.
+
+## 2026-11-12: Status (start here next session)
+
+- **Live: 9.4.** `block-game`: levels 2-4 and today's changes (the card
+  waits, no old level, the level's name, balls left, the map walk, the
+  snowy rock, the animals, ice down shatters); 573 tests pass; committed
+  and pushed. Nothing merged.
+- **For the developer:** try it (`node tools/serve.js`); Q82 (the rock's
+  look), Q84 (ice hardly slides), Q77 (the overnight picks).
+- **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
+- **Open questions:** Q64, Q73, Q74 (parked), Q77, Q78, Q79, Q81, Q82, Q84.

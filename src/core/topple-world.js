@@ -17,6 +17,8 @@ import { fixedStepper } from './fixed-step.js';
 
 export const MAX_SUBSTEPS = 8;
 export const BALL_LIFE = 10;                         // a thrown ball is taken away after this long (s), or once under the ground
+// A knock that shatters ice already down (Q83): any real touch, not resting contact.
+export const LAND_KNOCK = 0.3;
 export const STILL_SPEED = 0.05 * Math.sqrt(SCALE);  // a block slower than this (m/s) counts as still
 // How much of its speed into a surface the ball keeps off each kind of thing
 // (the physics and the path alike): the glass backboard lively (developer:
@@ -107,7 +109,10 @@ export function createWorld({ onHit = () => {} } = {}) {
   function onBlockCollide(e) {
     if (e.body.kind === 'ball') return;   // the ball's own listener has it
     const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
-    breakAt(recOf.get(e.target), v);
+    const rec = recOf.get(e.target);
+    breakAt(rec, v);
+    // ice counted down: its next knock shatters it (Q83)
+    if (rec?.landBreak && v >= LAND_KNOCK) toBreak.add(rec);
     if (v >= 0.5) onHit({ a: 'block', b: kindOf(e.body), v, mat: e.target.mat, other: e.body });
   }
   function onBallCollide(e) {
@@ -250,8 +255,10 @@ export function createWorld({ onHit = () => {} } = {}) {
     for (const b of blocks) {
       if (b.broken || (b.down && !b.tall)) continue;
       const now = isDown(quatOf(b.body), b.body.position.y, b.start.y, b.minDim, b.tall, b.down);
-      if (now && !b.down) { b.down = true; fell.push(b); } else if (!now && b.down) { b.down = false; rose.push(b); }
+      if (now && !b.down) { b.down = true; fell.push(b); if (MATS[b.mat].downBreaks) b.landBreak = true; } else if (!now && b.down) { b.down = false; rose.push(b); }
     }
+    // ice down that came to rest without a knock (it tipped slowly): shattered now (Q83)
+    for (const b of blocks) if (b.landBreak && !b.broken && b.down && b.body.velocity.length() < STILL_SPEED && b.body.angularVelocity.length() < 0.5) toBreak.add(b);
     return { down: blocks.filter(b => b.down).length, fell, rose, broke, steps, dropped };
   }
 

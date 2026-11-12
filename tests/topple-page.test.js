@@ -136,3 +136,32 @@ test('topple page: the drag pad and its show: over the park, the touch going thr
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   }
 });
+
+// Developer, 2026-11-12 (Q80): "Just 'balls left' (and draw the balls as
+// they appear in the scene)"; no count of blocks down.
+test('topple page: the score bar is your face and the balls left, drawn as the level\'s ball', () => {
+  assert.doesNotMatch(playHtml, /downN|downWho|of \d+ down/);
+  assert.match(playHtml, /<span class="balls" id="balls" role="img" aria-label="5 balls left"><\/span>\s*<span class="who">balls left<\/span>/);
+  assert.match(js, /\$\('balls'\)\.classList\.toggle\('iron', levelInfo\(current\?\.id\.level \?\? game\.level\)\.ball === 'iron'\)/);
+  assert.match(css, /\.balls\.iron i \{[^}]*radial-gradient/);
+  assert.match(css, /\.balls i\.used, \.balls\.iron i\.used \{[^}]*outline: 2px dashed/);
+});
+
+// Developer, 2026-11-12 (Q81): after a level, the map: the next level
+// unlocking, your face walking there; started from the map.
+test('topple page: a level done shows the map, the next level unlocking and your face walking there; Play starts it', () => {
+  assert.match(setupHtml, /<button type="button" class="big" id="mapGo" hidden>Play ▸<\/button>/);
+  // the end card's button: the map and the walk (not the next level's screen)
+  assert.match(js, /if \(o === 'level'\) \{\s*const walk = \{ from: game\.level - 1, to: game\.level, unlock: !!ended\.unlocked \};[\s\S]*?showMap\(walk\);/);
+  assert.match(js, /unlocked: game\.reached > was\.reached/);
+  // the walk: shake, the lock pops, the face along the road (roadAt), the dots behind it (roadTo), then Play
+  for (const what of ["node.classList.add('shake')", "<span class=\"lock pop\">🔒</span>", 'placeFace(roadAt(P, e))', "fill.setAttribute('d', e > 0 ? roadPath(roadTo(P, e)) : '')", "$('mapGo').hidden = false"]) assert.ok(js.includes(what), `the walk lacks ${what}`);
+  assert.match(js, /\$\('mapGo'\)\.onclick = \(\) => \{ if \(arrived\) startLevel\(arrived\); \};/);
+  // reduced motion: all at once
+  assert.match(js, /const quick = matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches;/);
+  // logged
+  for (const what of ["'map: the walk'", "'map: unlocked'", "'map: arrived'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
+  // your face on the map, not the "You" label
+  assert.doesNotMatch(js, /class="you"/);
+  assert.match(css, /\.mapface \{ position: absolute;/);
+});

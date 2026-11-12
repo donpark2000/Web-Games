@@ -2161,7 +2161,10 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   cleared loses one of **3 ❤️** and is played again; the last heart lost
   goes back to scene 1, **the same scenes** ("to help kids proceed up
   levels"); 5 💎 finish the level and open the next ("Level 1 done!",
-  **Level 2 ▸**: its Level screen). **Four levels** (2026-11-11, the
+  **Level 2 ▸**: the map, the next level's lock shaking and popping off,
+  your face walking the road to it as the dots turn orange, then **Play
+  level 2 ▸** or a tap on it starts it; developer, 2026-11-12, Q81:
+  instead of the next level's screen). **Four levels** (2026-11-11, the
   developer's outline: "level 3 ... the winter theme with ice blocks ...
   snow and mountains ... Frosty Times. [Level] 4 ... the desert ... sand,
   cactus, maybe some snakes, and rock formations similar to deserts in
@@ -2176,7 +2179,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
 - **The map** (level 2 mockup v1: "The map and level starting screen
   look good"): **Play!** (or **Carry on**) opens it, on the setup
   screen: a node per level up a path of dots, orange as far as you've
-  got; done levels ✔, the one you're on lit with "You", higher ones 🔒
+  got; done levels ✔, the one you're on lit with your face on it
+  (2026-11-12; was "You"), higher ones 🔒
   ("Finish level N first"). A node opens its **Level screen**: "Level N",
   the name (the setting), a picture, one line, where you are in it, its
   jewels and hearts, **Start ▸** / **Carry on ▸** / **Play again ▸**, and
@@ -2237,12 +2241,17 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   tower, an ice pyramid (cubes 4-3-2-1), an ice wall of two pairs of
   pillars with slabs and cubes, and the challenge, an **ice castle**:
   two two-storey towers joined by a bridge behind two upright slabs. In
-  the way: a **snow drift**, long and wind-blown, its lip curling over
-  (developer, 2026-11-12: the round heap looked like half a sphere; soft:
-  the ball stays in it) and a **snowy
+  the way: a **rock with snow on its top and one side** (developer,
+  2026-11-12: a round heap of snow, then a wind-blown drift, didn't look
+  real; soft: the ball stays against it, with a clonk) and a **snowy
   pine** (tall: its trunk, its tiers of branches from 1.15 m). A snowman
-  and young pines off to the side. Sounds: ice knocked (a glassy clink),
-  shattering (a crack and tinkles), the ball into snow (a soft puff).
+  and young pines off to the side, and a white **snow bunny** hopping
+  along. **Ice down shatters**: a block counted down (fallen or tipped)
+  shatters at its next knock or once it rests (developer, 2026-11-12,
+  Q83: a cube that fell whole looked like one still to knock down), so
+  whole ice is always ice still standing. Sounds: ice knocked (a glassy
+  clink), shattering (a crack and tinkles), the ball against the rock
+  (a clonk).
 - **Level 4, "Cactus Canyon"** (Claude's name, to review): wooden beams
   and water barrels; the desert of Poly Haven's "Goegap" (sand and rock
   outcrops) all round, sand underfoot, boulders off to the sides and a
@@ -2306,8 +2315,11 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   player, after Tin Can Alley; its picture an arch in a park, the top
   cube knocked off.
 - **Play: the park fills the screen** (as Tin Can Alley's stall):
-  upright, the 🏠, name and 🔊 over it and a bar under it (your face, "N
-  of 7 down" and the 5 balls under it) with **↺ Start again**; sideways,
+  upright, the 🏠, name and 🔊 over it and a bar under it (your face and
+  the 5 balls, "balls left" under them, each drawn as the level's ball,
+  a thrown one an empty dashed place; developer, 2026-11-12, Q80: no
+  count of blocks down, "you either get them all or you don't") with
+  **↺ Start again**; sideways,
   a column at its left. Over the park: **1 · The park 💎○○○○** (the
   level's number and name, developer 2026-11-12; the jewels under the
   name when there isn't room) and the

@@ -12,7 +12,6 @@ import assert from 'node:assert/strict';
 import { createWorld, touch } from '../src/core/topple-world.js';
 import {
   SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, sceneParts, launchVel, HAND, MAX_AIM, R2D, makeLayout, sceneOpts, FRAME_REACH,
-  DRIFT_PROFILE, driftAlong, driftCaps,
 } from '../src/core/topple.js';
 import { canBeWon } from './topple-players.js';
 
@@ -156,38 +155,57 @@ test('topple levels: ice shatters and a barrel bursts when hit hard, gone and do
   assert.equal(throwAt(p, L.power, i, 4).brokeFirst, false);
 });
 
-// Developer, 2026-11-12: the round heap "looks like 1/2 a sphere"; drifts
-// are long, lopsided, thinner at the peak, curling.
-test('topple levels: the snow drift is a long, lopsided ridge with a curling lip, the ball\'s humps under its crest and inside its footprint', () => {
-  // the lip overhangs the lee face: a point of the lip further out than the face below it
-  const lip = Math.max(...DRIFT_PROFILE.filter(([, y]) => y > 0.75).map(([v]) => v));
-  const face = Math.max(...DRIFT_PROFILE.filter(([, y]) => y > 0.4 && y < 0.6).map(([v]) => v));
-  assert.ok(lip > face + 0.1, `no overhang: lip ${lip}, face ${face}`);
-  // the crest off the middle (a gentle windward slope, a steep lee): its top nearer the lee foot
-  const top = DRIFT_PROFILE.find(([, y]) => y === 1)[0];
-  assert.ok(top > 0.3, `crest at ${top}`);
-  // lopsided along its length, low at the ends
-  assert.ok(driftAlong(0.3).h > driftAlong(-0.3).h, 'not lopsided');
-  assert.ok(driftAlong(0.98).h < 0.15 && driftAlong(-0.98).h < 0.15, 'ends not low');
-  let drifts = 0;
+// Developer, 2026-11-12 (Q83): a cube that fell whole looked the same as a
+// ground cube still to knock down. Ice counted down shatters as it lands;
+// ice that only slid stays whole and standing.
+test('topple levels: ice that falls shatters as it lands; ice pushed along the ground stays whole and standing', () => {
+  const DT = 1 / 60;
+  const L = frameLayout(5, 3, 3), p = sceneParts(L);
+  assert.equal(L.stack, 'icePyramid');
+  const run = (w, s) => { for (let t = 0; t < s; t += DT) w.step(DT); };
+  // the top cube moved off its support: it drops a row or more
+  let w = createWorld(); w.setScene(p);
+  const top = w.blocks.reduce((a, b) => (b.start.y > a.start.y ? b : a));
+  top.body.position.x += 0.5; for (const b of w.blocks) b.body.wakeUp();
+  run(w, 4);
+  assert.ok(top.broken, `the top cube fell whole (down ${top.down})`);
+  // a cube turned onto its side where it stands (tipped over, no hard knock: 2.2 m/s never reached): shattered
+  w = createWorld(); w.setScene(p);
+  const tip = w.blocks.reduce((a, b) => (b.start.y > a.start.y ? b : a));
+  tip.body.quaternion.setFromEuler(0, 0, Math.PI / 2); tip.body.wakeUp();
+  run(w, 2);
+  assert.ok(tip.broken, `a cube tipped over stayed whole (down ${tip.down})`);
+  // a ground cube at the end of the row pushed sideways (the cube above holds it: it moves 10 cm): whole and standing
+  w = createWorld(); w.setScene(p);
+  const low = Math.min(...w.blocks.map(b => b.start.y));
+  const end = w.blocks.filter(b => b.start.y < low + 0.01).reduce((a, b) => (b.start.x > a.start.x ? b : a));
+  end.body.wakeUp(); end.body.velocity.set(2.5, 0, 0);
+  run(w, 3);
+  assert.ok(Math.abs(end.body.position.x - end.start.x) > 0.05, 'it never moved');
+  assert.equal(end.broken, false, 'a slid cube shattered');
+  assert.equal(end.down, false, 'a slid cube counted down');
+});
+
+// Developer, 2026-11-12: the snow heap, then a drift, didn't look real;
+// "maybe a rock with a bit of snow on top and/or one side".
+test('topple levels: level 3 has a snowy rock in the way, low and placed as the heap was, the ball\'s cap under it', () => {
+  assert.equal(LEVELS[2].soft, 'rock');
+  let rocks = 0;
   for (let seed = 1; seed <= 12; seed++) for (let sc = 1; sc <= SCENES; sc++) {
-    for (const t of frameLayout(seed, 3, sc).things.filter(q => q.kind === 'drift')) {
-      drifts++;
-      assert.ok(t.L > 2 * t.W, `${seed}/${sc}: not long (${t.L} x ${t.W})`);
-      assert.ok(Math.abs(t.yaw) >= 0.3 && Math.abs(t.yaw) <= 0.6, `${seed}/${sc}: yaw ${t.yaw}`);
-      assert.deepEqual(t.parts, driftCaps(t));
-      assert.equal(t.parts.length, 4);
-      for (const p of t.parts) {
-        assert.ok(p.h > 0 && p.h <= t.H + 1e-9, `${seed}/${sc}: a hump ${p.h} tall, the crest ${t.H}`);
-        assert.ok(p.x - p.r >= t.foot.x0 - 1e-9 && p.x + p.r <= t.foot.x1 + 1e-9 && p.z >= t.foot.z0 && p.z <= t.foot.z1, `${seed}/${sc}: a hump outside the footprint`);
-      }
+    for (const t of frameLayout(seed, 3, sc).things.filter(q => q.kind === 'rock')) {
+      rocks++;
+      assert.ok(t.rx >= 0.3 && t.rx <= 0.36 && t.rz >= 0.24 && t.rz <= 0.28 && t.H >= 0.19 && t.H <= 0.23, `${seed}/${sc}: size ${t.rx} x ${t.rz} x ${t.H}`);
+      assert.deepEqual(t.parts, [{ x: t.x, z: t.z, r: (t.rx + t.rz) / 2 }]);
+      const body = sceneParts(frameLayout(seed, 3, sc)).bodies.find(b => b.thing === 'rock');
+      const cap = body.shapes[0];
+      assert.ok(Math.abs(cap.at[1] + cap.r - t.H * SCALE) < 1e-9, `${seed}/${sc}: the cap's top not the rock's`);
     }
   }
-  assert.ok(drifts >= 30, `only ${drifts} drifts checked`);
+  assert.ok(rocks >= 30, `only ${rocks} rocks checked`);
 });
 
 test('topple levels: the gravel and the snow catch the ball: it keeps a tenth of its speed and stays', () => {
-  for (const [lv, kind] of [[2, 'barrow'], [3, 'drift']]) {
+  for (const [lv, kind] of [[2, 'barrow'], [3, 'rock']]) {
     const L = frameLayout(17, lv, 1), p = sceneParts(L);
     assert.ok(L.things.some(t => t.kind === kind));
     let before = 0, after = null;

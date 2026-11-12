@@ -33,7 +33,9 @@ export const MATS = {
   brick: { density: 30, bounce: 0.12, friction: 0.60, breaks: null },
   concrete: { density: 36, bounce: 0.15, friction: 0.55, breaks: null },
   steel: { density: 45, bounce: 0.45, friction: 0.35, breaks: null },
-  ice: { density: 22, bounce: 0.25, friction: 0.06, breaks: 2.2 },
+  // ice down (fallen, tipped) shatters as it lands (developer, 2026-11-12, Q83: a cube that fell
+  // whole looked like one still to knock down): whole ice is always ice still standing
+  ice: { density: 22, bounce: 0.25, friction: 0.06, breaks: 2.2, downBreaks: true },
   barrel: { density: 24, bounce: 0.25, friction: 0.5, breaks: 3.0 },
 };
 
@@ -188,7 +190,7 @@ export const LEVELS = [
   { n: 1, name: 'The park', line: 'Knock every block down. 5 balls a scene.', soft: 'bush', tall: 'tree', ball: 'toy' },
   { n: 2, name: 'The building site', line: 'Tall frames: knock the front down to get at the back.', soft: 'barrow', tall: 'light', ball: 'iron',
     scenes: ['twoStoreys', 'threeStoreys', 'bridge', 'steps', 'towerWall'] },
-  { n: 3, name: 'Frosty Times', line: 'Ice blocks slide, and smash when they’re hit hard.', soft: 'drift', tall: 'pine', ball: 'iron',
+  { n: 3, name: 'Frosty Times', line: 'Ice blocks slide, and smash when they’re hit hard.', soft: 'rock', tall: 'pine', ball: 'iron',
     scenes: ['iceGate', 'iceTower', 'icePyramid', 'iceWall', 'iceCastle'] },
   { n: 4, name: 'Cactus Canyon', line: 'Burst the water barrels and the beams come down.', soft: 'scrub', tall: 'cactus', ball: 'iron',
     scenes: ['waterTower', 'trestle', 'barrelStack', 'hitchingRail', 'saloon'] },
@@ -198,3 +200,25 @@ export const levelInfo = n => LEVELS[n - 1] ?? null;
 // The balls (world metres and kg): level 1's painted one; the iron ball
 // with its lifting ring (mockup v3: 0.07 m, 3 kg).
 export const BALLS_BY = { toy: { r: 0.06, kg: 2 }, iron: { r: 0.07, kg: 3 } };
+
+/* ---------- the map ---------- */
+
+// Where each level sits on the map (% across and down its box), and the
+// road between two: a curve leaving one level sideways and coming into the
+// next from below (the map's look since level 2 mockup v1).
+export const MAP_NODES = [{ x: 30, y: 86 }, { x: 68, y: 62 }, { x: 32, y: 38 }, { x: 68, y: 14 }];
+export function mapRoad(a, b) {
+  return [[a.x, a.y], [a.x + (b.x - a.x) * 0.9, a.y], [b.x - (b.x - a.x) * 0.1, b.y + 14], [b.x, b.y]];
+}
+// A point t (0-1) along a curve [P0, P1, P2, P3].
+export function roadAt(P, t) {
+  const u = 1 - t, k = [u * u * u, 3 * u * u * t, 3 * u * t * t, t * t * t];
+  return [0, 1].map(d => P.reduce((s, p, i) => s + k[i] * p[d], 0));
+}
+// The curve from its start to t (0-1), as its own curve (de Casteljau):
+// the road travelled so far, drawn as the dots fill in behind your face.
+export function roadTo(P, t) {
+  const mix = (p, q) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+  const a = mix(P[0], P[1]), b = mix(P[1], P[2]), c = mix(P[2], P[3]), ab = mix(a, b), bc = mix(b, c);
+  return [P[0], a, ab, mix(ab, bc)];
+}

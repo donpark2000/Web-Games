@@ -11,7 +11,7 @@ import {
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, checkSetup, rng,
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
   FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn, SOME_STACKS, SOME_MIN,
-  MAX_LEVEL, LEVELS, switchLevel, placeOf, isOpen,
+  MAX_LEVEL, LEVELS, switchLevel, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -435,4 +435,27 @@ test('topple: the view takes in the whole scene and the slingshot, upright and s
     }
   }
   assert.equal(checked, 12);
+});
+
+// The map's road (Q81, 2026-11-12): your face walks it after a level, the
+// dots filling in behind it.
+const nearPt = (p, q, why) => assert.ok(Math.hypot(p[0] - q[0], p[1] - q[1]) < 1e-9, `${why}: ${p} vs ${q}`);
+test('topple: the map\'s road runs level to level; a point along it, and the part travelled, are on it', () => {
+  assert.equal(MAP_NODES.length, MAX_LEVEL);
+  for (let i = 1; i < MAX_LEVEL; i++) {
+    const a = MAP_NODES[i - 1], b = MAP_NODES[i], P = mapRoad(a, b);
+    nearPt(roadAt(P, 0), [a.x, a.y], `${i}: the start`);
+    nearPt(roadAt(P, 1), [b.x, b.y], `${i}: the end`);
+    for (const t of [0.1, 0.37, 0.5, 0.9]) {
+      const part = roadTo(P, t);
+      // the part travelled starts where the road does and ends where the face is
+      nearPt(part[0], P[0], `${i}: t ${t}, its start`);
+      nearPt(part[3], roadAt(P, t), `${i}: t ${t}, its end`);
+      // and follows the road: its points a quarter and half way are the road's at t/4 and t/2 (halfway alone can't tell its middle two points apart)
+      nearPt(roadAt(part, 0.25), roadAt(P, t / 4), `${i}: t ${t}, a quarter`);
+      nearPt(roadAt(part, 0.5), roadAt(P, t / 2), `${i}: t ${t}, halfway`);
+    }
+    // inside the map's box
+    for (let t = 0; t <= 1; t += 0.05) for (const v of roadAt(P, t)) assert.ok(v >= 0 && v <= 100, `${i}: off the map at ${t}`);
+  }
 });

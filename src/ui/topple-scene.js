@@ -10,7 +10,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng, FAR_TREES, farBalls, treeBalls, CORE } from '../core/topple.js';
-import { makeSetting } from './topple-sets.js';
+import { makeSetting, birds } from './topple-sets.js';
 
 // Whether this device can draw 3D: a WebGL canvas can be made.
 export function webglOk() {
@@ -134,6 +134,8 @@ export function makePark3d(canvas) {
       parkGroup.add(c); farLeaves += c.userData.leaves;
     }
   }
+  // two birds circling over the trees beyond (developer, 2026-11-12: "maybe a bird or two for the first level")
+  const parkBirds = birds(parkGroup);
 
   /* ---------- materials ---------- */
 
@@ -369,7 +371,7 @@ export function makePark3d(canvas) {
     // A block broke (ice shattered, a barrel burst): its pieces fly.
     burst(b, at, q, v) { set?.burst(b, at, q, v); },
     // The setting's moving parts (the effects, the snake) dt s on.
-    tick(dt) { set?.tick(dt, performance.now() / 1000); },
+    tick(dt) { const t = performance.now() / 1000; if (set) set.tick(dt, t); else parkBirds.tick(dt, t); },
     // Shards and drops still flying (a scene isn't cleared until they're down).
     get fxLive() { return set?.fxLive?.() ?? 0; },
     get level() { return level; },

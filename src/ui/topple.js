@@ -17,7 +17,7 @@
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
-  padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, placeOf, isOpen,
+  padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -144,42 +144,134 @@ function setupView(v) {
   $('levelView').hidden = v !== 'level';
   scrollTo(0, 0);
 }
-const NODES = [{ x: 30, y: 86 }, { x: 68, y: 62 }, { x: 32, y: 38 }, { x: 68, y: 14 }];
-function showMap() {
+// The map: the levels on a road, your face at the one you're on. After a
+// level (developer, 2026-11-12, Q81: instead of the next level's screen,
+// "show the map, see an animation of the next level unlocking, and moving
+// a small version of the avatar from where it was ... to the new level"):
+// walk = { from, to, unlock } plays that: the lock shakes and pops, the
+// level's picture shows, your face goes along the road as its dots turn
+// orange, and the new level is started from the map (its button, or a tap
+// on it), not from its screen.
+let walking = null;    // the walk under way: { to, timers }
+let arrived = 0;       // the level the last walk came to (a tap on it starts it)
+const roadPath = P => `M${P[0][0]} ${P[0][1]} C ${P[1][0]} ${P[1][1]}, ${P[2][0]} ${P[2][1]}, ${P[3][0]} ${P[3][1]}`;
+function placeFace(n) {
+  const el = $('mapFace');
+  if (el) { el.style.left = `${n[0]}%`; el.style.top = `${n[1]}%`; }
+}
+function showMap(walk = null) {
   if (playing) showSetup();
+  stopWalk();
   setupView('map');
-  const P = NODES.map(n => [n.x, n.y]);
-  const seg = (a, b) => `M${a[0]} ${a[1]} C ${a[0] + (b[0] - a[0]) * 0.9} ${a[1]}, ${b[0] - (b[0] - a[0]) * 0.1} ${b[1] + 14}, ${b[0]} ${b[1]}`;
-  const dots = (d, on) => `<path d="${d}" fill="none" stroke="${on ? '#F2724F' : '#9FB0B7'}" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:10px;stroke-dasharray:0 22px"/>`;
-  const road = d => `<path d="${d}" fill="none" stroke="#FFFFFF" stroke-opacity=".75" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:30px"/>`;
-  const segs = P.slice(1).map((p, i) => seg(P[i], p));
-  $('mapBox').innerHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${segs.map(road).join('')}${segs.map((d, i) => dots(d, game.reached >= i + 2)).join('')}</svg>`;
-  NODES.slice(0, MAX_LEVEL).forEach((n, i) => {
-    const lv = i + 1, info = levelInfo(lv), done = game.done.includes(lv), now = game.level === lv, locked = !isOpen(game, lv);
+  const segs = MAP_NODES.slice(1, MAX_LEVEL).map((p, i) => mapRoad(MAP_NODES[i], p));
+  // the road's dots orange up to the level reached (the walk's own leg grey, filled as the face goes)
+  const on = i => game.reached >= i + 2 && !(walk && i === walk.to - 2);
+  const dots = (P, lit, id = '') => `<path${id ? ` id="${id}"` : ''} d="${P ? roadPath(P) : ''}" fill="none" stroke="${lit ? '#F2724F' : '#9FB0B7'}" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:10px;stroke-dasharray:0 22px"/>`;
+  const road = P => `<path d="${roadPath(P)}" fill="none" stroke="#FFFFFF" stroke-opacity=".75" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:30px"/>`;
+  $('mapBox').innerHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${segs.map(road).join('')}${segs.map((P, i) => dots(P, on(i))).join('')}${dots(null, true, 'mapFill')}</svg>`;
+  MAP_NODES.slice(0, MAX_LEVEL).forEach((n, i) => {
+    const lv = i + 1, info = levelInfo(lv), done = game.done.includes(lv), now = game.level === lv && !walk;
+    // the level the walk unlocks shows locked until its lock pops
+    const locked = !isOpen(game, lv) || (walk?.unlock && lv === walk.to);
     const pl = placeOf(game, lv), mid = pl.scene > 1 || pl.jewels > 0 || pl.hearts < HEARTS;
     const b = document.createElement('button');
     b.type = 'button';
+    b.id = `node${lv}`;
     b.className = `node ${locked ? 'locked' : now ? 'now' : done ? 'done' : 'open'}`;
     b.style.left = `${n.x}%`; b.style.top = `${n.y}%`;
     const sub = locked ? 'Locked' : mid ? `Scene ${pl.scene} of ${SCENES}` : done ? '💎💎💎💎💎' : 'Start here';
-    b.innerHTML = `<span class="disc"><span class="pic" style="background:${LOOKS[lv].bg}">${locked ? '🔒' : LOOKS[lv].pic()}</span>${done ? '<span class="badge">✔</span>' : ''}${now && !locked ? '<span class="you">You</span>' : ''}</span>`
+    b.innerHTML = `<span class="disc"><span class="pic" style="background:${LOOKS[lv].bg}">${locked ? '<span class="lock">🔒</span>' : LOOKS[lv].pic()}</span>${done ? '<span class="badge">✔</span>' : ''}</span>`
       + `<span class="nname">${lv} · ${info.name}</span><span class="nsub">${sub}</span>`;
     b.setAttribute('aria-label', `Level ${lv}, ${info.name}${locked ? ', locked' : ''}`);
     b.onclick = () => {
-      if (locked) {
+      if (walking) return;   // let the walk finish
+      if (!isOpen(game, lv)) {
         b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
         $('mapToast').textContent = `Finish level ${lv - 1} first`;
         L('map: a locked level', { level: lv, reached: game.reached });
         return;
       }
+      if (lv === arrived) { L('map: the level just walked to', { level: lv }); startLevel(lv); return; }
       L('map: a level', { level: lv });
       showLevelCard(lv);
     };
     $('mapBox').append(b);
   });
+  // your face, at the level you're on (or where the walk starts)
+  const face = document.createElement('span');
+  face.id = 'mapFace'; face.className = 'mapface'; face.setAttribute('aria-hidden', 'true');
+  face.innerHTML = svg(setup.p1, walk ? 'winner' : 'normal');
+  $('mapBox').append(face);
+  const at = MAP_NODES[(walk ? walk.from : game.level) - 1];
+  placeFace([at.x, at.y]);
+  $('mapGo').hidden = true;
   $('mapToast').textContent = '';
+  arrived = 0;
+  if (walk) playWalk(walk, segs[walk.to - 2]);
   resume.keep();
 }
+// The walk, step by step (on timers and the frames; all at once with reduced motion).
+function playWalk(walk, P) {
+  const quick = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const node = $(`node${walk.to}`), timers = [];
+  walking = { to: walk.to, timers };
+  const later = (ms, fn) => timers.push(setTimeout(fn, quick ? 0 : ms));
+  L('map: the walk', { ...walk, quick });
+  if (walk.unlock) {
+    later(500, () => { node.classList.add('shake'); });
+    later(1000, () => {
+      // the lock pops; the level's picture shows
+      const pic = node.querySelector('.pic');
+      node.classList.remove('locked', 'shake'); node.classList.add('open', 'unlocked');
+      pic.innerHTML = `${LOOKS[walk.to].pic()}<span class="lock pop">🔒</span>`;
+      node.querySelector('.nsub').textContent = 'Start here';
+      node.setAttribute('aria-label', `Level ${walk.to}, ${levelInfo(walk.to).name}`);
+      sound.play('clink');
+      L('map: unlocked', { level: walk.to });
+    });
+  }
+  // the face along the road, the dots filling in behind it (1.6 s, easing in and out)
+  later(walk.unlock ? 1500 : 300, () => {
+    const t0 = performance.now(), D = quick ? 0 : 1600, fill = $('mapFill');
+    $('mapFace').classList.add('walking');
+    sound.play('climb');
+    const step = now => {
+      if (walking?.timers !== timers) return;
+      const k = D ? Math.min(1, (now - t0) / D) : 1, e = k < 0.5 ? 2 * k * k : 1 - 2 * (1 - k) * (1 - k);
+      placeFace(roadAt(P, e));
+      fill.setAttribute('d', e > 0 ? roadPath(roadTo(P, e)) : '');
+      if (k < 1) { requestAnimationFrame(step); return; }
+      arrive(walk);
+    };
+    requestAnimationFrame(step);
+  });
+}
+function arrive(walk) {
+  const face = $('mapFace');
+  face.classList.remove('walking'); face.classList.add('landed');
+  const node = $(`node${walk.to}`);
+  node.classList.remove('open', 'done'); node.classList.add('now');
+  arrived = walk.to;
+  $('mapGo').textContent = `Play level ${walk.to} ▸`;
+  $('mapGo').hidden = false;
+  sound.play('ding');
+  walking = null;
+  L('map: arrived', { level: walk.to });
+}
+function stopWalk() {
+  if (!walking) return;
+  for (const t of walking.timers) clearTimeout(t);
+  walking = null;
+}
+// Play level n straight from the map (after a walk), or from its screen.
+function startLevel(n) {
+  if (!switchLevel(game, n)) { L('level not open', { level: n, reached: game.reached }); showMap(); return; }
+  saveGame();
+  L('level: start', { ...game });
+  showPlay();
+  startScene();
+}
+$('mapGo').onclick = () => { if (arrived) startLevel(arrived); };
 // Level n's screen: its name, picture and line; where you are in it; Start or Carry on.
 function showLevelCard(n) {
   if (playing) showSetup();
@@ -194,13 +286,7 @@ function showLevelCard(n) {
   $('lvJewels').textContent = jewels(pl);
   $('lvHearts').textContent = hearts(pl);
   $('lvGo').textContent = mid ? 'Carry on ▸' : game.done.includes(n) ? 'Play again ▸' : 'Start ▸';
-  $('lvGo').onclick = () => {
-    if (!switchLevel(game, n)) { L('level not open', { level: n, reached: game.reached }); showMap(); return; }
-    saveGame();
-    L('level: start', { ...game });
-    showPlay();
-    startScene();
-  };
+  $('lvGo').onclick = () => startLevel(n);
   resume.keep();
 }
 $('lvMap').onclick = () => showMap();
@@ -373,9 +459,9 @@ async function startScene(kept = null) {
 function renderTally() {
   const r = round;
   $('s1Chip').innerHTML = svg(setup.p1, ended ? (ended.won ? 'winner' : 'sad') : 'normal');
-  $('downN').textContent = r.down;
-  $('downWho').textContent = `of ${r.total} down`;
+  // the balls left, drawn as the level's ball (developer, 2026-11-12, Q80: no blocks-down count)
   const left = ballsLeft(r);
+  $('balls').classList.toggle('iron', levelInfo(current?.id.level ?? game.level).ball === 'iron');
   $('balls').innerHTML = Array.from({ length: BALLS }, (_, i) => `<i class="${i < left ? '' : 'used'}"></i>`).join('');
   $('balls').setAttribute('aria-label', `${left} ball${left === 1 ? '' : 's'} left`);
   renderHud();
@@ -469,7 +555,8 @@ function doThrow(d) {
 let lastKnock = 0, lastThud = 0;
 const MAT_SOUND = { wood: 'plank', brick: 'brick', steel: 'ring', concrete: 'crash', ice: 'iceknock', barrel: 'barrel' };
 // the ball into the wheelbarrow's gravel, or into snow
-const SOFT_SOUND = { barrow: 'crunch', drift: 'poof' };
+// (the snowy rock: the iron ball's clonk on stone)
+const SOFT_SOUND = { barrow: 'crunch', rock: 'clonk' };
 function onHit({ a, b, v, y, ball, other, mat, thing }) {
   const now = performance.now(), vs = v / Math.sqrt(SCALE);
   if (a === 'ball' && shot && shot.body === ball && shot.touches.length < 2 && shot.last !== other) {
@@ -601,7 +688,7 @@ function endScene(result, quiet = false) {
   // the pills over the park show the scene's end until the next one starts
   // (no hearts left, or all 5 jewels), not the game already moved on
   const shown = outcome === 'out' ? { ...game, hearts: 0, jewels: was.jewels } : lvDone ? { ...was, jewels: SCENES } : null;
-  ended = { outcome, words, won: result.won, shown };
+  ended = { outcome, words, won: result.won, shown, unlocked: game.reached > was.reached };
   // the blocks as the scene ended (the last may still be falling): a reload shows it as it was
   settled = { round: JSON.parse(JSON.stringify(round)), poses: world.poses() };
   showEnd();
@@ -626,7 +713,13 @@ function showEnd() {
 $('nextBtn').onclick = () => {
   const o = ended?.outcome;
   L('next', { outcome: o, ...game });
-  if (o === 'level') { current = null; round = null; ended = null; settled = null; showLevelCard(game.level); return; }
+  // a level done: the map, the next level unlocking, your face walking there (Q81)
+  if (o === 'level') {
+    const walk = { from: game.level - 1, to: game.level, unlock: !!ended.unlocked };
+    current = null; round = null; ended = null; settled = null;
+    showMap(walk);
+    return;
+  }
   if (o === 'all') { game = createGame(newSeed(), game); saveGame(); current = null; round = null; ended = null; settled = null; showMap(); return; }
   startScene();
 };
@@ -707,6 +800,9 @@ window.topple = {
   // level n open and being played (for checking it; not a way the page offers)
   async level(n, i = 1) { game.reached = Math.max(game.reached, n); switchLevel(game, n); saveGame(); showPlay(); return this.scene(i); },
   map: () => showMap(), card: n => showLevelCard(n),
+  // the walk after a level (Q81), without clearing one: from level a to b, its lock popping if unlock
+  walk: (from, to, unlock = true) => showMap({ from, to, unlock }),
+  walkState: () => ({ walking: !!walking, arrived, go: !$('mapGo').hidden, face: $('mapFace')?.style.cssText }),
   // Each sound's loudness, rendered offline as the game plays it (hard,
   // 0.9): its peak and its loudest 50 ms RMS (for SITE_GAIN in sounds.js).
   async soundLevels(names) {

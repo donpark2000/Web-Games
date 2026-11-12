@@ -92,25 +92,29 @@ body.tp-playing .site-foot { display: none; }
   font-size: 15px; font-weight: 700; line-height: 1.25; pointer-events: none;
 }
 
-/* the score: your face, how many down of how many, and under that the
-   balls left (5 don't fit beside the words on a phone: 393 px wide, they
-   ran over "of 5 down") */
+/* the score: your face and the balls left, "balls left" under them
+   (developer, 2026-11-12, Q80: the blocks-down count went: "you either
+   get them all or you don't"); each ball drawn as the level's ball, a
+   thrown one an empty dashed place */
 .tally {
-  display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; row-gap: 3px; align-items: center; min-width: 0;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; row-gap: 3px; align-items: center; justify-items: start; min-width: 0;
   background: var(--card); border-radius: 16px; padding: 4px 12px 4px 4px; box-shadow: 0 3px 0 var(--line);
 }
 .tally .chip { width: 48px; height: 48px; grid-row: span 2; }
-.tally .downs { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; }
-.tally .n { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
-.tally .who { font-size: 15px; font-weight: 700; color: var(--muted); }
-.tally .balls { display: flex; gap: 4px; }
-/* a ball: white with the orange band, as in the park; used ones faint */
+.tally .who { font-size: 13px; font-weight: 800; color: var(--muted); letter-spacing: .02em; line-height: 1; }
+.tally .balls { display: flex; flex-wrap: wrap; gap: 5px; }
+/* level 1's ball: white with the orange band, as in the park */
 .balls i {
-  width: 16px; height: 16px; border-radius: 50%; display: block;
+  width: 20px; height: 20px; border-radius: 50%; display: block; position: relative;
   background: linear-gradient(#FFFFFF 0 40%, var(--p1) 40% 60%, #FFFFFF 60%); box-shadow: inset 0 0 0 1.5px #1E344555;
-  transition: opacity .3s;
+  transition: transform .25s;
 }
-.balls i.used { opacity: .2; }
+/* levels 2-4: the iron ball with its lifting ring */
+.balls.iron i { background: radial-gradient(circle at 35% 35%, #9A9A95, #4A4A48 55%, #232321); box-shadow: none; margin-top: 4px; }
+.balls.iron i::before { content: ""; position: absolute; left: 50%; top: -5px; width: 7px; height: 7px; margin-left: -4.5px; border: 2px solid #5C5C58; border-radius: 50%; }
+/* thrown: an empty place */
+.balls i.used, .balls.iron i.used { background: none; box-shadow: none; outline: 2px dashed #9BB0BA; outline-offset: -2px; transform: scale(.85); }
+.balls i.used::before { display: none; }
 .restart .pill { padding: 8px 14px; font-size: 16px; white-space: nowrap; }
 .restart.ended { visibility: hidden; }
 
@@ -146,15 +150,14 @@ body.tp-playing .site-foot { display: none; }
   body:not(.wide-layout) #play > .top > .gname { grid-area: name; justify-self: stretch; align-self: start; white-space: normal; font-size: 12px; line-height: 14px; letter-spacing: .04em; }
   body:not(.wide-layout) #play > .top > .soundbtn { grid-area: sound; justify-self: center; align-self: end; }
   #play > .restart { align-self: start; }
-  /* the score in the column's width: the face and the number side by
-     side, "of 5 down" and the balls under them */
-  .tally { display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center; column-gap: 4px; row-gap: 2px; padding: 4px 2px; }
+  /* the score in the column's width: the face, the balls (3 and 2) and
+     "balls left" under it */
+  .tally { grid-template-columns: auto; justify-items: center; row-gap: 4px; padding: 6px 2px; }
   .tally .chip { width: 34px; height: 34px; grid-row: auto; }
-  .tally .downs { display: contents; }
-  .tally .n { font-size: 24px; }
-  .tally .who { grid-column: 1 / -1; text-align: center; font-size: 12px; line-height: 14px; }
-  .tally .balls { grid-column: 1 / -1; justify-content: center; margin: 0; gap: 2px; }
-  .balls i { width: 12px; height: 12px; }
+  .tally .who { text-align: center; font-size: 11px; line-height: 13px; }
+  .tally .balls { justify-content: center; gap: 3px; max-width: 54px; }
+  .balls i { width: 14px; height: 14px; }
+  .balls.iron i::before { top: -4px; width: 5px; height: 5px; margin-left: -3.5px; border-width: 1.5px; }
   .restart .pill { width: 100%; white-space: normal; padding: 5px 2px; font-size: 13px; line-height: 15px; border-width: 2px; }
 }
 
@@ -177,7 +180,21 @@ body.tp-playing .site-foot { display: none; }
 @keyframes tpglow { 0%, 100% { box-shadow: 0 4px 0 var(--line), 0 0 0 0 #F7B92888; } 50% { box-shadow: 0 4px 0 var(--line), 0 0 0 12px #F7B92800; } }
 .node.locked .pic { background: #D5DEE0 !important; border-color: #A9B6BA; font-size: 34px; }
 .node .badge { position: absolute; right: -4px; top: -4px; width: 30px; height: 30px; border-radius: 50%; background: #4DB37A; color: #FFFFFF; display: grid; place-items: center; font-size: 17px; font-weight: 800; border: 3px solid #FFFFFF; }
-.node .you { position: absolute; left: 50%; top: -24px; transform: translateX(-50%); background: var(--ink); color: #FFFFFF; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+/* your face on the map: perched on the level you're on; after a level it walks the road to the next (Q81) */
+.mapface { position: absolute; z-index: 2; width: 46px; height: 46px; transform: translate(-50%, -50%) translateY(-50px); pointer-events: none; filter: drop-shadow(0 3px 0 #1E344533); }
+.mapface svg { display: block; width: 100%; height: 100%; }
+.mapface.walking { animation: tphop .32s ease-in-out infinite; }
+.mapface.landed { animation: tpland .45s ease; }
+@keyframes tphop { 50% { transform: translate(-50%, -50%) translateY(-58px); } }
+@keyframes tpland { 0% { transform: translate(-50%, -50%) translateY(-50px) scale(1); } 40% { transform: translate(-50%, -50%) translateY(-56px) scale(1.25); } 100% { transform: translate(-50%, -50%) translateY(-50px) scale(1); } }
+/* the lock: shakes, then pops off the level it opened */
+.node .pic { position: relative; }
+.node .lock { display: grid; place-items: center; }
+.node .lock.pop { position: absolute; inset: 0; animation: tppop .5s ease-out forwards; pointer-events: none; }
+@keyframes tppop { 30% { transform: scale(1.35); opacity: 1; } 100% { transform: scale(1.8) translateY(-24px); opacity: 0; } }
+.node.unlocked .pic { animation: tpopen .6s ease; }
+@keyframes tpopen { 0% { box-shadow: 0 4px 0 var(--line), 0 0 0 0 #F7B928CC; } 100% { box-shadow: 0 4px 0 var(--line), 0 0 0 22px #F7B92800; } }
+#mapGo { animation: bounce .45s ease; }
 .node .nname { font-size: 15px; font-weight: 800; line-height: 1.15; background: var(--card); border-radius: 12px; padding: 2px 10px; box-shadow: 0 3px 0 var(--line); text-align: center; max-width: 150px; }
 .node .nsub { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
 .node.locked .nname { color: var(--muted); }
@@ -196,4 +213,4 @@ body.tp-playing .site-foot { display: none; }
 .lvwhere:empty { display: none; }
 .lvstate { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; font-size: 20px; font-weight: 800; }
 .lvcard .big { width: 100%; font-size: 24px; padding: 14px 20px; }
-@media (prefers-reduced-motion: reduce) { .node.now .pic, .node.shake { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .node.now .pic, .node.shake, .mapface.walking, .mapface.landed, .node.unlocked .pic, #mapGo { animation: none; } .node .lock.pop { display: none; } }

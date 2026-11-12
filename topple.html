@@ -51,6 +51,8 @@
       <h2 class="maptitle">Levels</h2>
       <div class="mapbox" id="mapBox"></div>
       <p class="maptoast" id="mapToast" aria-live="polite"></p>
+      <!-- after a level: the next one started from here once your face has walked there (Q81) -->
+      <button type="button" class="big" id="mapGo" hidden>Play ▸</button>
       <button type="button" class="pill" id="mapBack">◀ Faces</button>
     </div>
 
@@ -108,8 +110,8 @@
     </div>
     <div class="tally" id="tally" aria-label="Score">
       <span class="chip" id="s1Chip"></span>
-      <span class="downs"><span class="n" id="downN">0</span><span class="who" id="downWho">of 5 down</span></span>
       <span class="balls" id="balls" role="img" aria-label="5 balls left"></span>
+      <span class="who">balls left</span>
     </div>
     <div class="restart"><button type="button" class="pill" id="restartBtn">↺ Start again</button></div>
   </section>

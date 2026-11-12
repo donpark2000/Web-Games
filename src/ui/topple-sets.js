@@ -12,7 +12,7 @@
 // sceneParts()).
 
 import * as THREE from '../vendor/three/three.module.min.js';
-import { rng, DRIFT_PROFILE, driftAlong } from '../core/topple.js';
+import { rng } from '../core/topple.js';
 
 export const PHOTO_DIR = 'data/topple/';
 
@@ -41,7 +41,7 @@ export const SURFACES = {
 export const SETTINGS = {
   2: { name: 'site', sky: 'construction_yard', ground: 'pad', surfaces: ['steel', 'concrete', 'brick', 'planks', 'pad', 'paint', 'galv'],
     mats: { steel: 'steel', concrete: 'concrete', brick: 'brick', wood: 'planks' }, sling: 'planks', sun: [1.4, 4.2, 2.6], hemi: 0.7 },
-  3: { name: 'snow', sky: 'lago_disola', ground: 'snow', surfaces: ['snow', 'bark', 'planks', 'steel'],
+  3: { name: 'snow', sky: 'lago_disola', ground: 'snow', surfaces: ['snow', 'bark', 'planks', 'steel', 'concrete'],
     mats: { ice: 'ice', wood: 'planks' }, sling: 'planks', sun: [-1.2, 4.2, 2.6], hemi: 0.8 },
   4: { name: 'desert', sky: 'goegap', ground: 'sand', surfaces: ['sand', 'barrel', 'timber', 'rock', 'planks', 'steel'],
     mats: { wood: 'timber', barrel: 'barrel' }, sling: 'planks', sun: [1.6, 4.4, 2.4], hemi: 0.75 },
@@ -128,32 +128,42 @@ export function heapShape(rx, rz, H, seed) {
     return H * Math.max(0, k);
   };
 }
-// A snow drift: DRIFT_PROFILE swept along its length (local x, -L to L),
-// the lee side to +z; the crest's height and width from driftAlong, the
-// crest and lip wavering a little (seeded). UVs in metres (half a copy of
-// the photo a metre, as the round heap had).
-function driftGeo(L, W, H, seed) {
-  const r = rng(seed), f1 = r() * 6.3, f2 = r() * 6.3, N = 48, P = DRIFT_PROFILE, K = P.length;
-  const pos = [], uv = [], idx = [];
-  for (let i = 0; i <= N; i++) {
-    const t = -1 + 2 * i / N, a = driftAlong(t), wob = 1 + 0.08 * Math.sin(t * 5 + f1), shift = 0.07 * Math.sin(t * 3 + f2);
-    let along = 0;
-    for (let k = 0; k < K; k++) {
-      const [v, y] = P[k], crest = Math.max(0, Math.min(1, (v + 0.2) / 0.5));   // the crest and lip waver; the windward foot stays put
-      const z = (v + shift * crest) * W * a.w, h = k === 0 || k === K - 1 ? -0.015 : y * H * a.h * (1 + (wob - 1) * crest);   // the feet a little under the snow
-      if (k) along += Math.hypot(z - pos[pos.length - 1], h - pos[pos.length - 2]);
-      pos.push(t * L, h, z);
-      uv.push(t * L * 0.5, along * 0.5);
-    }
+// A boulder (unit size: about 2 across, 1.2 tall, its middle at 0): a
+// lumpy ball with a few flat cuts, as weathered rock breaks (level 4's
+// first, smooth and tinted, looked like tomatoes), flattened.
+function boulderGeo(seed) {
+  const geo = new THREE.IcosahedronGeometry(1, 4), q = geo.attributes.position, r = rng(seed);
+  const bumps = Array.from({ length: 9 }, () => [r() * 2 - 1, r() * 0.8 - 0.1, r() * 2 - 1, (r() - 0.35) * 0.5, 2 + r() * 6]);
+  const cuts = Array.from({ length: 4 }, () => { const n = new THREE.Vector3(r() - 0.5, r() * 0.6, r() - 0.5).normalize(); return { n, d: 0.7 + r() * 0.2 }; });
+  for (let i = 0; i < q.count; i++) {
+    const v = new THREE.Vector3(q.getX(i), q.getY(i), q.getZ(i)); let k = 1;
+    for (const [bx, by, bz, a, sh] of bumps) k += a * Math.exp(-((v.x - bx) ** 2 + (v.y - by) ** 2 + (v.z - bz) ** 2) * sh);
+    k += 0.04 * Math.sin(v.x * 9 + seed) * Math.sin(v.z * 11) + 0.03 * Math.sin(v.y * 17);
+    v.multiplyScalar(k);
+    for (const c of cuts) { const p = v.dot(c.n); if (p > c.d) v.addScaledVector(c.n, c.d - p); }
+    v.y *= 0.62; q.setXYZ(i, v.x, v.y, v.z);
   }
-  for (let i = 0; i < N; i++) for (let k = 0; k < K - 1; k++) {
-    const a = i * K + k, b = a + K;
-    idx.push(a, a + 1, b, b, a + 1, b + 1);
+  geo.computeVertexNormals();
+  return geo;
+}
+// Snow lying on a boulder (its geometry, boulderGeo's): on top, and lower
+// down the side the wind came from (wind: [x, z]), the edge wavy; a skin
+// a little outside the rock there, tucked inside it elsewhere. Pushed out
+// from the rock's middle, not along its faces (along the flat cuts' sharp
+// normals the skin tore into facets).
+function snowCapGeo(rockGeo, wind, seed) {
+  const geo = rockGeo.clone(), q = geo.attributes.position, r = rng(seed + 1);
+  const f1 = r() * 6.3, f2 = r() * 6.3;
+  for (let i = 0; i < q.count; i++) {
+    const x = q.getX(i), y = q.getY(i), z = q.getZ(i);
+    const len = Math.hypot(x, y / 0.62, z) || 1, dx = x / len, dy = y / 0.62 / len, dz = z / len;   // out from the middle, as on a round rock
+    const side = (dx * wind[0] + dz * wind[1]) / Math.max(1e-6, Math.hypot(dx, dz));   // 1: facing the wind
+    const line = 0.5 - 0.5 * Math.max(0, side) + 0.07 * Math.sin(Math.atan2(dz, dx) * 3 + f1) + 0.04 * Math.sin(Math.atan2(dz, dx) * 7 + f2);
+    if (dy > line) {
+      const t = (0.06 + 0.08 * Math.max(0, dy) + 0.03 * Math.max(0, side)) * Math.min(1, (dy - line) / 0.12);   // thicker on top and windward, thin at its edge
+      q.setXYZ(i, x + dx * t, y + dy * t * 0.62, z + dz * t);
+    } else q.setXYZ(i, x * 0.97, y * 0.97, z * 0.97);
   }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
-  geo.setIndex(idx);
   geo.computeVertexNormals();
   return geo;
 }
@@ -275,12 +285,18 @@ export async function makeSetting(n, ctx) {
       g.position.set(...p.at);
       return g;
     },
-    drift(p) {
-      // a wind-blown drift (its shape: src/core/topple.js, DRIFT_PROFILE), in the snow's own photo;
-      // both sides drawn (the underside of the curling lip)
-      const m = mesh(driftGeo(p.L, p.W, p.H, p.seed), photoMat(maps.snow, { extra: { color: '#F4F8FF', emissive: '#30363E', metalness: 0, side: THREE.DoubleSide } }));
-      m.position.set(...p.at); m.rotation.y = p.yaw;
-      return m;
+    rock(p) {
+      // a grey boulder (the building site's worn concrete photo: grey stone; the cliff photo came out
+      // rusty brown, like wood) half buried, snow on its top and down its windward
+      // side (developer, 2026-11-12: "a rock with a bit of snow on top
+      // and/or one side"); the wind from a side picked by its seed
+      const g = new THREE.Group(), r = rng(p.seed), geo = boulderGeo(p.seed), wa = r() * Math.PI * 2;
+      const sc = [p.rx / 0.95, p.H / 0.6, p.rz / 0.95];
+      const rock = mesh(geo, photoMat(maps.concrete, { repeat: [1.2, 1.2], extra: { color: '#A3A8AE', metalness: 0 } }));
+      const snow = mesh(snowCapGeo(geo, [Math.cos(wa), Math.sin(wa)], p.seed), photoMat(maps.snow, { repeat: [0.6, 0.6], extra: { color: '#F7FAFD', metalness: 0 } }));
+      for (const m of [rock, snow]) { m.scale.set(...sc); g.add(m); }
+      g.position.set(...p.at); g.rotation.y = p.yaw;
+      return g;
     },
     pine(p) {
       // a pine: a barked trunk and four tiers of drooping, snow-topped branches
@@ -330,6 +346,7 @@ export async function makeSetting(n, ctx) {
     group.add(mesh(new THREE.BoxGeometry(1.1, 0.14, 1.1), photoMat(maps.planks, { repeat: [1, 1] }), [6.5, 0.07, -16.8]));
     const pal = new THREE.BoxGeometry(1.0, 0.8, 1.0); worldUV(pal, 1, 0.8, 1, 3, 99);
     group.add(mesh(pal, photoMat(maps.brick, { channel: 1 }), [6.5, 0.54, -16.8]));
+    decor.push(rat(group));
   } else if (S.name === 'snow') {
     // a snowman off to the right, and young pines at the edge of the snow
     const snow = photoMat(maps.snow, { repeat: [0.7, 0.7], extra: { color: '#FAFCFE', metalness: 0 } });
@@ -342,6 +359,7 @@ export async function makeSetting(n, ctx) {
     sm.add(rodTo([0.27, 1.05, 0], [0.62, 1.32, 0.05], 0.018, stick), rodTo([-0.27, 1.05, 0], [-0.6, 1.25, -0.05], 0.018, stick));
     sm.add(mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.2, 16), coal, [0, 1.68, 0]), mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.025, 16), coal, [0, 1.585, 0]));
     sm.position.set(4.2, 0, -10.5); sm.rotation.y = -0.45; group.add(sm);
+    decor.push(bunny(group));
     for (const [px, pz, s] of [[-8, -15, 1.3], [-10.5, -18, 1.6], [9.5, -17, 1.4], [12, -21, 1.8]]) {
       const tiers = [[1.4, 0.8], [2.2, 0.62], [2.9, 0.45], [3.4, 0.3]].map(([y, r]) => ({ r: r * s, at: [px, y * s, pz] }));
       group.add(builders.pine({ at: [px, 0, pz], r: 0.12 * s, h: 3.9 * s, tiers }));
@@ -351,19 +369,7 @@ export async function makeSetting(n, ctx) {
     // (first drawn smooth and tinted orange, they looked like tomatoes: rougher, the photo's own colour, more of it)
     const rock = photoMat(maps.rock, { repeat: [3.5, 3.5], extra: { color: '#E8D6C2', metalness: 0 } });
     for (const [rx, rz, s, seed] of [[-7.5, -12, 1.6, 3], [8.5, -14, 2.2, 5], [5, -21, 2.8, 7], [-12, -19, 3.2, 9], [-4.5, -9.5, 0.7, 11]]) {
-      const geo = new THREE.IcosahedronGeometry(1, 4), q = geo.attributes.position, r = rng(seed);
-      const bumps = Array.from({ length: 9 }, () => [r() * 2 - 1, r() * 0.8 - 0.1, r() * 2 - 1, (r() - 0.35) * 0.5, 2 + r() * 6]);
-      // crisp planes, as weathered rock breaks: a few flat cuts
-      const cuts = Array.from({ length: 4 }, () => { const n = new THREE.Vector3(r() - 0.5, r() * 0.6, r() - 0.5).normalize(); return { n, d: 0.7 + r() * 0.2 }; });
-      for (let i = 0; i < q.count; i++) {
-        const v = new THREE.Vector3(q.getX(i), q.getY(i), q.getZ(i)); let k = 1;
-        for (const [bx, by, bz, a, sh] of bumps) k += a * Math.exp(-((v.x - bx) ** 2 + (v.y - by) ** 2 + (v.z - bz) ** 2) * sh);
-        k += 0.04 * Math.sin(v.x * 9 + seed) * Math.sin(v.z * 11) + 0.03 * Math.sin(v.y * 17);
-        v.multiplyScalar(k);
-        for (const c of cuts) { const p = v.dot(c.n); if (p > c.d) v.addScaledVector(c.n, c.d - p); }
-        v.y *= 0.62; q.setXYZ(i, v.x, v.y, v.z);
-      }
-      geo.computeVertexNormals();
+      const geo = boulderGeo(seed);
       const m = mesh(geo, rock, [rx, s * 0.25, rz]);
       m.scale.setScalar(s); m.rotation.y = seed;
       group.add(m);
@@ -486,6 +492,130 @@ function snake(group) {
         if (i === 0) for (const k of [0, 1]) { o.position.set(px + dir * 0.03, r * 1.25, o.position.z + (k ? 0.022 : -0.022)); o.scale.setScalar(1); o.updateMatrix(); eyes.setMatrixAt(k, o.matrix); }
       }
       im.instanceMatrix.needsUpdate = true; eyes.instanceMatrix.needsUpdate = true;
+    },
+  };
+}
+
+/* ---------- more animals (decor, out of play; developer, 2026-11-12: "I
+   like the snake ... a bird or two for the first level, a rat on the
+   construction site, a snow bunny for the winter level") ---------- */
+
+// A part placed in a group: geometry, material, position, scale.
+const part = (g, geo, mat, at, sc = [1, 1, 1]) => { const m = mesh(geo, mat, at); m.scale.set(...sc); g.add(m); return m; };
+const ballGeo = new THREE.SphereGeometry(1, 16, 12);
+
+// Something that goes back and forth along x at z, between x0 and x1:
+// moves for a while, stops for a while (seeded), turns at the ends.
+// step(dt) -> { x, dir, moving, t (s into this move or stop) }.
+function roamer(seed, x0, x1, speed, [go0, go1], [stop0, stop1]) {
+  const r = rng(seed);
+  let x = x0 + (x1 - x0) * r(), dir = r() < 0.5 ? -1 : 1, moving = false, left = stop0 + r() * (stop1 - stop0), t = 0;
+  return dt => {
+    t += dt; left -= dt;
+    if (left <= 0) { moving = !moving; t = 0; left = moving ? go0 + r() * (go1 - go0) : stop0 + r() * (stop1 - stop0); if (!moving && r() < 0.3) dir = -dir; }
+    if (moving) { x += dir * speed * dt; if (x > x1) { x = x1; dir = -1; } else if (x < x0) { x = x0; dir = 1; } }
+    return { x, dir, moving, t };
+  };
+}
+
+// A rat (the building site): grey-brown, a long bare tail, scurrying
+// along behind the structure in dashes, stopping to sniff.
+function rat(group) {
+  const g = new THREE.Group(), fur = std({ color: '#6E625A', roughness: 0.95 }), pink = std({ color: '#D9A3A0', roughness: 0.7 }), black = std({ color: '#111111', roughness: 0.3 });
+  part(g, ballGeo, fur, [0, 0.07, 0], [0.16, 0.075, 0.085]);              // body
+  const head = new THREE.Group(); head.position.set(0.15, 0.08, 0); g.add(head);
+  part(head, ballGeo, fur, [0.03, 0, 0], [0.07, 0.05, 0.05]);
+  part(head, new THREE.ConeGeometry(0.035, 0.08, 10), fur, [0.1, -0.005, 0]).rotation.z = -Math.PI / 2;
+  part(head, ballGeo, pink, [0.14, -0.005, 0], [0.008, 0.008, 0.008]);    // nose
+  for (const s of [-1, 1]) {
+    part(head, ballGeo, pink, [0.0, 0.045, s * 0.035], [0.012, 0.025, 0.022]);  // ears
+    part(head, ballGeo, black, [0.06, 0.02, s * 0.03], [0.007, 0.007, 0.007]);  // eyes
+  }
+  const tail = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([[-0.15, 0.06, 0], [-0.3, 0.03, 0.03], [-0.42, 0.015, -0.02], [-0.52, 0.01, 0.02]].map(p => new THREE.Vector3(...p))), 16, 0.008, 6), pink);
+  tail.castShadow = true; g.add(tail);
+  const feet = [-1, 1].flatMap(s => [-0.09, 0.08].map(x => part(g, ballGeo, pink, [x, 0.012, s * 0.06], [0.02, 0.012, 0.014])));
+  group.add(g);
+  // twice a real rat's size, so it reads from the slingshot (15 m off); beside the structure, not behind it
+  g.scale.setScalar(2);
+  const go = roamer(21, 1.8, 4.6, 1.4, [0.6, 1.6], [0.8, 2.6]), z0 = -8;
+  return {
+    tick(dt, t) {
+      const s = go(dt);
+      g.position.set(s.x, s.moving ? Math.abs(Math.sin(t * 22)) * 0.012 : 0, z0);
+      g.rotation.y = s.dir > 0 ? 0 : Math.PI;
+      head.rotation.z = s.moving ? 0 : 0.12 + 0.08 * Math.sin(t * 9);   // sniffing
+      feet.forEach((f, i) => { f.position.y = 0.012 + (s.moving ? Math.max(0, Math.sin(t * 22 + i * 1.6)) * 0.015 : 0); });
+    },
+  };
+}
+
+// A snow bunny (the winter level): white, long ears, a round tail; hops
+// along behind the structure, sits a while, its nose and ears twitching.
+function bunny(group) {
+  const g = new THREE.Group(), fur = std({ color: '#F6F7F9', roughness: 0.95 }), pink = std({ color: '#E7B3B8', roughness: 0.8 }), black = std({ color: '#111111', roughness: 0.3 });
+  const body = new THREE.Group(); g.add(body);
+  part(body, ballGeo, fur, [0, 0.13, 0], [0.15, 0.12, 0.11]);
+  part(body, ballGeo, fur, [-0.15, 0.13, 0], [0.045, 0.045, 0.045]);      // tail
+  part(body, ballGeo, fur, [0.06, 0.04, 0], [0.11, 0.05, 0.09]);           // haunches and feet
+  const head = new THREE.Group(); head.position.set(0.14, 0.24, 0); body.add(head);
+  part(head, ballGeo, fur, [0, 0, 0], [0.075, 0.07, 0.065]);
+  part(head, ballGeo, pink, [0.072, -0.01, 0], [0.01, 0.009, 0.012]);     // nose
+  const ears = [-1, 1].map(s => { const e = new THREE.Group(); e.position.set(-0.01, 0.05, s * 0.03); head.add(e); part(e, ballGeo, fur, [0, 0.08, 0], [0.022, 0.085, 0.03]); part(e, ballGeo, pink, [0.008, 0.08, 0], [0.012, 0.065, 0.018]); return e; });
+  for (const s of [-1, 1]) part(head, ballGeo, black, [0.045, 0.02, s * 0.042], [0.01, 0.011, 0.011]);
+  group.add(g);
+  // twice a real one's size, so it reads from the slingshot; to the left of the structure, not behind it
+  g.scale.setScalar(2);
+  const r = rng(33), z0 = -8;
+  let x = -4.4 + 2.6 * r(), dir = 1, hop = null, rest = 1 + r() * 2;
+  return {
+    tick(dt, t) {
+      if (hop) {
+        hop.t += dt;
+        const k = Math.min(1, hop.t / 0.34);
+        x = hop.from + dir * 0.84 * k;
+        body.position.y = Math.sin(Math.PI * k) * 0.16;
+        body.rotation.z = (0.5 - k) * 0.5;
+        if (k >= 1) { hop = r() < 0.75 ? { t: 0, from: x } : null; if (!hop) rest = 0.6 + r() * 2.4; body.rotation.z = 0; body.position.y = 0; }
+        if (x > -1.8) dir = -1; else if (x < -4.6) dir = 1;
+      } else {
+        rest -= dt;
+        if (rest <= 0) { if (r() < 0.3) dir = -dir; hop = { t: 0, from: x }; }
+      }
+      g.position.set(x, 0, z0);
+      g.rotation.y = dir > 0 ? 0 : Math.PI;
+      head.rotation.z = hop ? 0 : 0.05 * Math.sin(t * 7);
+      ears.forEach((e, i) => { e.rotation.x = (i ? 1 : -1) * (0.15 + (hop ? 0.25 : 0.06 * Math.sin(t * 3 + i))); });
+    },
+  };
+}
+
+// Two birds (the park): circling high over the trees beyond, flapping and
+// gliding by turns.
+export function birds(group) {
+  const make = (col, seed) => {
+    const g = new THREE.Group(), body = std({ color: col, roughness: 0.8 }), beak = std({ color: '#E3A21A' });
+    part(g, ballGeo, body, [0, 0, 0], [0.14, 0.06, 0.06]);
+    part(g, ballGeo, body, [0.13, 0.03, 0], [0.05, 0.045, 0.045]);
+    part(g, new THREE.ConeGeometry(0.018, 0.06, 8), beak, [0.2, 0.025, 0]).rotation.z = -Math.PI / 2;
+    part(g, new THREE.BoxGeometry(0.1, 0.01, 0.07), body, [-0.16, 0.01, 0]);        // tail
+    const wings = [-1, 1].map(s => { const w = new THREE.Group(); w.position.set(0, 0.03, s * 0.04); g.add(w); part(w, new THREE.BoxGeometry(0.13, 0.008, 0.22), body, [0, 0, s * 0.11]); return w; });
+    // twice a real one's size, low enough to be seen over the trees beyond (at 5-6.5 m they flew along the view's top edge)
+    g.scale.setScalar(2); group.add(g);
+    const r = rng(seed);
+    return { g, wings, a: r() * 6.3, R: 4 + r() * 2.5, h: 3.2 + r() * 0.9, w: 0.25 + r() * 0.08, c: [r() * 4 - 2, -12 - r() * 2] };
+  };
+  const bs = [make('#3B3F4A', 41), make('#5B4636', 43)];
+  return {
+    tick(dt, t) {
+      for (const b of bs) {
+        b.a += b.w * dt;
+        const x = b.c[0] + Math.cos(b.a) * b.R, z = b.c[1] + Math.sin(b.a) * b.R * 0.6;
+        b.g.position.set(x, b.h + 0.3 * Math.sin(t * 0.7 + b.R), z);
+        // facing the way it flies (round the circle, anticlockwise from above)
+        b.g.rotation.y = -Math.atan2(Math.cos(b.a) * b.R * 0.6, -Math.sin(b.a) * b.R);
+        const flap = (t + b.R) % 4 < 2.2;   // flapping, then a glide
+        b.wings.forEach((w, i) => { w.rotation.x = (i ? -1 : 1) * (flap ? 0.7 * Math.sin(t * 13 + b.R) : 0.12); });
+      }
     },
   };
 }
