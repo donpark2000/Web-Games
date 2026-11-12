@@ -18609,3 +18609,18 @@ easier?"
   Light's animal (owl, cloud, or both) and mockup or build.
 - **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88.
+
+## 2026-11-12: Release 10.0 published and live
+
+**Developer**: "1) yes publish 10.0 2) both 3) build it" (10.0; the owl
+and the cloud; Star Light built without a mockup).
+
+- 10.0 (version 45699883d795): `RELEASES.md` notes, `node tools/offline.js`
+  (184 files), 581 tests pass, `node tools/release.js` ready; `main`
+  fast-forwarded to 8da1fa6, tag `v10.0` pushed, the GitHub release made
+  from `node tools/release.js notes`. The Pages build ran (success); the
+  live `src/core/version.js` reads 45699883d795.
+- The local server (`tools/serve.js`, PID 14740) stopped; none left.
+- Q79 (the phone's frame rate) was not measured before this release; the
+  developer's phone on the live site is the place to measure it (the
+  log's fps at each scene's end).
