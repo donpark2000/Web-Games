@@ -46,17 +46,6 @@ time, each tried before publishing:
   the made sounds picked in mockup version 6; open until the developer
   brings recordings ("Q74 parked").
 
-- **Q77. Levels 2-4: Claude's picks, to review** (2026-11-11 night;
-  "Levels 2-4 built (overnight)"). The developer left these to Claude:
-  level 4's name "Cactus Canyon"; levels 3 and 4's structures and their
-  order; the pass criteria (scenes 1-4 won by random-aim players at
-  least 75% of the time, the 5th 30-80%); ice slippery and breaking at
-  2.2 m/s, barrels at 3.0; the snow drift, pine, scrub, cactus, snowman,
-  boulders and the rattlesnake (decor, behind the structure, out of
-  play); the new sounds (ice, snow, barrels, water: made in the page as
-  the rest); the sky photos; "New scenes" keeping the levels open; the
-  check no longer asking the things to matter from level 2. Level 4's
-  scenes 1-4 are the easiest of all (97-100%): perhaps too easy.
 - **Q78. The map's and Level screens' pictures** (2026-11-11 night): a
   sign of each setting for now (🏗️, ❄️, 🌵; level 1 its drawing); the
   mockup's were stills drawn by the 3D. Stills of each level could be
@@ -73,25 +62,22 @@ time, each tried before publishing:
   compare to a build?" Answered in chat ("Q82 drift built; Q83
   measured"). 2026-11-12, developer: "We can go straight to the build."
   Built ("Balls left; the map walk; ..."): to try.
-- **Q86. The developer's `levels.txt`** (2026-11-12): gvim had a new
-  `levels.txt` open in the repo folder (its swap file was committed by
-  mistake, now out of git and `*.swp` ignored). Not saved yet; nothing
-  done with it. Ask what it's for when it appears.
 
 ## Proposed additions to the standards skill
 
-- **Check a library's setting against a hand sum before tuning around it**
-  (2026-11-12, "Ice slides; out of reach; ..."): ice that "slides" (friction
-  0.06) stopped a pushed cube in one step; a bare-library test showed
-  friction 0.06 and 0.4 alike, about 480 times the number, because the
-  library caps the step's push, not a force. A level had been tuned on
-  top of it. To review: in the skill as a line under "Fake the outside
-  world" / "Trust running the real thing"?
 - **Compare versions in a separate checkout, not by stashing**
   (2026-11-12, same entry): a stash to run the old version failed half
   way on a file another program held open (Windows), leaving the work in
   the stash; `git worktree add` leaves the working folder alone. A line
   under "Compare versions with one test run on both"?
+  2026-11-12, developer: "not sure what it means or the implications of
+  adding it or not adding it are." Explained in chat ("Q77, Q86
+  settled"); awaiting the developer's call.
+
+Earlier: (2026-11-12: "Check a library's setting against a hand sum
+before tuning around it" (from "Ice slides; out of reach; ...":
+cannon-es's friction acts about 480 times its number) dropped by the
+developer: "first skill is not needed".)
 
 Older: (2026-11-11: "Check a layout at the sizes it will be seen
 at" (from "Mockup v1 tried; v2": the level 2 mockup's Frames tab looked
@@ -192,6 +178,24 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q77. Levels 2-4: Claude's picks, to review** (2026-11-11 night;
+  "Levels 2-4 built (overnight)"). The developer left these to Claude:
+  level 4's name "Cactus Canyon"; levels 3 and 4's structures and their
+  order; the pass criteria (scenes 1-4 won by random-aim players at
+  least 75% of the time, the 5th 30-80%); ice slippery and breaking at
+  2.2 m/s, barrels at 3.0; the snow drift, pine, scrub, cactus, snowman,
+  boulders and the rattlesnake (decor, behind the structure, out of
+  play); the new sounds (ice, snow, barrels, water: made in the page as
+  the rest); the sky photos; "New scenes" keeping the levels open; the
+  check no longer asking the things to matter from level 2. Level 4's
+  scenes 1-4 are the easiest of all (97-100%): perhaps too easy.
+  2026-11-12, developer: "I like the names. I'm OK with the
+  difficulty." **Accepted as built.**
+- **Q86. The developer's `levels.txt`** (2026-11-12): gvim had a new
+  `levels.txt` open in the repo folder (its swap file was committed by
+  mistake, now out of git and `*.swp` ignored). 2026-11-12, developer:
+  "that was me working on ideas. I should have kept it out of the repo.
+  It is gone now." **Closed**: checked, neither file is in the folder.
 - **Q82. Level 3's snow drift doesn't look like snow** (2026-11-12):
   "Maybe a snowman would look better." The drift is in play (level 3's
   'soft' thing: it catches the ball, as level 1's bush); a snowman
@@ -18420,3 +18424,21 @@ separate worktree (`git worktree add`), not a stash. Q86.
   tuned; worth knowing if a level ever feels "sticky".
 - **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
 - **Open questions:** Q64, Q73, Q74 (parked), Q77, Q78, Q79, Q81, Q86.
+
+## 2026-11-12: Q77, Q86 settled; the last build liked
+
+**Developer**, to the session start's four points: "1) looks good 2)
+that was me working on ideas. I should have kept it out of the repo. It
+is gone now. 3) I like the names. I'm OK with the difficulty. 4) first
+skill is not needed. That was my mistake. Second idea - not sure what
+it means or the implications of adding it or not adding it are."
+
+- **The last build** (ice slides, Map, Start again, animals once, the
+  plain rock, out of reach): tried, "looks good".
+- **Q86 closed**: `levels.txt` was the developer's notes; gone from the
+  folder (checked: neither it nor its swap file is there).
+- **Q77 accepted as built**: the names (level 4 "Cactus Canyon") and the
+  difficulty, level 4's easy scenes 1-4 included.
+- **Skill proposals**: "a library's setting vs a hand sum" dropped; "compare
+  in a separate checkout" explained in chat, the developer's call to come.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81.
