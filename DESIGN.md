@@ -2157,19 +2157,61 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   A scene cleared wins a **💎** and the next scene; one not
   cleared loses one of **3 ❤️** and is played again; the last heart lost
   goes back to scene 1, **the same scenes** ("to help kids proceed up
-  levels"); 5 💎 finish the level. **Level 1 only** for now (developer:
-  "lets get the basic idea of a level, hearts, jewels working"); a level
-  done starts a new game with new scenes. Each level later gets a theme
-  (journal, "Mockup v5 tried": more 3D frames, glass that shatters,
-  metal and dynamite, ropes; developer, 2026-11-10: structures on curved
-  surfaces, balls that roll down a ramp once something blocking them is
-  knocked away), one a release. **When designing new levels, discuss
+  levels"); 5 💎 finish the level and open the next ("Level 1 done!",
+  **Level 2 ▸**: its Level screen). **Four levels** (2026-11-11, the
+  developer's outline: "level 3 ... the winter theme with ice blocks ...
+  snow and mountains ... Frosty Times. [Level] 4 ... the desert ... sand,
+  cactus, maybe some snakes, and rock formations similar to deserts in
+  the US ... water barrels (that spew water when broken) and wooden
+  beams"): the last done, "All levels done! 💎" / **Play again** (new
+  scenes, the levels kept open). Later themes, discussed before:
+  dynamite, ropes, structures on curved surfaces, balls that roll down a
+  ramp once something blocking them is knocked away. **When designing new levels, discuss
   whether they need other views** (developer, 2026-11-10: "keep a
   placeholder for discussing the need for different views when we start
   designing new levels"): level 1 has one, from behind (Q70).
-- **Level 2, "The building site"** (being designed; journal Q73, Q75):
-  five scenes in a fixed order, Two storeys, Three storeys, Bridge,
-  Steps, and the challenge, the four-storey tower behind a brick wall.
+- **The map** (level 2 mockup v1: "The map and level starting screen
+  look good"): **Play!** (or **Carry on**) opens it, on the setup
+  screen: a node per level up a path of dots, orange as far as you've
+  got; done levels ✔, the one you're on lit with "You", higher ones 🔒
+  ("Finish level N first"). A node opens its **Level screen**: "Level N",
+  the name (the setting), a picture, one line, where you are in it, its
+  jewels and hearts, **Start ▸** / **Carry on ▸** / **Play again ▸**, and
+  ◀ Map. **Each level keeps its own place**, and a level played again
+  has the same scenes. **New scenes from scene 1** makes new scenes for
+  every level and keeps the levels open (Claude's pick, to review). The
+  pictures are a sign of each setting for now (level 1's drawing, 🏗️,
+  ❄️, 🌵; Claude's pick, to review: the mockup's were drawn by the 3D).
+- **Levels 2-4: five structures each, in a fixed order**, the climb in
+  difficulty sure (level 1 deals its scenes 1-4 from six); the seed
+  changes only small sizes and where things stand. Scenes 1 and 3 have
+  the level's soft thing in the way, 2 and 4 its tall one, the 5th both.
+  The structures are frames of posts and slabs (falling whole to a hit
+  on a bottom post), or pieces apart (falling in parts); blocks may hide
+  behind other blocks until they fall, **never behind a thing for the
+  whole scene** (developer, Q73; the check as level 1's). The things
+  stand out of reach of the **whole structure falling** (0.6 of its
+  height), not only its tallest block. The throw is fast enough for the
+  top (+8%). The **iron ball** (mockup v3: 0.07 m, 3 kg, a lifting
+  ring). How hard (journal, "Levels 2-4 balanced"): players throwing at
+  a random block they can see win scenes 1-4 at least 75% of the time
+  and the 5th 30-80%, and every scene of the games tried can be won.
+- **Materials** (mockup v3; `src/core/topple-levels.js` MATS): each
+  its own weight, bounce off the ball, grip and sound: wood lightest,
+  then brick, concrete, steel heaviest (closer together than real, so
+  the ball can still tip steel); **ice** slippery, and it **shatters**
+  at a knock of 2.2 m/s or more (the ball's, a fall), its shards flying;
+  a **water barrel** bursts at 3 m/s, water spraying out, a dark wet
+  patch on the sand and staves flying. A broken block is gone, down for
+  good (and still broken when a scene is picked up again).
+- **Level 2, "The building site"** (journal Q73, Q75): Two storeys,
+  Three storeys, Bridge, Steps, and the challenge, a three-storey tower
+  behind a low wall of two upright bricks (four storeys behind five
+  bricks, then three, were won 31% of the time). In the way: a
+  **wheelbarrow of gravel** (a ball that lands in it keeps 0.1 of its
+  speed and stays) and a **site light** on a pole. Sounds (mockup v6,
+  the developer's picks): wood "Hollow plank", brick "Clack and grit",
+  steel "Ring", concrete "Thunderous crash", the ball "Clonk and roll".
   **The photo look** (developer, 2026-11-11, from the
   [Topple! Level 2 Mockup](https://claude.ai/artifact/D5Z6BjfKGhRedxJXLVK1Hc)
   v7: "Photo look"): the blocks and the pad in photographed surfaces,
@@ -2181,7 +2223,34 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   Poly Haven model only where that isn't enough (developer, 2026-11-11,
   Q76; tried in the mockup first). The game uses 512 px copies, listed
   for offline; the phone's frame rate is measured before release.
-  **Level 1's park stays drawn** for now (Q76).
+  **Level 1's park stays drawn** for now (Q76). As built: the light's
+  pole in galvanised steel, the wheelbarrow's tray in green painted
+  metal, the slingshot in planks' wood, the iron ball in rusty steel
+  darkened; cones and a pallet of bricks by the yard's edge; no models.
+- **Level 3, "Frosty Times"** (the developer's name): ice blocks; snowy
+  mountains and a frozen lake ahead (Poly Haven's "Lago d'Isola",
+  turned so they're ahead), snow all round fading into the photo's
+  land. Structures (Claude's picks, to review): an ice gate, an ice
+  tower, an ice pyramid (cubes 4-3-2-1), an ice wall of two pairs of
+  pillars with slabs and cubes, and the challenge, an **ice castle**:
+  two two-storey towers joined by a bridge behind two upright slabs. In
+  the way: a **snow drift** (soft: the ball stays in it) and a **snowy
+  pine** (tall: its trunk, its tiers of branches from 1.15 m). A snowman
+  and young pines off to the side. Sounds: ice knocked (a glassy clink),
+  shattering (a crack and tinkles), the ball into snow (a soft puff).
+- **Level 4, "Cactus Canyon"** (Claude's name, to review): wooden beams
+  and water barrels; the desert of Poly Haven's "Goegap" (sand and rock
+  outcrops) all round, sand underfoot, boulders off to the sides and a
+  **rattlesnake** sliding along in S-curves behind the structure, out of
+  the ball's way (no part in the play). Structures (Claude's picks): a
+  **water tower** (four legs, a deck, a big barrel tank: burst the tank
+  and the legs come down), a trestle, a stack of barrels 3-2-1 with
+  beams, a hitching rail with barrels behind, and the challenge, a
+  two-storey **timber frame** with a barrel on each floor behind a row
+  of three barrels. In the way: **desert scrub** (soft: level 1's bush,
+  lower and sage-grey) and a **saguaro cactus** (tall: its ribbed trunk
+  and two arms). Sounds: a barrel knocked (a hollow thunk), bursting (a
+  crack, a gush, drips).
 - **The scenes are made from the game's seed**, so they're the same
   each time; only a new game makes new ones. **The game is kept on the
   device** (`web-games-topple-game`: the seed, level, scene, hearts,
@@ -2245,17 +2314,26 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   balls 💔", "2 hearts left" / **Try again**; "No hearts left", "Back to
   scene 1" / **Start again**; "Level 1 done! 💎💎💎💎💎" / **Play
   again**; and **New game** (the setup screen).
-- **Sounds:** `whoosh` (a throw), `knock` (a wooden block knocked,
+- **Sounds** (levels 2-4 above; each gain set from its measured
+  loudness, level 1's knock the yardstick, the crash, shatter and splash
+  a little louder): `whoosh` (a throw), `knock` (a wooden block knocked,
   louder the harder; new), `rustle` (the bush or leaves; new), `boing`
   (the glass, when there is a backboard; new), `thud` (the ground, trunk
   or a pole), `win` / `aww`.
-- **Code:** the rules, scenes and camera in `src/core/topple.js`; the
+- **Code:** levels 2-4's names, materials and structures in
+  `src/core/topple-levels.js` (data only); their settings, things and
+  effects drawn by `src/ui/topple-sets.js` (the photos:
+  `data/topple/`, sources and licence in `data/topple/CREDITS.md`);
+  the rules, scenes and camera in `src/core/topple.js`; the
   physics, the path ahead and the scene check in
   `src/core/topple-world.js` (both tested under Node); the drawing in
   `src/ui/topple-scene.js`; the screens in `src/ui/topple.js`. A device
   that can't run three.js, cannon-es or WebGL sees only "This phone or
   tablet can't show the 3D park".
-- **Logged:** 3D started (with the far-off trees' leaves), the game on
+- **Logged** (levels 2-4 too): the setting drawn (its photos, ms, or why
+  not), the map (a level picked, a locked one), the Level screen's
+  start, a block broken (its material, speed), each knock's material in
+  the sound; 3D started (with the far-off trees' leaves), the game on
   the device, the fit (with the pad's spot), each scene (its layout, the
   check, how long it took to make, its leaves and how long they took to
   draw), layouts thrown away, the pad's show (the angle picked; done, or

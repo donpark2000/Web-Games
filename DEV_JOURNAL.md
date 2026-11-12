@@ -46,6 +46,26 @@ time, each tried before publishing:
   the made sounds picked in mockup version 6; open until the developer
   brings recordings ("Q74 parked").
 
+- **Q77. Levels 2-4: Claude's picks, to review** (2026-11-11 night;
+  "Levels 2-4 built (overnight)"). The developer left these to Claude:
+  level 4's name "Cactus Canyon"; levels 3 and 4's structures and their
+  order; the pass criteria (scenes 1-4 won by random-aim players at
+  least 75% of the time, the 5th 30-80%); ice slippery and breaking at
+  2.2 m/s, barrels at 3.0; the snow drift, pine, scrub, cactus, snowman,
+  boulders and the rattlesnake (decor, behind the structure, out of
+  play); the new sounds (ice, snow, barrels, water: made in the page as
+  the rest); the sky photos; "New scenes" keeping the levels open; the
+  check no longer asking the things to matter from level 2. Level 4's
+  scenes 1-4 are the easiest of all (97-100%): perhaps too easy.
+- **Q78. The map's and Level screens' pictures** (2026-11-11 night): a
+  sign of each setting for now (🏗️, ❄️, 🌵; level 1 its drawing); the
+  mockup's were stills drawn by the 3D. Stills of each level could be
+  made by tools/home-pics.js's way (the game's own page in headless
+  Edge), as WebP files.
+- **Q79. A phone's frame rate and the download** (2026-11-11 night): the
+  photos add 5.57 MB to the offline app (now 9.08 MB, 183 files); each
+  sky is a 4096 x 2048 photo. To measure on the phone before release
+  (the log's fps at each scene's end).
 
 ## Proposed additions to the standards skill
 
@@ -17914,3 +17934,106 @@ normally make are Claude's, each marked **"Claude's pick, to review"**
 with its reason, and listed in the morning summary. Downloads: Poly
 Haven CC0 only, each file's source and licence on record. Not checkable
 here: the phone's frame rate and feel, and the kids.
+
+## 2026-11-11: Levels 2-4 built (overnight): what, and the evidence
+
+Built to the developer's outline (entry above): level 2 "The building
+site" as designed, level 3 "Frosty Times" (ice), level 4 "Cactus Canyon"
+(barrels and beams), the map and the Level screen. DESIGN.md "Topple!"
+has them as built. Commits 8527a28 and ce9f50a on `block-game`.
+
+**Downloads** (developer's OK, Poly Haven CC0 only): 42 files from Poly
+Haven's API (13 textures' 1K colour, normal and ARM or roughness JPGs; 3
+skies' tonemapped JPGs), 78.9 MB, each checked against the API's MD5
+(all 42 matched), into Claude's scratch folder. The game's copies (made
+with Windows' own imaging through PowerShell, no image tools being on
+this PC): textures 512 px, skies 4096 x 2048, in `data/topple/` (42
+files, 5.57 MB; the skies 1.2, 1.6 and 1.1 MB), with
+`data/topple/CREDITS.md` (each file's source, authors, real size, use).
+The site is now 9.08 MB for the offline app (183 files), 5.57 MB of it
+the photos. The skies (Claude's picks, from Poly Haven's thumbnails):
+"Construction Yard" (the mockup's), "Lago d'Isola" (the only snow photo
+with mountains; turned 0.55 round so the frozen lake and the peaks are
+ahead, checked by eye on the copy), "Goegap" (sand and rock outcrops;
+the closest to the US desert's rock formations, red-rock "Valley of
+Desolation" being scrubbier).
+
+**The scene check for frames: three findings.**
+1. *Every* level 2-4 scene first failed "the things hardly matter" (25
+   tries each, 5-13 s a scene on this PC; a phone several times that).
+   Measured (`check()`'s numbers): straight first hits with the things
+   equalled those without, 207 = 207. Two causes: the light's pole was
+   in the "clear" scan (it's a 'stand', as the backboards' poles), so it
+   could never matter; and the wheelbarrow, 0.65 m tall, sits below the
+   throws at the frame (about 0.9 m high where they pass it). From level
+   2 the rule is dropped (the frames are the challenge; Claude's pick),
+   the pole is out of the clear scan, and a block only fails "hard to
+   hit" if the things take away its straight hits (a back post glimpsed
+   between front ones by 1-2 throws is fine). Since: every scene passes
+   on its first layout or nearly (0.1-0.6 s).
+2. I also loosened "every block at least partly seen" to "half seen",
+   reading it as "blocks hidden behind blocks". Wrong: it counts only the
+   things in the way, never other blocks, so it is exactly the
+   developer's "none hidden for the whole scene". The win run caught it:
+   the saloon was won 0 of 32 times, 25 plays stuck with no block to aim
+   at; the two front barrels stood untouched, unseen (`frontSeen` 0)
+   behind the scrub. Put back as level 1's, and the scrub made lower
+   (as if the structure were 0.32 m tall: a bush sized to hide 40% of
+   the structure's height hid the whole front row). Then 66%.
+3. A test throw at the snow drift went through it: closest 0.7520 m,
+   touching needed 0.7522. The path checks a step at 4 points and
+   counted a graze the physics missed: not a bug; the tests now aim at
+   the middle of what they test.
+
+**Breaking speeds, measured** (`probe-break`: a throw at each block,
+the speed along the knock): direct hits came at 2.0-7.7 m/s, falls of
+pieces 1-2.7 m/s. At first 3.6 (ice) and 4.2 (barrels) left many hits
+doing nothing; now **2.2 and 3.0** (Claude's pick: a hit on ice should
+smash it). In the browser: the ice gate's left pillar shattered (shards
+seen), the trestle's barrels burst (spray, staves, a wet patch).
+
+**Win rates** (players throwing at a random block they can see, 4 games
+x 8 players a scene; the same kind as level 1's 874 of 1,000; my probe
+in the scratch folder):
+
+| Scene | Level 2 | Level 3 | Level 4 |
+|---|---|---|---|
+| 1 | Two storeys 94% | Ice gate 100% | Water tower 100% |
+| 2 | Three storeys 84% | Ice tower 97% | Trestle 100% |
+| 3 | Bridge 88% | Ice pyramid 97% | Barrel stack 97% |
+| 4 | Steps 75% | Ice wall 94% | Hitching rail 100% |
+| 5 | Tower behind bricks 50% | Ice castle 38% | Saloon 66% |
+
+Changes on the way: the building site's challenge was four storeys
+behind five narrow bricks (31%), then three bricks (31%), now three
+storeys behind two wide bricks (50%); the ice wall five pillars with the
+middle alone (44%), now two pairs (94%); the ice castle behind five thin
+slabs (3%), now two (38%). Levels 3 and 4 put in order of balls needed
+(the water tower first: one hit on the tank brings it down with a big
+splash). Pass criteria settled (Claude's, to review): scenes 1-4 at
+least 75%, the 5th 30-80%, every scene of the games tried winnable (the
+test: 2 games x 15 scenes, all won).
+
+**Sounds, measured** (rendered offline at 0.9 through the game's 0.5
+master; loudest 50 ms RMS): level 1's knock 0.046 is the yardstick.
+Before: plank 0.007, brick 0.003, ring 0.040, crash 0.179, clonk 0.096,
+crunch 0.005, iceknock 0.056, shatter 0.040, poof 0.035, barrel 0.072,
+splash 0.048. After the gains (`SITE_GAIN`): 0.043-0.052 each, the
+crash 0.093, shatter 0.068, splash 0.069.
+
+**Checked in the browser** (this PC, the pane at about 800 x 600 and the
+phone size 375 x 812): the map (4 nodes, locked ones shake), the Level
+screen, each setting drawn with no console errors, a scene of each level
+played with the debug hook (level 2 scene 1 cleared in 2 balls), ice
+shattering and barrels bursting, no sideways scroll at phone size. The
+boulders first looked like tomatoes (smooth, orange-tinted): rougher,
+cut flat in places, the photo's own colour.
+
+**Tests:** `tests/topple-levels.test.js` (10 tests, about 2 minutes:
+the winnable test 1 minute of it) and `tests/topple-players.js` (the
+person player, shared); the sound, page and game tests updated. The
+whole suite: 567 tests, all pass.
+
+**Not checked:** a phone's frame rate (the sky photos are 4096 px; the
+log has fps at each scene's end) and the download over a phone's
+connection; how it feels; the kids.
