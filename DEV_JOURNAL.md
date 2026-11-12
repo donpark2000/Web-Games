@@ -28,6 +28,10 @@ time, each tried before publishing:
 - **Q73. Topple! level 2, 3D frames: the targets, the hidden-blocks rule,
   the "Level N" screen** (2026-11-11; "Level 2 picked: 3D frames").
   Claude's suggestions and questions put to the developer; waiting.
+- **Q74. Recorded sounds (CC0 files kept in the repo) for the building
+  site, instead of sounds made in the page?** (2026-11-11; "Sounds
+  picked; made in the page or recorded?"). DESIGN.md "Sound" says made in
+  the page; the developer asked why not free recorded ones. Waiting.
 
 
 ## Proposed additions to the standards skill
@@ -17522,6 +17526,33 @@ clicks) come out far quieter than the ones with a note in them.
 - **The developer's picks are the defaults:** wood C, brick B, steel B,
   the ball C, concrete A (the Frames tab uses them).
 
+## 2026-11-11: Sounds picked; made in the page or recorded? (Q74)
+
+**Developer on v5:** "Steel post - C. Concrete - C. rest are good I
+think." So the picks: **wood C Hollow plank, brick B Clack and grit,
+steel C Ring, concrete C Thunderous crash, the ball C Clonk and roll**
+(set in mockup version 6).
+
+"I'm curious how you create sounds. If I were doing it I would find free
+sounds on the web. There are lots. I do not get the feeling you are using
+any existing sounds." Right: every sound is **made in the page** (Web
+Audio: notes, filtered noise and envelopes), as DESIGN.md "Sound"
+decided on 2026-10-09 ("no sound files, nothing from other sites").
+
+- **Q74. Recorded sounds for the building site?** Recordings would sound
+  far more real for crashes and clangs, where making them is weakest.
+  "Nothing loaded from other sites" still holds if the files are kept in
+  the repo and served with the site (as three.js is). The costs: the
+  DESIGN.md decision changes; each sound is a file (about 10-40 KB),
+  saved for offline (`tools/offline.js` lists it); each needs a licence
+  that allows it in a public repo and a game, kept on record (CC0 is the
+  simplest: Kenney's free sound packs, OpenGameArt's CC0 sounds; some
+  "royalty-free" packs forbid sharing the files themselves, which a
+  public repo does); and Claude can't hear: the developer picks by ear,
+  as now. Claude's suggestion: a sampler with recorded CC0 versions next
+  to the made ones, for the five building-site sounds. Downloading needs
+  the developer's OK and source. Asked.
+
 ## 2026-11-11: Status (start here next session)
 
 - **Live: 9.4.** Nothing in the game has changed this session; only the
@@ -17530,8 +17561,8 @@ clicks) come out far quieter than the ones with a note in them.
   blocks (steel, concrete, brick, some wood), level 1's camera, hidden
   parts not drawn, the Level screen and the map (mockup v1, "look good"),
   the wheelbarrow of gravel and the site light in the way, the iron ball.
-  Sounds picked (v5): wood C, brick B, steel B (to confirm), the ball C;
-  waiting: v5's even levels and a concrete crash (A, B or C).
+  Sounds picked (mockup version 6): wood C, brick B, steel C, concrete C,
+  the ball C. Open: whether to try recorded CC0 sounds instead (Q74).
 - **The mockup's page is its source**: read it with the Artifact tool
   (`read`, the link above); level 1's picture is already in it.
 - **Still to decide before building:** which frames (7 samples), how
@@ -17539,7 +17570,7 @@ clicks) come out far quieter than the ones with a note in them.
   into view as the front falls; reach = the structure's height; the
   throw's speed for the top); the map and level picking in the game's
   saved state.
-- **Open questions:** Q64, Q73.
+- **Open questions:** Q64, Q73, Q74.
 - **Skill:** a lesson to propose: "Check a layout at the sizes it will be
   seen at" (the Frames tab looked right in a 322 px pane and was a tiny
   square in the developer's wide viewer). Not yet put to the developer.
