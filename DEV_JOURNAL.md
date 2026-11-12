@@ -18037,3 +18037,15 @@ whole suite: 567 tests, all pass.
 **Not checked:** a phone's frame rate (the sky photos are 4096 px; the
 log has fps at each scene's end) and the download over a phone's
 connection; how it feels; the kids.
+
+## 2026-11-11: Status (start here next session)
+
+- **Live: 9.4.** `block-game` has levels 2-4 built, tested (567 tests
+  pass) and pushed; nothing merged. Checked in the browser: the end of
+  level 1 offers "Level 2 ▸" and opens its Level screen.
+- **Not done:** release prep for 10.0 (RELEASES.md notes, `release.js`
+  set, `node tools/release.js` ready), stills for the map (Q78), the
+  phone check (Q79). Usage limit reached overnight.
+- **For the developer:** try levels 2-4 (on this PC: `node tools/serve.js`,
+  or publish to try on the phone); review Claude's picks (Q77).
+- **Open questions:** Q64, Q73, Q74 (parked), Q77, Q78, Q79.
