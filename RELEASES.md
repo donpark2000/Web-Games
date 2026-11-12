@@ -7,6 +7,20 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.1 (2026-11-12, version 380ff25f9d38)
+
+Topple!: a fifth level, Star Light.
+
+- **Level 5, Star Light:** night by the snowy mountains, under the stars.
+  The blocks glow, each its own colour, and shatter into shards of that
+  colour; the ball glows too.
+- **The moon and a cloud** high in the sky, behind the mountains; the
+  cloud a slow wisp drifting past the moon.
+- **An owl** on a bare tree that hoots now and then, and flies off when
+  a block falls.
+- **Fixed:** a game that had finished every level before now opens the
+  new one, instead of asking for the last level to be played again.
+
 ## 10.0 (2026-11-12, version 45699883d795)
 
 Topple!: three new levels, a map to pick them from, and animals.
