@@ -7,6 +7,29 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.0 (2026-11-12, version 45699883d795)
+
+Topple!: three new levels, a map to pick them from, and animals.
+
+- **Level 2, the building site:** frames of wood, brick, concrete and
+  steel, thrown at with an iron ball; a wheelbarrow of gravel and a site
+  light in the way. Each material has its own weight and sound.
+- **Level 3, Frosty Times:** ice blocks that slide and shatter, by a
+  frozen lake in the snowy mountains; a rock and a snowy pine in the way.
+- **Level 4, Cactus Canyon:** wooden beams and water barrels that burst,
+  in the desert; scrub and a saguaro cactus in the way.
+- **Photographed surfaces and skies** for the new levels (level 1's park
+  stays drawn).
+- **The map:** pick a level; each keeps its own place. Finishing a
+  level shows your face walking the road to the next one as its lock
+  pops off.
+- **Animals:** birds, a rat, a snow bunny and a rattlesnake cross each
+  scene once, and run off in a fright when a block falls or breaks.
+- **While playing:** the level's name over the scene, the balls left
+  under it, a 🗺️ Map button, and ↺ Start again once a ball is thrown.
+  The scene's card waits until the blocks have fallen; a block knocked
+  out of reach counts as down.
+
 ## 9.4 (2026-11-11, version 9af34c850eb9)
 
 The home page's pictures of Tin Can Alley and Topple!, adjusted.
