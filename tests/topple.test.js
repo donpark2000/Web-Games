@@ -345,6 +345,14 @@ test('topple: a game kept on the device is used only if it makes sense', () => {
   assert.deepEqual(odd, { seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 2, done: [1], places: {} });
   const kept = readGame({ seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 3, done: [1, 2], places: { 1: { scene: 4, hearts: 1, jewels: 3 } } });
   assert.deepEqual(kept.places, { 1: { scene: 4, hearts: 1, jewels: 3 } });
+  // every level done when there were four (10.0), then some scenes played again: level 5 open, places kept
+  const ten = readGame({ seed: 5, level: 2, scene: 3, hearts: 2, jewels: 2, reached: 4, done: [1, 2, 3, 4], places: { 4: { scene: 2, hearts: 3, jewels: 1 } } });
+  assert.deepEqual({ reached: ten.reached, done: ten.done, level: ten.level, scene: ten.scene, places: ten.places },
+    { reached: 5, done: [1, 2, 3, 4], level: 2, scene: 3, places: { 4: { scene: 2, hearts: 3, jewels: 1 } } });
+  assert.ok(isOpen(ten, 5) && switchLevel(ten, 5) && ten.scene === 1, 'level 5 from its first scene');
+  // a level not done opens nothing more; the last level done opens nothing past it
+  assert.equal(readGame({ seed: 5, level: 3, scene: 2, hearts: 3, jewels: 1, reached: 3, done: [1, 2] }).reached, 3);
+  assert.equal(readGame({ seed: 5, level: 1, scene: 1, hearts: 3, jewels: 0, reached: 5, done: [1, 2, 3, 4, 5] }).reached, 5);
 });
 
 test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all are down and still for 0.35 s; out of balls once still', () => {

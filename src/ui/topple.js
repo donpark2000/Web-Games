@@ -43,6 +43,8 @@ let storage = null;
 try { storage = window.localStorage; } catch { /* blocked: the game lasts this visit */ }
 let game = null;
 try { game = readGame(JSON.parse(storage?.getItem(GAME_KEY) ?? 'null')); } catch { /* unreadable: a new game */ }
+// the level after one done, opened as the game is read (a game from 10.0, which had four)
+try { const was = JSON.parse(storage.getItem(GAME_KEY)).reached; if (game && game.reached > was) L('level opened: the one after a level done', { was, reached: game.reached, done: game.done }); } catch { /* nothing kept */ }
 const newSeed = () => 1 + Math.floor(Math.random() * (2 ** 31 - 2));
 function saveGame() {
   try { storage?.setItem(GAME_KEY, JSON.stringify(game)); } catch (e) { L('game not kept on the device', { error: String(e) }); }
@@ -707,7 +709,7 @@ function endScene(result, quiet = false) {
   settled = { round: JSON.parse(JSON.stringify(round)), poses: world.poses() };
   showEnd();
   const secs = (performance.now() - perf.at) / 1000;
-  L('scene over', { ...result, outcome, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped });
+  L('scene over', { ...result, outcome, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped, moon: stage.animals?.().find(a => a.moon)?.moon });
   if (!quiet) sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
 }

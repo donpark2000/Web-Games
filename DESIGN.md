@@ -2190,7 +2190,10 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   the name (the setting), a picture, one line, where you are in it, its
   jewels and hearts, **Start ▸** / **Carry on ▸** / **Play again ▸**, and
   ◀ Map. **Each level keeps its own place**, and a level played again
-  has the same scenes. **New scenes from scene 1** makes new scenes for
+  has the same scenes. **The level after a done one is always open**,
+  so a level added later opens for a game that had finished them all
+  (developer, 2026-11-12: level 4 done in 10.0, level 5 locked until
+  level 4 was played through again). **New scenes from scene 1** makes new scenes for
   every level and keeps the levels open (Claude's pick, to review). The
   pictures are a sign of each setting for now (level 1's drawing, 🏗️,
   ❄️, 🌵, 🌙; Claude's pick, to review: the mockup's were drawn by the 3D).
@@ -2282,9 +2285,17 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   download): its sky found column by column (blue well over red) and
   swapped for a dark blue sky with stars, its land kept in moonlight (its
   brightness in blues); the moonlight dim and blue, no sky light on the
-  shiny parts, the snow tinted. **The moon** in the view's top right, and
-  **a cloud** drifting across in front of it, not frightened (developer:
-  owl or cloud, "both"). **Glowing blocks** (`glow`): each a colour (cyan,
+  shiny parts, the snow tinted. **The moon** and **a cloud** drifting
+  slowly past it, not frightened (developer: owl or cloud, "both"),
+  **behind the photo's land** (a depth mask from its skyline: the
+  mountains hide them) and **high in the sky**: the moon where the view
+  shows the most sky, below the level's name and the hearts; with no
+  sky over the land there, it glows from behind the ridge (developer,
+  2026-11-12: first drawn on the screen's top right, they showed "low in
+  the sky and between the mountains in the back and the trees"). The
+  cloud a wisp (streaky noise, see-through where thin; "looks a lot like
+  a pile of spheres" when made of puffs), at a fifth of the first speed
+  (developer: "about 20%"): about 3 minutes across a phone's view. **Glowing blocks** (`glow`): each a colour (cyan,
   pink, lime, amber, violet, given round so neighbours differ), lit from
   inside, brighter at the edges, a soft halo each, and a light among them
   that dims as they break; they break as ice does (at a knock of 2.2 m/s,

@@ -136,6 +136,15 @@ export function makePark3d(canvas) {
   }
   // two birds circling over the trees beyond (developer, 2026-11-12: "maybe a bird or two for the first level")
   const parkBirds = birds(parkGroup);
+  // What the page draws over the view's top (the level's name, the hearts:
+  // .hudpill), in NDC: [{ x0, x1, y0: its bottom }] (Star Light's moon
+  // keeps below them).
+  const hudCovers = () => {
+    const c = renderer.domElement.getBoundingClientRect();
+    if (!c.width || !c.height) return [];
+    return [...document.querySelectorAll('.hudpill')].map(e => e.getBoundingClientRect()).filter(r => r.width > 0)
+      .map(r => ({ x0: 2 * (r.left - c.left) / c.width - 1, x1: 2 * (r.right - c.left) / c.width - 1, y0: 1 - 2 * (r.bottom - c.top) / c.height }));
+  };
   // The view's sides along y, z as [left x, right x], with the camera as now
   // (the animals start and end their crossing just out of sight): where the
   // line's points show at the canvas' edges, found by halving.
@@ -365,7 +374,7 @@ export function makePark3d(canvas) {
       const t0 = performance.now();
       let error = null;
       if (n > 1 && !sets.has(n)) {
-        try { sets.set(n, await makeSetting(n, { renderer, leafy, LEAF, camera, sound: name => onSound?.(name) })); } catch (e) { error = String(e.message ?? e); sets.set(n, null); }
+        try { sets.set(n, await makeSetting(n, { renderer, leafy, LEAF, camera, covers: hudCovers, sound: name => onSound?.(name) })); } catch (e) { error = String(e.message ?? e); sets.set(n, null); }
       }
       if (set) scene.remove(set.group);
       set = n > 1 ? sets.get(n) ?? null : null;

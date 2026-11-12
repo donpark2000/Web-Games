@@ -98,6 +98,8 @@ test('topple page: the game kept on the device for every visit, the scene under 
   assert.match(js, /export const GAME_KEY = 'web-games-topple-game';/);
   assert.doesNotMatch(js, /GAME_KEY = 'web-games-resume-/, 'a key the old-games cleanup removes');
   assert.match(js, /readGame\(JSON\.parse\(storage\?\.getItem\(GAME_KEY\)/);
+  // a level opened as the game is read (one finished in 10.0, which had four): in the log
+  assert.match(js, /if \(game && game\.reached > was\) L\('level opened: the one after a level done'/);
   // kept as each scene ends, before its card shows
   assert.match(js, /const outcome = sceneOver\(game, result\.won\)[,;][\s\S]*?saveGame\(\);[\s\S]*?showEnd\(\);/);
 });
@@ -234,15 +236,32 @@ test('topple page: Star Light: the night sky, glowing blocks and ball, coloured 
   assert.match(setsJs, /if \(b\.mat === 'ice' \|\| b\.mat === 'glow'\)/);
   assert.match(setsJs, /sparks\.setColorAt\(nk\+\+, spark\.set\(e\.c\)\)/);
   // the moon and the cloud (no fright); the owl a perched(), with a fright and its hoot through the page's sound
-  const skyFn = setsJs.match(/function sky\(group, camera\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  const skyFn = setsJs.match(/function sky\(group, camera, night, covers\) \{[\s\S]*?\n\}/)?.[0] ?? '';
   assert.ok(skyFn, 'no sky()');
   assert.doesNotMatch(skyFn, /fright/, 'the cloud takes fright');
+  // behind the photo's land (developer, 2026-11-12: they showed in front of the mountains): a mask
+  // from the skyline writes depth only, nearer than the moon and cloud, inside the camera's far plane
+  assert.match(setsJs, /const MASK_R = 150, CLOUD_D = 153, MOON_D = 156;/);
+  assert.match(sceneJs, /new THREE\.PerspectiveCamera\(50, 0\.75, 0\.05, 160\)/, 'the far plane moved: check MOON_D');
+  assert.match(skyFn, /colorWrite: false, depthWrite: true/);
+  assert.match(skyFn, /if \(1\.0 - v < texture2D\(line, vec2\(u, 0\.5\)\)\.r\) discard;/);
+  assert.match(setsJs, /rows: sm, H,/);
+  // the moon where the view shows sky, below the level's name and hearts; worked out again when the view changes
+  assert.match(skyFn, /spot = moonSpot\(skyline\(\), \{ x: MOON\.r \/ camera\.aspect, y: MOON\.r \}, \{ covers: cv \}\)/);
+  assert.match(skyFn, /camera\.fov, camera\.aspect\]/);
+  assert.match(sceneJs, /querySelectorAll\('\.hudpill'\)/);
+  assert.match(await read('topple.html'), /class="hudpill hudlevel"[\s\S]*class="hudpill"/);
+  // the cloud from cloudAt (a fifth of the speed), a wisp, not puffs
+  assert.match(skyFn, /const c = cloudAt\(t\);/);
+  assert.doesNotMatch(setsJs, /for \(let i = 0; i < 26; i\+\+\)/, 'the puffs are back');
+  // the moon's place in the log at each scene's end
+  assert.match(js, /moon: stage\.animals\?\.\(\)\.find\(a => a\.moon\)\?\.moon \}\);/);
   const owlFn = setsJs.match(/function owl\(group, bark, sound\) \{[\s\S]*?\n\}/)?.[0] ?? '';
   assert.match(owlFn, /const go = perched\(\d+\);/);
   assert.match(owlFn, /fright: x => go\.fright\(x\)/);
   assert.match(owlFn, /if \(go\.tick\(dt\)\) \{ hoot = 1; sound\('hoot'\); \}/);
-  assert.match(setsJs, /decor\.push\(sky\(group, ctx\.camera\)\);/);
-  assert.match(sceneJs, /makeSetting\(n, \{ renderer, leafy, LEAF, camera, sound: name => onSound\?\.\(name\) \}\)/);
+  assert.match(setsJs, /decor\.push\(sky\(group, ctx\.camera, night, ctx\.covers \?\? \(\(\) => \[\]\)\)\);/);
+  assert.match(sceneJs, /makeSetting\(n, \{ renderer, leafy, LEAF, camera, covers: hudCovers, sound: name => onSound\?\.\(name\) \}\)/);
   assert.match(js, /stage\.onSound = name => \{ if \(!SET_SOUND\[name\] \|\| !playing\) return; sound\.play\(SET_SOUND\[name\], 0, \{ quiet: true \}\); L\('owl hoots'/);
   assert.match(js, /glow: 'chime' \}/);
   // its picture on the map; the map tall enough for five

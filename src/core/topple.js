@@ -785,12 +785,16 @@ const okPlace = p => !!p && Number.isInteger(p.scene) && p.scene >= 1 && p.scene
   && Number.isInteger(p.hearts) && p.hearts >= 1 && p.hearts <= HEARTS && Number.isInteger(p.jewels) && p.jewels >= 0 && p.jewels < SCENES;
 const okLevel = n => Number.isInteger(n) && n >= 1 && n <= MAX_LEVEL;
 // A game as kept on the device, if it makes sense; else null. One kept
-// before levels (9.4: level 1 only) carries on at level 1.
+// before levels (9.4: level 1 only) carries on at level 1. The level after
+// a level done is open: a game that finished every level when there were
+// fewer (10.0: four) opens the new one (developer, 2026-11-12: level 4 done
+// in 10.0, and level 5 opened only once level 4 was played through again).
 export function readGame(g) {
   if (!g || typeof g !== 'object') return null;
   if (!(Number.isInteger(g.seed) && g.seed > 0 && okLevel(g.level) && okPlace(g))) return null;
-  const reached = okLevel(g.reached) && g.reached >= g.level ? g.reached : g.level;
+  let reached = okLevel(g.reached) && g.reached >= g.level ? g.reached : g.level;
   const done = Array.isArray(g.done) ? [...new Set(g.done.filter(n => okLevel(n) && n <= reached))].sort() : [];
+  if (done.length) reached = Math.max(reached, Math.min(MAX_LEVEL, Math.max(...done) + 1));
   const places = {};
   for (const [k, p] of Object.entries(g.places && typeof g.places === 'object' ? g.places : {})) {
     const n = Number(k);

@@ -76,6 +76,11 @@ time, each tried before publishing:
   Star Light first; many targets (Q88)"): same play, more balls. Asked
   "Would that be easier?": answered there. Where it goes (a level, or
   scenes in one) to discuss.
+- **Q89. Star Light: little or no sky in some views** (2026-11-12; "Star
+  Light tried: level 5 locked; the moon and cloud ..."): the moon now
+  goes only where there's sky; in 3 of 5 scenes on a wide screen there
+  is none. Leave it, or tilt the night view up a little? For the
+  developer.
 
 ## Proposed additions to the standards skill
 
@@ -18710,3 +18715,92 @@ Level counts 4 to 5 where tests named them. `node tools/offline.js`.
 - **Not done:** Q78 (map stills), Q79 (the phone's fps), Q88 (many
   targets: to discuss).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88.
+
+## 2026-11-12: Star Light tried: level 5 locked; the moon and cloud behind the land, higher, slower, a wisp
+
+**Developer**: "one minor bug. I had previosly played all other levels
+... since I had previously finished level 4 I expected to be able to get
+into level 5 at the beginning. But I had to complete the remaining level
+4 scenes first". "The glowing blocks and the sounds are good. The [owl]
+is great. The [cloud] and moon seem off. The both look low in the sky
+and between the mountains in the back and the trees and targets in the
+foreground. The cloud moves too fast. It should be about 20% of its
+current speed. And it looks a lot like a pile of spheres. Any chance we
+could use a photo or make it look whispier?"
+
+- **Liked:** the glowing blocks, the sounds, the owl.
+- **Level 5 locked (the bug).** Cause (from the code): finishing the
+  last level returns 'all' without raising `reached` (there was no next
+  level), and "all done" starts new scenes at level 1 with `reached` 4,
+  `done` [1-4]. With five levels, level 5 opened only by finishing level
+  4 again. Fix: `readGame()` opens the level after the highest done
+  (capped at the last), so the developer's saved game opens level 5 on
+  its next load, the other levels' places kept. Logged: "level opened:
+  the one after a level done" {was 4, reached 5}. Test: a game saved as
+  10.0 left it, with some scenes replayed: level 5 open, from scene 1,
+  places kept; a level not done opens nothing; the last done opens
+  nothing past it. Shown able to fail: without the fix, reached 4.
+  Seen in the browser: that saved game, reloaded: the map's level 5
+  "open", the log line there.
+- **The moon and cloud: why they looked wrong.** They were sprites at a
+  fixed place on the screen (moon at 0.5, 0.62 in screen units), drawn
+  over the sky photo, which has no depth: at phone size that place is
+  on the mountainside, so the moon sat in front of the mountains (seen:
+  the first screenshot this session).
+- **Fixed:** (1) **behind the land**: a sphere 150 m round the camera
+  writes depth (no colour) wherever the photo is land, from the same
+  skyline `nightSky()` made the night with; the moon (156 m) and cloud
+  (153 m) are beyond it (the camera's far plane: 160). Checked by drawing
+  the mask red: it covers the mountains exactly, at phone and 1280 x 800;
+  the cloud hidden behind the ridge at two places. (2) **The moon's
+  place** (`moonSpot()`, new `src/core/topple-sky.js`): the screen's
+  skyline found every 0.025 across; the column with the most sky over the
+  land, below the level's name and hearts (`.hudpill`, measured on the
+  page), the moon 0.08 over the land and up to 0.78 of the way up; worked
+  out again when the camera or the view's shape changes. (3) **The
+  cloud**: a fifth of the speed (0.0109 of the screen a second: about 3
+  minutes across a phone), at the moon's height, starting in view on the
+  left. (4) **A wisp**: streaky noise, see-through where thin, lighter on
+  top; three kinds tried side by side in the page, the wispiest kept.
+- **Seen (phone size, 375 x 812)**, the moon's room over the land per
+  scene (screen units; the moon is 0.136 high): lantern arch -0.03,
+  lighthouse 0.20, candles 0.02, twin lanterns 0.05, star palace 0.37.
+  The lighthouse and star palace: the moon high in the sky between the
+  name and hearts, the wisp drifting to it. The others: little or no sky
+  in view, so the moon glows from behind the ridge. **At 1280 x 800**:
+  the lighthouse and star palace 0.46 (moon clear), the other three
+  -0.1 (no sky at all: the mountains fill the top).
+- **A photo of a cloud?** Possible (a CC0 photo of a cloud on a dark or
+  see-through background, as DESIGN.md "Sound" and Q74 for sounds); the
+  made wisp first, to see if it's enough.
+- **Tests:** `tests/topple-sky.test.js` (new): the direction-to-photo
+  mapping (three.js's, with known directions); the moon over the
+  lowest land, clear, as high as allowed; below the name and hearts; no
+  room: at the top, not clear; the cloud's speed, in view at the start,
+  off, clear a while, back from the left, a loop. Shown able to fail (old
+  speed, covers ignored: 2 of 5 fail). The page test: the mask (depth
+  only, the skyline test in the shader), its distances inside the far
+  plane, the moon from `moonSpot` with the covers, the puffs gone, the
+  moon's place in the "scene over" log. `node tools/offline.js` (185
+  files); **589 tests, all pass**. No console errors.
+- **Not checked:** on the developer's phone; the wisp's look at full
+  size there.
+
+- **Q89. Star Light: little or no sky in some views** (2026-11-12, this
+  entry): in 3 of the 5 scenes at 1280 x 800, and 1-2 at phone size,
+  the mountains fill the view's top, so the moon is behind them. Leave it
+  (the moon shows where there's sky), or tilt Star Light's view up a
+  little to show more sky (the structure then lower in the view)? For
+  the developer.
+
+**Status (start here next session)**
+- **Live: 10.0.** `block-game`: Star Light, and today's fixes (level 5
+  opening, the moon and cloud); committed and pushed. Nothing merged
+  since 10.0.
+- **For the developer:** try the moon, the cloud and level 5 opening;
+  Q89 (tilt the night view?); a cloud photo or the made wisp. Then
+  publish as 10.1?
+- **Not done:** Q78 (map stills), Q79 (the phone's fps), Q88 (many
+  targets: to discuss).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q89.

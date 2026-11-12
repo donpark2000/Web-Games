@@ -14,6 +14,7 @@
 import * as THREE from '../vendor/three/three.module.min.js';
 import { rng } from '../core/topple.js';
 import { crossing, perched } from '../core/topple-animals.js';
+import { equirect, moonSpot, MOON, cloudAt } from '../core/topple-sky.js';
 
 export const PHOTO_DIR = 'data/topple/';
 
@@ -390,7 +391,7 @@ export async function makeSetting(n, ctx) {
       const tiers = [[1.4, 0.8], [2.2, 0.62], [2.9, 0.45], [3.4, 0.3]].map(([y, r]) => ({ r: r * s, at: [px, y * s, pz] }));
       group.add(builders.pine({ at: [px, 0, pz], r: 0.12 * s, h: 3.9 * s, tiers }));
     }
-    decor.push(sky(group, ctx.camera));
+    decor.push(sky(group, ctx.camera, night, ctx.covers ?? (() => [])));
     decor.push(owl(group, photoMat(maps.bark, { repeat: [0.4, 2], extra: { color: '#8D8A96' } }), ctx.sound ?? (() => {})));
   }
 
@@ -471,7 +472,7 @@ export function nightSky(img, W = 2048, H = 1024) {
     g.beginPath(); g.arc(x, y, s, 0, Math.PI * 2); g.fill();
   }
   const tex = new THREE.CanvasTexture(cv);
-  return { tex, ms: Math.round(performance.now() - t0), skyline: [0, 0.25, 0.5, 0.75].map(f => Math.round(1000 * sm[Math.floor(f * W)] / H) / 1000) };
+  return { tex, ms: Math.round(performance.now() - t0), rows: sm, H, skyline: [0, 0.25, 0.5, 0.75].map(f => Math.round(1000 * sm[Math.floor(f * W)] / H) / 1000) };
 }
 
 // A soft round glow, added onto what glows (a block, the ball): a sprite
@@ -505,10 +506,32 @@ function glowMats() {
   };
 }
 
-// The moon and a cloud that drifts across in front of it, in the view's
-// top right (placed from the camera each frame: the moon is far enough
-// off that it would stay put, as the camera only moves between scenes).
-function sky(group, camera) {
+// The moon and a cloud that drifts across past it (src/core/topple-sky.js).
+// Both are behind the photo's land: a sphere 150 m round the camera writes
+// depth (no colour) wherever the photo is land (its skyline, from
+// nightSky()), and the moon and cloud are drawn beyond it, so the
+// mountains hide them as they would (developer, 2026-11-12: they showed
+// "between the mountains in the back and the trees"). The moon goes where
+// the view shows the most sky (moonSpot), worked out again whenever the
+// camera moves or the view changes shape; the cloud drifts at a fifth of
+// the first build's speed, a wisp (cloudTex), not round puffs.
+const MASK_R = 150, CLOUD_D = 153, MOON_D = 156;   // the camera's far plane: 160
+function sky(group, camera, night, covers) {
+  // the land's mask: the skyline (rows from the top, 0-1) a 1-pixel-high float texture
+  const W = night.rows.length, line = new Float32Array(W);
+  for (let x = 0; x < W; x++) line[x] = night.rows[x] / night.H;
+  const lineTex = new THREE.DataTexture(line, W, 1, THREE.RedFormat, THREE.FloatType);
+  lineTex.wrapS = THREE.RepeatWrapping; lineTex.magFilter = lineTex.minFilter = THREE.NearestFilter; lineTex.needsUpdate = true;
+  const mask = new THREE.Mesh(new THREE.SphereGeometry(MASK_R, 48, 24), new THREE.ShaderMaterial({
+    uniforms: { line: { value: lineTex } },
+    vertexShader: 'varying vec3 vW; void main() { vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+    // as three.js maps the background (equirectUv): land where the row is below the skyline
+    fragmentShader: 'uniform sampler2D line; varying vec3 vW; void main() { vec3 d = normalize(vW - cameraPosition); float u = atan(d.z, d.x) * 0.1591549 + 0.5; float v = asin(clamp(d.y, -1.0, 1.0)) * 0.3183099 + 0.5; if (1.0 - v < texture2D(line, vec2(u, 0.5)).r) discard; gl_FragColor = vec4(0.0); }',
+    side: THREE.BackSide, colorWrite: false, depthWrite: true,
+  }));
+  mask.frustumCulled = false; mask.renderOrder = -1; group.add(mask);
+  const isLand = d => { const { u, v } = equirect(d.x, d.y, d.z); return 1 - v >= line[Math.min(W - 1, Math.floor(u * W))]; };
+
   const moonTex = canvasTex(256, 256, (g, w, h) => {
     const gr = g.createRadialGradient(w / 2, h / 2, w * 0.18, w / 2, h / 2, w / 2);
     gr.addColorStop(0, 'rgba(255,248,225,.55)'); gr.addColorStop(1, 'rgba(255,248,225,0)');
@@ -517,37 +540,75 @@ function sky(group, camera) {
     const r = rng(9);
     for (let i = 0; i < 9; i++) { g.fillStyle = `rgba(190,180,160,${0.25 + 0.25 * r()})`; const a = r() * 6.3, q = r() * w * 0.14; g.beginPath(); g.arc(w / 2 + Math.cos(a) * q, h / 2 + Math.sin(a) * q, 4 + r() * 12, 0, Math.PI * 2); g.fill(); }
   });
-  const cloudTex = canvasTex(256, 128, (g, w, h) => {
-    const r = rng(15);
-    for (let i = 0; i < 26; i++) {
-      const x = w * (0.15 + 0.7 * r()), y = h * (0.45 + 0.2 * (r() - 0.5)), s = h * (0.16 + 0.2 * r());
-      const gr = g.createRadialGradient(x, y - s * 0.3, 0, x, y, s);
-      gr.addColorStop(0, 'rgba(150,160,190,.95)'); gr.addColorStop(0.6, 'rgba(70,80,110,.85)'); gr.addColorStop(1, 'rgba(40,48,72,0)');
-      g.fillStyle = gr; g.beginPath(); g.arc(x, y, s, 0, Math.PI * 2); g.fill();
-    }
-  });
   const sprite = (tex, op) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: op, depthWrite: false, fog: false })); group.add(s); return s; };
-  const moon = sprite(moonTex, 1), cloud = sprite(cloudTex, 0.92);
-  const D = 140, v = new THREE.Vector3(), MOON = [0.5, 0.62], CROSS = 70, ACROSS = 55;
-  let t = 0;
+  const moon = sprite(moonTex, 1), cloud = sprite(cloudTex(), 1);
+  const v = new THREE.Vector3(), MOON_SIZE = MOON.r / 0.4;   // the sprite: its disc 0.4 of it across
+  let t = 0, key = '', spot = null;
+  const dirAt = (nx, ny) => v.set(nx, ny, 0.5).unproject(camera).sub(camera.position).normalize();
   const at = (s, nx, ny, dist, size, aspect = 1) => {
-    v.set(nx, ny, 0.5).unproject(camera).sub(camera.position).normalize();
-    s.position.copy(camera.position).addScaledVector(v, dist);
+    s.position.copy(camera.position).addScaledVector(dirAt(nx, ny), dist);
     const hgt = 2 * dist * Math.tan(camera.fov * Math.PI / 360);
     s.scale.set(hgt * size * aspect, hgt * size, 1);
   };
+  // the skyline on the screen: at each x, the lowest y with sky above it all the way up (above 1: none)
+  const skyline = () => {
+    const out = [];
+    for (let x = -1; x <= 1.0001; x += 0.025) {
+      let y = 1;
+      if (isLand(dirAt(x, 1))) y = 1.05;
+      else while (y > -1 && !isLand(dirAt(x, y - 0.01))) y -= 0.01;
+      out.push({ x: Math.round(x * 1000) / 1000, y: Math.round(y * 1000) / 1000 });
+    }
+    return out;
+  };
   return {
-    // the cloud keeps drifting: across in ACROSS s, then a while clear (CROSS s a round)
     tick(dt) {
       if (!camera) return;
-      t = (t + dt) % CROSS;
-      at(moon, MOON[0], MOON[1], D, 0.17);
-      const k = t / ACROSS;
-      cloud.visible = k < 1;
-      if (cloud.visible) at(cloud, -1.5 + 3 * k, MOON[1] + 0.03 * Math.sin(k * 5), D - 15, 0.2, 2.2);
+      mask.position.copy(camera.position);
+      // the moon's place, again only when the view or what covers it changed
+      const cv = covers().map(c => ({ x0: +c.x0.toFixed(2), x1: +c.x1.toFixed(2), y0: +c.y0.toFixed(2) }));
+      const k = [camera.position.x, camera.position.y, camera.position.z, camera.quaternion.x, camera.quaternion.y, camera.quaternion.z, camera.fov, camera.aspect].map(n => n.toFixed(4)).join() + JSON.stringify(cv);
+      if (k !== key) { key = k; spot = moonSpot(skyline(), { x: MOON.r / camera.aspect, y: MOON.r }, { covers: cv }); }
+      at(moon, spot.x, spot.y, MOON_D, MOON_SIZE);
+      t += dt;
+      const c = cloudAt(t);
+      cloud.visible = c.shown;
+      if (c.shown) at(cloud, c.x, spot.y - 0.01, CLOUD_D, 0.15, 3.2);
     },
-    state: () => ({ cloud: Math.round(Math.min(1, t / ACROSS) * 100) / 100, moon: MOON }),
+    state: () => ({ moon: spot, cloud: Math.round(cloudAt(t).x * 100) / 100, cloudShown: cloudAt(t).shown, maskR: MASK_R }),
   };
+}
+
+// A wisp of cloud, lit by the moon: noise stretched sideways into streaks
+// (3 across, 14 up; bent a little by a second noise), in a long lens that
+// fades out before the picture's edges, see-through where thin, lighter on
+// top (the first build's was 26 round puffs: "looks a lot like a pile of
+// spheres"; three tries side by side in the page, this the wispiest).
+function cloudTex() {
+  return canvasTex(512, 160, (g, w, h) => {
+    const r = rng(15), P = Array.from({ length: 512 }, () => r());
+    const hash = (x, y) => P[(x * 73 + y * 151 + ((x * y) & 255)) & 511];
+    const sm = a => a * a * (3 - 2 * a);
+    const noise = (x, y) => {
+      const xi = Math.floor(x), yi = Math.floor(y), fx = sm(x - xi), fy = sm(y - yi);
+      const a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1);
+      return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
+    };
+    const fbm = (x, y, k) => { let n = 0, amp = 0.5, f = 1; for (let o = 0; o < 5; o++) { n += amp * noise(x * f, y * f + o * 7 + k); amp *= 0.5; f *= 2.1; } return n; };
+    const im = g.createImageData(w, h), d = im.data;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const nx = x / w, ny = y / h;
+        const n = fbm(nx * 3, (ny + 0.25 * (fbm(nx * 3, ny * 3, 50) - 0.5)) * 14, 0);
+        const ex = (nx - 0.5) / 0.47, ey = (ny - 0.5 + 0.07 * Math.sin(nx * 6 + 1)) / 0.34;
+        const env = Math.max(0, 1 - ex * ex - ey * ey);
+        const den = Math.max(0, Math.min(1, (n * 1.5 + env * 0.9 - 1.05) / 0.7)) * Math.sqrt(env);
+        const i = (y * w + x) * 4, lit = 0.55 + 0.45 * (1 - ny) * (0.6 + 0.8 * (n - 0.3));
+        d[i] = 60 + 110 * lit; d[i + 1] = 68 + 112 * lit; d[i + 2] = 95 + 120 * lit; d[i + 3] = 225 * Math.pow(den, 1.3);
+      }
+    }
+    g.putImageData(im, 0, 0);
+  });
 }
 
 // The owl (Star Light) on a branch of a bare tree at the side of the view:
