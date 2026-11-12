@@ -67,6 +67,14 @@ time, each tried before publishing:
   Star Light (night, glowing blocks, an owl or a cloud), Water world
   (hoops, a fish and a dolphin), Tubular Bells (bells, curved tubes), a
   chain-reaction level. To discuss: which first, and the names.
+  2026-11-12, developer: "We could start with star light." Star Light
+  first; its open points in "Fright liked; Star Light first; many
+  targets (Q88)".
+- **Q88. Topple!: several targets at different distances, walking
+  forward to each** (2026-11-12, the developer's idea; "Fright liked;
+  Star Light first; many targets (Q88)"): same play, more balls. Asked
+  "Would that be easier?": answered there. Where it goes (a level, or
+  scenes in one) to discuss.
 
 ## Proposed additions to the standards skill
 
@@ -18544,3 +18552,60 @@ Claude's first notes, for the discussion (nothing decided):
   which first). Then publish as 10.0?
 - **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87.
+
+## 2026-11-12: Fright liked; Star Light first; many targets (Q88)
+
+**Developer**: "The frightened animals is good. We could start with star
+light. And I had another idea that would not be as different as the
+other new game ideas. There could be multiple targets at different
+distances. You clear the closest one and you move forward towards the
+next target until you are in shooting range. Same game play as now. But
+probably more balls depending on how many targets. Would that be
+easier?"
+
+- **The fright**: liked, as built.
+- **Q87**: Star Light is level 5, first of the new ones.
+- **Q88, many targets: easier?** Claude's answer: easier than Water
+  world, Tubular Bells or the chain level, yes: the goal is the same
+  (every block down), and the blocks, physics, throw, pad and the check
+  that a scene can be won all carry over. Harder than Star Light,
+  though, which is a new setting on today's scene (like levels 3 and 4);
+  this changes the scene itself. What it needs (from the code: the
+  camera is fitted from the slingshot to one structure, `behindView` in
+  `src/core/topple.js`, and a scene's end waits on all its blocks):
+  - a scene of 2-3 structures along the way; the thrower, camera, pad
+    and dots move forward to each in turn (a walk, like the map's);
+  - rules to pick: are the balls one pool or so many per target; does
+    running out half way lose the heart for the whole scene (harsher
+    than now) or keep the targets cleared (a 💎 each?); does a long
+    throw that knocks a later target count;
+  - the check "every block can be seen and hit" made from each stop, and
+    the things in the way placed so none hides a later target;
+  - the difficulty measured again (the random-aim player), as levels 2-4
+    were.
+  It could be a level's theme of its own (a trail), or a level's 5th
+  scene, the challenge. To discuss once Star Light is under way.
+
+**Star Light, to settle** (the developer's outline in Q87; Claude's picks):
+- **The animal**: the developer offered an owl on a branch saying "who"
+  now and then, or a cloud passing the moon, not frightened. Claude's
+  pick: both: the owl as the level's animal (flies off at a fall, as
+  the others run), and the cloud as decor.
+- **The view**: level 3's mountains and lake darkened to night, with a
+  moon and stars drawn ("similar vista to the winter level but low
+  light"): no new photo, so nothing added to the download (Q79).
+- **The glow**: every block and the ball glowing, each block its own
+  colour; a block shatters as ice does (at a knock of 2.2 m/s or once
+  down), its shards its glow's colour. Glow drawn by the blocks' own
+  light and soft halos, not a full-screen bloom (three.js's bloom is an
+  extra add-on file and the costliest thing for a phone's frame rate).
+- **Mockup or straight to the build**: Claude's pick the build, as for
+  Q81 and levels 3-4: the look is best judged in the game.
+
+**Status (start here next session)**
+- **Live: 9.4.** `block-game`: levels 2-4 and the fright (both liked);
+  committed and pushed. Nothing merged.
+- **For the developer:** publish what's there first (10.0)? Star
+  Light's animal (owl, cloud, or both) and mockup or build.
+- **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88.
