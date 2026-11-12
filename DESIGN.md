@@ -2167,6 +2167,15 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   whether they need other views** (developer, 2026-11-10: "keep a
   placeholder for discussing the need for different views when we start
   designing new levels"): level 1 has one, from behind (Q70).
+- **Level 2, "The building site"** (being designed; journal Q73, Q75):
+  five scenes in a fixed order, Two storeys, Three storeys, Bridge,
+  Steps, and the challenge, the four-storey tower behind a brick wall.
+  **The photo look** (developer, 2026-11-11, from the
+  [Topple! Level 2 Mockup](https://claude.ai/artifact/D5Z6BjfKGhRedxJXLVK1Hc)
+  v7: "Photo look"): the blocks and the pad in photographed surfaces,
+  a 360° photo of a building site for the sky and the ground beyond the
+  pad, all CC0 from Poly Haven, kept in the repo (not loaded from other
+  sites) with each file's source and licence on record.
 - **The scenes are made from the game's seed**, so they're the same
   each time; only a new game makes new ones. **The game is kept on the
   device** (`web-games-topple-game`: the seed, level, scene, hearts,

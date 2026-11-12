@@ -45,12 +45,11 @@ time, each tried before publishing:
   can treat this as a side research project." **Parked:** level 2 uses
   the made sounds picked in mockup version 6; open until the developer
   brings recordings ("Q74 parked").
-- **Q75. Photo-real looks instead of cartoon ones?** (2026-11-11; "Q74 to
-  try; photo-real looks? (Q75)"). The developer asked whether the same
-  goes for graphics. Claude's answer and a suggested trial put to the
-  developer. 2026-11-11: the trial built ("Mockup v7: the photo look
-  beside the drawn one"): Poly Haven CC0 photos, 11.9 MB, 60 fps on
-  this PC. Waiting for the developer's pick.
+- **Q76. The photo look's loose ends** (2026-11-11; "Photo look picked
+  (Q75)"): the things still drawn beside the photo surfaces (wheelbarrow,
+  site light, cones, pipes, slingshot, ball) looked like plastic; level
+  1's park stays drawn or not; the files' size on a phone. Claude's
+  suggestions put to the developer; waiting.
 
 
 ## Proposed additions to the standards skill
@@ -154,6 +153,13 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q75. Photo-real looks instead of cartoon ones?** (2026-11-11; "Q74 to
+  try; photo-real looks? (Q75)"). The developer asked whether the same
+  goes for graphics as for sounds. The trial: mockup v7, the drawn and
+  photo looks side by side ("Mockup v7: the photo look beside the drawn
+  one": Poly Haven CC0 photos, 11.9 MB, 60 fps on this PC). **Settled
+  2026-11-11, developer: "Photo look"** for level 2 (DESIGN.md
+  "Topple!"). Loose ends in Q76.
 - **Q66. The 3D games' home pictures don't look 3D** (2026-11-10,
   developer: Tin Can Alley, Topple! and Five Dice 3D "do not seem to
   suggest a 3D experience"; "something like a screen shot of the actual
@@ -17815,3 +17821,28 @@ either way (level 1's camera). Asked: which look for level 2.
 - **Skill:** none waiting.
 - **Test output:** the scratch folder holds the downloads and the
   pictures; nothing in Web-Games-testing.
+
+## 2026-11-11: Photo look picked (Q75); its loose ends (Q76)
+
+**Developer** (on mockup v7): "Photo look". So level 2 is drawn with
+photo surfaces and the building-site photo (DESIGN.md "Topple!", Level
+2). Q75 resolved.
+
+**Loose ends, Claude's suggestions (Q76), put to the developer:**
+- **The things still drawn** looked like plastic beside the photos. Poly
+  Haven also has free CC0 3D models (checked its list: 521 models),
+  among them a portable searchlight, street lamps, modular pipes,
+  concrete road barriers and wooden crates, though no wheelbarrow or
+  cone. Suggested: photo surfaces on the drawn ones first (the light's
+  pole as galvanised steel, the wheelbarrow's tray as painted metal, the
+  slingshot as wood, the ball as cast iron), a model only where that
+  isn't enough; tried in the mockup before building.
+- **Level 1's park:** suggested it stays drawn for now (each level its
+  own setting; the park is a release already liked); a photo park later
+  if level 2's look lands well with the kids.
+- **Size:** the game would use 512 px copies (about 3 MB in all, against
+  11.9 MB in the mockup), kept in the repo, listed for offline, with a
+  file of each one's source, author and licence; the frame rate measured
+  on the phone before release.
+- **Status:** as the entry before, with Q75 resolved and Q76 open. Next:
+  the developer's answers on Q76, then build level 2.
