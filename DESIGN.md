@@ -2108,8 +2108,11 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   dropped 0.6 of its smallest side, and stays counted down; but **a
   post** (taller than wide and deep) only while it lies tipped past 45°,
   however far it fell, and up again under 40° (developer, 2026-11-10,
-  Q69: two posts leaning on each other were counted down). All down for
-  0.35 s: cleared. Out of balls: over 2 s after the last throw once the
+  Q69: two posts leaning on each other were counted down). All down
+  and everything still (the blocks, and the shards and spray) for 0.35 s:
+  cleared, or all down for 8 s, still or not (developer, 2026-11-12: the
+  card came "before the final blocks have fallen"; measured: still 1.4 s
+  after all down at the median, 7.8 s at most). Out of balls: over 2 s after the last throw once the
   blocks are still (at most 9.9 s).
 - **Things in the way:** one in scenes 1-4, two in scene 5: a **bush**
   between (a ball that touches it keeps 0.1 of its speed and drops
@@ -2303,7 +2306,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
 - **Play: the park fills the screen** (as Tin Can Alley's stall):
   upright, the 🏠, name and 🔊 over it and a bar under it (your face, "N
   of 7 down" and the 5 balls under it) with **↺ Start again**; sideways,
-  a column at its left. Over the park: **Level 1 💎○○○○** and the
+  a column at its left. Over the park: **1 · The park 💎○○○○** (the
+  level's number and name, developer 2026-11-12; the jewels under the
+  name when there isn't room) and the
   hearts at its top, the hint ("Drag from 👆, then let go") and the drag
   pad at its foot. **Start again** asks first and **costs
   a ❤️** ("Start this scene again? You lose a ❤️"; else it would be a

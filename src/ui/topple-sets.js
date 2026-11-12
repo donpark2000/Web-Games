@@ -347,6 +347,7 @@ export async function makeSetting(n, ctx) {
   out.burst = (b, at, q, v) => fx.burst(b, at, q, v);
   out.tick = (dt, t) => { fx.tick(dt); for (const d of decor) d.tick(dt, t); };
   out.clearEffects = () => fx.clear();
+  out.fxLive = () => fx.live;
   out.ms = Math.round(performance.now() - t0);
   out.files = images.size;
   return out;

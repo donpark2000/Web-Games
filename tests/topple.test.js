@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  HAND, CAM, SCALE, MAX_UP, MAX_AIM, R2D, BALLS, SCENES, HEARTS, STACKS, SIZE, KINDS, READY_AFTER, END_WAIT, END_MAX,
+  HAND, CAM, SCALE, MAX_UP, MAX_AIM, R2D, BALLS, SCENES, HEARTS, STACKS, SIZE, KINDS, READY_AFTER, END_WAIT, END_MAX, WIN_MAX,
   makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, launchVel, isDown, createGame, readGame, sceneOver,
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, checkSetup, rng,
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
@@ -347,7 +347,7 @@ test('topple: a game kept on the device is used only if it makes sense', () => {
   assert.deepEqual(kept.places, { 1: { scene: 4, hearts: 1, jewels: 3 } });
 });
 
-test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all are down for 0.35 s; out of balls once still', () => {
+test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all are down and still for 0.35 s; out of balls once still', () => {
   const r = newRound(5);
   assert.ok(canThrow(r).ok);
   assert.deepEqual(useBall(r), { ok: true, ball: 1 });
@@ -355,11 +355,24 @@ test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all a
   update(r, READY_AFTER + 0.01, { down: 2, still: false });
   assert.ok(canThrow(r).ok);
   assert.equal(r.down, 2);
-  // all down: not at once (one may be still falling past)
-  assert.equal(update(r, 0.2, { down: 5, still: false }).ended, null);
-  assert.equal(update(r, 0.2, { down: 5, still: false }).ended.won, true);
+  // all down but still falling (2026-11-12: the card came before the last had fallen): not over
+  for (let i = 0; i < 10; i++) assert.equal(update(r, 0.2, { down: 5, still: false }).ended, null, `moving, ${(i + 1) * 0.2} s`);
+  // still: not at once (one may come to rest for a moment)
+  assert.equal(update(r, 0.2, { down: 5, still: true }).ended, null);
+  assert.equal(update(r, 0.1, { down: 5, still: false }).ended, null, 'moving again: the wait starts again');
+  assert.equal(update(r, 0.2, { down: 5, still: true }).ended, null);
+  assert.equal(update(r, 0.2, { down: 5, still: true }).ended.won, true);
   assert.deepEqual(r.result, { won: true, down: 5, total: 5, balls: 1 });
   assert.equal(canThrow(r).why, 'scene-over');
+  // all down and never still: cleared anyway after WIN_MAX; one up again starts the count again
+  const w = newRound(2);
+  update(w, 1, { down: 2, still: false });
+  update(w, 0.1, { down: 1, still: false });
+  assert.equal(update(w, WIN_MAX - 0.05, { down: 2, still: false }).ended, null);
+  assert.equal(update(w, 0.1, { down: 2, still: false }).ended.won, true);
+  // a round kept before allDown was counted (2026-11-12) still ends
+  const old = { ...newRound(1) }; delete old.allDown;
+  assert.equal(update(old, 0.4, { down: 1, still: true }).ended.won, true);
 
   const s = newRound(7);
   for (let i = 0; i < BALLS; i++) { assert.ok(useBall(s).ok); update(s, 1, { down: 1, still: false }); }

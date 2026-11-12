@@ -66,6 +66,26 @@ time, each tried before publishing:
   photos add 5.57 MB to the offline app (now 9.08 MB, 183 files); each
   sky is a 4096 x 2048 photo. To measure on the phone before release
   (the log's fps at each scene's end).
+- **Q80. Topple!'s score bar isn't clear** (2026-11-12; "Levels 2-4
+  tried"). Developer: beside the scene "it shows the number 10 beside my
+  icon and then in small print below that it says 'of 10 down' and then
+  there is a picture of a line with a ball on it. I'm not sure what all
+  of that means." It is: your face, blocks knocked down of the scene's
+  blocks, and the 5 balls (used ones faded to 0.2, so 4 used look like a
+  line and one ball). To redesign; the developer's call.
+- **Q81. A level done: the map, the next level unlocking, your face
+  moving there** (2026-11-12): the developer's idea, instead of the
+  Level screen. A mockup first.
+- **Q82. Level 3's snow drift doesn't look like snow** (2026-11-12):
+  "Maybe a snowman would look better." The drift is in play (level 3's
+  'soft' thing: it catches the ball, as level 1's bush); a snowman
+  stands off to the right as decor already.
+- **Q83. Ice cubes on the ground vs. cubes that fell there** (2026-11-12,
+  the ice pyramid): a cube that falls from above counts down (dropped
+  more than 0.6 of its size), but a bottom-row cube can't drop, and a
+  cube slid or rolled over looks the same as one standing: it has to be
+  smashed. "It can be a bit confusing to have 2 cubes side by side that
+  look the same, but require different treatment."
 
 ## Proposed additions to the standards skill
 
@@ -18049,3 +18069,70 @@ connection; how it feels; the kids.
 - **For the developer:** try levels 2-4 (on this PC: `node tools/serve.js`,
   or publish to try on the phone); review Claude's picks (Q77).
 - **Open questions:** Q64, Q73, Q74 (parked), Q77, Q78, Q79.
+
+## 2026-11-12: Levels 2-4 tried; the card waits for the blocks; no old level; the level's name
+
+**Developer** (playing on this PC after a power cut, the morning after
+the overnight build): "I like the new scenes." Seven points:
+1. "When I clear a level it will pop up 'You cleared it' before the
+   final blocks have fallen. It would be better to wait until they are
+   done." **Fixed** (below).
+2. "When moving to a new level the screen briefly shows the old level
+   before redrawing." **Fixed** (below).
+3. "The jewel score just says the level number. It would be good to
+   show the level name." **Fixed**: the pill reads "3 · Frosty Times
+   💎💎○○○".
+4. The score bar beside the scene: not clear (Q80).
+5. A level done: the map, the next level unlocking, your face moving
+   there (Q81).
+6. The snow drift doesn't look like snow; a snowman? (Q82)
+7. "On level 4 I notice a snake moving across the scene. Nice touch. Is
+   it part of game play somehow?" No: decor, behind the structure, out
+   of the ball's way (src/ui/topple-sets.js, `snake`).
+And later: the ice pyramid's ground cubes vs. cubes that fell (Q83).
+
+**1. The card waited 0.35 s after every block was down, moving or
+not.** Now (src/core/topple.js `update`): every block down and
+everything still for 0.35 s, the page counting shards and spray as not
+still (`stage.fxLive`; the effects now move on every physics step, drawn
+or not); or every block down for `WIN_MAX`, still or not. Measured with
+the tests' person player (a scratch script; 3 games x levels 1-4 x 5
+scenes x 4 players, 215 wins): still 1.38 s after all down at the
+median, 2.13 at 75%, 3.62 at 90%, 7.8 s at most. A first cap of 4 s cut
+16 of the 215 short (in the browser, level 2 scene 1: blocks still
+sliding at 0.2-0.5 m/s at 3.9 s when the card came): `WIN_MAX` 8 s.
+In the browser: level 4 scene 1's card 1.75 s after the water tower
+was all down, the spray gone (`fx` 0); level 3 scene 1 3.1 s.
+The new test (tests/topple.test.js) failed on the old rule ("moving,
+0.4 s") and passes on the new.
+
+**2. The canvas kept the last scene drawn** until the new one's first
+frame, while the new setting's photos loaded. Now hidden as the play
+screen opens on a level not drawn yet (or the setting changes) and shown
+once the new scene is drawn (logged: "canvas hidden"/"canvas shown").
+In the browser (level 2 to level 3 through the Level screen's Start):
+hidden at the click, shown once drawn. The page test fails with either
+part taken out.
+
+**3. The level's name**: the pill is two spans; at phone width (375 px)
+the jewels wrap under the name, no sideways scroll; one line on this
+PC's pane.
+
+**Console**: "An unknown error occurred when fetching the script", once
+a load, here in the browser pane: the service worker doesn't register
+in the pane (`sw.js` itself loads, 200). The same on the committed
+code (my changes stashed): not from this work.
+
+**Tests**: 568 of 568 pass (`npm test`). `node tools/offline.js`:
+version b67c09314140, 183 files (release still 9.4).
+
+## 2026-11-12: Status (start here next session)
+
+- **Live: 9.4.** `block-game`: levels 2-4 built; today's three fixes
+  (the card waits, no old level, the level's name), 568 tests pass,
+  committed and pushed. Nothing merged.
+- **For the developer:** Q80 (the score bar), Q81 (the map after a
+  level), Q82 (the snow drift), Q83 (ground cubes), and Q77 (the
+  overnight picks).
+- **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
+- **Open questions:** Q64, Q73, Q74 (parked), Q77-Q83.

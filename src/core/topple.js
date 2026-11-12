@@ -834,12 +834,20 @@ export function sceneOver(g, won) {
 /* ---------- a scene being played ---------- */
 
 export const READY_AFTER = 0.9;   // the next ball this long after a throw (s)
-export const WIN_HOLD = 0.35;     // every block down for this long: cleared
+// Every block down and everything still (the blocks, and the shards and
+// spray the page passes in `still`) for this long: cleared (developer,
+// 2026-11-12: "You cleared it" showed "before the final blocks have
+// fallen"; it was every block down 0.35 s, moving or not). Down and never
+// still: cleared anyway after WIN_MAX. Measured (215 wins by the tests'
+// person player, levels 1-4, 3 games): still 1.4 s after all down at the
+// median, 3.6 s at 90%, 7.8 s at most; a cap of 4 s cut 16 of them short.
+export const WIN_HOLD = 0.35;
+export const WIN_MAX = 8;
 export const END_WAIT = 2;        // out of balls: over this long after the last throw, once still
 export const END_MAX = 7 * Math.sqrt(SCALE);   // ... or this long, still or not
 
 export function newRound(total) {
-  return { total, used: 0, down: 0, t: 0, since: null, winHold: 0, result: null };
+  return { total, used: 0, down: 0, t: 0, since: null, winHold: 0, allDown: 0, result: null };
 }
 export const ballsLeft = r => BALLS - r.used;
 export function canThrow(r) {
@@ -865,10 +873,13 @@ export function update(r, dt, { down, still }) {
   r.down = down;
   let won = null;
   if (down >= r.total) {
-    r.winHold += dt;
-    if (r.winHold > WIN_HOLD) won = true;
+    // winHold: all down and still; allDown: all down (a round kept before 2026-11-12 has none)
+    r.winHold = still ? r.winHold + dt : 0;
+    r.allDown = (r.allDown ?? 0) + dt;
+    if (r.winHold > WIN_HOLD || r.allDown > WIN_MAX) won = true;
   } else {
     r.winHold = 0;
+    r.allDown = 0;
     if (ballsLeft(r) <= 0 && r.since > END_WAIT && (still || r.since > END_MAX)) won = false;
   }
   if (won === null) return { downChanged, ended: null };

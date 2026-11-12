@@ -20,8 +20,8 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '65851fc6a2d2';
-const MADE = '2026-11-11';
+const VERSION = 'b67c09314140';
+const MADE = '2026-11-12';
 const RELEASE = '9.4';
 const FILES = [
   'bridges.html',

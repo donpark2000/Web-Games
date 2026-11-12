@@ -225,8 +225,19 @@ function showPlay() {
   playing = true;
   document.body.classList.add('tp-playing');
   if (!stage) makeStage();
+  // The canvas still holds the last scene drawn (developer, 2026-11-12: a
+  // new level "briefly shows the old level before redrawing"): hidden until
+  // startScene has drawn the new one; the park's own colour and "Setting up
+  // the scene…" meanwhile.
+  if (!current || stage.level !== game.level) hideCanvas(true);
   fit();
   if (!running) { running = true; last = performance.now(); requestAnimationFrame(frame); }
+}
+function hideCanvas(on) {
+  const c = $('c');
+  if (c.style.visibility === (on ? 'hidden' : '')) return;
+  c.style.visibility = on ? 'hidden' : '';
+  L(on ? 'canvas hidden: a new scene to draw' : 'canvas shown: the scene drawn', { level: game.level, scene: game.scene });
 }
 function showSetup() {
   running = false;
@@ -314,6 +325,7 @@ async function startScene(kept = null) {
   // let the words show before the scene's made (up to a second or so on a phone)
   await new Promise(r => setTimeout(r, 30));
   if (stage.level !== game.level) {
+    hideCanvas(true);
     const r = await stage.setLevel(game.level);
     L('setting', { ...r, name: levelInfo(game.level).name });
   }
@@ -334,6 +346,10 @@ async function startScene(kept = null) {
   settled = kept?.settled ?? null;
   lastFit = '';
   fit();
+  // drawn once now, so the canvas never shows the scene before
+  stage.sync(world.blocks, world.balls);
+  stage.render();
+  hideCanvas(false);
   $('hint').textContent = HINT;
   $('hint').hidden = round.used > 0;
   // the pad's show, before the scene's first ball (not on a scene that had ended)
@@ -369,8 +385,11 @@ function renderTally() {
 // The pills over the park (shown as a scene is set up too).
 function renderHud() {
   const g = ended?.shown ?? game;
-  $('hudLevel').textContent = `Level ${g.level} ${jewels(g)}`;
-  $('hudLevel').setAttribute('aria-label', `Level ${g.level}, ${g.jewels} of ${SCENES} jewels`);
+  // the level's name with its number (developer, 2026-11-12: "show the level name")
+  const name = levelInfo(g.level).name;
+  $('hudLevelName').textContent = `${g.level} · ${name}`;
+  $('hudJewels').textContent = jewels(g);
+  $('hudLevel').setAttribute('aria-label', `Level ${g.level}, ${name}, ${g.jewels} of ${SCENES} jewels`);
   $('hudHearts').textContent = hearts(g);
   $('hudHearts').setAttribute('aria-label', `${g.hearts} heart${g.hearts === 1 ? '' : 's'}`);
 }
@@ -496,13 +515,16 @@ function tick(dt, draw = true) {
   perf.frames++;
   for (const b of fell) L('block down', { c: b.c, t: r2(round.t) });
   for (const b of rose) L('block up again: a post leaning, not lying', { c: b.c, t: r2(round.t) });
-  const { downChanged, ended: result } = update(round, dt, { down, still: world.still() });
+  // still: the blocks, and any shards or spray (the effects move on every step, drawn or not)
+  stage.tick(dt);
+  const still = world.still(), fx = stage.fxLive;
+  const { downChanged, ended: result } = update(round, dt, { down, still: still && fx === 0 });
   if (downChanged) { L('blocks down', { down: round.down, of: round.total, t: r2(round.t) }); renderTally(); }
+  if (downChanged && round.down >= round.total) L('all down: cleared once still', { t: r2(round.t), still, fx });
   if (result) endScene(result);
   noteSettled();
   if (!draw) return;
   stage.sync(world.blocks, world.balls);
-  stage.tick(dt);
   const ok = ready();
   const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);
@@ -584,7 +606,7 @@ function endScene(result, quiet = false) {
   settled = { round: JSON.parse(JSON.stringify(round)), poses: world.poses() };
   showEnd();
   const secs = (performance.now() - perf.at) / 1000;
-  L('scene over', { ...result, outcome, was, now: { ...game }, fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped });
+  L('scene over', { ...result, outcome, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped });
   if (!quiet) sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
 }
@@ -703,6 +725,7 @@ window.topple = {
     return out;
   },
   broken: () => world.blocks.filter(b => b.broken).length,
+  fx: () => stage.fxLive,
   state: () => (round ? {
     ...round, game: { ...game }, ready: ready(), busy, ended: ended?.outcome ?? null, card: $('over').hidden ? '' : $('overTitle').textContent,
     stack: current?.layout.stack, things: current?.layout.things.map(t => t.kind + (t.where ? ` ${t.where}` : '')), power: current?.layout.power,

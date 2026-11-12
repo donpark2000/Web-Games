@@ -370,6 +370,8 @@ export function makePark3d(canvas) {
     burst(b, at, q, v) { set?.burst(b, at, q, v); },
     // The setting's moving parts (the effects, the snake) dt s on.
     tick(dt) { set?.tick(dt, performance.now() / 1000); },
+    // Shards and drops still flying (a scene isn't cleared until they're down).
+    get fxLive() { return set?.fxLive?.() ?? 0; },
     get level() { return level; },
     // ms to draw a frame, averaged over n (the log).
     timeDraw(n = 10) {

@@ -74,8 +74,23 @@ test('topple page: the park: no double-tap zoom, the drag is pointer events, no 
 test('topple page: the level\'s jewels and the hearts over the park; Start again asks and costs a heart', () => {
   assert.match(playHtml, /id="hudLevel"/);
   assert.match(playHtml, /id="hudHearts"/);
+  // the level's name with its number (developer, 2026-11-12), the jewels under it when there's no room
+  assert.match(playHtml, /id="hudLevel"[^>]*><span class="hudname" id="hudLevelName"><\/span><span class="jewels" id="hudJewels"><\/span>/);
+  assert.match(js, /\$\('hudLevelName'\)\.textContent = `\$\{g\.level\} · \$\{name\}`/);
+  assert.match(css, /\.hudlevel \{[^}]*flex-wrap: wrap/);
   assert.match(playHtml, /<div class="over" id="ask" hidden>[\s\S]*Start this scene again\? You lose a ❤️/);
   assert.match(js, /\$\('restartYes'\)\.onclick = \(\) => \{[\s\S]*?sceneOver\(game, false\)/);
+});
+
+test('topple page: a new level never shows the old one (the canvas hidden until drawn); cleared only once the shards and spray are down too', () => {
+  // hidden as the play screen opens on a level not drawn yet, and as the setting changes
+  assert.match(js, /function showPlay\(\) \{[\s\S]*?if \(!current \|\| stage\.level !== game\.level\) hideCanvas\(true\);[\s\S]*?\n\}/);
+  assert.match(js, /if \(stage\.level !== game\.level\) \{\s*hideCanvas\(true\);\s*const r = await stage\.setLevel/);
+  // shown only after the new scene is drawn
+  assert.match(js, /stage\.setScene\(current\.parts\);[\s\S]*?stage\.render\(\);\s*hideCanvas\(false\);/);
+  // still: the blocks and the effects; the effects move on every step, drawn or not
+  assert.match(js, /stage\.tick\(dt\);\s*const still = world\.still\(\), fx = stage\.fxLive;\s*const \{ downChanged, ended: result \} = update\(round, dt, \{ down, still: still && fx === 0 \}\)/);
+  assert.match(sceneJs, /get fxLive\(\) \{ return set\?\.fxLive\?\.\(\) \?\? 0; \}/);
 });
 
 test('topple page: the game kept on the device for every visit, the scene under way for this one', () => {
