@@ -80,7 +80,20 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-11-11: "Check a layout at the sizes it will be seen
+- **Check a library's setting against a hand sum before tuning around it**
+  (2026-11-12, "Ice slides; out of reach; ..."): ice that "slides" (friction
+  0.06) stopped a pushed cube in one step; a bare-library test showed
+  friction 0.06 and 0.4 alike, about 480 times the number, because the
+  library caps the step's push, not a force. A level had been tuned on
+  top of it. To review: in the skill as a line under "Fake the outside
+  world" / "Trust running the real thing"?
+- **Compare versions in a separate checkout, not by stashing**
+  (2026-11-12, same entry): a stash to run the old version failed half
+  way on a file another program held open (Windows), leaving the work in
+  the stash; `git worktree add` leaves the working folder alone. A line
+  under "Compare versions with one test run on both"?
+
+Older: (2026-11-11: "Check a layout at the sizes it will be seen
 at" (from "Mockup v1 tried; v2": the level 2 mockup's Frames tab looked
 right in a 322 px pane and was a tiny square in the developer's wide
 viewer) dropped by the developer: "That 'lesson learned' was really just
