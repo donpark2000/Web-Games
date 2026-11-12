@@ -76,6 +76,14 @@ time, each tried before publishing:
   Star Light first; many targets (Q88)"): same play, more balls. Asked
   "Would that be easier?": answered there. Where it goes (a level, or
   scenes in one) to discuss.
+- **Q90. Three "starts" before play: skip the Level screen** (2026-11-12,
+  developer; "10.1 on the phone: three starts; ..."): a tap on the map
+  to go straight into play.
+- **Q91. Not clear what's left to hit** (2026-11-12, developer, the
+  building site: everything down or leaning on debris): likely a post
+  leaning under 45° still counting as standing (same entry).
+- **Q92. No way to start the whole game over** with only level 1 open
+  (2026-11-12, developer; same entry).
 
 ## Proposed additions to the standards skill
 
@@ -18831,3 +18839,31 @@ game play. 2) yes" (Q89: the night view left as it is; publish as 10.1).
   levels from Q87 (Water world, Tubular Bells, a chain-reaction level),
   Q78 (map pictures).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88.
+
+## 2026-11-12: 10.1 on the phone: three starts; what's left to hit; no full start over
+
+**Developer** (on the phone, playing through to level 5): "after pressing
+start on the setup screen I see the map next. And when I touch the first
+level, I see a screen telling me I am starting level 1. It feels like I
+have to "start" 3 times before starting. I think that third screen can be
+skipped and touching the map should jump right into game play." (Q90)
+"On the building site at one point it looked to me like everything was
+knocked down and, if not on the floor, leaning at a pretty pronounced
+angle on other debris. It was not clear what we left to hit." (Q91)
+"Stary night looks great now." "There seems to be no way to start the
+whole game over with no memory of levels one and the map locking
+everything but level 1." (Q92)
+
+- **Q90**: a map node opens the Level screen (`showLevelCard`,
+  `src/ui/topple.js`); only the level just walked to starts from the map.
+- **Q91, the likely cause (from the code, not yet measured)**: a post
+  (taller than wide and deep) counts as down only while tipped past 45°
+  (`isDown`, `src/core/topple.js`; Q69), however far it fell. Level 2's
+  frames are posts and slabs, so a post that fell off an upper storey onto
+  the debris and leans there at, say, 30-40° still counts as standing,
+  and the scene goes on. Q69's case was the other way: an upper post that
+  fell and stood upright-looking at 29° had been counted down. Nothing on
+  screen says which blocks are left.
+- **Q92**: "New scenes from scene 1" keeps the levels reached and done
+  (`createGame(seed, keep)`; Claude's pick, to review, DESIGN.md "The
+  map"); there's no way to lock them again.
