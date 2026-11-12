@@ -383,6 +383,11 @@ export function makePark3d(canvas) {
     burst(b, at, q, v) { set?.burst(b, at, q, v); },
     // The setting's moving parts (the effects, the snake) dt s on.
     tick(dt) { const t = performance.now() / 1000; if (set) set.tick(dt, t); else parkBirds.tick(dt, t); },
+    // A block fell at x: the animals in view are startled and run off
+    // (developer, 2026-11-12: "acted frightened ... and run off"); what each did.
+    fright(x) { return set ? set.fright(x) : [parkBirds.fright(x)].filter(Boolean); },
+    // where the animals are (for checking in a browser)
+    animals() { return set ? set.animals() : [parkBirds.state()]; },
     // Shards and drops still flying (a scene isn't cleared until they're down).
     get fxLive() { return set?.fxLive?.() ?? 0; },
     get level() { return level; },

@@ -192,3 +192,21 @@ test('topple page: level 3\'s rock is plain; each animal crosses once a scene, f
   assert.match(setsJs, /out\.newScene = edges => \{ for \(const d of decor\) d\.reset\?\.\(edges\); \};/);
   assert.match(sceneJs, /if \(set\) set\.newScene\?\.\(viewEdges\); else parkBirds\.reset\(viewEdges\);/);
 });
+
+// Developer, 2026-11-12: "it would be cool if the animals 'acted
+// frightened' when blocks fall and reverse direction and run off" (the
+// walk itself: tests/topple-animals.test.js).
+test('topple page: every animal takes fright when a block falls; logged', () => {
+  assert.match(setsJs, /import \{ crossing \} from '\.\.\/core\/topple-animals\.js';/);
+  assert.doesNotMatch(setsJs, /^function crossing/m, 'a second copy of the walk');
+  for (const a of ['snake', 'rat', 'bunny', 'birds']) {
+    const body = setsJs.match(new RegExp(String.raw`function ${a}\(group\) \{[\s\S]*?\n\}`))?.[0] ?? '';
+    assert.match(body, /fright: x => go\.fright\(x\)/, `${a}: no fright`);
+    assert.match(body, /go\.advance\([^;]*go\.pace|hop \+= dt \* go\.pace/, `${a}: not faster running off`);
+  }
+  assert.match(setsJs, /out\.fright = x => decor\.map\(d => d\.fright\?\.\(x\)\)\.filter\(Boolean\);/);
+  assert.match(sceneJs, /fright\(x\) \{ return set \? set\.fright\(x\) : \[parkBirds\.fright\(x\)\]\.filter\(Boolean\); \}/);
+  // a block falling, or shattering / bursting (ice down first by shattering: seen in the browser)
+  assert.match(js, /const fx0 = fell\[0\]\?\.body\.position\.x \?\? broke\[0\]\?\.at\[0\];/);
+  assert.match(js, /if \(fx0 !== undefined\) \{ const scared = stage\.fright\(fx0\); if \(scared\.length\) L\('animal frightened'/);
+});

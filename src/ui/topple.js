@@ -607,6 +607,9 @@ function tick(dt, draw = true) {
   perf.dropped += dropped;
   perf.frames++;
   for (const b of fell) L('block down', { c: b.c, t: r2(round.t) });
+  // the animals take fright at the first block to fall, shatter or burst while they're in view
+  const fx0 = fell[0]?.body.position.x ?? broke[0]?.at[0];
+  if (fx0 !== undefined) { const scared = stage.fright(fx0); if (scared.length) L('animal frightened', { t: r2(round.t), by: fell.length ? 'fell' : 'broke', scared }); }
   for (const b of rose) L('block up again: a post leaning, not lying', { c: b.c, t: r2(round.t) });
   // still: the blocks, and any shards or spray (the effects move on every step, drawn or not)
   stage.tick(dt);
@@ -837,6 +840,7 @@ window.topple = {
     return out;
   },
   broken: () => world.blocks.filter(b => b.broken).length,
+  animals: () => stage.animals(),
   fx: () => stage.fxLive,
   state: () => (round ? {
     ...round, game: { ...game }, ready: ready(), busy, ended: ended?.outcome ?? null, card: $('over').hidden ? '' : $('overTitle').textContent,

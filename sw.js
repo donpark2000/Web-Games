@@ -20,7 +20,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '134fe66dd4d5';
+const VERSION = '30c3e7759b13';
 const MADE = '2026-11-12';
 const RELEASE = '9.4';
 const FILES = [
@@ -146,6 +146,7 @@ const FILES = [
   'src/core/tic-tac-toe.js',
   'src/core/tin-can-alley-physics.js',
   'src/core/tin-can-alley.js',
+  'src/core/topple-animals.js',
   'src/core/topple-levels.js',
   'src/core/topple-world.js',
   'src/core/topple.js',

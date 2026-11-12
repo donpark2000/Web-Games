@@ -62,17 +62,19 @@ time, each tried before publishing:
   compare to a build?" Answered in chat ("Q82 drift built; Q83
   measured"). 2026-11-12, developer: "We can go straight to the build."
   Built ("Balls left; the map walk; ..."): to try.
+- **Q87. Topple!'s next levels: the developer's ideas** (2026-11-12;
+  "The animals take fright; the developer's ideas for new levels"):
+  Star Light (night, glowing blocks, an owl or a cloud), Water world
+  (hoops, a fish and a dolphin), Tubular Bells (bells, curved tubes), a
+  chain-reaction level. To discuss: which first, and the names.
 
 ## Proposed additions to the standards skill
 
-- **Compare versions in a separate checkout, not by stashing**
-  (2026-11-12, same entry): a stash to run the old version failed half
-  way on a file another program held open (Windows), leaving the work in
-  the stash; `git worktree add` leaves the working folder alone. A line
-  under "Compare versions with one test run on both"?
-  2026-11-12, developer: "not sure what it means or the implications of
-  adding it or not adding it are." Explained in chat ("Q77, Q86
-  settled"); awaiting the developer's call.
+None waiting. (2026-11-12: "Compare versions in a separate checkout, not
+by stashing" (from "Ice slides; out of reach; ...": a stash failed half
+way on a file gvim held open) dropped by the developer ("drop"), after
+it was explained in chat ("Q77, Q86 settled"); Claude's view too: a git
+technique that cost minutes, not a habit; it stays here.)
 
 Earlier: (2026-11-12: "Check a library's setting against a hand sum
 before tuning around it" (from "Ice slides; out of reach; ...":
@@ -18442,3 +18444,103 @@ it means or the implications of adding it or not adding it are."
 - **Skill proposals**: "a library's setting vs a hand sum" dropped; "compare
   in a separate checkout" explained in chat, the developer's call to come.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81.
+
+## 2026-11-12: The animals take fright; the developer's ideas for new levels
+
+**Developer**: "drop" (the second skill proposal: see "Proposed additions").
+"For the existing games, if possible, it would be cool if the animals
+'acted frightened' when blocks fall and reverse direction and run off.
+Right now they are oblivious to it, which is unnatural." And: "I have
+ideas for new levels" (below, Q87).
+
+**Built** (DESIGN.md "Topple!", The animals): the crossing (the walk) moved
+from `src/ui/topple-sets.js` to `src/core/topple-animals.js`, so Node can
+test it (until now only its source text was checked); it gained
+`fright(x)`: once a crossing, only while crossing, a block at x startles
+it 0.3 s (none for the birds, in the air), then it runs off away from x,
+turned back if it was heading that way, 2.5 times as fast, with no rests
+or sniffing stops, out of sight. Each animal's look: the rat jumps, then
+one dash; the bunny sits up, ears up, then quick hops with its ears laid
+back; the birds flap hard and climb 1.5 m (the second bird keeps to its
+side, else it would jump 2.8 m across as they turn); the snake rears,
+then turns in a U: its body now follows the head's path (drawn along a
+wave, the body would have flipped to the other side at once; real snakes
+move this way too), swinging out 0.25 m away from the camera.
+`topple.animals()` (for checking in a browser) gives each one's state.
+
+**Seen in the browser** (stepping the game by hand, a throw at the
+structure once the animal was in view): level 3's bunny hopping left at
+x 1.46 turned back at the fall and was out of sight 0.6 s later at x
+3.64; level 1's birds (x 4.7 → turned, gone at 6.89), level 2's rat
+(-3.96 → turned, gone at -4.23), level 4's snake (turned, gone at -4.74).
+Logged each time ("animal frightened"). **A surprise**: on level 3 the
+first block down was ice shattering, which isn't a "fall" (`broke`, not
+`fell`), so the bunny took fright only at the second block; now a break
+(ice, a barrel) frightens too, logged `"by":"broke"` (checked: x 1.75,
+from 0.06, turned). The snake mid-turn couldn't be caught in a still:
+the page runs on in real time between steps and the snake, 8 m back, is
+a few px; the turn's look is for the developer to judge.
+
+**Tests**: `tests/topple-animals.test.js` (4: a block ahead turns it
+back, startled 0.3 s then 2.5 times as fast, out of sight on the side it
+came from; a block behind: not turned; a second block: nothing; a new
+scene: calm; nothing before it sets off or once gone; the birds don't
+stop; each crossing still out of sight to out of sight, either way),
+shown able to fail (with the turn broken: "turned back"); the page test
+checks every animal is wired, faster when frightened, and the log line.
+`node tools/offline.js` for the new file. 581 tests.
+
+**Q87, the developer's ideas for new levels** (2026-11-12, to discuss;
+their words):
+
+> Star Light: Night time with a moon and stars in the sky. Similar vista
+> to the winter level but low light. Blocks and balls glow. When a bock
+> is hit it breaks simillar to ice blocks but with the fragmets matching
+> the color of the glow it had before breaking. Animated creature - owl.
+> It doesn't have to be flying - it can be sitting on a tree branch and
+> just say "who" once in a while. Or instead of an owl, it could just be
+> a cloud that slowly passes across the sky (maybe in front of the
+> moon). If we go with the cloud, it does not change movement when
+> blocks fall - it does not "get frightened".
+>
+> Water world: Instead of knocking blocks down, there are hoops you have
+> to shoot your ball through. Or maybe the ball is little fish. When you
+> succeed in throwing through a hoop, it falls, and a dolphin sticks his
+> head up to catch the thrown fish.
+>
+> Tubular Bells: the target is bells and if you hit it it rings and
+> falls. But some bells can not be reached by throwing directly at them.
+> But there are hollow curved tubes that if you ball enters the tube, it
+> comes out the other end and the curve of the tube lets the ball hit
+> the bell.
+>
+> The Rube Goldberg level (or maybe something simple like "mouse trap"):
+> Each scene requires you to hit a specific pin or place a rolling ball
+> in a specific place that sets off a chain of things moving around until
+> ultimately a basket falls on a mouse.
+
+Claude's first notes, for the discussion (nothing decided):
+- **Star Light** fits the engine as it is (a setting, a material that
+  shatters, decor); the most like levels 2-4. Glowing blocks at night:
+  emissive materials, perhaps a bloom; a phone's frame rate to watch (Q79).
+- **Water world** and **Tubular Bells** change the goal (through a hoop;
+  a bell rung) and need new checks that every scene can be won; the
+  tubes are bank shots by another name, which DESIGN.md "Later" keeps for
+  discussion ("whether a level needs another view ... or bank shots").
+- **The chain level**: the hardest to build and to check; a basket
+  falling on a mouse at the end of a chain is the ending of Hasbro's
+  board game "Mouse Trap" (a trademark, as Yahtzee and Othello were):
+  our own name and our own ending, as Five Dice and Reversi were.
+  "Tubular Bells" is also a well-known album's title: worth a different
+  name if it's to be published.
+- Order and which first: the developer's call.
+
+**Status (start here next session)**
+- **Live: 9.4.** `block-game`: levels 2-4 (liked, Q77 accepted) and the
+  animals' fright (not yet seen by the developer); committed and pushed.
+  Nothing merged.
+- **For the developer:** try the fright (`node tools/serve.js`; a fall
+  while an animal crosses, 3-10 s into a scene); Q87 (the new levels:
+  which first). Then publish as 10.0?
+- **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87.

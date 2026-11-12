@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-11, latest): **the 3D games' home pictures are stills
+*Status (2026-11-12, latest): **Topple!'s animals take fright when a
+block falls** and run off (on `block-game`, not yet published; see
+"Topple!", The animals). 2026-11-11: **the 3D games' home pictures are stills
 from the games** (motion lines, Topple!'s tower falling, the dice cup
 over the tray; see "3D games", Home pictures), with Topple!'s 2026-11-10/11
 changes below, for release 9.3. 2026-11-10: **Topple!: a throw starts only on the
@@ -2249,7 +2251,7 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   with a clonk) and a **snowy
   pine** (tall: its trunk, its tiers of branches from 1.15 m). A snowman
   and young pines off to the side, and a white **snow bunny** hopping
-  across once a scene. **Ice slides** (friction 0.15: a cube pushed at
+  across once a scene (frightened by a fall: see "The animals"). **Ice slides** (friction 0.15: a cube pushed at
   1 m/s slides a third of a metre; developer, 2026-11-12, Q84). **Ice down shatters**: a block counted down (fallen or tipped)
   shatters at its next knock or once it rests (developer, 2026-11-12,
   Q83: a cube that fell whole looked like one still to knock down), so
@@ -2269,6 +2271,21 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   lower and sage-grey) and a **saguaro cactus** (tall: its ribbed trunk
   and two arms). Sounds: a barrel knocked (a hollow thunk), bursting (a
   crack, a gush, drips).
+- **The animals** (decor, out of play: two birds over the park, a rat on
+  the building site, the snow bunny, the rattlesnake): each **crosses the
+  view once a scene**, 3-10 s in, from just out of sight to just out of
+  sight (developer, 2026-11-12: "If it just hopped across a scene once
+  that should be plenty"). **Frightened by a fall** (developer,
+  2026-11-12: "acted frightened when blocks fall and reverse direction
+  and run off. Right now they are oblivious to it, which is unnatural"):
+  the first block to fall, shatter or burst while one is crossing
+  startles it for 0.3 s (the rat jumps, the bunny sits up with its ears
+  up, the snake rears; the birds, in the air, don't stop), then it runs
+  off **away from the block**, turning back if it was heading that way,
+  2.5 times as fast and without stopping, out of sight (the bunny's ears
+  laid back, the birds flapping hard and climbing; the snake turns in a
+  U, its body following its head's path). Once a crossing; calm again
+  next scene. The walk and the fright: `src/core/topple-animals.js`.
 - **The scenes are made from the game's seed**, so they're the same
   each time; only a new game makes new ones. **The game is kept on the
   device** (`web-games-topple-game`: the seed, level, scene, hearts,
@@ -2358,7 +2375,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
 - **Logged** (levels 2-4 too): the setting drawn (its photos, ms, or why
   not), the map (a level picked, a locked one), the Level screen's
   start, a block broken (its material, speed), each knock's material in
-  the sound; 3D started (with the far-off trees' leaves), the game on
+  the sound; an animal frightened (where it was, the block's x, whether
+  it turned back, by a fall or a break); 3D started (with the far-off trees' leaves), the game on
   the device, the fit (with the pad's spot), each scene (its layout, the
   check, how long it took to make, its leaves and how long they took to
   draw), layouts thrown away, the pad's show (the angle picked; done, or

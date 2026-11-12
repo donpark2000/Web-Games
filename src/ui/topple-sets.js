@@ -13,6 +13,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { rng } from '../core/topple.js';
+import { crossing } from '../core/topple-animals.js';
 
 export const PHOTO_DIR = 'data/topple/';
 
@@ -359,6 +360,9 @@ export async function makeSetting(n, ctx) {
   out.tick = (dt, t) => { fx.tick(dt); for (const d of decor) d.tick(dt, t); };
   // a new scene: the animals cross again, once
   out.newScene = edges => { for (const d of decor) d.reset?.(edges); };
+  // a block fell at x: the animals in view take fright (what each did, for the log)
+  out.fright = x => decor.map(d => d.fright?.(x)).filter(Boolean);
+  out.animals = () => decor.map(d => d.state?.()).filter(Boolean);
   out.clearEffects = () => fx.clear();
   out.fxLive = () => fx.live;
   out.ms = Math.round(performance.now() - t0);
@@ -455,41 +459,18 @@ function ribbed(r, h) {
    a while after it starts, from off one side to off the other, and is gone
    till the next (developer, 2026-11-12: "maybe make it less active and more
    subtle. If it just hopped across a scene once that should be plenty.
-   Same with the other little creatures"). */
+   Same with the other little creatures"). The walk itself (and the fright:
+   a block falling startles it, then it runs off away from it) is
+   src/core/topple-animals.js's crossing(); fright(x) here passes it on. */
 
 // A part placed in a group: geometry, material, position, scale.
 const part = (g, geo, mat, at, sc = [1, 1, 1]) => { const m = mesh(geo, mat, at); m.scale.set(...sc); g.add(m); return m; };
 const ballGeo = new THREE.SphereGeometry(1, 16, 12);
 
-// Once across, a scene: wait 3-10 s, then from just out of sight on one
-// side to just out of sight on the other (each way as likely), then done.
-// It goes along y, z; margin: how far (m) past the view's edge it starts
-// and ends (its length). reset(edges) for a new scene, edges(y, z) the
-// view's sides there as [left x, right x] (the scene's camera; the view
-// isn't centred on the middle: 9 m left was still in view), worked out
-// as it sets off (the camera is placed after the scene is set).
-function crossing(seed, y, z, margin) {
-  let n = 0, r, x, x0, x1, dir, wait, done, edges = null, started = false;
-  const reset = e => { edges = e ?? edges; r = rng(seed + 7919 * ++n); dir = r() < 0.5 ? 1 : -1; wait = 3 + 7 * r(); done = false; started = false; };
-  reset();
-  return {
-    reset, rand: () => r(),
-    get x() { return x; }, get dir() { return dir; },
-    get on() { return wait <= 0 && !done; },
-    tick(dt) {
-      if (wait > 0) wait -= dt;
-      if (wait <= 0 && !started) {
-        started = true;
-        const [L, R] = edges ? edges(y, z) : [-12, 12];
-        x0 = L - margin; x1 = R + margin; x = dir > 0 ? x0 : x1;
-      }
-    },
-    advance(m) { x += dir * m; if (dir > 0 ? x > x1 : x < x0) done = true; },
-  };
-}
-
 // A rattlesnake: a chain of spheres down to the tail, banded tan and brown,
-// sliding along in S-curves.
+// sliding along in S-curves: the head weaves, and the body follows the
+// head's path (so, frightened and turning back, it turns in a U, its body
+// following round; a body drawn along a wave flipped to the other side).
 function snake(group) {
   const N = 34, geo = new THREE.SphereGeometry(1, 12, 8), mat = std({ roughness: 0.6 });
   const im = new THREE.InstancedMesh(geo, mat, N), o = new THREE.Object3D(), c = new THREE.Color();
@@ -498,18 +479,42 @@ function snake(group) {
   group.add(im);
   const eyes = new THREE.InstancedMesh(new THREE.SphereGeometry(0.012, 6, 4), std({ color: '#111' }), 2); group.add(eyes);
   const z0 = -8.4, go = crossing(11, 0, z0, 1.8);
+  const GAP = 0.045, STEP = 0.01, LEN = N * GAP;
+  // path: the head's points, newest last, STEP apart; d: m travelled (the
+  // weave); turnAt: d when it turned back (it swings out 0.25 m, away from
+  // the camera, so it doesn't go back through its own body), else null
+  let path = [], d = 0, turnAt = null, wasDir = 0;
+  const headZ = () => z0 + 0.12 * Math.sin(d * 7) - (turnAt === null ? 0 : 0.25 * Math.min(1, (d - turnAt) / 0.5));
+  // The point s m back along the path (straight on past its end).
+  const back = s => {
+    let i = path.length - 1, left = s;
+    while (i > 0) {
+      const [ax, az] = path[i], [bx, bz] = path[i - 1], seg = Math.hypot(ax - bx, az - bz);
+      if (left <= seg) { const f = left / seg; return [ax + (bx - ax) * f, az + (bz - az) * f]; }
+      left -= seg; i--;
+    }
+    return [path[0][0] - wasDir * left, path[0][1]];
+  };
   return {
-    reset: go.reset,
+    reset(e) { go.reset(e); path = []; d = 0; turnAt = null; },
+    fright: x => go.fright(x), state: () => go.state,
     tick(dt, t) {
       go.tick(dt);
       im.visible = eyes.visible = go.on;
       if (!go.on) return;
-      go.advance(dt * 0.45);
-      const x = go.x, dir = go.dir;
+      if (!path.length) { wasDir = go.dir; path.push([go.x, headZ()]); }
+      if (go.dir !== wasDir && turnAt === null) turnAt = d;
+      const x0 = go.x;
+      go.advance(dt * 0.45 * go.pace);
+      d += Math.abs(go.x - x0);
+      const [lx, lz] = path[path.length - 1], hz = headZ();
+      if (Math.hypot(go.x - lx, hz - lz) >= STEP) { path.push([go.x, hz]); if (path.length > LEN / STEP + 20) path.shift(); }
+      // startled: its head and neck rear up, then down again
+      const rear = Math.sin(Math.PI * go.startled) * 0.09, dir = go.dir;
       for (let i = 0; i < N; i++) {
-        const s = i * 0.045, px = x - dir * s, r = i === 0 ? 0.042 : 0.036 * (1 - i / N * 0.75);
-        o.position.set(px, r * 0.8, z0 + 0.12 * Math.sin(px * 7 - t * 2.4 * dir)); o.scale.setScalar(r); o.scale.x = r * 1.3; o.updateMatrix(); im.setMatrixAt(i, o.matrix);
-        if (i === 0) for (const k of [0, 1]) { o.position.set(px + dir * 0.03, r * 1.25, o.position.z + (k ? 0.022 : -0.022)); o.scale.setScalar(1); o.updateMatrix(); eyes.setMatrixAt(k, o.matrix); }
+        const r = i === 0 ? 0.042 : 0.036 * (1 - i / N * 0.75), [px, pz] = i === 0 ? [go.x, hz] : back(i * GAP);
+        o.position.set(px, r * 0.8 + rear * Math.max(0, 1 - i / 6), pz); o.scale.setScalar(r); o.scale.x = r * 1.3; o.updateMatrix(); im.setMatrixAt(i, o.matrix);
+        if (i === 0) for (const k of [0, 1]) { o.position.set(px + dir * 0.03, r * 1.25 + rear, pz + (k ? 0.022 : -0.022)); o.scale.setScalar(1); o.updateMatrix(); eyes.setMatrixAt(k, o.matrix); }
       }
       im.instanceMatrix.needsUpdate = true; eyes.instanceMatrix.needsUpdate = true;
     },
@@ -539,18 +544,21 @@ function rat(group) {
   let moving = true, left = 0;
   return {
     reset(e) { go.reset(e); moving = true; left = 1.5 + 2 * go.rand(); },
+    fright: x => go.fright(x), state: () => go.state,
     tick(dt, t) {
       go.tick(dt);
       g.visible = go.on;
       if (!go.on) return;
       left -= dt;
-      // dashes of 1.5-3.5 s, stops of 0.6-1.4 s
-      if (left <= 0) { moving = !moving; left = moving ? 1.5 + 2 * go.rand() : 0.6 + 0.8 * go.rand(); }
-      if (moving) go.advance(dt * 1.4);
-      g.position.set(go.x, moving ? Math.abs(Math.sin(t * 22)) * 0.012 : 0, z0);
+      // dashes of 1.5-3.5 s, stops of 0.6-1.4 s; frightened, one dash out of sight
+      if (go.scared) moving = true;
+      else if (left <= 0) { moving = !moving; left = moving ? 1.5 + 2 * go.rand() : 0.6 + 0.8 * go.rand(); }
+      if (moving) go.advance(dt * 1.4 * go.pace);
+      const legs = t * 22 * go.pace, jump = Math.sin(Math.PI * go.startled) * 0.1;   // startled: a jump on the spot
+      g.position.set(go.x, jump + (moving && !jump ? Math.abs(Math.sin(legs)) * 0.012 : 0), z0);
       g.rotation.y = go.dir > 0 ? 0 : Math.PI;
       head.rotation.z = moving ? 0 : 0.12 + 0.08 * Math.sin(t * 9);   // sniffing
-      feet.forEach((f, i) => { f.position.y = 0.012 + (moving ? Math.max(0, Math.sin(t * 22 + i * 1.6)) * 0.015 : 0); });
+      feet.forEach((f, i) => { f.position.y = 0.012 + (moving && !jump ? Math.max(0, Math.sin(legs + i * 1.6)) * 0.015 : 0); });
     },
   };
 }
@@ -575,26 +583,38 @@ function bunny(group) {
   let hop = 0, rest = 0;   // into a hop (s); sitting (s left)
   return {
     reset(e) { go.reset(e); hop = 0; rest = 0; },
+    fright: x => go.fright(x), state: () => go.state,
     tick(dt, t) {
       go.tick(dt);
       g.visible = go.on;
       if (!go.on) return;
-      if (rest > 0) {
+      if (go.scared) rest = 0;
+      if (go.startled) {
+        // startled: sits up tall, ears straight up, a moment
+        hop = 0;
+        body.position.y = 0; body.rotation.z = 0.3 * Math.sin(Math.PI * go.startled);
+      } else if (rest > 0) {
         rest -= dt;
         body.position.y = 0; body.rotation.z = 0;
       } else {
-        // a hop: 0.84 m in 0.34 s, 0.16 m up (body scale), leaning in and out
-        const was = hop; hop += dt;
+        // a hop: 0.84 m in 0.34 s, 0.16 m up (body scale), leaning in and out;
+        // frightened, the hops come pace times as quick, with no sitting
+        const was = hop; hop += dt * go.pace;
         const k = Math.min(1, hop / 0.34);
         go.advance((Math.min(hop, 0.34) - Math.min(was, 0.34)) / 0.34 * 0.84);
         body.position.y = Math.sin(Math.PI * k) * 0.16;
         body.rotation.z = (0.5 - k) * 0.5;
-        if (k >= 1) { hop = 0; if (go.rand() < 0.2) rest = 0.6 + 1.2 * go.rand(); }
+        if (k >= 1) { hop = 0; if (!go.scared && go.rand() < 0.2) rest = 0.6 + 1.2 * go.rand(); }
       }
       g.position.set(go.x, 0, z0);
       g.rotation.y = go.dir > 0 ? 0 : Math.PI;
       head.rotation.z = rest > 0 ? 0.05 * Math.sin(t * 7) : 0;
-      ears.forEach((e, i) => { e.rotation.x = (i ? 1 : -1) * (0.15 + (rest > 0 ? 0.06 * Math.sin(t * 3 + i) : 0.25)); });
+      // ears: up when startled, laid back running off
+      const ear = go.startled ? 0.02 : go.scared ? 0.1 : null;
+      ears.forEach((e, i) => {
+        e.rotation.x = (i ? 1 : -1) * (ear ?? (0.15 + (rest > 0 ? 0.06 * Math.sin(t * 3 + i) : 0.25)));
+        e.rotation.z = go.scared && !go.startled ? 0.9 : 0;
+      });
     },
   };
 }
@@ -614,20 +634,25 @@ export function birds(group) {
     return { g, wings, dz, dy };
   };
   const bs = [make('#3B3F4A', 0, 0), make('#5B4636', -1.2, 0.5)];
-  const go = crossing(41, 3.6, -12.5, 2.5);
+  // in the air: no stop when frightened, straight off (and up a little)
+  const go = crossing(41, 3.6, -12.5, 2.5, 0);
+  // first: the way they set off (the second stays on that side when they turn back)
+  let climb = 0, first = go.dir;
   return {
-    reset: go.reset,
+    reset(e) { go.reset(e); climb = 0; first = go.dir; },
+    fright: x => go.fright(x), state: () => go.state,
     tick(dt, t) {
       go.tick(dt);
       for (const b of bs) b.g.visible = go.on;
       if (!go.on) return;
-      go.advance(dt * 2.6);
+      go.advance(dt * 2.6 * go.pace);
+      if (go.scared) climb = Math.min(1.5, climb + dt * 0.8);
       bs.forEach((b, i) => {
-        const x = go.x - go.dir * i * 1.4;   // the second a little behind
-        b.g.position.set(x, 3.6 + b.dy + 0.25 * Math.sin(t * 0.8 + i), -12.5 + b.dz);
+        const x = go.x - first * i * 1.4;   // the second a little behind
+        b.g.position.set(x, 3.6 + b.dy + climb + 0.25 * Math.sin(t * 0.8 + i), -12.5 + b.dz);
         b.g.rotation.y = go.dir > 0 ? 0 : Math.PI;
-        const flap = (t + i * 0.7) % 3 < 1.6;   // flapping, then a glide
-        b.wings.forEach((w, k) => { w.rotation.x = (k ? -1 : 1) * (flap ? 0.7 * Math.sin(t * 13 + i) : 0.12); });
+        const flap = go.scared || (t + i * 0.7) % 3 < 1.6;   // flapping, then a glide; frightened, flapping hard
+        b.wings.forEach((w, k) => { w.rotation.x = (k ? -1 : 1) * (flap ? 0.7 * Math.sin(t * (go.scared ? 20 : 13) + i) : 0.12); });
       });
     },
   };
