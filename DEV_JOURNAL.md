@@ -45,11 +45,6 @@ time, each tried before publishing:
   can treat this as a side research project." **Parked:** level 2 uses
   the made sounds picked in mockup version 6; open until the developer
   brings recordings ("Q74 parked").
-- **Q76. The photo look's loose ends** (2026-11-11; "Photo look picked
-  (Q75)"): the things still drawn beside the photo surfaces (wheelbarrow,
-  site light, cones, pipes, slingshot, ball) looked like plastic; level
-  1's park stays drawn or not; the files' size on a phone. Claude's
-  suggestions put to the developer; waiting.
 
 
 ## Proposed additions to the standards skill
@@ -153,6 +148,15 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q76. The photo look's loose ends** (2026-11-11; "Photo look picked
+  (Q75)"): the things still drawn beside the photo surfaces looked like
+  plastic; level 1's park; the files' size on a phone. **Settled
+  2026-11-11, developer: "Yes, all three"** to Claude's suggestions:
+  photo surfaces on the drawn things first (a Poly Haven model only
+  where that isn't enough), tried in the mockup before building; level
+  1's park stays drawn for now; 512 px copies in the repo, offline-listed,
+  with a record of each file's source, author and licence, and the
+  phone's frame rate measured before release (DESIGN.md "Topple!").
 - **Q75. Photo-real looks instead of cartoon ones?** (2026-11-11; "Q74 to
   try; photo-real looks? (Q75)"). The developer asked whether the same
   goes for graphics as for sounds. The trial: mockup v7, the drawn and
@@ -17846,3 +17850,31 @@ photo surfaces and the building-site photo (DESIGN.md "Topple!", Level
   on the phone before release.
 - **Status:** as the entry before, with Q75 resolved and Q76 open. Next:
   the developer's answers on Q76, then build level 2.
+
+## 2026-11-11: Q76 settled; status (start here next session)
+
+**Developer:** "Yes, all three" (Q76's suggestions; DESIGN.md "Topple!"
+Level 2 updated; Q76 resolved).
+
+**Status:**
+- **Live: 9.4.** `block-game` holds only journal and DESIGN.md changes
+  since 9.4; the game's code is unchanged.
+- **Level 2, "The building site", is designed** (DESIGN.md "Topple!",
+  Levels and Level 2): the five scenes in a fixed order with the 5th the
+  challenge, and their pass criteria ("Q75 trial wanted; level 2's five
+  scenes picked"); the photo look; the materials, iron ball, sounds,
+  wheelbarrow and site light (mockups v3-v6); the Level screen and the
+  map (mockup v1).
+- **Next, in a fresh session:** mockup v8: photo surfaces on the things
+  still drawn (the light's pole galvanised steel, the wheelbarrow's tray
+  painted metal, the slingshot wood, the ball cast iron; a Poly Haven
+  model only where that isn't enough; any new download needs the
+  developer's OK first). Then build level 2.
+- **The mockup's source:** read it with the Artifact tool (`read`, the
+  link in DESIGN.md "Topple!" Level 2); its photo files are published
+  with it (`photo/`). The downloads and Claude's helper scripts
+  (a scratch server that saves the page's own renders, `regen.sh`) were
+  in this session's scratch folder, which a new session won't have:
+  the page's files can be read back from the artifact.
+- **Open questions:** Q64, Q73, Q74 (parked).
+- **Skill:** none waiting.

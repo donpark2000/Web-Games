@@ -2175,7 +2175,13 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   v7: "Photo look"): the blocks and the pad in photographed surfaces,
   a 360° photo of a building site for the sky and the ground beyond the
   pad, all CC0 from Poly Haven, kept in the repo (not loaded from other
-  sites) with each file's source and licence on record.
+  sites) with each file's source and licence on record. The things in
+  the scene that are still drawn (the wheelbarrow, the site light,
+  cones, pipes, the slingshot, the ball) get photo surfaces too, and a
+  Poly Haven model only where that isn't enough (developer, 2026-11-11,
+  Q76; tried in the mockup first). The game uses 512 px copies, listed
+  for offline; the phone's frame rate is measured before release.
+  **Level 1's park stays drawn** for now (Q76).
 - **The scenes are made from the game's seed**, so they're the same
   each time; only a new game makes new ones. **The game is kept on the
   device** (`web-games-topple-game`: the seed, level, scene, hearts,
