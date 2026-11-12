@@ -37,6 +37,11 @@ time, each tried before publishing:
   the developer finds CC0 recordings for the five building-site sounds;
   Claude builds a sampler with them beside the made ones ("Q74 to try;
   photo-real looks? (Q75)").
+  2026-11-11, later, developer: "It is proving harder than I thought to
+  find good free sounds. So lets stick with what we have fore now and I
+  can treat this as a side research project." **Parked:** level 2 uses
+  the made sounds picked in mockup version 6; open until the developer
+  brings recordings ("Q74 parked").
 - **Q75. Photo-real looks instead of cartoon ones?** (2026-11-11; "Q74 to
   try; photo-real looks? (Q75)"). The developer asked whether the same
   goes for graphics. Claude's answer and a suggested trial put to the
@@ -17635,3 +17640,14 @@ folder outside the repo until picked.
 making the skills too long. That 'lesson learned' was really just a bug.
 I don't think we should add a skill behind every bug. Should we?" No:
 dropped (see "Proposed additions").
+
+## 2026-11-11: Q74 parked: the made sounds for now
+
+**Developer:** "It is proving harder than I thought to find good free
+sounds. So lets stick with what we have fore now and I can treat this as
+a side research project." So level 2 uses the made sounds picked in
+mockup version 6 (wood C Hollow plank, brick B Clack and grit, steel C
+Ring, concrete C Thunderous crash, the ball C Clonk and roll); DESIGN.md
+"Sound" (made in the page) is unchanged. Q74 stays open, parked, until
+the developer brings recordings; the sampler's plan in "Q74 to try"
+holds then. Q75 (photo-real looks, a side-by-side trial) still waiting.
