@@ -32,6 +32,7 @@ const bounceOf = h => (h.kind === 'block' ? MATS[h.body?.mat]?.bounce ?? BOUNCE.
 // contact is switched off and the ball goes on through every bush.
 export const BUSH_KEEP = 0.1;
 export const CAUGHT_DAMPING = 0.9;   // the ball's damping once in the bush (keeps 0.1 of its speed a second)
+export const SOFT_DAMPING = 0.999;   // ... once in gravel or snow: it stays where it lands
 const BUSH_GROUP = 2;                // the bushes' collision group, which a ball in a bush stops touching
 export const TRIES = 25;   // layouts tried for a scene before taking the best
 // The fewest straight throws of the scene check's scan that must hit each
@@ -113,7 +114,8 @@ export function createWorld({ onHit = () => {} } = {}) {
     const v = Math.abs(e.contact.getImpactVelocityAlongNormal()), kind = kindOf(e.body), b = e.target;
     if (kind === 'block') { wakeBlocks(); breakAt(recOf.get(e.body), v); }
     // gravel or snow (the bush's job, a solid heap): it keeps BUSH_KEEP of its speed and stays in it
-    if (kind === 'soft' && !b.inBush) { b.inBush = true; b.velocity.scale(BUSH_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); b.linearDamping = b.angularDamping = CAUGHT_DAMPING; }
+    // (damped harder than in a bush: on the heap's slope it rolled off, 1.1 m from its middle)
+    if (kind === 'soft' && !b.inBush) { b.inBush = true; b.velocity.scale(BUSH_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); b.linearDamping = b.angularDamping = SOFT_DAMPING; }
     onHit({ a: 'ball', b: kind, v, y: b.position.y, ball: b, other: e.body, mat: e.body.mat, thing: e.body.thing });
   }
 

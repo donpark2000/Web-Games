@@ -155,8 +155,8 @@ body.tp-playing .site-foot { display: none; }
 
 /* On the setup screen, in place of the faces: the map of levels, a path of
    dots (orange as far as you've got) up from level 1; a level's screen. */
-#setup.tp-map > .panel:not(#mapView), #setup.tp-map > .go,
-#setup.tp-level > .panel:not(#levelView), #setup.tp-level > .go { display: none; }
+#setup.tp-map > :not(:first-child):not(#mapView),
+#setup.tp-level > :not(:first-child):not(#levelView) { display: none; }
 .tpmap { display: grid; gap: 6px; justify-items: center; }
 .maptitle { margin: 0; font-size: 22px; text-align: center; }
 .mapbox { position: relative; width: 100%; max-width: 380px; height: min(70vh, 560px); min-height: 420px; }

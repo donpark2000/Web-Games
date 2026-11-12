@@ -189,9 +189,9 @@ export const LEVELS = [
   { n: 2, name: 'The building site', line: 'Tall frames: knock the front down to get at the back.', soft: 'barrow', tall: 'light', ball: 'iron',
     scenes: ['twoStoreys', 'threeStoreys', 'bridge', 'steps', 'towerWall'] },
   { n: 3, name: 'Frosty Times', line: 'Ice blocks slide, and smash when they’re hit hard.', soft: 'drift', tall: 'pine', ball: 'iron',
-    scenes: ['iceGate', 'iceTower', 'iceWall', 'icePyramid', 'iceCastle'] },
+    scenes: ['iceGate', 'iceTower', 'icePyramid', 'iceWall', 'iceCastle'] },
   { n: 4, name: 'Cactus Canyon', line: 'Burst the water barrels and the beams come down.', soft: 'scrub', tall: 'cactus', ball: 'iron',
-    scenes: ['trestle', 'barrelStack', 'hitchingRail', 'waterTower', 'saloon'] },
+    scenes: ['waterTower', 'trestle', 'barrelStack', 'hitchingRail', 'saloon'] },
 ];
 export const MAX_LEVEL = LEVELS.length;
 export const levelInfo = n => LEVELS[n - 1] ?? null;

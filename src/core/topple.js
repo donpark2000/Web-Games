@@ -248,7 +248,9 @@ const overlaps = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.z0 < b.z1 && b.z0 < a
 // The parts of a thing a falling block could lean on, as circles in plan view.
 export function lowParts(t, reachH) {
   if (t.kind === 'bush' || t.kind === 'scrub') return t.balls.map(b => ({ x: b.x, z: b.z, r: b.r }));
-  if (t.kind === 'tree' || t.kind === 'pine') return [{ x: t.x, z: t.z, r: t.r }];
+  if (t.kind === 'tree') return [{ x: t.x, z: t.z, r: t.r }];
+  // the pine's low tiers of branches too (a falling frame could rest on them)
+  if (t.kind === 'pine') return [{ x: t.x, z: t.z, r: t.r }, ...t.tiers.filter(q => q.y - q.r < reachH).map(q => ({ x: t.x, z: t.z, r: q.r }))];
   if (t.kind === 'light') return [{ x: t.x, z: t.z, r: 0.18 }];
   if (t.kind === 'cactus') return t.arms.map(a => ({ x: a.x, z: a.z, r: a.r })).concat([{ x: t.x, z: t.z, r: t.r }]);
   if (t.kind === 'barrow' || t.kind === 'drift') return t.parts;
@@ -367,12 +369,14 @@ const PLACE = {
   drift(R, table, rng, stackTop, camN, room) {
     const z = room.rect.z1 + room.reach + 0.28 + R(0, 0.12), x = lineX(table, z) + R(-0.12, 0.12);
     const rx = R(0.36, 0.42), rz = R(0.25, 0.3), H = R(0.19, 0.23), yaw = R(-0.5, 0.5), seed = 1 + Math.floor(rng() * 1e6);
-    const parts = [-1, 0, 1].map(k => ({ x: x + Math.cos(yaw) * rx * 0.6 * k, z: z - Math.sin(yaw) * rx * 0.6 * k, r: rz }));
+    const parts = [{ x, z, r: (rx + rz) / 2 }];   // the physics' round cap (sceneParts), where it meets the ground
     return { kind: 'drift', job: 'soft', x, z, rx, rz, H, yaw, seed, parts, foot: { x0: x - rx - 0.05, x1: x + rx + 0.05, z0: z - rx, z1: z + rx } };
   },
   // Desert scrub: level 1's bush, lower and greyer (sagebrush).
+  // (as tall as level 1's bush, it hid the saloon's front row of barrels
+  // completely: as if the structure were 0.32 m tall (Near), at most)
   scrub(R, table, rng, stackTop, camN, room, placed) {
-    return { ...PLACE.bush(R, table, rng, stackTop, camN, room, placed), kind: 'scrub', job: 'soft' };
+    return { ...PLACE.bush(R, table, rng, Math.min(stackTop, 0.32), camN, room, placed), kind: 'scrub', job: 'soft' };
   },
   // Tall (the tree's job): to the left of the line, its stem in the way of a
   // straight throw, its top of a lob; no nearer the slingshot than 1.5 m.
@@ -387,8 +391,9 @@ const PLACE = {
   // lowest 1.15 m up (a flat throw passes under it).
   pine(R, table, rng, stackTop, camN, room) {
     rng();
-    const z = Math.min(-1.7, table.z + R(0.55, 1.5)), x = besideX(table, z, room, 0.05, R(0.25, 0.45)), k = R(0.9, 1.08);
+    const k = R(0.9, 1.08), z = Math.min(-1.7, table.z + R(0.55, 1.5));
     const tiers = [[0.95, 0.39], [1.3, 0.31], [1.6, 0.23], [1.85, 0.15]].map(([y, r]) => ({ y: y * k, r: r * k }));
+    const reachR = Math.max(0.05, ...tiers.filter(q => q.y - q.r < room.reachH).map(q => q.r)), x = besideX(table, z, room, reachR, R(0.25, 0.45));
     return { kind: 'pine', job: 'tall', x, z, r: 0.05, trunkH: 1.95 * k, tiers, foot: { x0: x - 0.4, x1: x + 0.4, z0: z - 0.4, z1: z + 0.4 } };
   },
   // A saguaro cactus: a ribbed trunk 2.8 m (world) and two arms that bend up.

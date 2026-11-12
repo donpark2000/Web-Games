@@ -56,9 +56,12 @@ function setupSound({ ctx = fakeContext(), storage = fakeStorage(), noAudio = fa
 // clack: a die landing in Five Dice 3D's tray (2026-11-07, the mockups' click).
 // clink and whoosh: a tin can knocked, a throw (Tin Can Alley, 2026-11-09, the stall mockup's).
 // knock, rustle and boing: a block knocked, the ball in leaves, off the glass (Topple!, 2026-11-10, the block game mockup's).
-const NAMES = ['tick', 'thud', 'win', 'aww', 'tie', 'swish', 'shake', 'ding', 'uhoh', 'climb', 'wheee', 'ping', 'clack', 'clink', 'whoosh', 'knock', 'rustle', 'boing'];
+// plank ... splash: Topple!'s levels 2-4, a sound for each material, the ball in gravel or snow, ice shattering, a
+// barrel bursting (2026-11-11: the building site's the developer's picks from the level 2 mockup v6; the rest Claude's).
+const NAMES = ['tick', 'thud', 'win', 'aww', 'tie', 'swish', 'shake', 'ding', 'uhoh', 'climb', 'wheee', 'ping', 'clack', 'clink', 'whoosh', 'knock', 'rustle', 'boing',
+  'plank', 'brick', 'ring', 'crash', 'clonk', 'crunch', 'iceknock', 'shatter', 'poof', 'barrel', 'splash'];
 
-test('sound: the fifteen sounds, each scheduling audio that starts now and ends within 2 s', () => {
+test('sound: the twenty-nine sounds, each scheduling audio that starts now and ends within 2 s', () => {
   assert.deepEqual(Object.keys(RECIPES).sort(), [...NAMES].sort());
   for (const name of NAMES) {
     const { s, ctx } = setupSound();
@@ -210,7 +213,9 @@ const GAME_SOUNDS = {
   // or the leaves, a boing off the glass backboard, a thud on the ground,
   // the trunk or a pole; 'aww' for a scene not cleared (2026-11-10, the block
   // game mockup's).
-  topple: ['whoosh', 'knock', 'rustle', 'boing', 'thud', 'aww'],
+  topple: ['whoosh', 'knock', 'rustle', 'boing', 'thud', 'aww',
+    // levels 2-4 (2026-11-11): each material's, the light's pole, the iron ball on the ground, gravel and snow, breaking
+    'plank', 'brick', 'ring', 'crash', 'iceknock', 'barrel', 'clonk', 'crunch', 'poof', 'shatter', 'splash'],
 };
 
 test('sound: each game plays its agreed sounds, all real ones, and the end-of-round sound', async () => {
@@ -227,11 +232,13 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     const calls = [...src.matchAll(/sound\.play\(([^;]*)\);/g)].map(m => m[1]);
     // (not one compared with ===, as in r.pending === 'match')
     const used = new Set(calls.flatMap(c => [...c.matchAll(/(?<!===\s)'(\w+)'/g)].map(m => m[1])));
+    // and the values of a table of sounds (Topple!'s MAT_SOUND, SOFT_SOUND: a sound for each material or thing)
+    for (const m of src.matchAll(/const [A-Z_]+_SOUND = \{([^}]*)\}/g)) for (const v of m[1].matchAll(/:\s*'(\w+)'/g)) used.add(v[1]);
     for (const name of used) assert.ok(NAMES.includes(name), `${game}: plays '${name}', which isn't a sound`);
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 46);
+  assert.equal(checked, 57);
 });
 
 // 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (developer, 2026-10-09; was

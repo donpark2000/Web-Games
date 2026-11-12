@@ -137,7 +137,7 @@ const LOOKS = {
   4: { pic: () => '🌵', bg: 'linear-gradient(#7FB3E0, #E2B48A)' },
 };
 // The setup screen's view: 'faces' (the picks), 'map' or 'level'.
-function setView(v) {
+function setupView(v) {
   $('setup').classList.toggle('tp-map', v === 'map');
   $('setup').classList.toggle('tp-level', v === 'level');
   $('mapView').hidden = v !== 'map';
@@ -147,7 +147,7 @@ function setView(v) {
 const NODES = [{ x: 30, y: 86 }, { x: 68, y: 62 }, { x: 32, y: 38 }, { x: 68, y: 14 }];
 function showMap() {
   if (playing) showSetup();
-  setView('map');
+  setupView('map');
   const P = NODES.map(n => [n.x, n.y]);
   const seg = (a, b) => `M${a[0]} ${a[1]} C ${a[0] + (b[0] - a[0]) * 0.9} ${a[1]}, ${b[0] - (b[0] - a[0]) * 0.1} ${b[1] + 14}, ${b[0]} ${b[1]}`;
   const dots = (d, on) => `<path d="${d}" fill="none" stroke="${on ? '#F2724F' : '#9FB0B7'}" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:10px;stroke-dasharray:0 22px"/>`;
@@ -183,7 +183,7 @@ function showMap() {
 // Level n's screen: its name, picture and line; where you are in it; Start or Carry on.
 function showLevelCard(n) {
   if (playing) showSetup();
-  setView('level');
+  setupView('level');
   const info = levelInfo(n), pl = placeOf(game, n), mid = pl.scene > 1 || pl.jewels > 0 || pl.hearts < HEARTS;
   $('lvNum').textContent = `Level ${n}`;
   $('lvName').textContent = info.name;
@@ -204,7 +204,7 @@ function showLevelCard(n) {
   resume.keep();
 }
 $('lvMap').onclick = () => showMap();
-$('mapBack').onclick = () => { setView('faces'); renderSetup(); };
+$('mapBack').onclick = () => { setupView('faces'); renderSetup(); };
 
 /* ---------- the play screen ---------- */
 
@@ -236,7 +236,7 @@ function showSetup() {
   $('play').hidden = true;
   $('setup').hidden = false;
   document.body.classList.remove('tp-playing');
-  setView('faces');
+  setupView('faces');
   renderSetup();
   scrollTo(0, 0);
 }
@@ -449,6 +449,8 @@ function doThrow(d) {
 
 let lastKnock = 0, lastThud = 0;
 const MAT_SOUND = { wood: 'plank', brick: 'brick', steel: 'ring', concrete: 'crash', ice: 'iceknock', barrel: 'barrel' };
+// the ball into the wheelbarrow's gravel, or into snow
+const SOFT_SOUND = { barrow: 'crunch', drift: 'poof' };
 function onHit({ a, b, v, y, ball, other, mat, thing }) {
   const now = performance.now(), vs = v / Math.sqrt(SCALE);
   if (a === 'ball' && shot && shot.body === ball && shot.touches.length < 2 && shot.last !== other) {
@@ -467,7 +469,7 @@ function onHit({ a, b, v, y, ball, other, mat, thing }) {
     sound.play(MAT_SOUND[mat] ?? 'knock', 0, { level: Math.min(1, (vs + (a === 'ball' ? 1 : 0)) / 6), quiet: true });
   } else if (a === 'ball' && v >= 0.5) {
     if (b === 'glass') sound.play('boing', 0, { quiet: true });
-    else if (b === 'soft') sound.play(thing === 'drift' ? 'poof' : 'crunch', 0, { level: Math.min(1, vs / 6), quiet: true });
+    else if (b === 'soft') sound.play(SOFT_SOUND[thing] ?? 'crunch', 0, { level: Math.min(1, vs / 6), quiet: true });
     else if (thing === 'light') sound.play('ring', 0, { level: Math.min(1, vs / 6), quiet: true });
     else if (b === 'bush' || (b === 'tree' && thing !== 'cactus' && y > 1.0 * SCALE)) sound.play('rustle', 0, { quiet: true });
     else if (vs > 0.6 && now - lastThud > 60) { lastThud = now; sound.play(stage.level > 1 ? 'clonk' : 'thud', 0, { level: Math.min(1, vs / 6), quiet: true }); }

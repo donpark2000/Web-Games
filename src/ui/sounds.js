@@ -145,7 +145,7 @@ export const RECIPES = {
   // Level 4 (Claude's, to review): a full barrel knocked (a hollow wooden
   // thunk), a barrel bursting (a crack, a gush of water, drips).
   barrel: (k, t, l = 1) => site(k, 'barrel', g => { g.tone(t, 150 + Math.random() * 20, { type: 'triangle', to: 95, dur: 0.22, peak: 0.15 + 0.4 * l, attack: 0.002 }); g.noise(t, { dur: 0.16, peak: 0.1 + 0.25 * l, f: 420, q: 4 }); g.noise(t, { dur: 0.1, peak: 0.06 + 0.12 * l, f: 260, q: 6 }); }),
-  splash: (k, t) => site(k, 'splash', g => { g.noise(t, { dur: 0.04, peak: 0.3, f: 1200, q: 2 }); g.tone(t, 80, { to: 45, dur: 0.2, peak: 0.25 }); g.noise(t + 0.02, { dur: 0.7, peak: 0.3, f: 2600, to: 500, q: 0.8, attack: 0.02 }); g.rattle(t + 0.25, 20, 0.9, 1500, 4500, 0.06); }),
+  splash: (k, t) => site(k, 'splash', g => { g.noise(t, { dur: 0.04, peak: 0.3, f: 1200, q: 2 }); g.tone(t, 80, { to: 45, dur: 0.2, peak: 0.25 }); g.noise(t + 0.02, { dur: 0.7, peak: 0.3, f: 2600, to: 500, q: 0.8, attack: 0.02 }); g.rattle(t + 0.15, 20, 0.7, 1500, 4500, 0.06); }),
 };
 
 // Each of the sounds above through its own gain, to bring its loudest 50 ms

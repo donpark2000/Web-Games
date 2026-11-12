@@ -465,7 +465,7 @@ function snake(group) {
 // Shards of ice flying from where a block shattered; water bursting from a
 // barrel, a dark wet patch growing where it lands, and a few staves.
 function makeEffects(group, blockMats, S) {
-  const MAX = 240, live = [];
+  const MAX = 400, live = [];
   const shardGeo = new THREE.TetrahedronGeometry(1, 0);
   const shardMat = blockMats.ice ? blockMats.ice.clone() : std({ color: '#C9A27A' });
   const shards = new THREE.InstancedMesh(shardGeo, shardMat, MAX); shards.count = 0; shards.frustumCulled = false; shards.castShadow = true; group.add(shards);
@@ -480,7 +480,7 @@ function makeEffects(group, blockMats, S) {
       const n = Math.min(30, Math.round(12 + 60 * b.w * b.h * b.d / 0.02));
       for (let i = 0; i < n; i++) live.push({ kind: 'shard', p: [at[0] + (r() - 0.5) * b.w, at[1] + (r() - 0.5) * b.h, at[2] + (r() - 0.5) * b.d], v: [v[0] * 0.5 + (r() - 0.5) * 3, v[1] * 0.5 + r() * 2.5, v[2] * 0.5 + (r() - 0.5) * 3], s: 0.02 + r() * 0.05, spin: [r() * 6, r() * 6, r() * 6], t: 0, life: 1.6 + r() * 0.8 });
     } else if (b.mat === 'barrel') {
-      for (let i = 0; i < 90; i++) { const a = r() * Math.PI * 2, sp = 1 + r() * 3.2; live.push({ kind: 'drop', p: [at[0] + Math.cos(a) * b.r * 0.6, at[1] + (r() - 0.3) * b.h * 0.5, at[2] + Math.sin(a) * b.r * 0.6], v: [Math.cos(a) * sp + v[0] * 0.3, 1 + r() * 3, Math.sin(a) * sp + v[2] * 0.3], s: 0.018 + r() * 0.03, t: 0, life: 1.2 + r() * 0.5 }); }
+      for (let i = 0; i < 150; i++) { const a = r() * Math.PI * 2, sp = 1 + r() * 3.2; live.push({ kind: 'drop', p: [at[0] + Math.cos(a) * b.r * 0.6, at[1] + (r() - 0.3) * b.h * 0.5, at[2] + Math.sin(a) * b.r * 0.6], v: [Math.cos(a) * sp + v[0] * 0.3, 1 + r() * 3, Math.sin(a) * sp + v[2] * 0.3], s: 0.035 + r() * 0.045, t: 0, life: 1.2 + r() * 0.5 }); }
       const patch = new THREE.Mesh(new THREE.CircleGeometry(1, 32), new THREE.MeshStandardMaterial({ color: '#5A3B22', transparent: true, opacity: 0, roughness: 0.35, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -6 }));
       patch.rotation.x = -Math.PI / 2; patch.position.set(at[0], 0.004, at[2]); patch.scale.setScalar(0.01); patch.receiveShadow = true; group.add(patch);
       patches.push({ m: patch, t: 0, size: 0.6 + b.h * 0.9 });

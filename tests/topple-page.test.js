@@ -83,7 +83,7 @@ test('topple page: the game kept on the device for every visit, the scene under 
   assert.doesNotMatch(js, /GAME_KEY = 'web-games-resume-/, 'a key the old-games cleanup removes');
   assert.match(js, /readGame\(JSON\.parse\(storage\?\.getItem\(GAME_KEY\)/);
   // kept as each scene ends, before its card shows
-  assert.match(js, /const outcome = sceneOver\(game, result\.won\);[\s\S]*?saveGame\(\);[\s\S]*?showEnd\(\);/);
+  assert.match(js, /const outcome = sceneOver\(game, result\.won\)[,;][\s\S]*?saveGame\(\);[\s\S]*?showEnd\(\);/);
 });
 
 test('topple page: logged: 3D start, the fit, each scene, throw, touch, block down (and a post up again), the end', () => {
