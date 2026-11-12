@@ -73,23 +73,10 @@ time, each tried before publishing:
   compare to a build?" Answered in chat ("Q82 drift built; Q83
   measured"). 2026-11-12, developer: "We can go straight to the build."
   Built ("Balls left; the map walk; ..."): to try.
-- **Q82. Level 3's snow drift doesn't look like snow** (2026-11-12):
-  "Maybe a snowman would look better." The drift is in play (level 3's
-  'soft' thing: it catches the ball, as level 1's bush); a snowman
-  stands off to the right as decor already.
-  2026-11-12, developer: "it looks like 1/2 a sphere. Real snow drifts,
-  shaped by the wind tend to be longer and not symmetrical, with peaks
-  that are thinner than the base and can even look like they are
-  curling." Built (entry below); for the developer to look at.
-  2026-11-12, developer: "Its better but still not very real looking.
-  Maybe a rock with a bit of snow on top and/or one side would look
-  better." Built ("Balls left; the map walk; ..."): to look at.
-- **Q84. Ice hardly slides** (2026-11-12, found writing the ice test):
-  level 3's line says "Ice blocks slide", but a ground cube of the ice
-  pyramid pushed at 2.5 m/s moved 10 cm, and the top cube nudged at
-  0.6-1.2 m/s any way moved 1-2 cm and stopped. Likely the cubes resting
-  on it (asleep, so held still) grip it; not measured further. Does ice
-  need to slide more for the level to feel icy? The developer's call.
+- **Q86. The developer's `levels.txt`** (2026-11-12): gvim had a new
+  `levels.txt` open in the repo folder (its swap file was committed by
+  mistake, now out of git and `*.swp` ignored). Not saved yet; nothing
+  done with it. Ask what it's for when it appears.
 
 ## Proposed additions to the standards skill
 
@@ -192,6 +179,33 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q82. Level 3's snow drift doesn't look like snow** (2026-11-12):
+  "Maybe a snowman would look better." The drift is in play (level 3's
+  'soft' thing: it catches the ball, as level 1's bush); a snowman
+  stands off to the right as decor already.
+  2026-11-12, developer: "it looks like 1/2 a sphere. Real snow drifts,
+  shaped by the wind tend to be longer and not symmetrical, with peaks
+  that are thinner than the base and can even look like they are
+  curling." Built (entry below); for the developer to look at.
+  2026-11-12, developer: "Its better but still not very real looking.
+  Maybe a rock with a bit of snow on top and/or one side would look
+  better." Built ("Balls left; the map walk; ..."): to look at.
+  2026-11-12, developer: "Rock looks better than snow drift. But I don't
+  think the 'snow on top' looks like snow. I suggest we just make it a
+  rock." **Done**: a plain grey rock ("Ice slides; out of reach; ...").
+- **Q84. Ice hardly slides** (2026-11-12, found writing the ice test):
+  level 3's line says "Ice blocks slide", but a ground cube of the ice
+  pyramid pushed at 2.5 m/s moved 10 cm, and the top cube nudged at
+  0.6-1.2 m/s any way moved 1-2 cm and stopped. Likely the cubes resting
+  on it (asleep, so held still) grip it; not measured further. Does ice
+  need to slide more for the level to feel icy? The developer's call.
+  2026-11-12, developer, to "should ice slide more?": "yes". **Done**
+  ("Ice slides; out of reach; ..."): the cause was cannon-es's friction
+  (it acts about 480 times its number); ice's put back, at 0.15.
+- **Q85. A cube slid out of the aim's reach** (2026-11-12): "On one test
+  of level 3 an unbroken cube slid far enough to the left of the screen
+  that I could not aim in that direction far enough to hit it." **Done**:
+  a block out of reach counts as down ("Ice slides; out of reach; ...").
 - **Q80. Topple!'s score bar isn't clear** (2026-11-12; "Levels 2-4
   tried"). Developer: beside the scene "it shows the number 10 beside my
   icon and then in small print below that it says 'of 10 down' and then
@@ -18310,3 +18324,86 @@ along the view's top edge, now lower (3.2-4.1 m).
   look), Q84 (ice hardly slides), Q77 (the overnight picks).
 - **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
 - **Open questions:** Q64, Q73, Q74 (parked), Q77, Q78, Q79, Q81, Q82, Q84.
+
+## 2026-11-12: Ice slides; out of reach; Map and Start again; animals cross once; a plain rock
+
+**Developer** (trying the last build): "Rock looks better than snow drift.
+But I don't think the 'snow on top' looks like snow. I suggest we just
+make it a rock. The bunny is cute but maybe make it less active and more
+subtle. If it just hopped across a scene once that should be plenty.
+Same with the other little creatures on other levels. Score card is
+better. But there seems to be no way to get to the map. and there is
+something that looks like a button below the balls left with text that
+is cut off ... 'start again' ... pressing it does nothing. On one test of
+level 3 an unbroken cube slid far enough to the left of the screen that
+I could not aim in that direction far enough to hit it." And, to "should
+ice slide more?": "yes".
+
+**Q84, why ice hardly slid: cannon-es's friction.** Bare cannon-es (a
+scratch script: a box on a plane, nothing of ours): pushed at 1 m/s, the
+box stopped in one step (1 to 0.39 m/s, then still), the same at friction
+0.06 and 0.4; at 0 it slid on (1.98 m in 2 s). Reading its solver: each
+friction equation is capped at friction x g x mass, but the cap is
+applied to the step's impulse, not to a force over the step, so friction
+acts 1/STEP (120) times its number, and a box on 4 corners 4 times
+again. Every material in Topple! has grip far past its number: that is
+how levels 1-4 were tuned and checked, so it stays; ice's is put back
+(`slides`: friction x STEP / 4 for ice's pairs). At 0.06 a lone cube
+slid 0.80 m from 1 m/s (0.85 in theory), but level 3 got much harder
+(the tests' person player, 4 games x 8 players: 97, 69, 75, 81, 19% for
+scenes 1-5, from 100, 97, 97, 94, 31%; a hit cube slides away upright
+instead of tipping): at **0.15**, 100, 94, 94, 91, 34% (the overnight
+pass criteria: 1-4 at least 75%, the 5th 30-80%), a cube slides 0.33 m
+from 1 m/s (1.29 m from 2). The materials test now checks the slide (ice
+over 25 cm, wood under 5 cm), not the number.
+
+**Q85, out of reach**: a block whose middle is more than 24° to the side
+(the aim's 22° and 2°) counts as down, for good (`outOfReach`; level 3's
+ice then shatters when it stops). Test: no block of any level starts out
+of reach (4 games, every scene); a block at 23° still stands, at 26°
+it's down. Level 3's win rates unchanged (100, 94, 94, 91, 34%).
+
+**Map and Start again**: a 🗺️ Map button under Start again (upright: in
+the bar; sideways: in the column). The scene under way is kept
+("parked": its layout, the blocks as they last stood still, the balls
+used) and carried on when played again, so the map isn't a free start
+again (that costs a heart). Checked in the browser: a ball thrown (9 of
+its blocks down), Map, the level's screen said "Carry on ▸", and the same
+layout came back with 1 ball used and 9 down. Start again is hidden
+until a ball is thrown (it did nothing before: by design, but it looked
+like a button); sideways, its ↺ on a line of its own (it was cut off in
+the developer's window).
+
+**Animals cross once**: each (the snake too) waits 3-10 s into a scene,
+crosses from just out of sight to just out of sight, either way, and is
+gone till the next scene. The view isn't centred on the middle: at the
+ground 8 m back it spans -10.3 to 4.3 m (9 m left was still on screen,
+0.06 across), so each crossing works out the view's edges from the
+camera as it sets off (checked: the edges land at 0.000 and 1.000
+across). Seen in the browser: the bunny came in behind the tower and
+hopped off to the left. The snake is quicker (0.45 m/s, was 0.12) so it
+crosses in about half a minute.
+
+**A plain rock**: the snow cap is gone; the grey boulder as it was.
+
+**The swap file**: `.levels.txt.swp` was committed by mistake with
+`git add -A` (gvim had `levels.txt` open here); a stash for a
+comparison then failed on it (locked), leaving my two changed files in
+the stash, put back with `git checkout stash@{0} -- <files>`. Now out of
+git, `*.swp` ignored, the file itself untouched; comparisons since in a
+separate worktree (`git worktree add`), not a stash. Q86.
+
+**Tests**: 576 of 576 pass.
+
+## 2026-11-12: Status (start here next session)
+
+- **Live: 9.4.** `block-game`: levels 2-4 and today's changes (the card
+  waits, no old level, the level's name, balls left, the map walk, Map
+  and Start again, animals crossing once, a plain rock, ice that slides
+  and shatters when down, out of reach counts down); 576 tests pass;
+  committed and pushed. Nothing merged.
+- **For the developer:** try it; Q86 (levels.txt), Q77 (the overnight
+  picks). Every material grips far past its number (cannon-es): kept as
+  tuned; worth knowing if a level ever feels "sticky".
+- **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
+- **Open questions:** Q64, Q73, Q74 (parked), Q77, Q78, Q79, Q81, Q86.

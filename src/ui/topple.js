@@ -63,6 +63,8 @@ let ended = null;      // the scene's end: { outcome, words, won }
 // The scene as it last stood still (no ball in flight, the blocks at rest):
 // the round and each block's pose, kept for coming back to it.
 let settled = null;
+// The scene left for the map (its id, layout and the blocks as they last stood still): carried on when it's played again.
+let parked = null;
 
 const resume = resumable('topple', 1, () => ({
   screen: playing ? 'play' : 'setup', setup,
@@ -400,6 +402,9 @@ function stopDemo(why) {
 // time), or `kept` (a scene picked up again: its layout and the blocks at rest).
 async function startScene(kept = null) {
   if (busy) return;
+  // the scene left for the map, if it's the one the game is at: carried on as it was
+  if (!kept && parked && JSON.stringify(parked.id) === JSON.stringify(sceneId())) { kept = parked; L('scene carried on after the map', { used: parked.settled?.round.used ?? 0 }); }
+  parked = null;
   busy = true;
   drag = null; shot = null; ended = null;
   stopDemo();
@@ -465,8 +470,9 @@ function renderTally() {
   $('balls').innerHTML = Array.from({ length: BALLS }, (_, i) => `<i class="${i < left ? '' : 'used'}"></i>`).join('');
   $('balls').setAttribute('aria-label', `${left} ball${left === 1 ? '' : 's'} left`);
   renderHud();
+  // Start again only once there's something to start again (developer, 2026-11-12: pressed before a throw, it did nothing)
   $('restartBtn').disabled = !!r.result || r.used === 0;
-  $('restartBtn').parentElement.classList.toggle('ended', !!r.result);
+  $('restartBtn').classList.toggle('notyet', $('restartBtn').disabled);
 }
 // The pills over the park (shown as a scene is set up too).
 function renderHud() {
@@ -727,6 +733,16 @@ $('newBtn').onclick = () => { L('new game: the setup screen'); current = null; r
 
 // Start again (every game has one: developer, 2026-10-15): asks first, over
 // the park, and costs a heart (else it would be a way round losing one).
+// The map from a scene (developer, 2026-11-12: "there seems to be no way to get to the map"):
+// the scene under way is kept (parked), so coming back to it carries on, not a free start again.
+$('mapBtn').onclick = () => {
+  if (busy) return;
+  parked = current && !ended ? { id: current.id, layout: current.layout, settled } : null;
+  L('map from the scene', { ...game, used: round?.used ?? 0, kept: !!parked });
+  current = null; round = null; ended = null; settled = null;
+  showMap();
+};
+
 $('restartBtn').onclick = () => {
   if (!round || round.result || !round.used) return;
   drag = null;
@@ -829,6 +845,7 @@ window.topple = {
   } : { game: { ...game }, busy }),
   blocks: () => world.blocks.map(b => ({ c: b.c, at: [b.body.position.x, b.body.position.y, b.body.position.z].map(r2), down: b.down })),
   project: p => stage?.project(p),
+  edges: (y, z) => stage?.viewEdges(y, z),
   hand: HAND,
   // the physics and the scene, for a test player in the page (as the mockup's)
   inside: () => ({ world, current, launchVel }),

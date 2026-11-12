@@ -17,6 +17,7 @@ const page = await read('topple.html');
 const css = await read('css/topple.css');
 const js = await read('src/ui/topple.js');
 const sceneJs = await read('src/ui/topple-scene.js');
+const setsJs = await read('src/ui/topple-sets.js');
 const core = await read('src/core/topple.js');
 const setupHtml = page.match(/<section id="setup"[\s\S]*?<\/section>/)?.[0] ?? '';
 const playHtml = page.match(/<section id="play"[\s\S]*?<\/section>/)?.[0] ?? '';
@@ -164,4 +165,30 @@ test('topple page: a level done shows the map, the next level unlocking and your
   // your face on the map, not the "You" label
   assert.doesNotMatch(js, /class="you"/);
   assert.match(css, /\.mapface \{ position: absolute;/);
+});
+
+// Developer, 2026-11-12: "there seems to be no way to get to the map";
+// Start again was cut off and did nothing (before the first ball).
+test('topple page: a Map button on the play screen keeps the scene; Start again shows only once it can be used', () => {
+  assert.match(playHtml, /<div class="restart">\s*<button type="button" class="pill" id="restartBtn"><span class="ic" aria-hidden="true">↺<\/span> <span>Start again<\/span><\/button>\s*<button type="button" class="pill" id="mapBtn"><span class="ic" aria-hidden="true">🗺️<\/span> <span>Map<\/span><\/button>/);
+  assert.match(js, /\$\('restartBtn'\)\.classList\.toggle\('notyet', \$\('restartBtn'\)\.disabled\);/);
+  assert.match(css, /\.restart \.pill\.notyet \{ visibility: hidden; \}/);
+  // the map from a scene: parked, and carried on when it's played again
+  assert.match(js, /\$\('mapBtn'\)\.onclick = \(\) => \{[\s\S]*?parked = current && !ended \? \{ id: current\.id, layout: current\.layout, settled \} : null;[\s\S]*?showMap\(\);/);
+  assert.match(js, /if \(!kept && parked && JSON\.stringify\(parked\.id\) === JSON\.stringify\(sceneId\(\)\)\) \{ kept = parked;/);
+  assert.ok(js.includes("L('map from the scene'"), 'not logged');
+});
+
+// Developer, 2026-11-12: the snow on the rock didn't look like snow ("just
+// make it a rock"); the animals "less active and more subtle ... hopped
+// across a scene once".
+test('topple page: level 3\'s rock is plain; each animal crosses once a scene, from out of sight to out of sight', () => {
+  assert.doesNotMatch(setsJs, /snowCapGeo/);
+  assert.match(setsJs, /rock\(p\) \{[\s\S]*?mesh\(boulderGeo\(p\.seed\), photoMat\(maps\.concrete/);
+  // no animal roams back and forth any more
+  assert.doesNotMatch(setsJs, /function roamer/);
+  for (const a of ['snake', 'rat', 'bunny', 'birds']) assert.match(setsJs, new RegExp(String.raw`function ${a}\(group\) \{[\s\S]*?crossing\(\d+,`), `${a}: not a crossing`);
+  // a new scene: each crosses again; the view's edges from the scene's camera
+  assert.match(setsJs, /out\.newScene = edges => \{ for \(const d of decor\) d\.reset\?\.\(edges\); \};/);
+  assert.match(sceneJs, /if \(set\) set\.newScene\?\.\(viewEdges\); else parkBirds\.reset\(viewEdges\);/);
 });

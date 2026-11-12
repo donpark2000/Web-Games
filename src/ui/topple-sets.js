@@ -146,27 +146,6 @@ function boulderGeo(seed) {
   geo.computeVertexNormals();
   return geo;
 }
-// Snow lying on a boulder (its geometry, boulderGeo's): on top, and lower
-// down the side the wind came from (wind: [x, z]), the edge wavy; a skin
-// a little outside the rock there, tucked inside it elsewhere. Pushed out
-// from the rock's middle, not along its faces (along the flat cuts' sharp
-// normals the skin tore into facets).
-function snowCapGeo(rockGeo, wind, seed) {
-  const geo = rockGeo.clone(), q = geo.attributes.position, r = rng(seed + 1);
-  const f1 = r() * 6.3, f2 = r() * 6.3;
-  for (let i = 0; i < q.count; i++) {
-    const x = q.getX(i), y = q.getY(i), z = q.getZ(i);
-    const len = Math.hypot(x, y / 0.62, z) || 1, dx = x / len, dy = y / 0.62 / len, dz = z / len;   // out from the middle, as on a round rock
-    const side = (dx * wind[0] + dz * wind[1]) / Math.max(1e-6, Math.hypot(dx, dz));   // 1: facing the wind
-    const line = 0.5 - 0.5 * Math.max(0, side) + 0.07 * Math.sin(Math.atan2(dz, dx) * 3 + f1) + 0.04 * Math.sin(Math.atan2(dz, dx) * 7 + f2);
-    if (dy > line) {
-      const t = (0.06 + 0.08 * Math.max(0, dy) + 0.03 * Math.max(0, side)) * Math.min(1, (dy - line) / 0.12);   // thicker on top and windward, thin at its edge
-      q.setXYZ(i, x + dx * t, y + dy * t * 0.62, z + dz * t);
-    } else q.setXYZ(i, x * 0.97, y * 0.97, z * 0.97);
-  }
-  geo.computeVertexNormals();
-  return geo;
-}
 function heapGeo(hf, rx, rz, y0 = 0, seg = [48, 36]) {
   const geo = new THREE.PlaneGeometry(2 * rx, 2 * rz, ...seg); geo.rotateX(-Math.PI / 2);
   const p = geo.attributes.position;
@@ -286,17 +265,14 @@ export async function makeSetting(n, ctx) {
       return g;
     },
     rock(p) {
-      // a grey boulder (the building site's worn concrete photo: grey stone; the cliff photo came out
-      // rusty brown, like wood) half buried, snow on its top and down its windward
-      // side (developer, 2026-11-12: "a rock with a bit of snow on top
-      // and/or one side"); the wind from a side picked by its seed
-      const g = new THREE.Group(), r = rng(p.seed), geo = boulderGeo(p.seed), wa = r() * Math.PI * 2;
-      const sc = [p.rx / 0.95, p.H / 0.6, p.rz / 0.95];
-      const rock = mesh(geo, photoMat(maps.concrete, { repeat: [1.2, 1.2], extra: { color: '#A3A8AE', metalness: 0 } }));
-      const snow = mesh(snowCapGeo(geo, [Math.cos(wa), Math.sin(wa)], p.seed), photoMat(maps.snow, { repeat: [0.6, 0.6], extra: { color: '#F7FAFD', metalness: 0 } }));
-      for (const m of [rock, snow]) { m.scale.set(...sc); g.add(m); }
-      g.position.set(...p.at); g.rotation.y = p.yaw;
-      return g;
+      // a grey boulder half buried (the building site's worn concrete photo:
+      // grey stone; the cliff photo came out rusty brown, like wood). Its snow
+      // went (developer, 2026-11-12: the snow on top didn't look like snow:
+      // "I suggest we just make it a rock").
+      const m = mesh(boulderGeo(p.seed), photoMat(maps.concrete, { repeat: [1.2, 1.2], extra: { color: '#A3A8AE', metalness: 0 } }));
+      m.scale.set(p.rx / 0.95, p.H / 0.6, p.rz / 0.95);
+      m.position.set(...p.at); m.rotation.y = p.yaw;
+      return m;
     },
     pine(p) {
       // a pine: a barked trunk and four tiers of drooping, snow-topped branches
@@ -381,6 +357,8 @@ export async function makeSetting(n, ctx) {
   const fx = makeEffects(group, blockMats, S);
   out.burst = (b, at, q, v) => fx.burst(b, at, q, v);
   out.tick = (dt, t) => { fx.tick(dt); for (const d of decor) d.tick(dt, t); };
+  // a new scene: the animals cross again, once
+  out.newScene = edges => { for (const d of decor) d.reset?.(edges); };
   out.clearEffects = () => fx.clear();
   out.fxLive = () => fx.live;
   out.ms = Math.round(performance.now() - t0);
@@ -469,10 +447,49 @@ function ribbed(r, h) {
   return g;
 }
 
-/* ---------- the rattlesnake (decor: out of the ball's way, behind the structure) ---------- */
+/* ---------- the animals (decor: out of the ball's way, behind the structure) ----------
+   The rattlesnake (level 4), and birds over the park, a rat on the building
+   site, a snow bunny in the snow (developer, 2026-11-12: "I like the snake
+   ... a bird or two for the first level, a rat on the construction site, a
+   snow bunny for the winter level"). Each crosses the view once a scene,
+   a while after it starts, from off one side to off the other, and is gone
+   till the next (developer, 2026-11-12: "maybe make it less active and more
+   subtle. If it just hopped across a scene once that should be plenty.
+   Same with the other little creatures"). */
 
-// A chain of spheres down to the tail, banded tan and brown, sliding along
-// in S-curves, across and back.
+// A part placed in a group: geometry, material, position, scale.
+const part = (g, geo, mat, at, sc = [1, 1, 1]) => { const m = mesh(geo, mat, at); m.scale.set(...sc); g.add(m); return m; };
+const ballGeo = new THREE.SphereGeometry(1, 16, 12);
+
+// Once across, a scene: wait 3-10 s, then from just out of sight on one
+// side to just out of sight on the other (each way as likely), then done.
+// It goes along y, z; margin: how far (m) past the view's edge it starts
+// and ends (its length). reset(edges) for a new scene, edges(y, z) the
+// view's sides there as [left x, right x] (the scene's camera; the view
+// isn't centred on the middle: 9 m left was still in view), worked out
+// as it sets off (the camera is placed after the scene is set).
+function crossing(seed, y, z, margin) {
+  let n = 0, r, x, x0, x1, dir, wait, done, edges = null, started = false;
+  const reset = e => { edges = e ?? edges; r = rng(seed + 7919 * ++n); dir = r() < 0.5 ? 1 : -1; wait = 3 + 7 * r(); done = false; started = false; };
+  reset();
+  return {
+    reset, rand: () => r(),
+    get x() { return x; }, get dir() { return dir; },
+    get on() { return wait <= 0 && !done; },
+    tick(dt) {
+      if (wait > 0) wait -= dt;
+      if (wait <= 0 && !started) {
+        started = true;
+        const [L, R] = edges ? edges(y, z) : [-12, 12];
+        x0 = L - margin; x1 = R + margin; x = dir > 0 ? x0 : x1;
+      }
+    },
+    advance(m) { x += dir * m; if (dir > 0 ? x > x1 : x < x0) done = true; },
+  };
+}
+
+// A rattlesnake: a chain of spheres down to the tail, banded tan and brown,
+// sliding along in S-curves.
 function snake(group) {
   const N = 34, geo = new THREE.SphereGeometry(1, 12, 8), mat = std({ roughness: 0.6 });
   const im = new THREE.InstancedMesh(geo, mat, N), o = new THREE.Object3D(), c = new THREE.Color();
@@ -480,12 +497,15 @@ function snake(group) {
   im.castShadow = true; im.receiveShadow = true;
   group.add(im);
   const eyes = new THREE.InstancedMesh(new THREE.SphereGeometry(0.012, 6, 4), std({ color: '#111' }), 2); group.add(eyes);
-  let x = 1.8, dir = 1;
-  const z0 = -8.4;
+  const z0 = -8.4, go = crossing(11, 0, z0, 1.8);
   return {
+    reset: go.reset,
     tick(dt, t) {
-      x += dir * dt * 0.12;
-      if (x > 4.5) dir = -1; else if (x < 1.2) dir = 1;
+      go.tick(dt);
+      im.visible = eyes.visible = go.on;
+      if (!go.on) return;
+      go.advance(dt * 0.45);
+      const x = go.x, dir = go.dir;
       for (let i = 0; i < N; i++) {
         const s = i * 0.045, px = x - dir * s, r = i === 0 ? 0.042 : 0.036 * (1 - i / N * 0.75);
         o.position.set(px, r * 0.8, z0 + 0.12 * Math.sin(px * 7 - t * 2.4 * dir)); o.scale.setScalar(r); o.scale.x = r * 1.3; o.updateMatrix(); im.setMatrixAt(i, o.matrix);
@@ -496,30 +516,8 @@ function snake(group) {
   };
 }
 
-/* ---------- more animals (decor, out of play; developer, 2026-11-12: "I
-   like the snake ... a bird or two for the first level, a rat on the
-   construction site, a snow bunny for the winter level") ---------- */
-
-// A part placed in a group: geometry, material, position, scale.
-const part = (g, geo, mat, at, sc = [1, 1, 1]) => { const m = mesh(geo, mat, at); m.scale.set(...sc); g.add(m); return m; };
-const ballGeo = new THREE.SphereGeometry(1, 16, 12);
-
-// Something that goes back and forth along x at z, between x0 and x1:
-// moves for a while, stops for a while (seeded), turns at the ends.
-// step(dt) -> { x, dir, moving, t (s into this move or stop) }.
-function roamer(seed, x0, x1, speed, [go0, go1], [stop0, stop1]) {
-  const r = rng(seed);
-  let x = x0 + (x1 - x0) * r(), dir = r() < 0.5 ? -1 : 1, moving = false, left = stop0 + r() * (stop1 - stop0), t = 0;
-  return dt => {
-    t += dt; left -= dt;
-    if (left <= 0) { moving = !moving; t = 0; left = moving ? go0 + r() * (go1 - go0) : stop0 + r() * (stop1 - stop0); if (!moving && r() < 0.3) dir = -dir; }
-    if (moving) { x += dir * speed * dt; if (x > x1) { x = x1; dir = -1; } else if (x < x0) { x = x0; dir = 1; } }
-    return { x, dir, moving, t };
-  };
-}
-
-// A rat (the building site): grey-brown, a long bare tail, scurrying
-// along behind the structure in dashes, stopping to sniff.
+// A rat (the building site): grey-brown, a long bare tail, scurrying across
+// in dashes, stopping once or twice to sniff.
 function rat(group) {
   const g = new THREE.Group(), fur = std({ color: '#6E625A', roughness: 0.95 }), pink = std({ color: '#D9A3A0', roughness: 0.7 }), black = std({ color: '#111111', roughness: 0.3 });
   part(g, ballGeo, fur, [0, 0.07, 0], [0.16, 0.075, 0.085]);              // body
@@ -534,23 +532,31 @@ function rat(group) {
   const tail = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([[-0.15, 0.06, 0], [-0.3, 0.03, 0.03], [-0.42, 0.015, -0.02], [-0.52, 0.01, 0.02]].map(p => new THREE.Vector3(...p))), 16, 0.008, 6), pink);
   tail.castShadow = true; g.add(tail);
   const feet = [-1, 1].flatMap(s => [-0.09, 0.08].map(x => part(g, ballGeo, pink, [x, 0.012, s * 0.06], [0.02, 0.012, 0.014])));
-  group.add(g);
-  // twice a real rat's size, so it reads from the slingshot (15 m off); beside the structure, not behind it
+  // twice a real rat's size, so it reads from the slingshot (15 m off)
   g.scale.setScalar(2);
-  const go = roamer(21, 1.8, 4.6, 1.4, [0.6, 1.6], [0.8, 2.6]), z0 = -8;
+  group.add(g);
+  const z0 = -8, go = crossing(21, 0, z0, 1.4);
+  let moving = true, left = 0;
   return {
+    reset(e) { go.reset(e); moving = true; left = 1.5 + 2 * go.rand(); },
     tick(dt, t) {
-      const s = go(dt);
-      g.position.set(s.x, s.moving ? Math.abs(Math.sin(t * 22)) * 0.012 : 0, z0);
-      g.rotation.y = s.dir > 0 ? 0 : Math.PI;
-      head.rotation.z = s.moving ? 0 : 0.12 + 0.08 * Math.sin(t * 9);   // sniffing
-      feet.forEach((f, i) => { f.position.y = 0.012 + (s.moving ? Math.max(0, Math.sin(t * 22 + i * 1.6)) * 0.015 : 0); });
+      go.tick(dt);
+      g.visible = go.on;
+      if (!go.on) return;
+      left -= dt;
+      // dashes of 1.5-3.5 s, stops of 0.6-1.4 s
+      if (left <= 0) { moving = !moving; left = moving ? 1.5 + 2 * go.rand() : 0.6 + 0.8 * go.rand(); }
+      if (moving) go.advance(dt * 1.4);
+      g.position.set(go.x, moving ? Math.abs(Math.sin(t * 22)) * 0.012 : 0, z0);
+      g.rotation.y = go.dir > 0 ? 0 : Math.PI;
+      head.rotation.z = moving ? 0 : 0.12 + 0.08 * Math.sin(t * 9);   // sniffing
+      feet.forEach((f, i) => { f.position.y = 0.012 + (moving ? Math.max(0, Math.sin(t * 22 + i * 1.6)) * 0.015 : 0); });
     },
   };
 }
 
 // A snow bunny (the winter level): white, long ears, a round tail; hops
-// along behind the structure, sits a while, its nose and ears twitching.
+// across, now and then sitting a moment, its ears twitching.
 function bunny(group) {
   const g = new THREE.Group(), fur = std({ color: '#F6F7F9', roughness: 0.95 }), pink = std({ color: '#E7B3B8', roughness: 0.8 }), black = std({ color: '#111111', roughness: 0.3 });
   const body = new THREE.Group(); g.add(body);
@@ -562,60 +568,67 @@ function bunny(group) {
   part(head, ballGeo, pink, [0.072, -0.01, 0], [0.01, 0.009, 0.012]);     // nose
   const ears = [-1, 1].map(s => { const e = new THREE.Group(); e.position.set(-0.01, 0.05, s * 0.03); head.add(e); part(e, ballGeo, fur, [0, 0.08, 0], [0.022, 0.085, 0.03]); part(e, ballGeo, pink, [0.008, 0.08, 0], [0.012, 0.065, 0.018]); return e; });
   for (const s of [-1, 1]) part(head, ballGeo, black, [0.045, 0.02, s * 0.042], [0.01, 0.011, 0.011]);
-  group.add(g);
-  // twice a real one's size, so it reads from the slingshot; to the left of the structure, not behind it
+  // twice a real one's size, so it reads from the slingshot
   g.scale.setScalar(2);
-  const r = rng(33), z0 = -8;
-  let x = -4.4 + 2.6 * r(), dir = 1, hop = null, rest = 1 + r() * 2;
+  group.add(g);
+  const z0 = -8, go = crossing(33, 0.3, z0, 0.8);
+  let hop = 0, rest = 0;   // into a hop (s); sitting (s left)
   return {
+    reset(e) { go.reset(e); hop = 0; rest = 0; },
     tick(dt, t) {
-      if (hop) {
-        hop.t += dt;
-        const k = Math.min(1, hop.t / 0.34);
-        x = hop.from + dir * 0.84 * k;
+      go.tick(dt);
+      g.visible = go.on;
+      if (!go.on) return;
+      if (rest > 0) {
+        rest -= dt;
+        body.position.y = 0; body.rotation.z = 0;
+      } else {
+        // a hop: 0.84 m in 0.34 s, 0.16 m up (body scale), leaning in and out
+        const was = hop; hop += dt;
+        const k = Math.min(1, hop / 0.34);
+        go.advance((Math.min(hop, 0.34) - Math.min(was, 0.34)) / 0.34 * 0.84);
         body.position.y = Math.sin(Math.PI * k) * 0.16;
         body.rotation.z = (0.5 - k) * 0.5;
-        if (k >= 1) { hop = r() < 0.75 ? { t: 0, from: x } : null; if (!hop) rest = 0.6 + r() * 2.4; body.rotation.z = 0; body.position.y = 0; }
-        if (x > -1.8) dir = -1; else if (x < -4.6) dir = 1;
-      } else {
-        rest -= dt;
-        if (rest <= 0) { if (r() < 0.3) dir = -dir; hop = { t: 0, from: x }; }
+        if (k >= 1) { hop = 0; if (go.rand() < 0.2) rest = 0.6 + 1.2 * go.rand(); }
       }
-      g.position.set(x, 0, z0);
-      g.rotation.y = dir > 0 ? 0 : Math.PI;
-      head.rotation.z = hop ? 0 : 0.05 * Math.sin(t * 7);
-      ears.forEach((e, i) => { e.rotation.x = (i ? 1 : -1) * (0.15 + (hop ? 0.25 : 0.06 * Math.sin(t * 3 + i))); });
+      g.position.set(go.x, 0, z0);
+      g.rotation.y = go.dir > 0 ? 0 : Math.PI;
+      head.rotation.z = rest > 0 ? 0.05 * Math.sin(t * 7) : 0;
+      ears.forEach((e, i) => { e.rotation.x = (i ? 1 : -1) * (0.15 + (rest > 0 ? 0.06 * Math.sin(t * 3 + i) : 0.25)); });
     },
   };
 }
 
-// Two birds (the park): circling high over the trees beyond, flapping and
-// gliding by turns.
+// Two birds (the park): flying across together, high over the trees
+// beyond, flapping and gliding by turns.
 export function birds(group) {
-  const make = (col, seed) => {
+  const make = (col, dz, dy) => {
     const g = new THREE.Group(), body = std({ color: col, roughness: 0.8 }), beak = std({ color: '#E3A21A' });
     part(g, ballGeo, body, [0, 0, 0], [0.14, 0.06, 0.06]);
     part(g, ballGeo, body, [0.13, 0.03, 0], [0.05, 0.045, 0.045]);
     part(g, new THREE.ConeGeometry(0.018, 0.06, 8), beak, [0.2, 0.025, 0]).rotation.z = -Math.PI / 2;
     part(g, new THREE.BoxGeometry(0.1, 0.01, 0.07), body, [-0.16, 0.01, 0]);        // tail
     const wings = [-1, 1].map(s => { const w = new THREE.Group(); w.position.set(0, 0.03, s * 0.04); g.add(w); part(w, new THREE.BoxGeometry(0.13, 0.008, 0.22), body, [0, 0, s * 0.11]); return w; });
-    // twice a real one's size, low enough to be seen over the trees beyond (at 5-6.5 m they flew along the view's top edge)
+    // twice a real one's size, low enough to be seen over the trees beyond
     g.scale.setScalar(2); group.add(g);
-    const r = rng(seed);
-    return { g, wings, a: r() * 6.3, R: 4 + r() * 2.5, h: 3.2 + r() * 0.9, w: 0.25 + r() * 0.08, c: [r() * 4 - 2, -12 - r() * 2] };
+    return { g, wings, dz, dy };
   };
-  const bs = [make('#3B3F4A', 41), make('#5B4636', 43)];
+  const bs = [make('#3B3F4A', 0, 0), make('#5B4636', -1.2, 0.5)];
+  const go = crossing(41, 3.6, -12.5, 2.5);
   return {
+    reset: go.reset,
     tick(dt, t) {
-      for (const b of bs) {
-        b.a += b.w * dt;
-        const x = b.c[0] + Math.cos(b.a) * b.R, z = b.c[1] + Math.sin(b.a) * b.R * 0.6;
-        b.g.position.set(x, b.h + 0.3 * Math.sin(t * 0.7 + b.R), z);
-        // facing the way it flies (round the circle, anticlockwise from above)
-        b.g.rotation.y = -Math.atan2(Math.cos(b.a) * b.R * 0.6, -Math.sin(b.a) * b.R);
-        const flap = (t + b.R) % 4 < 2.2;   // flapping, then a glide
-        b.wings.forEach((w, i) => { w.rotation.x = (i ? -1 : 1) * (flap ? 0.7 * Math.sin(t * 13 + b.R) : 0.12); });
-      }
+      go.tick(dt);
+      for (const b of bs) b.g.visible = go.on;
+      if (!go.on) return;
+      go.advance(dt * 2.6);
+      bs.forEach((b, i) => {
+        const x = go.x - go.dir * i * 1.4;   // the second a little behind
+        b.g.position.set(x, 3.6 + b.dy + 0.25 * Math.sin(t * 0.8 + i), -12.5 + b.dz);
+        b.g.rotation.y = go.dir > 0 ? 0 : Math.PI;
+        const flap = (t + i * 0.7) % 3 < 1.6;   // flapping, then a glide
+        b.wings.forEach((w, k) => { w.rotation.x = (k ? -1 : 1) * (flap ? 0.7 * Math.sin(t * 13 + i) : 0.12); });
+      });
     },
   };
 }

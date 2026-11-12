@@ -2108,7 +2108,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   dropped 0.6 of its smallest side, and stays counted down; but **a
   post** (taller than wide and deep) only while it lies tipped past 45°,
   however far it fell, and up again under 40° (developer, 2026-11-10,
-  Q69: two posts leaning on each other were counted down). All down
+  Q69: two posts leaning on each other were counted down). A block
+  knocked further sideways than a throw can aim (22° and 2° more) counts
+  as down (developer, 2026-11-12, Q85: a cube slid out of reach). All down
   and everything still (the blocks, and the shards and spray) for 0.35 s:
   cleared, or all down for 8 s, still or not (developer, 2026-11-12: the
   card came "before the final blocks have fallen"; measured: still 1.4 s
@@ -2241,12 +2243,14 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   tower, an ice pyramid (cubes 4-3-2-1), an ice wall of two pairs of
   pillars with slabs and cubes, and the challenge, an **ice castle**:
   two two-storey towers joined by a bridge behind two upright slabs. In
-  the way: a **rock with snow on its top and one side** (developer,
-  2026-11-12: a round heap of snow, then a wind-blown drift, didn't look
-  real; soft: the ball stays against it, with a clonk) and a **snowy
+  the way: a **grey rock**, half buried (developer, 2026-11-12: a round
+  heap of snow, then a wind-blown drift, then snow on the rock didn't
+  look real: "just make it a rock"; soft: the ball stays against it,
+  with a clonk) and a **snowy
   pine** (tall: its trunk, its tiers of branches from 1.15 m). A snowman
   and young pines off to the side, and a white **snow bunny** hopping
-  along. **Ice down shatters**: a block counted down (fallen or tipped)
+  across once a scene. **Ice slides** (friction 0.15: a cube pushed at
+  1 m/s slides a third of a metre; developer, 2026-11-12, Q84). **Ice down shatters**: a block counted down (fallen or tipped)
   shatters at its next knock or once it rests (developer, 2026-11-12,
   Q83: a cube that fell whole looked like one still to knock down), so
   whole ice is always ice still standing. Sounds: ice knocked (a glassy
@@ -2319,7 +2323,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   the 5 balls, "balls left" under them, each drawn as the level's ball,
   a thrown one an empty dashed place; developer, 2026-11-12, Q80: no
   count of blocks down, "you either get them all or you don't") with
-  **↺ Start again**; sideways,
+  **↺ Start again** (shown once a ball is thrown) and **🗺️ Map** (the
+  scene under way kept: played again, it carries on; developer,
+  2026-11-12: "no way to get to the map"); sideways,
   a column at its left. Over the park: **1 · The park 💎○○○○** (the
   level's number and name, developer 2026-11-12; the jewels under the
   name when there isn't room) and the

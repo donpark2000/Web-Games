@@ -113,7 +113,12 @@
       <span class="balls" id="balls" role="img" aria-label="5 balls left"></span>
       <span class="who">balls left</span>
     </div>
-    <div class="restart"><button type="button" class="pill" id="restartBtn">↺ Start again</button></div>
+    <!-- Start again (shown once a ball is thrown: until then it would do nothing) and the map
+         (developer, 2026-11-12: "there seems to be no way to get to the map") -->
+    <div class="restart">
+      <button type="button" class="pill" id="restartBtn"><span class="ic" aria-hidden="true">↺</span> <span>Start again</span></button>
+      <button type="button" class="pill" id="mapBtn"><span class="ic" aria-hidden="true">🗺️</span> <span>Map</span></button>
+    </div>
   </section>
 </main>
 <footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a> · <a href="https://donpark2000.goatcounter.com/" target="_blank" rel="noopener">Stats</a></footer>

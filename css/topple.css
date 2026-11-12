@@ -115,8 +115,10 @@ body.tp-playing .site-foot { display: none; }
 /* thrown: an empty place */
 .balls i.used, .balls.iron i.used { background: none; box-shadow: none; outline: 2px dashed #9BB0BA; outline-offset: -2px; transform: scale(.85); }
 .balls i.used::before { display: none; }
+#play > .restart { display: grid; gap: 6px; }
 .restart .pill { padding: 8px 14px; font-size: 16px; white-space: nowrap; }
-.restart.ended { visibility: hidden; }
+/* hidden, not greyed: before the first ball and after the scene, Start again does nothing */
+.restart .pill.notyet { visibility: hidden; }
 
 /* over the park: the scene's end, Start again's question */
 .over { position: absolute; inset: 0; display: grid; place-items: center; z-index: 3; background: rgba(228, 241, 238, .25); }
@@ -158,7 +160,9 @@ body.tp-playing .site-foot { display: none; }
   .tally .balls { justify-content: center; gap: 3px; max-width: 54px; }
   .balls i { width: 14px; height: 14px; }
   .balls.iron i::before { top: -4px; width: 5px; height: 5px; margin-left: -3.5px; border-width: 1.5px; }
-  .restart .pill { width: 100%; white-space: normal; padding: 5px 2px; font-size: 13px; line-height: 15px; border-width: 2px; }
+  /* the column is narrow: the sign on a line of its own, the words under it (the ↺ was cut off) */
+  .restart .pill { width: 100%; white-space: normal; padding: 4px 2px; font-size: 12px; line-height: 14px; border-width: 2px; display: grid; justify-items: center; }
+  .restart .pill .ic { font-size: 16px; line-height: 18px; }
 }
 
 /* ---------- the map and a level's screen (level 2 mockup v1) ---------- */

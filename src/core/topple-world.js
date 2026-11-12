@@ -17,6 +17,16 @@ import { fixedStepper } from './fixed-step.js';
 
 export const MAX_SUBSTEPS = 8;
 export const BALL_LIFE = 10;                         // a thrown ball is taken away after this long (s), or once under the ground
+// A block further sideways (seen from the slingshot) than a throw can aim,
+// with a margin: no throw can reach it, so it counts as knocked down
+// (developer, 2026-11-12, Q85: "an unbroken cube slid far enough to the
+// left of the screen that I could not aim in that direction far enough to
+// hit it"). p: [x, y, z] or a Vec3.
+export const REACH_MARGIN = 2;   // °
+export function outOfReach(p) {
+  const x = p.x ?? p[0], z = p.z ?? p[2];
+  return Math.abs(Math.atan2(x - HAND.x, HAND.z - z) * R2D) > MAX_AIM + REACH_MARGIN;
+}
 // A knock that shatters ice already down (Q83): any real touch, not resting contact.
 export const LAND_KNOCK = 0.3;
 export const STILL_SPEED = 0.05 * Math.sqrt(SCALE);  // a block slower than this (m/s) counts as still
@@ -262,8 +272,10 @@ export function createWorld({ onHit = () => {} } = {}) {
     }
     const fell = [], rose = [];
     for (const b of blocks) {
-      if (b.broken || (b.down && !b.tall)) continue;
-      const now = isDown(quatOf(b.body), b.body.position.y, b.start.y, b.minDim, b.tall, b.down);
+      if (b.broken || (b.down && !b.tall) || b.away) continue;
+      // knocked out of reach (slid further sideways than any throw can aim, Q85): down for good
+      if (outOfReach(b.body.position)) b.away = true;
+      const now = b.away || isDown(quatOf(b.body), b.body.position.y, b.start.y, b.minDim, b.tall, b.down);
       if (now && !b.down) { b.down = true; fell.push(b); if (MATS[b.mat].downBreaks) b.landBreak = true; } else if (!now && b.down) { b.down = false; rose.push(b); }
     }
     // ice down that came to rest without a knock (it tipped slowly): shattered now (Q83)

@@ -136,6 +136,15 @@ export function makePark3d(canvas) {
   }
   // two birds circling over the trees beyond (developer, 2026-11-12: "maybe a bird or two for the first level")
   const parkBirds = birds(parkGroup);
+  // The view's sides along y, z as [left x, right x], with the camera as now
+  // (the animals start and end their crossing just out of sight): where the
+  // line's points show at the canvas' edges, found by halving.
+  const viewEdges = (y, z) => {
+    camera.updateMatrixWorld();
+    const u = x => (new THREE.Vector3(x, y, z).project(camera).x + 1) / 2;
+    const find = goal => { let lo = -60, hi = 60; for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (u(mid) < goal) lo = mid; else hi = mid; } return (lo + hi) / 2; };
+    return [find(0), find(1)];
+  };
 
   /* ---------- materials ---------- */
 
@@ -190,6 +199,8 @@ export function makePark3d(canvas) {
   }
   // What a scene drew: { leaves, ms }.
   function setScene(parts) {
+    // the animals cross once a scene
+    if (set) set.newScene?.(viewEdges); else parkBirds.reset(viewEdges);
     const t0 = performance.now();
     for (const m of built) {
       scene.remove(m);
@@ -388,5 +399,7 @@ export function makePark3d(canvas) {
       return [(v.x + 1) / 2, (1 - v.y) / 2];
     },
     get fov() { return camera.fov; },
+    // the view's sides along y, z (the animals' crossings; for checking too)
+    viewEdges,
   };
 }

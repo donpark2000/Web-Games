@@ -9,7 +9,7 @@
 // by a player throwing as a person can.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createWorld, touch } from '../src/core/topple-world.js';
+import { createWorld, touch, outOfReach } from '../src/core/topple-world.js';
 import {
   SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, sceneParts, launchVel, HAND, MAX_AIM, R2D, makeLayout, sceneOpts, FRAME_REACH,
 } from '../src/core/topple.js';
@@ -191,13 +191,13 @@ test('topple levels: ice that falls shatters as it lands; ice pushed along the g
   tip.body.quaternion.setFromEuler(0, 0, Math.PI / 2); tip.body.wakeUp();
   run(w, 2);
   assert.ok(tip.broken, `a cube tipped over stayed whole (down ${tip.down})`);
-  // a ground cube at the end of the row pushed sideways (the cube above holds it: it moves 10 cm): whole and standing
+  // a ground cube at the end of the row pushed sideways, sliding on the ice (Q84): whole and standing
   w = createWorld(); w.setScene(p);
   const low = Math.min(...w.blocks.map(b => b.start.y));
   const end = w.blocks.filter(b => b.start.y < low + 0.01).reduce((a, b) => (b.start.x > a.start.x ? b : a));
-  end.body.wakeUp(); end.body.velocity.set(2.5, 0, 0);
+  end.body.wakeUp(); end.body.velocity.set(1, 0, 0);
   run(w, 3);
-  assert.ok(Math.abs(end.body.position.x - end.start.x) > 0.05, 'it never moved');
+  assert.ok(Math.abs(end.body.position.x - end.start.x) > 0.15, `it slid only ${(end.body.position.x - end.start.x).toFixed(2)} m`);
   assert.equal(end.broken, false, 'a slid cube shattered');
   assert.equal(end.down, false, 'a slid cube counted down');
 });
@@ -299,4 +299,23 @@ test('topple levels: level 1 is as it was: its layouts don\'t change (the toy bl
   w.setScene(p);
   const b = w.blocks[0], o = p.blocks[0];
   assert.ok(Math.abs(b.body.mass - 27 * o.w * o.h * o.d) < 1e-9);
+});
+
+// Developer, 2026-11-12 (Q85): an ice cube slid so far left no throw could
+// aim at it. A block out of the aim's reach counts as down.
+test('topple levels: every block starts within the aim\'s reach; one knocked out of it counts down', () => {
+  for (let lv = 1; lv <= MAX_LEVEL; lv++) for (let seed = 1; seed <= 4; seed++) for (let sc = 1; sc <= SCENES; sc++) {
+    for (const b of sceneParts(layoutFor(seed, lv, sc)).blocks) assert.equal(outOfReach([b.x, b.y, b.z]), false, `${lv}/${seed}/${sc}: a block out of reach at the start`);
+  }
+  const p = sceneParts(frameLayout(5, 3, 3)), w = createWorld();
+  w.setScene(p);
+  const b = w.blocks[0], z = b.body.position.z;
+  // just within reach: still standing; past it: down
+  b.body.position.x = HAND.x - Math.tan((MAX_AIM + 1) / R2D) * (HAND.z - z);
+  w.step(1 / 60);
+  assert.equal(b.down, false, 'down while still within reach');
+  b.body.position.x = HAND.x - Math.tan((MAX_AIM + 4) / R2D) * (HAND.z - z);
+  b.body.wakeUp();
+  assert.equal(w.step(1 / 60).fell.includes(b), true, 'out of reach, not counted down');
+  assert.equal(b.down, true);
 });
