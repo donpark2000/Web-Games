@@ -17485,6 +17485,43 @@ the browser: 5 rows, 15 versions, a tap picks; the frames still clear as
 before (one storey 1 ball, steps 2, bridge 2); no script errors (one
 404: the scratch server's root, asked for by the browser).
 
+## 2026-11-11: Mockup v4 tried: sound picks; some too quiet (measured); v5: evened out, concrete crashes
+
+**Developer on v4:** "Some of the sounds were hard to hear. By the word
+descriptions, I think these are best: wooden beam - C, steep post, V.
+Bricks - B. Iron ball - C. For a concrete slab collapsing I think we need
+something more dramatic. Like a crash." "steep post, V" read as **steel
+B** (Clank; V is next to B on the keyboard; asked to confirm).
+
+**Measured** (each version rendered offline at the sampler's "hard",
+0.9: the peak and the loudest 50 ms stretch's RMS):
+
+| Set | A | B | C |
+|---|---|---|---|
+| Wood | Thock 0.101 | Clatter 0.064 | Hollow plank **0.011** |
+| Brick | Crack 0.090 | Clack and grit **0.006** | Dull chunk 0.078 |
+| Steel | Clang 0.084 | Clank 0.069 | Ring 0.065 |
+| Ball | Clonk 0.155 | Heavy thud 0.194 | Clonk and roll 0.154 |
+
+So "hard to hear" was real: two of the developer's picks, by name, were
+the quietest by far (brick B 26 times quieter than the ball's Clonk, wood
+C 14 times). The noise-only recipes (narrow filtered noise, short
+clicks) come out far quieter than the ones with a note in them.
+
+**Mockup v5** (version 5):
+- **Evened out:** at load the page renders every version offline,
+  measures it as above and gives it a gain to bring its loudest 50 ms to
+  0.14 RMS (the crashes to 0.2, as they should be bigger), never past a
+  0.95 peak. Gains came out 0.7 to 21 (brick B 21, wood C 6.3). All sounds
+  go through a compressor, so a collapse of many at once doesn't distort.
+  The sampler's soft play is 0.5 (was 0.3).
+- **Concrete is now three crashes:** A Crash (an impact, a falling boom,
+  noise sweeping down, debris), B Crash and crumble (a sharp impact, a
+  boom, a long crumble of debris), C Thunderous crash (two deep booms,
+  over a second of rumble).
+- **The developer's picks are the defaults:** wood C, brick B, steel B,
+  the ball C, concrete A (the Frames tab uses them).
+
 ## 2026-11-11: Status (start here next session)
 
 - **Live: 9.4.** Nothing in the game has changed this session; only the
@@ -17493,8 +17530,8 @@ before (one storey 1 ball, steps 2, bridge 2); no script errors (one
   blocks (steel, concrete, brick, some wood), level 1's camera, hidden
   parts not drawn, the Level screen and the map (mockup v1, "look good"),
   the wheelbarrow of gravel and the site light in the way, the iron ball.
-  Waiting for the developer: the sound picks in v4's Sounds tab (wood,
-  brick, steel, concrete, the ball on the tiles).
+  Sounds picked (v5): wood C, brick B, steel B (to confirm), the ball C;
+  waiting: v5's even levels and a concrete crash (A, B or C).
 - **The mockup's page is its source**: read it with the Artifact tool
   (`read`, the link above); level 1's picture is already in it.
 - **Still to decide before building:** which frames (7 samples), how
