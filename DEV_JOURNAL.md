@@ -31,17 +31,29 @@ time, each tried before publishing:
 - **Q74. Recorded sounds (CC0 files kept in the repo) for the building
   site, instead of sounds made in the page?** (2026-11-11; "Sounds
   picked; made in the page or recorded?"). DESIGN.md "Sound" says made in
-  the page; the developer asked why not free recorded ones. Waiting.
+  the page; the developer asked why not free recorded ones.
+  2026-11-11, developer: "definately worth a try. And we could
+  collaborate. I could find sound samples and give them you you." Next:
+  the developer finds CC0 recordings for the five building-site sounds;
+  Claude builds a sampler with them beside the made ones ("Q74 to try;
+  photo-real looks? (Q75)").
+- **Q75. Photo-real looks instead of cartoon ones?** (2026-11-11; "Q74 to
+  try; photo-real looks? (Q75)"). The developer asked whether the same
+  goes for graphics. Claude's answer and a suggested trial put to the
+  developer; waiting.
 
 
 ## Proposed additions to the standards skill
 
-- **Check a layout at the sizes it will be seen at** (2026-11-11, "Mockup
-  v1 tried; v2"): a page checked only in a narrow pane can break wide (or
-  the other way). *Evidence:* the level 2 mockup's Frames tab looked
-  right at 322 px, where it stacks to one column; in the developer's wide
-  viewer the 3D view was a tiny square (a column sized by its contents
-  holding a box sized as a percentage of it). Waiting for the developer.
+None waiting. (2026-11-11: "Check a layout at the sizes it will be seen
+at" (from "Mockup v1 tried; v2": the level 2 mockup's Frames tab looked
+right in a 322 px pane and was a tiny square in the developer's wide
+viewer) dropped by the developer: "That 'lesson learned' was really just
+a bug. I don't think we should add a skill behind every bug." Claude
+agreed: it was one CSS bug, minutes to fix, and it changes no habit the
+skill doesn't already have ("Trust running the real thing"). The bar
+from now on: propose a lesson only when it cost real time or would
+change how the work is done on another project.)
 
 (Earlier, 2026-11-11: "Wait for a page's code, not its HTML" (from
 "Mockup v2 tried; a throw only from the pad; Q66's home pictures": the
@@ -17574,3 +17586,52 @@ decided on 2026-10-09 ("no sound files, nothing from other sites").
 - **Skill:** a lesson to propose: "Check a layout at the sizes it will be
   seen at" (the Frames tab looked right in a 322 px pane and was a tiny
   square in the developer's wide viewer). Not yet put to the developer.
+
+## 2026-11-11: Q74 to try; photo-real looks? (Q75); the skill lesson dropped
+
+**Developer:** "Q74 - definately worth a try. And we could collaborate. I
+could find sound samples and give them you you. Keep that in mind. I
+wonder if the same thing goes for graphics. Instead of cartoon like
+images, could we explore the use of photorealistic images? I know AI's
+can do things like animate photos. And I'm pretty sure they can generate
+realistic images too."
+
+**Q74, the plan:** the developer finds recordings; Claude builds a
+sampler with them beside the made versions, for the five building-site
+sounds (a wooden beam, bricks, a steel post, a concrete slab collapsing,
+the iron ball; each on hard ground). Asked for each file: where it came
+from (the page's link) and its licence, kept on record. **CC0** is the
+simplest (Freesound with its CC0 filter, Kenney, OpenGameArt's CC0);
+CC-BY works with a credits line; licences that forbid sharing the files
+on their own may not suit a public repo, where anyone can take them
+(Pixabay's, many "royalty-free" packs): best avoided. MP3 or WAV: every browser the site supports decodes them; no
+ffmpeg on this machine to convert others (checked). Files go in a test
+folder outside the repo until picked.
+
+**Q75, Claude's answer:**
+- Claude can't make or animate images; other AI tools can. But the 3D
+  games aren't pictures: three.js draws the blocks from the camera every
+  frame and the physics moves them, so a photo or an animated photo
+  can't stand in for the scene.
+- What photo-real means here: **photo textures** on the same shapes
+  (real brick, concrete, wood grain, rusty steel, gravel, tiles; CC0
+  libraries: Poly Haven, ambientCG), and **a photo sky** (an HDRI from
+  Poly Haven) that lights the scene and shows in shiny steel. That's
+  where most of the realism in 3D games comes from.
+- The costs, to measure in a trial: size (a 1K photo texture is about
+  0.2-0.5 MB, more with the bump maps that make brick look rough; the
+  whole site is 5.7 MB now, the journal included), the phone's frame
+  rate, and the look beside the other games (the 2D games stay drawn).
+  And whether the kids like it better: the developer's and the kids'
+  call.
+- Suggested trial: one building-site frame in the level 2 mockup, drawn
+  both ways side by side (today's colours, and photo textures with a
+  photo sky), with the size and fps shown. Level 2 suits it: real
+  materials are its theme. The developer can find textures as for the
+  sounds, or Claude can propose a short list from Poly Haven and
+  ambientCG to download with the developer's OK.
+
+**The skill lesson:** the developer: "it makes sense. But I worry about
+making the skills too long. That 'lesson learned' was really just a bug.
+I don't think we should add a skill behind every bug. Should we?" No:
+dropped (see "Proposed additions").
