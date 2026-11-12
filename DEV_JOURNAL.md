@@ -17891,3 +17891,26 @@ otherwise stop work while the developer is away: a download (needs the
 developer's OK: asked to give it for Poly Haven CC0 files at the new
 session's start) and the publish itself (merging to `main` needs the
 developer's OK; the release number proposed then).
+
+## 2026-11-11: Overnight: level 2 to a release, then levels 3 and 4 (developer's outline)
+
+**Developer** (leaving for the night): "Yes, Poly Haven downloads OK, go
+ahead ... I would like to see if we can make much more progress without
+so much interaction. We have a lot of building blocks - make scenes
+winnable, make scene 5 on each level (beyond level 1) more complex,
+choose sounds and graphics that seem real." Then the outline: "I assume
+we are OK to finish level 2. For level 3 lets introduce the winter theme
+with ice blocks. Background scene can be snow and mountains. We can name
+it Frosty Times. [For] level 4 we can go to the desert. Background is
+sand, cactus, maybe some snakes, and rock formations similar to deserts
+in the US. Structural components of targets can be water barrels (that
+spew water when broken) and wooden beams."
+
+**How the night runs** (agreed in chat): level 2 first, to a release
+ready to publish (10.0 proposed); then level 3, then level 4, each with
+tests, debug log and journal entries, committed and pushed to
+`block-game`; nothing merged to `main`. Choices the developer would
+normally make are Claude's, each marked **"Claude's pick, to review"**
+with its reason, and listed in the morning summary. Downloads: Poly
+Haven CC0 only, each file's source and licence on record. Not checkable
+here: the phone's frame rate and feel, and the kids.
