@@ -245,6 +245,34 @@ const norm2 = (x, z) => { const l = Math.hypot(x, z) || 1; return [x / l, z / l]
 const lineX = (table, z) => HAND.x + (table.x - HAND.x) * (z - HAND.z) / (table.z - HAND.z);
 const overlaps = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.z0 < b.z1 && b.z0 < a.z1;
 
+// A snow drift's shape (src/ui/topple-sets.js draws it; the physics' humps
+// follow it). Its cross-section, from the windward foot to the lee foot:
+// across (-1 to 0.8 of its half-width) and up (0-1 of the crest's height
+// there): a long gentle slope, the crest, a lip curling over (it reaches
+// 0.74 out at 0.84 up, over the face at 0.58-0.66: an overhang), and the
+// steep lee face under it.
+export const DRIFT_PROFILE = [
+  [-1, 0], [-0.7, 0.12], [-0.35, 0.36], [0, 0.64], [0.25, 0.86], [0.42, 0.98], [0.5, 1],
+  [0.6, 0.99], [0.7, 0.93], [0.74, 0.84], [0.68, 0.78], [0.58, 0.74],
+  [0.6, 0.55], [0.66, 0.3], [0.74, 0.1], [0.8, 0],
+];
+// Along its length (t -1 to 1): the crest's height (0-1, highest a fifth of
+// the way from the middle, low at the ends: lopsided) and the width (0.55-1).
+export function driftAlong(t) {
+  const k = Math.max(0, Math.pow(Math.max(0, 1 - t * t), 0.7) * (1 + 0.3 * t) / 1.03);
+  return { h: Math.min(1, k), w: 0.55 + 0.45 * Math.min(1, k) };
+}
+// The humps the ball meets: 4 along it, under the crest (0.3 of the
+// half-width to the lee side), as wide as 0.8 of the drift there; layout
+// units, { x, z, r (where it meets the ground), h (its top) }.
+export function driftCaps({ x, z, L, W, H, yaw }) {
+  const c = Math.cos(yaw), s = Math.sin(yaw);
+  return [-0.62, -0.2, 0.2, 0.62].map(t => {
+    const a = driftAlong(t), u = t * L, v = 0.3 * W * a.w;
+    return { x: x + u * c + v * s, z: z - u * s + v * c, r: 0.8 * W * a.w, h: H * a.h };
+  });
+}
+
 // The parts of a thing a falling block could lean on, as circles in plan view.
 export function lowParts(t, reachH) {
   if (t.kind === 'bush' || t.kind === 'scrub') return t.balls.map(b => ({ x: b.x, z: b.z, r: b.r }));
@@ -364,13 +392,22 @@ const PLACE = {
     const parts = [-1, -0.5, 0, 0.5, 1].map(k => ({ x: x + c * 0.25 * k, z: z - s * 0.25 * k, r: 0.18 }));
     return { kind: 'barrow', job: 'soft', x, z, yaw, H: 0.33, parts, foot: { x0: x - 0.55, x1: x + 0.55, z0: z - 0.35, z1: z + 0.35 } };
   },
-  // A heap of snow, low and lopsided (as the mockup's gravel heap): 1.56 x
-  // 1.1 m, 0.42 m tall (world).
+  // A wind-blown snow drift (developer, 2026-11-12: the round heap "looks
+  // like 1/2 a sphere"; real drifts are "longer and not symmetrical, with
+  // peaks that are thinner than the base and can even look like they are
+  // curling"): a ridge 1.6-1.84 m long and 0.64-0.76 m wide, its crest
+  // 0.38-0.46 m tall (world), a gentle windward slope, a steep lee face
+  // under a curling lip, turned 17-34° off across the throw, the lip on the
+  // slingshot's side (its curl seen from behind). Draws as many numbers
+  // from the layout's random as the round heap did.
   drift(R, table, rng, stackTop, camN, room) {
     const z = room.rect.z1 + room.reach + 0.28 + R(0, 0.12), x = lineX(table, z) + R(-0.12, 0.12);
-    const rx = R(0.36, 0.42), rz = R(0.25, 0.3), H = R(0.19, 0.23), yaw = R(-0.5, 0.5), seed = 1 + Math.floor(rng() * 1e6);
-    const parts = [{ x, z, r: (rx + rz) / 2 }];   // the physics' round cap (sceneParts), where it meets the ground
-    return { kind: 'drift', job: 'soft', x, z, rx, rz, H, yaw, seed, parts, foot: { x0: x - rx - 0.05, x1: x + rx + 0.05, z0: z - rx, z1: z + rx } };
+    const L = R(0.4, 0.46), W = R(0.16, 0.19), H = R(0.19, 0.23), y0 = R(-1, 1), seed = 1 + Math.floor(rng() * 1e6);
+    const yaw = Math.sign(y0 || 1) * (0.3 + 0.3 * Math.abs(y0));
+    const parts = driftCaps({ x, z, L, W, H, yaw });   // where the physics' humps meet the ground (sceneParts)
+    const c = Math.cos(yaw), s = Math.sin(yaw), xs = [], zs = [];
+    for (const u of [-L, L]) for (const v of [-W, W]) { xs.push(x + u * c + v * s); zs.push(z - u * s + v * c); }
+    return { kind: 'drift', job: 'soft', x, z, L, W, H, yaw, seed, parts, foot: { x0: Math.min(...xs) - 0.05, x1: Math.max(...xs) + 0.05, z0: Math.min(...zs), z1: Math.max(...zs) } };
   },
   // Desert scrub: level 1's bush, lower and greyer (sagebrush).
   // (as tall as level 1's bush, it hid the saloon's front row of barrels
@@ -547,11 +584,11 @@ export function sceneParts(L) {
       props.push({ part: 'barrow', at: [x, 0, z], yaw: t.yaw });
       extra.push([x - 0.8, 0.7, z], [x + 0.8, 0.7, z], [x, 0.05, z + 0.5]);
     } else if (t.kind === 'drift') {
-      // the heap as the cap of a big sphere under the ground (the mockup's gravel heap)
-      const x = X(t.x), z = Z(t.z), rx = X(t.rx), rz = X(t.rz), H = Y(t.H), a = (rx + rz) / 2, Rs = (a * a + H * H) / (2 * H);
-      bodies.push({ kind: 'soft', thing: 'drift', shapes: [{ type: 'sphere', r: Rs, at: [x, H - Rs, z] }] });
-      props.push({ part: 'drift', at: [x, 0, z], rx, rz, H, yaw: t.yaw, seed: t.seed });
-      extra.push([x - rx, H, z], [x + rx, H, z], [x, 0.05, z + rz]);
+      // the ridge as a row of humps, each the cap of a big sphere under the ground, under its crest
+      const shapes = t.parts.map(p => { const a = X(p.r), h = Y(p.h), Rs = (a * a + h * h) / (2 * h); return { type: 'sphere', r: Rs, at: [X(p.x), h - Rs, Z(p.z)] }; });
+      bodies.push({ kind: 'soft', thing: 'drift', shapes });
+      props.push({ part: 'drift', at: [X(t.x), 0, Z(t.z)], L: X(t.L), W: X(t.W), H: Y(t.H), yaw: t.yaw, seed: t.seed });
+      for (const p of [t.parts[0], t.parts.at(-1)]) extra.push([X(p.x), Y(p.h), Z(p.z)]);
     } else if (t.kind === 'light') {
       // the pole (in the way of a straight throw), its concrete foot, the lamps' bar at the top
       const x = X(t.x), z = Z(t.z), h = Y(t.poleH);

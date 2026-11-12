@@ -12,7 +12,7 @@
 // sceneParts()).
 
 import * as THREE from '../vendor/three/three.module.min.js';
-import { rng } from '../core/topple.js';
+import { rng, DRIFT_PROFILE, driftAlong } from '../core/topple.js';
 
 export const PHOTO_DIR = 'data/topple/';
 
@@ -127,6 +127,35 @@ export function heapShape(rx, rz, H, seed) {
     for (const l of lumps) k += l.a * Math.exp(-((x - l.x) ** 2 + (z - l.z) ** 2) / (l.s * l.s * rx * rx)) * (1 - q);
     return H * Math.max(0, k);
   };
+}
+// A snow drift: DRIFT_PROFILE swept along its length (local x, -L to L),
+// the lee side to +z; the crest's height and width from driftAlong, the
+// crest and lip wavering a little (seeded). UVs in metres (half a copy of
+// the photo a metre, as the round heap had).
+function driftGeo(L, W, H, seed) {
+  const r = rng(seed), f1 = r() * 6.3, f2 = r() * 6.3, N = 48, P = DRIFT_PROFILE, K = P.length;
+  const pos = [], uv = [], idx = [];
+  for (let i = 0; i <= N; i++) {
+    const t = -1 + 2 * i / N, a = driftAlong(t), wob = 1 + 0.08 * Math.sin(t * 5 + f1), shift = 0.07 * Math.sin(t * 3 + f2);
+    let along = 0;
+    for (let k = 0; k < K; k++) {
+      const [v, y] = P[k], crest = Math.max(0, Math.min(1, (v + 0.2) / 0.5));   // the crest and lip waver; the windward foot stays put
+      const z = (v + shift * crest) * W * a.w, h = k === 0 || k === K - 1 ? -0.015 : y * H * a.h * (1 + (wob - 1) * crest);   // the feet a little under the snow
+      if (k) along += Math.hypot(z - pos[pos.length - 1], h - pos[pos.length - 2]);
+      pos.push(t * L, h, z);
+      uv.push(t * L * 0.5, along * 0.5);
+    }
+  }
+  for (let i = 0; i < N; i++) for (let k = 0; k < K - 1; k++) {
+    const a = i * K + k, b = a + K;
+    idx.push(a, a + 1, b, b, a + 1, b + 1);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  return geo;
 }
 function heapGeo(hf, rx, rz, y0 = 0, seg = [48, 36]) {
   const geo = new THREE.PlaneGeometry(2 * rx, 2 * rz, ...seg); geo.rotateX(-Math.PI / 2);
@@ -247,9 +276,9 @@ export async function makeSetting(n, ctx) {
       return g;
     },
     drift(p) {
-      // a heap of snow, lopsided, in the snow's own photo
-      const hf = heapShape(p.rx, p.rz, p.H, p.seed);
-      const m = mesh(heapGeo(hf, p.rx, p.rz, 0, [40, 30]), photoMat(maps.snow, { repeat: [p.rx, p.rz], extra: { color: '#F7FAFD', metalness: 0 } }));
+      // a wind-blown drift (its shape: src/core/topple.js, DRIFT_PROFILE), in the snow's own photo;
+      // both sides drawn (the underside of the curling lip)
+      const m = mesh(driftGeo(p.L, p.W, p.H, p.seed), photoMat(maps.snow, { extra: { color: '#F4F8FF', emissive: '#30363E', metalness: 0, side: THREE.DoubleSide } }));
       m.position.set(...p.at); m.rotation.y = p.yaw;
       return m;
     },

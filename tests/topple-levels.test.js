@@ -12,6 +12,7 @@ import assert from 'node:assert/strict';
 import { createWorld, touch } from '../src/core/topple-world.js';
 import {
   SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, sceneParts, launchVel, HAND, MAX_AIM, R2D, makeLayout, sceneOpts, FRAME_REACH,
+  DRIFT_PROFILE, driftAlong, driftCaps,
 } from '../src/core/topple.js';
 import { canBeWon } from './topple-players.js';
 
@@ -153,6 +154,36 @@ test('topple levels: ice shatters and a barrel bursts when hit hard, gone and do
   // a steel post hit as hard never breaks
   const L = frameLayout(31, 2, 1), p = sceneParts(L), i = p.blocks.findIndex(b => b.mat === 'steel');
   assert.equal(throwAt(p, L.power, i, 4).brokeFirst, false);
+});
+
+// Developer, 2026-11-12: the round heap "looks like 1/2 a sphere"; drifts
+// are long, lopsided, thinner at the peak, curling.
+test('topple levels: the snow drift is a long, lopsided ridge with a curling lip, the ball\'s humps under its crest and inside its footprint', () => {
+  // the lip overhangs the lee face: a point of the lip further out than the face below it
+  const lip = Math.max(...DRIFT_PROFILE.filter(([, y]) => y > 0.75).map(([v]) => v));
+  const face = Math.max(...DRIFT_PROFILE.filter(([, y]) => y > 0.4 && y < 0.6).map(([v]) => v));
+  assert.ok(lip > face + 0.1, `no overhang: lip ${lip}, face ${face}`);
+  // the crest off the middle (a gentle windward slope, a steep lee): its top nearer the lee foot
+  const top = DRIFT_PROFILE.find(([, y]) => y === 1)[0];
+  assert.ok(top > 0.3, `crest at ${top}`);
+  // lopsided along its length, low at the ends
+  assert.ok(driftAlong(0.3).h > driftAlong(-0.3).h, 'not lopsided');
+  assert.ok(driftAlong(0.98).h < 0.15 && driftAlong(-0.98).h < 0.15, 'ends not low');
+  let drifts = 0;
+  for (let seed = 1; seed <= 12; seed++) for (let sc = 1; sc <= SCENES; sc++) {
+    for (const t of frameLayout(seed, 3, sc).things.filter(q => q.kind === 'drift')) {
+      drifts++;
+      assert.ok(t.L > 2 * t.W, `${seed}/${sc}: not long (${t.L} x ${t.W})`);
+      assert.ok(Math.abs(t.yaw) >= 0.3 && Math.abs(t.yaw) <= 0.6, `${seed}/${sc}: yaw ${t.yaw}`);
+      assert.deepEqual(t.parts, driftCaps(t));
+      assert.equal(t.parts.length, 4);
+      for (const p of t.parts) {
+        assert.ok(p.h > 0 && p.h <= t.H + 1e-9, `${seed}/${sc}: a hump ${p.h} tall, the crest ${t.H}`);
+        assert.ok(p.x - p.r >= t.foot.x0 - 1e-9 && p.x + p.r <= t.foot.x1 + 1e-9 && p.z >= t.foot.z0 && p.z <= t.foot.z1, `${seed}/${sc}: a hump outside the footprint`);
+      }
+    }
+  }
+  assert.ok(drifts >= 30, `only ${drifts} drifts checked`);
 });
 
 test('topple levels: the gravel and the snow catch the ball: it keeps a tenth of its speed and stays', () => {

@@ -73,19 +73,34 @@ time, each tried before publishing:
   of that means." It is: your face, blocks knocked down of the scene's
   blocks, and the 5 balls (used ones faded to 0.2, so 4 used look like a
   line and one ball). To redesign; the developer's call.
+  2026-11-12, developer: a mockup, yes. Mockup v1 (artifact "Topple!
+  score bar"): now, A (an ice block and the number left, counting down;
+  the balls as iron balls, a thrown one an empty dashed place; a word
+  under each), B (a small block per block, green with a tick as it
+  falls); upright and sideways; a Throw button.
 - **Q81. A level done: the map, the next level unlocking, your face
   moving there** (2026-11-12): the developer's idea, instead of the
   Level screen. A mockup first.
+  2026-11-12, developer: "Not sure. How does the cost of a mockup
+  compare to a build?" Answered in chat ("Q82 drift built; Q83
+  measured").
 - **Q82. Level 3's snow drift doesn't look like snow** (2026-11-12):
   "Maybe a snowman would look better." The drift is in play (level 3's
   'soft' thing: it catches the ball, as level 1's bush); a snowman
   stands off to the right as decor already.
+  2026-11-12, developer: "it looks like 1/2 a sphere. Real snow drifts,
+  shaped by the wind tend to be longer and not symmetrical, with peaks
+  that are thinner than the base and can even look like they are
+  curling." Built (entry below); for the developer to look at.
 - **Q83. Ice cubes on the ground vs. cubes that fell there** (2026-11-12,
   the ice pyramid): a cube that falls from above counts down (dropped
   more than 0.6 of its size), but a bottom-row cube can't drop, and a
   cube slid or rolled over looks the same as one standing: it has to be
   smashed. "It can be a bit confusing to have 2 cubes side by side that
   look the same, but require different treatment."
+  2026-11-12, developer: "Why don't the blocks break when they fall?"
+  They do, at 2.2 m/s along the knock, the same as a ball's hit;
+  measured (entry below): a cube tumbling a row lands just under it.
 
 ## Proposed additions to the standards skill
 
@@ -18134,5 +18149,60 @@ version b67c09314140, 183 files (release still 9.4).
 - **For the developer:** Q80 (the score bar), Q81 (the map after a
   level), Q82 (the snow drift), Q83 (ground cubes), and Q77 (the
   overnight picks).
+- **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
+- **Open questions:** Q64, Q73, Q74 (parked), Q77-Q83.
+
+## 2026-11-12: Q82 drift built; Q83 measured; Q80 mockup v1
+
+**Q82, the drift** (src/core/topple.js `DRIFT_PROFILE`, `driftAlong`,
+`driftCaps`; src/ui/topple-sets.js `driftGeo`): a ridge 1.6-1.84 m
+long, 0.64-0.76 m wide, its crest 0.38-0.46 m (the old heap's height);
+a gentle windward slope, the crest nearer the lee side, a lip that
+curls over the steep lee face (an overhang: the lip 0.74 of the
+half-width out, the face under it 0.58-0.66), low tapering ends, higher
+toward one end; the crest and lip waver a little (seeded). Turned 17-34°
+off across the throw, the lip toward the slingshot (its curl and the
+shadow under it seen from behind). Both sides drawn (the lip's
+underside); a touch of glow (`emissive`) as the lee face, in shadow,
+came out greyer than the snow round it; the feet 1.5 cm under the snow
+(they cut a hard line at first). The ball meets 4 humps (sphere caps)
+under the crest, so what catches it follows what's seen; the layout
+draws as many random numbers as the old heap, so the rest of each scene
+is unchanged. Checked by eye in the browser (scenes 1 and 3). **Win
+rates, the same run on both** (the tests' person player, level 3's drift
+scenes, 4 games x 8 players): old heap 32/32, 31/32, 11/32; new drift
+32/32, 31/32, 11/32 (each run's drift checked: the old layout has `rx`,
+one part; the new `L`, `W`, four). The drift is low and seldom
+decides a throw. New test: the shape (an overhang, the crest off the
+middle, lopsided, low ends), and for 12 games' level 3 every drift long,
+turned 17-34°, its humps under the crest and inside its footprint; seen
+failing with the lip pulled in ("no overhang: lip 0.68, face 0.6").
+
+**Q83, why fallen ice doesn't always break**: a block breaks at a knock
+of 2.2 m/s along the contact (ice; barrels 3.0), from the ball or from
+anything else (src/core/topple-world.js `breakAt`). Measured on the ice
+pyramid (a scratch script, the tests' person player, 5 games x 4
+players, 200 cubes): 194 broke, 6 came down whole, all from upper rows,
+their hardest knock 2.07-2.19 m/s: a cube tumbling one row lands just
+under 2.2. No ground cube came down whole in these runs (they were
+smashed). Options put to the developer: (a) show which blocks still
+count, (b) a ground block pushed well off its spot counts, (c) the
+pyramid on a base; or for ice, any ice block counted down shatters, so
+whole ice is always ice still to knock down.
+
+**Q80, mockup v1** published (artifact "Topple! score bar"); the park
+in it is a picture of level 3's ice pyramid from this PC's browser, the
+game's own pills and pad hidden for it.
+
+**Tests**: 569 of 569 pass.
+
+## 2026-11-12: Status (start here next session)
+
+- **Live: 9.4.** `block-game`: levels 2-4; today: the card waits for
+  the blocks, no old level, the level's name, the wind-blown drift; 569
+  tests pass; committed and pushed. Nothing merged.
+- **For the developer:** the score bar mockup (Q80), mockup or build
+  for the map (Q81), the drift's look (Q82), the ground cubes (Q83),
+  the overnight picks (Q77).
 - **Not done:** release prep for 10.0, Q78 (map stills), Q79 (the phone).
 - **Open questions:** Q64, Q73, Q74 (parked), Q77-Q83.

@@ -2237,7 +2237,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   tower, an ice pyramid (cubes 4-3-2-1), an ice wall of two pairs of
   pillars with slabs and cubes, and the challenge, an **ice castle**:
   two two-storey towers joined by a bridge behind two upright slabs. In
-  the way: a **snow drift** (soft: the ball stays in it) and a **snowy
+  the way: a **snow drift**, long and wind-blown, its lip curling over
+  (developer, 2026-11-12: the round heap looked like half a sphere; soft:
+  the ball stays in it) and a **snowy
   pine** (tall: its trunk, its tiers of branches from 1.15 m). A snowman
   and young pines off to the side. Sounds: ice knocked (a glassy clink),
   shattering (a crack and tinkles), the ball into snow (a soft puff).
