@@ -18929,3 +18929,27 @@ just adding levels, we go to 5 new levels in a new world. For example,
 it could be "on the moon" or "on mars" or something quite different ...
 Right now we have a lot of symmetry - 5 balls, 5 scenes per level, 5
 levels." (Q93; Claude's view in chat, to discuss next session.)
+
+## 2026-11-12: Release 10.2 published and live
+
+- `main` fast-forwarded to 1ea0711, tag `v10.2` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (built 1ea0711); the live `src/core/version.js` reads adf2a9d5750c.
+- Claude's local server (`tools/serve.js 8123`) stopped; no other
+  `serve.js` running.
+- Q93 (worlds of five levels): Claude's view given in chat (in favour;
+  the moon's low gravity as the thing that makes a world feel new; the
+  Q87 ideas could be worlds or levels in them; 5 levels a world kept for
+  the map; a mockup of the world change and one moon scene first).
+
+**Status (start here next session)**
+- **Live: 10.2** (Topple! levels 1-5; the map starts a level; Start
+  over; posts down from 30°). `block-game` = `main` plus this entry.
+  Nothing waiting to publish.
+- **For the developer:** 10.2 on the phone: the map tap, Start over, and
+  whether the building site still leaves things unclear (Q90-Q92); Star
+  Light once reached; Q79's frame rate in the log.
+- **Next:** Q93 (worlds of five levels: the developer's idea, to
+  discuss), then Q88, Q78.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93.
