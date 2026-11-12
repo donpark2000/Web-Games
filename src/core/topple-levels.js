@@ -37,7 +37,14 @@ export const MATS = {
   // whole looked like one still to knock down): whole ice is always ice still standing
   ice: { density: 22, bounce: 0.25, friction: 0.15, breaks: 2.2, downBreaks: true, slides: true },
   barrel: { density: 24, bounce: 0.25, friction: 0.5, breaks: 3.0 },
+  // Star Light's glowing blocks (developer, 2026-11-12, Q87: "When a block is
+  // hit it breaks similar to ice blocks but with the fragments matching the
+  // color of the glow"): break as ice does, down too; they grip (not ice's slide).
+  glow: { density: 22, bounce: 0.25, friction: 0.5, breaks: 2.2, downBreaks: true },
 };
+// The glows' colours, given round a structure's blocks in turn (so pieces
+// side by side differ): cyan, pink, lime, amber, violet.
+export const GLOWS = ['#6FF3FF', '#FF7AE0', '#B6FF6A', '#FFC85C', '#A98BFF'];
 
 /* ---------- pieces (world metres) ---------- */
 
@@ -65,6 +72,11 @@ const SITE = { post: 'steel', slab: 'concrete', pw: 0.2, st: 0.1 };
 const SITE_WOOD = { post: 'wood', slab: 'wood', pw: 0.2, st: 0.1 };
 const ICE = { post: 'ice', slab: 'ice', pw: 0.26, pd: 0.3, st: 0.18 };
 const TIMBER = { post: 'wood', slab: 'wood', pw: 0.16, st: 0.12 };
+const GLOW = { post: 'glow', slab: 'glow', pw: 0.2, pd: 0.24, st: 0.14 };
+// an upright glowing column (a cylinder of radius r)
+const column = (x, y0, z, r, h) => ({ mat: 'glow', shape: 'cyl', r, w: 2 * r, h, d: 2 * r, x, y: y0 + E + h / 2, z, c: '' });
+// a structure's blocks, each given a glow colour in turn (`from`: the first)
+const lit = (bs, from = 0) => bs.map((b, i) => ({ ...b, c: GLOWS[(i + from) % GLOWS.length] }));
 
 // `k(name)`: the seed's small changes, 0.95-1.05 (so a new game isn't identical).
 export const STRUCTURES = {
@@ -177,6 +189,45 @@ export const STRUCTURES = {
     const front = [-0.6, 0, 0.6].map(x => barrel(x * k('f'), 0, 0.35, 0.26, 0.76));
     return [...front, ...a.bs, barrel(-0.15, a.y, -0.5, 0.18, 0.5), ...b.bs, barrel(0, b.y, -0.5, 0.22, 0.6)];
   },
+
+  /* ---------- level 5, Star Light: glowing blocks at night (Claude's picks, to review) ---------- */
+  // 1. A lantern arch: two glowing columns, a slab across, a cube at each end and one in the middle.
+  lanternArch: k => {
+    const g = 0.42 * k('g'), h = 0.9, cols = [-g, g].map(x => column(x, 0, 0, 0.13, h));
+    const s = box('glow', 2 * g + 0.4, 0.14, 0.36, 0, topOf(cols[0]), 0);
+    return lit([...cols, s, ...[-g, 0, g].map(x => box('glow', 0.26, 0.26, 0.26, x, topOf(s), 0))]);
+  },
+  // 2. A lighthouse: four drums, each narrower, and a lamp (a cube) on top: tall, and one good hit brings it down.
+  lighthouse: k => {
+    const out = []; let y = 0;
+    [[0.24, 0.5], [0.21, 0.45], [0.18, 0.42], [0.15, 0.38]].forEach(([r, h], i) => { const c = column(0, y, 0, r * k('r'), h * k('h' + i)); out.push(c); y = topOf(c); });
+    return lit([...out, box('glow', 0.24, 0.24, 0.24, 0, y, 0)], 1);
+  },
+  // 3. Candles: four columns of different heights in a row, a cube on each, slanting away
+  // to the right, close enough that one falling can knock the next (falls in parts).
+  candles: k => {
+    const s = 0.5 * k('s'), out = [];
+    [0.75, 1.0, 0.85, 0.65].forEach((h, i) => { const c = column((i - 1.5) * s, 0, -i * 0.12, 0.12, h); out.push(c, box('glow', 0.22, 0.22, 0.22, c.x, topOf(c), c.z)); });
+    return lit(out, 2);
+  },
+  // 4. Twin lanterns: two gates with a long slab across them and a cube on each gate: two targets.
+  twinLanterns: k => {
+    const g = 0.72 * k('g'), l = gate(-g, 0, 0, 0.2, 0.8, 0.66, 0.36, GLOW), r = gate(g, 0, 0, 0.2, 0.8, 0.66, 0.36, GLOW);
+    const p = box('glow', 2 * g - 0.5, 0.12, 0.3, 0, l.y, 0);
+    return lit([...l.bs, ...r.bs, p, box('glow', 0.26, 0.26, 0.26, -g - 0.15, l.y, 0), box('glow', 0.26, 0.26, 0.26, g + 0.15, r.y, 0), box('glow', 0.24, 0.24, 0.24, 0, topOf(p), 0)], 3);
+  },
+  // 5. The challenge: a star palace. Two storeys of glowing columns and slabs,
+  // a cube on top, behind a low wall of three glowing cubes that hides its feet.
+  starPalace: k => {
+    const z = -0.5, out = [];
+    const a = [[-1, 1], [1, 1], [-1, -1], [1, -1]].map(([i, j]) => column(i * 0.5, 0, z + j * 0.28, 0.1, 0.85 * k('a')));
+    const s1 = box('glow', 1.3, 0.12, 0.86, 0, topOf(a[0]), z);
+    const b = [[-1, 1], [1, 1], [-1, -1], [1, -1]].map(([i, j]) => column(i * 0.4, topOf(s1), z + j * 0.22, 0.09, 0.7));
+    const s2 = box('glow', 1.08, 0.12, 0.72, 0, topOf(b[0]), z);
+    out.push(...a, s1, ...b, s2, box('glow', 0.28, 0.28, 0.28, 0, topOf(s2), z));
+    const wall = [-0.5, 0, 0.5].map(x => box('glow', 0.28, 0.36, 0.22, x * k('w'), 0, 0.35));
+    return lit([...wall, ...out], 4);
+  },
 };
 
 /* ---------- the levels ---------- */
@@ -194,6 +245,11 @@ export const LEVELS = [
     scenes: ['iceGate', 'iceTower', 'icePyramid', 'iceWall', 'iceCastle'] },
   { n: 4, name: 'Cactus Canyon', line: 'Burst the water barrels and the beams come down.', soft: 'scrub', tall: 'cactus', ball: 'iron',
     scenes: ['waterTower', 'trestle', 'barrelStack', 'hitchingRail', 'saloon'] },
+  // (developer, 2026-11-12, Q87: "Night time with a moon and stars in the
+  // sky. Similar vista to the winter level but low light. Blocks and balls
+  // glow"; the things in the way level 3's, at night: Claude's pick)
+  { n: 5, name: 'Star Light', line: 'Glowing blocks at night: hit them and they shatter.', soft: 'rock', tall: 'pine', ball: 'iron',
+    scenes: ['lanternArch', 'lighthouse', 'candles', 'twinLanterns', 'starPalace'] },
 ];
 export const MAX_LEVEL = LEVELS.length;
 export const levelInfo = n => LEVELS[n - 1] ?? null;
@@ -206,7 +262,7 @@ export const BALLS_BY = { toy: { r: 0.06, kg: 2 }, iron: { r: 0.07, kg: 3 } };
 // Where each level sits on the map (% across and down its box), and the
 // road between two: a curve leaving one level sideways and coming into the
 // next from below (the map's look since level 2 mockup v1).
-export const MAP_NODES = [{ x: 30, y: 86 }, { x: 68, y: 62 }, { x: 32, y: 38 }, { x: 68, y: 14 }];
+export const MAP_NODES = [{ x: 30, y: 89 }, { x: 68, y: 70 }, { x: 32, y: 51 }, { x: 68, y: 32 }, { x: 32, y: 13 }];
 export function mapRoad(a, b) {
   return [[a.x, a.y], [a.x + (b.x - a.x) * 0.9, a.y], [b.x - (b.x - a.x) * 0.1, b.y + 14], [b.x, b.y]];
 }

@@ -197,7 +197,7 @@ test('topple page: level 3\'s rock is plain; each animal crosses once a scene, f
 // frightened' when blocks fall and reverse direction and run off" (the
 // walk itself: tests/topple-animals.test.js).
 test('topple page: every animal takes fright when a block falls; logged', () => {
-  assert.match(setsJs, /import \{ crossing \} from '\.\.\/core\/topple-animals\.js';/);
+  assert.match(setsJs, /import \{ crossing, perched \} from '\.\.\/core\/topple-animals\.js';/);
   assert.doesNotMatch(setsJs, /^function crossing/m, 'a second copy of the walk');
   for (const a of ['snake', 'rat', 'bunny', 'birds']) {
     const body = setsJs.match(new RegExp(String.raw`function ${a}\(group\) \{[\s\S]*?\n\}`))?.[0] ?? '';
@@ -209,4 +209,43 @@ test('topple page: every animal takes fright when a block falls; logged', () => 
   // a block falling, or shattering / bursting (ice down first by shattering: seen in the browser)
   assert.match(js, /const fx0 = fell\[0\]\?\.body\.position\.x \?\? broke\[0\]\?\.at\[0\];/);
   assert.match(js, /if \(fx0 !== undefined\) \{ const scared = stage\.fright\(fx0\); if \(scared\.length\) L\('animal frightened'/);
+});
+
+// Star Light (developer, 2026-11-12, Q87: night, a moon and stars, blocks
+// and balls that glow, shards their colour, an owl that says "who" once in
+// a while, or a cloud passing the moon, not frightened: "both"). The owl's
+// sitting, hooting and flying off: tests/topple-animals.test.js; the look:
+// seen in the browser (journal).
+test('topple page: Star Light: the night sky, glowing blocks and ball, coloured shards, the owl and the cloud; on the map', async () => {
+  // level 3's photo made night (no new download); the night's own lights; no sky light on the shiny parts
+  assert.match(setsJs, /5: \{ name: 'night', sky: 'lago_disola', night: true,/);
+  assert.match(setsJs, /if \(S\.night\) \{ night = nightSky\(skyTex\.image\); bg = night\.tex; \}/);
+  assert.match(setsJs, /environment: S\.night \? null : env/);
+  assert.match(sceneJs, /const li = set\?\.lights;/);
+  // each glowing block a halo and its colour; the light among them dims as they break
+  assert.match(setsJs, /out\.decorate = \(m, b\) => \{ if \(b\.mat === 'glow'\) m\.add\(halo\(b\.c,/);
+  assert.match(sceneJs, /set\?\.decorate\?\.\(m, b, i\);/);
+  assert.match(sceneJs, /set\?\.placed\?\.\(blockMeshes, parts\);/);
+  assert.match(setsJs, /glowLight\.intensity = lit\.length \? 7 \* on \/ lit\.length : 0;/);
+  // the ball glows, no lifting ring
+  assert.match(setsJs, /out\.ballRing = false;/);
+  assert.match(sceneJs, /if \(set\?\.ballRing === false\) return m;/);
+  // shards the block's colour
+  assert.match(setsJs, /if \(b\.mat === 'ice' \|\| b\.mat === 'glow'\)/);
+  assert.match(setsJs, /sparks\.setColorAt\(nk\+\+, spark\.set\(e\.c\)\)/);
+  // the moon and the cloud (no fright); the owl a perched(), with a fright and its hoot through the page's sound
+  const skyFn = setsJs.match(/function sky\(group, camera\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.ok(skyFn, 'no sky()');
+  assert.doesNotMatch(skyFn, /fright/, 'the cloud takes fright');
+  const owlFn = setsJs.match(/function owl\(group, bark, sound\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(owlFn, /const go = perched\(\d+\);/);
+  assert.match(owlFn, /fright: x => go\.fright\(x\)/);
+  assert.match(owlFn, /if \(go\.tick\(dt\)\) \{ hoot = 1; sound\('hoot'\); \}/);
+  assert.match(setsJs, /decor\.push\(sky\(group, ctx\.camera\)\);/);
+  assert.match(sceneJs, /makeSetting\(n, \{ renderer, leafy, LEAF, camera, sound: name => onSound\?\.\(name\) \}\)/);
+  assert.match(js, /stage\.onSound = name => \{ if \(!SET_SOUND\[name\] \|\| !playing\) return; sound\.play\(SET_SOUND\[name\], 0, \{ quiet: true \}\); L\('owl hoots'/);
+  assert.match(js, /glow: 'chime' \}/);
+  // its picture on the map; the map tall enough for five
+  assert.match(js, /5: \{ pic: \(\) => '🌙'/);
+  assert.match(await read('css/topple.css'), /\.mapbox \{[^}]*height: min\(86vh, 700px\)/);
 });

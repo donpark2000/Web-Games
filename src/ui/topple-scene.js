@@ -225,8 +225,10 @@ export function makePark3d(canvas) {
         const geo = set.blockGeo(b); set.prepare(geo, b, i);
         m = new THREE.Mesh(geo, set.blockMat(b)); m.position.set(b.x, b.y, b.z); m.castShadow = m.receiveShadow = true; scene.add(m);
       } else m = box(b, blockMat(b.c));
+      set?.decorate?.(m, b, i);
       built.push(m); blockMeshes.push(m);
     });
+    set?.placed?.(blockMeshes, parts);
     set?.clearEffects();
     // the shadows cover what the view shows
     const { min, max } = parts.bounds;
@@ -270,6 +272,8 @@ export function makePark3d(canvas) {
   function makeBall() {
     if (!ballLook) { const m = new THREE.Mesh(ballGeo, ballMat); m.castShadow = true; return m; }
     const { r, mat } = ballLook, m = new THREE.Mesh(ballGeo, mat); m.castShadow = true;
+    set?.decorateBall?.(m);
+    if (set?.ballRing === false) return m;
     const boss = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.22, r * 0.3, r * 0.25, 12), mat); boss.position.y = r * 0.98; m.add(boss);
     const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 0.42, r * 0.11, 8, 20), mat); ring.position.y = r * 1.42; m.add(ring);
     return m;
@@ -293,8 +297,10 @@ export function makePark3d(canvas) {
   /* ---------- the bodies ---------- */
 
   const ballMeshes = new Map();   // physics body -> its mesh
+  let onSound = null;             // a setting's own sounds (the owl's hoot): set by the page
 
   return {
+    set onSound(f) { onSound = f; },
     webgl,
     farLeaves,
     setScene,
@@ -359,7 +365,7 @@ export function makePark3d(canvas) {
       const t0 = performance.now();
       let error = null;
       if (n > 1 && !sets.has(n)) {
-        try { sets.set(n, await makeSetting(n, { renderer, leafy, LEAF })); } catch (e) { error = String(e.message ?? e); sets.set(n, null); }
+        try { sets.set(n, await makeSetting(n, { renderer, leafy, LEAF, camera, sound: name => onSound?.(name) })); } catch (e) { error = String(e.message ?? e); sets.set(n, null); }
       }
       if (set) scene.remove(set.group);
       set = n > 1 ? sets.get(n) ?? null : null;
@@ -370,6 +376,11 @@ export function makePark3d(canvas) {
       scene.environment = set ? set.environment : null;
       scene.fog = set ? set.fog : null;
       hemi.intensity = set ? set.hemi : 1.6;
+      // the lights' colours: the day's, or the setting's own (the night's)
+      const li = set?.lights;
+      hemi.color.set(li?.hemi?.[0] ?? '#FFFFFF'); hemi.groundColor.set(li?.hemi?.[1] ?? '#7E9A6A');
+      sun.color.set(li?.sun?.[0] ?? '#FFF6E4'); sun.intensity = li?.sun?.[1] ?? 2.4;
+      fill.color.set(li?.fill?.[0] ?? '#FFE7C2'); fill.intensity = li?.fill?.[1] ?? 0.8;
       // the ball and the slingshot
       ballLook = set ? { r: 0.07, mat: set.ballMat } : null;
       ballGeo = new THREE.SphereGeometry(ballLook ? 0.07 : BALL.r, 28, 18);
@@ -377,7 +388,7 @@ export function makePark3d(canvas) {
       for (const m of ballMeshes.values()) scene.remove(m);
       ballMeshes.clear();
       for (const m of slingParts) m.material = set ? set.slingMat : m.userData.wood;
-      return { level: n, photos: !!set, ms: Math.round(performance.now() - t0), ...(error ? { error } : {}) };
+      return { level: n, photos: !!set, ms: Math.round(performance.now() - t0), ...(set?.nightMs !== undefined ? { nightMs: set.nightMs, skyline: set.skyline } : {}), ...(error ? { error } : {}) };
     },
     // A block broke (ice shattered, a barrel burst): its pieces fly.
     burst(b, at, q, v) { set?.burst(b, at, q, v); },

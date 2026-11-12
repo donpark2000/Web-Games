@@ -137,6 +137,7 @@ const LOOKS = {
   2: { pic: () => '🏗️', bg: 'linear-gradient(#8FB8D8, #C9BFAE)' },
   3: { pic: () => '❄️', bg: 'linear-gradient(#8DB7DC, #F2F7FB)' },
   4: { pic: () => '🌵', bg: 'linear-gradient(#7FB3E0, #E2B48A)' },
+  5: { pic: () => '🌙', bg: 'linear-gradient(#0B1430, #2A3A6A)' },
 };
 // The setup screen's view: 'faces' (the picks), 'map' or 'level'.
 function setupView(v) {
@@ -343,6 +344,8 @@ function showSetup() {
 function makeStage() {
   const canvas = $('c');
   stage = park3d.makePark3d(canvas);
+  // a setting's own sounds: Star Light's owl hooting now and then
+  stage.onSound = name => { if (!SET_SOUND[name] || !playing) return; sound.play(SET_SOUND[name], 0, { quiet: true }); L('owl hoots', { t: r2(round?.t ?? 0) }); };
   world = physics.createWorld({ onHit });
   L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2), farLeaves: stage.farLeaves, farTrunkInLeavesM: trunksIn().far });
   new ResizeObserver(fit).observe($('park'));
@@ -559,7 +562,9 @@ function doThrow(d) {
 /* ---------- sounds, and where the ball touched ---------- */
 
 let lastKnock = 0, lastThud = 0;
-const MAT_SOUND = { wood: 'plank', brick: 'brick', steel: 'ring', concrete: 'crash', ice: 'iceknock', barrel: 'barrel' };
+const MAT_SOUND = { wood: 'plank', brick: 'brick', steel: 'ring', concrete: 'crash', ice: 'iceknock', barrel: 'barrel', glow: 'chime' };
+// a setting's own (stage.onSound): the owl's hoot (Star Light)
+const SET_SOUND = { hoot: 'hoot' };
 // the ball into the wheelbarrow's gravel, or into snow
 // (the snowy rock: the iron ball's clonk on stone)
 const SOFT_SOUND = { barrow: 'crunch', rock: 'clonk' };

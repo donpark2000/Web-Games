@@ -13,7 +13,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { rng } from '../core/topple.js';
-import { crossing } from '../core/topple-animals.js';
+import { crossing, perched } from '../core/topple-animals.js';
 
 export const PHOTO_DIR = 'data/topple/';
 
@@ -46,6 +46,13 @@ export const SETTINGS = {
     mats: { ice: 'ice', wood: 'planks' }, sling: 'planks', sun: [-1.2, 4.2, 2.6], hemi: 0.8 },
   4: { name: 'desert', sky: 'goegap', ground: 'sand', surfaces: ['sand', 'barrel', 'timber', 'rock', 'planks', 'steel'],
     mats: { wood: 'timber', barrel: 'barrel' }, sling: 'planks', sun: [1.6, 4.4, 2.4], hemi: 0.75 },
+  // Star Light (developer, 2026-11-12, Q87: "Night time with a moon and
+  // stars in the sky. Similar vista to the winter level but low light"):
+  // level 3's photo at night (its sky swapped for stars, its land moonlit:
+  // nightSky()), the moon for the sun; `lights` the scene's own at night.
+  5: { name: 'night', sky: 'lago_disola', night: true, ground: 'snow', surfaces: ['snow', 'bark', 'planks', 'steel', 'concrete'],
+    mats: { glow: 'glow' }, sling: 'planks', sun: [1.8, 4.4, 1.6], hemi: 0.45,
+    lights: { hemi: ['#7C90C8', '#1C2236'], sun: ['#B8C8FF', 0.55], fill: ['#8496D8', 0.12] } },
 };
 
 const loader = new THREE.TextureLoader();
@@ -183,30 +190,53 @@ export async function makeSetting(n, ctx) {
   const maps = {};
   await Promise.all(S.surfaces.map(async k => { maps[k] = await loadSurface(k); }));
   const skyTex = await loadTex(`sky_${S.sky}.jpg`);
-  // the sky: the photo all round; it lights the shiny parts too
-  const bg = skyTex.clone(); bg.mapping = THREE.EquirectangularReflectionMapping; bg.colorSpace = THREE.SRGBColorSpace; bg.needsUpdate = true;
+  // the sky: the photo all round (at night, made dark: nightSky); it lights the shiny parts too
+  let bg, night = null;
+  if (S.night) { night = nightSky(skyTex.image); bg = night.tex; } else bg = skyTex.clone();
+  bg.mapping = THREE.EquirectangularReflectionMapping; bg.colorSpace = THREE.SRGBColorSpace; bg.needsUpdate = true;
   const pm = new THREE.PMREMGenerator(ctx.renderer), env = pm.fromEquirectangular(bg).texture; pm.dispose();
-  const horizon = horizonColour(skyTex.image);
+  const horizon = S.night ? '#141C33' : horizonColour(skyTex.image);
   const group = new THREE.Group();
   const out = {
-    level: n, name: S.name, group, background: bg, environment: env, fog: new THREE.Fog(horizon, 60, 250), hemi: S.hemi, sun: S.sun, horizon,
-    files: 0, ms: 0,
+    level: n, name: S.name, group, background: bg, environment: S.night ? null : env, fog: new THREE.Fog(horizon, S.night ? 40 : 60, 250), hemi: S.hemi, sun: S.sun, horizon,
+    lights: S.lights ?? null, files: 0, ms: 0, ...(night ? { nightMs: night.ms, skyline: night.skyline } : {}),
   };
 
-  // block materials: a photo surface on uv1 (worldUV), or ice
+  // block materials: a photo surface on uv1 (worldUV), ice, or glowing (one a colour)
   const blockMats = {};
   for (const [mat, sk] of Object.entries(S.mats)) {
     if (sk === 'ice') blockMats.ice = iceMat();
     else if (sk === 'barrel') blockMats.barrel = barrelMats(maps.barrel, maps.timber);
+    else if (sk === 'glow') blockMats.glow = glowMats();
     else blockMats[mat] = photoMat(maps[sk], { channel: 1, extra: sk === 'steel' ? { envMapIntensity: 1.2 } : {} });
   }
-  out.blockMat = b => blockMats[b.mat] ?? blockMats.wood ?? std({ color: '#999' });
-  out.prepare = (geo, b, i) => { if (b.shape !== 'cyl' && b.mat !== 'ice') worldUV(geo, b.w, b.h, b.d, SURFACES[S.mats[b.mat]]?.size ?? 1, n * 1000 + i + 1, b.mat === 'wood' && b.h > b.w); };
-  out.blockGeo = b => (b.shape === 'cyl' ? barrelGeo(b.r, b.h) : new THREE.BoxGeometry(b.w, b.h, b.d));
+  out.blockMat = b => (b.mat === 'glow' && blockMats.glow ? blockMats.glow(b.c) : blockMats[b.mat] ?? blockMats.wood ?? std({ color: '#999' }));
+  out.prepare = (geo, b, i) => { if (b.shape !== 'cyl' && b.mat !== 'ice' && b.mat !== 'glow') worldUV(geo, b.w, b.h, b.d, SURFACES[S.mats[b.mat]]?.size ?? 1, n * 1000 + i + 1, b.mat === 'wood' && b.h > b.w); };
+  out.blockGeo = b => (b.shape === 'cyl' ? (b.mat === 'glow' ? new THREE.CylinderGeometry(b.r, b.r, b.h, 28) : barrelGeo(b.r, b.h)) : new THREE.BoxGeometry(b.w, b.h, b.d));
 
-  // the iron ball: rusty steel, darkened, with its lifting ring
-  out.ballMat = photoMat(maps.steel, { repeat: [0.3, 0.3], extra: { color: '#6A6F76', metalness: 0.7, envMapIntensity: 1.1 } });
+  // the iron ball: rusty steel, darkened, with its lifting ring; at night a
+  // glowing pale-gold ball, no ring (developer: "Blocks and balls glow")
+  if (S.night) {
+    out.ballMat = new THREE.MeshStandardMaterial({ color: '#5E5640', emissive: '#FFDD88', emissiveIntensity: 0.8, roughness: 0.4 });
+    out.ballRing = false;
+    out.decorateBall = m => m.add(halo('#FFE6A0', 0.07 * 3.2, 0.35));
+  } else out.ballMat = photoMat(maps.steel, { repeat: [0.3, 0.3], extra: { color: '#6A6F76', metalness: 0.7, envMapIntensity: 1.1 } });
   out.slingMat = photoMat(maps.planks, { repeat: [0.15, 0.6], extra: { color: '#C9A27A' } });
+  // glowing blocks: a halo each, and a light among them that dims as they break
+  if (blockMats.glow) {
+    out.decorate = (m, b) => { if (b.mat === 'glow') m.add(halo(b.c, Math.max(b.w, b.h, b.d) * 2.4, 0.42)); };
+    const glowLight = new THREE.PointLight('#C9BEFF', 0, 9, 1.6); group.add(glowLight);
+    let lit = [];
+    out.placed = (meshes, parts) => {
+      lit = meshes.filter((m, i) => parts.blocks[i]?.mat === 'glow');
+      // among the blocks, a little in front (parts.bounds take in the things in the way too)
+      const bs = parts.blocks.filter(b => b.mat === 'glow');
+      if (!bs.length) return;
+      const mid = k => (Math.min(...bs.map(b => b[k])) + Math.max(...bs.map(b => b[k]))) / 2;
+      glowLight.position.set(mid('x'), Math.min(1.2, mid('y')), Math.max(...bs.map(b => b.z + b.d / 2)) + 0.4);
+    };
+    out.glowNow = () => { const on = lit.filter(m => m.visible).length; glowLight.intensity = lit.length ? 7 * on / lit.length : 0; return on; };
+  }
 
   /* ---------- the ground ---------- */
   if (S.ground === 'pad') {
@@ -219,7 +249,7 @@ export async function makeSetting(n, ctx) {
   } else {
     // snow or sand all round, fading at its edge into the photo's own land
     const R = 34, sk = SURFACES[S.ground];
-    const g = mesh(new THREE.CircleGeometry(R, 64), photoMat(maps[S.ground], { repeat: [2 * R / sk.size, 2 * R / sk.size], extra: { alphaMap: fadeTex(), transparent: true, metalness: 0, ...(S.ground === 'snow' ? { color: '#F4F8FC' } : { color: '#E8C9A0' }) } }), [0, 0, -6], { cast: false });
+    const g = mesh(new THREE.CircleGeometry(R, 64), photoMat(maps[S.ground], { repeat: [2 * R / sk.size, 2 * R / sk.size], extra: { alphaMap: fadeTex(), transparent: true, metalness: 0, ...(S.ground === 'snow' ? { color: S.night ? '#B4C0D8' : '#F4F8FC' } : { color: '#E8C9A0' }) } }), [0, 0, -6], { cast: false });
     g.rotation.x = -Math.PI / 2; g.renderOrder = -1; group.add(g);
   }
 
@@ -352,12 +382,22 @@ export async function makeSetting(n, ctx) {
       group.add(m);
     }
     decor.push(snake(group));
+  } else if (S.name === 'night') {
+    // young pines at the edge of the snow (as level 3's), the moon, a cloud
+    // drifting past it (not frightened: developer, "it does not 'get
+    // frightened'"), and the owl on a bare tree at the view's side
+    for (const [px, pz, s] of [[-8, -15, 1.3], [-10.5, -18, 1.6], [9.5, -19, 1.4], [12, -22, 1.8]]) {
+      const tiers = [[1.4, 0.8], [2.2, 0.62], [2.9, 0.45], [3.4, 0.3]].map(([y, r]) => ({ r: r * s, at: [px, y * s, pz] }));
+      group.add(builders.pine({ at: [px, 0, pz], r: 0.12 * s, h: 3.9 * s, tiers }));
+    }
+    decor.push(sky(group, ctx.camera));
+    decor.push(owl(group, photoMat(maps.bark, { repeat: [0.4, 2], extra: { color: '#8D8A96' } }), ctx.sound ?? (() => {})));
   }
 
   /* ---------- effects: ice shattering, a barrel bursting ---------- */
   const fx = makeEffects(group, blockMats, S);
   out.burst = (b, at, q, v) => fx.burst(b, at, q, v);
-  out.tick = (dt, t) => { fx.tick(dt); for (const d of decor) d.tick(dt, t); };
+  out.tick = (dt, t) => { fx.tick(dt); for (const d of decor) d.tick(dt, t); out.glowNow?.(); };
   // a new scene: the animals cross again, once
   out.newScene = edges => { for (const d of decor) d.reset?.(edges); };
   // a block fell at x: the animals in view take fright (what each did, for the log)
@@ -380,6 +420,205 @@ function horizonColour(img) {
     const n = d.length / 4;
     return `rgb(${Math.round(r / n)},${Math.round(gg / n)},${Math.round(b / n)})`;
   } catch { return '#C8D4DC'; }
+}
+
+/* ---------- the night (Star Light) ---------- */
+
+// Level 3's photo at night, as a canvas (2048 x 1024, equirectangular): the
+// sky found column by column (blue: its blue well over its red; the snowy
+// peaks, the forest and the clouds' white aren't), from 0.3 of the way
+// down (above that it's all sky: the sun is there) to the horizon; above
+// that skyline a night sky with stars, below it the land in moonlight
+// (its brightness, in blues). { tex, ms, skyline: the rows (0-1), a sample }.
+export function nightSky(img, W = 2048, H = 1024) {
+  const t0 = performance.now();
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0, W, H);
+  const im = g.getImageData(0, 0, W, H), d = im.data;
+  const sky = i => d[i + 2] - d[i] > 22 && d[i + 2] > 110;
+  const top = Math.round(0.3 * H), low = Math.round(0.52 * H), line = new Int32Array(W);
+  for (let x = 0; x < W; x++) {
+    let y = top, run = 0;
+    for (; y < low; y++) { if (sky((y * W + x) * 4)) run = 0; else if (++run >= 4) { y -= 3; break; } }
+    line[x] = Math.min(y, low);
+  }
+  // a stray column (a gap between trees) evened out by its neighbours
+  const sm = Int32Array.from(line, (v, x) => { const a = [-2, -1, 0, 1, 2].map(k => line[(x + k + W) % W]).sort((p, q) => p - q); return a[2]; });
+  const r = rng(77);
+  for (let x = 0; x < W; x++) {
+    const s = sm[x];
+    for (let y = 0; y < H; y++) {
+      const i = (y * W + x) * 4;
+      if (y < s) {
+        // the sky: deep blue overhead, a little lighter low down
+        const k = y / s, f = k * k;
+        d[i] = 5 + 14 * f; d[i + 1] = 9 + 24 * f; d[i + 2] = 26 + 46 * f;
+      } else {
+        // the land, moonlit (feathered over 2 rows into the sky's colour)
+        const l = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2], k = Math.min(1, (y - s + 1) / 3);
+        d[i] = d[i] * (1 - k) * 0.1 + k * l * 0.3; d[i + 1] = d[i + 1] * (1 - k) * 0.1 + k * l * 0.36; d[i + 2] = d[i + 2] * (1 - k) * 0.2 + k * l * 0.52;
+      }
+    }
+  }
+  g.putImageData(im, 0, 0);
+  // stars, over the sky only; fewer high up (rows there are squeezed on the sphere)
+  for (let n = 0; n < 2600; n++) {
+    const x = r() * W, y = Math.pow(r(), 0.7) * H * 0.5;
+    if (y > sm[Math.floor(x)] - 3 || r() > Math.sin(Math.PI * y / H) * 1.1) continue;
+    const b = r(), s = b > 0.97 ? 1.6 : b > 0.85 ? 1.1 : 0.7;
+    g.fillStyle = `rgba(${b > 0.9 ? '255,240,220' : b < 0.15 ? '200,215,255' : '255,255,255'},${0.35 + 0.65 * r()})`;
+    g.beginPath(); g.arc(x, y, s, 0, Math.PI * 2); g.fill();
+  }
+  const tex = new THREE.CanvasTexture(cv);
+  return { tex, ms: Math.round(performance.now() - t0), skyline: [0, 0.25, 0.5, 0.75].map(f => Math.round(1000 * sm[Math.floor(f * W)] / H) / 1000) };
+}
+
+// A soft round glow, added onto what glows (a block, the ball): a sprite
+// `size` m across, its colour, see-through `a` at its middle; light added.
+const haloTex = (() => { let t = null; return () => t ??= canvasTex(128, 128, (g, w, h) => {
+  const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+}); })();
+function halo(colour, size, a) {
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex(), color: colour, transparent: true, opacity: a, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  s.scale.set(size, size, 1); s.renderOrder = 2;
+  return s;
+}
+// Glowing blocks: a material a colour (made once each), lit from inside: the
+// colour glowing, brighter at the edges (frosted), a little see-through.
+function glowMats() {
+  const edge = canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = '#9A9A9A'; g.fillRect(0, 0, w, h);
+    const r = rng(23);
+    for (let i = 0; i < 90; i++) { g.fillStyle = `rgba(255,255,255,${0.1 + 0.2 * r()})`; g.fillRect(r() * w, r() * h, 2, 2); }
+    for (const [x0, y0, x1, y1] of [[0, 0, 0, 14], [0, h, 0, h - 14]]) { const gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, 'rgba(255,255,255,.9)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, Math.min(y0, y1), w, 14); }
+    for (const [x0, x1] of [[0, 14], [w, w - 14]]) { const gr = g.createLinearGradient(x0, 0, x1, 0); gr.addColorStop(0, 'rgba(255,255,255,.9)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(Math.min(x0, x1), 0, 14, h); }
+  });
+  edge.colorSpace = THREE.NoColorSpace;
+  const made = new Map();
+  return c => {
+    const key = c || '#FFFFFF';
+    if (!made.has(key)) made.set(key, new THREE.MeshStandardMaterial({ color: new THREE.Color(key).multiplyScalar(0.35), emissive: key, emissiveMap: edge, emissiveIntensity: 1.15, roughness: 0.2, metalness: 0, transparent: true, opacity: 0.93 }));
+    return made.get(key);
+  };
+}
+
+// The moon and a cloud that drifts across in front of it, in the view's
+// top right (placed from the camera each frame: the moon is far enough
+// off that it would stay put, as the camera only moves between scenes).
+function sky(group, camera) {
+  const moonTex = canvasTex(256, 256, (g, w, h) => {
+    const gr = g.createRadialGradient(w / 2, h / 2, w * 0.18, w / 2, h / 2, w / 2);
+    gr.addColorStop(0, 'rgba(255,248,225,.55)'); gr.addColorStop(1, 'rgba(255,248,225,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#FFF6DE'; g.beginPath(); g.arc(w / 2, h / 2, w * 0.2, 0, Math.PI * 2); g.fill();
+    const r = rng(9);
+    for (let i = 0; i < 9; i++) { g.fillStyle = `rgba(190,180,160,${0.25 + 0.25 * r()})`; const a = r() * 6.3, q = r() * w * 0.14; g.beginPath(); g.arc(w / 2 + Math.cos(a) * q, h / 2 + Math.sin(a) * q, 4 + r() * 12, 0, Math.PI * 2); g.fill(); }
+  });
+  const cloudTex = canvasTex(256, 128, (g, w, h) => {
+    const r = rng(15);
+    for (let i = 0; i < 26; i++) {
+      const x = w * (0.15 + 0.7 * r()), y = h * (0.45 + 0.2 * (r() - 0.5)), s = h * (0.16 + 0.2 * r());
+      const gr = g.createRadialGradient(x, y - s * 0.3, 0, x, y, s);
+      gr.addColorStop(0, 'rgba(150,160,190,.95)'); gr.addColorStop(0.6, 'rgba(70,80,110,.85)'); gr.addColorStop(1, 'rgba(40,48,72,0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, s, 0, Math.PI * 2); g.fill();
+    }
+  });
+  const sprite = (tex, op) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: op, depthWrite: false, fog: false })); group.add(s); return s; };
+  const moon = sprite(moonTex, 1), cloud = sprite(cloudTex, 0.92);
+  const D = 140, v = new THREE.Vector3(), MOON = [0.5, 0.62], CROSS = 70, ACROSS = 55;
+  let t = 0;
+  const at = (s, nx, ny, dist, size, aspect = 1) => {
+    v.set(nx, ny, 0.5).unproject(camera).sub(camera.position).normalize();
+    s.position.copy(camera.position).addScaledVector(v, dist);
+    const hgt = 2 * dist * Math.tan(camera.fov * Math.PI / 360);
+    s.scale.set(hgt * size * aspect, hgt * size, 1);
+  };
+  return {
+    // the cloud keeps drifting: across in ACROSS s, then a while clear (CROSS s a round)
+    tick(dt) {
+      if (!camera) return;
+      t = (t + dt) % CROSS;
+      at(moon, MOON[0], MOON[1], D, 0.17);
+      const k = t / ACROSS;
+      cloud.visible = k < 1;
+      if (cloud.visible) at(cloud, -1.5 + 3 * k, MOON[1] + 0.03 * Math.sin(k * 5), D - 15, 0.2, 2.2);
+    },
+    state: () => ({ cloud: Math.round(Math.min(1, t / ACROSS) * 100) / 100, moon: MOON }),
+  };
+}
+
+// The owl (Star Light) on a branch of a bare tree at the side of the view:
+// sitting, it turns its head now and then and hoots ("who"); frightened,
+// it starts, spreads its wings and flies off, away from the block, out of
+// sight. Its sitting, hooting and flying: src/core/topple-animals.js's
+// perched().
+function owl(group, bark, sound) {
+  const tree = new THREE.Group(); group.add(tree);
+  const Z = -13, H = 2.6;   // the tree's depth, the owl's branch's height
+  tree.add(mesh(new THREE.CylinderGeometry(0.1, 0.17, 4.2, 10), bark, [0, 2.1, 0]));
+  // branches: the owl's goes in towards the middle (local -x); a few others bare
+  const limbs = [[[0, H - 0.2, 0], [-1.2, H, 0.1], 0.05], [[0, 3.2, 0], [0.9, 4.1, -0.2], 0.05], [[0, 3.7, 0], [-0.6, 4.6, 0.2], 0.04], [[0, 2.2, 0], [0.7, 2.7, 0.3], 0.04], [[-0.7, H - 0.08, 0.06], [-1.0, H + 0.5, 0.15], 0.025]];
+  for (const [a, b, r] of limbs) tree.add(rodTo(a, b, r, bark, 8));
+  const g = new THREE.Group(); group.add(g);
+  const fur = std({ color: '#6B5A48', roughness: 0.95 }), pale = std({ color: '#B9A88E', roughness: 0.95 }), face = std({ color: '#D6C8AE', roughness: 0.9 });
+  const eye = std({ color: '#FFD24A', emissive: '#FFC21A', emissiveIntensity: 0.9 }), black = std({ color: '#111111', roughness: 0.3 }), horn = std({ color: '#3A3128' });
+  part(g, ballGeo, fur, [0, 0.16, 0], [0.12, 0.17, 0.11]);                 // body
+  part(g, ballGeo, pale, [0, 0.14, 0.05], [0.09, 0.13, 0.07]);             // breast
+  const head = new THREE.Group(); head.position.set(0, 0.34, 0); g.add(head);
+  part(head, ballGeo, fur, [0, 0, 0], [0.105, 0.09, 0.095]);
+  part(head, ballGeo, face, [0, -0.005, 0.055], [0.085, 0.07, 0.045]);   // the face's disc
+  for (const s of [-1, 1]) {
+    part(head, ballGeo, eye, [s * 0.036, 0.008, 0.092], [0.022, 0.022, 0.012]);
+    part(head, ballGeo, black, [s * 0.036, 0.008, 0.103], [0.011, 0.011, 0.006]);
+    part(head, new THREE.ConeGeometry(0.02, 0.07, 6), fur, [s * 0.06, 0.09, 0.0]).rotation.z = -s * 0.35;   // ear tufts
+  }
+  part(head, new THREE.ConeGeometry(0.012, 0.035, 6), horn, [0, -0.02, 0.1]).rotation.x = Math.PI * 0.6;   // beak
+  // wings: hinged at the shoulder, folded down its sides; spread to fly
+  const wings = [-1, 1].map(s => { const w = new THREE.Group(); w.position.set(s * 0.1, 0.25, 0); g.add(w); part(w, ballGeo, fur, [s * 0.015, -0.1, 0], [0.025, 0.12, 0.08]); return w; });
+  for (const s of [-1, 1]) part(g, ballGeo, horn, [s * 0.04, 0.0, 0.04], [0.02, 0.012, 0.03]);   // feet on the branch
+  g.scale.setScalar(2);
+  const go = perched(55);
+  let look = 0, lookTo = 0, lookIn = 2, hoot = 0, edges = null, placed = false;
+  // the tree at the view's right side, the owl on its branch (worked out at
+  // the scene's first frame: the camera is placed after the scene is set)
+  const place = () => {
+    const x = (edges ? edges(H, Z)[1] : 5) - 0.5;
+    tree.position.set(x, 0, Z);
+    go.setSeat([x - 1.0, H + 0.05, Z + 0.1]);
+    placed = true;
+  };
+  return {
+    // each scene: the owl back on its branch, calm
+    reset(e) { edges = e ?? edges; placed = false; go.reset(e); look = lookTo = 0; lookIn = 2; hoot = 0; },
+    fright: x => go.fright(x), state: () => ({ owl: true, ...go.state, tree: Math.round(tree.position.x * 100) / 100 }),
+    tick(dt, t) {
+      if (!placed) place();
+      if (go.tick(dt)) { hoot = 1; sound('hoot'); }
+      g.visible = go.on;
+      if (!go.on) return;
+      g.position.set(go.x, go.y, go.seat[2]);
+      const startle = Math.sin(Math.PI * go.startled);
+      if (go.flying) {
+        // flying: turned the way it goes, wings out and beating
+        g.rotation.y = go.dir > 0 ? Math.PI / 2 : -Math.PI / 2;
+        wings.forEach((w, i) => { w.rotation.z = (i ? 1 : -1) * (1.25 + 0.6 * Math.sin(go.flown * 16)); });
+        head.rotation.set(0, 0, 0);
+        return;
+      }
+      g.rotation.y = 0;
+      // startled: it bobs up, wings half open; sitting: now and then its head turns
+      g.position.y += startle * 0.08;
+      wings.forEach((w, i) => { w.rotation.z = (i ? 1 : -1) * startle * 0.8; });
+      if ((lookIn -= dt) <= 0) { lookTo = go.rand() < 0.4 ? 0 : (go.rand() - 0.5) * 2.2; lookIn = 1.5 + 3 * go.rand(); }
+      look += (lookTo - look) * Math.min(1, dt * 4);
+      // a hoot: the head dips forward and back up, twice ("who-who")
+      hoot = Math.max(0, hoot - dt / 0.9);
+      head.rotation.set(Math.max(0, Math.sin(hoot * Math.PI * 2)) * 0.3, go.scared ? 0 : look, 0);
+    },
+  };
 }
 
 /* ---------- materials made in the page ---------- */
@@ -667,6 +906,10 @@ function makeEffects(group, blockMats, S) {
   const shardGeo = new THREE.TetrahedronGeometry(1, 0);
   const shardMat = blockMats.ice ? blockMats.ice.clone() : std({ color: '#C9A27A' });
   const shards = new THREE.InstancedMesh(shardGeo, shardMat, MAX); shards.count = 0; shards.frustumCulled = false; shards.castShadow = true; group.add(shards);
+  // glowing shards: each the colour of the block it was (developer: "the fragments matching the color of the glow")
+  const sparks = new THREE.InstancedMesh(shardGeo, new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }), MAX);
+  sparks.count = 0; sparks.frustumCulled = false; group.add(sparks);
+  const spark = new THREE.Color();
   const dropGeo = new THREE.SphereGeometry(1, 6, 4), dropMat = new THREE.MeshStandardMaterial({ color: '#9FD3F5', transparent: true, opacity: 0.75, roughness: 0.05, metalness: 0.1, envMapIntensity: 1.5 });
   const drops = new THREE.InstancedMesh(dropGeo, dropMat, MAX); drops.count = 0; drops.frustumCulled = false; group.add(drops);
   const staveMat = blockMats.barrel ? blockMats.barrel[0] : std({ color: '#7A5A3A' }), staveGeo = new THREE.BoxGeometry(0.07, 0.6, 0.02);
@@ -674,9 +917,9 @@ function makeEffects(group, blockMats, S) {
   const o = new THREE.Object3D();
   function burst(b, at, q, v) {
     const r = rng(Math.floor(at[0] * 1000 + at[2] * 7777) >>> 0);
-    if (b.mat === 'ice') {
-      const n = Math.min(30, Math.round(12 + 60 * b.w * b.h * b.d / 0.02));
-      for (let i = 0; i < n; i++) live.push({ kind: 'shard', p: [at[0] + (r() - 0.5) * b.w, at[1] + (r() - 0.5) * b.h, at[2] + (r() - 0.5) * b.d], v: [v[0] * 0.5 + (r() - 0.5) * 3, v[1] * 0.5 + r() * 2.5, v[2] * 0.5 + (r() - 0.5) * 3], s: 0.02 + r() * 0.05, spin: [r() * 6, r() * 6, r() * 6], t: 0, life: 1.6 + r() * 0.8 });
+    if (b.mat === 'ice' || b.mat === 'glow') {
+      const n = Math.min(b.mat === 'glow' ? 40 : 30, Math.round(12 + 60 * b.w * b.h * b.d / 0.02)), kind = b.mat === 'glow' ? 'spark' : 'shard';
+      for (let i = 0; i < n; i++) live.push({ kind, c: b.c || '#FFFFFF', p: [at[0] + (r() - 0.5) * b.w, at[1] + (r() - 0.5) * b.h, at[2] + (r() - 0.5) * b.d], v: [v[0] * 0.5 + (r() - 0.5) * 3, v[1] * 0.5 + r() * 2.5, v[2] * 0.5 + (r() - 0.5) * 3], s: 0.02 + r() * 0.05, spin: [r() * 6, r() * 6, r() * 6], t: 0, life: 1.6 + r() * 0.8 });
     } else if (b.mat === 'barrel') {
       for (let i = 0; i < 150; i++) { const a = r() * Math.PI * 2, sp = 1 + r() * 3.2; live.push({ kind: 'drop', p: [at[0] + Math.cos(a) * b.r * 0.6, at[1] + (r() - 0.3) * b.h * 0.5, at[2] + Math.sin(a) * b.r * 0.6], v: [Math.cos(a) * sp + v[0] * 0.3, 1 + r() * 3, Math.sin(a) * sp + v[2] * 0.3], s: 0.035 + r() * 0.045, t: 0, life: 1.2 + r() * 0.5 }); }
       const patch = new THREE.Mesh(new THREE.CircleGeometry(1, 32), new THREE.MeshStandardMaterial({ color: '#5A3B22', transparent: true, opacity: 0, roughness: 0.35, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -6 }));
@@ -691,7 +934,7 @@ function makeEffects(group, blockMats, S) {
     while (live.length > MAX) live.shift();
   }
   function tick(dt) {
-    let ns = 0, nd = 0;
+    let ns = 0, nd = 0, nk = 0;
     for (let i = live.length - 1; i >= 0; i--) {
       const e = live[i]; e.t += dt;
       if (e.t > e.life) { live.splice(i, 1); continue; }
@@ -703,10 +946,12 @@ function makeEffects(group, blockMats, S) {
       const fade = Math.min(1, (e.life - e.t) / 0.4);
       o.position.set(...e.p); o.scale.setScalar(e.s * fade);
       if (e.kind === 'shard') { o.rotation.set(e.spin[0] * e.t, e.spin[1] * e.t, e.spin[2] * e.t); o.updateMatrix(); shards.setMatrixAt(ns++, o.matrix); }
+      else if (e.kind === 'spark') { o.rotation.set(e.spin[0] * e.t, e.spin[1] * e.t, e.spin[2] * e.t); o.updateMatrix(); sparks.setMatrixAt(nk, o.matrix); sparks.setColorAt(nk++, spark.set(e.c)); }
       else { o.rotation.set(0, 0, 0); o.updateMatrix(); drops.setMatrixAt(nd++, o.matrix); }
     }
-    shards.count = ns; drops.count = nd;
-    shards.instanceMatrix.needsUpdate = true; drops.instanceMatrix.needsUpdate = true;
+    shards.count = ns; drops.count = nd; sparks.count = nk;
+    shards.instanceMatrix.needsUpdate = true; drops.instanceMatrix.needsUpdate = true; sparks.instanceMatrix.needsUpdate = true;
+    if (sparks.instanceColor) sparks.instanceColor.needsUpdate = true;
     for (const p of patches) { p.t += dt; const k = Math.min(1, p.t / 0.9); p.m.scale.setScalar(Math.max(0.01, p.size * Math.sqrt(k))); p.m.material.opacity = 0.42 * k; }
     for (const p of pieces) {
       if (p.m.position.y <= 0.012 && p.t > 0.1) continue;
@@ -716,7 +961,7 @@ function makeEffects(group, blockMats, S) {
     }
   }
   function clear() {
-    live.length = 0; shards.count = 0; drops.count = 0;
+    live.length = 0; shards.count = 0; drops.count = 0; sparks.count = 0;
     for (const p of patches) { group.remove(p.m); p.m.geometry.dispose(); p.m.material.dispose(); }
     for (const p of pieces) group.remove(p.m);
     patches.length = 0; pieces.length = 0;

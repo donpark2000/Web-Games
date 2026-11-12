@@ -1,5 +1,5 @@
-// Topple!'s levels 2-4 (src/core/topple-levels.js; DESIGN.md "Topple!"
-// Levels): the building site, Frosty Times, Cactus Canyon. Under Node,
+// Topple!'s levels 2-5 (src/core/topple-levels.js; DESIGN.md "Topple!"
+// Levels): the building site, Frosty Times, Cactus Canyon, Star Light. Under Node,
 // seconds of physics, nothing written: every scene is made, passes the
 // check and stands still, asleep; nothing in the way is within reach of
 // the structure falling; the materials weigh and bounce as set; ice
@@ -14,12 +14,13 @@ import {
   SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, sceneParts, launchVel, HAND, MAX_AIM, R2D, makeLayout, sceneOpts, FRAME_REACH,
 } from '../src/core/topple.js';
 import { canBeWon } from './topple-players.js';
+import { GLOWS } from '../src/core/topple-levels.js';
 
 const DT = 1 / 60;
 const LATER = LEVELS.filter(l => l.n > 1);
 
-test('topple levels: four levels, each later one five structures in a fixed order, its own things, the iron ball', () => {
-  assert.equal(MAX_LEVEL, 4);
+test('topple levels: five levels, each later one five structures in a fixed order, its own things, the iron ball', () => {
+  assert.equal(MAX_LEVEL, 5);
   for (const l of LATER) {
     assert.equal(l.scenes.length, SCENES, l.name);
     assert.equal(new Set(l.scenes).size, SCENES, `${l.name}: a structure twice`);
@@ -57,7 +58,7 @@ test('topple levels: every scene of two games is made, passes the check first ti
       assert.equal(w.downCount(), 0, `${at}: a block fell`);
     }
   }
-  assert.equal(n, 2 * 3 * SCENES);
+  assert.equal(n, 2 * 4 * SCENES);
 });
 
 // The structure falling whole reaches further than its tallest block: the
@@ -86,7 +87,7 @@ test('topple levels: nothing in the way stands within reach of the structure fal
   assert.ok(checked > 60, `only ${checked} parts measured`);
 });
 
-test('topple levels: the materials: wood lightest to steel heaviest; ice slippery; ice and barrels break, the rest never', () => {
+test('topple levels: the materials: wood lightest to steel heaviest; ice slippery; ice, barrels and glowing blocks break, the rest never', () => {
   assert.ok(MATS.wood.density < MATS.brick.density && MATS.brick.density < MATS.concrete.density && MATS.concrete.density < MATS.steel.density);
   // ice slides (2026-11-12, Q84: cannon-es's friction acts 1/STEP x 4 its number; ice's is put back):
   // a lone cube on the ground pushed at 1 m/s slides at least 25 cm (friction 0.15: 0.34 m); wood hardly moves
@@ -105,12 +106,32 @@ test('topple levels: the materials: wood lightest to steel heaviest; ice slipper
   const ice = slid('ice'), wood = slid('wood');
   assert.ok(ice > 0.25, `ice slid ${ice.toFixed(2)} m`);
   assert.ok(wood < 0.05, `wood slid ${wood.toFixed(2)} m`);
-  for (const [k, m] of Object.entries(MATS)) assert.equal(!!m.breaks, k === 'ice' || k === 'barrel', k);
+  for (const [k, m] of Object.entries(MATS)) assert.equal(!!m.breaks, k === 'ice' || k === 'barrel' || k === 'glow', k);
+  assert.ok(MATS.glow.downBreaks && !MATS.glow.slides, 'glowing blocks break when down, as ice, and grip');
   // a steel post weighs more than a wooden one of the same size, in the world as built
   const w = createWorld();
   const post = (mat, x) => ({ w: 0.2, h: 0.9, d: 0.2, x, y: 0.452, z: -5, mat });
   w.setScene({ blocks: [post('wood', -1), post('steel', 1)], bodies: [], props: [], level: 2, ball: { r: 0.07, kg: 3 } });
   assert.ok(Math.abs(w.blocks[1].body.mass / w.blocks[0].body.mass - MATS.steel.density / MATS.wood.density) < 1e-9);
+});
+
+// Star Light (developer, 2026-11-12, Q87): every block glows, each its own
+// colour as drawn (the shards take it), the colours given round so pieces
+// side by side differ.
+test('topple levels: Star Light\'s blocks all glow, each a colour, neighbours different', () => {
+  const info = LEVELS[4];
+  assert.equal(info.name, 'Star Light');
+  let blocks = 0;
+  for (let i = 1; i <= SCENES; i++) {
+    const p = sceneParts(frameLayout(9, 5, i));
+    for (const b of p.blocks) { assert.equal(b.mat, 'glow', `${info.scenes[i - 1]}`); assert.ok(GLOWS.includes(b.c), `${info.scenes[i - 1]}: colour ${b.c}`); }
+    p.blocks.forEach((b, k) => { if (k) assert.notEqual(b.c, p.blocks[k - 1].c, `${info.scenes[i - 1]}: blocks ${k - 1} and ${k} the same colour`); });
+    assert.ok(new Set(p.blocks.map(b => b.c)).size >= Math.min(3, p.blocks.length), `${info.scenes[i - 1]}: too few colours`);
+    blocks += p.blocks.length;
+  }
+  assert.ok(blocks >= 30, `only ${blocks} blocks`);
+  // the other levels' blocks don't glow
+  for (const l of LATER.filter(l => l.n !== 5)) for (const b of sceneParts(frameLayout(9, l.n, 1)).blocks) assert.notEqual(b.mat, 'glow');
 });
 
 // The throw (from `fromUp`° up) whose path first touches what `hits` picks
@@ -140,9 +161,9 @@ function throwAt(parts, power, i, fromUp = 0, weak = 1) {
   return { broke, down: w.downCount(), speed, w, brokeFirst: w.blocks[i].broken };
 }
 
-test('topple levels: ice shatters and a barrel bursts when hit hard, gone and down for good; a soft knock leaves it', () => {
+test('topple levels: ice and a glowing block shatter and a barrel bursts when hit hard, gone and down for good; a soft knock leaves it', () => {
   // the ice gate's left pillar, and the trestle's left barrel
-  for (const [lv, name, i, mat] of [[3, 'iceGate', 0, 'ice'], [4, 'trestle', 0, 'barrel']]) {
+  for (const [lv, name, i, mat] of [[3, 'iceGate', 0, 'ice'], [4, 'trestle', 0, 'barrel'], [5, 'lanternArch', 0, 'glow']]) {
     const L = frameLayout(31, lv, LEVELS[lv - 1].scenes.indexOf(name) + 1), p = sceneParts(L);
     assert.equal(p.blocks[i].mat, mat);
     const hard = throwAt(p, L.power, i, 8);
@@ -284,7 +305,7 @@ test('topple levels: every scene of two games can be won by a player throwing as
     }
   }
   const summary = rows.filter(r => !r.won).map(r => `${r.at}: NOT WON by ${r.players} (best ${r.best}/${r.total})`).join('; ');
-  assert.equal(rows.length, 2 * 3 * SCENES);
+  assert.equal(rows.length, 2 * 4 * SCENES);
   assert.equal(rows.filter(r => !r.won).length, 0, summary);
 });
 

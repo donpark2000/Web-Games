@@ -71,3 +71,56 @@ export function crossing(seed, y, z, margin, hold = STARTLE) {
     },
   };
 }
+
+// Star Light's owl (developer, 2026-11-12, Q87: "it can be sitting on a
+// tree branch and just say 'who' once in a while"): it doesn't cross; it
+// sits on its branch from the start of every scene, hooting now and then
+// (the first 3-6 s in, then every HOOT_EVERY s), turning its head. A block
+// falling startles it as the others (STARTLE s), then it flies off away
+// from the block, climbing, out of sight; back on its branch next scene.
+// at: [x, y, z] its seat (the drawing sets it each scene, at the view's
+// side: setSeat), margin: how far past the view's edge it is gone.
+export const HOOT_EVERY = [8, 16];
+export const OWL_FLY = 3.2;    // m/s, flying off
+export function perched(seed, margin = 1.2) {
+  let n = 0, r, seat = [0, 0, 0], x, y, dir, nextHoot, gone, scared, startle, edges = null, flown = 0;
+  const reset = e => {
+    edges = e ?? edges; r = rng(seed + 7919 * ++n);
+    x = seat[0]; y = seat[1]; dir = 0; nextHoot = 3 + 3 * r(); gone = false; scared = false; startle = 0; flown = 0;
+  };
+  reset();
+  return {
+    reset, rand: () => r(),
+    // where it sits (it goes there now, unless it's flown off)
+    setSeat(at) { seat = at.slice(); if (!scared) { x = seat[0]; y = seat[1]; } },
+    get seat() { return seat; },
+    get x() { return x; }, get y() { return y; }, get dir() { return dir; },
+    get on() { return !gone; },
+    get scared() { return scared; },
+    get flying() { return scared && startle === 0 && !gone; },
+    get startled() { return startle > 0 ? 1 - startle / STARTLE : 0; },
+    // s flown, for the wings' beat
+    get flown() { return flown; },
+    get state() { return { on: !gone, x: Math.round(x * 100) / 100, y: Math.round(y * 100) / 100, dir, scared, hoot: Math.round(Math.max(0, nextHoot) * 100) / 100 }; },
+    // dt s on; true when it hoots now (only sitting calm)
+    tick(dt) {
+      if (gone) return false;
+      if (startle > 0) { startle = Math.max(0, startle - dt); return false; }
+      if (scared) {
+        flown += dt; x += dir * OWL_FLY * dt; y += 0.9 * OWL_FLY * dt * Math.min(1, flown / 0.6) * 0.5;
+        const [L, R] = edges ? edges(y, seat[2]) : [-12, 12];
+        if (dir > 0 ? x > R + margin : x < L - margin) gone = true;
+        return false;
+      }
+      nextHoot -= dt;
+      if (nextHoot <= 0) { nextHoot = HOOT_EVERY[0] + (HOOT_EVERY[1] - HOOT_EVERY[0]) * r(); return true; }
+      return false;
+    },
+    // a block fell at fromX: startled, then off away from it (once a scene)
+    fright(fromX) {
+      if (gone || scared) return null;
+      dir = x === fromX ? 1 : Math.sign(x - fromX); scared = true; startle = STARTLE;
+      return { x: Math.round(x * 100) / 100, from: Math.round(fromX * 100) / 100, turned: false, flew: dir };
+    },
+  };
+}

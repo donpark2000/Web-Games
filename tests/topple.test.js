@@ -299,8 +299,8 @@ test('topple: a game: a jewel and the next scene; a heart and the same scene; th
 // to it; each level keeps its own place; the map plays any level open, not
 // higher; the last level done: 'all'.
 test('topple: levels: a level done opens the next; each keeps its place; only open levels can be played', () => {
-  assert.equal(MAX_LEVEL, 4);
-  assert.deepEqual(LEVELS.map(l => l.name), ['The park', 'The building site', 'Frosty Times', 'Cactus Canyon']);
+  assert.equal(MAX_LEVEL, 5);
+  assert.deepEqual(LEVELS.map(l => l.name), ['The park', 'The building site', 'Frosty Times', 'Cactus Canyon', 'Star Light']);
   const g = createGame(9);
   assert.equal(isOpen(g, 2), false);
   assert.equal(switchLevel(g, 2), false, 'level 2 before level 1 is done');
@@ -321,21 +321,21 @@ test('topple: levels: a level done opens the next; each keeps its place; only op
   assert.deepEqual(placeOf(g, 1), { scene: 2, hearts: 3, jewels: 1 });
   assert.equal(switchLevel(g, 3), false);
   // through to the last level: 'all', every level done
-  for (const n of [2, 3]) { switchLevel(g, n); Object.assign(g, FRESH); for (let i = 1; i < SCENES; i++) sceneOver(g, true); assert.equal(sceneOver(g, true), 'level'); }
-  assert.equal(g.level, 4);
+  for (const n of [2, 3, 4]) { switchLevel(g, n); Object.assign(g, FRESH); for (let i = 1; i < SCENES; i++) sceneOver(g, true); assert.equal(sceneOver(g, true), 'level'); }
+  assert.equal(g.level, 5);
   for (let i = 1; i < SCENES; i++) sceneOver(g, true);
   assert.equal(sceneOver(g, true), 'all');
-  assert.deepEqual({ level: g.level, reached: g.reached, done: g.done, ...placeOf(g, 4) }, { level: 4, reached: 4, done: [1, 2, 3, 4], ...FRESH });
+  assert.deepEqual({ level: g.level, reached: g.reached, done: g.done, ...placeOf(g, 5) }, { level: 5, reached: 5, done: [1, 2, 3, 4, 5], ...FRESH });
   // new scenes keep the levels reached
   const h = createGame(10, g);
-  assert.deepEqual({ level: h.level, reached: h.reached, done: h.done, places: h.places }, { level: 1, reached: 4, done: [1, 2, 3, 4], places: {} });
+  assert.deepEqual({ level: h.level, reached: h.reached, done: h.done, places: h.places }, { level: 1, reached: 5, done: [1, 2, 3, 4, 5], places: {} });
 });
 
 test('topple: a game kept on the device is used only if it makes sense', () => {
   const g = createGame(5);
   assert.deepEqual(readGame(JSON.parse(JSON.stringify(g))), g);
   assert.deepEqual(readGame({ ...g, extra: 1 }), g);
-  for (const bad of [null, 'x', {}, { ...g, seed: 0 }, { ...g, scene: 6 }, { ...g, scene: 0 }, { ...g, hearts: 0 }, { ...g, hearts: 4 }, { ...g, jewels: 5 }, { ...g, level: 0 }, { ...g, level: 5 }, { ...g, scene: '2' }]) {
+  for (const bad of [null, 'x', {}, { ...g, seed: 0 }, { ...g, scene: 6 }, { ...g, scene: 0 }, { ...g, hearts: 0 }, { ...g, hearts: 4 }, { ...g, jewels: 5 }, { ...g, level: 0 }, { ...g, level: 6 }, { ...g, scene: '2' }]) {
     assert.equal(readGame(bad), null, JSON.stringify(bad));
   }
   // one kept by 9.4 (level 1 only) carries on

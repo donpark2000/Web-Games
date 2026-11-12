@@ -69,7 +69,8 @@ time, each tried before publishing:
   chain-reaction level. To discuss: which first, and the names.
   2026-11-12, developer: "We could start with star light." Star Light
   first; its open points in "Fright liked; Star Light first; many
-  targets (Q88)".
+  targets (Q88)". Developer: the owl and the cloud "both"; "build it".
+  Built ("Star Light built (level 5)"): to try.
 - **Q88. Topple!: several targets at different distances, walking
   forward to each** (2026-11-12, the developer's idea; "Fright liked;
   Star Light first; many targets (Q88)"): same play, more balls. Asked
@@ -18624,3 +18625,88 @@ and the cloud; Star Light built without a mockup).
 - Q79 (the phone's frame rate) was not measured before this release; the
   developer's phone on the live site is the place to measure it (the
   log's fps at each scene's end).
+
+## 2026-11-12: Star Light built (level 5)
+
+Built straight from the developer's outline (Q87), with the owl and the
+cloud both. DESIGN.md "Topple!" Level 5 has it as built.
+
+- **Data** (`src/core/topple-levels.js`): `glow` material (breaks at
+  2.2 m/s and when down, as ice; grips: no slide), `GLOWS` (5 colours,
+  given round each structure's blocks), glowing columns (cylinders),
+  five structures, level 5 (soft: the rock, tall: the pine, the iron
+  ball's physics), a fifth map spot (the five spaced 19% apart).
+- **The night** (`src/ui/topple-sets.js` `nightSky()`): level 3's photo
+  at 2048 x 1024; the skyline per column (sky: blue - red > 22 and blue >
+  110; 4 rows not sky in a row ends it; searched from 0.3 of the height,
+  above the photo's sun, to 0.52; a median of 5 columns), sky above it
+  dark blue with 2,600 tries at stars, the land below as its brightness
+  in blues. Made in **161 ms** on this PC (logged `nightMs`; a phone
+  several times that, once a visit); skyline at 0, ¼, ½, ¾ round: 0.404,
+  0.393, 0.412, 0.302 of the height.
+- **Owl** (`perched()` in `src/core/topple-animals.js`, drawn by `owl()`),
+  **moon and cloud** (`sky()`: sprites placed from the camera each
+  frame), **glow** (halo sprites, a point light dimming as blocks break,
+  coloured additive shards), the **ball** (pale gold, no ring), the
+  **sounds** (`chime`, `hoot`), the map's 🌙 and a taller map (140 px a
+  level, as four had).
+
+**Win rates** (my probe in the scratch folder: 4 games x 8 players a
+scene, players throwing at a random block they can see, as levels 2-4
+were measured): lantern arch 100%, lighthouse 100%, candles 97%, twin
+lanterns 91%, star palace first **31%** (its wall 0.42 m tall), then
+**44%** with the wall 0.36 m (as the building site's 50%). Pass criteria
+as levels 2-4 (1-4 at least 75%, the 5th 30-80%): met.
+
+**Seen in the browser** (stepping the game by hand; the pane hidden):
+- First look too bright for night, and a lilac patch round the
+  slingshot. Two causes, found one at a time: (1) the sky picture lit the
+  scene as an environment light (the lights had loaded dimmer: checked
+  the module's values in the page), so at night there is none and the
+  snow is tinted; (2) the glow light was placed from `parts.bounds`,
+  which take in the rock in front, so it sat by the slingshot; now from
+  the glowing blocks themselves (checked: the patch gone, the glow pools
+  round the structure).
+- The owl's tree was first off screen: placed when the scene was set,
+  before the camera (the crossing animals already wait for their first
+  frame for this reason; `edges` gave R 5.17 then, the tree was at 6.9).
+  Now placed at its first frame: on its branch at the top right.
+- A throw at the lighthouse (aim found with the game's own path tracer):
+  2 blocks broke at 3.8 and 2.6 m/s, the shards in pink, lime and yellow;
+  the owl took fright (`flew: 1`, away from the block at x 0.24), flew
+  right and climbed, gone; then the whole lighthouse shattered, the snow
+  darker as the glow went out. Logged: "owl hoots", "block broke" (mat
+  glow), "animal frightened".
+- At phone size (375 x 812) the stars show over the mountains; in the
+  wide pane the mountains fill the top and only a corner of sky shows
+  (the star palace's taller view shows stars there too). The moon made
+  smaller (0.22 to 0.17 of the view's height). No console errors; no
+  sideways scroll on the map at phone size.
+
+**Sounds, measured** (`soundLevels`, loudest 50 ms): chime 0.062, hoot
+0.052, against level 1's knock 0.046; gains 0.75 (to 0.047) and 0.7 (to
+0.036: the owl in the background).
+
+**Tests**: the owl (sits and hoots, first at 3-6 s, then 8-16 s apart;
+startled 0.3 s, then off away from the block, climbing, gone; no hoots
+then; once a scene; back next scene; the other way for a block on its
+right), shown able to fail (direction flipped: it fails); Star Light's
+blocks all glow, each a colour, neighbours different; the glowing block
+shatters at a hard knock, not a soft one, and stays broken; every Star
+Light scene of two games is made, still, and won (now 40 scenes); the
+page wiring (sky, lights, halos, ring, shards, owl, cloud, sounds, map).
+Level counts 4 to 5 where tests named them. `node tools/offline.js`.
+584 tests, all pass.
+
+**Not checked**: the phone's frame rate with the halos and the light
+(Q79); how it feels; the hoot heard (the pane plays no sound to me).
+
+**Status (start here next session)**
+- **Live: 10.0.** `block-game`: Star Light built (not yet seen by the
+  developer); committed and pushed. Nothing merged since 10.0.
+- **For the developer:** try Star Light (`node tools/serve.js`; the map's
+  level 5, or play through). The structures' and sounds' picks are
+  Claude's, to review. Then publish as 10.1?
+- **Not done:** Q78 (map stills), Q79 (the phone's fps), Q88 (many
+  targets: to discuss).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88.

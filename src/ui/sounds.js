@@ -145,6 +145,13 @@ export const RECIPES = {
   // Level 4 (Claude's, to review): a full barrel knocked (a hollow wooden
   // thunk), a barrel bursting (a crack, a gush of water, drips).
   barrel: (k, t, l = 1) => site(k, 'barrel', g => { g.tone(t, 150 + Math.random() * 20, { type: 'triangle', to: 95, dur: 0.22, peak: 0.15 + 0.4 * l, attack: 0.002 }); g.noise(t, { dur: 0.16, peak: 0.1 + 0.25 * l, f: 420, q: 4 }); g.noise(t, { dur: 0.1, peak: 0.06 + 0.12 * l, f: 260, q: 6 }); }),
+  // Level 5, Star Light (Claude's, to review): a glowing block knocked (a
+  // soft crystal chime, a random note of a pentatonic scale, so knocks
+  // together sound like wind chimes; it shatters as ice does), and the owl's
+  // hoot (developer: "just say 'who' once in a while"): a low breathy
+  // "hoo", then "hoo-hoo", each a falling note with a little breath.
+  chime: (k, t, l = 1) => site(k, 'chime', g => { const b = [1047, 1175, 1319, 1568, 1760][Math.floor(Math.random() * 5)]; [1, 2.76, 5.4].forEach((m, i) => g.tone(t, b * m, { dur: 0.9 / (1 + i * 1.5), peak: (0.06 + 0.16 * l) / (1 + i * 2), attack: 0.002 })); }),
+  hoot: (k, t) => site(k, 'hoot', g => { [[0, 0.42], [0.62, 0.16], [0.82, 0.38]].forEach(([dt, dur]) => { g.tone(t + dt, 392, { to: 350, dur, peak: 0.22, attack: 0.05 }); g.noise(t + dt, { dur, peak: 0.03, f: 400, q: 3, attack: 0.05 }); }); }),
   splash: (k, t) => site(k, 'splash', g => { g.noise(t, { dur: 0.04, peak: 0.3, f: 1200, q: 2 }); g.tone(t, 80, { to: 45, dur: 0.2, peak: 0.25 }); g.noise(t + 0.02, { dur: 0.7, peak: 0.3, f: 2600, to: 500, q: 0.8, attack: 0.02 }); g.rattle(t + 0.15, 20, 0.7, 1500, 4500, 0.06); }),
 };
 
@@ -155,7 +162,8 @@ export const RECIPES = {
 // 2026-11-11 (rendered at 0.9 through the game's 0.5 master; loudest 50 ms RMS before -> after): level 1's knock 0.046 the
 // yardstick; plank 0.007, brick 0.003, ring 0.040, crash 0.179 (to 0.09, a crash), clonk 0.096 (the ball, a little
 // quieter), crunch 0.005, iceknock 0.056, shatter 0.040 and splash 0.048 (to 0.07), poof 0.035, barrel 0.072.
-export const SITE_GAIN = { plank: 7, brick: 16, ring: 1.2, crash: 0.5, clonk: 0.45, crunch: 8.5, iceknock: 0.9, shatter: 1.75, poof: 1.15, barrel: 0.7, splash: 1.45 };
+// 2026-11-12: chime 0.062 (to 0.047), hoot 0.052 (to 0.036: the owl, in the background).
+export const SITE_GAIN = { plank: 7, brick: 16, ring: 1.2, crash: 0.5, clonk: 0.45, crunch: 8.5, iceknock: 0.9, shatter: 1.75, poof: 1.15, barrel: 0.7, splash: 1.45, chime: 0.75, hoot: 0.7 };
 // Runs `play` with the kit's peaks scaled by the sound's gain.
 function site(k, name, play) {
   const g = SITE_GAIN[name] ?? 1;

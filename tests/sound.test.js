@@ -58,10 +58,11 @@ function setupSound({ ctx = fakeContext(), storage = fakeStorage(), noAudio = fa
 // knock, rustle and boing: a block knocked, the ball in leaves, off the glass (Topple!, 2026-11-10, the block game mockup's).
 // plank ... splash: Topple!'s levels 2-4, a sound for each material, the ball in gravel or snow, ice shattering, a
 // barrel bursting (2026-11-11: the building site's the developer's picks from the level 2 mockup v6; the rest Claude's).
+// chime and hoot: Star Light's glowing blocks and its owl (2026-11-12, Claude's).
 const NAMES = ['tick', 'thud', 'win', 'aww', 'tie', 'swish', 'shake', 'ding', 'uhoh', 'climb', 'wheee', 'ping', 'clack', 'clink', 'whoosh', 'knock', 'rustle', 'boing',
-  'plank', 'brick', 'ring', 'crash', 'clonk', 'crunch', 'iceknock', 'shatter', 'poof', 'barrel', 'splash'];
+  'plank', 'brick', 'ring', 'crash', 'clonk', 'crunch', 'iceknock', 'shatter', 'poof', 'barrel', 'splash', 'chime', 'hoot'];
 
-test('sound: the twenty-nine sounds, each scheduling audio that starts now and ends within 2 s', () => {
+test('sound: the thirty-one sounds, each scheduling audio that starts now and ends within 2 s', () => {
   assert.deepEqual(Object.keys(RECIPES).sort(), [...NAMES].sort());
   for (const name of NAMES) {
     const { s, ctx } = setupSound();
@@ -217,7 +218,9 @@ const GAME_SOUNDS = {
     // levels 2-4 (2026-11-11): each material's, the light's pole, the iron ball on the ground, gravel and snow, breaking
     'plank', 'brick', 'ring', 'crash', 'iceknock', 'barrel', 'clonk', 'crunch', 'shatter', 'splash',
     // 2026-11-12: the snowy rock clonks (no snow's poof); the map after a level: the lock pops, the face walks, it arrives (Q81)
-    'clink', 'climb', 'ding'],
+    'clink', 'climb', 'ding',
+    // Star Light (2026-11-12): a glowing block knocked (it shatters as ice), the owl's hoot
+    'chime', 'hoot'],
 };
 
 test('sound: each game plays its agreed sounds, all real ones, and the end-of-round sound', async () => {
@@ -240,7 +243,7 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 59);
+  assert.equal(checked, 61);
 });
 
 // 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (developer, 2026-10-09; was

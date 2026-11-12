@@ -5,7 +5,7 @@
 // faster, out of sight. Time moves on in fixed steps (no clock).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { crossing, STARTLE, FLEE } from '../src/core/topple-animals.js';
+import { crossing, perched, STARTLE, FLEE, HOOT_EVERY, OWL_FLY } from '../src/core/topple-animals.js';
 
 const DT = 1 / 60, SPEED = 1;   // m/s walking, in these tests
 const edges = () => [-5, 5];    // margin 1: from -6 to 6 (or back)
@@ -92,4 +92,41 @@ test('topple animals: each crossing still starts and ends just out of sight, eit
     assert.ok(go.dir > 0 ? go.x > 6 : go.x < -6, `seed ${seed} ended at ${go.x}`);
   }
   assert.equal(seen.size, 2, 'all one way');
+});
+
+// Star Light's owl (developer, 2026-11-12, Q87: "sitting on a tree branch
+// and just say 'who' once in a while"): it sits from the scene's start,
+// hoots now and then; a block falling startles it, then it flies off away
+// from the block, climbing, out of sight; back on its branch next scene.
+test('topple animals: the owl sits and hoots now and then; a fall startles it and it flies off away, out of sight; back next scene', () => {
+  const owl = perched(55, 1);
+  owl.setSeat([3, 2.6, -13]); owl.reset(edges);
+  assert.deepEqual([owl.x, owl.y, owl.on, owl.scared], [3, 2.6, true, false]);
+  // 60 s sitting: hoots, the first 3-6 s in, then every HOOT_EVERY s
+  const at = [];
+  for (let s = 0; s < 60 / DT; s++) if (owl.tick(DT)) at.push(s * DT);
+  assert.ok(at[0] >= 3 && at[0] <= 6 + DT, `first hoot at ${at[0]}`);
+  for (let i = 1; i < at.length; i++) { const gap = at[i] - at[i - 1]; assert.ok(gap >= HOOT_EVERY[0] - DT && gap <= HOOT_EVERY[1] + DT, `a hoot ${gap.toFixed(2)} s after the last`); }
+  assert.ok(at.length >= 4 && at.length <= 8, `${at.length} hoots in a minute`);
+  assert.deepEqual([owl.x, owl.y], [3, 2.6], 'moved while sitting');
+  // a block to its left: startled STARTLE s (put), then off to the right, climbing, no hoots
+  assert.deepEqual(owl.fright(1), { x: 3, from: 1, turned: false, flew: 1 });
+  let hoots = 0;
+  for (let s = 0; s < (STARTLE - 0.02) / DT; s++) hoots += owl.tick(DT);
+  assert.deepEqual([owl.x, owl.y, owl.flying], [3, 2.6, false], 'moved while startled');
+  for (let s = 0; s < 0.54 / DT; s++) hoots += owl.tick(DT);
+  assert.ok(owl.flying && Math.abs(owl.x - 3 - OWL_FLY * 0.5) < 0.1, `flew to x ${owl.x}`);
+  assert.ok(owl.y > 2.6, 'not climbing');
+  assert.equal(owl.fright(owl.x + 1), null, 'frightened twice');
+  for (let s = 0; s < 10 / DT && owl.on; s++) hoots += owl.tick(DT);
+  assert.equal(owl.on, false, 'still in sight');
+  assert.ok(owl.x > 5 + 1, `gone at x ${owl.x}`);
+  assert.equal(hoots, 0, 'hooted, frightened');
+  assert.equal(owl.fright(0), null, 'frightened once gone');
+  // a new scene: back on its branch, calm; a block to its right sends it left
+  owl.reset();
+  assert.deepEqual([owl.x, owl.y, owl.on, owl.scared], [3, 2.6, true, false]);
+  owl.fright(4);
+  for (let s = 0; s < 1 / DT; s++) owl.tick(DT);
+  assert.ok(owl.dir === -1 && owl.x < 3, `flew to x ${owl.x}`);
 });

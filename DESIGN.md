@@ -2168,7 +2168,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   **Level 2 ▸**: the map, the next level's lock shaking and popping off,
   your face walking the road to it as the dots turn orange, then **Play
   level 2 ▸** or a tap on it starts it; developer, 2026-11-12, Q81:
-  instead of the next level's screen). **Four levels** (2026-11-11, the
+  instead of the next level's screen). **Five levels** (Star Light the
+  fifth, 2026-11-12; the first four 2026-11-11, the
   developer's outline: "level 3 ... the winter theme with ice blocks ...
   snow and mountains ... Frosty Times. [Level] 4 ... the desert ... sand,
   cactus, maybe some snakes, and rock formations similar to deserts in
@@ -2192,7 +2193,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   has the same scenes. **New scenes from scene 1** makes new scenes for
   every level and keeps the levels open (Claude's pick, to review). The
   pictures are a sign of each setting for now (level 1's drawing, 🏗️,
-  ❄️, 🌵; Claude's pick, to review: the mockup's were drawn by the 3D).
+  ❄️, 🌵, 🌙; Claude's pick, to review: the mockup's were drawn by the 3D).
+  The map is 140 px a level (at most 700 px tall for five).
 - **Levels 2-4: five structures each, in a fixed order**, the climb in
   difficulty sure (level 1 deals its scenes 1-4 from six); the seed
   changes only small sizes and where things stand. Scenes 1 and 3 have
@@ -2271,8 +2273,36 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   lower and sage-grey) and a **saguaro cactus** (tall: its ribbed trunk
   and two arms). Sounds: a barrel knocked (a hollow thunk), bursting (a
   crack, a gush, drips).
+- **Level 5, "Star Light"** (the developer's idea and name, 2026-11-12,
+  Q87: "Night time with a moon and stars in the sky. Similar vista to the
+  winter level but low light. Blocks and balls glow. When a block is hit
+  it breaks similar to ice blocks but with the fragments matching the
+  color of the glow"; built without a mockup, the developer's pick).
+  **The night**: level 3's photo made night in the page (no new
+  download): its sky found column by column (blue well over red) and
+  swapped for a dark blue sky with stars, its land kept in moonlight (its
+  brightness in blues); the moonlight dim and blue, no sky light on the
+  shiny parts, the snow tinted. **The moon** in the view's top right, and
+  **a cloud** drifting across in front of it, not frightened (developer:
+  owl or cloud, "both"). **Glowing blocks** (`glow`): each a colour (cyan,
+  pink, lime, amber, violet, given round so neighbours differ), lit from
+  inside, brighter at the edges, a soft halo each, and a light among them
+  that dims as they break; they break as ice does (at a knock of 2.2 m/s,
+  or once down) but grip; **the shards are the block's colour**. **The
+  ball glows** pale gold (no lifting ring). Structures (Claude's picks, to
+  review): a lantern arch, a lighthouse (four drums and a lamp), candles
+  (four columns with a cube each, falling in parts), twin lanterns (two
+  gates and a slab), and the challenge, a **star palace** (two storeys of
+  columns and slabs behind a low wall of three cubes). In the way: level
+  3's rock and snowy pine, at night. **The owl** on a bare tree at the
+  view's right: it sits from the start of each scene, turns its head now
+  and then and **hoots** ("who"; the first 3-6 s in, then every 8-16 s);
+  a fall startles it and it flies off away from the block, out of sight;
+  back next scene (`perched()` in `src/core/topple-animals.js`). Sounds: a
+  glowing block knocked (a crystal chime), shattering (ice's), the hoot.
 - **The animals** (decor, out of play: two birds over the park, a rat on
-  the building site, the snow bunny, the rattlesnake): each **crosses the
+  the building site, the snow bunny, the rattlesnake; Star Light's owl
+  sits instead: see level 5): each **crosses the
   view once a scene**, 3-10 s in, from just out of sight to just out of
   sight (developer, 2026-11-12: "If it just hopped across a scene once
   that should be plenty"). **Frightened by a fall** (developer,
@@ -2376,7 +2406,7 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   not), the map (a level picked, a locked one), the Level screen's
   start, a block broken (its material, speed), each knock's material in
   the sound; an animal frightened (where it was, the block's x, whether
-  it turned back, by a fall or a break); 3D started (with the far-off trees' leaves), the game on
+  it turned back, by a fall or a break); the owl's hoots; the night sky (ms to make, the skyline found); 3D started (with the far-off trees' leaves), the game on
   the device, the fit (with the pad's spot), each scene (its layout, the
   check, how long it took to make, its leaves and how long they took to
   draw), layouts thrown away, the pad's show (the angle picked; done, or
