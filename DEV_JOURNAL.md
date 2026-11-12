@@ -48,7 +48,9 @@ time, each tried before publishing:
 - **Q75. Photo-real looks instead of cartoon ones?** (2026-11-11; "Q74 to
   try; photo-real looks? (Q75)"). The developer asked whether the same
   goes for graphics. Claude's answer and a suggested trial put to the
-  developer; waiting.
+  developer. 2026-11-11: the trial built ("Mockup v7: the photo look
+  beside the drawn one"): Poly Haven CC0 photos, 11.9 MB, 60 fps on
+  this PC. Waiting for the developer's pick.
 
 
 ## Proposed additions to the standards skill
@@ -17727,3 +17729,89 @@ look; the game would use smaller copies (512 px, about a quarter). The
 construction_yard photo (a building site going up, blue sky) would
 replace the drawn buildings, cranes and hoarding. Asked for the OK to
 download.
+
+**Developer:** "1) yes 2) no ... the difficulty escalation is way less
+important for level 1. Making it too hard to reach level 2 could destroy
+game interest. Making is not to hard to at least get to level 2 should
+encourage interest in pursuing higher levels." So the downloads are
+OK'd, and **level 1 stays as it is**: the challenge rule applies from
+level 2 on (DESIGN.md "Topple!" Levels updated). Claude agrees: level 1
+is where a child learns the pad and the throw; a wall there loses them
+before the levels that make the game.
+
+## 2026-11-11: Mockup v7: the photo look beside the drawn one (Q75)
+
+**Downloaded** (developer's OK above), into Claude's scratch folder, not
+the repo: 20 files from Poly Haven's download server, each checked
+against the MD5 Poly Haven's API gives (all 20 matched), 15 MB.
+
+**Mockup v7** (version 7 of [Topple! Level 2 Mockup](https://claude.ai/artifact/D5Z6BjfKGhRedxJXLVK1Hc)):
+a **Look** switch on the Frames tab, **Both, side by side** (the
+default) / Drawn / Photo. Both: the same scene drawn twice each frame,
+the drawn look left and the photo look right (sideways: one above the
+other), from the same camera, so Knock, a tap and the fall are the same
+in both.
+- **Photo surfaces on the same shapes:** rusty_metal_02 (steel),
+  concrete_floor_worn_001 (slabs), brick_wall_001 (bricks),
+  brown_planks_09 (wood; the boards turned to run up an upright post),
+  gravel_concrete (the pad, with its 1 m joint lines kept on top). Each
+  covers its real size (Poly Haven's dimensions: 1 m, 3 m, 3 m, 1 m,
+  2.12 m), so a brick cube shows about 4 courses; each block starts at
+  a different spot of its photo.
+- **The sky:** the construction_yard 360° photo (a concrete yard,
+  pallets of blocks, apartment blocks, a blue sky with cloud), drawn at
+  4096 × 2048 (half size: phones can't take 8192 wide), also lighting
+  the shiny parts (the ball, steel). The drawn buildings, cranes, fence
+  and site office are left out in the photo look.
+- **Changed while checking** (pictures rendered by the page and saved to
+  the scratch folder; the browser pane was too narrow for a useful
+  screenshot): a dry-earth texture round the pad faded into a dark brown
+  band under the photo's buildings (the fog took its colour from the
+  buildings' bases); left out, so the photo's own yard is the ground
+  beyond the pad, which joins it well. Its 3 files dropped (1.1 MB). The
+  pad first faded out at its edges (see-through); in the Four storeys
+  view it vanished altogether, joint lines kept; made opaque, it shows
+  in every frame. Not chased: a mockup, and the hard edge reads as the
+  end of the poured pad. The 1.6 MB HDR sky file wasn't needed: the photo
+  itself lights the scene well enough for a look test.
+- **Measured** (this PC's browser pane, 1200 × 900, the stage 1028 × 738
+  px): 16 files, **11.9 MB** (the sky photo 5.0 MB of it), loaded in
+  0.8 s from the local server; **60 frames a second** in each look and
+  drawing both. Every frame drawn in both looks; Knock on Steps: 8 of 16
+  down after ball 1 in both halves; sideways stacks them; no console
+  errors. Not measured: a phone's frame rate, or the download over a
+  phone's connection; the game would use 512 px copies (about a quarter
+  the size) if the photo look is chosen.
+- **Credits** (CC0 needs none; shown on the page anyway): textures by
+  Rob Tuytel, Dimitrios Savva, Rico Cilliers, Dario Barresi and
+  Charlotte Baglioni; the sky "Construction Yard" by Sergej Majboroda.
+
+**Claude's view, put to the developer:** the photo look reads at once as
+a real building site, and the photo's yard joins the pad well. The
+blocks look like real steel, wood and brick, with real rust and grain.
+The parts still drawn (the wheelbarrow, light, cones, pipes, slingshot,
+ball) look like plastic beside them. The frame is small in the view
+either way (level 1's camera). Asked: which look for level 2.
+
+## 2026-11-11: Status (start here next session)
+
+- **Live: 9.4.** `block-game` holds only journal and DESIGN.md changes
+  since; the game's code is unchanged.
+- **Level 2, "The building site" (Q73):** the five scenes are picked
+  (Two storeys, Three storeys, Bridge, Steps, and the challenge: the
+  four-storey tower behind a brick wall), with pass criteria ("Q75 trial
+  wanted; level 2's five scenes picked"). From level 2 on, the 5th scene
+  is the challenge; level 1 stays the way in (DESIGN.md "Topple!"
+  Levels).
+- **Q75:** mockup v7 shows the photo look beside the drawn one; waiting
+  for the developer's pick. If photo: 512 px copies, the files kept in
+  the repo with their licence noted, offline-listed, a phone's fps
+  measured.
+- **Q74 parked** (recorded sounds; the developer's side research).
+- **Next:** the developer's pick of look; then build level 2 (the map,
+  the Level screen, the scenes, the check's new rules), measuring the
+  scenes against the pass criteria.
+- **Open questions:** Q64, Q73, Q74, Q75.
+- **Skill:** none waiting.
+- **Test output:** the scratch folder holds the downloads and the
+  pictures; nothing in Web-Games-testing.
