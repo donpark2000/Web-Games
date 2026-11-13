@@ -20273,3 +20273,35 @@ anything to show it (the dots are the developer's choice per How hard).
   whether 10.7 can go out.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103.
+
+## 2026-11-13: Release 10.7 published and live
+
+- The developer: the new skill zip uploaded ("I saved the new skill");
+  "Yes, publish 10.7". (Earlier the developer said the glow's timing
+  "looks good": that was 10.6's 6 s on the live site, since 4 s was only
+  on the branch; said so in chat.)
+- Release set to 10.7, `node tools/offline.js` (version 5b600264a535,
+  190 files; sw.js and version.js put back to CRLF), notes in
+  RELEASES.md; 621 tests pass; `node tools/release.js` said ready.
+- `main` fast-forwarded to b9deac8, tag `v10.7` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (built b9deac8); the live `src/core/version.js` reads 5b600264a535,
+  `release.js` 10.7.
+- Claude's preview server stopped; no other `serve.js` running.
+
+**Status (start here next session)**
+- **Live: 10.7** (Start again's one question, Q102; out of range and out
+  of sight count as down, Q103; the glow after 4 s, Q101; the log says
+  where blocks were left). `block-game` = `main` plus this entry. Nothing
+  waiting to publish.
+- **For the developer:** on the tablet and the phone (the installed app
+  picks up 10.7 on its next opening or two; the home page's version line
+  says 5b600264a535): Start again from a scene and the map (its three
+  answers); the glow at 4 s; Frosty Times upright, a block knocked off the
+  right side or far back. A log after, if anything looks wrong, into
+  `Web-Games-testing/2026-11-13_old-tablet/`.
+- **Then:** Q101, Q102, Q103 closed if liked. The testing folder
+  (`2026-11-13_old-tablet`, four logs, all recorded here) to purge with
+  the developer's OK once those are closed.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103.
