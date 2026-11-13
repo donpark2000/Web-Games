@@ -7,6 +7,23 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.6 (2026-11-13, version f300a0961883)
+
+The 3D games on slow tablets, and two Topple! changes.
+
+- **Real speed on a slow device**: Tin Can Alley and Topple! no longer
+  slow down to a crawl when the device draws few frames a second.
+- **Lighter drawing, by itself**: on a device that can't keep up, the
+  games draw with fewer pixels, simpler shadows, no reflections and
+  plainer surfaces, and drop the shadows if that's still slow. It is
+  remembered on the device. Faster phones and tablets look the same as
+  before.
+- **Topple!, Hardest**: the same shorter dots as Harder for every ball,
+  for now; its harder scenes are to come.
+- **Topple!, the blocks left glow**: after 6 seconds waiting for the
+  next ball, the blocks still standing light up twice, so it's clear
+  what's left to hit.
+
 ## 10.5 (2026-11-13, version f0192f31ec4b)
 
 A speed test for the 3D games, to make them quicker on slow tablets.
