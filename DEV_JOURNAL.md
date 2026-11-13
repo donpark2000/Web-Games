@@ -133,11 +133,6 @@ time, each tried before publishing:
   scenes. What Hardest does until those exist: to agree.
   2026-11-13, developer: "Use Harder's dots for now". Built (for 10.6,
   "Responsiveness first; ..."): to try; Hardest's own scenes still to come.
-- **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
-  developer, the same tablet). Likely Q99's cause (same entry); the log
-  to confirm. 2026-11-13, the log: consistent with Q99's cause (the
-  fright at 45° seconds before the landing in 0.15x slow motion);
-  nothing points to another fault. To check again after Q99's fix.
 - **Q101. The blocks left glow after a pause?** (2026-11-13, developer:
   on the phone, the building site looked all down with something still
   to hit; "make them glow or get brighter for a few seconds").
@@ -152,10 +147,31 @@ time, each tried before publishing:
   available everywhere and it is confusing to figure out how to find it.
   For example, once you are in a scene you can only start the scene
   again"). Today's ways and a proposal in "10.6 tried: ..."; to agree.
+  2026-11-13, developer: the proposal "yes"; "build it. I need to test on
+  both tablet and phone and I can not do that from a mockup". Built (for
+  10.7, "Start again: one question (Q102)"): to try.
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-11-12: "Compare versions in a separate checkout, not
+- **Pick a worst-case device, and let the app adapt to it** (2026-11-13;
+  from Q99, "Q99 closed"; the developer asked how to record a lesson
+  about accommodating different devices). Proposed for section 4, after
+  "Measure a worry before designing around it":
+  > **Make a slow device the bar, and adapt to it from measurements.**
+  > Agree the slowest device that must work. Log what it does there,
+  > then find which part costs most (one run per cut) before fixing. Let
+  > the app measure itself as it runs and step down what it draws,
+  > keeping what the user feels (response, real speed) over looks.
+  > *Evidence:* a 2019 tablet ran two 3D games at 3-8 frames a second in
+  > slow motion; a speed test showed shadows took 60% of each frame, and
+  > a step-down from the measured frame rate made both "absolutely
+  > playable".
+  Why it passes the bar: it changed how the work was done (measured on
+  the device, not guessed on this PC: the first guess, the physics, was
+  wrong), and it applies to any app with a heavy screen. To review with
+  the developer.
+
+Earlier: (2026-11-12: "Compare versions in a separate checkout, not
 by stashing" (from "Ice slides; out of reach; ...": a stash failed half
 way on a file gvim held open) dropped by the developer ("drop"), after
 it was explained in chat ("Q77, Q86 settled"); Claude's view too: a git
@@ -265,6 +281,12 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
+  developer, the old tablet). The log: consistent with Q99's cause (the
+  fright at 45° seconds before the landing in 0.15x slow motion).
+  2026-11-13, developer, on 10.6: "It is either fixed or fast enough for
+  me not to notice - so its OK." **Closed** with Q99 ("Start again: one
+  question (Q102)").
 - **Q99. Tin Can Alley and Topple! on an old tablet** (2026-11-13,
   developer, a 2019 Galaxy Tab A 8"): "virtually unplayable", the aim
   slow to follow, structures 10-20 s to fall. The bar (developer):
@@ -19991,3 +20013,86 @@ causes above makes the tablet's wait long (and Q100 again).
   the glow waited for) into `Web-Games-testing/2026-11-13_old-tablet/`.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q100, Q101, Q102.
+
+## 2026-11-13: Start again: one question (Q102); Q100 closed
+
+**The developer**: Q100 "is either fixed or fast enough for me not to
+notice - so its OK" (closed). Q102's proposal: "yes"; "build it. I need
+to test on both tablet and phone and I can not do that from a mockup".
+The "yes" answered the proposal as a whole, so its open points went
+Claude's way: a level started again has new scenes; New scenes from
+scene 1 dropped from the setup screen, Start over kept there.
+
+**Built** (DESIGN.md "Topple!": the map, Setup, Play):
+- **`restartLevel(g)`** (`src/core/topple.js`): the level being played
+  back to scene 1, 3 ❤️, no 💎, its round counted on so `seedOf` gives
+  new scenes (as a done level started again). Free: the level's jewels
+  go, as with the last heart, so it's no way round losing a heart. The
+  levels open and done, the other levels' places and how hard: as they
+  were.
+- **One question** (`topple.html` `#ask`, now outside both screens, fixed
+  over the whole screen): "Start again?" / This scene ("you lose a ❤️";
+  in play once a ball is thrown) / Level N from scene 1 ("new scenes") /
+  The whole game, from level 1 ("the other levels lock again"; once
+  another level is open; as Start over, how hard kept) / No (the dark
+  button). Each answer straight into play (`startLevel`).
+- **From the play bar**: ↺ Start again now shows before the first ball
+  too (the level and the game make sense then); still hidden once the
+  scene is over (the game has moved on; the card has its own buttons).
+- **From the map**: ↺ Start again beside ◀ Faces.
+- **Dropped**: New scenes from scene 1 (its button, handler and styles).
+- **A sideways phone** (under 480 px tall): the question smaller, each
+  answer's note beside it, the card up to 440 px wide.
+- **Logged**: `start again?` (from where, which answers, the level,
+  reached, balls used), `start again: no`, `start again: this scene, a
+  heart lost`, `start again: the level from scene 1` (was, now, the new
+  seed), `start again: the whole game from level 1`. (The `level: start`
+  line after a level started again says `newScenes: false`: it compares
+  rounds inside `startLevel`, after `restartLevel` has counted on; the
+  `start again` line before it has the new seed.)
+
+**Tests** (617 of 617): `restartLevel` (level 2 at scene 3 with 1 ❤️ and
+2 💎: back to its start, the rest of the game unchanged, a new seed and
+another the second time, read back the same, kept across a trip to level
+1; a level not done too); the page: the question outside both screens,
+its words, which answers show when, each answer's effect, the map's
+button, the play bar's button before the first ball, the logging, New
+scenes gone. **Shown able to fail**, six breaks, one test caught each:
+no new scenes, the hearts kept, the whole game offered at level 1 only,
+this scene offered before a ball, the page not calling `restartLevel`,
+Start again hidden before a ball (a scratch script, not `sed`, so the
+files kept CRLF).
+
+**Seen in the preview browser** (this PC):
+- Level 2 scene 3, before a ball: Start again shown; the question with
+  Level 2 from scene 1 and The whole game (no This scene); No closes it.
+  After a ball: all three. Screenshot: the card over the park.
+- Level 2 from scene 1: scene 1, 3 ❤️, no 💎, `rounds {"2":1}`, a new
+  layout seed (1255164… for 805633952 before).
+- The map's Start again: the question over the map (Level 2 from scene 1,
+  The whole game). The whole game: level 1 in play, reached 1, done
+  none, a new seed, how hard kept.
+- A sideways phone, 740 x 340: the card 440 x 213 px, buttons 36 px, each
+  answer on one line, nothing cut off. Upright 375 x 812: 320 x 342,
+  buttons 48-64 px. No console errors. (The card's bounce stays at its
+  start in a hidden pane, so sizes were read without its scale.)
+- `node tools/offline.js`: version d22a5708a157, 190 files.
+
+Not seen: on the phone and the tablet (for 10.7).
+
+**The developer asked** how to record a lesson about accommodating
+different devices: proposed above ("Pick a worst-case device, and let the
+app adapt to it"), for the skill's section 4; to review.
+
+**Status (start here next session)**
+- **Live: 10.6.** Built on `block-game`, not published: Start again's one
+  question from play and the map (Q102); the glow after 4 s, its log
+  line's `gameS`/`realS` (Q101). 617 tests pass. To publish as **10.7**
+  (a change) once the developer says so.
+- **For the developer, after 10.7:** Start again on the phone and the
+  tablet (the three answers; the map's); the glow's 4 s; on the tablet, a
+  short log (one scene, a ball missed, the glow waited for) into
+  `Web-Games-testing/2026-11-13_old-tablet/`.
+- **To review:** the proposed skill addition (worst-case device).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102.

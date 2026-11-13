@@ -17,7 +17,7 @@
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, seedOf, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
-  padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
+  padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, restartLevel, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
   MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
@@ -127,8 +127,8 @@ function renderSetup() {
   $('where').textContent = fresh ? '' : `Level ${game.level} · scene ${game.scene} of ${SCENES} · ${hearts(game)} · ${'💎'.repeat(game.jewels)}`;
   if (fresh && game.reached > 1) $('where').textContent = `Level ${game.reached} reached`;
   $('playBtn').textContent = fresh ? 'Play!' : 'Carry on';
-  $('freshBtn').hidden = fresh;
-  // Start over only once another level is open (before that, New scenes from scene 1 does the same)
+  // Start over only once another level is open (before that, Start again's "Level 1 from scene 1"
+  // does the same; New scenes from scene 1 dropped in 10.7, Q102)
   $('overBtn').hidden = game.reached <= 1 || !$('overAsk').hidden;
   const code = checkSetup(setup);
   $('playBtn').disabled = !!code;
@@ -140,15 +140,6 @@ $('rulesPic').innerHTML = toppleMini('av');
 $('playBtn').onclick = () => {
   if (checkSetup(setup)) return;
   L('play: the map', { face: setup.p1, ...game });
-  showMap();
-};
-// New scenes: a new seed, every level from scene 1; the levels reached and done are kept (Claude's pick).
-$('freshBtn').onclick = () => {
-  if (checkSetup(setup)) return;
-  const was = { ...game };
-  game = createGame(newSeed(), game);
-  saveGame();
-  L('new scenes from scene 1', { was, seed: game.seed, reached: game.reached });
   showMap();
 };
 // Start over (developer, 2026-11-12, Q92: "start the whole game over with no
@@ -510,8 +501,9 @@ function renderTally() {
   $('balls').innerHTML = Array.from({ length: BALLS }, (_, i) => `<i class="${i < left ? '' : 'used'}"></i>`).join('');
   $('balls').setAttribute('aria-label', `${left} ball${left === 1 ? '' : 's'} left`);
   renderHud();
-  // Start again only once there's something to start again (developer, 2026-11-12: pressed before a throw, it did nothing)
-  $('restartBtn').disabled = !!r.result || r.used === 0;
+  // Start again any time in a scene (Q102: the level or the whole game too); not once it's over
+  // (the game has moved on; the card has its own buttons)
+  $('restartBtn').disabled = !!r.result;
   $('restartBtn').classList.toggle('notyet', $('restartBtn').disabled);
 }
 // The pills over the park (shown as a scene is set up too).
@@ -804,8 +796,6 @@ $('nextBtn').onclick = () => {
 };
 $('newBtn').onclick = () => { L('new game: the setup screen'); current = null; round = null; ended = null; settled = null; showSetup(); };
 
-// Start again (every game has one: developer, 2026-10-15): asks first, over
-// the park, and costs a heart (else it would be a way round losing one).
 // The map from a scene (developer, 2026-11-12: "there seems to be no way to get to the map"):
 // the scene under way is kept (parked), so coming back to it carries on, not a free start again.
 $('mapBtn').onclick = () => {
@@ -816,20 +806,52 @@ $('mapBtn').onclick = () => {
   showMap();
 };
 
-$('restartBtn').onclick = () => {
-  if (!round || round.result || !round.used) return;
+// Start again (every game has one: developer, 2026-10-15), from the play
+// bar or the map (developer, 2026-11-13, Q102: "the ability to start a
+// scene or level again is not available everywhere and it is confusing to
+// figure out how to find it"): one question, three answers. This scene
+// (in play, once a ball is thrown) costs a heart, else it would be a way
+// round losing one; the level from scene 1 is free (its jewels go, as with
+// the last heart) and has new scenes; the whole game (once another level
+// is open) as Start over. Each goes straight into play.
+function askAgain(from) {
+  if (busy || walking) return;
+  const scene = from === 'play' && !!round && !round.result && round.used > 0;
+  $('againScene').hidden = !scene;
+  $('againLevel').firstChild.textContent = `Level ${game.level} from scene 1 `;
+  $('againGame').hidden = game.reached <= 1;
   drag = null;
   stopDemo();
-  L('start again?', { used: round.used, down: round.down });
+  L('start again?', { from, scene, level: game.level, reached: game.reached, used: round?.used ?? 0, down: round?.down ?? 0 });
   $('ask').hidden = false;
-  $('restartNo').focus({ preventScroll: true });
-};
-$('restartNo').onclick = () => { L('start again: no'); $('ask').hidden = true; };
-$('restartYes').onclick = () => {
+  $('againNo').focus({ preventScroll: true });
+}
+$('restartBtn').onclick = () => { if (round && !round.result) askAgain('play'); };
+$('mapAgain').onclick = () => askAgain('map');
+$('againNo').onclick = () => { L('start again: no'); $('ask').hidden = true; };
+$('againScene').onclick = () => {
+  if (!round || round.result || !round.used) return;
+  $('ask').hidden = true;
   const was = { ...game }, outcome = sceneOver(game, false);
   saveGame();
-  L('start again: yes, a heart lost', { outcome, was, now: { ...game } });
+  L('start again: this scene, a heart lost', { outcome, was, now: { ...game } });
   startScene();
+};
+$('againLevel').onclick = () => {
+  $('ask').hidden = true;
+  const was = { ...game };
+  restartLevel(game);
+  parked = null;
+  L('start again: the level from scene 1', { was, now: { ...game }, levelSeed: seedOf(game) });
+  startLevel(game.level);
+};
+$('againGame').onclick = () => {
+  $('ask').hidden = true;
+  const was = { ...game };
+  game = createGame(newSeed(), null, game.mode);   // as Start over: how hard is a setting, kept
+  parked = null;
+  L('start again: the whole game from level 1', { was, seed: game.seed, reached: game.reached });
+  startLevel(1);
 };
 
 /* ---------- coming back to a game ---------- */

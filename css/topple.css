@@ -18,9 +18,7 @@
 .modes3 .level { font-size: 17px; padding: 10px 2px; }
 .where { margin: 0 0 8px; text-align: center; font-size: 17px; font-weight: 700; }
 .where:empty { display: none; }
-#freshBtn { display: block; margin: 12px auto 0; padding: 10px 16px; font-size: 16px; }
-#freshBtn[hidden] { display: none; }
-#overBtn { display: block; margin: 4px auto 0; padding: 10px 16px; font-size: 16px; }
+#overBtn { display: block; margin: 12px auto 0; padding: 10px 16px; font-size: 16px; }
 #overBtn[hidden], .overask[hidden] { display: none; }
 .overask { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 340px; margin: 8px auto 0; padding: 14px; background: var(--card); border-radius: 16px; box-shadow: 0 4px 0 var(--line); }
 .overask p { grid-column: 1 / -1; margin: 0; text-align: center; font-size: 17px; font-weight: 700; line-height: 1.35; }
@@ -150,8 +148,19 @@ body.tp-playing .site-foot { display: none; }
 .oversub:empty { display: none; }
 .overcard .big { padding: 12px 24px; font-size: 22px; }
 .overcard .pill { padding: 10px 8px; font-size: 18px; }
-#ask .overcard { grid-template-columns: 1fr 1fr; }
-#ask .overtitle { grid-column: 1 / -1; }
+/* Start again's question (Q102): over the whole screen (the play screen or the map), one answer a row */
+.over.again { position: fixed; z-index: 20; background: rgba(228, 241, 238, .6); }
+.again .overcard { gap: 10px; }
+.again .pill { display: grid; justify-items: center; line-height: 1.2; }
+.again .pill small { font-size: 14px; font-weight: 700; color: var(--muted); }
+.again .pill.primary small { color: inherit; }
+/* a sideways phone (320-430 px tall): smaller, each answer's note beside it */
+@media (max-height: 480px) {
+  .again .overcard { gap: 6px; padding: 10px 14px 12px; width: min(440px, calc(100% - 24px)); }
+  .again .overtitle { font-size: 18px; }
+  .again .pill { display: block; padding: 6px 8px; font-size: 15px; }
+  .again .pill small { font-size: 12px; }
+}
 
 /* Sideways: the park at the screen's full height; the 🏠, the name, the
    score, Start again and (at the foot) the 🔊 in one column at its left
@@ -221,5 +230,6 @@ body.tp-playing .site-foot { display: none; }
 .node.shake { animation: tpshake .4s ease; }
 @keyframes tpshake { 20% { transform: translate(-54%, -50%); } 40% { transform: translate(-46%, -50%); } 60% { transform: translate(-53%, -50%); } 80% { transform: translate(-48%, -50%); } }
 .maptoast { margin: 0; min-height: 22px; font-size: 16px; font-weight: 800; color: var(--muted); text-align: center; }
-#mapBack { padding: 8px 18px; font-size: 16px; }
+.mapbtns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+#mapBack, #mapAgain { padding: 8px 18px; font-size: 16px; }
 @media (prefers-reduced-motion: reduce) { .node.now .pic, .node.shake, .mapface.walking, .mapface.landed, .node.unlocked .pic, #mapGo { animation: none; } .node .lock.pop { display: none; } }

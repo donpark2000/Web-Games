@@ -884,6 +884,16 @@ export function switchLevel(g, n) {
   if (g.done.includes(n) && isStart(g)) g.rounds = { ...g.rounds, [n]: (g.rounds?.[n] ?? 0) + 1 };
   return true;
 }
+// The level being played, started again from scene 1 (developer,
+// 2026-11-13, Q102: "once you are in a scene you can only start the scene
+// again"): 3 hearts, no jewels, new scenes (its round counted on, as a done
+// level started again). Free: it loses the level's jewels, as losing the
+// last heart does. The levels open and done stay as they are.
+export function restartLevel(g) {
+  Object.assign(g, freshPlace());
+  g.rounds = { ...g.rounds, [g.level]: (g.rounds?.[g.level] ?? 0) + 1 };
+  return g;
+}
 
 // A scene over: won, a jewel and the next scene ('won'); the level's last
 // scene won: the level done, its place back to scene 1, and on to the next

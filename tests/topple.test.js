@@ -11,7 +11,7 @@ import {
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, checkSetup, rng,
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
   FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn, SOME_STACKS, SOME_MIN,
-  MAX_LEVEL, LEVELS, switchLevel, seedOf, layoutFor, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
+  MAX_LEVEL, LEVELS, switchLevel, restartLevel, seedOf, layoutFor, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
   MODES, MODE_INFO, dotSeconds, GLOW_WAIT, GLOW_PULSES, GLOW_PULSE_S, waitingOn, glowAt, glowsBy,
 } from '../src/core/topple.js';
 
@@ -334,6 +334,37 @@ test('topple: levels: a level done opens the next; each keeps its place; only op
   // new scenes keep the levels reached
   const h = createGame(10, g);
   assert.deepEqual({ level: h.level, reached: h.reached, done: h.done, places: h.places }, { level: 1, reached: 5, done: [1, 2, 3, 4, 5], places: {} });
+});
+
+// Developer, 2026-11-13 (Q102): "once you are in a scene you can only start
+// the scene again". The level from scene 1: free, new scenes each time, the
+// levels open and done kept; a level not done too.
+test('topple: the level started again from scene 1: 3 hearts, no jewels, new scenes each time, the other levels as they were', () => {
+  const g = createGame(2468);
+  for (let i = 1; i <= SCENES; i++) sceneOver(g, true);   // level 1 done, on level 2
+  sceneOver(g, true); sceneOver(g, true); sceneOver(g, false); sceneOver(g, false);
+  assert.deepEqual(placeOf(g, 2), { scene: 3, hearts: 1, jewels: 2 });
+  const s0 = seedOf(g), others = { reached: g.reached, done: [...g.done], places: JSON.parse(JSON.stringify(g.places)), mode: g.mode, seed: g.seed };
+  assert.equal(restartLevel(g), g);
+  assert.deepEqual({ level: g.level, ...placeOf(g, 2) }, { level: 2, ...FRESH });
+  assert.deepEqual({ reached: g.reached, done: g.done, places: g.places, mode: g.mode, seed: g.seed }, others, 'the rest of the game as it was');
+  const s1 = seedOf(g);
+  assert.notEqual(s1, s0, 'new scenes');
+  restartLevel(g);
+  const s2 = seedOf(g);
+  assert.ok(s2 !== s1 && s2 !== s0, 'new scenes again');
+  // kept on the device as it is: the same scenes when the game is read back
+  const back = readGame(JSON.parse(JSON.stringify(g)));
+  assert.equal(seedOf(back), s2);
+  // to level 1 and back: level 2 carries on from its new start, its scenes the same
+  switchLevel(g, 1); switchLevel(g, 2);
+  assert.deepEqual([g.scene, g.hearts, g.jewels, seedOf(g)], [1, HEARTS, 0, s2]);
+  // a level not done (level 1 of a new game): the same
+  const h = createGame(97531), h0 = seedOf(h);
+  sceneOver(h, true);
+  restartLevel(h);
+  assert.deepEqual({ level: h.level, ...placeOf(h, 1), reached: h.reached, done: h.done }, { level: 1, ...FRESH, reached: 1, done: [] });
+  assert.notEqual(seedOf(h), h0);
 });
 
 // (developer, 2026-11-12: a level completed before, gone back to from the

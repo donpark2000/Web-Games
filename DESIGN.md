@@ -4,8 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-13, latest): **Topple!: the blocks left glow after 4 s**
-(was 6; on `block-game`, not yet published). Earlier the same day: **the 3D games keep to real time on a slow
+*Status (2026-11-13, latest): **Topple!: Start again asks one question,
+from play and the map: this scene, the level from scene 1, or the whole
+game**; New scenes from scene 1 dropped; **the blocks left glow after 4
+s** (was 6) (on `block-game`, for release 10.7; see "Topple!"). Earlier the same day: **the 3D games keep to real time on a slow
 device, and draw lighter there** (the physics may use half of each frame;
 a slow device steps down to a light drawing, then a lightest; see "3D
 games", Drawing lighter); **Topple!: Hardest has Harder's dots for now;
@@ -2275,8 +2277,10 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   or all of them, or a level carried on, plays the same ones. **The level after a done one is always open**,
   so a level added later opens for a game that had finished them all
   (developer, 2026-11-12: level 4 done in 10.0, level 5 locked until
-  level 4 was played through again). **New scenes from scene 1** makes new scenes for
-  every level and keeps the levels open (Claude's pick, to review). The
+  level 4 was played through again). Under the map, **◀ Faces** and
+  **↺ Start again** (the play screen's question, for the level you're
+  on: see Play). (**New scenes from scene 1**, on the setup screen, new
+  scenes for every level, the levels kept open: dropped in 10.7, Q102.) The
   pictures are a sign of each setting for now (level 1's drawing, 🏗️,
   ❄️, 🌵, 🌙; Claude's pick, to review: the mockup's were drawn by the 3D).
   The map is 140 px a level (at most 700 px tall for five).
@@ -2451,8 +2455,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   Q98, "Use Harder's dots for now"; 10.4's dots for a scene's first ball
   only were "unplayable", "a wild guess"; its challenge is to come from
   harder scenes, not other controls). Kept with the game on the
-  device; changed any time, the levels and places as they are; New
-  scenes and Start over keep it. The pad's show is the same in all three.
+  device; changed any time, the levels and places as they are; Start
+  again and Start over keep it. The pad's show is the same in all three.
   Later, for Harder and Hardest (to discuss): a smaller ball, wider gaps,
   another camera; things that move; things not to hit (a hit loses the
   scene, a ❤️; how they show it, Q97). Not wanted: fewer balls (scenes
@@ -2487,8 +2491,7 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   it's placed (Q63's cause).
 - **Setup** (developer: "as Tin Can Alley"): the rules line with the
   park in small, **Pick your face**, **Play!** (or **Carry on** with
-  where the game is: "Level 1 · scene 3 of 5 · ❤️❤️🤍 · 💎💎") and **New
-  scenes from scene 1** once a game is under way (the levels kept open).
+  where the game is: "Level 1 · scene 3 of 5 · ❤️❤️🤍 · 💎💎").
   **Start over from level 1** once another level is open (developer,
   2026-11-12, Q92): it asks first ("Start over from level 1? The other
   levels lock again."), then a new game with only level 1 open. **Home:** 👤 One
@@ -2499,16 +2502,23 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   the 5 balls, "balls left" under them, each drawn as the level's ball,
   a thrown one an empty dashed place; developer, 2026-11-12, Q80: no
   count of blocks down, "you either get them all or you don't") with
-  **↺ Start again** (shown once a ball is thrown) and **🗺️ Map** (the
+  **↺ Start again** (until the scene is over) and **🗺️ Map** (the
   scene under way kept: played again, it carries on; developer,
   2026-11-12: "no way to get to the map"); sideways,
   a column at its left. Over the park: **1 · The park 💎○○○○** (the
   level's number and name, developer 2026-11-12; the jewels under the
   name when there isn't room) and the
   hearts at its top, the hint ("Drag from 👆, then let go") and the drag
-  pad at its foot. **Start again** asks first and **costs
-  a ❤️** ("Start this scene again? You lose a ❤️"; else it would be a
-  way round losing one); not before the first ball. The scene's end in
+  pad at its foot. **Start again asks one question** (developer,
+  2026-11-13, Q102: "the ability to start a scene or level again is not
+  available everywhere and it is confusing to figure out how to find
+  it"; the same from the map), over the whole screen: "Start again?" /
+  **This scene** ("you lose a ❤️", else it would be a way round losing
+  one; in play once a ball is thrown), **Level N from scene 1** ("new
+  scenes": 3 ❤️, the level's 💎 gone, free, as losing the last heart;
+  the levels open and done kept), **The whole game, from level 1** ("the
+  other levels lock again", as Start over; once another level is open),
+  **No**. Each answer goes straight into play. The scene's end in
   a card: your face, "Teddy cleared it! 💎" / **Next ▸** (developer,
   2026-11-11: the button said "Scene 2 of 5", not clear as a button; "the
   jewels make it clear where you are"); "Out of

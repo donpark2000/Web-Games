@@ -34,10 +34,10 @@ test('topple page: its name, the home tile after Tin Can Alley, kept one game at
   assert.match(js, /resumable\('topple', 1,/);
 });
 
-test('topple page: the setup screen: your face, Play! or Carry on where the game is, new scenes from the start', () => {
+test('topple page: the setup screen: your face, Play! or Carry on where the game is (no New scenes from scene 1: Q102)', () => {
   assert.match(setupHtml, /<div class="faces" id="p1Faces"><\/div>/);
   assert.match(setupHtml, /id="playBtn">Play!<\/button>/);
-  assert.match(setupHtml, /id="freshBtn" hidden>New scenes from scene 1<\/button>/);
+  assert.ok(!page.includes('freshBtn') && !js.includes('freshBtn') && !css.includes('freshBtn'), 'New scenes from scene 1 dropped (10.7)');
   assert.match(js, /const setup = \{ p1: 'bear' \};/);
   assert.match(js, /\$\('playBtn'\)\.textContent = fresh \? 'Play!' : 'Carry on';/);
   assert.match(setupHtml, /Knock <b>every block<\/b> down with <b>5 balls<\/b>/);
@@ -90,8 +90,27 @@ test('topple page: the level\'s jewels and the hearts over the park; Start again
   assert.match(playHtml, /id="hudLevel"[^>]*><span class="hudname" id="hudLevelName"><\/span><span class="jewels" id="hudJewels"><\/span>/);
   assert.match(js, /\$\('hudLevelName'\)\.textContent = `\$\{g\.level\} · \$\{name\}`/);
   assert.match(css, /\.hudlevel \{[^}]*flex-wrap: wrap/);
-  assert.match(playHtml, /<div class="over" id="ask" hidden>[\s\S]*Start this scene again\? You lose a ❤️/);
-  assert.match(js, /\$\('restartYes'\)\.onclick = \(\) => \{[\s\S]*?sceneOver\(game, false\)/);
+});
+
+// Developer, 2026-11-13 (Q102): "the ability to start a scene or level again
+// is not available everywhere and it is confusing to figure out how to find
+// it". One question from the play bar and the map, three answers.
+test('topple page: Start again asks one question from play and the map: this scene, the level from scene 1, the whole game', () => {
+  const ask = page.match(/<div class="over again" id="ask" hidden>[\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? '';
+  assert.ok(ask && !playHtml.includes('id="ask"') && !setupHtml.includes('id="ask"'), 'over the whole screen, outside both screens');
+  assert.match(ask, /<p class="overtitle" id="askTitle">Start again\?<\/p>\s*<button type="button" class="pill" id="againScene">This scene <small>you lose a ❤️<\/small><\/button>\s*<button type="button" class="pill" id="againLevel">Level 1 from scene 1 <small>new scenes<\/small><\/button>\s*<button type="button" class="pill" id="againGame">The whole game, from level 1 <small>the other levels lock again<\/small><\/button>\s*<button type="button" class="pill primary" id="againNo">No<\/button>/);
+  assert.match(css, /\.over\.again \{ position: fixed; z-index: 20;/);
+  assert.match(setupHtml, /<div class="mapbtns">\s*<button type="button" class="pill" id="mapBack">◀ Faces<\/button>\s*<button type="button" class="pill" id="mapAgain">/);
+  // which answers: this scene only in play once a ball is thrown; the whole game only once another level is open
+  assert.match(js, /const scene = from === 'play' && !!round && !round\.result && round\.used > 0;\s*\$\('againScene'\)\.hidden = !scene;/);
+  assert.match(js, /\$\('againLevel'\)\.firstChild\.textContent = `Level \$\{game\.level\} from scene 1 `;\s*\$\('againGame'\)\.hidden = game\.reached <= 1;/);
+  assert.match(js, /\$\('restartBtn'\)\.onclick = \(\) => \{ if \(round && !round\.result\) askAgain\('play'\); \};/);
+  assert.match(js, /\$\('mapAgain'\)\.onclick = \(\) => askAgain\('map'\);/);
+  // each answer: a heart; the level's new scenes; a new game keeping only how hard; then straight into play
+  assert.match(js, /\$\('againScene'\)\.onclick = \(\) => \{[\s\S]*?sceneOver\(game, false\);[\s\S]*?startScene\(\);/);
+  assert.match(js, /\$\('againLevel'\)\.onclick = \(\) => \{[\s\S]*?restartLevel\(game\);\s*parked = null;[\s\S]*?startLevel\(game\.level\);/);
+  assert.match(js, /\$\('againGame'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), null, game\.mode\);[\s\S]*?parked = null;[\s\S]*?startLevel\(1\);/);
+  for (const what of ["'start again?'", "'start again: no'", "'start again: this scene, a heart lost'", "'start again: the level from scene 1'", "'start again: the whole game from level 1'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
 });
 
 test('topple page: a scene won shows "Cleared!" at once, the card once the blocks are calm; lost: the card at once', () => {
@@ -128,7 +147,7 @@ test('topple page: the game kept on the device for every visit, the scene under 
 });
 
 test('topple page: logged: 3D start, the fit, each scene, throw, touch, block down (and a post up again), the end', () => {
-  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'block up again: a post leaning, not lying'", "'blocks down'", "'scene over'", "'start again: yes, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
+  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'block up again: a post leaning, not lying'", "'blocks down'", "'scene over'", "'start again: this scene, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   }
   assert.match(js, /startLog\('topple'\)/);
@@ -211,17 +230,17 @@ test('topple page: Start over from level 1 asks first, then a new game with only
   // shown only once another level is open; the question hidden behind the map
   assert.match(js, /\$\('overBtn'\)\.hidden = game\.reached <= 1 \|\| !\$\('overAsk'\)\.hidden;/);
   assert.match(js, /if \(v !== 'faces'\) \$\('overAsk'\)\.hidden = true;/);
-  // Yes: a new game keeping nothing but how hard (Q96: a setting) (New scenes keeps the levels: createGame(newSeed(), game))
+  // Yes: a new game keeping nothing but how hard (Q96: a setting)
   assert.match(js, /\$\('overYes'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), null, game\.mode\);[\s\S]*?saveGame\(\);/);
-  assert.match(js, /\$\('freshBtn'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), game\);/);
   for (const what of ["'start over: asked'", "'start over: no'", "'start over: a new game, level 1 only'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
 });
 
 // Developer, 2026-11-12: "there seems to be no way to get to the map";
 // Start again was cut off and did nothing (before the first ball).
-test('topple page: a Map button on the play screen keeps the scene; Start again shows only once it can be used', () => {
+test('topple page: a Map button on the play screen keeps the scene; Start again shown until the scene is over', () => {
   assert.match(playHtml, /<div class="restart">\s*<button type="button" class="pill" id="restartBtn"><span class="ic" aria-hidden="true">↺<\/span> <span>Start again<\/span><\/button>\s*<button type="button" class="pill" id="mapBtn"><span class="ic" aria-hidden="true">🗺️<\/span> <span>Map<\/span><\/button>/);
-  assert.match(js, /\$\('restartBtn'\)\.classList\.toggle\('notyet', \$\('restartBtn'\)\.disabled\);/);
+  // before the first ball too (Q102: the level or the whole game), not once the scene is over
+  assert.match(js, /\$\('restartBtn'\)\.disabled = !!r\.result;\s*\$\('restartBtn'\)\.classList\.toggle\('notyet', \$\('restartBtn'\)\.disabled\);/);
   assert.match(css, /\.restart \.pill\.notyet \{ visibility: hidden; \}/);
   // the map from a scene: parked, and carried on when it's played again
   assert.match(js, /\$\('mapBtn'\)\.onclick = \(\) => \{[\s\S]*?parked = current && !ended \? \{ id: current\.id, layout: current\.layout, settled \} : null;[\s\S]*?showMap\(\);/);
