@@ -164,6 +164,25 @@ time, each tried before publishing:
   situation much harder"); ice as it is ("pushing blocks too far is part
   of game play vs making it impossible to win"). Built (for 10.7, "Out of
   range and out of sight count as down (Q103)"): to try.
+- **Q104. Topple!: the wait while a scene is set up** (2026-11-13,
+  developer, after 10.7 went live): "When starting a new level I see a
+  blank screen when the level is being set up. But when moving between
+  scenes I see the end of the old scene while the new one is being set
+  up. And the set up notice is a small block of text in the lower left
+  hand of the screen. It might be better to show nothing or a blurred
+  scene as the background and a bigger notice in the middle of the
+  screen about setting up the new scene. Or maybe instead of text we have
+  a little progress bar or rotating icon that is a familiar metaphor for
+  user interfaces to confirm something is happening (vs being hung) but
+  it is not ready yet." Why today (`src/ui/topple.js`): the canvas is
+  hidden only for a new level (`showPlay`: no scene yet, or the stage's
+  level isn't the game's; 2026-11-12, a new level "briefly shows the old
+  level"), so between scenes the last frame stays up; the notice is the
+  hint line at the park's foot ("Setting up the scene…"). On the old
+  tablet a scene takes seconds to make (the building site 5.7 s, the
+  park 6.9 s: "The speed test on the old tablet"). Options to discuss:
+  the same for both (nothing, or the last scene blurred), a notice in
+  the middle, a spinner or progress bar.
 
 ## Proposed additions to the standards skill
 
