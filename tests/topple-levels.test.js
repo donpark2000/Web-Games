@@ -11,25 +11,43 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, touch, outOfReach } from '../src/core/topple-world.js';
 import {
-  SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, sceneParts, launchVel, HAND, MAX_AIM, R2D, makeLayout, sceneOpts, FRAME_REACH,
+  SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, levelDeal, sceneParts, launchVel, HAND, MAX_AIM, R2D, makeLayout, sceneOpts, FRAME_REACH,
 } from '../src/core/topple.js';
 import { canBeWon } from './topple-players.js';
-import { GLOWS } from '../src/core/topple-levels.js';
+import { GLOWS, STRUCTURES } from '../src/core/topple-levels.js';
 
 const DT = 1 / 60;
 const LATER = LEVELS.filter(l => l.n > 1);
 
-test('topple levels: five levels, each later one five structures in a fixed order, its own things, the iron ball', () => {
+// (developer, 2026-11-12: "preserve the theme of the scene but be presented
+// with different target arrangements")
+test('topple levels: five levels, each later one dealing 4 of 6 structures in order and 1 of 2 challenges, its own things, the iron ball', () => {
   assert.equal(MAX_LEVEL, 5);
   for (const l of LATER) {
-    assert.equal(l.scenes.length, SCENES, l.name);
-    assert.equal(new Set(l.scenes).size, SCENES, `${l.name}: a structure twice`);
+    assert.equal(l.pool.length, 6, l.name);
+    assert.equal(l.challenges.length, 2, l.name);
+    const all = [...l.pool, ...l.challenges];
+    assert.equal(new Set(all).size, all.length, `${l.name}: a structure twice`);
+    for (const n of all) assert.equal(typeof STRUCTURES[n], 'function', `${l.name}: no structure ${n}`);
     assert.equal(l.ball, 'iron');
-    // the order is the same in every game; the seed changes only small sizes and where things stand
+    const seen = new Map(), deals = new Set();
+    for (let seed = 1; seed <= 200; seed++) {
+      const d = levelDeal(seed, l.n);
+      deals.add(d.join());
+      assert.equal(d.length, SCENES);
+      assert.deepEqual(d, levelDeal(seed, l.n), 'the same game, the same deal');
+      // scenes 1-4 from the pool in its order (easiest first), the 5th a challenge
+      const at = d.slice(0, 4).map(n => l.pool.indexOf(n));
+      assert.ok(at.every(k => k >= 0) && at.every((k, i) => !i || k > at[i - 1]), `${l.name} ${seed}: ${d}`);
+      assert.ok(l.challenges.includes(d[4]));
+      for (const n of d) seen.set(n, (seen.get(n) || 0) + 1);
+    }
+    for (const n of all) assert.ok(seen.get(n) >= 20, `${l.name}: ${n} dealt only ${seen.get(n) ?? 0} times in 200 games`);
+    assert.ok(deals.size >= 25, `${l.name}: only ${deals.size} different deals`);
+    // a game's scenes are its deal's; the seed changes small sizes and where things stand too
     for (let i = 1; i <= SCENES; i++) {
-      const a = frameLayout(111, l.n, i), b = frameLayout(222, l.n, i);
-      assert.equal(a.stack, l.scenes[i - 1]);
-      assert.equal(b.stack, l.scenes[i - 1]);
+      const name = levelDeal(111, l.n)[i - 1], a = layoutFor(111, l.n, i), b = frameLayout(222, l.n, i, name);
+      assert.equal(a.stack, name);
       assert.equal(a.blocks.length, b.blocks.length);
       assert.notDeepEqual(a.blocks, b.blocks, `${l.name} ${i}: two games' scenes the same`);
       // scenes 1 and 3 the soft thing, 2 and 4 the tall one, the 5th both
@@ -37,6 +55,31 @@ test('topple levels: five levels, each later one five structures in a fixed orde
     }
   }
   assert.throws(() => frameLayout(1, 1, 1));
+  assert.throws(() => frameLayout(1, 2, 1, 'nothing'));
+});
+
+// Every structure, as each kind of scene it can be dealt to (the pool's
+// first is always scene 1; the others as 1 or 2 here: the soft thing or the
+// tall one; a challenge as the 5th, both).
+test('topple levels: every structure is made as a scene, passes the check first time or nearly, and stands still for 5 s, asleep', () => {
+  let n = 0;
+  for (const l of LATER) {
+    const w = createWorld();
+    const jobs = [...l.pool.flatMap((name, k) => (k ? [[name, 1], [name, 2]] : [[name, 1]])), ...l.challenges.map(name => [name, SCENES])];
+    for (const [name, i] of jobs) {
+      const s = w.makeScene(777, l.n, i, name), at = `${l.name} ${name} as ${i}`;
+      n++;
+      assert.equal(s.layout.stack, name);
+      assert.ok(s.check.ok, `${at}: ${s.check.why}`);
+      assert.ok(s.tries <= 15, `${at}: ${s.tries} tries`);
+      assert.equal(s.layout.unplaced.length, 0, `${at}: no room for ${s.layout.unplaced}`);
+      for (let k = 0; k < 300; k++) w.step(DT);
+      assert.equal(w.awake(), 0, `${at}: woke with nothing touching it`);
+      assert.ok(w.drift() < 1e-6, `${at}: moved ${w.drift()} m`);
+      assert.equal(w.downCount(), 0, `${at}: a block fell`);
+    }
+  }
+  assert.equal(n, 4 * 13);
 });
 
 test('topple levels: every scene of two games is made, passes the check first time or nearly, and stands still for 5 s, asleep', () => {
@@ -92,7 +135,7 @@ test('topple levels: the materials: wood lightest to steel heaviest; ice slipper
   // ice slides (2026-11-12, Q84: cannon-es's friction acts 1/STEP x 4 its number; ice's is put back):
   // a lone cube on the ground pushed at 1 m/s slides at least 25 cm (friction 0.15: 0.34 m); wood hardly moves
   assert.ok(MATS.ice.slides && !MATS.wood.slides);
-  const L3 = frameLayout(5, 3, 3), p3 = sceneParts(L3), lo = Math.min(...p3.blocks.map(b => b.y));
+  const L3 = frameLayout(5, 3, 3, 'icePyramid'), p3 = sceneParts(L3), lo = Math.min(...p3.blocks.map(b => b.y));
   const slid = mat => {
     const one = { ...p3, blocks: [{ ...p3.blocks.find(b => b.y < lo + 0.01), mat }] }, w = createWorld();
     w.setScene(one);
@@ -122,16 +165,16 @@ test('topple levels: Star Light\'s blocks all glow, each a colour, neighbours di
   const info = LEVELS[4];
   assert.equal(info.name, 'Star Light');
   let blocks = 0;
-  for (let i = 1; i <= SCENES; i++) {
-    const p = sceneParts(frameLayout(9, 5, i));
-    for (const b of p.blocks) { assert.equal(b.mat, 'glow', `${info.scenes[i - 1]}`); assert.ok(GLOWS.includes(b.c), `${info.scenes[i - 1]}: colour ${b.c}`); }
-    p.blocks.forEach((b, k) => { if (k) assert.notEqual(b.c, p.blocks[k - 1].c, `${info.scenes[i - 1]}: blocks ${k - 1} and ${k} the same colour`); });
-    assert.ok(new Set(p.blocks.map(b => b.c)).size >= Math.min(3, p.blocks.length), `${info.scenes[i - 1]}: too few colours`);
+  for (const name of [...info.pool, ...info.challenges]) {
+    const p = sceneParts(frameLayout(9, 5, 1, name));
+    for (const b of p.blocks) { assert.equal(b.mat, 'glow', name); assert.ok(GLOWS.includes(b.c), `${name}: colour ${b.c}`); }
+    p.blocks.forEach((b, k) => { if (k) assert.notEqual(b.c, p.blocks[k - 1].c, `${name}: blocks ${k - 1} and ${k} the same colour`); });
+    assert.ok(new Set(p.blocks.map(b => b.c)).size >= Math.min(3, p.blocks.length), `${name}: too few colours`);
     blocks += p.blocks.length;
   }
-  assert.ok(blocks >= 30, `only ${blocks} blocks`);
+  assert.ok(blocks >= 50, `only ${blocks} blocks`);
   // the other levels' blocks don't glow
-  for (const l of LATER.filter(l => l.n !== 5)) for (const b of sceneParts(frameLayout(9, l.n, 1)).blocks) assert.notEqual(b.mat, 'glow');
+  for (const l of LATER.filter(l => l.n !== 5)) for (const name of [...l.pool, ...l.challenges]) for (const b of sceneParts(frameLayout(9, l.n, 1, name)).blocks) assert.notEqual(b.mat, 'glow', name);
 });
 
 // The throw (from `fromUp`° up) whose path first touches what `hits` picks
@@ -164,7 +207,7 @@ function throwAt(parts, power, i, fromUp = 0, weak = 1) {
 test('topple levels: ice and a glowing block shatter and a barrel bursts when hit hard, gone and down for good; a soft knock leaves it', () => {
   // the ice gate's left pillar, and the trestle's left barrel
   for (const [lv, name, i, mat] of [[3, 'iceGate', 0, 'ice'], [4, 'trestle', 0, 'barrel'], [5, 'lanternArch', 0, 'glow']]) {
-    const L = frameLayout(31, lv, LEVELS[lv - 1].scenes.indexOf(name) + 1), p = sceneParts(L);
+    const L = frameLayout(31, lv, 1, name), p = sceneParts(L);
     assert.equal(p.blocks[i].mat, mat);
     const hard = throwAt(p, L.power, i, 8);
     assert.ok(hard.speed >= MATS[mat].breaks, `${mat}: knocked at only ${hard.speed.toFixed(1)} m/s`);
@@ -188,7 +231,7 @@ test('topple levels: ice and a glowing block shatter and a barrel bursts when hi
     assert.equal(soft.brokeFirst, false, `${mat}: broken by a ${soft.speed.toFixed(1)} m/s knock`);
   }
   // a steel post hit as hard never breaks
-  const L = frameLayout(31, 2, 1), p = sceneParts(L), i = p.blocks.findIndex(b => b.mat === 'steel');
+  const L = frameLayout(31, 2, 1, 'twoStoreys'), p = sceneParts(L), i = p.blocks.findIndex(b => b.mat === 'steel');
   assert.equal(throwAt(p, L.power, i, 4).brokeFirst, false);
 });
 
@@ -197,7 +240,7 @@ test('topple levels: ice and a glowing block shatter and a barrel bursts when hi
 // ice that only slid stays whole and standing.
 test('topple levels: ice that falls shatters as it lands; ice pushed along the ground stays whole and standing', () => {
   const DT = 1 / 60;
-  const L = frameLayout(5, 3, 3), p = sceneParts(L);
+  const L = frameLayout(5, 3, 3, 'icePyramid'), p = sceneParts(L);
   assert.equal(L.stack, 'icePyramid');
   const run = (w, s) => { for (let t = 0; t < s; t += DT) w.step(DT); };
   // the top cube moved off its support: it drops a row or more
@@ -276,7 +319,7 @@ test('topple levels: touch() finds a barrel lying on its side (a turned cylinder
 // the scrub (the check loosened for a while) were never hit: such a layout
 // is thrown away.
 test('topple levels: a thing that hides a block for the whole scene is caught by the check', () => {
-  const L = frameLayout(21, 4, 5), p = sceneParts(L);
+  const L = frameLayout(21, 4, 5, 'saloon'), p = sceneParts(L);
   const w = createWorld();
   w.setScene(p);
   assert.ok(w.check(L).ok, w.check(L).why);
@@ -328,7 +371,7 @@ test('topple levels: every block starts within the aim\'s reach; one knocked out
   for (let lv = 1; lv <= MAX_LEVEL; lv++) for (let seed = 1; seed <= 4; seed++) for (let sc = 1; sc <= SCENES; sc++) {
     for (const b of sceneParts(layoutFor(seed, lv, sc)).blocks) assert.equal(outOfReach([b.x, b.y, b.z]), false, `${lv}/${seed}/${sc}: a block out of reach at the start`);
   }
-  const p = sceneParts(frameLayout(5, 3, 3)), w = createWorld();
+  const p = sceneParts(frameLayout(5, 3, 3, 'icePyramid')), w = createWorld();
   w.setScene(p);
   const b = w.blocks[0], z = b.body.position.z;
   // just within reach: still standing; past it: down

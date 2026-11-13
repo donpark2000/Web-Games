@@ -4,9 +4,12 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-12, latest): **Topple!: a level on the map starts it
+*Status (2026-11-12, latest): **Topple!: a scene won shows "Cleared!" at
+once, its card once the blocks are calm; levels 2-5 deal their scenes
+from eight structures each; a done level played again has new scenes**
+(release 10.3; see "Topple!"). Earlier the same day: **Topple!: a level on the map starts it
 (no Level screen); Start over from level 1; a post leaning past 30°
-counts as down** (release 10.2; see "Topple!"). Earlier the same day:
+counts as down** (release 10.2). Earlier the same day:
 Star Light, level 5 (10.1); levels 2-4, the map and the animals taking
 fright (10.0). 2026-11-11: **the 3D games' home pictures are stills
 from the games** (motion lines, Topple!'s tower falling, the dice cup
@@ -2117,11 +2120,15 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   left to hit: "relax the rule a bit (say 60 degrees instead of 45)",
   60° above the ground). A block
   knocked further sideways than a throw can aim (22° and 2° more) counts
-  as down (developer, 2026-11-12, Q85: a cube slid out of reach). All down
-  and everything still (the blocks, and the shards and spray) for 0.35 s:
-  cleared, or all down for 8 s, still or not (developer, 2026-11-12: the
-  card came "before the final blocks have fallen"; measured: still 1.4 s
-  after all down at the median, 7.8 s at most). Out of balls: over 2 s after the last throw once the
+  as down (developer, 2026-11-12, Q85: a cube slid out of reach). **All
+  down for 0.35 s: cleared at once**, the win shown (its sound, the 💎,
+  "Cleared! 💎" under the pills, clear of the blocks) as the last pieces
+  finish falling; **the card once every block is calm** (slower than 0.3
+  m/s) for 0.35 s, or 4 s after the win (developer, 2026-11-12: "a long
+  pause before calling it complete"; until 10.3 the win waited for every
+  block, shard and splash to be still: 2.8 s at the median, up to 8 s;
+  before that, the card came "before the final blocks have fallen").
+  Out of balls: over 2 s after the last throw once the
   blocks are still (at most 9.9 s).
 - **Things in the way:** one in scenes 1-4, two in scene 5: a **bush**
   between (a ball that touches it keeps 0.1 of its speed and drops
@@ -2194,8 +2201,11 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   ("Finish level N first"). **A node starts its level** straight away:
   carried on where it was, or played again once done (developer,
   2026-11-12, Q90: Play!, the map and a Level screen were "start" 3
-  times; the Level screen dropped). **Each level keeps its own place**, and a level played again
-  has the same scenes. **The level after a done one is always open**,
+  times; the Level screen dropped). **Each level keeps its own place**; **a
+  done level started again from its start has new scenes** (its own seed
+  each time: developer, 2026-11-12, "preserve the theme of the scene but
+  be presented with different target arrangements"), while a heart lost,
+  or all of them, or a level carried on, plays the same ones. **The level after a done one is always open**,
   so a level added later opens for a game that had finished them all
   (developer, 2026-11-12: level 4 done in 10.0, level 5 locked until
   level 4 was played through again). **New scenes from scene 1** makes new scenes for
@@ -2203,9 +2213,13 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   pictures are a sign of each setting for now (level 1's drawing, 🏗️,
   ❄️, 🌵, 🌙; Claude's pick, to review: the mockup's were drawn by the 3D).
   The map is 140 px a level (at most 700 px tall for five).
-- **Levels 2-4: five structures each, in a fixed order**, the climb in
-  difficulty sure (level 1 deals its scenes 1-4 from six); the seed
-  changes only small sizes and where things stand. Scenes 1 and 3 have
+- **Levels 2-5: eight structures each, dealt** (10.3; until then five in
+  a fixed order; developer, 2026-11-12: "every time I play the game from
+  the beginning I am presented with exactly the same set up"): scenes 1-4
+  are four of the level's six, played in the six's order, easiest first,
+  so the climb in difficulty stays sure; the 5th one of its two
+  challenges (as level 1 deals its scenes 1-4 from six). The deal and the
+  small sizes and where things stand come from the level's seed. Scenes 1 and 3 have
   the level's soft thing in the way, 2 and 4 its tall one, the 5th both.
   The structures are frames of posts and slabs (falling whole to a hit
   on a bottom post), or pieces apart (falling in parts); blocks may hide
@@ -2226,9 +2240,12 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   patch on the sand and staves flying. A broken block is gone, down for
   good (and still broken when a scene is picked up again).
 - **Level 2, "The building site"** (journal Q73, Q75): Two storeys,
-  Three storeys, Bridge, Steps, and the challenge, a three-storey tower
+  Scaffold (one wide storey, two bricks on it; 10.3), Three storeys,
+  Bridge, Brick stacks (three steel posts with a brick each, falling in
+  parts; 10.3), Steps, and the challenges, a three-storey tower
   behind a low wall of two upright bricks (four storeys behind five
-  bricks, then three, were won 31% of the time). In the way: a
+  bricks, then three, were won 31% of the time) or **twin towers** (two
+  two-storey towers behind a low brick wall; 10.3). In the way: a
   **wheelbarrow of gravel** (a ball that lands in it keeps 0.1 of its
   speed and stays) and a **site light** on a pole. Sounds (mockup v6,
   the developer's picks): wood "Hollow plank", brick "Clack and grit",
@@ -2251,10 +2268,13 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
 - **Level 3, "Frosty Times"** (the developer's name): ice blocks; snowy
   mountains and a frozen lake ahead (Poly Haven's "Lago d'Isola",
   turned so they're ahead), snow all round fading into the photo's
-  land. Structures (Claude's picks, to review): an ice gate, an ice
-  tower, an ice pyramid (cubes 4-3-2-1), an ice wall of two pairs of
-  pillars with slabs and cubes, and the challenge, an **ice castle**:
-  two two-storey towers joined by a bridge behind two upright slabs. In
+  land. Structures (Claude's picks, to review): an ice gate, ice steps
+  (columns of 1, 2 and 3 cubes; 10.3), an ice
+  tower, an ice pyramid (cubes 4-3-2-1), ice pillars (three, a cube on
+  each, falling in parts; 10.3), an ice wall of two pairs of
+  pillars with slabs and cubes, and the challenges, an **ice castle**:
+  two two-storey towers joined by a bridge behind two upright slabs, or
+  an **ice keep** (a tower of two gates behind a low ice gate; 10.3). In
   the way: a **grey rock**, half buried (developer, 2026-11-12: a round
   heap of snow, then a wind-blown drift, then snow on the rock didn't
   look real: "just make it a rock"; soft: the ball stays against it,
@@ -2274,10 +2294,13 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   **rattlesnake** sliding along in S-curves behind the structure, out of
   the ball's way (no part in the play). Structures (Claude's picks): a
   **water tower** (four legs, a deck, a big barrel tank: burst the tank
-  and the legs come down), a trestle, a stack of barrels 3-2-1 with
-  beams, a hitching rail with barrels behind, and the challenge, a
+  and the legs come down), a signboard (two tall posts, a board, a small
+  barrel at each end; 10.3), a trestle, a stack of barrels 3-2-1 with
+  beams, a row of barrels (four, two with a small one on top, falling in
+  parts; 10.3), a hitching rail with barrels behind, and the challenges, a
   two-storey **timber frame** with a barrel on each floor behind a row
-  of three barrels. In the way: **desert scrub** (soft: level 1's bush,
+  of three barrels, or a **mine's head frame** (two storeys, a barrel on
+  each, behind a trestle carrying a barrel; 10.3). In the way: **desert scrub** (soft: level 1's bush,
   lower and sage-grey) and a **saguaro cactus** (tall: its ribbed trunk
   and two arms). Sounds: a barrel knocked (a hollow thunk), bursting (a
   crack, a gush, drips).
@@ -2306,10 +2329,14 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   that dims as they break; they break as ice does (at a knock of 2.2 m/s,
   or once down) but grip; **the shards are the block's colour**. **The
   ball glows** pale gold (no lifting ring). Structures (Claude's picks, to
-  review): a lantern arch, a lighthouse (four drums and a lamp), candles
-  (four columns with a cube each, falling in parts), twin lanterns (two
-  gates and a slab), and the challenge, a **star palace** (two storeys of
-  columns and slabs behind a low wall of three cubes). In the way: level
+  review): a crystal stack (four cubes, each smaller; 10.3: always
+  scene 1, as the pine hides it), a lantern arch, a lighthouse (four
+  drums and a lamp), candles
+  (four columns with a cube each, falling in parts), a star gate (a gate,
+  three cubes 2-1 on it; 10.3), twin lanterns (two
+  gates and a slab), and the challenges, a **star palace** (two storeys of
+  columns and slabs behind a low wall of three cubes) or a **moon
+  temple** (four columns, a slab, three cubes, behind a low gate; 10.3). In the way: level
   3's rock and snowy pine, at night. **The owl** on a bare tree at the
   view's right: it sits from the start of each scene, turns its head now
   and then and **hoots** ("who"; the first 3-6 s in, then every 8-16 s);
@@ -2333,7 +2360,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   U, its body following its head's path). Once a crossing; calm again
   next scene. The walk and the fright: `src/core/topple-animals.js`.
 - **The scenes are made from the game's seed**, so they're the same
-  each time; only a new game makes new ones. **The game is kept on the
+  each time; a new game makes new ones, and so does a done level started
+  again (its own seed: the game's and how many times). **The game is kept on the
   device** (`web-games-topple-game`: the seed, level, scene, hearts,
   jewels) for every visit, saved as it's made and as each scene ends;
   the scene under way only for the visit, as every game (its layout,
@@ -2422,7 +2450,7 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   that can't run three.js, cannon-es or WebGL sees only "This phone or
   tablet can't show the 3D park".
 - **Logged** (levels 2-4 too): the setting drawn (its photos, ms, or why
-  not), the map (a level picked and started, a locked one), Start over
+  not), the map (a level picked and started, with new scenes or not; a locked one), Start over
   (asked, no, done), a block broken (its material, speed), each knock's material in
   the sound; an animal frightened (where it was, the block's x, whether
   it turned back, by a fall or a break); the owl's hoots; the night sky (ms to make, the skyline found); 3D started (with the far-off trees' leaves), the game on
@@ -2431,7 +2459,7 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   draw), layouts thrown away, the pad's show (the angle picked; done, or
   stopped by a finger), a press off the pad (by the ball or elsewhere,
   how many px outside it), each throw (speed, angle, the path's touches) and where the ball touched
-  against the path, blocks down, a post up again, the scene's end (with
+  against the path, blocks down, a post up again, the card after a win (how long after, calm or not), the scene's end (with
   fps and the physics' ms), Start again, resumed; how deep the trunks
   reach into their leaves (the far-off trees' at 3D started, the scene's
   with each scene).

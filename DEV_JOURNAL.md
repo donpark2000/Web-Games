@@ -92,6 +92,23 @@ time, each tried before publishing:
   built and measured"): after 5 levels, 5 new levels in a new world (the
   moon, Mars, something quite different), instead of adding levels; "a
   lot of symmetry - 5 balls, 5 scenes per level, 5 levels". To discuss.
+  2026-11-12, developer: questions first (Q94-Q96), then this.
+- **Q94. The same set-up every time** (2026-11-12, developer: "every time
+  I play the game from the beginning I am presented with exactly the same
+  set up"; a heart lost: the same scenes, good; starting fresh or a level
+  done gone back to from the map: "preserve the theme of the scene but be
+  presented with different target arrangements"). Built (10.3, "Q94, Q95
+  built"): eight structures a level dealt, new scenes for a done level
+  played again; to try.
+- **Q95. A long pause before a cleared scene is called complete**
+  (2026-11-12, developer). Built (10.3, same entry): "Cleared!" at once,
+  the card once calm; to try.
+- **Q96. Not enough challenge** (2026-11-12, developer: "after playing a
+  couple of times, there is no challenge. Maybe changing camera angles?
+  maybe making balls smaller? Maybe making wider gaps in target
+  structures? ... The core look and feel is good but I don't think the
+  challenge is at the right level"). For next session: Claude's options
+  in "Q94, Q95 built", to discuss.
 
 ## Proposed additions to the standards skill
 
@@ -18953,3 +18970,157 @@ levels." (Q93; Claude's view in chat, to discuss next session.)
   discuss), then Q88, Q78.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93.
+
+## 2026-11-12: Q94, Q95 built (release 10.3); Q96 (challenge) raised; Claude's options
+
+**Developer**: "It all looks good" (10.2 on the phone). Then, before Q93:
+"every time I play the game from the beginning I am presented with
+exactly the same set up. When I lose a heart and try again, I think it is
+good to present the same scenes over that I just lost. But when starting
+fresh or even using the map to go back to a level I completed before, it
+would be nice to preserve the theme of the scene but be presented with
+different target arrangements" (Q94); and "sometimes after completing a
+scene there is a long pause before calling it complete" (Q95). Claude's
+plan (in chat): the win at once, the card when settled, the cap cut; new
+scenes for a done level played again; about 3 new structures a level,
+dealt. Developer: "yes" to the moments, no mockup ("2) no"); later "yes.
+And please publish", and Q96 (below) for next session.
+
+**Why it repeated (Q94).** Levels 2-5 had five structures in a fixed
+order: a new game changed only sizes (±5%) and places (±25 cm). Level 1
+deals 4 of 6. And a done level played again used the game's seed, so
+the same scenes (DESIGN.md said so: "a level played again has the same
+scenes").
+
+**Q95 measured first** (Claude's script, scratchpad: the tests' person
+player, 8 games x levels 1-5 x 5 scenes, 170 wins of 200; after all down,
+10 s more recorded at 60 Hz: each block's speed, the breaks, posts up
+again). Times from all down to the card, by rule:
+
+| rule | median | 90% | most | over 3 s |
+|---|---|---|---|---|
+| 10.2: blocks still (0.07 m/s) and no shards or spray (they live up to 2.4 s), 0.35 s; cap 8 s | 2.77 | 3.05 | 8.00 | 21 |
+| blocks still only | 1.08 | 2.55 | 8.00 | 11 |
+| blocks under 0.3 m/s, 0.35 s | 0.87 | 1.88 | 4.15 | 4 |
+| blocks under 0.5 m/s | 0.77 | 1.67 | 2.77 | 0 |
+
+- Every ice and glowing-block scene waited 2.77 s: the shards. The 8 s
+  waits: barrels rolling away (trestle, saloon: 0.07-0.14 m/s at 8 s,
+  x 2.3 m off) and posts creeping (0.075-0.12 m/s).
+- A post up again after all were down: 1 of 170 (steps, 0.07 s after),
+  inside a 0.35 s hold.
+
+**Q95 built**: all down for 0.35 s (WIN_HOLD): the scene is won at once:
+the win sound, the 💎 in the pills, and **"Cleared! 💎"** (a yellow pill
+under the level's name and hearts, clear of the blocks); the game kept
+then. **The card** once every block is slower than 0.3 m/s
+(`CALM_SPEED`, world.calm()) for 0.35 s (CARD_HOLD), or 4 s after the win
+(CARD_MAX); the shards fly on behind it. Out of balls unchanged (its card
+at its end). Logged: "all down: cleared unless one gets up", "the card"
+(afterWinS, calm, still, fx). In the browser (localhost, 375x812):
+level 3, every block tipped: "Cleared!" at 0.4 s, the card at 1.4 s with
+180 shards still flying (10.2: about 2.8 s); level 2's pill sits under
+the pills (screenshot looked at).
+
+**Q94 built**:
+- **New scenes for a done level started again from its start**
+  (`seedOf(g, n)`: the game's seed until then, then one of its own for
+  each time; `g.rounds[n]` counted on in `switchLevel` when the level is
+  done and picked up at scene 1, 3 hearts, no jewels). A heart lost, all
+  of them, or a level carried on: the same scenes. Kept on the device
+  (`readGame` drops nonsense; a game from before 10.3 has none). Logged on
+  "level: start" (newScenes, levelSeed). In the browser: level 2 (done)
+  from the map twice: seeds 1203689986, then 317515549; level 3 (not
+  done) kept 4321.
+- **Eight structures a level**: `pool` (six, easiest first; scenes 1-4
+  are four of them in this order) and `challenges` (two; the 5th one of
+  them), dealt once per level seed (`levelDeal`). 200 games: every
+  structure dealt at least 20 times, at least 25 different deals a level.
+  New (Claude's picks, to review): scaffold, brick stacks, twin towers
+  (level 2); ice steps, ice pillars, ice keep (3); signboard, barrel row,
+  mine head (4); crystal stack, star gate, moon temple (5).
+- Tuned on the measure (one person player a game, 6-16 games): twin
+  towers 1 of 6 at first (upper storeys 0.7 m, wall 0.5 m): shorter
+  upper storeys, a 0.4 m wall: 7 of 16 (44%); mine head 6 of 6, then 9 of
+  10: a barrel on each floor, a taller trestle carrying a barrel: 8 of 10;
+  moon temple 6 of 6: a taller front gate, a third cube: 5 of 10; crystal
+  stack (0.36-0.23 m cubes) behind the pine needed 6.5 layouts a scene,
+  two columns never passed: bigger cubes (0.44-0.31), and first in Star
+  Light's pool, so always scene 1 (the rock, never the pine); barrel row
+  11-12 of 16: closer, one small barrel on top.
+- The whole measure (16 games, each pool structure as scene 1 and 2,
+  each challenge as 5): wins of 16 games (as scene 1 / as scene 2; challenges as 5; * new):
+
+  | level | scenes 1-4 (pool, easiest first) | challenges |
+  |---|---|---|
+  | 2 | two storeys 14/13, scaffold* 15/16, three storeys 15/16, bridge 16/14, brick stacks* 16/16, steps 12/11 | tower and wall 12, twin towers* 7 |
+  | 3 | ice gate 16/16, ice steps* 16/15, ice tower 15/15, ice pyramid 15/14, ice pillars* 16/16, ice wall 11/16 | ice castle 3, ice keep* 11 |
+  | 4 | water tower 16/16, signboard* 16/16, trestle 16/15, barrel stack 16/15, barrel row* 13/13 (after the change; 12/11 before), hitching rail 14/15 | saloon 13, mine head* 13 |
+  | 5 | crystal stack* 16/16, lantern arch 16/16, lighthouse 16/16, candles 16/16, star gate* 16/16, twin lanterns 15/16 | star palace 5, moon temple* 10 |
+
+  Every layout passed the check (none taken as the best of 25), stood
+  still 5 s, nothing fell. Behind the pine some need more layouts: the
+  ice pyramid 3.8 a scene (until 10.3 it was only ever scene 3, with the
+  rock), the crystal stack 3.6 (it's always scene 1 now), the star gate
+  3.4. Seen on the way: the ice castle (3 of 16, 19%) and the star palace
+  (5 of 16, 31%) are at or under the 30% the challenges were balanced to
+  (other games, other players then: not compared on one run; left as
+  they are). The new challenges sit inside 30-80% (44%, 69%, 81%, 63%).
+- Check: every structure as each kind of scene passes the check (at
+  most 15 tries), stands still 5 s and nothing falls (new test).
+
+**Found on the way**: a reload on a "Level done!" card failed ("resume
+failed: ... reading 'col'") and showed the setup screen: the kept scene
+(the done level's last) was drawn in the next level's setting, whose
+photos aren't the old one's. Since 10.0. Now a kept scene is drawn in its
+own level's setting (`kept.layout.level`). In the browser: level 2's
+last scene won, reloaded: "Level 2 done! 💎💎💎💎💎", Next: the map's walk;
+no console errors.
+
+**Tests**: `tests/topple.test.js` (cleared after the hold moving or not,
+the card on calm, once, CARD_MAX, a post up again, old rounds; seedOf
+and rounds), `tests/topple-world.test.js` (calm vs still),
+`tests/topple-levels.test.js` (the deal; every structure as a scene;
+names given where a structure is meant), `tests/topple-page.test.js`
+(Cleared then card; the kept scene's own setting). Shown to fail: the
+card rule (`r.card = true`), the round count (removed), the deal's order
+(reversed): each failed its test. Full suite 595 pass (591 before), one verdict.
+
+**Release 10.3** (x.3: changes): `src/core/release.js`, `node tools/offline.js` (version 1dbf9693e8a8, 185 files), `RELEASES.md`, `node tools/release.js` ready.
+
+**Q96 (developer, same message): "we need to think about ways to make
+game play more challenging ... after playing a couple of times, there is
+no challenge. Maybe changing camera angles? maybe making balls smaller?
+Maybe making wider gaps in target structures? You can think about
+options and propose more when I get back."** Claude's options, to
+discuss (none built):
+
+1. **Who is it for?** The kids (5-7) and the developer want different
+   levels. Level 1 stays "the way in" (DESIGN.md); the question is how
+   steeply later levels (or worlds, Q93) climb, and whether a grown-up
+   gets something extra.
+2. **The aiming dots** are the biggest help: 0.3 s of the path shows
+   where the ball goes. Shorter in later levels (0.15 s), or only for
+   the first ball of a scene. Cheap; changes skill most.
+3. **Fewer balls** (4 in later levels), or **a level's balls shared**
+   (e.g. 20 for its 5 scenes): balls saved on an easy scene help on the
+   challenge, so a clean throw matters.
+4. **Stars for balls left** (1-3 per scene, best kept on the map): a
+   challenge for whoever wants it without making it harder for the
+   kids; a reason to play a level again (with Q94's new scenes).
+5. **The developer's ideas**: a smaller or lighter ball (it must hit the
+   strategic point: a post low down), wider gaps (pieces apart, each
+   needing its own hit: more throws than balls unless chains are used),
+   other camera angles (further back or lower: distance harder to judge;
+   Q70's side view was dropped as confusing).
+6. **Things that move**: a swinging plank or a cart crossing in front, a
+   structure on a slowly turning base: timing as well as aim.
+7. **Wind**: a flag shows it, the dots don't: the throw must allow for it.
+8. **Things not to hit**: a glass pane or a bird's nest: hitting it
+   costs a ball.
+
+How to judge them: the tests' player aims perfectly at what it sees, so
+it can't measure aim-based difficulty (2, 5, 7). A player with aim
+error (scatter like a person's) would; or try them on the phone. Claude's
+suggestion: start with 2 and 4 (small, testable, keep the kids' level
+1), then 3 or 5.

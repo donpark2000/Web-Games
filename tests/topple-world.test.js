@@ -10,7 +10,7 @@
 // physics, nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createWorld, touch, BUSH_KEEP, MIN_HITS } from '../src/core/topple-world.js';
+import { createWorld, touch, BUSH_KEEP, MIN_HITS, CALM_SPEED, STILL_SPEED } from '../src/core/topple-world.js';
 import {
   SCALE, HAND, BALL, MAX_AIM, MAX_UP, R2D, SCENES, KINDS, ALL_KINDS, SOME_STACKS, launchVel, newRound, useBall, update, canThrow, sceneParts, makeLayout, sceneOpts, sceneSeed, rng,
 } from '../src/core/topple.js';
@@ -42,6 +42,21 @@ test('topple world: every scene of three games is made, checked and stands still
   assert.equal(made, 15);
   assert.deepEqual(KINDS, ['bush', 'tree']);
   assert.ok(ok >= 14, `only ${ok} of ${made} scenes passed the check`);
+});
+
+// The card after a win waits for calm, not still (developer, 2026-11-12: a
+// long pause): a block sliding slowly is calm but not still; a fast one neither.
+test('topple world: a block sliding slowly is calm, not still; a fast one is neither; asleep is both', () => {
+  const w = createWorld();
+  w.makeScene(GAMES[0], 1, 1);
+  assert.ok(w.still() && w.calm(), 'a scene at rest');
+  const b = w.blocks[0].body;
+  b.wakeUp();
+  b.velocity.set(CALM_SPEED * 0.6, 0, 0);
+  assert.ok(!w.still() && w.calm(), `${CALM_SPEED * 0.6} m/s: calm, not still`);
+  b.velocity.set(0, 0, -CALM_SPEED * 1.5);
+  assert.ok(!w.still() && !w.calm(), `${CALM_SPEED * 1.5} m/s: neither`);
+  assert.ok(CALM_SPEED > STILL_SPEED);
 });
 
 // Every block seen and hit from the front (developer, 2026-11-10: no

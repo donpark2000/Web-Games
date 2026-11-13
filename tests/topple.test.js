@@ -6,12 +6,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  HAND, CAM, SCALE, MAX_UP, MAX_AIM, R2D, BALLS, SCENES, HEARTS, STACKS, SIZE, KINDS, READY_AFTER, END_WAIT, END_MAX, WIN_MAX,
+  HAND, CAM, SCALE, MAX_UP, MAX_AIM, R2D, BALLS, SCENES, HEARTS, STACKS, SIZE, KINDS, READY_AFTER, END_WAIT, END_MAX, WIN_HOLD, CARD_HOLD, CARD_MAX,
   makeLayout, sceneOpts, sceneSeed, levelPlan, sceneChoice, sceneParts, frontDrag, launchVel, isDown, createGame, readGame, sceneOver,
   newRound, useBall, canThrow, update, endWords, dotsFor, behindView, checkSetup, rng,
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
   FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn, SOME_STACKS, SOME_MIN,
-  MAX_LEVEL, LEVELS, switchLevel, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
+  MAX_LEVEL, LEVELS, switchLevel, seedOf, layoutFor, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -285,14 +285,14 @@ test('topple: a tall block is down only while it lies tipped past 30°; dropping
 const FRESH = { scene: 1, hearts: HEARTS, jewels: 0 };
 test('topple: a game: a jewel and the next scene; a heart and the same scene; the last heart back to scene 1', () => {
   const g = createGame(77);
-  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {} });
+  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {}, rounds: {} });
   assert.equal(sceneOver(g, true), 'won');
   assert.deepEqual([g.scene, g.jewels, g.hearts], [2, 1, 3]);
   assert.equal(sceneOver(g, false), 'lost');
   assert.deepEqual([g.scene, g.jewels, g.hearts], [2, 1, 2]);
   assert.equal(sceneOver(g, false), 'lost');
   assert.equal(sceneOver(g, false), 'out');
-  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {} }, 'the same scenes: the seed kept');
+  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {}, rounds: {} }, 'the same scenes: the seed kept');
   for (let i = 1; i < SCENES; i++) assert.equal(sceneOver(g, true), 'won');
   assert.equal(g.scene, SCENES);
   assert.throws(() => createGame(0));
@@ -335,6 +335,45 @@ test('topple: levels: a level done opens the next; each keeps its place; only op
   assert.deepEqual({ level: h.level, reached: h.reached, done: h.done, places: h.places }, { level: 1, reached: 5, done: [1, 2, 3, 4, 5], places: {} });
 });
 
+// (developer, 2026-11-12: a level completed before, gone back to from the
+// map, "different target arrangements"; a heart lost: the same scenes)
+test('topple: a done level started again from the map has new scenes; carried on, or a heart lost, the same', () => {
+  const g = createGame(4321);
+  for (let i = 1; i <= SCENES; i++) sceneOver(g, true);
+  assert.equal(g.level, 2);
+  const first = seedOf(g, 1);
+  assert.equal(first, 4321, 'a level not played again: the game\'s seed');
+  assert.ok(switchLevel(g, 1));
+  assert.deepEqual(g.rounds, { 1: 1 });
+  const again = seedOf(g, 1);
+  assert.notEqual(again, first, 'level 1 again: new scenes');
+  assert.ok(Number.isInteger(again) && again > 0 && again < 2 ** 31);
+  // a heart lost, all of them: the same scenes
+  sceneOver(g, true); sceneOver(g, false); sceneOver(g, false); sceneOver(g, false);
+  assert.equal(seedOf(g, 1), again);
+  // off to level 2 partway through level 1, then back: carried on, the same
+  sceneOver(g, true);
+  assert.ok(switchLevel(g, 2) && switchLevel(g, 1));
+  assert.deepEqual([g.scene, g.rounds[1], seedOf(g, 1)], [2, 1, again]);
+  // through to the end, then back from the map: new scenes again, each time different
+  for (let i = 2; i <= SCENES; i++) sceneOver(g, true);
+  assert.equal(g.level, 2);
+  switchLevel(g, 1);
+  assert.equal(g.rounds[1], 2);
+  assert.ok(![first, again].includes(seedOf(g, 1)));
+  // a level not done, gone back to at its start: the same (only done levels)
+  assert.ok(switchLevel(g, 2) && switchLevel(g, 1) && switchLevel(g, 2));
+  assert.equal(g.rounds[2], undefined);
+  // the layouts differ: another level's seed makes other scenes
+  assert.notDeepEqual(layoutFor(first, 2, 1).table, layoutFor(again, 2, 1).table);
+  // kept on the device; nonsense dropped; a game from before 10.3 has none
+  assert.deepEqual(readGame(JSON.parse(JSON.stringify(g))).rounds, g.rounds);
+  assert.deepEqual(readGame({ ...g, rounds: { 1: 2, 9: 1, 2: -1, 3: 1.5, x: 4 } }).rounds, { 1: 2 });
+  const old = { ...g }; delete old.rounds;
+  assert.deepEqual(readGame(old).rounds, {});
+  assert.equal(seedOf(readGame(old), 1), 4321);
+});
+
 test('topple: a game kept on the device is used only if it makes sense', () => {
   const g = createGame(5);
   assert.deepEqual(readGame(JSON.parse(JSON.stringify(g))), g);
@@ -343,10 +382,10 @@ test('topple: a game kept on the device is used only if it makes sense', () => {
     assert.equal(readGame(bad), null, JSON.stringify(bad));
   }
   // one kept by 9.4 (level 1 only) carries on
-  assert.deepEqual(readGame({ seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2 }), { seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2, reached: 1, done: [], places: {} });
+  assert.deepEqual(readGame({ seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2 }), { seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2, reached: 1, done: [], places: {}, rounds: {} });
   // levels and places that don't make sense are dropped, not the game
   const odd = readGame({ seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 1, done: [1, 7, 'x', 1], places: { 1: { scene: 9, hearts: 1, jewels: 0 }, 3: FRESH, 2: FRESH } });
-  assert.deepEqual(odd, { seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 2, done: [1], places: {} });
+  assert.deepEqual(odd, { seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 2, done: [1], places: {}, rounds: {} });
   const kept = readGame({ seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 3, done: [1, 2], places: { 1: { scene: 4, hearts: 1, jewels: 3 } } });
   assert.deepEqual(kept.places, { 1: { scene: 4, hearts: 1, jewels: 3 } });
   // every level done when there were four (10.0), then some scenes played again: level 5 open, places kept
@@ -359,7 +398,7 @@ test('topple: a game kept on the device is used only if it makes sense', () => {
   assert.equal(readGame({ seed: 5, level: 1, scene: 1, hearts: 3, jewels: 0, reached: 5, done: [1, 2, 3, 4, 5] }).reached, 5);
 });
 
-test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all are down and still for 0.35 s; out of balls once still', () => {
+test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all are down 0.35 s, the card once calm; out of balls once still', () => {
   const r = newRound(5);
   assert.ok(canThrow(r).ok);
   assert.deepEqual(useBall(r), { ok: true, ball: 1 });
@@ -367,24 +406,40 @@ test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all a
   update(r, READY_AFTER + 0.01, { down: 2, still: false });
   assert.ok(canThrow(r).ok);
   assert.equal(r.down, 2);
-  // all down but still falling (2026-11-12: the card came before the last had fallen): not over
-  for (let i = 0; i < 10; i++) assert.equal(update(r, 0.2, { down: 5, still: false }).ended, null, `moving, ${(i + 1) * 0.2} s`);
-  // still: not at once (one may come to rest for a moment)
-  assert.equal(update(r, 0.2, { down: 5, still: true }).ended, null);
-  assert.equal(update(r, 0.1, { down: 5, still: false }).ended, null, 'moving again: the wait starts again');
-  assert.equal(update(r, 0.2, { down: 5, still: true }).ended, null);
-  assert.equal(update(r, 0.2, { down: 5, still: true }).ended.won, true);
-  assert.deepEqual(r.result, { won: true, down: 5, total: 5, balls: 1 });
+  // all down, still falling: cleared after WIN_HOLD, moving or not (developer, 2026-11-12: a long pause)
+  assert.equal(update(r, WIN_HOLD - 0.05, { down: 5, still: false, calm: false }).ended, null, 'before the hold');
+  const won = update(r, 0.1, { down: 5, still: false, calm: false });
+  assert.deepEqual(won.ended, { won: true, down: 5, total: 5, balls: 1 });
+  assert.equal(won.card, false, 'the card waits for the blocks');
   assert.equal(canThrow(r).why, 'scene-over');
-  // all down and never still: cleared anyway after WIN_MAX; one up again starts the count again
+  // the card: calm for CARD_HOLD (not at a moment's calm), once
+  assert.equal(update(r, 0.2, { down: 5, still: false, calm: true }).card, false);
+  assert.equal(update(r, 0.1, { down: 5, still: false, calm: false }).card, false, 'moving again: the wait starts again');
+  assert.equal(update(r, CARD_HOLD - 0.05, { down: 5, still: false, calm: true }).card, false);
+  const c = update(r, 0.1, { down: 5, still: false, calm: true });
+  assert.equal(c.card, true);
+  assert.equal(c.ended, null, 'ended twice');
+  assert.equal(update(r, 1, { down: 5, still: true, calm: true }).card, false, 'the card twice');
+  // never calm: the card anyway after CARD_MAX
+  const m = newRound(1);
+  update(m, WIN_HOLD + 0.05, { down: 1, still: false, calm: false });
+  assert.equal(update(m, CARD_MAX - 0.05, { down: 1, still: false, calm: false }).card, false);
+  assert.equal(update(m, 0.1, { down: 1, still: false, calm: false }).card, true);
+  // no calm given (the tests' players): as still
+  const p = newRound(1);
+  update(p, WIN_HOLD + 0.05, { down: 1, still: true });
+  assert.equal(update(p, CARD_HOLD + 0.05, { down: 1, still: true }).card, true);
+  // one up again (a post leaning, not lying) starts the count again
   const w = newRound(2);
-  update(w, 1, { down: 2, still: false });
-  update(w, 0.1, { down: 1, still: false });
-  assert.equal(update(w, WIN_MAX - 0.05, { down: 2, still: false }).ended, null);
+  update(w, 0.3, { down: 2, still: false });
+  update(w, 0.02, { down: 1, still: false });
+  assert.equal(update(w, WIN_HOLD - 0.05, { down: 2, still: false }).ended, null);
   assert.equal(update(w, 0.1, { down: 2, still: false }).ended.won, true);
-  // a round kept before allDown was counted (2026-11-12) still ends
+  // a round kept before allDown was counted (2026-11-12) still ends; one kept ended before 10.3 (no card) gets none
   const old = { ...newRound(1) }; delete old.allDown;
   assert.equal(update(old, 0.4, { down: 1, still: true }).ended.won, true);
+  const done = { ...newRound(1), result: { won: true, down: 1, total: 1, balls: 1 } }; delete done.card;
+  assert.equal(update(done, 5, { down: 1, still: true, calm: true }).card, false);
 
   const s = newRound(7);
   for (let i = 0; i < BALLS; i++) { assert.ok(useBall(s).ok); update(s, 1, { down: 1, still: false }); }
@@ -392,7 +447,9 @@ test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all a
   assert.equal(useBall(s).ok, false);
   assert.equal(update(s, END_WAIT - 1.01, { down: 1, still: true }).ended, null, 'over before the wait');
   assert.equal(update(s, 0.1, { down: 1, still: false }).ended, null, 'over while blocks move');
-  assert.deepEqual(update(s, 0.1, { down: 1, still: true }).ended, { won: false, down: 1, total: 7, balls: 5 });
+  const lost = update(s, 0.1, { down: 1, still: true });
+  assert.deepEqual(lost.ended, { won: false, down: 1, total: 7, balls: 5 });
+  assert.equal(lost.card, true, 'a scene lost: its card with its end');
   // never still: over anyway
   const t = newRound(3);
   for (let i = 0; i < BALLS; i++) { useBall(t); update(t, 1, { down: 0, still: false }); }

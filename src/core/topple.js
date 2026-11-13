@@ -473,9 +473,22 @@ export function makeLayout(seed, opts = sceneOpts(1), pool = KINDS) {
   return { seed, n: opts.n, stack, table, blocks, things, power: +power.toFixed(3), reach: +room.reach.toFixed(2), unplaced: [...new Set(unplaced)], tooNear };
 }
 
-// Levels 2 on: scene i is the level's i-th structure (a fixed order, so
-// the climb in difficulty is sure: journal, "Level 2's scenes"), its small
-// sizes and where it and the things stand from the seed. Scenes 1 and 3
+// Levels 2 on: the structures of a game's level (levelDeal), dealt once per
+// game and level seed (so a scene played again is the same one): scenes 1-4
+// four of the level's pool of six, kept in the pool's order (easiest first,
+// so the climb in difficulty is sure: journal, "Level 2's scenes"), the 5th
+// one of its challenges (10.3: until then five in a fixed order; developer,
+// 2026-11-12, "different target arrangements").
+export function levelDeal(gameSeed, level) {
+  const info = levelInfo(level);
+  if (!info?.pool) throw new Error(`levelDeal: no level ${level}`);
+  const random = rng((gameSeed ^ Math.imul(level, 0x5BD1E995) ^ 0x1B873593) >>> 0);
+  const left = info.pool.map((name, i) => ({ name, i }));
+  while (left.length > SCENES - 1) left.splice(Math.floor(random() * left.length), 1);
+  return [...left.map(c => c.name), info.challenges[Math.floor(random() * info.challenges.length)]];
+}
+// Scene i: the structure `name` (the deal's for this seed when none is
+// given), its small sizes and where it and the things stand from the seed. Scenes 1 and 3
 // have the level's soft thing, 2 and 4 its tall one, the 5th both. The
 // things stand out of reach of the whole structure falling, not only its
 // tallest block (journal, mockup v1: "for frames the reach should be the
@@ -483,10 +496,11 @@ export function makeLayout(seed, opts = sceneOpts(1), pool = KINDS) {
 // The throw is fast enough to reach the top (mockup v1: level 1's rule
 // gives too little for four storeys; +8%).
 export const FRAME_REACH = 0.6;
-export function frameLayout(seed, level, i) {
+export function frameLayout(seed, level, i, name = null) {
   const info = levelInfo(level);
-  if (!info?.scenes) throw new Error(`frameLayout: no level ${level}`);
-  const name = info.scenes[i - 1];
+  if (!info?.pool) throw new Error(`frameLayout: no level ${level}`);
+  name ??= levelDeal(seed, level)[i - 1];
+  if (!STRUCTURES[name]) throw new Error(`frameLayout: no structure ${name}`);
   const random = rng(seed), R = (a, b) => a + (b - a) * random();
   const ks = {}, k = key => (ks[key] ??= R(0.95, 1.05));
   const rel = STRUCTURES[name](k).map(b => ({ ...b, w: b.w / SCALE, h: b.h / SCALE, d: b.d / SCALE, x: b.x / SCALE, y: b.y / SCALE, z: b.z / SCALE, ...(b.r ? { r: b.r / SCALE } : {}) }));
@@ -523,9 +537,10 @@ export function frameLayout(seed, level, i) {
   return { seed, level, n: kinds.length, stack: name, table, blocks, things, power: +power.toFixed(3), reach: +reach.toFixed(2), unplaced, tooNear, ball: info.ball };
 }
 // Scene i of a game's level, try tryN: level 1's dealt structures, or the level's own.
-export function layoutFor(gameSeed, level, i, tryN = 0) {
+// (`name`: a structure of the level instead of the deal's, for the tests)
+export function layoutFor(gameSeed, level, i, tryN = 0, name = null) {
   const seed = sceneSeed(gameSeed, level, i, tryN);
-  return level === 1 ? makeLayout(seed, sceneChoice(gameSeed, level, i)) : frameLayout(seed, level, i);
+  return level === 1 ? makeLayout(seed, sceneChoice(gameSeed, level, i)) : frameLayout(seed, level, i, name ?? levelDeal(gameSeed, level)[i - 1]);
 }
 
 // A layout in the world's metres, for the physics and the drawing alike:
@@ -780,10 +795,24 @@ export const checkSetup = ({ p1 }) => checkPicks({ onePlayer: true, p1 });
 // the levels not being played; the one being played is scene, hearts and
 // jewels), and a level played again has the same scenes. `keep`: a game
 // whose levels reached and done carry on (new scenes, the same progress).
+// `rounds`: how many times each done level has been started again from
+// its start, each time with new scenes (seedOf).
 export function createGame(seed, keep = null) {
   if (!Number.isInteger(seed) || seed <= 0) throw new Error(`createGame: bad seed: ${seed}`);
-  return { seed, level: 1, scene: 1, hearts: HEARTS, jewels: 0, reached: keep?.reached ?? 1, done: keep?.done ? [...keep.done] : [], places: {} };
+  return { seed, level: 1, scene: 1, hearts: HEARTS, jewels: 0, reached: keep?.reached ?? 1, done: keep?.done ? [...keep.done] : [], places: {}, rounds: {} };
 }
+// The seed level n's scenes are made from (developer, 2026-11-12: "when
+// starting fresh or even using the map to go back to a level I completed
+// before, it would be nice to preserve the theme of the scene but be
+// presented with different target arrangements"; a heart lost, or all of
+// them, still plays the same scenes): the game's, until the level is done
+// and started again, then one of its own for each time.
+export function seedOf(g, n = g.level) {
+  const k = g.rounds?.[n] ?? 0;
+  if (!k) return g.seed;
+  return 1 + Math.floor(rng((g.seed ^ Math.imul(n, 0x2545F491) ^ Math.imul(k, 0x9E3779B9)) >>> 0)() * (2 ** 31 - 2));
+}
+const isStart = p => p.scene === 1 && p.hearts === HEARTS && p.jewels === 0;
 const freshPlace = () => ({ scene: 1, hearts: HEARTS, jewels: 0 });
 const okPlace = p => !!p && Number.isInteger(p.scene) && p.scene >= 1 && p.scene <= SCENES
   && Number.isInteger(p.hearts) && p.hearts >= 1 && p.hearts <= HEARTS && Number.isInteger(p.jewels) && p.jewels >= 0 && p.jewels < SCENES;
@@ -804,13 +833,21 @@ export function readGame(g) {
     const n = Number(k);
     if (okLevel(n) && n !== g.level && n <= reached && okPlace(p)) places[n] = { scene: p.scene, hearts: p.hearts, jewels: p.jewels };
   }
-  return { seed: g.seed, level: g.level, scene: g.scene, hearts: g.hearts, jewels: g.jewels, reached, done, places };
+  // (a game kept before 10.3 has none)
+  const rounds = {};
+  for (const [k, c] of Object.entries(g.rounds && typeof g.rounds === 'object' ? g.rounds : {})) {
+    const n = Number(k);
+    if (okLevel(n) && Number.isInteger(c) && c > 0) rounds[n] = c;
+  }
+  return { seed: g.seed, level: g.level, scene: g.scene, hearts: g.hearts, jewels: g.jewels, reached, done, places, rounds };
 }
 // Level n's place: { scene, hearts, jewels }.
 export const placeOf = (g, n) => (n === g.level ? { scene: g.scene, hearts: g.hearts, jewels: g.jewels } : { ...(g.places[n] ?? freshPlace()) });
 export const isOpen = (g, n) => okLevel(n) && n <= g.reached;
-// Play level n (the map): the level being played keeps its place, n's is
-// picked up. False (nothing changed) for a level not open yet.
+// Play level n (the map, or on to the next level): the level being played
+// keeps its place, n's is picked up; a done level picked up at its start
+// gets new scenes (seedOf: its round counted on). False (nothing changed)
+// for a level not open yet.
 export function switchLevel(g, n) {
   if (!isOpen(g, n)) return false;
   if (n === g.level) return true;
@@ -818,6 +855,7 @@ export function switchLevel(g, n) {
   Object.assign(g, placeOf(g, n));
   delete g.places[n];
   g.level = n;
+  if (g.done.includes(n) && isStart(g)) g.rounds = { ...g.rounds, [n]: (g.rounds?.[n] ?? 0) + 1 };
   return true;
 }
 
@@ -846,20 +884,27 @@ export function sceneOver(g, won) {
 /* ---------- a scene being played ---------- */
 
 export const READY_AFTER = 0.9;   // the next ball this long after a throw (s)
-// Every block down and everything still (the blocks, and the shards and
-// spray the page passes in `still`) for this long: cleared (developer,
-// 2026-11-12: "You cleared it" showed "before the final blocks have
-// fallen"; it was every block down 0.35 s, moving or not). Down and never
-// still: cleared anyway after WIN_MAX. Measured (215 wins by the tests'
-// person player, levels 1-4, 3 games): still 1.4 s after all down at the
-// median, 3.6 s at 90%, 7.8 s at most; a cap of 4 s cut 16 of them short.
+// Every block down for WIN_HOLD: cleared at once, the win shown (its sound,
+// the jewel, "Cleared!") while the last blocks finish falling; the card
+// once every block is calm (the page's `calm`: slower than the world's
+// CALM_SPEED) for CARD_HOLD, or CARD_MAX after the win, calm or not.
+// (developer, 2026-11-12: "sometimes after completing a scene there is a
+// long pause before calling it complete". Until 10.3 the win waited for
+// every block, shard and splash to be still: measured, 170 wins of 200
+// scenes by the tests' person player, levels 1-5, 8 games: 2.8 s after all
+// down at the median, as every ice and glowing block's shards fly for up
+// to 2.4 s, and 8 s, the cap, for barrels rolling and posts creeping at
+// 0.07-0.14 m/s. Calm at 0.3 m/s: 0.9 s at the median, 1.9 at 90%, 4.15
+// at most. A post up again after all were down: 1 of 170, 0.07 s after,
+// inside WIN_HOLD; one up again starts the count again.)
 export const WIN_HOLD = 0.35;
-export const WIN_MAX = 8;
+export const CARD_HOLD = 0.35;
+export const CARD_MAX = 4;
 export const END_WAIT = 2;        // out of balls: over this long after the last throw, once still
 export const END_MAX = 7 * Math.sqrt(SCALE);   // ... or this long, still or not
 
 export function newRound(total) {
-  return { total, used: 0, down: 0, t: 0, since: null, winHold: 0, allDown: 0, result: null };
+  return { total, used: 0, down: 0, t: 0, since: null, allDown: 0, result: null, card: false, cardT: 0, calmFor: 0 };
 }
 export const ballsLeft = r => BALLS - r.used;
 export function canThrow(r) {
@@ -876,27 +921,39 @@ export function useBall(r) {
   return { ok: true, ball: r.used };
 }
 // The scene `dt` s on: `down` blocks down now, `still` whether every block
-// has stopped. Returns { downChanged, ended } (ended: the result, once).
-export function update(r, dt, { down, still }) {
+// (and the page's shards and spray) has stopped, `calm` whether every block
+// is slower than CALM_SPEED (none given: as still). Returns { downChanged,
+// ended (the result, once), card (true once: time for the end's card; a
+// scene lost has it with its end) }.
+export function update(r, dt, { down, still, calm = still }) {
   r.t += dt;
   if (r.since != null) r.since += dt;
-  if (r.result) return { downChanged: false, ended: null };
+  if (r.result) {
+    if (r.card === false) {
+      // a won scene's card (a round kept before 10.3 has no `card`: it had its card with its end)
+      r.cardT += dt;
+      r.calmFor = calm ? r.calmFor + dt : 0;
+      if (r.calmFor > CARD_HOLD || r.cardT > CARD_MAX) { r.card = true; return { downChanged: false, ended: null, card: true }; }
+    }
+    return { downChanged: false, ended: null, card: false };
+  }
   const downChanged = down !== r.down;
   r.down = down;
   let won = null;
   if (down >= r.total) {
-    // winHold: all down and still; allDown: all down (a round kept before 2026-11-12 has none)
-    r.winHold = still ? r.winHold + dt : 0;
+    // allDown: how long every block has been down (a round kept before 2026-11-12 has none)
     r.allDown = (r.allDown ?? 0) + dt;
-    if (r.winHold > WIN_HOLD || r.allDown > WIN_MAX) won = true;
+    if (r.allDown > WIN_HOLD) won = true;
   } else {
-    r.winHold = 0;
     r.allDown = 0;
     if (ballsLeft(r) <= 0 && r.since > END_WAIT && (still || r.since > END_MAX)) won = false;
   }
-  if (won === null) return { downChanged, ended: null };
+  if (won === null) return { downChanged, ended: null, card: false };
   r.result = { won, down: r.down, total: r.total, balls: r.used };
-  return { downChanged, ended: r.result };
+  r.card = !won;
+  r.cardT = 0;
+  r.calmFor = 0;
+  return { downChanged, ended: r.result, card: !won };
 }
 
 // The card at a scene's end: { title, next (the button's words) }, from

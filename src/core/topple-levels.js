@@ -109,6 +109,30 @@ export const STRUCTURES = {
     return [...wall, ...tower];
   },
 
+  // (10.3, more to deal from: developer, 2026-11-12, "different target arrangements")
+  // A scaffold: one wide storey on four tall steel posts, two bricks on its slab.
+  scaffold: k => {
+    const s = storey(0, 0, 0, 0.7 * k('w'), 0.35, 1.0 * k('h'), 1.7, 0.9, SITE);
+    return [...s.bs, box('brick', 0.3, 0.3, 0.3, -0.45, s.y, 0), box('brick', 0.3, 0.3, 0.3, 0.45, s.y, 0)];
+  },
+  // Brick stacks: three steel posts, a brick on each, in a row slanting away to the right (falls in parts).
+  brickStacks: k => {
+    const s = 0.55 * k('s'), out = [];
+    [1.0, 1.15, 0.9].forEach((h, i) => { const p = box('steel', 0.2, h * k('h' + i), 0.2, (i - 1) * s, 0, -i * 0.14); out.push(p, box('brick', 0.28, 0.28, 0.28, p.x, topOf(p), p.z)); });
+    return out;
+  },
+  // A challenge: two towers of two storeys side by side behind a low wall of two upright bricks.
+  twinTowers: k => {
+    const g = 0.62 * k('g'), out = [];
+    for (const cx of [-g, g]) {
+      // (two storeys each behind a 0.5 m wall: won 1 of 6; the upper storeys shorter, the wall lower)
+      const a = storey(cx, -0.5, 0, 0.22, 0.2, 0.85, 0.62, 0.58, SITE), b = storey(cx, -0.5, a.y, 0.18, 0.16, 0.55, 0.52, 0.48, SITE);
+      out.push(...a.bs, ...b.bs, box('brick', 0.26, 0.26, 0.26, cx, b.y, -0.5));
+    }
+    const wall = [-0.3, 0.3].map((x, i) => box('brick', 0.5, 0.4 * (i ? 1 : 0.94), 0.14, x * k('w'), 0, 0.4));
+    return [...wall, ...out];
+  },
+
   /* ---------- level 3, Frosty Times: ice (Claude's picks, to review) ---------- */
   // 1. An ice gate: two pillars, a lintel, two cubes on it.
   iceGate: k => {
@@ -152,6 +176,26 @@ export const STRUCTURES = {
     return [...front, ...out];
   },
 
+  // (10.3) Ice steps: columns of one, two and three cubes side by side.
+  iceSteps: k => {
+    const s = 0.3 * k('s'), out = [];
+    for (let c = 0; c < 3; c++) for (let r = 0; r <= c; r++) out.push(box('ice', s, s, s, (c - 1) * (s + 0.08), r * (s + E), -c * 0.05));
+    return out;
+  },
+  // Ice pillars: three tall pillars, a cube on each, slanting away to the right (falls in parts).
+  icePillars: k => {
+    const s = 0.55 * k('s'), out = [];
+    [0.95, 1.1, 0.85].forEach((h, i) => { const p = box('ice', 0.24, h, 0.3, (i - 1) * s, 0, -i * 0.14); out.push(p, box('ice', 0.28, 0.28, 0.28, p.x, topOf(p), p.z)); });
+    return out;
+  },
+  // A challenge: an ice keep. A tower of two gates and a cube, behind a low ice gate that hides its feet.
+  iceKeep: k => {
+    const a = gate(0, -0.5, 0, 0.36, 0.85 * k('h'), 1.08, 0.36, ICE), b = gate(0, -0.5, a.y, 0.3, 0.7, 0.92, 0.36, ICE);
+    const tower = [...a.bs, ...b.bs, box('ice', 0.3, 0.3, 0.3, 0, b.y, -0.5)];
+    const front = gate(0, 0.32, 0, 0.42 * k('w'), 0.42, 1.2, 0.3, { ...ICE, pd: 0.24, st: 0.14 });
+    return [...front.bs, ...tower];
+  },
+
   /* ---------- level 4, Cactus Canyon: wooden beams and water barrels (Claude's picks, to review) ---------- */
   // 1. A trestle: two barrels, a beam across them, a barrel on the beam.
   trestle: k => {
@@ -188,6 +232,34 @@ export const STRUCTURES = {
     const b = storey(0, -0.5, a.y, 0.45, 0.26, 0.8, 1.2, 0.8, { ...TIMBER, st: 0.1 });
     const front = [-0.6, 0, 0.6].map(x => barrel(x * k('f'), 0, 0.35, 0.26, 0.76));
     return [...front, ...a.bs, barrel(-0.15, a.y, -0.5, 0.18, 0.5), ...b.bs, barrel(0, b.y, -0.5, 0.22, 0.6)];
+  },
+
+  // (10.3) A row of barrels slanting away to the right, a small one on the second (falls in parts).
+  // (0.62 m apart, a small one on each of the middle two: won 69-75%; closer, so one falling knocks the next)
+  barrelRow: k => {
+    const s = 0.56 * k('s'), out = [];
+    for (let i = 0; i < 4; i++) {
+      const b = barrel((i - 1.5) * s, 0, -i * 0.12, 0.25, 0.75);
+      out.push(b);
+      if (i === 1) out.push(barrel(b.x, topOf(b), b.z, 0.18, 0.5));
+    }
+    return out;
+  },
+  // A sign: two tall posts and a board across their tops, a small barrel at each end of it.
+  signboard: k => {
+    const g = gate(0, 0, 0, 0.5 * k('w'), 1.15 * k('h'), 1.3, 0.3, { ...TIMBER, pw: 0.14, st: 0.14 });
+    return [...g.bs, barrel(-0.42, g.y, 0, 0.14, 0.42), barrel(0.42, g.y, 0, 0.14, 0.42)];
+  },
+  // A challenge: a mine's head frame. A two-storey timber frame with a barrel on top,
+  // behind a trestle (two barrels and a beam) that hides its lower posts.
+  mineHead: k => {
+    // (a barrel on top only, the trestle's barrels 0.62 m: won 6 of 6; a barrel on each floor and the trestle
+    // taller: 9 of 10; the trestle's beam carrying a barrel too)
+    const a = storey(0, -0.5, 0, 0.42, 0.28, 0.9 * k('a'), 1.1, 0.8, { ...TIMBER, st: 0.1 });
+    const b = storey(0, -0.5, a.y, 0.34, 0.22, 0.8, 0.92, 0.66, { ...TIMBER, st: 0.1 });
+    const l = barrel(-0.45 * k('f'), 0, 0.35, 0.26, 0.76), r = barrel(0.45 * k('f'), 0, 0.35, 0.26, 0.76);
+    const beam = box('wood', 0.9 * k('f') + 0.56, 0.1, 0.28, 0, topOf(l), 0.35);
+    return [l, r, beam, barrel(0, topOf(beam), 0.35, 0.18, 0.46), ...a.bs, barrel(0.18, a.y, -0.5, 0.17, 0.48), ...b.bs, barrel(0, b.y, -0.5, 0.2, 0.55)];
   },
 
   /* ---------- level 5, Star Light: glowing blocks at night (Claude's picks, to review) ---------- */
@@ -228,6 +300,30 @@ export const STRUCTURES = {
     const wall = [-0.5, 0, 0.5].map(x => box('glow', 0.28, 0.36, 0.22, x * k('w'), 0, 0.35));
     return lit([...wall, ...out], 4);
   },
+  // (10.3) A crystal stack: four glowing cubes, each smaller, one on another.
+  // (0.36-0.23 m cubes: the pine left the top ones hard to hit, 6.5 layouts a
+  // scene to find one; two columns side by side, never)
+  crystalStack: k => {
+    const out = []; let y = 0;
+    [0.44, 0.39, 0.35, 0.31].forEach(s => { const c = box('glow', s * k('s'), s * k('s'), s * k('s'), 0, y, 0); out.push(c); y = topOf(c); });
+    return lit(out, 2);
+  },
+  // A star gate: two glowing posts, a slab across, three cubes on it, two and one.
+  starGate: k => {
+    const g = gate(0, 0, 0, 0.42 * k('w'), 0.9, 1.2, 0.36, GLOW), c = 0.26;
+    const low = [-0.16, 0.16].map(x => box('glow', c, c, c, x, g.y, 0));
+    return lit([...g.bs, ...low, box('glow', c, c, c, 0, topOf(low[0]), 0)], 1);
+  },
+  // A challenge: a moon temple. Four columns, a slab, two cubes on it, behind a
+  // low gate (two cubes and a slab across them) that hides its feet.
+  moonTemple: k => {
+    // (a low gate of 0.3 m legs, two cubes on top: won 6 of 6; the gate taller, a third cube on the two)
+    const z = -0.5, a = [[-1, 1], [1, 1], [-1, -1], [1, -1]].map(([i, j]) => column(i * 0.45 * k('w'), 0, z + j * 0.26, 0.1, 0.95 * k('h')));
+    const s = box('glow', 1.2 * k('w'), 0.12, 0.8, 0, topOf(a[0]), z);
+    const top = [-0.16, 0.16].map(x => box('glow', 0.28, 0.28, 0.28, x, topOf(s), z));
+    const legs = [-0.4, 0.4].map(x => box('glow', 0.26, 0.48, 0.22, x, 0, 0.35)), slab = box('glow', 1.1, 0.1, 0.24, 0, topOf(legs[0]), 0.35);
+    return lit([...legs, slab, ...a, s, ...top, box('glow', 0.26, 0.26, 0.26, 0, topOf(top[0]), z)], 3);
+  },
 };
 
 /* ---------- the levels ---------- */
@@ -237,19 +333,23 @@ export const STRUCTURES = {
 // stands to the left, its trunk in the way of a straight throw and its top
 // of a lob (level 1's tree). Scenes 1-4 one, the 5th both.
 // `ball`: 'iron' from level 2 on (mockup v3: "the iron ball feel[s] right").
+// `pool`: the structures scenes 1-4 are dealt from, easiest first (4 of
+// the 6 each game, played in this order, so the climb is sure);
+// `challenges`: the 5th scene's, one of them (10.3; until then five in a
+// fixed order: developer, 2026-11-12, "different target arrangements").
 export const LEVELS = [
   { n: 1, name: 'The park', line: 'Knock every block down. 5 balls a scene.', soft: 'bush', tall: 'tree', ball: 'toy' },
   { n: 2, name: 'The building site', line: 'Tall frames: knock the front down to get at the back.', soft: 'barrow', tall: 'light', ball: 'iron',
-    scenes: ['twoStoreys', 'threeStoreys', 'bridge', 'steps', 'towerWall'] },
+    pool: ['twoStoreys', 'scaffold', 'threeStoreys', 'bridge', 'brickStacks', 'steps'], challenges: ['towerWall', 'twinTowers'] },
   { n: 3, name: 'Frosty Times', line: 'Ice blocks slide, and smash when they’re hit hard.', soft: 'rock', tall: 'pine', ball: 'iron',
-    scenes: ['iceGate', 'iceTower', 'icePyramid', 'iceWall', 'iceCastle'] },
+    pool: ['iceGate', 'iceSteps', 'iceTower', 'icePyramid', 'icePillars', 'iceWall'], challenges: ['iceCastle', 'iceKeep'] },
   { n: 4, name: 'Cactus Canyon', line: 'Burst the water barrels and the beams come down.', soft: 'scrub', tall: 'cactus', ball: 'iron',
-    scenes: ['waterTower', 'trestle', 'barrelStack', 'hitchingRail', 'saloon'] },
+    pool: ['waterTower', 'signboard', 'trestle', 'barrelStack', 'barrelRow', 'hitchingRail'], challenges: ['saloon', 'mineHead'] },
   // (developer, 2026-11-12, Q87: "Night time with a moon and stars in the
   // sky. Similar vista to the winter level but low light. Blocks and balls
   // glow"; the things in the way level 3's, at night: Claude's pick)
   { n: 5, name: 'Star Light', line: 'Glowing blocks at night: hit them and they shatter.', soft: 'rock', tall: 'pine', ball: 'iron',
-    scenes: ['lanternArch', 'lighthouse', 'candles', 'twinLanterns', 'starPalace'] },
+    pool: ['crystalStack', 'lanternArch', 'lighthouse', 'candles', 'starGate', 'twinLanterns'], challenges: ['starPalace', 'moonTemple'] },
 ];
 export const MAX_LEVEL = LEVELS.length;
 export const levelInfo = n => LEVELS[n - 1] ?? null;

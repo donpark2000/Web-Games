@@ -96,6 +96,16 @@ body.tp-playing .site-foot { display: none; }
   font-size: 15px; font-weight: 700; line-height: 1.25; pointer-events: none;
 }
 
+/* a scene won, before its card: under the pills, clear of the blocks */
+.cleared {
+  position: absolute; left: 50%; top: 52px; margin: 0; transform: translateX(-50%); z-index: 2; pointer-events: none;
+  background: #F7B928; color: #1E3445; border-radius: 999px; padding: 8px 18px; box-shadow: 0 4px 0 #B9851233;
+  font-size: 20px; font-weight: 800; white-space: nowrap; animation: tpcleared .5s ease-out;
+}
+.cleared[hidden] { display: none; }
+@keyframes tpcleared { 0% { transform: translateX(-50%) scale(.4); opacity: 0; } 60% { transform: translateX(-50%) scale(1.15); opacity: 1; } 100% { transform: translateX(-50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .cleared { animation: none; } }
+
 /* the score: your face and the balls left, "balls left" under them
    (developer, 2026-11-12, Q80: the blocks-down count went: "you either
    get them all or you don't"); each ball drawn as the level's ball, a

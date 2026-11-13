@@ -83,14 +83,26 @@ test('topple page: the level\'s jewels and the hearts over the park; Start again
   assert.match(js, /\$\('restartYes'\)\.onclick = \(\) => \{[\s\S]*?sceneOver\(game, false\)/);
 });
 
-test('topple page: a new level never shows the old one (the canvas hidden until drawn); cleared only once the shards and spray are down too', () => {
+test('topple page: a scene won shows "Cleared!" at once, the card once the blocks are calm; lost: the card at once', () => {
+  assert.match(playHtml, /<p class="cleared" id="cleared" role="status" hidden>Cleared! 💎<\/p>/);
+  assert.match(css, /\.cleared\[hidden\] \{ display: none; \}/);
+  assert.match(js, /const still = world\.still\(\), fx = stage\.fxLive, calm = world\.calm\(\);\s*const \{ downChanged, ended: result, card \} = update\(round, dt, \{ down, still: still && fx === 0, calm \}\)/);
+  assert.match(js, /if \(result\) endScene\(result\);\s*if \(card && ended && \$\('over'\)\.hidden\) \{ L\('the card'[^\n]*showEnd\(\); \}/);
+  assert.match(js, /if \(result\.won\) showCleared\(\); else showEnd\(\);/);
+  // hidden as the card shows and as each scene starts
+  assert.match(js, /function showEnd\(\) \{[\s\S]*?\$\('cleared'\)\.hidden = true;/);
+  assert.match(js, /async function startScene[\s\S]*?\$\('cleared'\)\.hidden = true;/);
+});
+
+test('topple page: a new level never shows the old one (the canvas hidden until drawn); out of balls only once the shards and spray are down too', () => {
   // hidden as the play screen opens on a level not drawn yet, and as the setting changes
   assert.match(js, /function showPlay\(\) \{[\s\S]*?if \(!current \|\| stage\.level !== game\.level\) hideCanvas\(true\);[\s\S]*?\n\}/);
-  assert.match(js, /if \(stage\.level !== game\.level\) \{\s*hideCanvas\(true\);\s*const r = await stage\.setLevel/);
+  // a kept scene in its own level's setting (a level's last scene kept with the game on the next level: 10.0-10.2 failed)
+  assert.match(js, /const lv = kept \? \(kept\.layout\.level \?\? 1\) : game\.level;\s*if \(stage\.level !== lv\) \{\s*hideCanvas\(true\);\s*const r = await stage\.setLevel\(lv\)/);
   // shown only after the new scene is drawn
   assert.match(js, /stage\.setScene\(current\.parts\);[\s\S]*?stage\.render\(\);\s*hideCanvas\(false\);/);
   // still: the blocks and the effects; the effects move on every step, drawn or not
-  assert.match(js, /stage\.tick\(dt\);\s*const still = world\.still\(\), fx = stage\.fxLive;\s*const \{ downChanged, ended: result \} = update\(round, dt, \{ down, still: still && fx === 0 \}\)/);
+  assert.match(js, /stage\.tick\(dt\);[\s\S]{0,160}const still = world\.still\(\), fx = stage\.fxLive[\s\S]{0,120}update\(round, dt, \{ down, still: still && fx === 0/);
   assert.match(sceneJs, /get fxLive\(\) \{ return set\?\.fxLive\?\.\(\) \?\? 0; \}/);
 });
 
@@ -101,7 +113,7 @@ test('topple page: the game kept on the device for every visit, the scene under 
   // a level opened as the game is read (one finished in 10.0, which had four): in the log
   assert.match(js, /if \(game && game\.reached > was\) L\('level opened: the one after a level done'/);
   // kept as each scene ends, before its card shows
-  assert.match(js, /const outcome = sceneOver\(game, result\.won\)[,;][\s\S]*?saveGame\(\);[\s\S]*?showEnd\(\);/);
+  assert.match(js, /const outcome = sceneOver\(game, result\.won\)[,;][\s\S]*?saveGame\(\);[\s\S]*?showCleared\(\); else showEnd\(\);/);
 });
 
 test('topple page: logged: 3D start, the fit, each scene, throw, touch, block down (and a post up again), the end', () => {

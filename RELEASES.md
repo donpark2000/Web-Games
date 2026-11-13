@@ -7,6 +7,21 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.3 (2026-11-12, version 1dbf9693e8a8)
+
+Topple!: no long wait after a scene is cleared, and more variety.
+
+- **"Cleared! 💎" as soon as the last block is down**, with the win
+  sound; the card comes once the blocks have settled (no more waiting
+  for every shard and slowly rolling barrel to stop).
+- **Levels 2-5 have eight structures each**, three of them new: each
+  game deals four of six for scenes 1-4, still easiest first, and one of
+  two challenges for scene 5.
+- **A level you finished, played again from the map, has new scenes**
+  (losing a heart still plays the same scene again).
+- **Fixed:** reopening the game on a "Level done!" card now shows the
+  card, instead of going back to the start screen.
+
 ## 10.2 (2026-11-12, version adf2a9d5750c)
 
 Topple!: quicker into play, a way to start over, and leaning posts count.

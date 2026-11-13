@@ -16,7 +16,7 @@
 
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
-  update, ballsLeft, endWords, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
+  update, ballsLeft, endWords, seedOf, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
   padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
@@ -54,7 +54,7 @@ function saveGame() {
 // a new seed and the scene under way was lost).
 if (!game) { game = createGame(newSeed()); saveGame(); }
 const isFresh = g => g.scene === 1 && g.hearts === HEARTS && g.jewels === 0;
-const sceneId = () => ({ seed: game.seed, level: game.level, scene: game.scene });
+const sceneId = () => ({ seed: seedOf(game), level: game.level, scene: game.scene });
 
 /* ---------- the scene under way ---------- */
 
@@ -289,9 +289,11 @@ function stopWalk() {
 }
 // Play level n straight from the map (a tap on it, or Play after a walk).
 function startLevel(n) {
+  const was = game.rounds?.[n] ?? 0;
   if (!switchLevel(game, n)) { L('level not open', { level: n, reached: game.reached }); showMap(); return; }
   saveGame();
-  L('level: start', { ...game });
+  // a done level started again from its start: new scenes (seedOf)
+  L('level: start', { ...game, newScenes: (game.rounds?.[n] ?? 0) > was, levelSeed: seedOf(game) });
   showPlay();
   startScene();
 }
@@ -416,15 +418,20 @@ async function startScene(kept = null) {
   stopDemo();
   $('over').hidden = true;
   $('ask').hidden = true;
+  $('cleared').hidden = true;
   $('hint').hidden = false;
   $('hint').textContent = 'Setting up the scene…';
   renderHud();
   // let the words show before the scene's made (up to a second or so on a phone)
   await new Promise(r => setTimeout(r, 30));
-  if (stage.level !== game.level) {
+  // a kept scene in its own level's setting: a level's last scene, won, kept
+  // with the game already on the next level (a reload on its card drew it in
+  // the next level's setting and failed: "reading 'col'", 10.0-10.2)
+  const lv = kept ? (kept.layout.level ?? 1) : game.level;
+  if (stage.level !== lv) {
     hideCanvas(true);
-    const r = await stage.setLevel(game.level);
-    L('setting', { ...r, name: levelInfo(game.level).name });
+    const r = await stage.setLevel(lv);
+    L('setting', { ...r, name: levelInfo(lv).name });
   }
   const t0 = performance.now();
   if (kept) {
@@ -432,7 +439,7 @@ async function startScene(kept = null) {
     world.setScene(parts, kept.settled?.poses ?? null);
     current = { id: sceneId(), layout: kept.layout, parts, check: null, tries: 0 };
   } else {
-    const s = world.makeScene(game.seed, game.level, game.scene);
+    const s = world.makeScene(seedOf(game), game.level, game.scene);
     current = { id: sceneId(), layout: s.layout, parts: s.parts, check: s.check, tries: s.tries };
     for (const t of s.thrown) L('layout thrown away', t);
   }
@@ -621,11 +628,13 @@ function tick(dt, draw = true) {
   for (const b of rose) L('block up again: a post leaning, not lying', { c: b.c, t: r2(round.t) });
   // still: the blocks, and any shards or spray (the effects move on every step, drawn or not)
   stage.tick(dt);
-  const still = world.still(), fx = stage.fxLive;
-  const { downChanged, ended: result } = update(round, dt, { down, still: still && fx === 0 });
+  // calm: the blocks slow enough for the card after a win (the shards fly on behind it)
+  const still = world.still(), fx = stage.fxLive, calm = world.calm();
+  const { downChanged, ended: result, card } = update(round, dt, { down, still: still && fx === 0, calm });
   if (downChanged) { L('blocks down', { down: round.down, of: round.total, t: r2(round.t) }); renderTally(); }
-  if (downChanged && round.down >= round.total) L('all down: cleared once still', { t: r2(round.t), still, fx });
+  if (downChanged && round.down >= round.total) L('all down: cleared unless one gets up', { t: r2(round.t), still, calm, fx });
   if (result) endScene(result);
+  if (card && ended && $('over').hidden) { L('the card', { won: ended.won, afterWinS: r2(round.cardT), calm, still, fx }); showEnd(); }
   noteSettled();
   if (!draw) return;
   stage.sync(world.blocks, world.balls);
@@ -708,17 +717,30 @@ function endScene(result, quiet = false) {
   ended = { outcome, words, won: result.won, shown, unlocked: game.reached > was.reached };
   // the blocks as the scene ended (the last may still be falling): a reload shows it as it was
   settled = { round: JSON.parse(JSON.stringify(round)), poses: world.poses() };
-  showEnd();
+  // won: the win shown at once ("Cleared!", the jewel, the sound), the card once the blocks are calm (tick);
+  // lost: the card now (out of balls already waits for everything to be still)
+  if (result.won) showCleared(); else showEnd();
   const secs = (performance.now() - perf.at) / 1000;
   L('scene over', { ...result, outcome, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped, moon: stage.animals?.().find(a => a.moon)?.moon });
   if (!quiet) sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
+}
+// A scene won, before its card (developer, 2026-11-12: a long pause before
+// a cleared scene was called complete): "Cleared! 💎" over the park's top,
+// not over the blocks, as the last of them finish falling.
+function showCleared() {
+  drag = null;
+  stopDemo();
+  renderTally();
+  $('hint').hidden = true;
+  $('cleared').hidden = false;
 }
 function showEnd() {
   drag = null;
   stopDemo();
   renderTally();
   $('hint').hidden = true;
+  $('cleared').hidden = true;
   $('overChip').innerHTML = svg(setup.p1, ended.won ? 'winner' : 'sad');
   $('overTitle').textContent = ended.words.title;
   $('overSub').textContent = ended.words.sub ?? '';
@@ -851,7 +873,7 @@ window.topple = {
   animals: () => stage.animals(),
   fx: () => stage.fxLive,
   state: () => (round ? {
-    ...round, game: { ...game }, ready: ready(), busy, ended: ended?.outcome ?? null, card: $('over').hidden ? '' : $('overTitle').textContent,
+    ...round, game: { ...game }, ready: ready(), busy, ended: ended?.outcome ?? null, card: $('over').hidden ? '' : $('overTitle').textContent, cleared: !$('cleared').hidden,
     stack: current?.layout.stack, things: current?.layout.things.map(t => t.kind + (t.where ? ` ${t.where}` : '')), power: current?.layout.power,
     awake: world.awake(), dots: stage.dotCount(), fov: r2(stage.fov), touches: shot?.touches ?? [], pad, demo: demo ? r2(demo.t) : null,
   } : { game: { ...game }, busy }),

@@ -30,6 +30,9 @@ export function outOfReach(p) {
 // A knock that shatters ice already down (Q83): any real touch, not resting contact.
 export const LAND_KNOCK = 0.3;
 export const STILL_SPEED = 0.05 * Math.sqrt(SCALE);  // a block slower than this (m/s) counts as still
+// ... and calm (the card after a scene cleared: src/core/topple.js, update):
+// a barrel rolling slowly away or a post creeping isn't worth waiting for
+export const CALM_SPEED = 0.3;
 // How much of its speed into a surface the ball keeps off each kind of thing
 // (the physics and the path alike): the glass backboard lively (developer:
 // "simpler for the player to grasp"); the bush none.
@@ -432,12 +435,12 @@ export function createWorld({ onHit = () => {} } = {}) {
   // most, else the best of them). The same game, level and scene always give
   // the same scene. Returns { layout, parts, check, tries, thrown (why each
   // was thrown away) }, the scene set up in the world.
-  function makeScene(gameSeed, level, i) {
+  function makeScene(gameSeed, level, i, name = null) {
     const score = c => (c.ok ? 1000 : 0) - c.unhit * 50 - Math.max(0, c.share - 0.75) * 100 + Math.min(c.direct, 15);
     let best = null, tries = 0, L, p, chk;
     const thrown = [];
     do {
-      L = layoutFor(gameSeed, level, i, tries);
+      L = layoutFor(gameSeed, level, i, tries, name);
       tries++;
       p = sceneParts(L);
       setScene(p);
@@ -462,6 +465,7 @@ export function createWorld({ onHit = () => {} } = {}) {
     frontSeen: () => pointsSeen(CAM, inTheWay),
     downCount: () => blocks.filter(b => b.down).length,
     still: () => blocks.every(b => b.broken || asleep(b.body) || b.body.velocity.length() < STILL_SPEED),
+    calm: () => blocks.every(b => b.broken || asleep(b.body) || b.body.velocity.length() < CALM_SPEED),
     awake: () => blocks.filter(b => !b.broken && !asleep(b.body)).length,
     // Each block's pose, and whether it's down: kept for a scene picked up again.
     poses: () => blocks.map(b => ({ p: posOf(b.body).map(r4), q: quatOf(b.body).map(r4), down: b.down, ...(b.broken ? { broken: true } : {}) })),
