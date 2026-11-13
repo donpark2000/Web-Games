@@ -18,6 +18,7 @@ import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, seedOf, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
   padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
+  MODES, MODE_INFO, dotSeconds,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -102,6 +103,24 @@ function renderSetup() {
     return b;
   }));
   $('p1Chip').innerHTML = setup.p1 ? svg(setup.p1) : '';
+  // how hard (Q96): kept with the game, so it's the same next visit; any time, the levels as they are
+  $('modes').replaceChildren(...MODES.map(m => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'level';
+    b.dataset.mode = m;
+    b.innerHTML = `${MODE_INFO[m].name}<small>${MODE_INFO[m].line}</small>`;
+    b.setAttribute('aria-pressed', String(m === game.mode));
+    b.onclick = () => {
+      if (game.mode === m) return;
+      const was = game.mode;
+      game.mode = m;
+      saveGame();
+      L('how hard picked', { mode: m, was, dots: MODE_INFO[m].dots, firstOnly: MODE_INFO[m].firstOnly });
+      renderSetup();
+    };
+    return b;
+  }));
   const fresh = isFresh(game);
   $('where').textContent = fresh ? '' : `Level ${game.level} · scene ${game.scene} of ${SCENES} · ${hearts(game)} · ${'💎'.repeat(game.jewels)}`;
   if (fresh && game.reached > 1) $('where').textContent = `Level ${game.reached} reached`;
@@ -141,7 +160,7 @@ $('overBtn').onclick = () => {
 $('overNo').onclick = () => { L('start over: no'); $('overAsk').hidden = true; renderSetup(); };
 $('overYes').onclick = () => {
   const was = { ...game };
-  game = createGame(newSeed());
+  game = createGame(newSeed(), null, game.mode);   // how hard is a setting: kept
   parked = null;
   saveGame();
   $('overAsk').hidden = true;
@@ -562,6 +581,7 @@ function doThrow(d) {
   sound.play('whoosh', 0, { level: d.power });
   L('throw', {
     ball: r.ball, speed: r2(v), up: Math.round(el * 180 / Math.PI), aim: Math.round(yaw * 180 / Math.PI), power: r2(d.power),
+    mode: game.mode, dotsS: dotSeconds(game.mode, r.ball - 1),
     toward: aimed.hits.map(h => ({ kind: h.kind, at: h.at.map(r2), t: r2(h.t) })),
   });
   renderTally();
@@ -641,7 +661,9 @@ function tick(dt, draw = true) {
   const ok = ready();
   const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);
-  stage.setDots(d && ok && d.show ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0)) : null, 1);
+  // the dots as long as how hard says (Q96): none at all once Hardest's first ball is thrown
+  const secs = dotSeconds(game.mode, round.used);
+  stage.setDots(d && ok && d.show && secs > 0 ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0), secs) : null, 1);
   stage.render();
 }
 

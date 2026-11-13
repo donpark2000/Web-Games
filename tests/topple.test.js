@@ -12,6 +12,7 @@ import {
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
   FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn, SOME_STACKS, SOME_MIN,
   MAX_LEVEL, LEVELS, switchLevel, seedOf, layoutFor, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
+  MODES, MODE_INFO, dotSeconds,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -285,14 +286,14 @@ test('topple: a tall block is down only while it lies tipped past 30°; dropping
 const FRESH = { scene: 1, hearts: HEARTS, jewels: 0 };
 test('topple: a game: a jewel and the next scene; a heart and the same scene; the last heart back to scene 1', () => {
   const g = createGame(77);
-  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {}, rounds: {} });
+  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {}, rounds: {}, mode: 'normal' });
   assert.equal(sceneOver(g, true), 'won');
   assert.deepEqual([g.scene, g.jewels, g.hearts], [2, 1, 3]);
   assert.equal(sceneOver(g, false), 'lost');
   assert.deepEqual([g.scene, g.jewels, g.hearts], [2, 1, 2]);
   assert.equal(sceneOver(g, false), 'lost');
   assert.equal(sceneOver(g, false), 'out');
-  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {}, rounds: {} }, 'the same scenes: the seed kept');
+  assert.deepEqual(g, { seed: 77, level: 1, ...FRESH, reached: 1, done: [], places: {}, rounds: {}, mode: 'normal' }, 'the same scenes: the seed kept');
   for (let i = 1; i < SCENES; i++) assert.equal(sceneOver(g, true), 'won');
   assert.equal(g.scene, SCENES);
   assert.throws(() => createGame(0));
@@ -382,10 +383,10 @@ test('topple: a game kept on the device is used only if it makes sense', () => {
     assert.equal(readGame(bad), null, JSON.stringify(bad));
   }
   // one kept by 9.4 (level 1 only) carries on
-  assert.deepEqual(readGame({ seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2 }), { seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2, reached: 1, done: [], places: {}, rounds: {} });
+  assert.deepEqual(readGame({ seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2 }), { seed: 5, level: 1, scene: 3, hearts: 2, jewels: 2, reached: 1, done: [], places: {}, rounds: {}, mode: 'normal' });
   // levels and places that don't make sense are dropped, not the game
   const odd = readGame({ seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 1, done: [1, 7, 'x', 1], places: { 1: { scene: 9, hearts: 1, jewels: 0 }, 3: FRESH, 2: FRESH } });
-  assert.deepEqual(odd, { seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 2, done: [1], places: {}, rounds: {} });
+  assert.deepEqual(odd, { seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 2, done: [1], places: {}, rounds: {}, mode: 'normal' });
   const kept = readGame({ seed: 5, level: 2, scene: 1, hearts: 3, jewels: 0, reached: 3, done: [1, 2], places: { 1: { scene: 4, hearts: 1, jewels: 3 } } });
   assert.deepEqual(kept.places, { 1: { scene: 4, hearts: 1, jewels: 3 } });
   // every level done when there were four (10.0), then some scenes played again: level 5 open, places kept
@@ -485,6 +486,37 @@ test('topple: the dots: one every 0.05 s for 0.3 s, stopping orange where the pa
   assert.equal(hit.pts.length, 5, '4 dots and the touch');
   assert.deepEqual(hit.pts.at(-1), [0, 1, -0.5]);
   assert.equal(dotsFor({ hits: [{ kind: 'block', t: 0.4, at: [0, 0, 0] }], pts }).stopped, null, 'a touch after 0.3 s isn\'t shown');
+});
+
+test('topple: how hard (Q96): Normal as before, Harder half the dots, Hardest those for the first ball only', () => {
+  assert.deepEqual(MODES, ['normal', 'harder', 'hardest']);
+  assert.deepEqual(MODES.map(m => MODE_INFO[m].name), ['Normal', 'Harder', 'Hardest']);
+  // the seconds of dots, ball by ball (0 thrown, 1, 4)
+  assert.deepEqual([0, 1, 4].map(u => dotSeconds('normal', u)), [0.3, 0.3, 0.3]);
+  assert.deepEqual([0, 1, 4].map(u => dotSeconds('harder', u)), [0.15, 0.15, 0.15]);
+  assert.deepEqual([0, 1, 4].map(u => dotSeconds('hardest', u)), [0.15, 0, 0]);
+  assert.equal(dotSeconds('nonsense', 2), 0.3, 'an unknown mode: Normal');
+  // the dots themselves: 6 at Normal, 3 at Harder; a touch at 0.21 s shown at Normal, not at Harder
+  const pts = Array.from({ length: 200 }, (_, i) => [0, 1, -i / 100]);
+  assert.equal(dotsFor({ hits: [], pts }, dotSeconds('normal', 0)).pts.length, 6);
+  assert.equal(dotsFor({ hits: [], pts }, dotSeconds('harder', 0)).pts.length, 3);
+  const bush = { hits: [{ kind: 'bush', t: 0.21, at: [0, 1, -0.5] }], pts };
+  assert.equal(dotsFor(bush, dotSeconds('normal', 0)).stopped, 'bush');
+  assert.equal(dotsFor(bush, dotSeconds('harder', 0)).stopped, null);
+});
+
+test('topple: how hard is kept with the game: a new game Normal, New scenes and Start over keep it, one kept before Q96 Normal', () => {
+  const g = createGame(5);
+  assert.equal(g.mode, 'normal');
+  g.mode = 'hardest';
+  assert.equal(readGame(JSON.parse(JSON.stringify(g))).mode, 'hardest', 'kept on the device');
+  assert.equal(createGame(6, g).mode, 'hardest', 'New scenes from scene 1');
+  assert.equal(createGame(7, null, g.mode).mode, 'hardest', 'Start over');
+  assert.equal(createGame(8, { ...g, mode: 'harder' }).mode, 'harder');
+  assert.throws(() => createGame(9, null, 'easy'), /unknown mode/);
+  const { mode, ...before } = g;
+  assert.equal(readGame(before).mode, 'normal', 'a game kept before Q96');
+  assert.equal(readGame({ ...g, mode: 'easy' }).mode, 'normal', 'an unknown one');
 });
 
 test('topple: the view takes in the whole scene and the slingshot, upright and sideways', () => {

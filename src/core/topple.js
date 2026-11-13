@@ -760,6 +760,25 @@ export function dotsFor(path, limitT = DOT_SECONDS) {
   return { pts, stopped: stopped ? hit.kind : null, lastT: +(stopped ? hit.t : pts.length * DOT_DT).toFixed(2) };
 }
 
+// How hard (developer, 2026-11-12, Q96: "selectable levels (keeping the
+// current games and calling them ... normal, and then move to harder and
+// hardest"): picked on the setup screen, kept with the game. Normal is the
+// game as it was; Harder's dots are half as long ("sure - for harder
+// level"); Hardest's the same, for a scene's first ball only (Claude's
+// pick, to review). `used`: the balls already thrown in the scene.
+// Returns the dots' seconds, 0 for none.
+export const MODES = ['normal', 'harder', 'hardest'];
+export const MODE_INFO = {
+  normal: { name: 'Normal', dots: DOT_SECONDS, firstOnly: false, line: 'the dots show the way' },
+  harder: { name: 'Harder', dots: 0.15, firstOnly: false, line: 'shorter dots' },
+  hardest: { name: 'Hardest', dots: 0.15, firstOnly: true, line: 'dots for the first ball only' },
+};
+export function dotSeconds(mode, used) {
+  const m = MODE_INFO[mode] ?? MODE_INFO.normal;
+  return m.firstOnly && used > 0 ? 0 : m.dots;
+}
+const okMode = m => MODES.includes(m);
+
 /* ---------- a block down ---------- */
 
 // A block is down once it has fallen: tipped more than 45° (its up side
@@ -796,10 +815,13 @@ export const checkSetup = ({ p1 }) => checkPicks({ onePlayer: true, p1 });
 // jewels), and a level played again has the same scenes. `keep`: a game
 // whose levels reached and done carry on (new scenes, the same progress).
 // `rounds`: how many times each done level has been started again from
-// its start, each time with new scenes (seedOf).
-export function createGame(seed, keep = null) {
+// its start, each time with new scenes (seedOf). `mode`: how hard (MODES),
+// kept from `keep` unless given; a setting, not progress, so Start over
+// keeps it too.
+export function createGame(seed, keep = null, mode = keep?.mode ?? 'normal') {
   if (!Number.isInteger(seed) || seed <= 0) throw new Error(`createGame: bad seed: ${seed}`);
-  return { seed, level: 1, scene: 1, hearts: HEARTS, jewels: 0, reached: keep?.reached ?? 1, done: keep?.done ? [...keep.done] : [], places: {}, rounds: {} };
+  if (!okMode(mode)) throw new Error(`createGame: unknown mode: ${mode}`);
+  return { seed, level: 1, scene: 1, hearts: HEARTS, jewels: 0, reached: keep?.reached ?? 1, done: keep?.done ? [...keep.done] : [], places: {}, rounds: {}, mode };
 }
 // The seed level n's scenes are made from (developer, 2026-11-12: "when
 // starting fresh or even using the map to go back to a level I completed
@@ -839,7 +861,9 @@ export function readGame(g) {
     const n = Number(k);
     if (okLevel(n) && Number.isInteger(c) && c > 0) rounds[n] = c;
   }
-  return { seed: g.seed, level: g.level, scene: g.scene, hearts: g.hearts, jewels: g.jewels, reached, done, places, rounds };
+  // how hard (a game kept before Q96 has none: Normal, the game it was)
+  const mode = okMode(g.mode) ? g.mode : 'normal';
+  return { seed: g.seed, level: g.level, scene: g.scene, hearts: g.hearts, jewels: g.jewels, reached, done, places, rounds, mode };
 }
 // Level n's place: { scene, hearts, jewels }.
 export const placeOf = (g, n) => (n === g.level ? { scene: g.scene, hearts: g.hearts, jewels: g.jewels } : { ...(g.places[n] ?? freshPlace()) });

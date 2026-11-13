@@ -43,6 +43,17 @@ test('topple page: the setup screen: your face, Play! or Carry on where the game
   assert.match(setupHtml, /Knock <b>every block<\/b> down with <b>5 balls<\/b>/);
 });
 
+test('topple page: How hard? (Q96): three choices after the faces, kept with the game, the dots as it says, logged', () => {
+  assert.match(setupHtml, /id="p1Faces"><\/div>\s*<\/div>[\s\S]*?<h2>How hard\?<\/h2>\s*<div class="modes3" id="modes"><\/div>/, 'after Pick your face');
+  assert.match(css, /\.modes3 \{ display: grid; grid-template-columns: repeat\(3, 1fr\);/);
+  assert.match(js, /b\.setAttribute\('aria-pressed', String\(m === game\.mode\)\)/);
+  assert.match(js, /game\.mode = m;\s*saveGame\(\);\s*L\('how hard picked'/);
+  assert.match(js, /createGame\(newSeed\(\), null, game\.mode\)/, 'Start over keeps it');
+  assert.match(js, /const secs = dotSeconds\(game\.mode, round\.used\);/);
+  assert.match(js, /secs > 0 \? dotsFor\([^)]*\)[^)]*\), secs\) : null/);
+  assert.match(js, /mode: game\.mode, dotsS: dotSeconds\(game\.mode, r\.ball - 1\)/, 'each throw logs it');
+});
+
 test('topple page: no mockup choices left; no side view (developer, 2026-11-10, Q70: one view, from behind)', () => {
   assert.doesNotMatch(page + js + core, /mockup only|Skip scene|sideAim|Pull back|'pull'|sideFit|Which things/i, 'a mockup choice left');
   assert.doesNotMatch(page + js + core + css, /sideDrag|sideView|sideTarget|dotScaleFor|viewBtn|viewbtn|Side view|setView/, 'the side view left');
@@ -200,8 +211,8 @@ test('topple page: Start over from level 1 asks first, then a new game with only
   // shown only once another level is open; the question hidden behind the map
   assert.match(js, /\$\('overBtn'\)\.hidden = game\.reached <= 1 \|\| !\$\('overAsk'\)\.hidden;/);
   assert.match(js, /if \(v !== 'faces'\) \$\('overAsk'\)\.hidden = true;/);
-  // Yes: a new game keeping nothing (New scenes keeps the levels: createGame(newSeed(), game))
-  assert.match(js, /\$\('overYes'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\)\);[\s\S]*?saveGame\(\);/);
+  // Yes: a new game keeping nothing but how hard (Q96: a setting) (New scenes keeps the levels: createGame(newSeed(), game))
+  assert.match(js, /\$\('overYes'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), null, game\.mode\);[\s\S]*?saveGame\(\);/);
   assert.match(js, /\$\('freshBtn'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), game\);/);
   for (const what of ["'start over: asked'", "'start over: no'", "'start over: a new game, level 1 only'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
 });

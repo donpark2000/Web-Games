@@ -4,7 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-12, latest): **Topple!: a scene won shows "Cleared!" at
+*Status (2026-11-12, latest): **Topple!: How hard? Normal (the game as
+it was), Harder (half the dots), Hardest (those for a scene's first ball
+only)** (on `block-game`, not yet published; see "Topple!"). Earlier the
+same day: **Topple!: a scene won shows "Cleared!" at
 once, its card once the blocks are calm; levels 2-5 deal their scenes
 from eight structures each; a done level played again has new scenes**
 (release 10.3; see "Topple!"). Earlier the same day: **Topple!: a level on the map starts it
@@ -2375,6 +2378,18 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   (about half the way to the structure; ½ s until 2026-11-11, Q71:
   "pretty hard to miss"),
   stopping where the ball would touch something, the last one orange.
+- **How hard?** (developer, 2026-11-12, Q96: "selectable levels (keeping
+  the current games and calling them ... normal, and then move to harder
+  and hardest"): on the setup screen after Pick your face, three choices:
+  **Normal** (the game as it was: 0.3 s of dots), **Harder** (0.15 s:
+  "sure - for harder level"), **Hardest** (0.15 s for a scene's first
+  ball, then none; Claude's pick, to review). Kept with the game on the
+  device; changed any time, the levels and places as they are; New
+  scenes and Start over keep it. The pad's show is the same in all three.
+  Later, for Harder and Hardest (to discuss): a smaller ball, wider gaps,
+  another camera; things that move; things not to hit (a hit loses the
+  scene, a ❤️; how they show it, Q97). Not wanted: fewer balls (scenes
+  must stay winnable), wind.
 - **The drag pad** (developer, 2026-11-10, Q67: a finger that starts on
   the ball covers the dots; "The drag pad idea helps a lot"; a concept
   to "anchor" play across levels, whatever they throw): a round pad with
@@ -2451,7 +2466,7 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   tablet can't show the 3D park".
 - **Logged** (levels 2-4 too): the setting drawn (its photos, ms, or why
   not), the map (a level picked and started, with new scenes or not; a locked one), Start over
-  (asked, no, done), a block broken (its material, speed), each knock's material in
+  (asked, no, done), how hard picked (and each throw's mode and seconds of dots), a block broken (its material, speed), each knock's material in
   the sound; an animal frightened (where it was, the block's x, whether
   it turned back, by a fall or a break); the owl's hoots; the night sky (ms to make, the skyline found); 3D started (with the far-off trees' leaves), the game on
   the device, the fit (with the pad's spot), each scene (its layout, the

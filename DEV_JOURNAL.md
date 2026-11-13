@@ -115,6 +115,13 @@ time, each tried before publishing:
   ones; moving things liked ("smooth and predictable timing"); no fewer
   balls, no wind; things not to hit "maybe", depending on the cost.
   Stars to explain again. Next: the first build to agree.
+  2026-11-12, developer: the first build "OK" (the choice on setup;
+  Harder's and Hardest's shorter dots). Built ("How hard? built"): to
+  try; the rest for Harder and Hardest to discuss.
+- **Q97. Things not to hit: how they show it** (2026-11-12, developer:
+  hitting one loses the scene, "the challenge is making it clear your
+  should not hit it. We should discuss presentation options before
+  building"). For Harder and Hardest; to discuss.
 
 ## Proposed additions to the standards skill
 
@@ -19207,3 +19214,81 @@ Claude's replies:
   only. Later: 5, 6, 8.
 
 To agree with the developer: the first build, and 8's cost.
+
+Developer: "1) OK. 2) lost scene. I think the challenge is making it
+clear your should not hit it. We should discuss presentation options
+before building". So: the first build goes ahead; a thing not to hit,
+when built, loses the scene (a ❤️); how it shows it's not to be hit to
+discuss first (new Q97).
+
+## 2026-11-12: How hard? built (Q96, first step)
+
+The developer then: "I'll be back tomorrow. signing off for tonight. I'll
+leave you running." Built, tested, committed and pushed on `block-game`;
+not published.
+
+**What**: "How hard?" on Topple!'s setup screen, after Pick your face:
+Normal ("the dots show the way"), Harder ("shorter dots"), Hardest ("dots
+for the first ball only"), three across, the site's choice buttons.
+- Normal: 0.3 s of dots, as before. Harder: 0.15 s. Hardest: 0.15 s for
+  a scene's first ball, none after (Claude's pick, to review).
+- Kept with the game (`mode` in `web-games-topple-game`), so it's the
+  same next visit; a game kept before has none and reads as Normal.
+  Changed any time; the levels and places stay as they are. New scenes
+  from scene 1 and Start over keep it (a setting, not progress).
+- Not changed: the pad's show (its dots are the first ball's, so
+  Hardest's too), the scenes, the check, the balls.
+- Code: `MODES`, `MODE_INFO`, `dotSeconds(mode, used)` in
+  `src/core/topple.js`; `createGame(seed, keep, mode)`; `readGame` keeps
+  `mode`. The page draws the buttons in `renderSetup()`.
+- Logged: "how hard picked" (mode, was, dots, firstOnly); each throw's
+  `mode` and `dotsS`; the scene line carries the game, so its mode too.
+
+**Tests**: `tests/topple.test.js` (the seconds of dots ball by ball for
+each mode, an unknown mode as Normal; the dots themselves: 6 at Normal, 3
+at Harder, a bush touched at 0.21 s shown at Normal and not at Harder;
+the mode kept, kept by New scenes and Start over, an unknown or missing
+one read as Normal, an unknown one refused by createGame); two older
+expectations given `mode: 'normal'`; `tests/topple-page.test.js` (the
+panel after the faces, the buttons wired, the dots and the throw log, and
+Start over keeping it). Shown to fail: Hardest's first-only off, Harder's
+dots back to 0.3, the kept mode dropped by readGame: each failed its test
+(the last first tried with a pattern that didn't apply, so it "passed":
+redone as a literal match, then it failed). Full suite 598 pass (595
+before, plus 3 new tests), one verdict. `node tools/offline.js` rerun
+(version ee8d7cfcc900, 185 files; release still 10.3).
+
+**In the browser**: the setup screen at 375 x 812: the three choices fit,
+no sideways scroll; a pick shows as pressed and is kept on the device.
+The dots could not be counted in the Browser pane: it was hidden, and a
+hidden pane's page gets no animation frames (`requestAnimationFrame`
+never fired; the round's clock stood still), so every mode, Normal too,
+read 0 dots. Normal reading 0 showed it was the check, not the change.
+Counted instead in headless Edge (as `tools/home-pics.js` does; a script
+in Claude's scratchpad), a drag held on the pad for ball 1 and, after a
+throw, ball 2:
+
+| How hard | ball 1 | ball 2 |
+|---|---|---|
+| Normal | 6 dots | 6 |
+| Harder | 3 | 3 |
+| Hardest | 3 | 0 |
+
+Kept on the device afterwards: "hardest". Pictures in
+`Web-Games-testing/2026-11-12_difficulty/` (the setup screen, each hold).
+
+**Status (start here next session)**
+- **Live: 10.3.** On `block-game`, not published: Topple!'s How hard?
+  (Normal, Harder, Hardest; above).
+- **For the developer:**
+  - Try How hard? (once published: say "publish"; proposed **10.4**).
+    Is Hardest's "dots for the first ball only" right, or too hard?
+  - 10.3 on the phone as before (Q94, Q95; the twelve new structures).
+  - Q97: how a thing not to hit shows it (options to discuss).
+  - OK to purge `Web-Games-testing/2026-11-12_difficulty/` (results are
+    above)?
+- **Next:** Q97's presentation options; then the rest of Q96 for Harder
+  and Hardest (a smaller ball, wider gaps, another camera; things that
+  move, "smooth and predictable timing"); then Q93 (worlds), Q88, Q78.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97.
