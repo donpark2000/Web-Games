@@ -133,28 +133,6 @@ time, each tried before publishing:
   scenes. What Hardest does until those exist: to agree.
   2026-11-13, developer: "Use Harder's dots for now". Built (for 10.6,
   "Responsiveness first; ..."): to try; Hardest's own scenes still to come.
-- **Q99. Tin Can Alley and Topple! on an old tablet** (2026-11-13,
-  developer, a 2019 Galaxy Tab A 8"): "virtually unplayable", the aim
-  slow to follow, structures 10-20 s to fall. Likely the physics giving
-  up steps on a slow frame (same entry). The tablet's log wanted.
-  2026-11-13, developer: playable on this tablet is "probably good
-  enough", "a good 'worst case'": the bar.
-  2026-11-13, the tablet's log ("The old tablet's log"): Tin Can Alley 8
-  frames a second, physics 7 ms of each 125 ms frame, 0.43x real speed;
-  Topple! 0.15x. The slow motion is the frame caps; the frames are slow
-  from the drawing. Fix proposed. 2026-11-13, the building site's log:
-  Topple! 3 frames a second, physics 11.6 ms of ~333 ms; the drawing
-  must get several times cheaper; a speed test proposed first.
-  2026-11-13, the speed test ("The speed test on the old tablet"): the
-  cost is the graphics chip's work for each pixel; shadows 60% of the
-  building site's frame (75% of the stall's), reflections 35%, fewer
-  pixels up to 55%; everything cut, 60 frames a second. Cheap (Basic)
-  shadows and the cuts in steps not yet measured: a second test proposed.
-  2026-11-13, developer: "responsiveness when aiming and hitting targets
-  is more important than cosmetic details"; no second test. Built (for
-  10.6, "Responsiveness first; ..."): real time down to 10 frames a
-  second, and the drawing stepping down to light, then lightest. To
-  check with the tablet's log after 10.6.
 - **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
   developer, the same tablet). Likely Q99's cause (same entry); the log
   to confirm. 2026-11-13, the log: consistent with Q99's cause (the
@@ -165,6 +143,15 @@ time, each tried before publishing:
   to hit; "make them glow or get brighter for a few seconds").
   2026-11-13, developer: "worth a try". Built (for 10.6, "Responsiveness
   first; ..."): after 6 s waiting, the standing blocks glow twice; to try.
+  2026-11-13, developer, on 10.6: "effective on the phone"; on the
+  tablet "a VERY long time before the glowing happens. I think a delay of
+  4 seconds is plenty." Built (for 10.7, "10.6 tried: ..."): 4 s, and the
+  log tells why a wait runs long. Open for why it's long on the tablet.
+- **Q102. Starting again: not everywhere, and hard to find** (2026-11-13,
+  developer: "the ability to start a scene or level again is not
+  available everywhere and it is confusing to figure out how to find it.
+  For example, once you are in a scene you can only start the scene
+  again"). Today's ways and a proposal in "10.6 tried: ..."; to agree.
 
 ## Proposed additions to the standards skill
 
@@ -277,6 +264,18 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q99. Tin Can Alley and Topple! on an old tablet** (2026-11-13,
+  developer, a 2019 Galaxy Tab A 8"): "virtually unplayable", the aim
+  slow to follow, structures 10-20 s to fall. The bar (developer):
+  playable on this tablet is "probably good enough", "a good 'worst
+  case'". The tablet's logs ("The old tablet's log", "The speed test on
+  the old tablet"): the slow motion was the frame caps, the slow frames
+  the graphics chip's work for each pixel (shadows 60% of the building
+  site's frame). 10.6 kept real time down to 10 frames a second and drew
+  lighter on a slow device. 2026-11-13, developer, on 10.6 on the tablet:
+  "It is absolutely playable now." **Closed** ("10.6 tried: ..."). Not
+  measured: the frame rate each drawing level gives there (no log yet).
 
 - **Q89. Star Light: little or no sky in some views** (2026-11-12; "Star
   Light tried: level 5 locked; the moon and cloud ..."): the moon goes
@@ -19900,3 +19899,95 @@ second there, and how the glow looks to the developer, is for 10.6.
   `drawing`); Q99 closed if playable; Q100 checked again.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
+
+## 2026-11-13: 10.6 tried: playable on the old tablet (Q99 closed); the glow after 4 s; starting again (Q102)
+
+**The developer**, on 10.6 (played, no log taken): on the old tablet "It
+is absolutely playable now." The glow "is effective on the phone. on the
+tablet it seems to take a VERY long time before the glowing happens. I
+think a delay of 4 seconds is plenty." And: "the ability to start a scene
+or level again is not available everywhere and it is confusing to figure
+out how to find it. For example, once you are in a scene you can only
+start the scene again." Asked whether the log is still wanted.
+
+**Q99 closed** on the developer's word (the bar was "playable" on this
+tablet). What it doesn't tell: which drawing level the tablet ended on
+and its frame rate.
+
+**Why the tablet's glow may come late** (from the code; not measured).
+The count (`glowIdle`) adds each frame's time while `waitingOn()` holds,
+and drops to 0 whenever it doesn't. Three ways a wait runs long:
+1. **The game's clock**: a frame adds at most 0.1 s; below 10 frames a
+   second the game runs slower than real time, so 6 s of game is longer.
+2. **Something still moving**: the count needs every block still (asleep,
+   or under `STILL_SPEED`) and no shards or spray; a block rocking on the
+   debris holds it at 0 and starts it again.
+3. **The pad's show**: it holds the count, but runs only before a scene's
+   first ball and stops at a press on the pad, so not after a throw in play.
+So the log line now says both: `gameS` (the game's time since the throw)
+and `realS` (real time since it). `realS` well over `gameS` is (1);
+`gameS` well over `waitS` + 0.9 s is (2).
+
+**Built** (for 10.7): `GLOW_WAIT` 4 s (was 6), so the glow at 4 s, the
+pulses at 4.5 and 5.5 s, again at 10.5 s; the log line's `gameS` and
+`realS` (`thrownAt` set by the throw). `node tools/offline.js`: version
+c2e56b1c08f7, 190 files (sw.js and version.js put back to CRLF).
+
+**Tests** (615 of 615): the glow's times and counts moved to 4 s; the
+page's log line and the throw's time. **Shown able to fail**: `GLOW_WAIT`
+6 failed the glow test; `thrownAt` never set failed the page test. (Git
+Bash's `sed -i` for those breaks turned the two files to LF; put back to
+CRLF, the diff and the version unchanged.)
+
+**Seen in the preview browser**: level 2 scene 1, one ball thrown wide:
+`blocks left glow {"left":11,"waitS":4,"n":1,"t":21.3,"gameS":20.3,
+"realS":10.38}`, the second at `waitS` 10.02. Here `gameS` is far over
+`waitS` because the page's hook throws without a press, so the pad's show
+ran on and held the count until it ended (3. above, which a finger
+avoids); `gameS` over `realS` because the hook steps the game faster than
+real time.
+
+**Starting again today (Q102)**, every way there is:
+
+| Where | Button | Does |
+|---|---|---|
+| Play bar, once a ball is thrown | ↺ Start again | this scene again, asks, costs a ❤️ |
+| Play bar | 🗺️ Map | the map; the scene kept |
+| Map | a level | carries on where it was; a done level starts again with new scenes |
+| Map | ◀ Faces | the setup screen |
+| Setup | New scenes from scene 1 | new scenes for every level, levels kept open |
+| Setup, another level open | Start over from level 1 | asks; only level 1 open |
+| Scene's end card | Try again / Start again / Play again | this scene again / scene 1 after the last ❤️ / a done level again |
+| Scene's end card | New game | the setup screen |
+
+So: **no way to start the level you're on from scene 1** (unless it's
+done, or all hearts are lost), and **the whole game's are two screens
+away** (Map, then ◀ Faces), under names that don't say "start again".
+
+**Proposed** (to agree): one **↺ Start again** in the play bar, always
+there, opening one choice: **This scene** (lose a ❤️; only once a ball is
+thrown), **This level, from scene 1**, **The whole game, from level 1**
+(the other levels lock again), **No**. The same choice on the map, for
+the level you're on. Open points: does a level started again get new
+scenes (Claude: yes, as a done level does; 3 ❤️ again, its 💎 gone);
+do the setup screen's two buttons stay (Claude: keep Start over there,
+drop New scenes from scene 1, which nobody has asked for); a mockup
+first or straight to the build.
+
+**The log**: not needed for Q99. Wanted once 10.7 is out, short: one
+scene with a ball missed, waiting for the glow, to show which of the
+causes above makes the tablet's wait long (and Q100 again).
+
+**Status (start here next session)**
+- **Live: 10.6.** Built on `block-game`, not published: the glow after
+  4 s, and its log line's `gameS`/`realS` (Q101). 615 tests pass. To
+  publish as **10.7** (a change) once the developer says so, perhaps with
+  Q102.
+- **For the developer:** Q102's proposal above (the choice, new scenes
+  for a level started again, the setup buttons, mockup or build); Q100
+  (sounds and the animals' fright before the impact on the tablet: still
+  seen in 10.6?).
+- **After 10.7, on the tablet:** a short log (one scene, a ball missed,
+  the glow waited for) into `Web-Games-testing/2026-11-13_old-tablet/`.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q100, Q101, Q102.

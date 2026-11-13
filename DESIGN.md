@@ -4,7 +4,8 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-13, latest): **the 3D games keep to real time on a slow
+*Status (2026-11-13, latest): **Topple!: the blocks left glow after 4 s**
+(was 6; on `block-game`, not yet published). Earlier the same day: **the 3D games keep to real time on a slow
 device, and draw lighter there** (the physics may use half of each frame;
 a slow device steps down to a light drawing, then a lightest; see "3D
 games", Drawing lighter); **Topple!: Hardest has Harder's dots for now;
@@ -2186,14 +2187,16 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   on the phone the building site "looked like all blocks were down ...
   but there was clearly something left I was supposed to hit"; "make
   them glow or get brighter for a few seconds"; a marker over them was
-  "visually noisy", Q91): once a scene has waited 6 s for the next ball
+  "visually noisy", Q91): once a scene has waited 4 s for the next ball
   (a ball thrown already, balls left, nothing moving, no finger aiming,
   the pad's show over), the blocks still standing brighten and fade back
   twice, 1 s each, a warm white added over each block's own shape (hidden
-  blocks stay hidden); then only after another 6 s. A throw or a drag
-  starts the wait again. Star Light's glowing blocks pulse the same way.
-  (`glowAt`, `waitingOn` in `src/core/topple.js`.) Logged: `blocks left
-  glow` (how many left, the wait).
+  blocks stay hidden); then only after another 4 s (6 s in 10.6;
+  developer, 2026-11-13: "I think a delay of 4 seconds is plenty"). A
+  throw or a drag starts the wait again. Star Light's glowing blocks
+  pulse the same way. (`glowAt`, `waitingOn` in `src/core/topple.js`.)
+  Logged: `blocks left glow` (how many left, the wait, the game's and the
+  real time since the throw).
 - **Things in the way:** one in scenes 1-4, two in scene 5: a **bush**
   between (a ball that touches it keeps 0.1 of its speed and drops
   through it to the ground; developer: "if a ball hit a bush it would

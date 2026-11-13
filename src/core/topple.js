@@ -991,8 +991,10 @@ export function update(r, dt, { down, still, calm = still }) {
 // aiming: the page counts it, `idle`), the blocks still standing brighten
 // and fade back GLOW_PULSES times, GLOW_PULSE_S each; then only after
 // another GLOW_WAIT. A throw, a drag or anything moving starts the count
-// again.
-export const GLOW_WAIT = 6;
+// again. 4 s from 10.7 (developer, 2026-11-13: on the old tablet "a VERY
+// long time before the glowing happens. I think a delay of 4 seconds is
+// plenty"; 6 s in 10.6).
+export const GLOW_WAIT = 4;
 export const GLOW_PULSES = 2;
 export const GLOW_PULSE_S = 1;
 const GLOW_CYCLE = GLOW_WAIT + GLOW_PULSES * GLOW_PULSE_S;

@@ -321,6 +321,8 @@ test('topple page: the blocks left glow (Q101): counted while waiting, the stand
   assert.match(js, /glowIdle = waitingOn\(round, still && fx === 0\) && !drag && !demo \? glowIdle \+ dt : 0;/);
   assert.match(js, /stage\.setGlow\(glow, glow > 0 \? world\.blocks\.map\(b => !\(b\.down \|\| b\.broken \|\| b\.away\)\) : null\);/);
   assert.match(js, /L\('blocks left glow', \{ left: round\.total - round\.down,/);
+  assert.match(js, /gameS: r2\(round\.since\), realS: r2\(\(performance\.now\(\) - thrownAt\) \/ 1000\) \}\);/, 'the log tells a slow frame rate from things still moving');
+  assert.match(js, /\n  thrownAt = performance\.now\(\);/, 'the throw starts the real time');
   assert.match(js, /glowIdle = 0; glowsSaid = 0;/, 'a new scene starts the count');
   assert.match(sceneJs, /blending: THREE\.AdditiveBlending, depthWrite: false/);
   assert.match(sceneJs, /m\.add\(over\); m\.userData\.glow = over;/, 'every block its glow');

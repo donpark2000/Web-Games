@@ -335,6 +335,7 @@ let demo = null;        // the pad's show as a scene starts: { t } s, until a fi
 const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
 let drawing = null;        // the drawing's level, watched (src/ui/drawwatch.js)
 let glowIdle = 0, glowsSaid = 0;   // the wait for the next ball, and its glows logged (Q101)
+let thrownAt = 0;          // performance.now() of the latest throw (the glow's log: real time since it)
 
 function showPlay() {
   $('setup').hidden = true;
@@ -584,6 +585,7 @@ function doThrow(d) {
   const aimed = world.trace(vec, 1);
   const body = world.throwBall(vec);
   shot = { body, at: world.time, pred: aimed.hits.map(h => ({ kind: h.kind, at: h.at })), touches: [], last: null };
+  thrownAt = performance.now();
   $('hint').hidden = true;
   sound.play('whoosh', 0, { level: d.power });
   L('throw', {
@@ -665,7 +667,9 @@ function tick(dt, draw = true) {
   // the blocks left glow once the scene has waited a while for the next ball (Q101)
   glowIdle = waitingOn(round, still && fx === 0) && !drag && !demo ? glowIdle + dt : 0;
   const glow = glowAt(glowIdle), glows = glowsBy(glowIdle);
-  if (glows > glowsSaid) L('blocks left glow', { left: round.total - round.down, waitS: r2(glowIdle), n: glows, t: r2(round.t) });
+  // the glow's wait, the game's time since the throw and the real time since it: a slow
+  // frame rate shows as realS over gameS, things still moving as gameS over waitS + 0.9
+  if (glows > glowsSaid) L('blocks left glow', { left: round.total - round.down, waitS: r2(glowIdle), n: glows, t: r2(round.t), gameS: r2(round.since), realS: r2((performance.now() - thrownAt) / 1000) });
   glowsSaid = glowIdle ? glows : 0;
   noteSettled();
   if (!draw) return;

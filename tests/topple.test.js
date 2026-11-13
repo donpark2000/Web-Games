@@ -562,17 +562,17 @@ test('topple: the map\'s road runs level to level; a point along it, and the par
   }
 });
 
-test('topple: the blocks left glow after a pause (Q101): twice over 2 s, after 6 s waiting, then only after another 6', () => {
-  assert.deepEqual([GLOW_WAIT, GLOW_PULSES, GLOW_PULSE_S], [6, 2, 1]);
+test('topple: the blocks left glow after a pause (Q101): twice over 2 s, after 4 s waiting, then only after another 4', () => {
+  assert.deepEqual([GLOW_WAIT, GLOW_PULSES, GLOW_PULSE_S], [4, 2, 1]);
   // dark while waiting; two bright pulses, dark between them and after
-  for (const t of [0, 3, 5.99, 8, 10, 13.99, 16, 20]) assert.equal(glowAt(t), 0, `glowing at ${t} s`);
-  near(glowAt(6.5), 1, 1e-9, 'first pulse at its brightest');
-  near(glowAt(7), 0, 1e-9, 'between the pulses');
-  near(glowAt(7.5), 1, 1e-9, 'second pulse');
-  near(glowAt(14.5), 1, 1e-9, 'again after another wait');
-  assert.ok(glowAt(6.1) > 0 && glowAt(6.1) < 0.2, 'fades in');
+  for (const t of [0, 2, 3.99, 6, 8, 9.99, 12, 14]) assert.equal(glowAt(t), 0, `glowing at ${t} s`);
+  near(glowAt(4.5), 1, 1e-9, 'first pulse at its brightest');
+  near(glowAt(5), 0, 1e-9, 'between the pulses');
+  near(glowAt(5.5), 1, 1e-9, 'second pulse');
+  near(glowAt(10.5), 1, 1e-9, 'again after another wait');
+  assert.ok(glowAt(4.1) > 0 && glowAt(4.1) < 0.2, 'fades in');
   // each glow counted once (the page logs it)
-  assert.deepEqual([0, 5.9, 6, 7.9, 13.9, 14, 22].map(glowsBy), [0, 0, 1, 1, 1, 2, 3]);
+  assert.deepEqual([0, 3.9, 4, 5.9, 9.9, 10, 16].map(glowsBy), [0, 0, 1, 1, 1, 2, 3]);
   // waiting on the player: a ball thrown, none in flight, everything stopped, balls left, not over
   const r = newRound(5);
   assert.equal(waitingOn(r, true), false, 'before the first ball (the pad\'s show is for that)');
