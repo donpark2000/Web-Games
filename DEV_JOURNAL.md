@@ -19124,3 +19124,32 @@ it can't measure aim-based difficulty (2, 5, 7). A player with aim
 error (scatter like a person's) would; or try them on the phone. Claude's
 suggestion: start with 2 and 4 (small, testable, keep the kids' level
 1), then 3 or 5.
+
+## 2026-11-12: Release 10.3 published and live
+
+- The developer: "please publish. I will be away for a while and I would
+  like to test when I come back."
+- `main` fast-forwarded to d0aa592, tag `v10.3` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (built d0aa592); the live `src/core/version.js` reads 1dbf9693e8a8 and
+  `release.js` 10.3.
+- Claude's local server (`tools/serve.js 8123`) stopped; no other
+  `serve.js` running.
+- On the way: Claude used Git Bash `sed -i` for small edits again, which
+  turned 8 files' CRLF to LF in the working copy (found with `git
+  ls-files --eol`; Git Bash's grep for `\r$` had wrongly said all CRLF);
+  put back with a node script before the commit. The memory note on it
+  updated.
+
+**Status (start here next session)**
+- **Live: 10.3** (Topple!: "Cleared!" at once and the card once calm;
+  eight structures a level, dealt; a done level played again has new
+  scenes; a reload on a "Level done!" card shows it). `block-game` =
+  `main` plus this entry. Nothing waiting to publish.
+- **For the developer:** 10.3 on the phone: the end of a scene (Q95);
+  new arrangements from Start over, New scenes, and a done level from
+  the map (Q94); the twelve new structures (Claude's picks, to review).
+- **Next:** Q96 (more challenge): Claude's eight options in "Q94, Q95
+  built" to discuss; then Q93 (worlds), Q88, Q78.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96.
