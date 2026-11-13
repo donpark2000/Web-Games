@@ -150,26 +150,24 @@ time, each tried before publishing:
   2026-11-13, developer: the proposal "yes"; "build it. I need to test on
   both tablet and phone and I can not do that from a mockup". Built (for
   10.7, "Start again: one question (Q102)"): to try.
+- **Q103. Frosty Times: a block knocked where it can't be hit**
+  (2026-11-13, developer, the old tablet): a last cube knocked so far
+  right it was off the screen upright (seen sideways, hit, but "I could
+  not get enough energy for a direct hit", the ball landing short and
+  pushing it further); an upright block hit on its side "just spun and
+  moved further back ... far enough back and to the left side that it
+  was unreachable". "Not sure if we should consider this a bug or a skill
+  testing part of play." Measured, and a proposal, in "Frosty Times:
+  blocks knocked out of sight or range (Q103)"; to agree.
 
 ## Proposed additions to the standards skill
 
-- **Pick a worst-case device, and let the app adapt to it** (2026-11-13;
-  from Q99, "Q99 closed"; the developer asked how to record a lesson
-  about accommodating different devices). Proposed for section 4, after
-  "Measure a worry before designing around it":
-  > **Make a slow device the bar, and adapt to it from measurements.**
-  > Agree the slowest device that must work. Log what it does there,
-  > then find which part costs most (one run per cut) before fixing. Let
-  > the app measure itself as it runs and step down what it draws,
-  > keeping what the user feels (response, real speed) over looks.
-  > *Evidence:* a 2019 tablet ran two 3D games at 3-8 frames a second in
-  > slow motion; a speed test showed shadows took 60% of each frame, and
-  > a step-down from the measured frame rate made both "absolutely
-  > playable".
-  Why it passes the bar: it changed how the work was done (measured on
-  the device, not guessed on this PC: the first guess, the physics, was
-  wrong), and it applies to any app with a heavy screen. To review with
-  the developer.
+None waiting. (2026-11-13: "Make a slow device the bar, and adapt to it
+from measurements" (from Q99; the developer asked how to record a lesson
+about accommodating different devices) approved by the developer ("Add
+it") and added to the skill, section 4, after "Measure a worry before
+designing around it"; ai-dev-practices commit ec57853, zip rebuilt for
+the developer to upload.)
 
 Earlier: (2026-11-12: "Compare versions in a separate checkout, not
 by stashing" (from "Ice slides; out of reach; ...": a stash failed half
@@ -20096,3 +20094,80 @@ app adapt to it"), for the skill's section 4; to review.
 - **To review:** the proposed skill addition (worst-case device).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102.
+
+## 2026-11-13: Frosty Times: blocks knocked out of sight or range (Q103); the skill addition added
+
+**The developer**: 10.7 held ("Hold until you see my next feedback and
+then we can discuss"). The skill addition: "Add it" (done: section 4,
+ai-dev-practices ec57853, zip rebuilt; to upload). And, on the old
+tablet in Frosty Times: "I had one block left but it had been knocked far
+enough to right of the screen that it was no longer visible in portrait
+orientation. I could see it in landscape and I did hit it, but I could
+not get enough energy for a direct hit. So the ball hit the ground before
+hitting the cube and it just pushed it further away without breaking it.
+... I hit a vertical block on the side. It just spun and moved further
+back without breaking or falling over. I hit it again, and it just spun
+again and moved far enough back and to the left side that it was
+unreachable. Not sure if we should consider this a bug or a skill testing
+part of play." No log saved.
+
+**Today's rule** (Q85, 10.0): a block more than 24° to the side of the
+slingshot (the aim's 22° and 2° spare) counts as down for good
+(`outOfReach`, `src/core/topple-world.js`). It looks only at the angle:
+not at how far back, nor at what the screen shows.
+
+**Measured in the preview** (level 3, scenes 1-5, this game's seed):
+- **How far a throw goes**: how hard is set by the scene (`power`
+  0.49-0.51); over every lift (0-70°) the ball lands at most 8.4-8.8 m
+  out (at 40-42°), with the structures 5.3-6.1 m out. So a block pushed
+  about 2.5-3 m back is past every throw; nearer that line only a lob at
+  about 42° reaches it, coming down steeply (onto the ground or the
+  block's top, not its side), and the dots (0.3 s) don't show where a
+  lob lands.
+- **What the screen shows**, as degrees from the slingshot at the
+  structure's depth (the view is lopsided: the camera is over the right
+  shoulder): sideways in the preview (1024 x 768), right edge about 25°,
+  left 40°+; **upright at the tablet's size (601 x 889), right edge
+  15-18°** (scenes 2-4; 25° in scene 5), left 36-44°. So upright, a
+  block 16-24° to the right is still counted in play and can be aimed at,
+  but can't be seen: the developer's first case. On the left, the view is
+  wider than the aim, which today's rule covers.
+
+**Bug or skill?** Claude's view: both, split by whether the block can
+still be hit. Ice sliding is the level's character (Q84, the developer:
+slide more, "yes"), and going after a block that slid, with another
+ball, is skill. But a block nobody can see, or no throw can reach, leaves
+the scene unwinnable with balls in hand, which breaks the rule every
+scene keeps ("always possible and playable"; the same reasoning as Q85).
+So that part is a bug.
+
+**Proposed** (to agree): widen "out of reach" to:
+1. **Out of range**: a block further out than the farthest throw at the
+   scene's strength (with a margin) counts as down, as one past the
+   aim's angle does.
+2. **Out of sight**: either (a) a block that leaves the screen as it's
+   held counts as down (turning the tablet can then only help, never
+   hurt), or (b) the upright view widened so everything the aim reaches
+   is on screen (the structure then smaller upright). Claude: (a), as
+   (b) shrinks every scene for a rare case.
+3. Unchanged: how far ice slides (the developer's "yes" in Q84).
+The upright block that "just spun" is the same case once it's out of
+range or sight; while it's in reach, knocking it down stays skill.
+
+**Not known**: whether the developer's two blocks were past the 8.7 m
+line or only near it (no log). The tablet's log keeps the last ~3000
+lines, so it may still hold that game: its `throw` and `ball touched`
+lines say where each ball landed.
+
+**Status (start here next session)**
+- **Live: 10.6.** Built on `block-game`, held (developer: until the next
+  feedback): Start again's one question (Q102); the glow after 4 s, its
+  log line's `gameS`/`realS` (Q101). 617 tests pass. For **10.7** once
+  agreed.
+- **For the developer:** Q103's proposal (out of range and out of sight
+  count as down; (a) or (b) for out of sight); if the tablet still has
+  it, the log from that Frosty Times game into
+  `Web-Games-testing/2026-11-13_old-tablet/`; the new skill zip to upload
+  (`C:\Users\dpark\Documents\ai-dev-practices\software-project-standards.zip`).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103.
