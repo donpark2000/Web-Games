@@ -7,6 +7,15 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.5 (2026-11-13, version f0192f31ec4b)
+
+A speed test for the 3D games, to make them quicker on slow tablets.
+
+- **Speed test** on the log page: Topple! and Tin Can Alley drawn 19
+  ways (fewer pixels, simpler shadows, plainer surfaces and so on),
+  about 3 minutes, each one's frame rate saved in the log. The games
+  themselves are unchanged.
+
 ## 10.4 (2026-11-12, version ba92f204eceb)
 
 Topple!: choose how hard.
