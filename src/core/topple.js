@@ -634,7 +634,7 @@ export function sceneParts(L) {
   for (const bx of boxes) for (let i = 0; i < 3; i++) { min[i] = Math.min(min[i], bx[i]); max[i] = Math.max(max[i], bx[i + 3]); }
   for (const p of extra) for (let i = 0; i < 3; i++) { min[i] = Math.min(min[i], p[i]); max[i] = Math.max(max[i], p[i]); }
   const st = L.table;
-  return { blocks, bodies, props, stand: { w: X(st.w), d: X(st.d), top: 0, x: X(st.x), z: Z(st.z) }, bounds: { min, max }, level: L.level ?? 1, ball: BALLS_BY[L.ball ?? 'toy'] };
+  return { blocks, bodies, props, stand: { w: X(st.w), d: X(st.d), top: 0, x: X(st.x), z: Z(st.z) }, bounds: { min, max }, level: L.level ?? 1, ball: BALLS_BY[L.ball ?? 'toy'], power: L.power };
 }
 
 /* ---------- the camera ---------- */
@@ -667,6 +667,28 @@ export function behindView(aspect, { bounds: b, stand }) {
 export function launchVel(power, aim, up) {
   const v = (V_MIN + power * (V_MAX - V_MIN)) * Math.sqrt(SCALE), yaw = aim * MAX_AIM / R2D, el = up / R2D;
   return { v, yaw, el, vec: [Math.sin(yaw) * Math.cos(el) * v, Math.sin(el) * v, -Math.cos(yaw) * Math.cos(el) * v] };
+}
+
+// The farthest a throw at strength `power` can reach from the hand, along
+// the ground (m, in plan view), at the best lift: where the path comes down
+// to height h (no drag on the ball, as in the physics). Further out than
+// this, no throw touches a block (Q103).
+export function throwRange(power, h = 0) {
+  const { v } = launchVel(power, 0, 0), H = HAND.y - h;
+  return (v / GRAVITY) * Math.sqrt(v * v + 2 * GRAVITY * H);
+}
+
+// A block off the screen as it's held (developer, 2026-11-13, Q103: upright
+// on the tablet, a block knocked right "was no longer visible", while the
+// aim still reached it): every corner of the box round it (`at` its middle,
+// `r` its half-size, the most it reaches any way it's turned) shows past the
+// same edge of the canvas. `project(p)`: where p shows, [0-1 across, 0-1
+// down].
+export function offScreen(at, r, project) {
+  const uv = [];
+  for (const dx of [-r, r]) for (const dy of [-r, r]) for (const dz of [-r, r]) uv.push(project([at[0] + dx, at[1] + dy, at[2] + dz]));
+  if (uv.some(p => !p || !Number.isFinite(p[0]) || !Number.isFinite(p[1]))) return false;
+  return uv.every(p => p[0] < 0) || uv.every(p => p[0] > 1) || uv.every(p => p[1] < 0) || uv.every(p => p[1] > 1);
 }
 
 // One drag aims, on a stage whose shorter side is `size` px (dx, dy in px

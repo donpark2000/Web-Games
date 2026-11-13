@@ -9,9 +9,10 @@
 // by a player throwing as a person can.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createWorld, touch, outOfReach } from '../src/core/topple-world.js';
+import { createWorld, touch, outOfReach, outOfRange, RANGE_MARGIN, CALM_SPEED } from '../src/core/topple-world.js';
 import {
-  SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, levelDeal, sceneParts, launchVel, HAND, MAX_AIM, R2D, makeLayout, sceneOpts, FRAME_REACH,
+  SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, levelDeal, sceneParts, launchVel, HAND, MAX_AIM, MAX_UP, R2D, makeLayout, sceneOpts, FRAME_REACH,
+  throwRange, offScreen,
 } from '../src/core/topple.js';
 import { canBeWon } from './topple-players.js';
 import { GLOWS, STRUCTURES } from '../src/core/topple-levels.js';
@@ -382,4 +383,83 @@ test('topple levels: every block starts within the aim\'s reach; one knocked out
   b.body.wakeUp();
   assert.equal(w.step(1 / 60).fell.includes(b), true, 'out of reach, not counted down');
   assert.equal(b.down, true);
+  assert.equal(b.away, 'aim');
+});
+
+// Developer, 2026-11-13 (Q103): "too far to reach = down". How far a throw
+// reaches: worked out, against the path the game draws (the physics' steps).
+test('topple levels: how far a throw reaches matches the path; no block starts out of range', () => {
+  const w = createWorld();
+  w.setScene({ blocks: [], bodies: [], props: [], level: 1, ball: { r: 0.06, kg: 2 } });
+  for (const power of [0, 0.3, 0.5, 0.8, 1]) {
+    let best = 0;
+    for (let up = 0; up <= MAX_UP; up++) {
+      const g = w.trace(launchVel(power, 0, up).vec, 0, []).hits.find(h => h.kind === 'ground');
+      if (g) best = Math.max(best, Math.hypot(g.at[0] - HAND.x, g.at[2] - HAND.z));
+    }
+    assert.ok(best > 0, `power ${power}: the path never came down`);
+    // never short of the path (a block the ball can reach is never counted out), and within the margin
+    const says = `power ${power}: the path lands ${best.toFixed(3)} m out, throwRange says ${throwRange(power).toFixed(3)}`;
+    assert.ok(best <= throwRange(power) + 0.02, `short of the path: ${says}`);
+    assert.ok(throwRange(power) - best < RANGE_MARGIN, `too generous: ${says}`);
+  }
+  assert.ok(throwRange(0.5) > throwRange(0.4), 'harder throws go further');
+  assert.equal(w.far, Infinity, 'a scene without a strength: no limit');
+  let n = 0;
+  for (let lv = 1; lv <= MAX_LEVEL; lv++) for (let seed = 1; seed <= 4; seed++) for (let sc = 1; sc <= SCENES; sc++) {
+    const p = sceneParts(layoutFor(seed, lv, sc)), far = throwRange(p.power);
+    assert.ok(Number.isFinite(far), `${lv}/${seed}/${sc}: no strength in the scene's parts`);
+    for (const b of p.blocks) { n++; assert.equal(outOfRange([b.x, b.y, b.z], far, Math.hypot(b.w, b.d) / 2), false, `${lv}/${seed}/${sc}: a block out of range at the start`); }
+  }
+  assert.ok(n > 500, `only ${n} blocks checked`);
+});
+
+test('topple levels: a block knocked out of range or off the screen counts down once it has slowed; within both, it stands', () => {
+  const p = sceneParts(frameLayout(5, 3, 3, 'icePyramid')), w = createWorld();
+  w.setScene(p);
+  assert.ok(Math.abs(w.far - throwRange(p.power)) < 1e-12);
+  const b = w.blocks[0], size = Math.hypot(b.he.x, b.he.z), out = d => HAND.z - (d + size);
+  // straight ahead, just within range: stands
+  b.body.position.set(HAND.x, b.body.position.y, out(w.far + RANGE_MARGIN - 0.05));
+  b.body.wakeUp(); w.step(DT);
+  assert.equal(b.down, false, 'down while still within range');
+  // past it but still sliding fast: not yet (it may be passing through)
+  b.body.position.z = out(w.far + RANGE_MARGIN + 0.3);
+  b.body.velocity.set(0, 0, -(CALM_SPEED + 1));
+  w.step(DT);
+  assert.equal(b.down, false, 'counted down while still sliding fast');
+  // slowed past it: down, for good, as out of range
+  b.body.velocity.set(0, 0, 0);
+  assert.equal(w.step(DT).fell.includes(b), true, 'out of range, not counted down');
+  assert.equal(b.away, 'range');
+  b.body.position.z = out(1);
+  w.step(DT);
+  assert.equal(b.down, true, 'down for good, even brought back within range');
+  // off the screen (the page's test), once slowed: down as out of sight
+  const c = w.blocks[1];
+  w.unseen = r => r === c;
+  c.body.wakeUp();
+  c.body.velocity.set(CALM_SPEED + 1, 0, 0);
+  w.step(DT);
+  assert.equal(c.down, false, 'off screen counted down while moving fast');
+  c.body.velocity.set(0, 0, 0);
+  assert.equal(w.step(DT).fell.includes(c), true, 'off screen, not counted down');
+  assert.equal(c.away, 'sight');
+  // the rest, on screen and within range: standing
+  w.unseen = null;
+  for (const o of w.blocks.slice(2)) assert.equal(o.away, undefined);
+});
+
+test('topple: offScreen: a block counts as off the screen only when all of it is past one edge', () => {
+  const flat = q => [q[0], q[1]];   // a stand-in camera: x across, y down, 0-1 the screen
+  assert.equal(offScreen([1.2, 0.5, 0], 0.1, flat), true, 'all of it off the right');
+  assert.equal(offScreen([-0.3, 0.5, 0], 0.1, flat), true, 'off the left');
+  assert.equal(offScreen([0.5, 1.5, 0], 0.1, flat), true, 'off the bottom');
+  assert.equal(offScreen([0.5, -0.5, 0], 0.1, flat), true, 'off the top');
+  // half on the screen, at each edge
+  for (const at of [[1.05, 0.5, 0], [-0.05, 0.5, 0], [0.5, 1.05, 0], [0.5, -0.05, 0]]) assert.equal(offScreen(at, 0.1, flat), false, `half on the screen at ${at}`);
+  assert.equal(offScreen([0.5, 0.5, 0], 0.1, flat), false, 'in the middle');
+  assert.equal(offScreen([1.2, 1.2, 0], 0.1, flat), true, 'past a corner');
+  assert.equal(offScreen([1.2, 0.5, 0], 0.1, () => [NaN, 0]), false, 'no camera yet: not off the screen');
+  assert.equal(offScreen([1.2, 0.5, 0], 0.1, () => null), false);
 });

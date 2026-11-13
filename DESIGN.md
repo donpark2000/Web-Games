@@ -4,7 +4,9 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-13, latest): **Topple!: Start again asks one question,
+*Status (2026-11-13, latest): **Topple!: a block knocked further out than
+any throw reaches, or off the screen as it's held, counts as down**. Earlier
+the same day: **Topple!: Start again asks one question,
 from play and the map: this scene, the level from scene 1, or the whole
 game**; New scenes from scene 1 dropped; **the blocks left glow after 4
 s** (was 6) (on `block-game`, for release 10.7; see "Topple!"). Earlier the same day: **the 3D games keep to real time on a slow
@@ -2175,7 +2177,16 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   left to hit: "relax the rule a bit (say 60 degrees instead of 45)",
   60° above the ground). A block
   knocked further sideways than a throw can aim (22° and 2° more) counts
-  as down (developer, 2026-11-12, Q85: a cube slid out of reach). **All
+  as down (developer, 2026-11-12, Q85: a cube slid out of reach); so, once
+  it has slowed (under 0.3 m/s), does one **further out than any throw
+  reaches** (the scene's strength at the best lift, `throwRange`, and 0.2
+  m) or **off the screen as it's held** (every corner of the box round it
+  past one edge; upright, the view's right side is nearer than the aim's)
+  (developer, 2026-11-13, Q103: "too far to reach = down"; out of sight,
+  "Making things smaller to fit is only going to make a hard situation
+  much harder"; pushing blocks further is play, as long as it can't make
+  the scene impossible). Logged: `block down: out of reach` (why: aim,
+  range or sight; where), and a lost scene's blocks left, where. **All
   down for 0.35 s: cleared at once**, the win shown (its sound, the 💎,
   "Cleared! 💎" under the pills, clear of the blocks) as the last pieces
   finish falling; **the card once every block is calm** (slower than 0.3

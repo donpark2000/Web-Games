@@ -17,7 +17,7 @@
 import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, seedOf, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
-  padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, restartLevel, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
+  padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, restartLevel, placeOf, isOpen, offScreen, MAP_NODES, mapRoad, roadAt, roadTo,
   MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
@@ -361,12 +361,25 @@ function showSetup() {
   scrollTo(0, 0);
 }
 
+// Where a block is, for the log (Q103): its middle, its angle from the
+// slingshot (° right +), how far out (m) against the farthest throw, and
+// whether it's off the screen as held.
+function whereIs(b) {
+  const p = b.body.position, at = [p.x, p.y, p.z];
+  return {
+    at: at.map(r2), deg: Math.round(Math.atan2(p.x - HAND.x, HAND.z - p.z) * 180 / Math.PI), m: r2(Math.hypot(p.x - HAND.x, p.z - HAND.z)), farM: r2(world.far),
+    offScreen: offScreen(at, Math.hypot(b.he.x, b.he.y, b.he.z), q => stage.project(q)),
+  };
+}
+
 function makeStage() {
   const canvas = $('c');
   stage = park3d.makePark3d(canvas);
   // a setting's own sounds: Star Light's owl hooting now and then
   stage.onSound = name => { if (!SET_SOUND[name] || !playing) return; sound.play(SET_SOUND[name], 0, { quiet: true }); L('owl hoots', { t: r2(round?.t ?? 0) }); };
   world = physics.createWorld({ onHit });
+  // a block knocked off the screen as it's held counts as down (Q103: the aim may reach past an upright view's side)
+  world.unseen = b => offScreen([b.body.position.x, b.body.position.y, b.body.position.z], Math.hypot(b.he.x, b.he.y, b.he.z), p => stage.project(p));
   drawing = drawWatch('topple', stage, L);   // lighter on a slow device (Q99)
   L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2), farLeaves: stage.farLeaves, farTrunkInLeavesM: trunksIn().far });
   new ResizeObserver(fit).observe($('park'));
@@ -642,7 +655,10 @@ function tick(dt, draw = true) {
   perf.physMs += performance.now() - t0;
   perf.dropped += dropped;
   perf.frames++;
-  for (const b of fell) L('block down', { c: b.c, t: r2(round.t) });
+  for (const b of fell) {
+    if (b.away) L('block down: out of reach', { c: b.c, t: r2(round.t), why: b.away, ...whereIs(b) });   // Q85, Q103
+    else L('block down', { c: b.c, t: r2(round.t) });
+  }
   // the animals take fright at the first block to fall, shatter or burst while they're in view
   const fx0 = fell[0]?.body.position.x ?? broke[0]?.at[0];
   if (fx0 !== undefined) { const scared = stage.fright(fx0); if (scared.length) L('animal frightened', { t: r2(round.t), by: fell.length ? 'fell' : 'broke', scared }); }
@@ -753,7 +769,9 @@ function endScene(result, quiet = false) {
   // lost: the card now (out of balls already waits for everything to be still)
   if (result.won) showCleared(); else showEnd();
   const secs = (performance.now() - perf.at) / 1000;
-  L('scene over', { ...result, outcome, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped, drawing: drawing?.level, moon: stage.animals?.().find(a => a.moon)?.moon });
+  L('scene over', { ...result, outcome, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped, drawing: drawing?.level,
+    // the blocks left standing, where they are (Q103: why a scene couldn't be cleared)
+    standing: result.won ? undefined : world.blocks.filter(b => !b.down && !b.broken).map(b => ({ c: b.c, mat: b.mat, ...whereIs(b) })), moon: stage.animals?.().find(a => a.moon)?.moon });
   if (!quiet) sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
 }

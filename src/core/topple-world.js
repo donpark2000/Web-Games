@@ -11,7 +11,7 @@
 import * as CANNON from '../vendor/cannon-es/cannon-es.js';
 import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel,
-  sceneParts, layoutFor, isDown, MATS,
+  sceneParts, layoutFor, isDown, MATS, throwRange,
 } from './topple.js';
 import { fixedStepper } from './fixed-step.js';
 
@@ -26,6 +26,15 @@ export const REACH_MARGIN = 2;   // °
 export function outOfReach(p) {
   const x = p.x ?? p[0], z = p.z ?? p[2];
   return Math.abs(Math.atan2(x - HAND.x, HAND.z - z) * R2D) > MAX_AIM + REACH_MARGIN;
+}
+// A block further out than any throw at the scene's strength can reach
+// (developer, 2026-11-13, Q103: "too far to reach = down"): its nearest
+// side (`size`: its half-width in plan view) past `far` (throwRange) and
+// RANGE_MARGIN, which covers the ball's radius and the path's steps.
+export const RANGE_MARGIN = 0.2;   // m
+export function outOfRange(p, far, size = 0) {
+  const x = p.x ?? p[0], z = p.z ?? p[2];
+  return Math.hypot(x - HAND.x, z - HAND.z) - size > far + RANGE_MARGIN;
 }
 // A knock that shatters ice already down (Q83): any real touch, not resting contact.
 export const LAND_KNOCK = 0.3;
@@ -122,6 +131,8 @@ export function createWorld({ onHit = () => {} } = {}) {
   const advance = fixedStepper(world, STEP, MAX_SUBSTEPS);
   let statics = [], blocks = [], balls = [], time = 0, parts = null, ball = { r: BALL.r, kg: BALL.kg * SCALE ** 3 };
   let toBreak = new Set();   // blocks knocked hard enough to break this step (ice, a barrel)
+  let far = Infinity;        // the farthest a throw reaches in this scene (throwRange)
+  let unseen = null;         // the page's test for a block off the screen as it's held (Q103), or none
   const breakAt = (rec, v) => { if (rec && !rec.broken && rec.breaks && v >= rec.breaks) toBreak.add(rec); };
   const recOf = new Map();   // a block's body -> its record
   const kindOf = body => body.kind ?? 'ground';
@@ -192,6 +203,8 @@ export function createWorld({ onHit = () => {} } = {}) {
     for (const s of [...statics, ...blocks, ...balls]) if (!s.broken) world.removeBody(s.body);
     statics = []; blocks = []; balls = []; bushBalls = []; parts = p; toBreak = new Set(); recOf.clear();
     if (p.ball) ball = { ...p.ball };
+    // how far a throw reaches in this scene (Q103; a scene without a strength: no limit)
+    far = p.power != null ? throwRange(p.power) : Infinity;
     for (const b of p.bodies) {
       // one shape: the body where the shape is (a box turned as it is); more: each at its place
       const body = new CANNON.Body({ mass: 0, material: M[b.kind] });
@@ -276,8 +289,13 @@ export function createWorld({ onHit = () => {} } = {}) {
     const fell = [], rose = [];
     for (const b of blocks) {
       if (b.broken || (b.down && !b.tall) || b.away) continue;
-      // knocked out of reach (slid further sideways than any throw can aim, Q85): down for good
-      if (outOfReach(b.body.position)) b.away = true;
+      // knocked out of reach, down for good: further sideways than any throw can aim (Q85);
+      // once it has slowed (not one passing through), further out than any throw reaches,
+      // or off the screen as it's held (Q103). b.away says which.
+      const slow = asleep(b.body) || b.body.velocity.length() < CALM_SPEED;
+      if (outOfReach(b.body.position)) b.away = 'aim';
+      else if (slow && outOfRange(b.body.position, far, Math.hypot(b.he.x, b.he.z))) b.away = 'range';
+      else if (slow && unseen?.(b)) b.away = 'sight';
       const now = b.away || isDown(quatOf(b.body), b.body.position.y, b.start.y, b.minDim, b.tall, b.down);
       if (now && !b.down) { b.down = true; fell.push(b); if (MATS[b.mat].downBreaks) b.landBreak = true; } else if (!now && b.down) { b.down = false; rose.push(b); }
     }
@@ -460,6 +478,10 @@ export function createWorld({ onHit = () => {} } = {}) {
     get time() { return time; },
     get parts() { return parts; },
     setScene, makeScene, throwBall, step, obstacles, trace, check,
+    // how far a throw reaches in this scene (m from the hand, throwRange)
+    get far() { return far; },
+    // the page's test for a block off the screen as it's held (Q103: fn(block) -> true), or null
+    set unseen(fn) { unseen = fn; },
     // Of 5 points on each block, how many the camera behind the throw sees
     // past the bushes and trees (the tests: a player throws only at what it sees).
     frontSeen: () => pointsSeen(CAM, inTheWay),

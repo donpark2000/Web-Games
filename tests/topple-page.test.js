@@ -92,6 +92,16 @@ test('topple page: the level\'s jewels and the hearts over the park; Start again
   assert.match(css, /\.hudlevel \{[^}]*flex-wrap: wrap/);
 });
 
+// Developer, 2026-11-13 (Q103): a block knocked off the screen upright
+// ("no longer visible in portrait orientation") counts as down; the log
+// says where blocks were.
+test('topple page: a block off the screen as held counts as down; the log says where out-of-reach and standing blocks are', () => {
+  assert.match(js, /world\.unseen = b => offScreen\(\[b\.body\.position\.x, b\.body\.position\.y, b\.body\.position\.z\], Math\.hypot\(b\.he\.x, b\.he\.y, b\.he\.z\), p => stage\.project\(p\)\);/);
+  assert.match(js, /if \(b\.away\) L\('block down: out of reach', \{ c: b\.c, t: r2\(round\.t\), why: b\.away, \.\.\.whereIs\(b\) \}\);/);
+  assert.match(js, /standing: result\.won \? undefined : world\.blocks\.filter\(b => !b\.down && !b\.broken\)\.map\(b => \(\{ c: b\.c, mat: b\.mat, \.\.\.whereIs\(b\) \}\)\)/);
+  assert.match(js, /function whereIs\(b\) \{[\s\S]*?deg:[\s\S]*?farM: r2\(world\.far\),[\s\S]*?offScreen: offScreen\(/);
+});
+
 // Developer, 2026-11-13 (Q102): "the ability to start a scene or level again
 // is not available everywhere and it is confusing to figure out how to find
 // it". One question from the play bar and the map, three answers.

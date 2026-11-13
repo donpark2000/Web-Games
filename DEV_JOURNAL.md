@@ -159,6 +159,11 @@ time, each tried before publishing:
   was unreachable". "Not sure if we should consider this a bug or a skill
   testing part of play." Measured, and a proposal, in "Frosty Times:
   blocks knocked out of sight or range (Q103)"; to agree.
+  2026-11-13, developer: "too far to reach = down"; out of sight (a),
+  counted down ("Making things smaller to fit is only going to make a hard
+  situation much harder"); ice as it is ("pushing blocks too far is part
+  of game play vs making it impossible to win"). Built (for 10.7, "Out of
+  range and out of sight count as down (Q103)"): to try.
 
 ## Proposed additions to the standards skill
 
@@ -20169,5 +20174,102 @@ lines say where each ball landed.
   it, the log from that Frosty Times game into
   `Web-Games-testing/2026-11-13_old-tablet/`; the new skill zip to upload
   (`C:\Users\dpark\Documents\ai-dev-practices\software-project-standards.zip`).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103.
+
+## 2026-11-13: Out of range and out of sight count as down (Q103); the tablet's Frosty Times log
+
+**The developer**: "1) yes - too far to reach = down 2) choice a) Making
+things smaller to fit is only going to make a hard situation much harder
+3) yes. Then pushing blocks too far is part of game play vs making it
+impossible to win." The log saved (it landed in `Web-Games-testing/`
+itself; moved into `2026-11-13_old-tablet/`:
+`web-games-log_2026-11-13T21-58-01.txt`, 2,726 lines, release 10.6).
+
+**What the log shows** (two games on the old tablet, 13:53-14:57):
+- **The first game**, sideways, How hard Normal: levels 1-5 played
+  through, every Frosty Times scene won. The drawing stepped down: as
+  drawn to light at 3.5 frames a second, then light to lightest at 23.4
+  (median 42.8 ms); kept from then on.
+- **The second**, a new game, **upright** (601 x 889), **Hardest**:
+  Frosty Times lost 9 times, 6 of them with one or two blocks left (scene
+  2 three times, out of hearts; scenes 3 and 5).
+- **Every Frosty Times throw went up between 0° and 22°**, so the ball
+  landed 4.3-6.8 m out (its first touch); the structures stand 5.3-6.1 m
+  out and one ice cube was hit (and broke) at 7.5 m. The farthest a throw
+  reaches is about 8.3-8.7 m, at a lift of about 42°. So the blocks the
+  developer couldn't reach "with enough energy" were most likely within
+  range with a higher lob: how far the ball goes is the lift, not the
+  drag's length (how hard is the scene's), and Hardest's 0.15 s of dots
+  don't show where a lob lands. Not proven: the log didn't say where the
+  last blocks were (now it does, below).
+- Two balls in scene 2 hit the pine (at 2.8 m) on the way.
+
+**Built** (DESIGN.md "Topple!", what counts as down):
+- **`throwRange(power, h)`** (`src/core/topple.js`): the farthest a throw
+  at that strength reaches from the hand, at the best lift, where its
+  path comes down to height h (no drag, as in the physics). The scene's
+  strength now travels with its parts (`sceneParts(...).power`).
+- **Out of range** (`outOfRange`, `src/core/topple-world.js`): a block
+  whose nearest side (its half-width in plan view) is more than
+  `throwRange` + 0.2 m (`RANGE_MARGIN`: the ball's radius and the path's
+  steps) from the hand counts as down.
+- **Out of sight** (`offScreen`, `src/core/topple.js`; the page tells the
+  world with `world.unseen`): a block every corner of whose box (its
+  half-size the most it reaches any way it's turned) shows past the same
+  edge of the canvas, as the screen is held, counts as down.
+- Both only once the block has slowed (under `CALM_SPEED`, 0.3 m/s), so
+  one passing through isn't counted; both for good, as Q85's. The aim's
+  rule (Q85) unchanged. `b.away` says which: `aim`, `range`, `sight`.
+- **Logged**: `block down: out of reach` (why, where: its middle, its
+  angle from the slingshot, how far out against the farthest throw,
+  whether it's off the screen); a lost scene's `scene over` line lists the
+  blocks left standing, each with the same.
+
+**Tests** (621 of 621): the path the game draws lands no further than
+`throwRange` (+2 cm) and within the margin of it, for strengths 0-1 (at
+0.8 it lands 0.11 m short: the ball's centre stops a radius above the
+ground, so the rule is a little generous, the safe way); no block of
+any level (4 games, every scene, 500+ blocks) starts out of range; a
+block just within range stands, past it but sliding fast stands, slowed
+past it is down as `range` and stays down when brought back; a block the
+page calls off screen is down as `sight` only once slowed; the others
+stand; `offScreen` (a stand-in camera: off each edge, past a corner,
+half on at each edge, no camera yet); the page's wiring and logging.
+**Shown able to fail**, eight breaks, each caught: range never checked;
+range while still fast; sight never asked; the reach without the hand's
+height; no strength in the parts; off screen when any corner is (missed
+at first: no case had a block half over the left edge; added); the page
+never telling the world; the scene's end without the blocks left.
+
+**Seen in the preview browser** (level 3 scene 2, this game's seed; the
+farthest throw 8.27 m, the structure 5.28 m out):
+- **Upright at the tablet's size (601 x 889)**: a block moved 0.6 m past
+  the farthest throw, straight ahead: `block down: out of reach
+  {"why":"range","deg":0,"m":8.87,"farM":8.27,...}`. A block at 20° right:
+  its middle just off the edge (1.04 across), its corners still on:
+  stands. At 23° (within the aim's 24°): `{"why":"sight","deg":23,
+  "offScreen":true}`.
+- **Sideways (961 x 529)**: the same block at 23° shows (0.81 across) and
+  stands.
+- A lost scene's line: `"standing":[{"mat":"ice","at":[2.06,0.14,-5.06],
+  "deg":23,"m":5.28,"farM":8.27,"offScreen":false}, ...]`. No console
+  errors.
+- `node tools/offline.js`: version 4b6b0f775351, 190 files.
+
+Not seen: on the tablet and the phone.
+
+**Worth telling the developer**: the lift is what sends the ball further
+(dragging further up); a lob at about 40° goes furthest. Not built:
+anything to show it (the dots are the developer's choice per How hard).
+
+**Status (start here next session)**
+- **Live: 10.6.** Built on `block-game`, held (developer: until the next
+  feedback): out of range and out of sight count as down, and the log
+  says where blocks are (Q103); Start again's one question (Q102); the
+  glow after 4 s (Q101). 621 tests pass. For **10.7** once agreed.
+- **For the developer:** the new skill zip to upload
+  (`C:\Users\dpark\Documents\ai-dev-practices\software-project-standards.zip`);
+  whether 10.7 can go out.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103.
