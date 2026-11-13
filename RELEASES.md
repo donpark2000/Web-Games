@@ -7,6 +7,21 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.7 (2026-11-13, version 5b600264a535)
+
+Topple!: starting again, blocks out of reach, and a quicker glow.
+
+- **Start again** asks one question, from the play screen (before the
+  first ball too) or the map: **this scene** (you lose a ❤️), **the
+  level from scene 1** (new scenes), or **the whole game from level 1**.
+  "New scenes from scene 1" is gone from the setup screen.
+- **Blocks out of reach count as down**: a block knocked further out
+  than any throw can reach, or off the screen as you're holding the
+  phone or tablet, no longer leaves a scene impossible to win.
+- **The blocks left glow** after 4 seconds waiting (was 6).
+- **The log** says where the blocks left standing were when a scene is
+  lost.
+
 ## 10.6 (2026-11-13, version f300a0961883)
 
 The 3D games on slow tablets, and two Topple! changes.
