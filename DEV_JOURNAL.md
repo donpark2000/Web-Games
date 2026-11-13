@@ -118,10 +118,28 @@ time, each tried before publishing:
   2026-11-12, developer: the first build "OK" (the choice on setup;
   Harder's and Hardest's shorter dots). Built ("How hard? built"): to
   try; the rest for Harder and Hardest to discuss.
+  2026-11-13, developer, on 10.4: Harder "good"; Hardest "unplayable"
+  (Q98).
 - **Q97. Things not to hit: how they show it** (2026-11-12, developer:
   hitting one loses the scene, "the challenge is making it clear your
   should not hit it. We should discuss presentation options before
   building"). For Harder and Hardest; to discuss.
+- **Q98. Hardest: drop it, or another way to aim?** (2026-11-13,
+  developer; "10.4 tried; Hardest unplayable; ..."): no dots after the
+  first ball "amounts to a wild guess". The developer's idea: three
+  controls off screen, for up and down, side to side and force. To
+  discuss.
+- **Q99. Tin Can Alley and Topple! on an old tablet** (2026-11-13,
+  developer, a 2019 Galaxy Tab A 8"): "virtually unplayable", the aim
+  slow to follow, structures 10-20 s to fall. Likely the physics giving
+  up steps on a slow frame (same entry). The tablet's log wanted.
+- **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
+  developer, the same tablet). Likely Q99's cause (same entry); the log
+  to confirm.
+- **Q101. The blocks left glow after a pause?** (2026-11-13, developer:
+  on the phone, the building site looked all down with something still
+  to hit; "make them glow or get brighter for a few seconds"). To
+  discuss.
 
 ## Proposed additions to the standards skill
 
@@ -19322,3 +19340,60 @@ Kept on the device afterwards: "hardest". Pictures in
   move, "smooth and predictable timing"); then Q93 (worlds), Q88, Q78.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97.
+
+## 2026-11-13: 10.4 tried; Hardest unplayable; an old tablet; what's left to hit
+
+- Purged `Web-Games-testing/2026-11-12_difficulty/` (to the Recycle Bin;
+  the developer: "OK to purge"). Its results are in "How hard? built".
+
+The developer, on 10.4 and an old tablet:
+
+- **Harder is good**: "it makes the game more challenging."
+- **Hardest is unplayable**: "With no tactile sense of how far you are
+  pulling the slingshot back and the very subtle changes in appearance
+  when aiming from side to side or vertically, it amounts to a wild
+  guess, which is not very interesting." Drop it, or another way to aim,
+  "maybe 3 controls off screen for pitch, yaw, and speed (or force)".
+  New **Q98**.
+- **A 2019 Samsung Galaxy Tab A (8")**: Five Dice 3D fine; Tin Can Alley
+  and Topple! "virtually unplayable": the aim slow to follow the finger,
+  some structures taking 10 to 20 s to fall. New **Q99**.
+- On that tablet, "sometimes the noises seemed to come before the
+  impact, and sometimes the 'frightened' animal moved before impact".
+  Not seen on faster devices. New **Q100**.
+- **On the phone, the building site**: "a couple of times ... it looked
+  like all blocks were down to me, but there was clearly something left
+  I was supposed to hit." The developer's idea: after a pause (5-10 s),
+  the blocks left "glow" or get brighter for a few seconds, then fade
+  back. New **Q101** (Q91 again; in Q91 the developer turned down a
+  marker over the blocks left as "visually noisy").
+
+What the code says (read this session, not measured on the tablet):
+
+- **Slow motion (Q99)**: each frame moves the physics on by the frame's
+  time, at most 0.05 s (`frame()` in `src/ui/topple.js`), in 1/120 s
+  steps, at most 8 a frame, and it stops taking steps once a frame's
+  steps have used more than one step's worth of real time, 8.3 ms
+  (`src/core/fixed-step.js`, Q65: a slow device gets slow motion, not
+  frames that never end). On a device drawing 10 frames a second whose
+  steps each take over 8 ms, that is 1 step (1/120 s) of game time per
+  0.1 s, so 12 times slower than real. A 1.5 s fall would take 18 s:
+  the developer's 10 to 20 s. Which part is slow (the drawing or the
+  physics) the log will say: each "scene over" line carries `fps`,
+  `physicsMs` and `stepsDropped`.
+- **The drawing's cost**: both games draw at the screen's pixel density
+  (up to 2), with antialiasing and soft shadows (a 2048 x 2048 shadow
+  map, `src/ui/topple-scene.js`, `src/ui/tin-can-alley-stall.js`);
+  Topple!'s skies are 4096 x 2048 photos (Q79). Five Dice 3D, fine on
+  the tablet, has far less to draw and no physics while the dice rest.
+- **Sound before the impact (Q100)**: a knock's sound plays as the
+  physics finds the contact (`onHit`), and the animals take fright as a
+  block counts as down (`tick()`, past 45°, or 30° for a post); the
+  picture showing it comes only when the frame is drawn, after the
+  physics. On a slow device that is a frame or more later, and in slow
+  motion a block counts as down well before it is seen to land. Likely
+  the same cause as Q99; the tablet's log to confirm.
+
+Wanted from the developer: the tablet's log (play a Topple! scene and a
+Tin Can Alley round there, then the site's log page (`log.html`), "Save log"), for a new
+session folder `Web-Games-testing/2026-11-13_old-tablet/`.
