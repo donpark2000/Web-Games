@@ -6,7 +6,7 @@ reasoning, evidence, and anything still open live in
 
 *Status (2026-11-12, latest): **Topple!: How hard? Normal (the game as
 it was), Harder (half the dots), Hardest (those for a scene's first ball
-only)** (on `block-game`, not yet published; see "Topple!"). Earlier the
+only)** (release 10.4; see "Topple!"). Earlier the
 same day: **Topple!: a scene won shows "Cleared!" at
 once, its card once the blocks are calm; levels 2-5 deal their scenes
 from eight structures each; a done level played again has new scenes**

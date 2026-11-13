@@ -19292,3 +19292,33 @@ Kept on the device afterwards: "hardest". Pictures in
   move, "smooth and predictable timing"); then Q93 (worlds), Q88, Q78.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97.
+
+## 2026-11-12: Release 10.4 published and live
+
+- The developer: "Publish 10.4".
+- Release set to 10.4, `node tools/offline.js` (version ba92f204eceb, 185
+  files; sw.js and version.js put back to CRLF), notes in RELEASES.md;
+  598 tests pass; `node tools/release.js` said ready.
+- `main` fast-forwarded to 831bd0c, tag `v10.4` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (built 831bd0c); the live `src/core/version.js` reads ba92f204eceb and
+  `release.js` 10.4.
+- No local server running (Claude's was stopped earlier; no `serve.js`
+  process).
+
+**Status (start here next session)**
+- **Live: 10.4** (Topple!: How hard? Normal, Harder, Hardest on the setup
+  screen). `block-game` = `main` plus this entry. Nothing waiting to
+  publish.
+- **For the developer:**
+  - Try How hard? on the phone. Is Hardest's "dots for the first ball
+    only" right, or too hard?
+  - 10.3 on the phone as before (Q94, Q95; the twelve new structures).
+  - Q97: how a thing not to hit shows it (options to discuss).
+  - OK to purge `Web-Games-testing/2026-11-12_difficulty/` (results are
+    in "How hard? built")?
+- **Next:** Q97's presentation options; then the rest of Q96 for Harder
+  and Hardest (a smaller ball, wider gaps, another camera; things that
+  move, "smooth and predictable timing"); then Q93 (worlds), Q88, Q78.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97.
