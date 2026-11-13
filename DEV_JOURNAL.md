@@ -19872,3 +19872,31 @@ second there, and how the glow looks to the developer, is for 10.6.
   closed if it's playable.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
+
+## 2026-11-13: Release 10.6 published and live
+
+- The developer: "Yes, publish 10.6".
+- Release set to 10.6, `node tools/offline.js` (version f300a0961883,
+  190 files; sw.js and version.js put back to CRLF), notes in
+  RELEASES.md; 615 tests pass; `node tools/release.js` said ready.
+- `main` fast-forwarded to 54a98cb, tag `v10.6` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (built 54a98cb); the live `src/core/version.js` reads f300a0961883,
+  `release.js` 10.6, and `src/ui/drawwatch.js` is served (200).
+- Claude's preview server stopped; no other `serve.js` running.
+
+**Status (start here next session)**
+- **Live: 10.6** (real time on a slow device, drawing lighter, Hardest
+  with Harder's dots, the glow). `block-game` = `main` plus this entry.
+  Nothing waiting to publish.
+- **For the developer:** on the old tablet (the installed app picks up
+  10.6 on its next opening or two; the home page's version line says
+  f300a0961883), the log page: Clear; play the building site to its end
+  and a Tin Can Alley round; Save log; the file sent. Into
+  `Web-Games-testing/2026-11-13_old-tablet/`. On the phone: the glow (a
+  scene left waiting 6 s after a ball), and Hardest's dots.
+- **Then, with the log:** whether the step-down happened and the frame
+  rate each level gave (`drawing lighter`, each end's `fps` and
+  `drawing`); Q99 closed if playable; Q100 checked again.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
