@@ -19420,3 +19420,31 @@ The developer, on Claude's views ("10.4 tried; ..."):
   Clear, then one Topple! scene and one Tin Can Alley round to their
   ends (the fps line is written at a scene's or round's end), then Save
   log.
+- The developer: "Use Harder's dots for now, and go ahead with the
+  glow." So Hardest = Harder's dots (0.15 s every ball) until its harder
+  scenes exist (Q98); the glow (Q101) to build. The developer then
+  started a fresh session (updates pending a restart).
+
+**Status (start here next session)**
+- **Live: 10.4.** `block-game` = `main` plus journal entries. Nothing
+  built since.
+- **To build (agreed):**
+  1. **Hardest with Harder's dots** (Q98): `dotSeconds()` in
+     `src/core/topple.js` gives 0.15 s for every ball in Hardest;
+     `MODE_INFO`'s Hardest words ("dots for the first ball only") to
+     change. Tests in `tests/topple.test.js` and
+     `tests/topple-page.test.js` to match; DESIGN.md "Topple!".
+  2. **The glow** (Q101): once the blocks are still and no ball is in
+     the air for about 6 s, the blocks still standing brighten and fade
+     back twice over about 2 s; again only after another long pause.
+     Star Light's blocks already glow: there a pulse. Logged; tested.
+     Then for the developer to try (propose 10.5 when asking to publish).
+- **For the developer:** the old tablet's log (Clear, one Topple! scene
+  and one Tin Can Alley round to their ends, Save log), into
+  `Web-Games-testing/2026-11-13_old-tablet/`.
+- **Next, with the log:** Q99 (slow on the 2019 Galaxy Tab A, the bar
+  for the 3D games; the likely cause and the drawing's cost in "10.4
+  tried; ...") and Q100 (sounds and fright before the impact). Then the
+  harder scenes for Hardest (Q96), Q97, Q93, Q88, Q78.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
