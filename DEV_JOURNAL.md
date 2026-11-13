@@ -127,19 +127,23 @@ time, each tried before publishing:
 - **Q98. Hardest: drop it, or another way to aim?** (2026-11-13,
   developer; "10.4 tried; Hardest unplayable; ..."): no dots after the
   first ball "amounts to a wild guess". The developer's idea: three
-  controls off screen, for up and down, side to side and force. To
-  discuss.
+  controls off screen, for up and down, side to side and force.
+  2026-11-13, developer ("The old tablet the worst case; ..."): no three
+  controls ("really hard on a small screen"); Hardest made harder by its
+  scenes. What Hardest does until those exist: to agree.
 - **Q99. Tin Can Alley and Topple! on an old tablet** (2026-11-13,
   developer, a 2019 Galaxy Tab A 8"): "virtually unplayable", the aim
   slow to follow, structures 10-20 s to fall. Likely the physics giving
   up steps on a slow frame (same entry). The tablet's log wanted.
+  2026-11-13, developer: playable on this tablet is "probably good
+  enough", "a good 'worst case'": the bar.
 - **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
   developer, the same tablet). Likely Q99's cause (same entry); the log
   to confirm.
 - **Q101. The blocks left glow after a pause?** (2026-11-13, developer:
   on the phone, the building site looked all down with something still
-  to hit; "make them glow or get brighter for a few seconds"). To
-  discuss.
+  to hit; "make them glow or get brighter for a few seconds").
+  2026-11-13, developer: "worth a try". To build.
 
 ## Proposed additions to the standards skill
 
@@ -19397,3 +19401,22 @@ What the code says (read this session, not measured on the tablet):
 Wanted from the developer: the tablet's log (play a Topple! scene and a
 Tin Can Alley round there, then the site's log page (`log.html`), "Save log"), for a new
 session folder `Web-Games-testing/2026-11-13_old-tablet/`.
+
+## 2026-11-13: The old tablet the worst case; Hardest from harder scenes; the glow to try
+
+The developer, on Claude's views ("10.4 tried; ..."):
+
+- **Q99**: "I still dont know what devices the kids have, but if w can
+  make it playable on my old tablet that is probably good enough. My
+  tablet is older than most of them ... its probably a good 'worst
+  case'." So: the 2019 Galaxy Tab A 8" is the bar for the 3D games.
+- **Q98**: "I agree - the new aiming controls would be really hard on a
+  small screen. I like the idea of making the scenes harder." So: no
+  three controls; Hardest's challenge to come from its scenes (Q96's
+  smaller ball, wider gaps, things that move). What Hardest does until
+  then: to agree.
+- **Q101**: "the glowing after a pause is worth a try." To build.
+- The log: the developer asked whether to clear it first. Claude: yes,
+  Clear, then one Topple! scene and one Tin Can Alley round to their
+  ends (the fps line is written at a scene's or round's end), then Save
+  log.
