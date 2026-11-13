@@ -4,6 +4,14 @@
 .said:empty { display: none; }
 .logbtns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .logbtns .pill { font-size: 17px; }
+.logbtns.speed { grid-template-columns: 1fr; }
+/* The speed test (Q99): its canvas over the whole page while it runs. */
+.speedbox { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; background: #000; }
+.speedtop { display: flex; align-items: center; gap: 10px; padding: 6px 12px; }
+.speedsay { flex: 1; margin: 0; color: #FFF; font-size: 15px; }
+.speedtop .pill { background: #FFF; color: var(--ink); }
+.speedview { flex: 1; min-height: 0; }
+.speedview canvas { display: block; width: 100%; height: 100%; }
 .lines {
   margin: 0; padding: 10px; max-height: 60vh; overflow: auto; background: var(--ink); color: var(--board-ink);
   border-radius: 14px; font: 12px/1.4 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-word;

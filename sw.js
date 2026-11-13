@@ -20,8 +20,8 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'ba92f204eceb';
-const MADE = '2026-11-12';
+const VERSION = 'da54f5d01cdb';
+const MADE = '2026-11-13';
 const RELEASE = '10.4';
 const FILES = [
   'bridges.html',
@@ -142,6 +142,7 @@ const FILES = [
   'src/core/rock-paper-scissors.js',
   'src/core/showbox.js',
   'src/core/snakes-ladders.js',
+  'src/core/speedtest.js',
   'src/core/stats.js',
   'src/core/tic-tac-toe.js',
   'src/core/tin-can-alley-physics.js',
@@ -191,6 +192,7 @@ const FILES = [
   'src/ui/snlart.js',
   'src/ui/sound.js',
   'src/ui/sounds.js',
+  'src/ui/speedtest.js',
   'src/ui/stats.js',
   'src/ui/tcapics.js',
   'src/ui/tic-tac-toe.js',

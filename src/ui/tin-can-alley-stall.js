@@ -18,8 +18,10 @@ export function webglOk() {
   } catch { return false; }
 }
 
-export function makeStall3d(canvas) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+// antialias: false only for the speed test (log.html, Q99), which tries
+// the drawing without it; the game always has it.
+export function makeStall3d(canvas, { antialias = true } = {}) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -221,5 +223,9 @@ export function makeStall3d(canvas) {
       return [(v.x + 1) / 2, (1 - v.y) / 2];
     },
     shelfY: SHELF.y,
+    // For the speed test (log.html, Q99): the three.js parts it changes,
+    // and letting go of the canvas' GPU memory once it's done with.
+    three: { renderer, scene, camera, sun },
+    dispose() { renderer.dispose(); renderer.forceContextLoss(); },
   };
 }

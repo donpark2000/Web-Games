@@ -234,6 +234,18 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   line** ("sort of hidden": it looks like plain text; developer,
   2026-10-11: the installed app has no address bar). (Until 2026-10-07: a
   panel on screen with `?dev`; until 2026-10-11 nothing linked to it.)
+- **A speed test on `log.html`** (Q99, 2026-11-13: measure what the 3D
+  games' drawing costs on a slow device before cutting it): **Speed
+  test** draws Topple!'s building site, its park and Tin Can Alley's
+  stall still, 19 ways (as now, then one cut at a time: fewer pixels, no
+  antialiasing, simpler or no shadows, plain surfaces, no reflections,
+  plain sky, no far trees; then all of them), 1 s, then 4 s of frames
+  counted, each on a new canvas let go of after it; about 3 minutes. Each
+  run's frame rate, median and worst frame, draw-call time, draw calls
+  and triangles go in the log as they come (`src/core/speedtest.js`,
+  `src/ui/speedtest.js`). A device faster than its screen's frame rate
+  shows that rate for every run: the test tells the cuts apart only on a
+  slow one. The games themselves are unchanged.
 
 ## Sideways screens
 

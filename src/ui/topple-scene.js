@@ -20,8 +20,10 @@ export function webglOk() {
   } catch { return false; }
 }
 
-export function makePark3d(canvas) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+// antialias: false only for the speed test (log.html, Q99), which tries
+// the drawing without it; the game always has it.
+export function makePark3d(canvas, { antialias = true } = {}) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -132,6 +134,7 @@ export function makePark3d(canvas) {
       t.castShadow = false; parkGroup.add(t);
       const c = leafy(farBalls(f), ['#4F9A55', '#5DAA5E', '#478C4E'], f.y - f.r, f.y + f.r, 0.3, false);
       parkGroup.add(c); farLeaves += c.userData.leaves;
+      t.userData.far = c.userData.far = true;   // (the speed test hides them)
     }
   }
   // two birds circling over the trees beyond (developer, 2026-11-12: "maybe a bird or two for the first level")
@@ -426,5 +429,9 @@ export function makePark3d(canvas) {
     get fov() { return camera.fov; },
     // the view's sides along y, z (the animals' crossings; for checking too)
     viewEdges,
+    // For the speed test (log.html, Q99): the three.js parts it changes,
+    // and letting go of the canvas' GPU memory once it's done with.
+    three: { renderer, scene, camera, sun },
+    dispose() { renderer.dispose(); renderer.forceContextLoss(); },
   };
 }

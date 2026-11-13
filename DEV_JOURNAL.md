@@ -19567,3 +19567,59 @@ frame rate of each, run once on the tablet.
   (Q101).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
+
+## 2026-11-13: The speed test built
+
+The developer: "Yes, speed test first."
+
+Where it lives: a **Speed test** button on `log.html`, not a page of its
+own, so on the tablet it is Clear, Speed test, Save log in one place, and
+no new page (every other page is a game or the home page to the tests,
+the stats and the pinch-zoom rule). Built as DESIGN.md "Structure" says:
+19 runs (the building site 11, the park 3, the stall 5), each on a new
+canvas (antialiasing can only be chosen when a canvas starts), the scene
+made once a group (the building site from the developer's game seed,
+level 2 scene 5: the twin towers the tablet played), 1 s drawn then 4 s
+of frames counted. Each line is saved to the device as it's written, so
+a test cut short keeps what it measured. A wake lock asks the screen to
+stay on. The games' drawing changed only in two additions: an
+`antialias` option (default on; the games pass nothing) and `three` /
+`dispose()` for the test. Far trees marked (`userData.far`) so the test
+can hide them.
+
+Tests: `tests/speedtest.test.js` (6): the run list checked (every cut
+tried alone and in "all cut"; a broken list reported fault by fault),
+the frame sums (steady 30 fps; one 500 ms hitch shows in the worst frame,
+not the median; under 2 frames), the summary line, the log page wired
+(the test loaded only on the press; each line saved), the games keeping
+antialiasing. Shown to fail: an "all cut" with a sky value no cut takes
+failed `checkRuns` (the deep-equal on `[]`). Two first failures were the
+test's own: "all cut" has no shadow size (moot with the shadows off),
+and the "not loaded with the page" check also matched the run list's
+module (meant to load with it). Suite: 604 of 604.
+
+In the preview browser (this PC, Intel UHD 750): 19 of 19 runs in 126 s,
+all at the pane's 30 frames a second (this PC is far faster, so every
+run hits that cap: the test tells cuts apart only on a device slower than
+its screen). Already one fact: the park's far trees are most of what it
+draws, 119 draw calls and 66,060 triangles with them, 20 and 8,904
+without. The building site: 87 calls, 26,684 triangles. A second try,
+pressing Stop, couldn't finish: the hidden preview pane stopped giving
+the page animation frames (a 3 s wait for one got none), so the test
+waited; the page reloaded to end it. On a device, a screen gone dark
+pauses it the same way until it's back (the run then says `hidden`).
+
+**Status (start here next session)**
+- **Live: 10.4.** Built, not published: the speed test (log.html). To
+  try it on the tablet it must be published: propose **10.5** (a
+  change; the games unchanged).
+- **For the developer, once published:** on the tablet, the log page:
+  Clear, Speed test (about 3 minutes, screen untouched), Save log, the
+  file sent as an attachment. Into
+  `Web-Games-testing/2026-11-13_old-tablet/`.
+- **Then:** the table picks the automatic step-down's order and the
+  physics caps (Q99); Q100 checked again after.
+- **Agreed, to build:** Hardest with Harder's dots (Q98); the glow
+  (Q101).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
