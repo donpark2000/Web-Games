@@ -143,6 +143,11 @@ time, each tried before publishing:
   from the drawing. Fix proposed. 2026-11-13, the building site's log:
   Topple! 3 frames a second, physics 11.6 ms of ~333 ms; the drawing
   must get several times cheaper; a speed test proposed first.
+  2026-11-13, the speed test ("The speed test on the old tablet"): the
+  cost is the graphics chip's work for each pixel; shadows 60% of the
+  building site's frame (75% of the stall's), reflections 35%, fewer
+  pixels up to 55%; everything cut, 60 frames a second. Cheap (Basic)
+  shadows and the cuts in steps not yet measured: a second test proposed.
 - **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
   developer, the same tablet). Likely Q99's cause (same entry); the log
   to confirm. 2026-11-13, the log: consistent with Q99's cause (the
@@ -19647,6 +19652,116 @@ pauses it the same way until it's back (the run then says `hidden`).
   `Web-Games-testing/2026-11-13_old-tablet/`.
 - **Then:** the table picks the automatic step-down's order and the
   physics caps (Q99); Q100 checked again after.
+- **Agreed, to build:** Hardest with Harder's dots (Q98); the glow
+  (Q101).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
+
+## 2026-11-13: The speed test on the old tablet
+
+The developer sent the speed test's log from the 2019 Galaxy Tab A
+(10.5; it arrived in Downloads and OneDrive; kept in
+`Web-Games-testing/2026-11-13_old-tablet/`): all 19 runs in 165 s. The
+device: an Adreno 504 graphics chip (OpenGL ES 3.2 through ANGLE),
+WebGL 2, 4 cores, 2 GB, pixel ratio 1.33. The developer: "We should
+analyze speed tests first."
+
+**Can the test be trusted?** Its "as now" matches the game: the building
+site 3.5 frames a second (the game's "scene over" said 3), the stall 7.6
+(the game's round 8). In most runs the worst frame is within 1 ms of the
+median, so the medians are steady; three runs (no smoothing, hard
+shadows, small shadows) had a hitch (worst 535-652 ms), and their
+medians are the measure. A frame takes a whole number of the screen's
+refreshes (16.7 ms): 334 ms is 20, 217 is 13, 150 is 9, 134 is 8, 100 is
+6, 50 is 3, 33.5 is 2. So a reading means "between this step and the one
+below", and one step's difference (small shadows 384 against 334) is
+noise. Every "all cut" ran at 60, the screen's own rate: its true time
+is under 16.7 ms, by how much the test can't say.
+
+The building site, median ms a frame:
+
+| Run | ms | fps | Saved |
+|---|---|---|---|
+| as now | 334 | 3 | |
+| pixels 1 (56% of the pixels) | 217 | 4.6 | 35% |
+| pixels 0.75 (32%) | 150 | 6.7 | 55% |
+| no shadows | 134 | 7.5 | 60% |
+| no reflections | 217 | 4.6 | 35% |
+| plain surfaces | 267 | 3.7 | 20% |
+| no smoothing, hard shadows, small shadows, plain sky | 334-384 | 3 | none |
+| all cut | under 16.7 | 60 | 95% or more |
+
+Tin Can Alley: as now 134 (7.5 fps); pixels 0.75 50 (20); no shadows 33.5
+(25-30, worst 50); no smoothing 125 (none); all cut under 16.7 (60). The
+park: as now 134; no far trees 100 (25% saved; draw calls 128 to 20,
+triangles 71,000 to 8,900); all cut under 16.7.
+
+What this shows:
+
+- **The graphics chip's work for each pixel is the cost.** The
+  processor's part of drawing (`cpuMs`) is 23 ms of the building site's
+  334 (12.6 with no shadows, 6 all cut). The building site's three pixel
+  counts fit "66 ms + 268 ms x the share of pixels" (two readings set it,
+  the third came out within 1 ms); Tin Can Alley's two give "11 + 123".
+  So about 80% of the building site's frame and 90% of the stall's grow
+  with the pixels drawn, and the cuts that help are the ones that make
+  each pixel cheaper.
+- **Shadows are the biggest part**: 60% of the building site's frame,
+  75% of the stall's. Not their map: a smaller one (1024) saved nothing.
+  **"Hard shadows" didn't test cheap shadows**: it swapped three.js's
+  soft filter for its plain PCF one, and in our copy (r160) PCF reads the
+  shadow map 17 times for each pixel, soft 16 (read in
+  `three.module.min.js` this session). Three.js's Basic shadows read it
+  once; not tried. Every surface takes shadows (`receiveShadow` on the
+  blocks, the ground, the trees and things), so every pixel pays.
+- **Reflections** (the photo sky lighting the shiny parts,
+  `scene.environment`) cost 35%, the **surfaces' maps** (bump, roughness,
+  shade, metal) 20%, the **far trees** 25% of the park. Smoothing
+  (antialiasing) and the photo sky itself cost nothing measurable.
+- **The cuts don't add up**: the building site's savings come to 170% of
+  its frame. They cut the same per-pixel work, so each takes a share of
+  what's left. Multiplied (shadows x0.4, pixels 0.75 x0.45, reflections
+  x0.65, surfaces x0.8) the four give 31 ms; measured, under 16.7. So
+  combinations do better than that estimate, by how much unknown: no
+  combination short of "all" was run.
+- **What a step-down might reach** (estimates from that product, so on
+  the low side; to measure): the building site with no shadows and pixels
+  0.75 about 60 ms (17 fps), with no reflections too about 39 ms (25), with
+  plain surfaces too about 31 (30). Tin Can Alley already measured 25-30
+  with no shadows alone.
+- **The physics, at a better frame rate**: at 30 fps each frame needs 4
+  of the 1/120 s steps; the loop stops taking steps once a frame's have
+  used 8.3 ms (`src/core/fixed-step.js`), and the tablet's physics took
+  7-11.6 ms a frame in play. So the caps (Q99) still matter once the
+  drawing is cheaper.
+- **Starting is slow too, apart from the frame rate**: the building
+  site's scene took 5.7 s to make on the tablet, the park's 6.9 s (its far
+  trees' 10,111 leaves made then), and the first canvas 3.1 s to set up
+  (compiling its shaders); later canvases about 1 s.
+
+Not answered (for a second speed test, which must be published to run on
+the tablet):
+1. **Basic shadows** (one read for each pixel): shadows kept, with hard
+   edges, perhaps with most of "no shadows"' saving. Shadows help a child
+   see where a block or the ball is, so worth keeping if they're cheap.
+2. **Shadows on the ground only** (blocks and things taking none): fewer
+   pixels pay for them.
+3. **The cuts in steps**, each run adding one in the order a step-down
+   would use, so each step's frame rate is measured rather than
+   estimated: e.g. Basic shadows; then no reflections; then pixels 1;
+   then plain surfaces; then no shadows; then pixels 0.75 (the park: far
+   trees too). Same scenes, same seed.
+
+A goal to agree: 30 frames a second in play on this tablet, 20 at least.
+
+**Status (start here next session)**
+- **Live: 10.5.** `block-game` = `main` plus journal entries. Nothing
+  built since.
+- **Proposed (for the developer's go-ahead):** the second speed test
+  (above: Basic shadows, ground-only shadows, the cuts in steps), as 10.6,
+  run once on the tablet; then the automatic step-down from its table
+  (only on a low measured frame rate; remembered on the device; logged)
+  and the physics caps (Q99); Q100 checked again after.
 - **Agreed, to build:** Hardest with Harder's dots (Q98); the glow
   (Q101).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
