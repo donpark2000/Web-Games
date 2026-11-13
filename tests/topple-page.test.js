@@ -146,6 +146,31 @@ test('topple page: a new level never shows the old one (the canvas hidden until 
   assert.match(sceneJs, /get fxLive\(\) \{ return set\?\.fxLive\?\.\(\) \?\? 0; \}/);
 });
 
+// Q104 (developer, 2026-11-13): "a bigger notice in the middle", "a little
+// progress bar or rotating icon".
+test('topple page: a scene being set up: a notice in the middle of the park over the old scene dimmed, a spinner, gone once drawn; logged', () => {
+  assert.match(playHtml, /<div class="settingup" id="settingUp" role="status" hidden><span class="spin" aria-hidden="true"><\/span><span class="waitwords">Setting up the scene…<\/span><\/div>/);
+  // the whole park, washed, in the middle, over the pills
+  const wait = css.match(/\n\.settingup \{([^}]*)\}/)?.[1] ?? '';
+  assert.match(wait, /inset: 0;/);
+  assert.match(wait, /align-items: center; justify-content: center;/);
+  assert.match(wait, /background: rgba\(228, 241, 238, \.72\);/);
+  assert.match(wait, /z-index: 4;/);
+  assert.match(css, /\.settingup\[hidden\] \{ display: none; \}/);
+  // the spinner turns by transform alone, and still turns (slower) with less motion asked for
+  assert.match(css, /\.settingup \.spin \{[^}]*animation: tpspin \.9s linear infinite;/);
+  assert.match(css, /@keyframes tpspin \{ to \{ transform: rotate\(360deg\); \} \}/);
+  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.settingup \.spin \{ animation-duration: 2\.4s; \} \}/);
+  assert.match(css, /\.settingup \.waitwords \{[^}]*font-size: 22px;/);
+  // shown before the scene's made, with a frame drawn first; gone once the scene is drawn
+  assert.match(js, /\$\('hint'\)\.hidden = true;\s*showWait\(true\);[\s\S]{0,700}requestAnimationFrame\(\(\) => setTimeout\(r, 0\)\); setTimeout\(r, 100\);[\s\S]*?world\.makeScene\(/);
+  assert.match(js, /stage\.render\(\);\s*hideCanvas\(false\);\s*showWait\(false\);/);
+  assert.ok(!/textContent = 'Setting up the scene…'/.test(js), 'the hint no longer says it');
+  // logged, how long it was up
+  assert.ok(js.includes("L('setting up: the notice shown'") && js.includes("L('setting up: the notice gone'"));
+  assert.match(js, /'setting up: the notice gone', \{[^}]*ms: Math\.round\(performance\.now\(\) - waitAt\)/);
+});
+
 test('topple page: the game kept on the device for every visit, the scene under way for this one', () => {
   assert.match(js, /export const GAME_KEY = 'web-games-topple-game';/);
   assert.doesNotMatch(js, /GAME_KEY = 'web-games-resume-/, 'a key the old-games cleanup removes');
@@ -353,6 +378,8 @@ test('topple page: the blocks left glow (Q101): counted while waiting, the stand
   assert.match(js, /gameS: r2\(round\.since\), realS: r2\(\(performance\.now\(\) - thrownAt\) \/ 1000\) \}\);/, 'the log tells a slow frame rate from things still moving');
   assert.match(js, /\n  thrownAt = performance\.now\(\);/, 'the throw starts the real time');
   assert.match(js, /glowIdle = 0; glowsSaid = 0;/, 'a new scene starts the count');
+  // the count started though something still moves (Q105): what's moving, logged once a throw
+  assert.match(js, /if \(glowIdle > 0 && glowIdle <= dt && !\(still && fx === 0\)\) \{\s*L\('glow: counting though not still', \{ gameS: r2\(round\.since\), fx, moving: world\.moving\(\)/);
   assert.match(sceneJs, /blending: THREE\.AdditiveBlending, depthWrite: false/);
   assert.match(sceneJs, /m\.add\(over\); m\.userData\.glow = over;/, 'every block its glow');
   assert.match(sceneJs, /m\.userData\.glow\.visible = glowing && m\.visible && !!standing\?\.\[i\];/);

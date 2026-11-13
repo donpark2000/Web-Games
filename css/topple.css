@@ -97,6 +97,32 @@ body.tp-playing .site-foot { display: none; }
   font-size: 15px; font-weight: 700; line-height: 1.25; pointer-events: none;
 }
 
+/* a scene being set up (developer, 2026-11-13, Q104: "a bigger notice in
+   the middle", "a little progress bar or rotating icon ... to confirm
+   something is happening"): the whole park washed with the sky's colour
+   (the last scene dimmed, or the park's own colour for a new level: a
+   blur might cost a slow tablet, not measured), a spinner and the words
+   in the middle. The spinner turns by transform alone, which browsers
+   can keep turning while the scene's made. Over the pills; takes the
+   touches meanwhile. */
+.settingup {
+  position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  background: rgba(228, 241, 238, .72);
+}
+.settingup[hidden] { display: none; }
+.settingup .spin {
+  width: 56px; height: 56px; box-sizing: border-box; border-radius: 50%;
+  border: 7px solid rgba(30, 52, 69, .18); border-top-color: #E2563F;
+  animation: tpspin .9s linear infinite; will-change: transform;
+}
+@keyframes tpspin { to { transform: rotate(360deg); } }
+/* (still turning with less motion asked for, slower: it's the sign the game isn't stuck) */
+@media (prefers-reduced-motion: reduce) { .settingup .spin { animation-duration: 2.4s; } }
+.settingup .waitwords {
+  background: rgba(18, 30, 42, .85); color: #FFFFFF; border-radius: 999px; padding: 10px 20px;
+  font-size: 22px; font-weight: 800; line-height: 1.25; text-align: center; max-width: calc(100% - 32px);
+}
+
 /* a scene won, before its card: under the pills, clear of the blocks */
 .cleared {
   position: absolute; left: 50%; top: 52px; margin: 0; transform: translateX(-50%); z-index: 2; pointer-events: none;

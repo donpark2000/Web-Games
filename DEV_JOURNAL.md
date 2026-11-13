@@ -182,7 +182,23 @@ time, each tried before publishing:
   tablet a scene takes seconds to make (the building site 5.7 s, the
   park 6.9 s: "The speed test on the old tablet"). Options to discuss:
   the same for both (nothing, or the last scene blurred), a notice in
-  the middle, a spinner or progress bar.
+  the middle, a spinner or progress bar. **Agreed and built** (developer:
+  "that is good"; on `block-game`, for 10.8): both the same, the park
+  washed with the sky's colour over the last scene (or the park's colour
+  for a new level), a spinner and bigger words in the middle; no blur (not
+  measured on the old tablet) and no progress bar (the set-up would have
+  to report how far it is). To close once seen on the devices.
+- **Q105. Topple!: the glow 26 s late; what glowed behind the
+  wheelbarrow** (2026-11-13, developer, on 10.7, the old tablet): the
+  building site "seems to be the most likely level to have blocks left
+  standing that are hard to see"; "still took a long time (15 seconds or
+  more) before I saw the glowing. And one of the things glowing was behind
+  the wheelbarrow and already seemed to be a long structure flat on the
+  ground. So I have not idea what I was really aiming at." The log:
+  "2026-11-13: The glow 26 s late; the set-up notice (Q104, Q105)". The
+  wait: the glow's count now starts at the latest 3 s after the next ball
+  is ready, and what kept moving is logged. Still open: what the flat
+  thing was (the developer to say: near the front or far back).
 
 ## Proposed additions to the standards skill
 
@@ -20325,3 +20341,87 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103, Q104
   (the wait while a scene is set up: the developer's ideas, to discuss).
+
+## 2026-11-13: The glow 26 s late; the set-up notice (Q104, Q105)
+
+- The developer, on 10.7 on the old tablet (Q105 has their words): the
+  glow took "15 seconds or more" on the building site, and one block
+  glowing behind the wheelbarrow looked like "a long structure flat on the
+  ground". Q104 (the set-up wait): my suggestion "is good".
+- **The log** (`Web-Games-testing/2026-11-13_old-tablet/web-games-log_2026-11-13T23-05-36.txt`,
+  10.6 then 10.7 from its line 370): the building site's scene 5 (twinTowers,
+  the barrow and a light, 24 blocks, Hardest). Ball 4 thrown at +236.1 s;
+  the last block event (a post up again, leaning) at +238.6 s; the glow at
+  +262.8 s: `gameS` 26.67, `realS` 26.63, `waitS` 4.01, 3 left. So **not a
+  slow frame rate** (game and real time the same; the scene's end says 30
+  frames a second, 505 steps dropped): the count began 22.6 s after the
+  throw because something wasn't still (faster than STILL_SPEED and awake).
+  The log doesn't say what. The 10.6 part's glows (6 s then) came 6 s
+  into the wait, as they should.
+- **Tried to reproduce on the computer** (a scratch script, the test
+  player's throws, every step taken): 156 building-site throws (12 seeds ×
+  5 scenes) and 129 more on scene 5 (40 seeds): the glow could always start
+  by 8.75 s after a throw (median 6.3-6.4 s; the count's start, still,
+  at most 4.75 s after the throw). No long jiggle seen. Dropped steps only
+  slow the physics evenly, so they don't explain 20 s of motion; it's a
+  pile that kept moving (a post leaning on rubble, most likely), rare.
+- **What was standing** (the scene's end, after ball 5: 2 left):
+  - a brick at (-0.19, 0.19, -4.92), in front: its middle 19 cm up, as
+    built (the wall's bricks are 50 cm wide, 40 (or 37.6) tall, 14 deep),
+    so upright, not tipped. Long and low: from the camera above it may
+    well look like something lying.
+  - a steel post at (1.03, 0.27, -7.14), far back (7.0 m out, the reach
+    8.06): its middle 27 cm up, as an upper-storey post (55 cm) standing
+    on its end. The computer run saw the same once (seed 15, ball 4): an
+    upper post that fell 0.96 m and landed upright, lean 0°, counted
+    standing (a post is down only by its lean, Q69).
+  - The third that glowed was knocked down by ball 5 (touched at (0.35,
+    0.44, -4.79), in front). Nothing in the computer runs counted standing
+    while lying flat; the only "standing" not upright were posts leaning
+    21-28° (under the 30° rule).
+  Which was "behind the wheelbarrow" isn't in the log (the barrow's place
+  isn't logged); asked the developer.
+- **Changed (on `block-game`, not published):**
+  - The glow's count (`waitingOn`, src/core/topple.js) starts once all is
+    still, or at the latest `GLOW_STILL_MAX` = 3 s after the next ball is
+    ready, still or not: the glow by 7.9 s after a throw at most (0.9 +
+    3 + 4). The computer's throws were all still by 3.9 s after ready,
+    so it seldom changes anything there. When the count starts though
+    something moves, the page logs `glow: counting though not still` with
+    up to 6 moving blocks (material, post or not, down, speed, spin,
+    where): `world.moving()` (src/core/topple-world.js).
+  - Q104: a notice over the whole park while a scene is set up (`#settingUp`,
+    topple.html; css/topple.css): the sky's colour at 72% over the last
+    scene (or the park's colour, the canvas hidden as before, for a new
+    level), a 56 px spinner turning by transform (slower, 2.4 s a turn,
+    with less motion asked for: it's the sign the game isn't stuck), and
+    "Setting up the scene…" at 22 px in a dark pill, in the middle, over
+    the pills. The hint line no longer says it. Logged: `setting up: the
+    notice shown` (whether the old scene is under it) and `... gone` (ms
+    up). The wait before making the scene: one frame drawn and then on
+    (100 ms at most), instead of `setTimeout` 30 ms, which a slow device
+    could pass before drawing the notice. Named `settingUp`, not `wait`:
+    an older check forbids `.wait`/`'wait'` (it guards against a faded
+    pad).
+- Tests: `waitingOn` just before and at the 3 s (tests/topple.test.js);
+  `world.moving()` empty at rest, the one block moving named
+  (tests/topple-world.test.js); the notice's markup, look, show/hide and
+  log, and the glow's new log line (tests/topple-page.test.js). Each new
+  check shown to fail on a broken copy (the cap taken out, the notice
+  never hidden, the spinner's animation gone, `moving()` inverted),
+  each file put back byte for byte. `node tools/offline.js`: version
+  53606f1083fb (sw.js and version.js put back to CRLF). 622 tests pass.
+- Not seen in the browser: the preview pane was hidden and its page load
+  timed out twice. To look at on the devices.
+
+**Status (start here next session)**
+- **Live: 10.7.** On `block-game`, not published: the glow at the latest
+  ~8 s after a throw, the moving blocks logged (Q105); the set-up notice
+  (Q104). A release to propose: 10.8.
+- **From the developer:** the thing behind the wheelbarrow: near the front
+  (a wall brick, upright as built) or far back (a short steel post that
+  fell and landed standing)? Then whether to change how such blocks count
+  or look. The OK to publish 10.8.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103, Q104
+  (built, to see), Q105 (the glow's wait fixed; the flat thing to name).

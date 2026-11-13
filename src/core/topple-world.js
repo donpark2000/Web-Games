@@ -488,6 +488,8 @@ export function createWorld({ onHit = () => {} } = {}) {
     downCount: () => blocks.filter(b => b.down).length,
     still: () => blocks.every(b => b.broken || asleep(b.body) || b.body.velocity.length() < STILL_SPEED),
     calm: () => blocks.every(b => b.broken || asleep(b.body) || b.body.velocity.length() < CALM_SPEED),
+    // the blocks that keep the scene from being still (the log, Q105)
+    moving: () => blocks.filter(b => !(b.broken || asleep(b.body) || b.body.velocity.length() < STILL_SPEED)),
     awake: () => blocks.filter(b => !b.broken && !asleep(b.body)).length,
     // Each block's pose, and whether it's down: kept for a scene picked up again.
     poses: () => blocks.map(b => ({ p: posOf(b.body).map(r4), q: quatOf(b.body).map(r4), down: b.down, ...(b.broken ? { broken: true } : {}) })),

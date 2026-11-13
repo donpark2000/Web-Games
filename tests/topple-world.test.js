@@ -50,10 +50,12 @@ test('topple world: a block sliding slowly is calm, not still; a fast one is nei
   const w = createWorld();
   w.makeScene(GAMES[0], 1, 1);
   assert.ok(w.still() && w.calm(), 'a scene at rest');
+  assert.deepEqual(w.moving(), [], 'nothing moving (the log, Q105)');
   const b = w.blocks[0].body;
   b.wakeUp();
   b.velocity.set(CALM_SPEED * 0.6, 0, 0);
   assert.ok(!w.still() && w.calm(), `${CALM_SPEED * 0.6} m/s: calm, not still`);
+  assert.deepEqual(w.moving(), [w.blocks[0]], 'the one moving, named');
   b.velocity.set(0, 0, -CALM_SPEED * 1.5);
   assert.ok(!w.still() && !w.calm(), `${CALM_SPEED * 1.5} m/s: neither`);
   assert.ok(CALM_SPEED > STILL_SPEED);

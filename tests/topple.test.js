@@ -12,7 +12,7 @@ import {
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
   FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn, SOME_STACKS, SOME_MIN,
   MAX_LEVEL, LEVELS, switchLevel, restartLevel, seedOf, layoutFor, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
-  MODES, MODE_INFO, dotSeconds, GLOW_WAIT, GLOW_PULSES, GLOW_PULSE_S, waitingOn, glowAt, glowsBy,
+  MODES, MODE_INFO, dotSeconds, GLOW_WAIT, GLOW_PULSES, GLOW_PULSE_S, GLOW_STILL_MAX, waitingOn, glowAt, glowsBy,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -612,6 +612,12 @@ test('topple: the blocks left glow after a pause (Q101): twice over 2 s, after 4
   r.since = READY_AFTER;
   assert.equal(waitingOn(r, true), true);
   assert.equal(waitingOn(r, false), false, 'blocks still moving');
+  // something moving on and on (Q105): the count goes on anyway GLOW_STILL_MAX s after the ball is ready
+  r.since = READY_AFTER + GLOW_STILL_MAX - 0.01;
+  assert.equal(waitingOn(r, false), false, 'just before the most it waits for still');
+  r.since = READY_AFTER + GLOW_STILL_MAX;
+  assert.equal(waitingOn(r, false), true, 'still or not, from then on');
+  assert.equal(GLOW_STILL_MAX, 3);
   r.result = { won: true };
   assert.equal(waitingOn(r, true), false, 'scene over');
   r.result = null; r.used = BALLS;

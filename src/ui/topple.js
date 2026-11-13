@@ -348,6 +348,17 @@ function hideCanvas(on) {
   c.style.visibility = on ? 'hidden' : '';
   L(on ? 'canvas hidden: a new scene to draw' : 'canvas shown: the scene drawn', { level: game.level, scene: game.scene });
 }
+// The notice while a scene is set up (Q104): over the park, the last scene
+// dimmed under it (or the park's colour, the canvas hidden, for a new
+// level). Logged with how long it was up.
+let waitAt = 0;
+function showWait(on) {
+  const w = $('settingUp');
+  if (w.hidden === !on) return;
+  w.hidden = !on;
+  if (on) { waitAt = performance.now(); L('setting up: the notice shown', { level: game.level, scene: game.scene, canvasShown: $('c').style.visibility !== 'hidden' }); }
+  else L('setting up: the notice gone', { level: game.level, scene: game.scene, ms: Math.round(performance.now() - waitAt) });
+}
 function showSetup() {
   running = false;
   playing = false;
@@ -448,11 +459,16 @@ async function startScene(kept = null) {
   $('over').hidden = true;
   $('ask').hidden = true;
   $('cleared').hidden = true;
-  $('hint').hidden = false;
-  $('hint').textContent = 'Setting up the scene…';
+  // the notice over the park, the hint out of its way (Q104; until 10.7 the
+  // hint at the park's foot said "Setting up the scene…")
+  $('hint').hidden = true;
+  showWait(true);
   renderHud();
-  // let the words show before the scene's made (up to a second or so on a phone)
-  await new Promise(r => setTimeout(r, 30));
+  // let the notice show before the scene's made (up to a second or so on a
+  // phone, 7 s on the old tablet): a frame drawn with it, then on
+  // (setTimeout 30 ms until 10.7, which a slow device could pass before
+  // drawing; 100 ms at most, as a frame may never come in a hidden tab)
+  await new Promise(r => { requestAnimationFrame(() => setTimeout(r, 0)); setTimeout(r, 100); });
   // a kept scene in its own level's setting: a level's last scene, won, kept
   // with the game already on the next level (a reload on its card drew it in
   // the next level's setting and failed: "reading 'col'", 10.0-10.2)
@@ -483,6 +499,7 @@ async function startScene(kept = null) {
   stage.sync(world.blocks, world.balls);
   stage.render();
   hideCanvas(false);
+  showWait(false);
   $('hint').textContent = HINT;
   $('hint').hidden = round.used > 0;
   // the pad's show, before the scene's first ball (not on a scene that had ended)
@@ -674,6 +691,10 @@ function tick(dt, draw = true) {
   if (card && ended && $('over').hidden) { L('the card', { won: ended.won, afterWinS: r2(round.cardT), calm, still, fx }); showEnd(); }
   // the blocks left glow once the scene has waited a while for the next ball (Q101)
   glowIdle = waitingOn(round, still && fx === 0) && !drag && !demo ? glowIdle + dt : 0;
+  // the count started though something still moves (Q105): what, once a throw
+  if (glowIdle > 0 && glowIdle <= dt && !(still && fx === 0)) {
+    L('glow: counting though not still', { gameS: r2(round.since), fx, moving: world.moving().slice(0, 6).map(b => ({ mat: b.mat, tall: b.tall, down: b.down, v: r2(b.body.velocity.length()), spin: r2(b.body.angularVelocity.length()), at: [b.body.position.x, b.body.position.y, b.body.position.z].map(r2) })) });
+  }
   const glow = glowAt(glowIdle), glows = glowsBy(glowIdle);
   // the glow's wait, the game's time since the throw and the real time since it: a slow
   // frame rate shows as realS over gameS, things still moving as gameS over waitS + 0.9

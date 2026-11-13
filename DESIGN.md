@@ -4,7 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-13, latest): **Topple!: a block knocked further out than
+*Status (2026-11-13, latest): **Topple!: the glow by about 8 s after a
+throw, moving or not; a notice in the middle while a scene is set up**
+(on `block-game`, for release 10.8; see "Topple!"). Earlier the same day:
+**Topple!: a block knocked further out than
 any throw reaches, or off the screen as it's held, counts as down**. Earlier
 the same day: **Topple!: Start again asks one question,
 from play and the map: this scene, the level from scene 1, or the whole
@@ -2205,11 +2208,21 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   the pad's show over), the blocks still standing brighten and fade back
   twice, 1 s each, a warm white added over each block's own shape (hidden
   blocks stay hidden); then only after another 4 s (6 s in 10.6;
-  developer, 2026-11-13: "I think a delay of 4 seconds is plenty"). A
-  throw or a drag starts the wait again. Star Light's glowing blocks
-  pulse the same way. (`glowAt`, `waitingOn` in `src/core/topple.js`.)
-  Logged: `blocks left glow` (how many left, the wait, the game's and the
-  real time since the throw).
+  developer, 2026-11-13: "I think a delay of 4 seconds is plenty"). The
+  wait counts from when nothing moves, or at the latest 3 s after the next
+  ball is ready, moving or not (Q105: on the old tablet a pile kept moving
+  and the glow came 26.6 s after the throw), so the glow comes by about 8 s
+  after a throw. A throw or a drag starts the wait again. Star Light's
+  glowing blocks pulse the same way. (`glowAt`, `waitingOn`,
+  `GLOW_STILL_MAX` in `src/core/topple.js`.) Logged: `blocks left glow`
+  (how many left, the wait, the game's and the real time since the throw);
+  `glow: counting though not still` (what was moving).
+- **A scene being set up** (developer, 2026-11-13, Q104: "a bigger notice
+  in the middle", "a little progress bar or rotating icon"): the park is
+  washed with the sky's colour, over the last scene, or over the park's
+  own colour for a new level (whose old scene is never shown); a turning
+  spinner and "Setting up the scene…" in the middle, over the pills,
+  until the scene is drawn. No blur, no progress bar.
 - **Things in the way:** one in scenes 1-4, two in scene 5: a **bush**
   between (a ball that touches it keeps 0.1 of its speed and drops
   through it to the ground; developer: "if a ball hit a bush it would

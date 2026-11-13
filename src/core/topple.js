@@ -1031,8 +1031,15 @@ export const GLOW_PULSES = 2;
 export const GLOW_PULSE_S = 1;
 const GLOW_CYCLE = GLOW_WAIT + GLOW_PULSES * GLOW_PULSE_S;
 // Whether the scene is waiting on the player (the count goes on), given
-// whether everything has stopped.
-export const waitingOn = (r, still) => !r.result && r.used > 0 && ballsLeft(r) > 0 && r.since != null && r.since >= READY_AFTER && still;
+// whether everything has stopped: once it has, or at the latest
+// GLOW_STILL_MAX s after the next ball is ready, still or not (developer,
+// 2026-11-13, Q105: on the old tablet the building site's two towers glowed
+// 26.6 s after the throw, game and real time alike, at 30 frames a second:
+// the count began only 22.6 s after it, something kept moving; 285
+// building-site throws on the computer were all still by 4.8 s after the
+// throw, 3.9 s after the ball was ready).
+export const GLOW_STILL_MAX = 3;
+export const waitingOn = (r, still) => !r.result && r.used > 0 && ballsLeft(r) > 0 && r.since != null && r.since >= READY_AFTER && (still || r.since >= READY_AFTER + GLOW_STILL_MAX);
 // How bright the glow is `idle` s into a wait: 0 to 1 (0 before GLOW_WAIT).
 export function glowAt(idle) {
   const k = idle % GLOW_CYCLE;
