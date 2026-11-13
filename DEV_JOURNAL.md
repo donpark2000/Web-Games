@@ -109,6 +109,12 @@ time, each tried before publishing:
   structures? ... The core look and feel is good but I don't think the
   challenge is at the right level"). For next session: Claude's options
   in "Q94, Q95 built", to discuss.
+  2026-11-12, developer's answers ("Q96: a difficulty choice"): a
+  choice of Normal (today's game), Harder, Hardest; shorter dots and
+  perhaps a smaller ball, wider gaps or another camera for the harder
+  ones; moving things liked ("smooth and predictable timing"); no fewer
+  balls, no wind; things not to hit "maybe", depending on the cost.
+  Stars to explain again. Next: the first build to agree.
 
 ## Proposed additions to the standards skill
 
@@ -19153,3 +19159,51 @@ suggestion: start with 2 and 4 (small, testable, keep the kids' level
   built" to discuss; then Q93 (worlds), Q88, Q78.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96.
+
+## 2026-11-12: Q96: a difficulty choice
+
+The developer's answers to Claude's eight options ("Q94, Q95 built"):
+
+1. Who it's for: "Since I don't live with my grandkids it is hard for me
+   to get feedback. And I don't want to be pestering them when games
+   change. Maybe the best approach is selectable levels (keeping the
+   current games and calling them "easy" or (to not be seeming
+   jugemental) we could call it normal, and then move to harder and
+   hardest." So: **Normal** (the game as it is), **Harder**, **Hardest**.
+2. Shorter dots: "sure - for harder level."
+3. Fewer balls: "I don't think so. Even now there are some puzzles that
+   would be hard or impossible to complete with fewer balls. I don't want
+   to make "un-winnable" scenes." Dropped. (Every scene is checked as
+   winnable with 5 balls; fewer would need a new check.)
+4. Stars for balls left: "I don't understand what you mean." Explained
+   again in chat (below).
+5. A smaller ball, wider gaps, another camera: "perhaps for harder or
+   hardest levels."
+6. Things that move: "I like that a lot. For it to be effective it
+   depends on smooth and predictable timing."
+7. Wind: "no." Dropped.
+8. Things not to hit: "maybe - it depends on the implications of hitting
+   something you are not supposed to hit. Like lose heart? Start a level
+   over?" Claude's options in chat (below).
+
+Claude's replies:
+
+- **Stars (4)**: a score on top of the 💎 for whoever wants one: a scene
+  cleared with 3 or more balls left ⭐⭐⭐, 2 left ⭐⭐, else ⭐; a level's
+  best shown on the map; nothing lost for fewer. With a difficulty
+  choice it matters less; Claude's suggestion: leave it.
+- **Moving things (6) and timing**: the motion can follow the game's
+  own clock (the physics' fixed steps), not the frame rate, so it is the
+  same speed and period on a slow phone as a fast one, and the same in
+  every try of a scene. The scene check would throw at several moments
+  of the motion, so the scene stays winnable. The phone's smoothness can
+  only be judged there (Q79's frame rate).
+- **Things not to hit (8)**, three costs: the ball is wasted (it stops,
+  the thing breaks); the scene is lost (a ❤️, as out of balls); the
+  level over. Claude's pick: only in Harder and Hardest, the scene lost.
+- **A first build**: the choice on the setup screen (beside Pick your
+  face), changeable any time, the map's progress shared by all three;
+  Harder: dots 0.15 s; Hardest: dots 0.15 s for a scene's first ball
+  only. Later: 5, 6, 8.
+
+To agree with the developer: the first build, and 8's cost.
