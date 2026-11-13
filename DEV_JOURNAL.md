@@ -137,9 +137,15 @@ time, each tried before publishing:
   up steps on a slow frame (same entry). The tablet's log wanted.
   2026-11-13, developer: playable on this tablet is "probably good
   enough", "a good 'worst case'": the bar.
+  2026-11-13, the tablet's log ("The old tablet's log"): Tin Can Alley 8
+  frames a second, physics 7 ms of each 125 ms frame, 0.43x real speed;
+  Topple! 0.15x. The slow motion is the frame caps; the frames are slow
+  from the drawing. Fix proposed.
 - **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
   developer, the same tablet). Likely Q99's cause (same entry); the log
-  to confirm.
+  to confirm. 2026-11-13, the log: consistent with Q99's cause (the
+  fright at 45° seconds before the landing in 0.15x slow motion);
+  nothing points to another fault. To check again after Q99's fix.
 - **Q101. The blocks left glow after a pause?** (2026-11-13, developer:
   on the phone, the building site looked all down with something still
   to hit; "make them glow or get brighter for a few seconds").
@@ -19446,5 +19452,73 @@ The developer, on Claude's views ("10.4 tried; ..."):
   for the 3D games; the likely cause and the drawing's cost in "10.4
   tried; ...") and Q100 (sounds and fright before the impact). Then the
   harder scenes for Hardest (Q96), Q97, Q93, Q88, Q78.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
+
+## 2026-11-13: The old tablet's log
+
+The developer sent the 2019 Galaxy Tab A's log (release 10.4, the
+installed app, Chrome 157 on Android 10; screen 961x529 at pixel ratio
+1.33; WebGL 2). Kept in `Web-Games-testing/2026-11-13_old-tablet/`. The
+first copy to reach the PC held only the tablet's address for the file
+(`content://0@media/external/file/2599`, 36 bytes): the share sent the
+address as text, not the file. The second copy was the log (14,834
+bytes, 168 lines).
+
+What was played: Topple! level 2 scene 5 (the building site, twin
+towers, 24 blocks), three balls, 22 down, then 🏠 before the scene ended,
+so Topple! has no "scene over" line (no `fps`); then one Tin Can Alley
+round (6 cans, 3 balls, won).
+
+**Tin Can Alley's round:** `fps 8, physicsMs 7.05, stepsDropped 662`.
+A frame takes 125 ms, of which the physics takes 7 ms: the other ~118 ms
+(94%) is the drawing and the rest of the frame. Game time against real
+time (the log's `t` against its clock): cans off t 9.7 s at +30.31 s,
+t 19.78 s at +53.87 s, so 10.1 s of game in 23.6 s, **0.43x real speed**
+(first can hit: 8.45 s of game in 22.8 s since the round began, 0.37x).
+
+**Topple!:** game time against real time, from the "block down" lines:
+t 5.72 s at +64.31 s to t 15.58 s at +130.69 s, 9.86 s of game in
+66.4 s, **0.15x real speed** (ball 1: 0.72 s to its block in 5.2 s,
+0.14x; ball 2: 1.9 s in 13.1 s, 0.15x). A 1.5 s fall takes 10 s: the
+developer's "10 to 20 s". Each frame moves the game on at most 0.05 s
+(`frame()`), so 0.15x means either at most 3 frames a second, or the
+physics stopping its steps at its 8.3 ms budget, or both; without the
+"scene over" line the log can't say which. Also slow: from "3D started"
+to the scene shown 10.9 s (the setting's photos 2.3 s, making the scene
+5.5 s), and the pad's show 6.5 s.
+
+What this shows:
+
+- **Q99: the slow motion is the frame caps, and the frames are slow
+  because of the drawing, not the physics.** In Tin Can Alley the
+  physics is 6% of the frame. At 8 frames a second the 0.05 s cap alone
+  allows 0.4x, which is what was seen; the steps dropped (1.7 a frame)
+  are the 8.3 ms budget on top. The aim "slow to follow the finger" is
+  the same 8 (or fewer) frames a second. What in the drawing costs most
+  (pixels, antialiasing, the soft shadows, Topple!'s 10,111 far leaves
+  and photo skies) the log doesn't say: it measures frames, not their
+  parts.
+- **Q100: consistent with the same cause.** The animal's fright is at
+  +74.5 s, when a block passed 45° (`by: "fell"`), and blocks were still
+  counting down 56 s later; at 0.15x a block takes seconds from 45° to
+  the ground, so the fright (and a knock's sound, played as the physics
+  finds the contact) comes well before the landing is seen, and at 3 to
+  8 frames a second the picture is a frame (125 to 330 ms) behind the
+  sound. Nothing in the log points to a separate fault; to check again
+  once the frame rate is up.
+
+**Status (start here next session)**
+- **Live: 10.4.** Nothing built since.
+- **Proposed (for the developer's go-ahead):** speed up the 3D games on
+  slow devices: (1) the physics caps raised so a slow frame still plays
+  at real speed (the physics has room: 7 ms of a 125 ms frame); (2) the
+  drawing made cheaper when the frame rate is low, stepping down one
+  setting at a time (pixel ratio, shadows, antialiasing, Topple!'s far
+  trees) and logging the frame rate at each, so the next tablet log
+  shows what each step bought; (3) a frame-rate line every few seconds
+  in play, so a scene left before its end still reports.
+- **Agreed, to build:** Hardest with Harder's dots (Q98); the glow
+  (Q101).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
