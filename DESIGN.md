@@ -4,9 +4,15 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-12, latest): **Topple!: How hard? Normal (the game as
-it was), Harder (half the dots), Hardest (those for a scene's first ball
-only)** (release 10.4; see "Topple!"). Earlier the
+*Status (2026-11-13, latest): **the 3D games keep to real time on a slow
+device, and draw lighter there** (the physics may use half of each frame;
+a slow device steps down to a light drawing, then a lightest; see "3D
+games", Drawing lighter); **Topple!: Hardest has Harder's dots for now;
+the blocks left glow after a pause** (for release 10.6; see "Topple!").
+Earlier the same day: a speed test on the log page (10.5). 2026-11-12:
+**Topple!: How hard? Normal (the game as it was), Harder (half the
+dots), Hardest (those for a scene's first ball only)** (release 10.4;
+see "Topple!"). Earlier the
 same day: **Topple!: a scene won shows "Cleared!" at
 once, its card once the blocks are calm; levels 2-5 deal their scenes
 from eight structures each; a done level played again has new scenes**
@@ -245,7 +251,9 @@ GPL-3.0 (developer, 2026-10-04), same as GP-200 Patch Manager Web.
   and triangles go in the log as they come (`src/core/speedtest.js`,
   `src/ui/speedtest.js`). A device faster than its screen's frame rate
   shows that rate for every run: the test tells the cuts apart only on a
-  slow one. The games themselves are unchanged.
+  slow one. Its cuts are the games' own (`src/ui/drawcuts.js`), so what
+  a game cuts on a slow device is what the test measured (see "3D games",
+  Drawing lighter).
 
 ## Sideways screens
 
@@ -1988,6 +1996,28 @@ not known, "I'll just wait until I hear a complaint"). **Five Dice 3D built** 20
   cancels each touch's end, as every other game's board does (its taps
   are pointer events, so they still come); a quick second tap is logged.
 
+- **Drawing lighter on a slow device** (Q99, release 10.6; developer,
+  2026-11-13: "responsiveness when aiming and hitting targets is more
+  important than cosmetic details"; taking a few seconds to load a scene
+  "is not that bad"): Tin Can Alley and Topple! watch their frames while
+  they play. Three levels (`src/core/drawing.js`): **as drawn**; **light**
+  (0.75 pixels, Basic shadows (one read a pixel instead of 16-17), no
+  reflections, plain surfaces, the park's far trees hidden); **lightest**
+  (light with no shadows). Antialiasing and the photo skies stay (the
+  speed test found they cost nothing measurable). After 1.5 s of play
+  (and after each scene or round starts, or a level changes), the
+  frames of each 3 s are judged: a median over 40 ms (under 25 a second)
+  steps to the next level; gaps over 0.5 s (the page hidden) start again.
+  Never back up within a release: the level is **kept on the device with
+  the release** (`web-games-3d-drawing`, per game), so a new release
+  measures again from as drawn. A device that keeps up never changes.
+  The cuts are made again on every scene and setting (their new
+  materials). The speed test's numbers on the tablet: as drawn 3.5 frames
+  a second on the building site, every cut 60 (journal, "The speed test
+  on the old tablet"). Logged: `drawing` (the level at the start, kept or
+  measured again), `drawing lighter` (from, to, the median frame and
+  frame rate, what changed), and each round's or scene's end with its
+  level.
 - **Home pictures** (2026-11-11, release 9.3; Q66: the flat drawings
   "do not seem to suggest a 3D experience"): each 3D game's home tile is
   a still from the game itself, `icons/home/<game>.webp`, 300 x 300 (the
@@ -2044,11 +2074,18 @@ mockup v4 tried"). Built 2026-11-09 (journal, "Tin Can Alley built"); release 8.
 - **Physics: cannon-es 0.20.0** (MIT), one pinned copy in the repo beside
   three.js, cached for offline.
 - **Stepped by our own fixed-step loop** (`src/core/fixed-step.js`, Q65;
-  both 3D games): steps of 1/120 s, at most 8 a frame, as cannon-es's own
-  `world.step`. The game hands it the clock, so a slow phone still gives
-  up catching up and drops steps (logged as `stepsDropped` at a round's
-  or scene's end); the tests hand it none, so every step is taken and a
-  throw comes out the same on any machine.
+  both 3D games): steps of 1/120 s. **Real time on a slow device** (Q99,
+  release 10.6): a frame moves the game on up to 0.1 s (`MAX_FRAME_S`; at
+  most 12 steps), and the steps may use up to half of the frame's own time
+  (at least one step's), so the game keeps to real time down to 10 frames
+  a second while the physics needs under half of each frame. (Until 10.6,
+  as cannon-es's own `world.step`: at most 0.05 s and 8 steps a frame,
+  given up after one step's real time, 8.3 ms; on the 2019 Galaxy Tab A
+  that played the games at 0.15-0.43 times real speed.) The game hands it
+  the clock, so a device too slow even for that still gives up catching
+  up and drops steps (logged as `stepsDropped` at a round's or scene's
+  end); the tests hand it none, so every step is taken and a throw comes
+  out the same on any machine.
 - Sound as the mockup: a tin clink for each can hit, a thud for the ball,
   a whoosh for a throw, a tune at the end.
 
@@ -2145,6 +2182,18 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   before that, the card came "before the final blocks have fallen").
   Out of balls: over 2 s after the last throw once the
   blocks are still (at most 9.9 s).
+- **The blocks left glow after a pause** (developer, 2026-11-13, Q101:
+  on the phone the building site "looked like all blocks were down ...
+  but there was clearly something left I was supposed to hit"; "make
+  them glow or get brighter for a few seconds"; a marker over them was
+  "visually noisy", Q91): once a scene has waited 6 s for the next ball
+  (a ball thrown already, balls left, nothing moving, no finger aiming,
+  the pad's show over), the blocks still standing brighten and fade back
+  twice, 1 s each, a warm white added over each block's own shape (hidden
+  blocks stay hidden); then only after another 6 s. A throw or a drag
+  starts the wait again. Star Light's glowing blocks pulse the same way.
+  (`glowAt`, `waitingOn` in `src/core/topple.js`.) Logged: `blocks left
+  glow` (how many left, the wait).
 - **Things in the way:** one in scenes 1-4, two in scene 5: a **bush**
   between (a ball that touches it keeps 0.1 of its speed and drops
   through it to the ground; developer: "if a ball hit a bush it would
@@ -2394,8 +2443,11 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   the current games and calling them ... normal, and then move to harder
   and hardest"): on the setup screen after Pick your face, three choices:
   **Normal** (the game as it was: 0.3 s of dots), **Harder** (0.15 s:
-  "sure - for harder level"), **Hardest** (0.15 s for a scene's first
-  ball, then none; Claude's pick, to review). Kept with the game on the
+  "sure - for harder level"), **Hardest** (Harder's dots for now, every
+  ball, "shorter dots; harder scenes to come": developer, 2026-11-13,
+  Q98, "Use Harder's dots for now"; 10.4's dots for a scene's first ball
+  only were "unplayable", "a wild guess"; its challenge is to come from
+  harder scenes, not other controls). Kept with the game on the
   device; changed any time, the levels and places as they are; New
   scenes and Start over keep it. The pad's show is the same in all three.
   Later, for Harder and Hardest (to discuss): a smaller ball, wider gaps,

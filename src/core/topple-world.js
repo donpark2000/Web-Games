@@ -15,7 +15,7 @@ import {
 } from './topple.js';
 import { fixedStepper } from './fixed-step.js';
 
-export const MAX_SUBSTEPS = 8;
+export const MAX_SUBSTEPS = 12;                      // MAX_FRAME_S (0.1 s) of steps a frame (8 until 10.6: Q99)
 export const BALL_LIFE = 10;                         // a thrown ball is taken away after this long (s), or once under the ground
 // A block further sideways (seen from the slingshot) than a throw can aim,
 // with a margin: no throw can reach it, so it counts as knocked down

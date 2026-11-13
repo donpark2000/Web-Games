@@ -18,7 +18,7 @@ import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, seedOf, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
   padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
-  MODES, MODE_INFO, dotSeconds,
+  MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -27,6 +27,8 @@ import { toppleMini } from './topplepics.js';
 import { log, startLog } from './debuglog.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
+import { drawWatch } from './drawwatch.js';
+import { MAX_FRAME_S } from '../core/fixed-step.js';
 
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('topple', msg, data);
@@ -331,6 +333,8 @@ let shot = null;        // the latest throw: { body, at, pred, touches, last }
 let pad = null;         // the drag pad: { x, y, r } px in the park
 let demo = null;        // the pad's show as a scene starts: { t } s, until a finger touches
 const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
+let drawing = null;        // the drawing's level, watched (src/ui/drawwatch.js)
+let glowIdle = 0, glowsSaid = 0;   // the wait for the next ball, and its glows logged (Q101)
 
 function showPlay() {
   $('setup').hidden = true;
@@ -371,6 +375,7 @@ function makeStage() {
   // a setting's own sounds: Star Light's owl hooting now and then
   stage.onSound = name => { if (!SET_SOUND[name] || !playing) return; sound.play(SET_SOUND[name], 0, { quiet: true }); L('owl hoots', { t: r2(round?.t ?? 0) }); };
   world = physics.createWorld({ onHit });
+  drawing = drawWatch('topple', stage, L);   // lighter on a slow device (Q99)
   L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2), farLeaves: stage.farLeaves, farTrunkInLeavesM: trunksIn().far });
   new ResizeObserver(fit).observe($('park'));
   canvas.addEventListener('pointerdown', onDown);
@@ -478,6 +483,8 @@ async function startScene(kept = null) {
   // the pad's show, before the scene's first ball (not on a scene that had ended)
   if (!round.used && !round.result) demo = { t: 0, t0: performance.now(), to: null };
   perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
+  drawing?.restart();
+  glowIdle = 0; glowsSaid = 0;
   renderTally();
   const L0 = current.layout;
   L(kept ? 'scene picked up again' : 'scene', {
@@ -627,7 +634,7 @@ function onHit({ a, b, v, y, ball, other, mat, thing }) {
 
 function frame(now) {
   if (!running) return;
-  const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+  const dt = Math.min(MAX_FRAME_S, Math.max(0, (now - last) / 1000));   // real time down to 10 frames a second (Q99; 0.05 until 10.6)
   last = now;
   tick(dt);
   requestAnimationFrame(frame);
@@ -655,16 +662,23 @@ function tick(dt, draw = true) {
   if (downChanged && round.down >= round.total) L('all down: cleared unless one gets up', { t: r2(round.t), still, calm, fx });
   if (result) endScene(result);
   if (card && ended && $('over').hidden) { L('the card', { won: ended.won, afterWinS: r2(round.cardT), calm, still, fx }); showEnd(); }
+  // the blocks left glow once the scene has waited a while for the next ball (Q101)
+  glowIdle = waitingOn(round, still && fx === 0) && !drag && !demo ? glowIdle + dt : 0;
+  const glow = glowAt(glowIdle), glows = glowsBy(glowIdle);
+  if (glows > glowsSaid) L('blocks left glow', { left: round.total - round.down, waitS: r2(glowIdle), n: glows, t: r2(round.t) });
+  glowsSaid = glowIdle ? glows : 0;
   noteSettled();
   if (!draw) return;
   stage.sync(world.blocks, world.balls);
   const ok = ready();
   const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);
-  // the dots as long as how hard says (Q96): none at all once Hardest's first ball is thrown
+  // the dots as long as how hard says (Q96; Hardest Harder's for now, Q98)
   const secs = dotSeconds(game.mode, round.used);
   stage.setDots(d && ok && d.show && secs > 0 ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0), secs) : null, 1);
+  stage.setGlow(glow, glow > 0 ? world.blocks.map(b => !(b.down || b.broken || b.away)) : null);
   stage.render();
+  drawing?.frame(performance.now());
 }
 
 // A block broke (ice shattered, a barrel burst): its pieces fly, a sound, the log.
@@ -694,7 +708,7 @@ function demoTarget() {
 
 // The pad's show, a frame on: the see-through finger from the pad, and the
 // aim its drag would make (for the dots), or null.
-// On the clock, not the frames (a slow phone's frames are capped at 0.05 s:
+// On the clock, not the frames (a slow phone's frames are capped at 0.1 s:
 // the finger would crawl).
 function demoFrame() {
   if (!demo || !pad || !current) return null;
@@ -743,7 +757,7 @@ function endScene(result, quiet = false) {
   // lost: the card now (out of balls already waits for everything to be still)
   if (result.won) showCleared(); else showEnd();
   const secs = (performance.now() - perf.at) / 1000;
-  L('scene over', { ...result, outcome, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped, moon: stage.animals?.().find(a => a.moon)?.moon });
+  L('scene over', { ...result, outcome, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped, drawing: drawing?.level, moon: stage.animals?.().find(a => a.moon)?.moon });
   if (!quiet) sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
 }
@@ -860,6 +874,11 @@ if (why) {
 // For checking the game in a browser (not used by the page): step the park
 // by hand (a hidden tab barely animates), throw, drag, read the state.
 window.topple = {
+  // the drawing's level and what it draws (Q99; for checking in a browser)
+  drawing() {
+    const t = stage?.three;
+    return t && { level: drawing?.level, pixelRatio: t.renderer.getPixelRatio(), shadows: t.renderer.shadowMap.enabled ? t.renderer.shadowMap.type : 'off', reflections: !!t.scene.environment };
+  },
   step(sec, dt = 1 / 60) { for (let i = 0, n = Math.round(sec / dt); i < n; i++) tick(dt, i === n - 1); return this.state(); },
   throw(aim = 0, up = 20) { return doThrow({ power: current.layout.power, aim, up }); },
   // a drag on the park, as a finger would (px from where it starts)

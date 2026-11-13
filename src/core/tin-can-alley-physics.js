@@ -12,7 +12,7 @@ import { SHELF, CAN, BALL, HAND, GRAVITY, STALL_BOXES, layoutSpots, isOff } from
 import { fixedStepper } from './fixed-step.js';
 
 export const STEP = 1 / 120;     // the physics' fixed step (s)
-export const MAX_SUBSTEPS = 8;
+export const MAX_SUBSTEPS = 12;  // MAX_FRAME_S (0.1 s) of steps a frame (8 until 10.6: Q99)
 export const BALL_LIFE = 8;      // a thrown ball is taken away after this long (s), or once below the ground
 export const STILL_SPEED = 0.05; // a can slower than this (m/s) counts as still
 

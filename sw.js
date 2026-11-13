@@ -20,7 +20,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'f0192f31ec4b';
+const VERSION = '50cfba5c1fbc';
 const MADE = '2026-11-13';
 const RELEASE = '10.5';
 const FILES = [
@@ -124,6 +124,7 @@ const FILES = [
   'src/core/count-to-9.js',
   'src/core/dice3d.js',
   'src/core/dots-boxes.js',
+  'src/core/drawing.js',
   'src/core/fit.js',
   'src/core/five-dice-best.js',
   'src/core/five-dice.js',
@@ -163,6 +164,8 @@ const FILES = [
   'src/ui/dbboard.js',
   'src/ui/debuglog.js',
   'src/ui/dots-boxes.js',
+  'src/ui/drawcuts.js',
+  'src/ui/drawwatch.js',
   'src/ui/faces.js',
   'src/ui/fit.js',
   'src/ui/five-dice-3d.js',

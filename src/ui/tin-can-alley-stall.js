@@ -9,6 +9,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { SHELF, CAN, BALL, HAND, BACK, SIDE_X, COUNTER_Z, STALL_BOXES, CAN_COLOURS } from '../core/tin-can-alley.js';
+import { applyCuts } from './drawcuts.js';
 
 // Whether this device can draw 3D: a WebGL canvas can be made.
 export function webglOk() {
@@ -223,6 +224,8 @@ export function makeStall3d(canvas, { antialias = true } = {}) {
       return [(v.x + 1) / 2, (1 - v.y) / 2];
     },
     shelfY: SHELF.y,
+    // The drawing lighter on a slow device (src/core/drawing.js, Q99): what changed.
+    setDrawing(c) { return applyCuts({ renderer, scene, sun }, c); },
     // For the speed test (log.html, Q99): the three.js parts it changes,
     // and letting go of the canvas' GPU memory once it's done with.
     three: { renderer, scene, camera, sun },

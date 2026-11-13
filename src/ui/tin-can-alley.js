@@ -20,6 +20,8 @@ import { canStackSvg, stallMini } from './tcapics.js';
 import { log, startLog } from './debuglog.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
+import { drawWatch } from './drawwatch.js';
+import { MAX_FRAME_S } from '../core/fixed-step.js';
 
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('tin-can-alley', msg, data);
@@ -90,6 +92,7 @@ let running = false, last = 0;
 let drag = null;        // { id, x0, y0, x, y } while a finger is down
 let firstHit = false;   // the ball has touched a can this round (logged once)
 const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
+let drawing = null;        // the drawing's level, watched (src/ui/drawwatch.js)
 
 function showPlay() {
   $('setup').hidden = true;
@@ -113,6 +116,7 @@ function makeStage() {
   const canvas = $('c');
   stage = stall3d.makeStall3d(canvas);
   world = physics.createStall({ onHit });
+  drawing = drawWatch('tin-can-alley', stage, L);   // lighter on a slow device (Q99)
   L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2) });
   new ResizeObserver(fit).observe($('stall'));
   canvas.addEventListener('pointerdown', onDown);
@@ -155,6 +159,7 @@ function startRound(next = true) {
   $('ask').hidden = true;
   $('hint').hidden = false;
   perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
+  drawing?.restart();
   renderTally();
   L('round', { n: match.rounds, layout: match.layout, cans: match.round.total, balls: BALLS });
   resume.keep();
@@ -232,7 +237,7 @@ function onHit({ a, b, v, ball }) {
 
 function frame(now) {
   if (!running) return;
-  const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+  const dt = Math.min(MAX_FRAME_S, Math.max(0, (now - last) / 1000));   // real time down to 10 frames a second (Q99; 0.05 until 10.6)
   last = now;
   tick(dt);
   requestAnimationFrame(frame);
@@ -258,6 +263,7 @@ function tick(dt, draw = true) {
   stage.setHeld(ok, drag ? power : 0, drag ? aim : 0);
   stage.setRing(drag && ok && power > 0.03 ? predict(power, aim) : null);
   stage.render();
+  drawing?.frame(performance.now());
 }
 
 // Kept for coming back: the round and the cans' poses, once the cans are
@@ -283,7 +289,7 @@ function endRound(result, quiet = false) {
   $('over').hidden = false;
   if (quiet) return;
   const secs = (performance.now() - perf.at) / 1000;
-  L('round over', { ...result, cleared: match.cleared, rounds: match.rounds, fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped });
+  L('round over', { ...result, cleared: match.cleared, rounds: match.rounds, fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped, drawing: drawing?.level });
   sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
 }

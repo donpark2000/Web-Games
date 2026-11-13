@@ -316,3 +316,13 @@ test('topple page: Star Light: the night sky, glowing blocks and ball, coloured 
   assert.match(js, /5: \{ pic: \(\) => '🌙'/);
   assert.match(await read('css/topple.css'), /\.mapbox \{[^}]*height: min\(86vh, 700px\)/);
 });
+
+test('topple page: the blocks left glow (Q101): counted while waiting, the standing blocks lit, each glow logged', () => {
+  assert.match(js, /glowIdle = waitingOn\(round, still && fx === 0\) && !drag && !demo \? glowIdle \+ dt : 0;/);
+  assert.match(js, /stage\.setGlow\(glow, glow > 0 \? world\.blocks\.map\(b => !\(b\.down \|\| b\.broken \|\| b\.away\)\) : null\);/);
+  assert.match(js, /L\('blocks left glow', \{ left: round\.total - round\.down,/);
+  assert.match(js, /glowIdle = 0; glowsSaid = 0;/, 'a new scene starts the count');
+  assert.match(sceneJs, /blending: THREE\.AdditiveBlending, depthWrite: false/);
+  assert.match(sceneJs, /m\.add\(over\); m\.userData\.glow = over;/, 'every block its glow');
+  assert.match(sceneJs, /m\.userData\.glow\.visible = glowing && m\.visible && !!standing\?\.\[i\];/);
+});

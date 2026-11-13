@@ -12,7 +12,7 @@ import {
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
   FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn, SOME_STACKS, SOME_MIN,
   MAX_LEVEL, LEVELS, switchLevel, seedOf, layoutFor, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
-  MODES, MODE_INFO, dotSeconds,
+  MODES, MODE_INFO, dotSeconds, GLOW_WAIT, GLOW_PULSES, GLOW_PULSE_S, waitingOn, glowAt, glowsBy,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -488,13 +488,14 @@ test('topple: the dots: one every 0.05 s for 0.3 s, stopping orange where the pa
   assert.equal(dotsFor({ hits: [{ kind: 'block', t: 0.4, at: [0, 0, 0] }], pts }).stopped, null, 'a touch after 0.3 s isn\'t shown');
 });
 
-test('topple: how hard (Q96): Normal as before, Harder half the dots, Hardest those for the first ball only', () => {
+test('topple: how hard (Q96): Normal as before, Harder half the dots, Hardest Harder\'s dots for now (Q98)', () => {
   assert.deepEqual(MODES, ['normal', 'harder', 'hardest']);
   assert.deepEqual(MODES.map(m => MODE_INFO[m].name), ['Normal', 'Harder', 'Hardest']);
   // the seconds of dots, ball by ball (0 thrown, 1, 4)
   assert.deepEqual([0, 1, 4].map(u => dotSeconds('normal', u)), [0.3, 0.3, 0.3]);
   assert.deepEqual([0, 1, 4].map(u => dotSeconds('harder', u)), [0.15, 0.15, 0.15]);
-  assert.deepEqual([0, 1, 4].map(u => dotSeconds('hardest', u)), [0.15, 0, 0]);
+  assert.deepEqual([0, 1, 4].map(u => dotSeconds('hardest', u)), [0.15, 0.15, 0.15], 'Hardest: dots for every ball (10.4: the first only)');
+  assert.doesNotMatch(MODE_INFO.hardest.line, /first ball/, 'the setup\'s words changed with it');
   assert.equal(dotSeconds('nonsense', 2), 0.3, 'an unknown mode: Normal');
   // the dots themselves: 6 at Normal, 3 at Harder; a touch at 0.21 s shown at Normal, not at Harder
   const pts = Array.from({ length: 200 }, (_, i) => [0, 1, -i / 100]);
@@ -559,4 +560,29 @@ test('topple: the map\'s road runs level to level; a point along it, and the par
     // inside the map's box
     for (let t = 0; t <= 1; t += 0.05) for (const v of roadAt(P, t)) assert.ok(v >= 0 && v <= 100, `${i}: off the map at ${t}`);
   }
+});
+
+test('topple: the blocks left glow after a pause (Q101): twice over 2 s, after 6 s waiting, then only after another 6', () => {
+  assert.deepEqual([GLOW_WAIT, GLOW_PULSES, GLOW_PULSE_S], [6, 2, 1]);
+  // dark while waiting; two bright pulses, dark between them and after
+  for (const t of [0, 3, 5.99, 8, 10, 13.99, 16, 20]) assert.equal(glowAt(t), 0, `glowing at ${t} s`);
+  near(glowAt(6.5), 1, 1e-9, 'first pulse at its brightest');
+  near(glowAt(7), 0, 1e-9, 'between the pulses');
+  near(glowAt(7.5), 1, 1e-9, 'second pulse');
+  near(glowAt(14.5), 1, 1e-9, 'again after another wait');
+  assert.ok(glowAt(6.1) > 0 && glowAt(6.1) < 0.2, 'fades in');
+  // each glow counted once (the page logs it)
+  assert.deepEqual([0, 5.9, 6, 7.9, 13.9, 14, 22].map(glowsBy), [0, 0, 1, 1, 1, 2, 3]);
+  // waiting on the player: a ball thrown, none in flight, everything stopped, balls left, not over
+  const r = newRound(5);
+  assert.equal(waitingOn(r, true), false, 'before the first ball (the pad\'s show is for that)');
+  useBall(r);
+  assert.equal(waitingOn(r, true), false, 'the ball just thrown');
+  r.since = READY_AFTER;
+  assert.equal(waitingOn(r, true), true);
+  assert.equal(waitingOn(r, false), false, 'blocks still moving');
+  r.result = { won: true };
+  assert.equal(waitingOn(r, true), false, 'scene over');
+  r.result = null; r.used = BALLS;
+  assert.equal(waitingOn(r, true), false, 'no balls left: the scene ends anyway');
 });

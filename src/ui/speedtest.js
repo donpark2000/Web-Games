@@ -11,6 +11,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { RUNS, GROUPS, SEED, WARM_S, MEASURE_S, frameStats, pixelsFor, summary } from '../core/speedtest.js';
+import { applyCuts } from './drawcuts.js';
 
 const r1 = v => Math.round(v * 10) / 10;
 const frame = () => new Promise(ok => requestAnimationFrame(ok));
@@ -71,12 +72,9 @@ export async function runSpeedTest({ say, status = () => {} }) {
       view.replaceChildren(canvas);
       const make = g.game === 'topple' ? park3d.makePark3d : stall3d.makeStall3d;
       stage = make(canvas, { antialias: cut.smooth !== false });
-      const { renderer, scene, sun } = stage.three;
+      const { renderer } = stage.three;
       if (!gpuSaid) { gpuSaid = true; say('device', gpu(renderer)); }
       renderer.setPixelRatio(pixelsFor(cut, devicePixelRatio));
-      if (cut.shadows === 'off') renderer.shadowMap.enabled = false;
-      if (cut.shadows === 'hard') renderer.shadowMap.type = THREE.PCFShadowMap;
-      if (cut.shadowSize) sun.shadow.mapSize.set(cut.shadowSize, cut.shadowSize);
       const b = view.getBoundingClientRect(), w = Math.round(b.width), h = Math.round(b.height);
       const aspect = stage.resize(w, h);
       if (g.game === 'topple') {
@@ -91,7 +89,7 @@ export async function runSpeedTest({ say, status = () => {} }) {
         stage.setHeld(true);
         stage.setCamera(tca.cameraAt(null, tca.views(aspect, g.layout)));
       }
-      applyCuts(scene, cut);
+      applyCuts(stage.three, cut);   // (the games' own cuts: src/ui/drawcuts.js)
       const setupMs = Math.round(performance.now() - t0);
       // the first frame by itself (three.js makes its shaders then)
       const f0 = performance.now();
@@ -118,23 +116,6 @@ export async function runSpeedTest({ say, status = () => {} }) {
   try { await lock?.release(); } catch { /* released already */ }
   box.remove();
   return results;
-}
-
-// The cuts made once the scene is built (the setting's sky, lighting and
-// surfaces are only there by then).
-function applyCuts(scene, cut) {
-  if (cut.reflections === false) scene.environment = null;
-  if (cut.sky === 'plain') scene.background = new THREE.Color(scene.fog?.color ?? '#CFE7F0');
-  if (cut.farTrees === false) scene.traverse(o => { if (o.userData.far) o.visible = false; });
-  if (cut.surfaces === 'plain') {
-    scene.traverse(o => {
-      for (const m of [o.material].flat()) {
-        if (!m?.isMeshStandardMaterial || !(m.normalMap || m.roughnessMap || m.aoMap || m.metalnessMap)) continue;
-        m.normalMap = m.roughnessMap = m.aoMap = m.metalnessMap = null;
-        m.needsUpdate = true;
-      }
-    });
-  }
 }
 
 // WARM_S s drawn, then MEASURE_S s of frames counted: frameStats', and

@@ -11,6 +11,7 @@
 import * as THREE from '../vendor/three/three.module.min.js';
 import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng, FAR_TREES, farBalls, treeBalls, CORE } from '../core/topple.js';
 import { makeSetting, birds } from './topple-sets.js';
+import { applyCuts } from './drawcuts.js';
 
 // Whether this device can draw 3D: a WebGL canvas can be made.
 export function webglOk() {
@@ -190,6 +191,11 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   /* ---------- a scene's things and blocks ---------- */
 
   let built = [], blockMeshes = [];
+  // The blocks left glowing after a pause (Q101): each block's own shape a
+  // little bigger over it, a warm white added to what's under it, hidden
+  // except while it glows (so it costs nothing the rest of the time).
+  const glowMat = new THREE.MeshBasicMaterial({ color: '#FFF1C4', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+  let glowing = false;
   let set = null, level = 1;   // the setting drawn (levels 2-4: topple-sets.js), null for the park
   const sets = new Map();      // level -> its setting (made once a visit), or null if its photos didn't load
   function box(o, mat, shadow = true) {
@@ -238,6 +244,8 @@ export function makePark3d(canvas, { antialias = true } = {}) {
         m = new THREE.Mesh(geo, set.blockMat(b)); m.position.set(b.x, b.y, b.z); m.castShadow = m.receiveShadow = true; scene.add(m);
       } else m = box(b, blockMat(b.c));
       set?.decorate?.(m, b, i);
+      const over = new THREE.Mesh(m.geometry, glowMat);
+      over.scale.setScalar(1.03); over.visible = false; over.renderOrder = 2; m.add(over); m.userData.glow = over;
       built.push(m); blockMeshes.push(m);
     });
     set?.placed?.(blockMeshes, parts);
@@ -250,6 +258,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     sun.position.set(c.x + sd[0] * SCALE, sd[1] * SCALE + 1, c.z + sd[2] * SCALE); sun.target.position.copy(c);
     Object.assign(sun.shadow.camera, { left: -R, right: R, top: R, bottom: -R, near: 0.5, far: 12 * SCALE + 6 });
     sun.shadow.camera.updateProjectionMatrix();
+    applyCuts(three, cuts);   // the new blocks' and things' surfaces too
     return { leaves, ms: Math.round(performance.now() - t0) };
   }
 
@@ -310,6 +319,8 @@ export function makePark3d(canvas, { antialias = true } = {}) {
 
   const ballMeshes = new Map();   // physics body -> its mesh
   let onSound = null;             // a setting's own sounds (the owl's hoot): set by the page
+  const three = { renderer, scene, camera, sun };
+  let cuts = {};                  // the drawing's cuts (src/core/drawing.js's level): made again on each scene and setting
 
   return {
     set onSound(f) { onSound = f; },
@@ -356,6 +367,14 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       if (dots.instanceColor) dots.instanceColor.needsUpdate = true;
     },
     dotCount: () => dots.count,
+    // The blocks left glowing (Q101): a, 0-1 (glowAt()'s); standing[i]
+    // whether block i is still standing (only those glow).
+    setGlow(a, standing = null) {
+      if (!a && !glowing) return;
+      glowing = a > 0;
+      glowMat.opacity = 0.5 * a;
+      blockMeshes.forEach((m, i) => { m.userData.glow.visible = glowing && m.visible && !!standing?.[i]; });
+    },
     // The camera ({ pos, look, fov }).
     setCamera(c) {
       camera.position.set(...c.pos); look.set(...c.look); camera.lookAt(look);
@@ -400,6 +419,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       for (const m of ballMeshes.values()) scene.remove(m);
       ballMeshes.clear();
       for (const m of slingParts) m.material = set ? set.slingMat : m.userData.wood;
+      applyCuts(three, cuts);   // the setting's sky light and surfaces too
       return { level: n, photos: !!set, ms: Math.round(performance.now() - t0), ...(set?.nightMs !== undefined ? { nightMs: set.nightMs, skyline: set.skyline } : {}), ...(error ? { error } : {}) };
     },
     // A block broke (ice shattered, a barrel burst): its pieces fly.
@@ -429,6 +449,9 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     get fov() { return camera.fov; },
     // the view's sides along y, z (the animals' crossings; for checking too)
     viewEdges,
+    // The drawing lighter on a slow device (src/core/drawing.js, Q99): the
+    // cuts now and on every scene and setting to come; what changed now.
+    setDrawing(c) { cuts = { ...c }; return applyCuts(three, cuts); },
     // For the speed test (log.html, Q99): the three.js parts it changes,
     // and letting go of the canvas' GPU memory once it's done with.
     three: { renderer, scene, camera, sun },

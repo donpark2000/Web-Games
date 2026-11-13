@@ -131,6 +131,8 @@ time, each tried before publishing:
   2026-11-13, developer ("The old tablet the worst case; ..."): no three
   controls ("really hard on a small screen"); Hardest made harder by its
   scenes. What Hardest does until those exist: to agree.
+  2026-11-13, developer: "Use Harder's dots for now". Built (for 10.6,
+  "Responsiveness first; ..."): to try; Hardest's own scenes still to come.
 - **Q99. Tin Can Alley and Topple! on an old tablet** (2026-11-13,
   developer, a 2019 Galaxy Tab A 8"): "virtually unplayable", the aim
   slow to follow, structures 10-20 s to fall. Likely the physics giving
@@ -148,6 +150,11 @@ time, each tried before publishing:
   building site's frame (75% of the stall's), reflections 35%, fewer
   pixels up to 55%; everything cut, 60 frames a second. Cheap (Basic)
   shadows and the cuts in steps not yet measured: a second test proposed.
+  2026-11-13, developer: "responsiveness when aiming and hitting targets
+  is more important than cosmetic details"; no second test. Built (for
+  10.6, "Responsiveness first; ..."): real time down to 10 frames a
+  second, and the drawing stepping down to light, then lightest. To
+  check with the tablet's log after 10.6.
 - **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
   developer, the same tablet). Likely Q99's cause (same entry); the log
   to confirm. 2026-11-13, the log: consistent with Q99's cause (the
@@ -156,7 +163,8 @@ time, each tried before publishing:
 - **Q101. The blocks left glow after a pause?** (2026-11-13, developer:
   on the phone, the building site looked all down with something still
   to hit; "make them glow or get brighter for a few seconds").
-  2026-11-13, developer: "worth a try". To build.
+  2026-11-13, developer: "worth a try". Built (for 10.6, "Responsiveness
+  first; ..."): after 6 s waiting, the standing blocks glow twice; to try.
 
 ## Proposed additions to the standards skill
 
@@ -19764,5 +19772,103 @@ A goal to agree: 30 frames a second in play on this tablet, 20 at least.
   and the physics caps (Q99); Q100 checked again after.
 - **Agreed, to build:** Hardest with Harder's dots (Q98); the glow
   (Q101).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
+
+## 2026-11-13: Responsiveness first; drawing lighter, real time, Hardest's dots, the glow (for 10.6)
+
+**The developer**, on the speed test's analysis: "taking a few seconds to
+load the scene is not that bad. But responsiveness when aiming and
+hitting targets is more important than cosmetic details." So no second
+speed test: the tablet already ran at 60 frames a second with every cut,
+so a working setting is known; the step-down can cut hard, and its own
+log measures it in play. Shadows aren't only looks (they show where the
+ball and the blocks are), so the light level keeps them, read once a
+pixel (three.js's Basic), and drops them only if that's still slow. The
+developer: "Yes, go ahead with that plan for 10.6" (the step-down, the
+physics, Q98, Q101).
+
+**Built** (DESIGN.md "3D games", "Tin Can Alley", "Topple!"):
+
+- **Real time** (`src/core/fixed-step.js`): a frame may move the game on
+  0.1 s (was 0.05), 12 steps (was 8), the steps using up to half of the
+  frame's time (was one step's, 8.3 ms). At 60 frames a second the
+  budget is 8.3 ms, as before.
+- **Drawing lighter** (`src/core/drawing.js`, `src/ui/drawcuts.js`,
+  `src/ui/drawwatch.js`): as drawn; light (0.75 pixels, Basic shadows, no
+  reflections, plain surfaces, no far trees); lightest (no shadows).
+  Judged on 3 s of frames after 1.5 s of warm-up: a median over 40 ms
+  steps down. Kept on the device with the release (a new release
+  measures again from as drawn, so a device slow once isn't drawn
+  lighter for good). The speed test now makes its cuts with the same
+  code (its 19 runs unchanged; it also accepts `shadows: 'basic'`).
+- **Q98**: Hardest has Harder's dots, every ball; its setup line "shorter
+  dots; harder scenes to come". `firstOnly` kept in `MODE_INFO`, unused.
+- **Q101, the glow**: after 6 s waiting on the next ball (a ball thrown,
+  balls left, nothing moving, no finger, the pad's show over), the
+  standing blocks brighten and fade back twice over 2 s, a warm white
+  added over each block's own shape (an overlay hidden the rest of the
+  time, so it costs nothing then); again after another 6 s.
+
+**A bug caught before it ran**: both pages' `tick(dt, draw = true)` has a
+parameter called `draw`, which hid my first name for the watcher (`draw`)
+inside `tick`, where `draw?.frame()` would have called `true.frame`. The
+source-text tests couldn't see it. Renamed `drawing`; the browser run
+below exercises the real call.
+
+**Tests** (615 of 615): `tests/drawing.test.js` (8: the levels, using only
+cuts the speed test knows, smoothing and the sky kept; a slow device
+stepping down a level at a time after the warm-up and stopping at the
+lightest; 60 and 30 frames a second and a 40 ms median never stepping,
+one hitch ignored; gaps and restarts; the level kept per game with the
+release; the cuts made to a real three.js scene with a stand-in renderer,
+the second time nothing, a block added later cut too; as drawn changes
+nothing; both pages wired), a fixed-step test (12 steps at 10 frames a
+second with 2.5 ms steps, where the old rule gave up after 4; 6 of 12 when
+the physics needs more than half the frame; never fewer than one), the
+glow's timing and when the scene is waiting, and the page wiring.
+**Shown able to fail**, one deliberate break each, each caught by one
+test: the old 8.3 ms budget, a watcher that never steps, the shaders not
+remade for new shadows, a new scene's surfaces not cut, the glow between
+waits, the wait not needing stillness, a drag not stopping the wait. (The
+first try at this reported 0 failures for every break: my script looked
+for TAP lines that Node's default reporter doesn't print; rerun with
+`--test-reporter=tap`.)
+
+**Seen in the preview browser** (this PC, Intel UHD 750):
+- Topple! level 2 scene 5 on this PC: `as drawn`, pixel ratio 1, soft
+  shadows, reflections.
+- With `light` kept on the device: pixel ratio 0.75, Basic shadows,
+  no reflections; the screenshot shows hard-edged shadows under the site
+  light and the wheelbarrow.
+- The step itself: the pane was hidden, so the page got one animation
+  frame a second; those 1 s gaps are what the watcher ignores, so it
+  didn't step (right). Driven by hand with a stand-in clock at 100 ms a
+  frame: light to lightest after 43 frames (1.5 s warm-up and a 3 s
+  window), kept as level 2, logged `drawing lighter {"from":"light",
+  "to":"lightest","medianMs":100,"fps":10,"frames":30,"cut":["shadows"]}`.
+- The glow: level 2 scene 1, one ball thrown (it missed), the pad's show
+  over: `blocks left glow {"left":11,"waitS":6.02,"n":1}`; the screenshot
+  at 6.5 s shows the structure lit warm white.
+- Tin Can Alley with `lightest` kept: `drawing {"level":"lightest",
+  "kept":true,"cut":["pixels","shadows"]}`, the stall drawn. No console
+  errors on either page. The speed test's module still loads.
+
+Not seen: anything on the tablet. Whether light reaches 25 frames a
+second there, and how the glow looks to the developer, is for 10.6.
+
+**Status (start here next session)**
+- **Live: 10.5.** Built on `block-game`, not published: real time on a
+  slow device, drawing lighter (Q99), Hardest with Harder's dots (Q98),
+  the glow (Q101). 615 tests pass. To publish as **10.6** (a change) once
+  the developer says so.
+- **For the developer, once published:** on the old tablet, the log page:
+  Clear; play a Topple! scene (the building site, to its end) and a Tin
+  Can Alley round; Save log; the file sent. The log should show `drawing
+  lighter` lines, the level each end ran at and its frame rate. Into
+  `Web-Games-testing/2026-11-13_old-tablet/`. On the phone: the glow
+  (leave a scene waiting 6 s after a ball).
+- **Then:** Q100 (sounds before the impact) checked in that log; Q99
+  closed if it's playable.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.

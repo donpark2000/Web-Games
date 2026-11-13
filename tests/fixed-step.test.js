@@ -7,7 +7,7 @@
 // physics, nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fixedStepper } from '../src/core/fixed-step.js';
+import { fixedStepper, MAX_FRAME_S, BUDGET_SHARE } from '../src/core/fixed-step.js';
 import { createStall, STEP as TCA_STEP, MAX_SUBSTEPS as TCA_MAX } from '../src/core/tin-can-alley-physics.js';
 import { createMatch, throwBall, update, cameraAt } from '../src/core/tin-can-alley.js';
 import { createWorld, MAX_SUBSTEPS as TP_MAX } from '../src/core/topple-world.js';
@@ -55,6 +55,29 @@ test('fixed step: with no clock the clock is never read; with one, out of time g
   assert.deepEqual(adv2(1 / 30, clock), { steps: 1, dropped: 3 });
   // a clock with time to spare: every step
   assert.deepEqual(adv2(1 / 30, () => 0), { steps: 4, dropped: 0 });
+});
+
+// A clock where each step takes `ms` (read once at the start, once a step).
+const stepClock = ms => { let t = 0; return () => (t += ms) - ms; };
+
+test('fixed step (Q99, 10.6): the steps may use half the frame, so a slow frame plays in real time', () => {
+  assert.equal(MAX_FRAME_S, 0.1);
+  assert.equal(BUDGET_SHARE, 0.5);
+  assert.equal(TP_MAX, 12); assert.equal(TCA_MAX, 12);
+  assert.equal(TP_MAX * TP_STEP, MAX_FRAME_S, 'a whole MAX_FRAME_S frame of steps');
+  // 10 frames a second, each step 2.5 ms (the tablet's physics: 7-11.6 ms a frame):
+  // all 12 steps (30 ms of the 50 allowed); cannon-es's rule gave up after 4 (over 8.3 ms)
+  const w = countingWorld(), advance = fixedStepper(w, 1 / 120, 12);
+  assert.deepEqual(advance(0.1, stepClock(2.5)), { steps: 12, dropped: 0 });
+  // 30 a second: 4 steps, 10 ms of the 16.7 allowed
+  assert.deepEqual(advance(1 / 30, stepClock(2.5)), { steps: 4, dropped: 0 });
+  // 60 a second: the old budget (8.3 ms): 2 steps of 2.5 fit, as before
+  assert.deepEqual(advance(1 / 60, stepClock(2.5)), { steps: 2, dropped: 0 });
+  // physics slower than half the frame: it gives up, as before (slow motion, not a frame that never ends)
+  const w2 = countingWorld(), adv2 = fixedStepper(w2, 1 / 120, 12);
+  assert.deepEqual(adv2(0.1, stepClock(10)), { steps: 6, dropped: 6 });
+  // never fewer than one step, however slow
+  assert.deepEqual(adv2(1 / 120, stepClock(1000)), { steps: 1, dropped: 0 });
 });
 
 // Pyramid 6, a straight throw at power 0.4, 3 s on; each frame stepped by `stepOnce`.

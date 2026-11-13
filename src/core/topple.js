@@ -764,14 +764,16 @@ export function dotsFor(path, limitT = DOT_SECONDS) {
 // current games and calling them ... normal, and then move to harder and
 // hardest"): picked on the setup screen, kept with the game. Normal is the
 // game as it was; Harder's dots are half as long ("sure - for harder
-// level"); Hardest's the same, for a scene's first ball only (Claude's
-// pick, to review). `used`: the balls already thrown in the scene.
-// Returns the dots' seconds, 0 for none.
+// level"). Hardest has Harder's dots for now (developer, 2026-11-13, Q98:
+// "Use Harder's dots for now"; 10.4's dots for the first ball only were
+// "unplayable"): its challenge is to come from harder scenes. `firstOnly`
+// (no dots after a scene's first ball) is kept, unused. `used`: the balls
+// already thrown in the scene. Returns the dots' seconds, 0 for none.
 export const MODES = ['normal', 'harder', 'hardest'];
 export const MODE_INFO = {
   normal: { name: 'Normal', dots: DOT_SECONDS, firstOnly: false, line: 'the dots show the way' },
   harder: { name: 'Harder', dots: 0.15, firstOnly: false, line: 'shorter dots' },
-  hardest: { name: 'Hardest', dots: 0.15, firstOnly: true, line: 'dots for the first ball only' },
+  hardest: { name: 'Hardest', dots: 0.15, firstOnly: false, line: 'shorter dots; harder scenes to come' },
 };
 export function dotSeconds(mode, used) {
   const m = MODE_INFO[mode] ?? MODE_INFO.normal;
@@ -979,6 +981,32 @@ export function update(r, dt, { down, still, calm = still }) {
   r.calmFor = 0;
   return { downChanged, ended: r.result, card: !won };
 }
+
+// The blocks left glow after a pause (developer, 2026-11-13, Q101: on the
+// phone the building site "looked like all blocks were down ... but there
+// was clearly something left I was supposed to hit"; "make them glow or get
+// brighter for a few seconds"; a marker over them was "visually noisy",
+// Q91). Once a scene has waited GLOW_WAIT s for the next ball (a ball
+// thrown already, none in flight, the blocks and shards still, no finger
+// aiming: the page counts it, `idle`), the blocks still standing brighten
+// and fade back GLOW_PULSES times, GLOW_PULSE_S each; then only after
+// another GLOW_WAIT. A throw, a drag or anything moving starts the count
+// again.
+export const GLOW_WAIT = 6;
+export const GLOW_PULSES = 2;
+export const GLOW_PULSE_S = 1;
+const GLOW_CYCLE = GLOW_WAIT + GLOW_PULSES * GLOW_PULSE_S;
+// Whether the scene is waiting on the player (the count goes on), given
+// whether everything has stopped.
+export const waitingOn = (r, still) => !r.result && r.used > 0 && ballsLeft(r) > 0 && r.since != null && r.since >= READY_AFTER && still;
+// How bright the glow is `idle` s into a wait: 0 to 1 (0 before GLOW_WAIT).
+export function glowAt(idle) {
+  const k = idle % GLOW_CYCLE;
+  if (idle < GLOW_WAIT || k < GLOW_WAIT) return 0;
+  return Math.sin(Math.PI * (k - GLOW_WAIT) / GLOW_PULSE_S) ** 2;
+}
+// How many glows have started `idle` s into a wait (the page logs each).
+export const glowsBy = idle => (idle < GLOW_WAIT ? 0 : 1 + Math.floor((idle - GLOW_WAIT) / GLOW_CYCLE));
 
 // The card at a scene's end: { title, next (the button's words) }, from
 // sceneOver()'s outcome and the game after it.

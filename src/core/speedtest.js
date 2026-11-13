@@ -12,7 +12,8 @@ export const MEASURE_S = 4;   // the frames counted for this long (s)
 // The ways a run can differ from the game as it is (a run's `cut`):
 //   pixels       the pixel ratio drawn at (the game: the device's, at most 2)
 //   smooth       false: no antialiasing
-//   shadows      'hard' (three.js PCF, not PCF soft) or 'off'
+//   shadows      'hard' (three.js PCF, not PCF soft: as many reads a pixel),
+//                'basic' (one read a pixel: the games' light drawing) or 'off'
 //   shadowSize   the sun's shadow map, px a side (Topple! 2048, Tin Can Alley 1024)
 //   surfaces     'plain': the photo surfaces' bump, roughness, shade and
 //                metal maps taken off (their colour photo kept)
@@ -60,7 +61,7 @@ export const RUNS = [
 export function checkRuns(runs = RUNS, groups = GROUPS) {
   const out = [], ids = new Set(groups.map(g => g.id)), seen = new Set();
   const ok = {
-    pixels: v => typeof v === 'number' && v > 0 && v <= 3, smooth: v => v === false, shadows: v => v === 'hard' || v === 'off',
+    pixels: v => typeof v === 'number' && v > 0 && v <= 3, smooth: v => v === false, shadows: v => v === 'hard' || v === 'basic' || v === 'off',
     shadowSize: v => Number.isInteger(v) && v >= 256 && (v & (v - 1)) === 0, surfaces: v => v === 'plain', reflections: v => v === false,
     sky: v => v === 'plain', farTrees: v => v === false,
   };
