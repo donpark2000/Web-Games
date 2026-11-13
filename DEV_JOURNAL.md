@@ -20304,4 +20304,5 @@ anything to show it (the dots are the developer's choice per How hard).
   (`2026-11-13_old-tablet`, four logs, all recorded here) to purge with
   the developer's OK once those are closed.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
-  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103.
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103, Q104
+  (the wait while a scene is set up: the developer's ideas, to discuss).
