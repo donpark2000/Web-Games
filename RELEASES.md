@@ -7,6 +7,15 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.4 (2026-11-12, version ba92f204eceb)
+
+Topple!: choose how hard.
+
+- **How hard?** on the setup screen: **Normal** (the game as before,
+  the dots show the way), **Harder** (shorter dots) or **Hardest**
+  (the short dots for a scene's first ball only). The choice is kept,
+  and changing it keeps the levels you've opened.
+
 ## 10.3 (2026-11-12, version 1dbf9693e8a8)
 
 Topple!: no long wait after a scene is cleared, and more variety.
