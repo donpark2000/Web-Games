@@ -19623,3 +19623,31 @@ pauses it the same way until it's back (the run then says `hidden`).
   (Q101).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
+
+## 2026-11-13: Release 10.5 published and live
+
+- The developer: "Yes, publish 10.5" (the speed test alone; the dots
+  and the glow in a later release).
+- Release set to 10.5, `node tools/offline.js` (version f0192f31ec4b,
+  187 files; sw.js and version.js put back to CRLF), notes in
+  RELEASES.md; 604 tests pass; `node tools/release.js` said ready.
+- `main` fast-forwarded to acc13d5, tag `v10.5` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (built acc13d5); the live `src/core/version.js` reads f0192f31ec4b,
+  `release.js` 10.5, and `src/ui/speedtest.js` is served (200).
+- Claude's preview server stopped; no other `serve.js` running.
+
+**Status (start here next session)**
+- **Live: 10.5** (the speed test on the log page). `block-game` =
+  `main` plus this entry. Nothing waiting to publish.
+- **For the developer:** on the tablet (the installed app picks up 10.5
+  on its next opening or two; the home page's version line says
+  f0192f31ec4b), the log page: Clear, Speed test (about 3 minutes,
+  screen untouched), Save log, the file sent as an attachment. Into
+  `Web-Games-testing/2026-11-13_old-tablet/`.
+- **Then:** the table picks the automatic step-down's order and the
+  physics caps (Q99); Q100 checked again after.
+- **Agreed, to build:** Hardest with Harder's dots (Q98); the glow
+  (Q101).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q99, Q100, Q101.
