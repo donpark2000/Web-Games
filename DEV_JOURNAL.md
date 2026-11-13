@@ -140,7 +140,9 @@ time, each tried before publishing:
   2026-11-13, the tablet's log ("The old tablet's log"): Tin Can Alley 8
   frames a second, physics 7 ms of each 125 ms frame, 0.43x real speed;
   Topple! 0.15x. The slow motion is the frame caps; the frames are slow
-  from the drawing. Fix proposed.
+  from the drawing. Fix proposed. 2026-11-13, the building site's log:
+  Topple! 3 frames a second, physics 11.6 ms of ~333 ms; the drawing
+  must get several times cheaper; a speed test proposed first.
 - **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
   developer, the same tablet). Likely Q99's cause (same entry); the log
   to confirm. 2026-11-13, the log: consistent with Q99's cause (the
@@ -19508,16 +19510,59 @@ What this shows:
   sound. Nothing in the log points to a separate fault; to check again
   once the frame rate is up.
 
+Proposed to the developer: (1) the physics caps raised so a slow frame
+still plays at real speed; (2) the drawing made cheaper when the frame
+rate is low, one setting at a time, each logged; (3) a frame-rate line
+every few seconds in play. The developer asked whether this would
+affect faster devices. Claude: no; each part acts only on a frame rate
+measured on the device in play (a 60-frames-a-second phone never
+reaches the 0.05 s cap, and never steps down); a step-down to be
+remembered on the device, and logged, so a fast device's log shows none.
+On the first scene the developer thought it was finished: the log's
+last count was 22 of 24, two left standing (Q101's case again). The
+developer offered a new building-site log, played to its end.
+
+## 2026-11-13: The building site's log on the old tablet
+
+Second log from the tablet (10.4; kept in
+`Web-Games-testing/2026-11-13_old-tablet/`; it arrived in the PC's
+OneDrive folder, not Downloads). The building site (level 2 scene 5, 24
+blocks) played to its end: 5 balls, 23 of 24 down, lost (`outcome
+"out"`); one post rose again at t 35.2 s ("a post leaning, not lying").
+
+**`scene over`: `fps 3, physicsMs 11.56, stepsDropped 2528`.** A frame
+takes ~333 ms, of which the physics takes 11.6 ms (3.5%); the drawing
+and the rest ~320 ms. Game against real time: block down t 3.85 s at
++45.92 s to t 36.04 s at +266.06 s, 32.2 s of game in 220.1 s,
+**0.146x**. At 3 frames a second the 0.05 s cap a frame allows 0.15x:
+the cap alone accounts for the slow motion. (2528 steps dropped is more
+than that cap explains, about 3 a frame of 762; with it the speed would
+be lower than seen. Unexplained, small beside the drawing; to look at
+with the fix's per-interval lines.)
+
+Q100 again, in numbers: ball 2 touched its block at +83.6 s, the first
+block counted down at +102.1 s, 18.5 s later.
+
+What this changes in the proposal: at 3 frames a second, raising the
+caps gives real speed but a picture every 0.33 s, in which a ball moves
+2.8 m: still unplayable. **The drawing has to get several times
+cheaper** (~10x for 30 frames a second, ~5x for 15), and nothing yet
+says which part costs most on this tablet. Cutting the pixels alone
+(1.33 to 1) saves 44% of them, under 2x. So measure first (Measure a
+worry before designing around it): a speed test that draws the building
+site, still, for a few seconds in each of several settings and logs the
+frame rate of each, run once on the tablet.
+
 **Status (start here next session)**
 - **Live: 10.4.** Nothing built since.
-- **Proposed (for the developer's go-ahead):** speed up the 3D games on
-  slow devices: (1) the physics caps raised so a slow frame still plays
-  at real speed (the physics has room: 7 ms of a 125 ms frame); (2) the
-  drawing made cheaper when the frame rate is low, stepping down one
-  setting at a time (pixel ratio, shadows, antialiasing, Topple!'s far
-  trees) and logging the frame rate at each, so the next tablet log
-  shows what each step bought; (3) a frame-rate line every few seconds
-  in play, so a scene left before its end still reports.
+- **Proposed (for the developer's go-ahead):** a speed test for the 3D
+  games, reached from `log.html`: Topple!'s building site (and a Tin Can
+  Alley stall) drawn still, a few seconds per setting (as now; pixel
+  ratio 1 and 0.75; no antialiasing; smaller or no shadows; no far
+  trees; no photo sky; all of them), the frame rate of each logged. It
+  must be published to run on the tablet. Its table then picks the
+  step-down order for the automatic quality (only on a low measured
+  frame rate; remembered on the device; logged) and the physics caps.
 - **Agreed, to build:** Hardest with Harder's dots (Q98); the glow
   (Q101).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
