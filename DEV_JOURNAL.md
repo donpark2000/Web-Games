@@ -176,6 +176,8 @@ time, each tried before publishing:
   ahead". Built ("Hardest at the building site built"): scenes 1, 3, 5
   the crane's load (slide, swing, stream or the new drop, each its own),
   2 and 4 spread out; to publish (10.10) and try.
+  2026-11-14, developer, 10.10 on the phone: "I like it." Next the
+  park (level 1), then the levels in order ("10.10 tried: liked").
 
 ## Proposed additions to the standards skill
 
@@ -21365,3 +21367,18 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
   part), Q106 (moving things: the building site live in 10.10, to try).
+
+## 2026-11-14: 10.10 tried: liked; the park next, then in order; the open questions summed up
+
+- **The developer, on 10.10's Hardest at the building site** (phone):
+  "I tried on my phone and I like it."
+- **Next:** "Next moving thing should be level 1. I suggest we just
+  tackle them in order." So: the park (level 1), then Frosty Times
+  (3), Cactus Canyon (4), Star Light (5), one a session.
+- **The open questions out of sight:** "All those open questions have
+  long since vanished from my scrollable screen since we keep starting
+  new sessions and I have no way to search old sessions." Summed up for
+  the developer in chat, each with what it was and what it waits on,
+  and the ones built and released (and played since) proposed for
+  closing. From now on the status entries' "Open questions" line gives
+  each question a few words, not only its number.
