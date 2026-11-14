@@ -156,6 +156,10 @@ time, each tried before publishing:
   levels' things as listed); (2) slide, swing and stream "all three";
   (3) the dots ignoring it "yes". Mockup v1 built ("Moving things
   mockup v1 (Q106)"): to try.
+  2026-11-14, developer, mockup v1: "pretty good from a game play
+  perspective"; the crane's skip in two levels, and level 3 in the
+  park's look with ice blocks ("Mockup v1 tried"): to fix in a new
+  session.
 
 ## Proposed additions to the standards skill
 
@@ -20942,3 +20946,49 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
   part), Q106 (moving things: mockup v1 to try).
+
+## 2026-11-14: Mockup v1 tried: good play; the skip everywhere, level 3 without its photos (Q106)
+
+- **The developer**, after playing two levels in mockup v1: "Its pretty
+  good from a game play perspective. Something wonky about the obstacles
+  though ... levels 1 and 2 both use "bricks on a crane". And when I went
+  to level 3, it looked like the same backdrop as the park - level 1 but
+  the blocks broke like ice." The developer will start a new session to
+  fix it.
+- **Why** (from the code; not reproduced in the browser): the mockup is
+  the real game, so its map lets you reach every open level, but it was
+  built for the building site only:
+  - **Level 3 in the park's look**: the artifact carries only the building
+    site's photos (the sky `construction_yard` and its seven surfaces).
+    Level 3's (`sky_lago_disola`, snow, bark, ...) are not published, so
+    `makeSetting(3)` fails to load them and `setLevel` falls back to the
+    park drawn (`sets.set(n, null)` in `src/ui/topple-scene.js`, the game's
+    way when a device can't load the photos). The blocks keep their
+    material in the physics, so the ice still shattered.
+  - **The skip in every level**: `placeMover()` (`src/ui/topple.js`) puts
+    the mover in every scene while `window.TOPPLE_MOCKUP` is set, whatever
+    the level, and only the building site's thing (the crane's skip) is
+    made. In the park (level 1, open from the map once level 2 is
+    reached) it hangs from a crane that isn't there.
+  - ("levels 1 and 2" may mean scenes 1 and 2 of the building site;
+    either way the skip is the only mover so far.)
+- **For the fixing session, Claude's suggestion** (to agree there): either
+  keep mockup v2 to the building site (the map's other levels locked,
+  or the mover only in level 2), or publish every level's photos with
+  it and give each level its own mover (level 1: the tyre swing; 3: the
+  snowman or snowball machine; 4: the mine cart; 5: the lantern). The
+  first is small and keeps the mockup about how it moves; the second is
+  most of the build.
+
+**Status (start here next session)**
+- **Live: 10.9.** `block-game` = `main` plus journal entries, and the
+  mover behind `window.TOPPLE_MOCKUP` (the game unchanged without it). Not
+  published.
+- **Mockup v1** ([Topple! Moving Things](https://claude.ai/artifact/Ewh25ors8MqgL1VasXkUrE)):
+  play "pretty good"; to fix: the skip in every level, level 3 without
+  its photos (above). Still to hear: which way of moving, speed and
+  height; whether the skip reads as a thing not to hit; Frosty Times'
+  snowman or snowball machine.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
+  part), Q106 (moving things: mockup v1 to fix).
