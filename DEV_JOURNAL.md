@@ -10,104 +10,10 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q73. Topple! level 2, 3D frames: the targets, the hidden-blocks rule,
-  the "Level N" screen** (2026-11-11; "Level 2 picked: 3D frames").
-  Agreed so far: the setting, blocks, camera, Level screen, map, things
-  in the way, the iron ball, sounds (mockups v1-v6). 2026-11-11: the
-  developer left the frames to Claude ("Q75 trial wanted; level 2's five
-  scenes picked"): picked, with pass criteria; to build and measure.
-- **Q79. A phone's frame rate and the download** (2026-11-11 night): the
-  photos add 5.57 MB to the offline app (now 9.08 MB, 183 files); each
-  sky is a 4096 x 2048 photo. To measure on the phone before release
-  (the log's fps at each scene's end).
-- **Q81. A level done: the map, the next level unlocking, your face
-  moving there** (2026-11-12): the developer's idea, instead of the
-  Level screen. A mockup first.
-  2026-11-12, developer: "Not sure. How does the cost of a mockup
-  compare to a build?" Answered in chat ("Q82 drift built; Q83
-  measured"). 2026-11-12, developer: "We can go straight to the build."
-  Built ("Balls left; the map walk; ..."): to try.
-- **Q87. Topple!'s next levels: the developer's ideas** (2026-11-12;
-  "The animals take fright; the developer's ideas for new levels"):
-  Star Light (night, glowing blocks, an owl or a cloud), Water world
-  (hoops, a fish and a dolphin), Tubular Bells (bells, curved tubes), a
-  chain-reaction level. To discuss: which first, and the names.
-  2026-11-12, developer: "We could start with star light." Star Light
-  first; its open points in "Fright liked; Star Light first; many
-  targets (Q88)". Developer: the owl and the cloud "both"; "build it".
-  Built ("Star Light built (level 5)"): to try.
-- **Q88. Topple!: several targets at different distances, walking
-  forward to each** (2026-11-12, the developer's idea; "Fright liked;
-  Star Light first; many targets (Q88)"): same play, more balls. Asked
-  "Would that be easier?": answered there. Where it goes (a level, or
-  scenes in one) to discuss.
-- **Q90. Three "starts" before play: skip the Level screen** (2026-11-12,
-  developer; "10.1 on the phone: three starts; ..."): a tap on the map
-  to go straight into play. Built (10.2, "Q90-Q92 built and measured"):
-  to try.
-- **Q91. Not clear what's left to hit** (2026-11-12, developer, the
-  building site: everything down or leaning on debris): likely a post
-  leaning under 45° still counting as standing (same entry). Developer:
-  no marker over the blocks left ("visually noisy"); "relax the rule".
-  Built (10.2): a post down from 30°; measured; to try.
-- **Q92. No way to start the whole game over** with only level 1 open
-  (2026-11-12, developer; same entry). Built (10.2): Start over from
-  level 1; to try.
-- **Q93. Worlds of five levels** (2026-11-12, the developer's idea; "Q90-Q92
-  built and measured"): after 5 levels, 5 new levels in a new world (the
-  moon, Mars, something quite different), instead of adding levels; "a
-  lot of symmetry - 5 balls, 5 scenes per level, 5 levels". To discuss.
-  2026-11-12, developer: questions first (Q94-Q96), then this.
-- **Q94. The same set-up every time** (2026-11-12, developer: "every time
-  I play the game from the beginning I am presented with exactly the same
-  set up"; a heart lost: the same scenes, good; starting fresh or a level
-  done gone back to from the map: "preserve the theme of the scene but be
-  presented with different target arrangements"). Built (10.3, "Q94, Q95
-  built"): eight structures a level dealt, new scenes for a done level
-  played again; to try.
-- **Q95. A long pause before a cleared scene is called complete**
-  (2026-11-12, developer). Built (10.3, same entry): "Cleared!" at once,
-  the card once calm; to try.
-- **Q96. Not enough challenge** (2026-11-12, developer: "after playing a
-  couple of times, there is no challenge. Maybe changing camera angles?
-  maybe making balls smaller? Maybe making wider gaps in target
-  structures? ... The core look and feel is good but I don't think the
-  challenge is at the right level"). For next session: Claude's options
-  in "Q94, Q95 built", to discuss.
-  2026-11-12, developer's answers ("Q96: a difficulty choice"): a
-  choice of Normal (today's game), Harder, Hardest; shorter dots and
-  perhaps a smaller ball, wider gaps or another camera for the harder
-  ones; moving things liked ("smooth and predictable timing"); no fewer
-  balls, no wind; things not to hit "maybe", depending on the cost.
-  Stars to explain again. Next: the first build to agree.
-  2026-11-12, developer: the first build "OK" (the choice on setup;
-  Harder's and Hardest's shorter dots). Built ("How hard? built"): to
-  try; the rest for Harder and Hardest to discuss.
-  2026-11-13, developer, on 10.4: Harder "good"; Hardest "unplayable"
-  (Q98).
 - **Q97. Things not to hit: how they show it** (2026-11-12, developer:
   hitting one loses the scene, "the challenge is making it clear your
   should not hit it. We should discuss presentation options before
   building"). For Harder and Hardest; to discuss.
-- **Q98. Hardest: drop it, or another way to aim?** (2026-11-13,
-  developer; "10.4 tried; Hardest unplayable; ..."): no dots after the
-  first ball "amounts to a wild guess". The developer's idea: three
-  controls off screen, for up and down, side to side and force.
-  2026-11-13, developer ("The old tablet the worst case; ..."): no three
-  controls ("really hard on a small screen"); Hardest made harder by its
-  scenes. What Hardest does until those exist: to agree.
-  2026-11-13, developer: "Use Harder's dots for now". Built (for 10.6,
-  "Responsiveness first; ..."): to try; Hardest's own scenes still to come.
-  2026-11-14, developer ("Hardest: build, moving things and spread out"):
-  build, not mockups ("testing on real devices seems to be better showing
-  up issues"); moving things liked, spread out "would help too"; no
-  smaller ball, no other camera ("hard to see on a small screen as it gets
-  farther away"). Open: the miss-player (developer unsure), which moving
-  things, and the order.
-  2026-11-14, developer: no miss-player; moving things in the way (kind
-  a). Later the same day: **moving things before spreading out**
-  ("spreading things out ... test[s] aiming"; moving ones add timing),
-  with a mockup first: Q106.
 - **Q106. Topple! Hardest: moving things in the way: what moves, and
   how** (2026-11-14, developer: "I like the idea of moving obstacles
   better than just spreading things out. All spreading things out does
@@ -273,6 +179,113 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q73. Topple! level 2, 3D frames: the targets, the hidden-blocks rule,
+  the "Level N" screen** (2026-11-11; "Level 2 picked: 3D frames").
+  Agreed so far: the setting, blocks, camera, Level screen, map, things
+  in the way, the iron ball, sounds (mockups v1-v6). 2026-11-11: the
+  developer left the frames to Claude ("Q75 trial wanted; level 2's five
+  scenes picked"): picked, with pass criteria; to build and measure.
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Built: the building site's structures, live since its release.
+- **Q79. A phone's frame rate and the download** (2026-11-11 night): the
+  photos add 5.57 MB to the offline app (now 9.08 MB, 183 files); each
+  sky is a 4096 x 2048 photo. To measure on the phone before release
+  (the log's fps at each scene's end).
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). The photo levels played on the phone and the old tablet since; the drawing steps down from the measured frame rate on slow devices.
+- **Q81. A level done: the map, the next level unlocking, your face
+  moving there** (2026-11-12): the developer's idea, instead of the
+  Level screen. A mockup first.
+  2026-11-12, developer: "Not sure. How does the cost of a mockup
+  compare to a build?" Answered in chat ("Q82 drift built; Q83
+  measured"). 2026-11-12, developer: "We can go straight to the build."
+  Built ("Balls left; the map walk; ..."): to try.
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Built (the map walk), released and played since.
+- **Q87. Topple!'s next levels: the developer's ideas** (2026-11-12;
+  "The animals take fright; the developer's ideas for new levels"):
+  Star Light (night, glowing blocks, an owl or a cloud), Water world
+  (hoops, a fish and a dolphin), Tubular Bells (bells, curved tubes), a
+  chain-reaction level. To discuss: which first, and the names.
+  2026-11-12, developer: "We could start with star light." Star Light
+  first; its open points in "Fright liked; Star Light first; many
+  targets (Q88)". Developer: the owl and the cloud "both"; "build it".
+  Built ("Star Light built (level 5)"): to try.
+  **Moved to "Later"** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). The ideas left (Water world, Tubular Bells, a chain-reaction level) moved to DESIGN.md "Later"; Star Light built (level 5).
+- **Q88. Topple!: several targets at different distances, walking
+  forward to each** (2026-11-12, the developer's idea; "Fright liked;
+  Star Light first; many targets (Q88)"): same play, more balls. Asked
+  "Would that be easier?": answered there. Where it goes (a level, or
+  scenes in one) to discuss.
+  **Moved to "Later"** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Moved to DESIGN.md "Later" as an idea.
+- **Q90. Three "starts" before play: skip the Level screen** (2026-11-12,
+  developer; "10.1 on the phone: three starts; ..."): a tap on the map
+  to go straight into play. Built (10.2, "Q90-Q92 built and measured"):
+  to try.
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Built (10.2), released and played since.
+- **Q91. Not clear what's left to hit** (2026-11-12, developer, the
+  building site: everything down or leaning on debris): likely a post
+  leaning under 45° still counting as standing (same entry). Developer:
+  no marker over the blocks left ("visually noisy"); "relax the rule".
+  Built (10.2): a post down from 30°; measured; to try.
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Built (10.2: a post down from 30°), released and played since.
+- **Q92. No way to start the whole game over** with only level 1 open
+  (2026-11-12, developer; same entry). Built (10.2): Start over from
+  level 1; to try.
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Built (10.2: Start over from level 1), released and played since.
+- **Q93. Worlds of five levels** (2026-11-12, the developer's idea; "Q90-Q92
+  built and measured"): after 5 levels, 5 new levels in a new world (the
+  moon, Mars, something quite different), instead of adding levels; "a
+  lot of symmetry - 5 balls, 5 scenes per level, 5 levels". To discuss.
+  2026-11-12, developer: questions first (Q94-Q96), then this.
+  **Moved to "Later"** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Moved to DESIGN.md "Later" as an idea.
+- **Q94. The same set-up every time** (2026-11-12, developer: "every time
+  I play the game from the beginning I am presented with exactly the same
+  set up"; a heart lost: the same scenes, good; starting fresh or a level
+  done gone back to from the map: "preserve the theme of the scene but be
+  presented with different target arrangements"). Built (10.3, "Q94, Q95
+  built"): eight structures a level dealt, new scenes for a done level
+  played again; to try.
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Built (10.3: eight structures a level, dealt), released and played since.
+- **Q95. A long pause before a cleared scene is called complete**
+  (2026-11-12, developer). Built (10.3, same entry): "Cleared!" at once,
+  the card once calm; to try.
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Built (10.3: "Cleared!" at once), released and played since.
+- **Q96. Not enough challenge** (2026-11-12, developer: "after playing a
+  couple of times, there is no challenge. Maybe changing camera angles?
+  maybe making balls smaller? Maybe making wider gaps in target
+  structures? ... The core look and feel is good but I don't think the
+  challenge is at the right level"). For next session: Claude's options
+  in "Q94, Q95 built", to discuss.
+  2026-11-12, developer's answers ("Q96: a difficulty choice"): a
+  choice of Normal (today's game), Harder, Hardest; shorter dots and
+  perhaps a smaller ball, wider gaps or another camera for the harder
+  ones; moving things liked ("smooth and predictable timing"); no fewer
+  balls, no wind; things not to hit "maybe", depending on the cost.
+  Stars to explain again. Next: the first build to agree.
+  2026-11-12, developer: the first build "OK" (the choice on setup;
+  Harder's and Hardest's shorter dots). Built ("How hard? built"): to
+  try; the rest for Harder and Hardest to discuss.
+  2026-11-13, developer, on 10.4: Harder "good"; Hardest "unplayable"
+  (Q98).
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Built (Normal, Harder, Hardest), released and played since; Hardest's scenes go on as Q106.
+- **Q98. Hardest: drop it, or another way to aim?** (2026-11-13,
+  developer; "10.4 tried; Hardest unplayable; ..."): no dots after the
+  first ball "amounts to a wild guess". The developer's idea: three
+  controls off screen, for up and down, side to side and force.
+  2026-11-13, developer ("The old tablet the worst case; ..."): no three
+  controls ("really hard on a small screen"); Hardest made harder by its
+  scenes. What Hardest does until those exist: to agree.
+  2026-11-13, developer: "Use Harder's dots for now". Built (for 10.6,
+  "Responsiveness first; ..."): to try; Hardest's own scenes still to come.
+  2026-11-14, developer ("Hardest: build, moving things and spread out"):
+  build, not mockups ("testing on real devices seems to be better showing
+  up issues"); moving things liked, spread out "would help too"; no
+  smaller ball, no other camera ("hard to see on a small screen as it gets
+  farther away"). Open: the miss-player (developer unsure), which moving
+  things, and the order.
+  2026-11-14, developer: no miss-player; moving things in the way (kind
+  a). Later the same day: **moving things before spreading out**
+  ("spreading things out ... test[s] aiming"; moving ones add timing),
+  with a mockup first: Q106.
+  **Closed** 2026-11-14, developer: "yes - close the ten that are releases. And yes - move the others to 'later'" ("Q64, Q74, Q78 dropped; ...", the ten and the ideas asked there). Harder's dots on Hardest (10.6), its challenge from its scenes: Q106.
 - **Q64. Topple!: how hard are the scenes for the kids?** (2026-11-10,
   building it; "Topple! built"). A perfect-aim player clears 21 of 30
   scenes (the arch 6 of 11); every scene can be won ("Release 9.1
@@ -21398,3 +21411,15 @@ anything to show it (the dots are the developer's choice per How hard).
   The tablet's log settles it: each `scene` line has `mode` and, on
   Hardest, `hardest`; a `mover` line when the load is placed. Asked the
   developer for the setup screen's line and the log.
+- **The developer, later:** "I am on 10.10 and I picked hardest level that
+  says 'moving things at building site'. And I see the moving things now.
+  Not sure what happened but I think we are OK to move on to level 1
+  hardest." Not seen again, so not explained; no log taken. Most likely
+  one of the causes above at the first try (another difficulty picked on
+  the tablet, a spread-out scene, or a scene carried on from before
+  10.10). If it comes back: the tablet's log at once.
+- **Closed and moved** (developer: "yes - close the ten that are
+  releases. And yes - move the others to 'later'"): Q73, Q79, Q81,
+  Q90-Q92, Q94-Q96, Q98 to Resolved; Q87, Q88, Q93 to DESIGN.md
+  "Later" (and Resolved, saying so). Open now: Q97 (things not to hit:
+  how they show it) and Q106 (Hardest's moving things, level by level).

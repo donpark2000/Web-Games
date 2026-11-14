@@ -2636,6 +2636,16 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
 - Topple!'s next levels: discuss whether a level needs another view (a
   side view, as 9.0-9.2 had) or bank shots off a backboard (developer,
   2026-11-10; see "Topple!" Levels).
+- Topple!: the developer's ideas for new levels (journal Q87,
+  2026-11-12): **Water world** (hoops, a fish and a dolphin), **Tubular
+  Bells** (bells, curved tubes), a **chain-reaction** level.
+- Topple!: **several targets at different distances**, walking forward
+  to each (journal Q88, 2026-11-12, the developer's idea): the same
+  play, more balls; a level of its own, or scenes in one.
+- Topple!: **worlds of five levels** (journal Q93, 2026-11-12, the
+  developer's idea): after 5 levels, 5 new ones in a new world (the
+  moon, Mars, something quite different), instead of adding levels; "a
+  lot of symmetry - 5 balls, 5 scenes per level, 5 levels".
 - More games.
 
 ## Process
