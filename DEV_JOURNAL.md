@@ -133,15 +133,6 @@ time, each tried before publishing:
   scenes. What Hardest does until those exist: to agree.
   2026-11-13, developer: "Use Harder's dots for now". Built (for 10.6,
   "Responsiveness first; ..."): to try; Hardest's own scenes still to come.
-- **Q101. The blocks left glow after a pause?** (2026-11-13, developer:
-  on the phone, the building site looked all down with something still
-  to hit; "make them glow or get brighter for a few seconds").
-  2026-11-13, developer: "worth a try". Built (for 10.6, "Responsiveness
-  first; ..."): after 6 s waiting, the standing blocks glow twice; to try.
-  2026-11-13, developer, on 10.6: "effective on the phone"; on the
-  tablet "a VERY long time before the glowing happens. I think a delay of
-  4 seconds is plenty." Built (for 10.7, "10.6 tried: ..."): 4 s, and the
-  log tells why a wait runs long. Open for why it's long on the tablet.
 - **Q102. Starting again: not everywhere, and hard to find** (2026-11-13,
   developer: "the ability to start a scene or level again is not
   available everywhere and it is confusing to figure out how to find it.
@@ -164,30 +155,6 @@ time, each tried before publishing:
   situation much harder"); ice as it is ("pushing blocks too far is part
   of game play vs making it impossible to win"). Built (for 10.7, "Out of
   range and out of sight count as down (Q103)"): to try.
-- **Q104. Topple!: the wait while a scene is set up** (2026-11-13,
-  developer, after 10.7 went live): "When starting a new level I see a
-  blank screen when the level is being set up. But when moving between
-  scenes I see the end of the old scene while the new one is being set
-  up. And the set up notice is a small block of text in the lower left
-  hand of the screen. It might be better to show nothing or a blurred
-  scene as the background and a bigger notice in the middle of the
-  screen about setting up the new scene. Or maybe instead of text we have
-  a little progress bar or rotating icon that is a familiar metaphor for
-  user interfaces to confirm something is happening (vs being hung) but
-  it is not ready yet." Why today (`src/ui/topple.js`): the canvas is
-  hidden only for a new level (`showPlay`: no scene yet, or the stage's
-  level isn't the game's; 2026-11-12, a new level "briefly shows the old
-  level"), so between scenes the last frame stays up; the notice is the
-  hint line at the park's foot ("Setting up the scene…"). On the old
-  tablet a scene takes seconds to make (the building site 5.7 s, the
-  park 6.9 s: "The speed test on the old tablet"). Options to discuss:
-  the same for both (nothing, or the last scene blurred), a notice in
-  the middle, a spinner or progress bar. **Agreed and built** (developer:
-  "that is good"; on `block-game`, for 10.8): both the same, the park
-  washed with the sky's colour over the last scene (or the park's colour
-  for a new level), a spinner and bigger words in the middle; no blur (not
-  measured on the old tablet) and no progress bar (the set-up would have
-  to report how far it is). To close once seen on the devices.
 - **Q105. Topple!: the glow 26 s late; what glowed behind the
   wheelbarrow** (2026-11-13, developer, on 10.7, the old tablet): the
   building site "seems to be the most likely level to have blocks left
@@ -209,6 +176,8 @@ time, each tried before publishing:
   2026-11-13, developer: "Stricter scene check". Built, with the barrow
   moved aside too (the check alone left no layout that passes: "The
   barrow moved aside (Q105)"); on `block-game`, for 10.9: to try.
+  2026-11-14, developer: 10.8 "All good" (the glow's wait). Open for the
+  barrow aside (10.9).
 
 ## Proposed additions to the standards skill
 
@@ -329,6 +298,43 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q104. Topple!: the wait while a scene is set up** (2026-11-13,
+  developer, after 10.7 went live): "When starting a new level I see a
+  blank screen when the level is being set up. But when moving between
+  scenes I see the end of the old scene while the new one is being set
+  up. And the set up notice is a small block of text in the lower left
+  hand of the screen. It might be better to show nothing or a blurred
+  scene as the background and a bigger notice in the middle of the
+  screen about setting up the new scene. Or maybe instead of text we have
+  a little progress bar or rotating icon that is a familiar metaphor for
+  user interfaces to confirm something is happening (vs being hung) but
+  it is not ready yet." Why today (`src/ui/topple.js`): the canvas is
+  hidden only for a new level (`showPlay`: no scene yet, or the stage's
+  level isn't the game's; 2026-11-12, a new level "briefly shows the old
+  level"), so between scenes the last frame stays up; the notice is the
+  hint line at the park's foot ("Setting up the scene…"). On the old
+  tablet a scene takes seconds to make (the building site 5.7 s, the
+  park 6.9 s: "The speed test on the old tablet"). Options to discuss:
+  the same for both (nothing, or the last scene blurred), a notice in
+  the middle, a spinner or progress bar. **Agreed and built** (developer:
+  "that is good"; on `block-game`, for 10.8): both the same, the park
+  washed with the sky's colour over the last scene (or the park's colour
+  for a new level), a spinner and bigger words in the middle; no blur (not
+  measured on the old tablet) and no progress bar (the set-up would have
+  to report how far it is). To close once seen on the devices.
+  2026-11-14, developer, on 10.8 (the tablet and the phone): "I tested
+  10.8. All good." **Closed** ("10.8 tried: all good; 10.9 and Hardest").
+- **Q101. The blocks left glow after a pause?** (2026-11-13, developer:
+  on the phone, the building site looked all down with something still
+  to hit; "make them glow or get brighter for a few seconds").
+  2026-11-13, developer: "worth a try". Built (for 10.6, "Responsiveness
+  first; ..."): after 6 s waiting, the standing blocks glow twice; to try.
+  2026-11-13, developer, on 10.6: "effective on the phone"; on the
+  tablet "a VERY long time before the glowing happens. I think a delay of
+  4 seconds is plenty." Built (for 10.7, "10.6 tried: ..."): 4 s, and the
+  log tells why a wait runs long. Open for why it's long on the tablet.
+  2026-11-14, developer, on 10.8 (the tablet and the phone): "I tested
+  10.8. All good." **Closed** ("10.8 tried: all good; 10.9 and Hardest").
 - **Q100. Sounds and the animals' fright before the impact** (2026-11-13,
   developer, the old tablet). The log: consistent with Q99's cause (the
   fright at 45° seconds before the landing in 0.15x slow motion).
@@ -20587,3 +20593,59 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103, Q104
   (live, to see), Q105 (the wait live; the barrow aside built, to try).
+
+## 2026-11-14: 10.8 tried: all good; 10.9 and Hardest
+
+- The developer: "I tested 10.8. All good." Q101 (the glow) and Q104 (the
+  set-up notice) closed, moved to Resolved. Asked whether Q102 (Start
+  again's one question) and Q103 (out of reach counts as down), from
+  10.7, can close too.
+- The developer: "Is it worth releasing 10.9 for this one fix? Maybe we
+  should move on the making the hardest level harder ... before we work
+  on making the hardest level harder we should discuss approach."
+- **Claude's view on 10.9: publish it now.** A release costs Claude a few
+  minutes by the checklist and the developer nothing until they next
+  reach the building site's scene 5; the fix is to a scene that can lose
+  a ❤️ to a brick hardly seen; only that scene changes (measured), so it
+  is low risk; and published alone, anything odd there afterwards is
+  clearly this fix, not Hardest's work (the developer, 2026-10-15: "we
+  tried to do too many different things at once").
+- **Claude's view on Hardest** (what's agreed: Q96, Q98 in "Q96: a
+  difficulty choice" and "The old tablet the worst case; ..."): its
+  challenge from its scenes, no new controls; every scene winnable; no
+  fewer balls, no wind; things that move liked, timing "smooth and
+  predictable"; a smaller ball, wider gaps, another camera "perhaps";
+  things not to hit lose the scene, how they show it to discuss (Q97).
+  Hardest is Harder's dots for now. The points to agree:
+  1. **Where it lives**: Hardest plays the same levels and settings, with
+     its own harder version of each scene (the same structures changed),
+     rather than structures of its own. Claude's pick: one switch per
+     scene, so it works for every level at once and the themes stay.
+  2. **Which levers, in order** (cheapest and most measurable first):
+     a. spread out: the structure's parts further apart, each needing its
+        own hit (the check keeps it winnable in 5 balls);
+     b. a smaller ball (say 70%): a near miss misses;
+     c. things that move: a cart or plank crossing in front, or the
+        structure on a slowly turning stand; on the physics' clock, so the
+        same on the old tablet; the check throws at several moments; the
+        most work, and the frame rate on the old tablet matters;
+     d. things not to hit: after Q97's discussion of how they look;
+     e. another camera: last; Q70's side view confused.
+  3. **How to judge it**: the tests' player aims perfectly, so it can't
+     tell Harder from Hardest. A player with a person's scatter in its
+     aim, measured on Harder first, gives pass criteria before building
+     (say: Hardest wins clearly fewer scenes than Harder, every scene
+     still winnable by the perfect player); then the developer's own play.
+  4. **Mockup or build**: a and b straight to a build (small, measured);
+     c a mockup first, since its feel is the point.
+
+**Status (start here next session)**
+- **Live: 10.8**, tried, all good. On `block-game`, not published: Q105's
+  fix (the barrow aside, 10.9).
+- **From the developer:** publish 10.9 now (Claude: yes)? Q102 and Q103
+  closed too? Then Hardest's approach: the four points above.
+- The testing folder `Web-Games-testing/2026-11-13_old-tablet/` (five
+  logs, all recorded here) to purge with the developer's OK.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q102, Q103, Q105 (the
+  barrow aside, 10.9, to try).
