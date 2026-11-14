@@ -20649,3 +20649,32 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q102, Q103, Q105 (the
   barrow aside, 10.9, to try).
+
+## 2026-11-14: Release 10.9 published and live
+
+- The developer: "Yes, publish 10.9".
+- Release set to 10.9 (a scratch script, CRLF kept), `node tools/offline.js`
+  (version 138e91dcd48f, 190 files; sw.js and version.js put back to
+  CRLF), notes in RELEASES.md; 624 tests pass; `node tools/release.js`
+  said ready.
+- `main` fast-forwarded to 67e856f, tag `v10.9` pushed, the GitHub release
+  made from `node tools/release.js notes`. The Pages build ran (built
+  67e856f); the live `version.js` reads 138e91dcd48f, `release.js` and
+  `sw.js` 10.9. No `serve.js` running (only the app's own WebView).
+
+**Status (start here next session)**
+- **Live: 10.9** (the barrow aside, Q105). `block-game` = `main` plus
+  this entry. Nothing waiting to publish.
+- **For the developer:** on a device, the building site's scene 5 (twin
+  towers): the barrow aside of the low wall; does the scene look small
+  when the barrow stands right? Then Q105 closed if liked.
+- **From the developer:** Q102 and Q103 (10.7) closed too? The OK to
+  purge `Web-Games-testing/2026-11-13_old-tablet/` (five logs, all
+  recorded here).
+- **Next:** Hardest's approach, to discuss: the four points in "10.8
+  tried: all good; 10.9 and Hardest" (where it lives, the levers in
+  order, a player with a person's scatter to judge it, mockup or build).
+  A fresh session suggested for it.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q102, Q103, Q105 (the
+  barrow aside, live, to try).
