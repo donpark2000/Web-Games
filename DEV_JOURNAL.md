@@ -21742,3 +21742,32 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q97 (things not to hit: how they would show it),
   Q106 (Hardest's moving things, level by level: the building site and
   the park live in 10.11, Frosty Times built).
+
+## 2026-11-14: Release 10.12 published and live
+
+- The developer: "Publish 10.12".
+- Release set to 10.12, `node tools/offline.js` (version 1b0b7a7cccc1,
+  191 files; sw.js and version.js put back to CRLF), notes in
+  RELEASES.md; 664 tests pass; `node tools/release.js` said ready.
+- `main` fast-forwarded to 7d7e63c, tag `v10.12` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (built 7d7e63c); the live `version.js` reads 1b0b7a7cccc1,
+  `release.js` and `sw.js` 10.12. Claude's preview server stopped; no
+  other `serve.js` running.
+
+**Status (start here next session)**
+- **Live: 10.12** (Hardest in Frosty Times: the snowman on skates, the
+  snowball machine, the giant snowflake in scenes 1, 3, 5; spread out in
+  2 and 4). `block-game` = `main` plus this entry. Nothing waiting to
+  publish.
+- **For the developer:** on the devices, Hardest in Frosty Times: the
+  snowman (his size when he crosses near you; a ball at his head), the
+  snowballs (one burst), the snowflake (easy to see? a ball between its
+  arms), the spread-out scenes; whether the snowman feels too easy (the
+  most open of the movers).
+- **Then:** session 4 of the build, in a fresh session: Cactus Canyon's
+  moving things (Claude's earlier pick: a mine cart on rails; three
+  things, one per way, as the others).
+- **Open questions:** Q97 (things not to hit: how they would show it),
+  Q106 (Hardest's moving things, level by level: the building site, the
+  park and Frosty Times live in 10.12).
