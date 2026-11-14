@@ -21538,3 +21538,29 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q97 (things not to hit: how they would show it),
   Q106 (Hardest's moving things, level by level: the building site live,
   the park built).
+
+## 2026-11-14: Release 10.11 published and live
+
+- The developer: "Publish 10.11".
+- Release set to 10.11, `node tools/offline.js` (version 1886c0185240,
+  191 files; sw.js and version.js put back to CRLF), notes in
+  RELEASES.md; 651 tests pass; `node tools/release.js` said ready.
+- `main` fast-forwarded to 63e6681, tag `v10.11` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (built 63e6681); the live `version.js` reads 1886c0185240,
+  `release.js` and `sw.js` 10.11. Claude's preview server stopped; no
+  other `serve.js` running.
+
+**Status (start here next session)**
+- **Live: 10.11** (Hardest in the park: the tyre swing, the bucket seat
+  on a zip line, the kite in scenes 1, 3, 5; spread out in 2 and 4).
+  `block-game` = `main` plus this entry. Nothing waiting to publish.
+- **For the developer:** on the devices, Hardest in the park: the three
+  things, a ball through the tyre's hole, the spread-out scenes; whether
+  a lob passing through the zip line's cable (drawn only) matters.
+- **Then:** session 3 of the build, in a fresh session: Frosty Times'
+  moving things (the developer's earlier ideas: a moving snowman or a
+  snowball machine; three things, one per way, as the park's).
+- **Open questions:** Q97 (things not to hit: how they would show it),
+  Q106 (Hardest's moving things, level by level: the building site and
+  the park live in 10.11).
