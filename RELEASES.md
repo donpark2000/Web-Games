@@ -7,6 +7,21 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.11 (2026-11-14, version 1886c0185240)
+
+Topple!: Hardest in the park has things that move in the way.
+
+- **Scenes 1, 3 and 5**: one of three park things moves between you and
+  the structure, each once, in a different order each game: a **tyre
+  swing** swinging across (throw through its hole and the ball carries
+  on), a **bucket seat** sliding along a zip line, and a **kite** that
+  dives down, flutters, and is pulled back up. A ball that hits one
+  stops and drops: time your throw.
+- **Scenes 2 and 4**: the pieces are spread out, left and right, near
+  and far, each needing its own aim.
+- The building site's Hardest is as it was; Normal and Harder, and
+  Hardest in the other levels, are as they were.
+
 ## 10.10 (2026-11-14, version 142295fec36f)
 
 Topple!: Hardest at the building site has things that move in the way.
