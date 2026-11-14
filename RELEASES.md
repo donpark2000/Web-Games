@@ -7,6 +7,21 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.10 (2026-11-14, version 142295fec36f)
+
+Topple!: Hardest at the building site has things that move in the way.
+
+- **Scenes 1, 3 and 5**: the crane's load (a bundle of orange girders
+  or a pallet of bricks) moves between you and the structure, each
+  scene its own way: carried across and back, swinging on its cable,
+  a line of loads passing one way, or **dropped** from the sky, held,
+  and hauled back up. Its speed changes from crossing to crossing; on
+  the last scene it sometimes stops part way. A ball that hits it
+  stops and drops: time your throw.
+- **Scenes 2 and 4**: the pieces are spread out, left and right, near
+  and far, each needing its own aim.
+- Normal and Harder, and Hardest in the other levels, are as they were.
+
 ## 10.9 (2026-11-14, version 138e91dcd48f)
 
 Topple!: no block hidden behind the wheelbarrow.
