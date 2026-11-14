@@ -10,7 +10,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng, FAR_TREES, farBalls, treeBalls, CORE } from '../core/topple.js';
-import { CABLE_TOP, DROP_FROM, ZIP_Y } from '../core/topple-movers.js';
+import { CABLE_TOP, DROP_FROM, ZIP_Y, SNOWMAN, MACHINE, MUZZLE_Y, machineAt } from '../core/topple-movers.js';
 
 // Where the crane's cable goes up to (out of sight): the jib; a drop's from
 // higher, over the load hauled up out of sight.
@@ -419,14 +419,134 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     span(g, new THREE.Vector3(...B), new THREE.Vector3(0.05, -h / 2 - 1.1, 0), 0.006, stringMat);
     for (let k = 1; k <= 5; k++) { const bow = part(0.12, 0.05, 0.01, kiteMats[k % 2], 0.01 * k, -h / 2 - 0.2 * k, 0); bow.rotation.z = 0.5 * (k % 2 ? 1 : -1); g.add(bow); }
   }
+  // Frosty Times' (Q106, session 3): drawn round the physics' shapes (the
+  // snowman's three balls, a snowball, the snowflake's arms and branches),
+  // with what is drawn only: the snowman's skates, stick arms, scarf, coal
+  // and carrot and his top hat (knocked off by a ball at his head, it
+  // tumbles to the snow); the snowball machine; the snowflake's darker
+  // edge. Snow a little blue in its shade (white on the snow would vanish);
+  // the snowflake icy blue with a darker blue edge and a glint.
+  const snowMat = new THREE.MeshStandardMaterial({ color: '#F6F9FD', roughness: 0.85 });
+  const coalMat = new THREE.MeshStandardMaterial({ color: '#1C1C1E', roughness: 0.6 });
+  const carrotMat = new THREE.MeshStandardMaterial({ color: '#E8742A', roughness: 0.7 });
+  const stickMat = new THREE.MeshStandardMaterial({ color: '#5A3E28', roughness: 0.9 });
+  const scarfMat = new THREE.MeshStandardMaterial({ color: '#C8283A', roughness: 0.8 });
+  const bladeMat = new THREE.MeshStandardMaterial({ color: '#C9CED3', roughness: 0.3, metalness: 0.8 });
+  const flakeMat = new THREE.MeshStandardMaterial({ color: '#A9DDF7', emissive: '#3C86BA', emissiveIntensity: 0.35, roughness: 0.2, metalness: 0.15 });
+  const flakeEdge = new THREE.MeshStandardMaterial({ color: '#2B6A9A', roughness: 0.4 });
+  const machineMat = new THREE.MeshStandardMaterial({ color: '#2F7BD0', roughness: 0.55, metalness: 0.3, side: THREE.DoubleSide });
+  const ball = (r, mat, x, y, z, seg = 24) => { const o = new THREE.Mesh(new THREE.SphereGeometry(r, seg, Math.round(seg * 2 / 3)), mat); o.position.set(x, y, z); return o; };
+  function snowman(g, m) {
+    const [b, md, hd] = m.load.shapes, h = m.load.h;
+    for (const sh of [b, md, hd]) g.add(ball(sh.r, snowMat, ...sh.at));
+    // coal eyes and buttons, a carrot nose, all facing you (+z)
+    const [hx, hy, hz] = hd.at, fr = hd.r;
+    for (const sx of [-1, 1]) g.add(ball(0.035, coalMat, hx + sx * 0.09, hy + 0.06, hz + fr * 0.92, 8));
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.26, 10), carrotMat); nose.rotation.x = Math.PI / 2; nose.position.set(hx, hy - 0.01, hz + fr + 0.1); g.add(nose);
+    for (const k of [-0.12, 0.05]) g.add(ball(0.04, coalMat, 0, md.at[1] + k, md.r * 0.97, 8));
+    // a red scarf at his neck, its end hanging
+    const neck = (md.at[1] + md.r + hd.at[1] - hd.r) / 2;
+    const scarf = new THREE.Mesh(new THREE.TorusGeometry(hd.r * 0.82, 0.06, 8, 20), scarfMat); scarf.rotation.x = Math.PI / 2; scarf.position.y = neck; g.add(scarf);
+    g.add(part(0.11, 0.3, 0.04, scarfMat, 0.12, neck - 0.16, hd.r * 0.8));
+    // stick arms, out and up
+    for (const sx of [-1, 1]) span(g, new THREE.Vector3(sx * md.r * 0.8, md.at[1] + 0.05, 0), new THREE.Vector3(sx * (md.r + 0.5), md.at[1] + 0.35, 0.05), 0.022, stickMat);
+    // two skates under him: black boots, silver blades along the way he goes
+    for (const sz of [-1, 1]) {
+      g.add(part(0.34, 0.07, 0.14, coalMat, 0, -h / 2 + SNOWMAN.skate - 0.035 + 0.01, sz * 0.16));
+      g.add(part(0.46, 0.035, 0.025, bladeMat, 0, -h / 2 + 0.018, sz * 0.16));
+    }
+    // the top hat (its own group: knocked off, it leaves him), a red band round it
+    const hat = new THREE.Group(), top = hd.at[1] + hd.r - 0.04;
+    hat.add(new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.03, 20), coalMat));
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.18, SNOWMAN.hat - 0.03, 20), coalMat); crown.position.y = (SNOWMAN.hat - 0.03) / 2 + 0.015; hat.add(crown);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(0.183, 0.183, 0.05, 20), scarfMat); band.position.y = 0.05; hat.add(band);
+    hat.position.set(0, top, 0); hat.rotation.z = -0.12; g.add(hat);
+    Object.assign(g.userData, { snowman: true, hat, lastX: null, lean: 0 });
+  }
+  // a snowball: a smooth ball of snow (lumpy, its facets showed), a few clumps stuck on so its roll shows
+  function snowball(g, m) {
+    const r = m.load.w / 2;
+    g.add(ball(r, snowMat, 0, 0, 0, 28));
+    for (const [a, b] of [[0.4, 0.3], [2.3, -0.5], [4.1, 0.9], [5.4, -1.1]]) g.add(ball(r * 0.22, snowMat, r * 0.9 * Math.cos(a) * Math.cos(b), r * 0.9 * Math.sin(a) * Math.cos(b), r * 0.9 * Math.sin(b), 10));
+    g.userData.snowball = true;
+  }
+  function snowflake(g, m) {
+    // each arm and branch as the physics has it, over a darker one a little bigger behind (its edge)
+    for (const sh of m.load.shapes) {
+      const [hx, hy, hz] = sh.half;
+      const face = part(2 * hx, 2 * hy, 2 * hz, flakeMat, ...sh.at); face.rotation.z = sh.rot; g.add(face);
+      const edge = part(2 * hx + 0.04, 2 * hy + 0.04, 2 * hz * 0.6, flakeEdge, sh.at[0], sh.at[1], sh.at[2] - hz * 0.7); edge.rotation.z = sh.rot; g.add(edge);
+    }
+    g.userData.flake = true;
+  }
+  // The snowball machine: a blue box on skids, a hopper of snow on top, a chute up to the right (its muzzle where the snowballs start)
+  function machine(m) {
+    const g = new THREE.Group(), [x, , z] = machineAt(m), { w, h, d } = MACHINE;
+    g.add(part(w, h * 0.7, d, machineMat, 0, h * 0.35 + 0.08, 0));
+    for (const sz of [-1, 1]) g.add(part(w + 0.2, 0.06, 0.08, coalMat, 0, 0.03, sz * d * 0.4));
+    const hop = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.42, w * 0.28, h * 0.3, 16), machineMat); hop.position.set(-0.08, h * 0.85 + 0.08, 0); g.add(hop);
+    g.add(ball(w * 0.36, snowMat, -0.08, h + 0.08, 0, 16));
+    // the chute: from the box's right side up to the muzzle (MACHINE.back to its right, MUZZLE_Y up)
+    const a = new THREE.Vector3(w * 0.2, h * 0.45, 0), b = new THREE.Vector3(MACHINE.back, MUZZLE_Y, 0), v = b.clone().sub(a);
+    const chute = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.28, v.length() + 0.2, 16, 1, true), machineMat);
+    chute.position.copy(a).add(b).multiplyScalar(0.5); chute.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.normalize()); g.add(chute);
+    g.position.set(x, 0, z);
+    g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    return g;
+  }
+  // Puffs of snow (a snowball burst, or come down) and sparkles (the snowflake breaking up): little bits flying out and fading
+  const puffGeo = new THREE.IcosahedronGeometry(1, 0);
+  const puffMats = { snow: new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.9, depthWrite: false }), sparkle: new THREE.MeshBasicMaterial({ color: '#CDEFFF', transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }) };
+  let puffs = [];
+  function puff(kind, at, n = 26, size = 0.08) {
+    const rand = rng((Math.abs(Math.round(at[0] * 997 + at[1] * 131 + at[2] * 17)) >>> 0) || 1);
+    for (let i = 0; i < n; i++) {
+      const o = new THREE.Mesh(puffGeo, puffMats[kind].clone()), a = rand() * 2 * Math.PI, up = rand() * 2 - 0.4, sp = 1 + rand() * 2.2;
+      o.position.set(...at); o.scale.setScalar(size * (0.6 + rand()));
+      scene.add(o);
+      puffs.push({ o, v: [Math.cos(a) * sp, up * sp, Math.sin(a) * sp * 0.6], life: 0.6 + rand() * 0.5, t: 0, g: kind === 'snow' ? 6 : 1.5, top: kind === 'snow' ? 0.9 : 0.95 });
+    }
+  }
+  function stepPuffs(dt) {
+    puffs = puffs.filter(p => {
+      p.t += dt;
+      if (p.t >= p.life) { scene.remove(p.o); p.o.material.dispose(); return false; }
+      p.v[1] -= p.g * dt;
+      p.o.position.x += p.v[0] * dt; p.o.position.y = Math.max(0.02, p.o.position.y + p.v[1] * dt); p.o.position.z += p.v[2] * dt;
+      p.o.material.opacity = p.top * (1 - p.t / p.life);
+      return true;
+    });
+  }
+  // The snowman's hat knocked off: flies up and out to the side he's skating towards (straight back, it
+  // fell behind him out of sight), tumbling, and lies on the snow.
+  let hatFly = null;
+  function knockHat(g, dir = 1) {
+    const hat = g.userData.hat;
+    if (!hat || hatFly) return;
+    const p = new THREE.Vector3(); hat.getWorldPosition(p);
+    g.remove(hat); hat.position.copy(p); hat.rotation.set(0, 0, -0.12); scene.add(hat);
+    hatFly = { hat, v: [1.3 * dir, 3.4, -0.5], spin: [-3.5, 1.2, 2.4 * dir], rest: false };
+    moverStatic.push(hat);
+  }
+  function stepHat(dt) {
+    if (!hatFly || hatFly.rest) return;
+    const h = hatFly.hat, v = hatFly.v;
+    v[1] -= 9.82 * dt;
+    h.position.x += v[0] * dt; h.position.y += v[1] * dt; h.position.z += v[2] * dt;
+    h.rotation.x += hatFly.spin[0] * dt; h.rotation.y += hatFly.spin[1] * dt; h.rotation.z += hatFly.spin[2] * dt;
+    // on the snow: lying on its side
+    if (h.position.y <= 0.18 && v[1] < 0) { h.position.y = 0.18; h.rotation.set(Math.PI / 2, h.rotation.y, 0.3); hatFly.rest = true; }
+  }
   // The kite's string: to someone behind you, off the right of the view (world m)
   const KITE_HAND = new THREE.Vector3(7, 1.3, 2.5);
-  let moverStatic = [];   // the zip line's cable, the kite's string: not on a body
+  let moverStatic = [];   // the zip line's cable, the kite's string, the snowball machine, a knocked-off hat: not on a body
+  let lastT = null;       // syncMovers' last time (s): the puffs' and the hat's steps
+  const OWN = { tyre, zip: zipSeat, kite, snowman, snowball, flake: snowflake };
   function loadMesh(m) {
-    if (m.look === 'tyre' || m.look === 'zip' || m.look === 'kite') {
+    if (OWN[m.look]) {
       const g = new THREE.Group();
-      ({ tyre, zip: zipSeat, kite })[m.look](g, m);
       g.userData = { kite: m.look === 'kite' };
+      OWN[m.look](g, m);
       g.traverse(o => { if (o.isMesh && o.material !== stringMat) { o.castShadow = true; o.receiveShadow = true; } });
       return g;
     }
@@ -453,6 +573,8 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   function setMovers(m) {
     for (const g of [...moverMeshes, ...moverStatic]) { scene.remove(g); g.traverse(o => o.geometry?.dispose()); }
     moverMeshes = []; moverStatic = [];
+    for (const p of puffs) { scene.remove(p.o); p.o.material.dispose(); }
+    puffs = []; hatFly = null; lastT = null;
     if (!m) return;
     for (let i = 0; i < m.n; i++) { const g = loadMesh(m); scene.add(g); moverMeshes.push(g); }
     if (m.look === 'zip') {
@@ -466,6 +588,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       s.userData.string = true;
       scene.add(s); moverStatic.push(s);
     }
+    if (m.look === 'snowball') { const g = machine(m); scene.add(g); moverStatic.push(g); }
     applyCuts(three, cuts);
   }
 
@@ -484,11 +607,31 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     // Hardest's thing that moves (Q106): its look (moverFor()'s, or null), and each load where the physics has it.
     setMovers,
     syncMovers(bodies, t = 0) {
+      const dt = lastT == null ? 0 : Math.min(0.1, Math.max(0, t - lastT));
+      lastT = t;
       bodies.forEach((b, i) => {
         const g = moverMeshes[i];
         if (!g) return;
+        const u0 = g.userData, was = g.position.clone();
+        // Frosty Times': a snowball burst, or come down on the snow; the snowflake broken up (puffs, sparkles), hidden till back
+        const hidden = !!(b.gone || b.burst);
+        if (hidden && g.visible && dt > 0) {
+          if (u0.snowball) puff('snow', [was.x, was.y, was.z], b.burst ? 30 : 18, b.burst ? 0.09 : 0.06);
+          if (u0.flake) puff('sparkle', [was.x, was.y, was.z], 34, 0.05);
+        }
+        g.visible = !hidden;
         g.position.set(b.position.x, b.position.y, b.position.z);
         g.quaternion.set(b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w);
+        if (u0.snowman) {
+          // leaning into the way he skates (drawn only); his hat off once a ball has hit his head
+          const vx = dt > 0 && u0.lastX != null ? (b.position.x - u0.lastX) / dt : 0;
+          u0.lastX = b.position.x;
+          u0.lean += (Math.max(-0.2, Math.min(0.2, -0.06 * vx)) - u0.lean) * Math.min(1, dt * 6);
+          g.rotation.z = u0.lean;
+          if (b.hatOff && u0.hat?.parent === g) knockHat(g, vx < 0 ? -1 : 1);
+        }
+        // the snowflake rocks a little as it falls (drawn only: the physics keeps its arms face on)
+        if (u0.flake) g.rotateY(0.28 * Math.sin(1.9 * t));
         if (g.userData.kite) {
           // the kite flutters as it hangs in the wind (drawn only: the physics' diamond stays upright)
           g.rotation.z += 0.1 * Math.sin(2.7 * t) + 0.04 * Math.sin(7.3 * t);
@@ -508,6 +651,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
           u.cable.position.y = u.cableFrom + len / 2;
         }
       });
+      stepPuffs(dt); stepHat(dt);
     },
     // Each block's mesh where the physics has it; the balls in flight (meshes of balls gone taken away).
     sync(blockRecs, ballBodies) {

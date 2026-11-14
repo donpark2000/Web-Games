@@ -4,7 +4,13 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-14, latest): **Topple! Hardest at the building site:
+*Status (2026-11-14, latest): **Topple! Hardest in Frosty Times: a
+snowman on skates (a ball at his head knocks his hat off), the snowball
+machine (a snowball hit bursts), a giant snowflake falling (a fifth way;
+a ball can pass between its arms), each once in scenes 1, 3, 5, crossing
+where they go through neither the rock nor the pine; 2 and 4 spread
+out** (on `block-game`, for release 10.12; see "Topple!", Hardest's
+scenes). Earlier the same day: **Topple! Hardest at the building site:
 scenes 1, 3, 5 a crane's load moving in the way (slide, swing, stream or
 a new drop, each scene its own), 2 and 4 spread out** (on `block-game`,
 for release 10.10; see "Topple!", Hardest's scenes). 2026-11-13: **Topple!: the glow by about 8 s after a
@@ -2502,7 +2508,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   from the sky"). Built one level at a time (the build plan, agreed
   2026-11-14): **the building site** first, then **the park**, then the
   levels in order (developer, 2026-11-14: "I suggest we just tackle them
-  in order"); in the levels not built yet Hardest is as before (Harder's
+  in order"); then **Frosty Times** (2026-11-14); in the levels not
+  built yet Hardest is as before (Harder's
   dots, the usual scenes). In a built level, dealt once per game and
   level (`hardestDeal`):
   - **Scenes 1, 3 and 5: a thing that moves in the way**, each its own
@@ -2526,8 +2533,32 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     black rubber **bucket seat on a zip line** (slide; the cable across
     the park in sight, 2.7 m up; drawn only, so a lob may pass through
     it), a red and yellow **kite** (drop: it dives in, flutters, is
-    pulled back up; its string to someone behind you, off the right). A
-    ball that touches it stops
+    pulled back up; its string to someone behind you, off the right).
+    **Frosty Times'** (developer, 2026-11-14: "a moving snowman or a
+    snowball machine", then "a giant snowflake that falls from the
+    sky"; "Yes, build those three"): three things, each once, each its
+    own way, in a dealt order: a **snowman on skates** (slide, on the
+    snow: 2 m tall at Far, so he takes the low and middle throws, not the
+    lobs; leaning as he skates; **a ball at his head knocks his top hat
+    off**, once, it tumbles to the snow), the **snowball machine** (a
+    stream of four snowballs, 0.6 m, lobbed from its muzzle over the line
+    at 1.5 m and down to the snow, rolling; **a snowball hit bursts** in a
+    puff, gone till it comes round again), a **giant snowflake** (a fifth
+    way, **fall**: no rope, so it drifts down from just out of sight at
+    its own steady speed, swaying from side to side so it crosses the
+    line at a slant, turning slowly, and breaks up in sparkles on what it
+    comes down on; the next after a wait; tricky: now and then a gust
+    holds it up; icy blue with a darker blue edge, 1.4 m across, six arms
+    with branches; **a ball can pass between its arms**, logged `ball
+    through the snowflake`). The rock stands on the line where the
+    others cross, so these cross where they go through neither the rock
+    nor the pine (0.55 of the way, else 0.6, 0.65, 0.5, 0.7, 0.75, 0.45,
+    0.4: further first, as nearer the hand they loom), the snowman stopping
+    short of a thing at either end, the snowballs bursting on the first
+    thing in their path (never before the line), the snowflakes coming
+    down on a thing at most 30% of the time; else the layout is thrown
+    away. Sounds: the snowman and a snowball a soft `poof`, the snowflake
+    `iceknock`, the hat `boing`. A ball that touches it stops
     and drops; it never touches a block; the dots ignore it (the timing
     is the player's). A layout whose mover leaves the way open under 40%
     of the time, or shuts it over 3.5 s at once, is thrown away (the
@@ -2536,7 +2567,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     apart, left and right, nearer and further (the building site: three
     posts with bricks; two small frames; a frame and two posts; the park:
     three posts with cubes, two small gates, a gate and two posts, the
-    tree beside them, not in front), each its own throw.
+    tree beside them, not in front; Frosty Times: three ice pillars with
+    cubes, two small ice gates, an ice gate and two pillars), each its
+    own throw.
   Later, to discuss: things not to hit (a hit loses the scene, a ❤️; how
   they show it, Q97). Not wanted: fewer balls (scenes must stay
   winnable), wind, a smaller ball or another camera (developer,

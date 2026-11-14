@@ -239,7 +239,7 @@ test('movers: a drop\'s load up at the top is out of sight, upright and sideways
 // Hardest's scenes, dealt (developer, 2026-11-14: "change the obstacle from
 // scene to scene. Maybe moving things every other scene and then use space").
 test('movers: Hardest\'s deal: the building site\'s scenes 1, 3, 5 each a different way and load, 2 and 4 spread out; other levels none yet', () => {
-  assert.deepEqual(MOVER_LEVELS, [1, 2]);
+  assert.deepEqual(MOVER_LEVELS, [1, 2, 3]);
   assert.deepEqual(MOVING_SCENES, [1, 3, 5]);
   for (let lv = 1; lv <= MAX_LEVEL; lv++) if (!MOVER_LEVELS.includes(lv)) assert.equal(hardestDeal(5, lv), null, `level ${lv}: no mover yet`);
   assert.equal(hardestDeal(5, 9), null);
@@ -418,8 +418,8 @@ test('movers: Hardest\'s scenes are made as dealt, the mover\'s way open often e
     }
   }
   assert.equal(n, 2 * SCENES);
-  // Frosty Times on Hardest: as it was (no deal there yet)
-  const p = createWorld().makeScene(12345, 3, 1, null, 'hardest');
+  // Cactus Canyon on Hardest: as it was (no deal there yet)
+  const p = createWorld().makeScene(12345, 4, 1, null, 'hardest');
   assert.equal(p.layout.hardest, undefined); assert.equal(p.mover, null);
   // a mover in the way most of the time, and for long: fails, saying why
   const { s } = siteScene();

@@ -52,6 +52,11 @@ time, each tried before publishing:
   Built ("Hardest in the park built"): the tyre swing (a ball can go
   through its hole), the bucket seat on a zip line, the kite; to publish
   (10.11) and try.
+  2026-11-14, developer, 10.11: "Park plays well, cable is fine".
+  Frosty Times' three agreed (the snowman on skates, the snowball
+  machine, "a giant snowflake that falls from the sky" in place of the
+  swing). Built ("Hardest in Frosty Times built"): to publish (10.12)
+  and try.
 
 ## Proposed additions to the standards skill
 
@@ -21564,3 +21569,176 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q97 (things not to hit: how they would show it),
   Q106 (Hardest's moving things, level by level: the building site and
   the park live in 10.11).
+
+## 2026-11-14: 10.11 tried: the park plays well; Frosty Times' three things agreed (Q106)
+
+- **The developer, on 10.11:** "Park plays well, cable is fine" (a lob
+  passing through the zip line's drawn cable doesn't matter).
+- **Frosty Times' things** (Claude's options: a snowman on skates, slide;
+  the snowball machine, stream: the developer's two earlier ideas; a big
+  bell on a rope, swing, with falling snowballs as the other choice). The
+  developer: "I'm not sure I like the swing idea. What do you think of a
+  giant snowflake that falls from the sky?" Claude: better than the bell
+  (the "something falling from the sky" asked for before, and the three
+  things then each move differently); a new way, **fall** (no rope to
+  haul it back: it drifts down rocking side to side, crossing the line
+  at a slant, breaks into sparkles on the snow, and the next comes after
+  a wait); the gaps between its arms real (a ball can pass, as the
+  tyre's hole); icy blue with a darker edge, as white on the snow could
+  be hard to see; faster than a real flake (the check's 3.5 s shut).
+  The developer: "Yes, build those three": **the snowman on skates**
+  (slide; a ball at his head knocks his hat off), **the snowball
+  machine** (stream; a snowball hit bursts into a puff), **the giant
+  snowflake** (fall). Scenes 2 and 4 spread out, as the other levels.
+
+## 2026-11-14: Hardest in Frosty Times built (session 3 of the build; Q106)
+
+- **Asked for:** "Yes, build those three" (the entry above): the snowman
+  on skates, the snowball machine, the giant snowflake.
+- **Built** (on `block-game`, not published):
+  - `src/core/topple-movers.js`: `LOADS` snowman (three spheres, 0.4,
+    0.3 and 0.22 m at Far, 1.97 m tall with his hat; `ground`: his middle
+    at half his height; `head` the third), snowball (a 0.6 m sphere,
+    `arc`, four of them), flake (1.4 m across, 19 thin boxes: a middle,
+    six arms, two branches each; `gaps`). `FROSTY` = { slide: snowman,
+    stream: snowball, fall: flake }; `LEVEL_MOVERS` level 3. A fifth way,
+    **fall** (`WAYS`; the crane still deals over `MOVES`' four, so its
+    deals are unchanged): flakes from `fallFrom(share)` at a steady speed
+    (THROW_TOP over the pace times 0.6-1.5), swaying 0.75-1.1 m either way
+    every 1.8-3.2 s, turning, gone a wait (0.2-0.7 of the pace) once down;
+    tricky, now and then a gust holds one up. The snowballs' arc
+    (`arcY`): the muzzle (0.9 m) at the loop's left end, 1.5 m over the
+    line, the snow at the right; rolling. `clashes`, `meetsThings`,
+    `flakesOn`: Frosty Times' things checked against the rock and pine.
+  - `src/core/topple-world.js`: sphere shapes for movers; a ball at the
+    snowman's head tells `hat` (once); a snowball hit tells `burst` and
+    touches nothing till it comes round again; a ball past the snowflake's
+    plane within its circle, untouched, tells `through` (told once past
+    its thickness: the physics may find a touch only on the next step);
+    the scene check adds "the mover through the rock" (`moverFits` with
+    the parts).
+  - `src/core/topple-levels.js`: Frosty Times' spread-out structures
+    (`iceSpreadPillars`, `iceSpreadGates`, `iceSpreadMix`).
+  - `src/ui/topple-scene.js`: the snowman (coal eyes and buttons, a
+    carrot, a red scarf, stick arms, skates, a top hat with a red band;
+    leaning as he skates; the hat knocked off flies up and out to the
+    side he's skating towards and lies on the snow), the machine (a blue
+    box on skids, a hopper of snow, a chute up to its muzzle), smooth
+    snowballs with clumps (their roll shows), the snowflake (icy blue, a
+    darker blue edge, rocking as drawn); puffs of snow (a burst, a
+    snowball coming down) and sparkles (a snowflake breaking up).
+  - `src/ui/topple.js`: sounds (the snowman and a snowball `poof`, the
+    snowflake `iceknock`, the hat `boing`); logged `snowman's hat
+    knocked off`, `snowball burst`, `ball through the snowflake`; the
+    `mover` line with where it crosses (`share`), the snowman's ends,
+    where the snowballs burst, the snowflakes on a thing. Hardest's setup
+    line: "shorter dots; moving things in levels 1 to 3".
+- **Found on the way:**
+  - **The rock stands on the line where the movers cross.** Measured over
+    27 games' level 3 scenes (two layouts each): the rock 0.45-0.70 of the
+    way (mostly 0.5-0.65), 1.0-1.4 m round; the pine 0.57-0.76, 1.7-3.3 m
+    left. At the crane's 0.55 every snowman and snowflake scene failed (25
+    tries each, "the mover through the rock"). So: these cross at the
+    first depth of 0.55, 0.6, 0.65, 0.5, 0.7, 0.75, 0.45, 0.4 clear of
+    the things; the snowman stops short of a thing at either end (never
+    under 0.25 m past the line); a snowflake breaks up on what it comes
+    down on (a depth where over 30% come down on the rock is passed over:
+    at 0.55, every flake came down on it, so none fell past the low
+    throws); a snowball bursts on the first thing in its path. Over 30
+    games: every scene made, 78 of 90 first try, at most 5; the snowman
+    crossing at 0.4 (11), 0.45 (3), 0.5 (5), 0.55 (1), 0.65-0.75 (10), the
+    snowflake at 0.5-0.75, the snowballs mostly 0.55 (23).
+  - **The snowman loomed.** In the page, crossing at 0.4 of the way, the
+    first snowman (2.34 m at Far) filled half the screen and hid the
+    structure. Now 1.97 m, and the depths tried further away first (it
+    was nearer first). At 0.45, mid-crossing, the structure shows beside
+    him. He may still cross at 0.4 in about a third of games: for the
+    developer to judge on the phone.
+  - **The snowflake's start height depends on its depth.** At a fixed 6.5
+    m a flake showed at the top of an upright phone (0.84 of the view's
+    top). Measured over 120 scenes, four screen shapes: out of sight it
+    must start 6.15 m up crossing at 0.4, up to 7.75 m at 0.75; so
+    `fallFrom` 6.6 m at 0.4 and 4.6 m more per share (not a drop's 11 m:
+    the way open too long while it falls out of sight).
+  - **How open each leaves the way** (30 games, the check's measure):
+    snowman 0.74-0.81 (tricky 0.70-0.85), snowballs 0.60-0.64 (tricky
+    0.64-0.79), snowflake 0.58-0.68; the longest shut 2.4 s. The live ones
+    for comparison (one scene each): the zip seat 0.75 / 0.69, the tyre
+    0.68 / 0.58, the kite 0.64 / 0.46, the crane's 0.47-0.69. Before
+    tuning, the snowflake (from 11 m, swaying 0.85-1.25 m) was 0.76-0.79
+    and three snowballs 0.71-0.78: now four snowballs, the snowflake from
+    `fallFrom`, swaying 0.75-1.1 m. The snowman is the most open: to
+    tune if he feels easy.
+  - **cannon-es lists a contact's shapes in its own order** (by shape
+    type), not the bodies': the first hat check took the ball's sphere
+    for the snowman's (index -1) and never knocked the hat off; now
+    whichever of the two is his.
+  - **The near-line throws pass high.** In the hat test's scene the
+    straight throws at a block within 5 cm of the line pass the mover's
+    depth no lower than 1.55 m (the low ones go through the ice gate's
+    opening); off the line, down to 1.04 m. The test throws where a throw
+    passes at the height wanted, timed for when he's there.
+  - A new test file written by the Write tool came out LF; put to CRLF.
+- **Tests:** `tests/topple-frosty.test.js` (11): the deal (200 games:
+  each thing once, its own way, all six orders, each in each moving scene
+  40+ times; levels 1 and 2's deals for 200 games each hashed against
+  10.11's code, run from the `v10.11` tag: the same); the shapes (the
+  snowman's balls stacked in his box on his skates, the head the top; the
+  snowflake's corners inside its circle, arms in all six directions, a
+  ball clear at 15-60% of it); the fall (steady speed, sways clear of the
+  line, down on the snow, gone a wait out of the way; varied speeds and
+  waits; tricky gusts; the same plan for the same scene); the snowflake's
+  start out of sight at every depth it may cross, four screen shapes;
+  the snowballs' arc, roll and burst on a thing; the snowman's depth
+  (further first), his ends short of a pine, through things everywhere
+  thrown away; the snowflakes taken off the rock; in the physics, his hat
+  off once at his head and not at his middle, a snowball burst and whole
+  again once round, a ball between the snowflake's arms on to a block
+  (told) and one at an arm stopped; the scenes of two games as dealt, open
+  enough, clear of the things, a layout thrown away for the rock (game
+  5's scene 1). `tests/topple-levels.test.js`: level 3 in the
+  spread-out test and the timed player's "every Hardest scene can be won"
+  (every scene of two games won, no timed throw stopped). The sound test
+  has `poof` for Topple!. **Shown to fail** (a temp copy of the repo, one
+  break each, the copy removed; 18 of 19 caught at once): the snowman
+  dealt to stream; the crane dealing over fall too ("dealt otherwise than
+  10.11"); an arm past the circle ("a corner 0.802 m out"); the gaps closed
+  ("clear at 4%"); the snowman off the snow; the snowflake starting at 6.5
+  m ("0.88 of the view's top"); no sway; the snowman's way unchecked; his
+  ends never short ("left end 1.55 of 1.55"); snowballs and snowflakes
+  through things; the hat off at any touch ("his middle: mover, hat");
+  a burst snowball never whole again, or still touched; through the
+  snowflake never told; the depths tried nearest first ("crosses at 0.4,
+  nearer than the usual 0.55"). Missed at first: the spread pillars moved
+  close but still at three depths (still three pieces, no throw took two:
+  a weak break); in one row, close, it's caught ("1 piece"). Whole suite:
+  **664 tests, 664 pass**; `node tools/offline.js` run (version
+  3bf1ea826b52, release still 10.11; `sw.js` and `version.js` put back to
+  CRLF).
+- **Checked in the built-in browser** (`tools/serve.js` on 8123): no
+  console errors; Hardest's setup line; level 3 through the checking
+  hooks: the snowman skating and leaning, a ball at his head (the hat in
+  the physics and the drawing: it lay on its side on the snow); the
+  snowballs lobbed from the machine (at the view's left edge), one burst by
+  a ball; the snowflake falling, clear against the snow; on a 375 px
+  phone, no sideways scroll.
+- **Not checked:** the puffs and sparkles as they happen (the pane hidden,
+  frames only as stepped); a whole level played through on Hardest; the
+  old tablet's frame rate with the snowman's and snowflake's meshes.
+- **Proposed skill additions:** none new.
+
+**Status (start here next session)**
+- **Live: 10.11.** `block-game` = `main` plus journal entries and Hardest
+  in Frosty Times (above), ready to publish as **10.12** with the
+  developer's OK.
+- **From the developer:** OK to publish 10.12? Then try Hardest in Frosty
+  Times on the devices: the snowman (his size when he crosses near you; a
+  ball at his head), the snowballs (one burst), the snowflake (easy to
+  see? a ball between its arms), the spread-out scenes; whether the
+  snowman feels too easy (the most open of the movers).
+- **Then:** session 4 of the build, in a fresh session: Cactus Canyon's
+  moving things (Claude's earlier pick: a mine cart on rails; three
+  things, one per way, as the others).
+- **Open questions:** Q97 (things not to hit: how they would show it),
+  Q106 (Hardest's moving things, level by level: the building site and
+  the park live in 10.11, Frosty Times built).

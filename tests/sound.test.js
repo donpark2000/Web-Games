@@ -219,6 +219,8 @@ const GAME_SOUNDS = {
     'plank', 'brick', 'ring', 'crash', 'iceknock', 'barrel', 'clonk', 'crunch', 'shatter', 'splash',
     // 2026-11-12: the snowy rock clonks (no snow's poof); the map after a level: the lock pops, the face walks, it arrives (Q81)
     'clink', 'climb', 'ding',
+    // Frosty Times' Hardest (2026-11-14): the snowman and a snowball hit, a soft poof (the snowflake iceknock, a hat knocked off boing)
+    'poof',
     // Star Light (2026-11-12): a glowing block knocked (it shatters as ice), the owl's hoot
     'chime', 'hoot'],
 };
@@ -243,7 +245,7 @@ test('sound: each game plays its agreed sounds, all real ones, and the end-of-ro
     assert.deepEqual([...used].sort(), [...want].sort(), `${game}: sounds`);
     checked += want.length;
   }
-  assert.equal(checked, 61);
+  assert.equal(checked, 62);
 });
 
 // 3 s: "Yes! 3!" 2 s, then "Watch me!" 1 s (developer, 2026-10-09; was

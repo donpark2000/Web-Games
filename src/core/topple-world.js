@@ -13,7 +13,7 @@ import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel,
   sceneParts, layoutFor, isDown, MATS, throwRange, shiftThing, SPREAD_STACKS,
 } from './topple.js';
-import { moverAt, moverFor, openShare, gaps, hardestScene } from './topple-movers.js';
+import { moverAt, moverFor, openShare, gaps, hardestScene, clashes } from './topple-movers.js';
 import { fixedStepper } from './fixed-step.js';
 
 export const MAX_SUBSTEPS = 12;                      // MAX_FRAME_S (0.1 s) of steps a frame (8 until 10.6: Q99)
@@ -71,10 +71,15 @@ export const MOVER_KEEP = 0.1;
 export const MOVER_OPEN = 0.4, MOVER_SHUT = 3.5;
 // How open a mover leaves the way ({ open, openS, shutS, changes }) and
 // why it doesn't do (empty: it does).
-export function moverFits(m) {
+// With the scene's parts: also whether it goes through one of the things
+// (Frosty Times': the snowman on the snow, the snowballs, the snowflake,
+// the machine; clashes()).
+export function moverFits(m, parts = null) {
   const fit = { open: openShare(m), ...gaps(m) }, why = [];
   if (fit.open < MOVER_OPEN) why.push('the mover too seldom out of the way');
   if (fit.shutS > MOVER_SHUT) why.push('the mover in the way too long');
+  const through = parts ? clashes(m, parts) : [];
+  if (through.length) { fit.through = through; why.push(`the mover through the ${through.join(', ')}`); }
   return { ...fit, why };
 }
 export const TRIES = 25;   // layouts tried for a scene before taking the best
@@ -189,6 +194,7 @@ export function createWorld({ onHit = () => {} } = {}) {
     // the thing that moves (Q106): the ball stops and drops, once
     if (kind === 'mover' && !b.stopped) { b.stopped = true; b.velocity.scale(MOVER_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); }
     onHit({ a: 'ball', b: kind, v, y: b.position.y, ball: b, other: e.body, mat: e.body.mat, thing: e.body.thing });
+    if (kind === 'mover') moverStruck(e, b);
   }
 
   // No ball touches a bush in the physics (a ball's collision mask leaves the
@@ -227,18 +233,58 @@ export function createWorld({ onHit = () => {} } = {}) {
     if (!mover) return;
     const at = moverAt(mover, moverT + STEP);
     moverBodies.forEach((b, i) => {
-      const { p, tilt } = at[i];
-      // a stream's load coming round again: put there, not swept across
-      if (Math.abs(p[0] - b.position.x) > 1) { b.position.set(...p); b.velocity.set(0, 0, 0); } else b.velocity.set((p[0] - b.position.x) / STEP, (p[1] - b.position.y) / STEP, (p[2] - b.position.z) / STEP);
+      const { p, tilt, gone } = at[i];
+      // a stream's load coming round again, the snowflake gone from the snow up
+      // to the top: put there, not swept across (a burst snowball whole again)
+      if (Math.abs(p[0] - b.position.x) > 1 || Math.abs(p[1] - b.position.y) > 1) {
+        b.position.set(...p); b.velocity.set(0, 0, 0);
+        if (b.burst) { b.burst = false; b.collisionResponse = true; }
+      } else b.velocity.set((p[0] - b.position.x) / STEP, (p[1] - b.position.y) / STEP, (p[2] - b.position.z) / STEP);
       b.quaternion.setFromEuler(0, 0, tilt);
+      b.gone = !!gone;
     });
     moverT += STEP;
   }
   world.addEventListener('preStep', moveMovers);
+  // Frosty Times' things struck (session 3): a ball that touches the
+  // snowman's head knocks his hat off (once a scene); a snowball hit bursts
+  // (no longer touched, and drawn gone, until it comes round again). Told
+  // as onHit b 'hat' and 'burst'.
+  function moverStruck(e, ball) {
+    // (the contact's shapes needn't be in its bodies' order: cannon-es swaps them by shape type; whichever is his)
+    const body = e.body, c = e.contact, k = Math.max(body.shapes.indexOf(c.si), body.shapes.indexOf(c.sj));
+    if (body.thing === 'snowman' && !body.hatOff && mover?.load.head != null && k === mover.load.head) {
+      body.hatOff = true;
+      onHit({ a: 'ball', b: 'hat', v: Math.hypot(ball.velocity.x, ball.velocity.y, ball.velocity.z), y: ball.position.y, ball, other: body, thing: 'snowman' });
+    }
+    if (body.thing === 'snowball' && !body.burst) {
+      body.burst = true; body.collisionResponse = false;
+      onHit({ a: 'ball', b: 'burst', v: 0, y: body.position.y, ball, other: body, thing: 'snowball' });
+    }
+  }
   // A ball through the tyre's hole (developer, 2026-11-14: "being able to
   // shoot through the hole would be cool"): crossing the tyre's middle
   // plane within the hole (the ball's middle within TYRE_HOLE less its
   // radius of the tyre's middle, as the tyre leans), told once a ball.
+  // A ball between the snowflake's arms (session 3: "the gaps between its
+  // arms are real"): one that crosses its middle plane within its circle
+  // and is past its thickness (and the ball's radius) beyond it without
+  // having touched it, told once a ball. (Not told at the crossing itself:
+  // the physics may find the touch only on the next step.)
+  world.addEventListener('postStep', () => {
+    if (!mover?.load.gaps) return;
+    const f = moverBodies[0], R = mover.load.w / 2;
+    for (const { body: b } of balls) {
+      if (b.through || b.stopped || f.gone) continue;
+      const r = b.shapes[0]?.radius ?? BALL.r, past = f.position.z - b.position.z;
+      if (b.crossedFlake == null && past > 0 && past < 0.5 && Math.hypot(b.position.x - f.position.x, b.position.y - f.position.y) < R) b.crossedFlake = moverT;
+      if (b.crossedFlake != null && past > mover.load.d / 2 + r + 0.02) {
+        b.through = true;
+        const off = Math.hypot(b.position.x - f.position.x, b.position.y - f.position.y), v = b.velocity;
+        onHit({ a: 'ball', b: 'through', v: Math.hypot(v.x, v.y, v.z), y: b.position.y, ball: b, other: f, thing: mover.look, offM: +off.toFixed(3) });
+      }
+    }
+  });
   const was = new Map();
   world.addEventListener('preStep', () => { if (mover?.load.hole) for (const { body: b } of balls) was.set(b, b.position.z); });
   world.addEventListener('postStep', () => {
@@ -261,7 +307,8 @@ export function createWorld({ onHit = () => {} } = {}) {
     for (const { p, tilt } of moverAt(m, 0)) {
       // one box, or the load's own boxes (the tyre's ring round its hole, the kite's diamond)
       const b = new CANNON.Body({ mass: 0, type: CANNON.Body.KINEMATIC, material: M.mover });
-      if (m.load.shapes) for (const s of m.load.shapes) b.addShape(new CANNON.Box(new CANNON.Vec3(...s.half)), new CANNON.Vec3(...s.at), new CANNON.Quaternion().setFromEuler(0, 0, s.rot));
+      // (the snowman's balls and a snowball: spheres)
+      if (m.load.shapes) for (const s of m.load.shapes) b.addShape(s.r ? new CANNON.Sphere(s.r) : new CANNON.Box(new CANNON.Vec3(...s.half)), new CANNON.Vec3(...s.at), new CANNON.Quaternion().setFromEuler(0, 0, s.rot ?? 0));
       else b.addShape(new CANNON.Box(new CANNON.Vec3(m.load.w / 2, m.load.h / 2, m.load.d / 2)));
       b.position.set(...p);
       b.quaternion.setFromEuler(0, 0, tilt);
@@ -599,7 +646,7 @@ export function createWorld({ onHit = () => {} } = {}) {
       chk = check(L);
       m = h?.mover ? moverFor(p, h.mover, L.seed) : null;
       if (m) {
-        const { why, ...fit } = moverFits(m);
+        const { why, ...fit } = moverFits(m, p);
         chk.mover = fit;
         if (why.length) { chk.ok = false; chk.why = [chk.why, ...why].filter(Boolean).join('; '); }
       }

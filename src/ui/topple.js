@@ -29,11 +29,11 @@ import { sound } from './sound.js';
 import { resumable } from './resume.js';
 import { drawWatch } from './drawwatch.js';
 import { MAX_FRAME_S } from '../core/fixed-step.js';
-import { moverFor, openShare, gaps } from '../core/topple-movers.js';
+import { moverFor, openShare, gaps, flakesOn, meetsThings } from '../core/topple-movers.js';
 
 // Hardest's thing that moves in the way (journal Q106; the mockup v1-v2
 // through window.TOPPLE_MOCKUP, 2026-11-14, now the game): in a level with
-// a mover (the building site so far), on Hardest, scenes 1, 3 and 5 have
+// a mover (levels 1-3 so far), on Hardest, scenes 1, 3 and 5 have
 // it, each its own way and load, 2 and 4 are spread out (hardestDeal;
 // kept in the scene's layout as `hardest`). window.topple.mover() changes
 // the scene's mover, for checking in a browser (null: none; undefined in
@@ -548,7 +548,9 @@ function placeMover() {
   world.setMovers(m);
   stage.setMovers(m);
   stage.syncMovers(world.movers, world.moverT);
-  L('mover', { move: m.move, pace: m.pace, height: m.height, timing: m.timing, look: m.look, crossS: m.cross, planS: r2(m.plan.len), at: [m.x0, m.y, m.z], spanM: m.span, loads: m.n, open: openShare(m), ...gaps(m) });
+  // (Frosty Times': where it crosses, the snowman's ends short of a thing, where the snowballs burst, the snowflakes on a thing)
+  const frosty = m.load.clear ? { share: m.at, ...(m.spanL != null ? { endsM: [m.spanL, m.spanR] } : {}), ...(m.plan.end != null ? { burstX: r2(m.plan.end - m.x0), farM: r2(m.plan.far) } : {}), ...(m.move === 'fall' ? { flakes: m.plan.flakes.length, onThings: flakesOn(m, meetsThings(current.parts)).share } : {}) } : {};
+  L('mover', { move: m.move, pace: m.pace, height: m.height, timing: m.timing, look: m.look, crossS: m.cross, planS: r2(m.plan.len), at: [m.x0, m.y, m.z], spanM: m.span, loads: m.n, open: openShare(m), ...gaps(m), ...frosty });
 }
 
 function renderTally() {
@@ -658,12 +660,17 @@ const SET_SOUND = { hoot: 'hoot' };
 // the ball into the wheelbarrow's gravel, or into snow
 // (the snowy rock: the iron ball's clonk on stone)
 const SOFT_SOUND = { barrow: 'crunch', rock: 'clonk' };
-// the park's movers (Q106): the tyre's rubber and the bucket seat a thud, the kite a rustle
-const MOVER_SOUND = { tyre: 'thud', zip: 'thud', kite: 'rustle' };
+// the park's movers (Q106): the tyre's rubber and the bucket seat a thud, the kite a rustle;
+// Frosty Times': the snowman and a snowball a soft poof, the snowflake an icy clink
+const MOVER_SOUND = { tyre: 'thud', zip: 'thud', kite: 'rustle', snowman: 'poof', snowball: 'poof', flake: 'iceknock' };
+const THROUGH = { tyre: 'ball through the tyre', flake: 'ball through the snowflake' };
 function onHit({ a, b, v, y, ball, other, mat, thing, offM }) {
   const now = performance.now(), vs = v / Math.sqrt(SCALE);
   // through the tyre's hole (Q106): told, no touch
-  if (b === 'through') { L('ball through the tyre', { t: r2(world.time - (shot?.at ?? 0)), moverT: r2(world.moverT), offM, at: [ball.position.x, ball.position.y, ball.position.z].map(r2), speed: r2(vs) }); return; }
+  if (b === 'through') { L(THROUGH[thing] ?? 'ball through the mover', { t: r2(world.time - (shot?.at ?? 0)), moverT: r2(world.moverT), offM, at: [ball.position.x, ball.position.y, ball.position.z].map(r2), speed: r2(vs) }); return; }
+  // Frosty Times (Q106, session 3): the snowman's hat knocked off by a ball at his head; a snowball burst
+  if (b === 'hat') { sound.play('boing', 0, { level: 0.6, quiet: true }); L('snowman\'s hat knocked off', { t: r2(world.time - (shot?.at ?? 0)), moverT: r2(world.moverT), at: [ball.position.x, ball.position.y, ball.position.z].map(r2), speed: r2(vs) }); return; }
+  if (b === 'burst') { L('snowball burst', { moverT: r2(world.moverT), at: [other.position.x, other.position.y, other.position.z].map(r2) }); return; }
   if (a === 'ball' && shot && shot.body === ball && shot.touches.length < 2 && shot.last !== other) {
     // where it touched, against the path worked out for it (its first two touches)
     shot.last = other;

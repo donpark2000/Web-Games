@@ -214,6 +214,26 @@ export const STRUCTURES = {
     [0.95, 1.1, 0.85].forEach((h, i) => { const p = box('ice', 0.24, h, 0.3, (i - 1) * s, 0, -i * 0.14); out.push(p, box('ice', 0.28, 0.28, 0.28, p.x, topOf(p), p.z)); });
     return out;
   },
+  // Hardest's spread-out scenes (2 and 4; the build's session 3), as the
+  // building site's: the level's small pieces well apart, each its own throw.
+  // Three ice pillars, a cube on each: left near, middle far, right between.
+  iceSpreadPillars: k => {
+    const s = 1.25 * k('s'), out = [];
+    [[-1, 0.5, 0.85], [0, -0.6, 1.0], [1, 0, 0.75]].forEach(([i, z, h], n) => { const p = box('ice', 0.24, h * k('h' + n), 0.3, i * s, 0, z); out.push(p, box('ice', 0.28, 0.28, 0.28, p.x, topOf(p), z)); });
+    return out;
+  },
+  // Two small ice gates, a cube on each: left near and low, right far and taller.
+  iceSpreadGates: k => {
+    const g = 1.2 * k('g');
+    const l = gate(-g, 0.45, 0, 0.2, 0.6, 0.68, 0.34, ICE), r = gate(g, -0.5, 0, 0.2, 0.8 * k('h'), 0.68, 0.34, ICE);
+    return [...l.bs, box('ice', 0.28, 0.28, 0.28, -g, l.y, 0.45), ...r.bs, box('ice', 0.28, 0.28, 0.28, g, r.y, -0.5)];
+  },
+  // A small ice gate at the back in the middle, a pillar and cube near on each side.
+  iceSpreadMix: k => {
+    const s = 1.3 * k('s'), f = gate(0, -0.6, 0, 0.2, 0.75 * k('h'), 0.68, 0.34, ICE), out = [...f.bs, box('ice', 0.28, 0.28, 0.28, 0, f.y, -0.6)];
+    for (const i of [-1, 1]) { const p = box('ice', 0.24, 0.75 * k('p' + i), 0.3, i * s, 0, 0.4); out.push(p, box('ice', 0.28, 0.28, 0.28, p.x, topOf(p), 0.4)); }
+    return out;
+  },
   // A challenge: an ice keep. A tower of two gates and a cube, behind a low ice gate that hides its feet.
   iceKeep: k => {
     const a = gate(0, -0.5, 0, 0.36, 0.85 * k('h'), 1.08, 0.36, ICE), b = gate(0, -0.5, a.y, 0.3, 0.7, 0.92, 0.36, ICE);
@@ -374,7 +394,8 @@ export const LEVELS = [
     pool: ['twoStoreys', 'scaffold', 'threeStoreys', 'bridge', 'brickStacks', 'steps'], challenges: ['towerWall', 'twinTowers'],
     spread: ['spreadPosts', 'spreadFrames', 'spreadMix'] },
   { n: 3, name: 'Frosty Times', line: 'Ice blocks slide, and smash when they’re hit hard.', soft: 'rock', tall: 'pine', ball: 'iron',
-    pool: ['iceGate', 'iceSteps', 'iceTower', 'icePyramid', 'icePillars', 'iceWall'], challenges: ['iceCastle', 'iceKeep'] },
+    pool: ['iceGate', 'iceSteps', 'iceTower', 'icePyramid', 'icePillars', 'iceWall'], challenges: ['iceCastle', 'iceKeep'],
+    spread: ['iceSpreadPillars', 'iceSpreadGates', 'iceSpreadMix'] },
   { n: 4, name: 'Cactus Canyon', line: 'Burst the water barrels and the beams come down.', soft: 'scrub', tall: 'cactus', ball: 'iron',
     pool: ['waterTower', 'signboard', 'trestle', 'barrelStack', 'barrelRow', 'hitchingRail'], challenges: ['saloon', 'mineHead'] },
   // (developer, 2026-11-12, Q87: "Night time with a moon and stars in the

@@ -9,6 +9,14 @@
 // The park's (session 2): a tyre swing (a ball can go through its hole), a
 // bucket seat on a zip line, a kite diving: see LOADS, PARK.
 //
+// Frosty Times' (session 3; developer, 2026-11-14: "a moving snowman or a
+// snowball machine", then "a giant snowflake that falls from the sky"): a
+// snowman on skates (slide, on the snow: a ball at his head knocks his hat
+// off), the snowball machine (stream: big snowballs lobbed across, one hit
+// bursts), a giant snowflake (fall, a fifth way: it drifts down rocking
+// from side to side, breaks up on the snow, the next after a wait; a ball
+// can pass between its arms): see LOADS, FROSTY.
+//
 // The building site's: the crane's load (girders or a pallet of bricks on
 // its hook) crossing between the slingshot and the structure, three ways
 // (Claude's options, agreed to try all three in the mockup):
@@ -42,7 +50,11 @@
 
 import { HAND, SCENES, levelInfo, rng } from './topple.js';
 
+// The crane's ways (the building site deals over these four; kept as they
+// were, so its deals stay as 10.10 dealt them), and every way: Frosty
+// Times' snowflake falls (`fall`, no rope: see PLANS.fall).
 export const MOVES = ['slide', 'swing', 'stream', 'drop'];
+export const WAYS = [...MOVES, 'fall'];
 // s for one crossing (v1's 4 / 3 / 2 s: "rather slow", 2026-11-14)
 export const PACES = { slow: 3, medium: 2, fast: 1.4 };
 // The load's middle over the ground (m). Measured 2026-11-14 over five
@@ -84,17 +96,64 @@ const diamond = (w, h, d) => {
   for (let i = 1; i < BANDS.length; i++) for (const s of [1, -1]) out.push(box(BANDS[i - 1], BANDS[i], s));
   return out;
 };
+// Frosty Times' (session 3). Sizes at Far (twice real), each from its
+// box's middle:
+// - the snowman: a real one about 1 m tall (three balls, of radius 0.4,
+//   0.3 and 0.22 m at Far; 1.15 m at first, which crossing near the hand
+//   filled half the screen), on skates, a top hat; he stands
+//   on the snow (`ground`: his box's middle at half his height, not
+//   HEIGHTS'), so he takes the low and middle throws, not the lobs. His
+//   balls are spheres to the physics (`r`); his hat, arms and skates are
+//   drawn only. A ball that touches his head (his third ball, `head`)
+//   knocks his hat off (told once a scene).
+// - the snowball: one of the machine's, 0.6 m across (a sphere), `arc`:
+//   lobbed from the machine's muzzle (MUZZLE_Y up, STREAM_OUT past the
+//   way's left end) over the line at HEIGHTS' height, down to the snow past
+//   the right; one hit bursts (gone until it comes round again). Four of
+//   them (n; the crane's stream three loads 1.2 m wide), so the way is open
+//   about as often as the other things leave it.
+// - the snowflake: 1.4 m across, six arms, two branches on each, as thin
+//   boxes (FLAKE_*), none past its circle; the gaps between real, so a ball
+//   can pass (`gaps`: told as the tyre's hole is).
+export const SNOWMAN = { base: 0.4, mid: 0.3, head: 0.22, skate: 0.07, hat: 0.22, sink: 0.08 };   // (sink: how far each ball sits into the one below, m)
+const SNOWMAN_H = SNOWMAN.skate + 2 * (SNOWMAN.base + SNOWMAN.mid + SNOWMAN.head) - 2 * SNOWMAN.sink + SNOWMAN.hat;
+const snowmanBalls = () => {
+  const { base, mid, head, skate } = SNOWMAN, y0 = -SNOWMAN_H / 2 + skate;
+  const yb = y0 + base, ym = yb + base + mid - SNOWMAN.sink, yh = ym + mid + head - SNOWMAN.sink;
+  return [{ r: base, at: [0, yb, 0] }, { r: mid, at: [0, ym, 0] }, { r: head, at: [0, yh, 0] }];
+};
+export const MUZZLE_Y = 0.9;
+export const FLAKE_R = 0.7, FLAKE_D = 0.08;
+export const FLAKE_ARM = { from: 0.08, w: 0.12 }, FLAKE_BRANCH = { at: 0.42, len: 0.2, w: 0.07, a: 55 * Math.PI / 180 };
+const flake = (R, d) => {
+  const out = [{ half: [0.1, 0.1, d / 2], at: [0, 0, 0], rot: Math.PI / 4 }];
+  const L = R - 0.02 - FLAKE_ARM.from, B = FLAKE_BRANCH;
+  for (let k = 0; k < 6; k++) {
+    const a = Math.PI / 2 + k * Math.PI / 3, c = Math.cos(a), s = Math.sin(a), rm = FLAKE_ARM.from + L / 2;
+    out.push({ half: [L / 2, FLAKE_ARM.w / 2, d / 2], at: [rm * c, rm * s, 0], rot: a });
+    for (const side of [-1, 1]) {
+      const b = a + side * B.a, mx = B.at * c + (B.len / 2) * Math.cos(b), my = B.at * s + (B.len / 2) * Math.sin(b);
+      out.push({ half: [B.len / 2, B.w / 2, d / 2], at: [mx, my, 0], rot: b });
+    }
+  }
+  return out;
+};
 export const LOADS = {
   girders: LOAD,
   bricks: LOAD,
   tyre: { w: 2 * TYRE_OUT, h: 2 * TYRE_OUT, d: 0.36, hole: TYRE_HOLE, shapes: ring(TYRE_N, TYRE_OUT, TYRE_HOLE, 0.36) },
   zip: { w: 0.8, h: 0.6, d: 0.8 },
   kite: { w: 1.0, h: 1.3, d: 0.08, shapes: diamond(1.0, 1.3, 0.08) },
+  snowman: { w: 2 * SNOWMAN.base, h: +SNOWMAN_H.toFixed(3), d: 2 * SNOWMAN.base, ground: true, clear: true, head: 2, shapes: snowmanBalls() },
+  snowball: { w: 0.6, h: 0.6, d: 0.6, n: 4, arc: true, clear: true, shapes: [{ r: 0.3, at: [0, 0, 0] }] },
+  flake: { w: 2 * FLAKE_R, h: 2 * FLAKE_R, d: FLAKE_D, gaps: true, clear: true, shapes: flake(FLAKE_R, FLAKE_D) },
 };
 export const ALL_LOOKS = Object.keys(LOADS);
 // The park's: each thing its own way (a tyre swings, a seat slides on its
 // zip line, a kite dives).
 export const PARK = { swing: 'tyre', slide: 'zip', drop: 'kite' };
+// Frosty Times': the snowman skates, the machine's snowballs stream, the snowflake falls.
+export const FROSTY = { slide: 'snowman', stream: 'snowball', fall: 'flake' };
 // The zip line's cable (m up): in sight (the view's top over the line at
 // the mover's depth measured 2.81-4.42 m, park scenes, phone upright to
 // wide; at 6 m it was out of sight and the seat hung from nowhere). Drawn
@@ -129,6 +188,25 @@ export const WAIT = [0.4, 1.5];    // the wait up out of sight, of the pace
 // A throw passes the mover's depth no higher than this (m: measured, lobs
 // 2.3-5 m, see HEIGHTS): a load above it is out of the way.
 export const THROW_TOP = 5;
+// fall (Frosty Times' snowflake; no rope, so nothing hauls it back): it
+// drifts down from fallFrom(m.at) (just out of sight, so not a drop's 11
+// m, the way open too long: measured 2026-11-14 over 120 of level 3's
+// scenes, four screen shapes, the flake's sway's widest either side, it
+// must start 6.15 m up to be out of sight crossing at 0.4 of the way, up
+// to 7.75 m at 0.75, the upright phone the worst; so 6.6 m at 0.4 and
+// 4.6 m more per share further, about 0.45 m over) at its own
+// steady speed, a crossing of the throws' heights (THROW_TOP to the snow)
+// the pace times FALL_SPREAD (steady: the pace); swaying from side to side
+// (SWAY m either way of where it falls, SWAY_P s a sway), so it crosses the
+// line at a slant; turning slowly (SPIN rad/s at most). On the snow it
+// breaks up and is gone (up at m.from, out of the way) for a wait
+// (FALL_WAIT of the pace), then the next falls. Tricky: now and then
+// (FEINT) a gust holds it up a while (GUST s, rising GUST_UP m), part way.
+export const fallFrom = share => +(6.6 + 4.6 * (share - 0.4)).toFixed(3);
+export const FALL_SPREAD = [0.6, 1.5];
+export const SWAY = [0.75, 1.1], SWAY_P = [1.8, 3.2], SPIN = 0.5;
+export const FALL_WAIT = [0.2, 0.7];
+export const GUST = [0.4, 0.9], GUST_UP = 0.25;
 
 export const DEFAULT = { move: 'slide', pace: 'medium', height: 'middle', timing: 'varied', look: 'girders' };
 
@@ -138,24 +216,43 @@ const pick = (v, list, d) => (list.includes(v) ? v : d);
 // height, timing, look } (unknown values: the defaults) and a seed (the
 // scene's: its plan). Returns { move, pace, height, timing, look, cross
 // (s), x0 (the throw line's x where it crosses), z, y, span (from x0 to
-// each end, m), load, n (loads), plan }.
+// each end, m), load, n (loads), plan, at (the share of the way it crosses) }.
+// Frosty Times' things (`clear` looks) cross where they go through none of
+// the scene's things (the rock stands on the line, mostly 0.5-0.65 of the
+// way, where the others cross: measured 2026-11-14, 27 games' scenes): the
+// first of AT_TRY clear of them (clashes()), further away first (nearer the
+// hand they loom: the snowman at 0.4 of the way filled half a screen),
+// else AT, which the scene check throws away. The snowflake breaks up on whatever it comes down on
+// (the snow, the rock, the pine's branches); a snowball bursts on the
+// first thing in its path.
+export const AT_TRY = [0.55, 0.6, 0.65, 0.5, 0.7, 0.75, 0.45, 0.4];
 export function moverFor(parts, choice = {}, seed = 1) {
   const c = { ...DEFAULT, ...choice };
-  const move = pick(c.move, MOVES, DEFAULT.move);
+  const move = pick(c.move, WAYS, DEFAULT.move);
   const pace = PACES[c.pace] ? c.pace : DEFAULT.pace;
   const height = HEIGHTS[c.height] ? c.height : DEFAULT.height;
   const timing = pick(c.timing, TIMINGS, DEFAULT.timing);
   const look = pick(c.look, ALL_LOOKS, DEFAULT.look);
   const load = LOADS[look];
   const st = parts.stand;
-  const z = HAND.z + (st.z - HAND.z) * AT;
-  const x0 = HAND.x + (st.x - HAND.x) * AT;
-  // the structure's half-width as seen at this depth (from the hand), then past it by CLEAR and half the load
-  const halfAt = Math.max(Math.abs(parts.bounds.min[0] - st.x), Math.abs(parts.bounds.max[0] - st.x), st.w / 2) * AT;
-  const span = +(halfAt + CLEAR + load.w / 2).toFixed(3);
-  const m = { move, pace, height, timing, look, cross: PACES[pace], x0: +x0.toFixed(3), z: +z.toFixed(3), y: HEIGHTS[height], span, load: { ...load }, n: move === 'stream' ? STREAM_N : 1 };
-  m.plan = PLANS[move](m, rng((seed ^ 0x5EED1066) >>> 0));
-  return m;
+  const meets = load.clear ? meetsThings(parts) : () => null;
+  const make = share => {
+    const z = HAND.z + (st.z - HAND.z) * share;
+    const x0 = HAND.x + (st.x - HAND.x) * share;
+    // the structure's half-width as seen at this depth (from the hand), then past it by CLEAR and half the load
+    const halfAt = Math.max(Math.abs(parts.bounds.min[0] - st.x), Math.abs(parts.bounds.max[0] - st.x), st.w / 2) * share;
+    const span = +(halfAt + CLEAR + load.w / 2).toFixed(3);
+    // (a thing on the snow, the snowman: its middle at half its height, whatever the height asked)
+    const y = load.ground ? load.h / 2 : HEIGHTS[height];
+    const m = { move, pace, height, timing, look, cross: PACES[pace], x0: +x0.toFixed(3), z: +z.toFixed(3), y, span, load: { ...load }, n: move === 'stream' ? load.n ?? STREAM_N : 1, at: share, from: fallFrom(share) };
+    // the snowman: each end of his way short of a thing there (the pine off to the left), if still past the line
+    if (load.ground) for (const [k, sd] of [['spanL', -1], ['spanR', 1]]) m[k] = groundReach(m, sd, meets);
+    m.plan = PLANS[move](m, rng((seed ^ 0x5EED1066) >>> 0), meets);
+    return m;
+  };
+  if (!load.clear) return make(AT);
+  for (const share of AT_TRY) { const m = make(share); if (!clashes(m, parts).length) return m; }
+  return make(AT);
 }
 
 /* ---------- plans: made once per scene, read at any moment ---------- */
@@ -215,11 +312,13 @@ const PLANS = {
     return { lobes, len: t };
   },
   // Speed knots (m/s), the speed changing evenly between them; D how far the line has gone at each.
-  stream(m, rand) {
+  // A machine's snowballs (`arc`): `end`, the x where they burst (the first thing in their path, or the snow past the right).
+  stream(m, rand, meets = () => null) {
     const v = 2 * m.span / m.cross, sp = SPREAD[m.timing], r = (lo, hi) => lo + (hi - lo) * rand();
     const far = m.span + STREAM_OUT, loop = 2 * far, gap = loop / m.n;
+    const end = m.load.arc ? arcEnd(m, far, meets) : null;
     const offsets = Array.from({ length: m.n }, (_, i) => i * gap + (sp ? r(-0.2, 0.2) * gap : 0));
-    if (!sp) return { knots: [{ t0: 0, v, D: 0 }, { t0: loop / v, v, D: loop }], len: loop / v, far, loop, offsets };
+    if (!sp) return { knots: [{ t0: 0, v, D: 0 }, { t0: loop / v, v, D: loop }], len: loop / v, far, loop, offsets, end };
     // each knot's speed the pace's times 1 / the move spread (a short move time, a fast speed); tricky: now and then a stop
     const knots = [{ t0: 0, v }];
     let t = 0;
@@ -231,7 +330,7 @@ const PLANS = {
     knots.at(-1).v = v;   // round again at the speed it started
     knots[0].D = 0;
     for (let k = 1; k < knots.length; k++) knots[k].D = knots[k - 1].D + (knots[k - 1].v + knots[k].v) / 2 * (knots[k].t0 - knots[k - 1].t0);
-    return { knots, len: t, far, loop, offsets };
+    return { knots, len: t, far, loop, offsets, end };
   },
   // Drops: { t0, from (where the fall starts, m), fall (s), hold (s), up (s, back to DROP_FROM), wait (s) }.
   drop(m, rand) {
@@ -252,7 +351,42 @@ const PLANS = {
     } while (sp ? t < PLAN_S || from !== DROP_FROM : drops.length < 2);
     return { drops, len: t };
   },
+  // Flakes: { t0, v (m/s down), c (where it falls, m off the line), A, P, ph (its sway), spin0, spin (rad/s),
+  // gust (null, or { y: the height it holds at, d s }), fall (s, to the snow, or the first thing it comes down
+  // on: `meets`, its box a little in from its circle), wait (s, gone) }.
+  fall(m, rand, meets = () => null) {
+    const T = m.cross, sp = SPREAD[m.timing], r = (lo, hi) => lo + (hi - lo) * rand();
+    const flakes = [], land = m.load.h / 2;
+    let t = 0;
+    do {
+      const v = THROW_TOP / (T * (sp ? r(...FALL_SPREAD) : 1));
+      const A = sp ? r(...SWAY) : (SWAY[0] + SWAY[1]) / 2, P = sp ? r(...SWAY_P) : (SWAY_P[0] + SWAY_P[1]) / 2;
+      const c = sp ? r(-0.25, 0.25) : 0, ph = sp ? r(0, 2 * Math.PI) : 0;
+      const spin0 = r(0, Math.PI / 3), spin = sp ? r(-SPIN, SPIN) : SPIN / 2;
+      const gust = m.timing === 'tricky' && rand() < FEINT ? { y: r(1.8, 4), d: r(...GUST) } : null;
+      let fall = (m.from - land) / v + (gust ? gust.d : 0);
+      const f = { v, c, A, P, ph, gust }, hs = [0.85 * m.load.w / 2, 0.85 * m.load.h / 2, m.load.d / 2];
+      for (let s = 0; s < fall; s += 1 / 60) if (meets(flakeAt(m, f, s), hs)) { fall = s; break; }
+      const wait = T * (sp ? r(...FALL_WAIT) : (FALL_WAIT[0] + FALL_WAIT[1]) / 2);
+      flakes.push({ t0: t, v, c, A, P, ph, spin0, spin, gust, fall, wait });
+      t += fall + wait;
+    } while (sp ? t < PLAN_S : flakes.length < 2);
+    return { flakes, len: t };
+  },
 };
+
+// Where the snowflake is s s into its fall ([x, y, z]; before it lands).
+function flakeAt(m, f, s) {
+  return [m.x0 + f.c + f.A * Math.sin(2 * Math.PI * s / f.P + f.ph), Math.max(m.load.h / 2, fallY(m, f, s)), m.z];
+}
+// The snowflake's height s s into its fall (m): steady down, held up by a gust a while (tricky), to the snow.
+function fallY(m, f, s) {
+  const y = m.from - f.v * s;
+  if (!f.gust || y >= f.gust.y) return y;
+  const s1 = (m.from - f.gust.y) / f.v;
+  if (s < s1 + f.gust.d) return f.gust.y + GUST_UP * Math.sin(Math.PI * (s - s1) / f.gust.d);
+  return f.gust.y - f.v * (s - s1 - f.gust.d);
+}
 
 // The drop's height t s into one drop (m): falling, the brake's bounce, held, hauled up, waiting.
 function dropY(m, d, s) {
@@ -266,6 +400,21 @@ function dropY(m, d, s) {
   return d.to;
 }
 
+// A machine's snowball's height at x (m): through the muzzle (MUZZLE_Y) at
+// the left end of its loop, the line's height over the line, and the snow
+// (its radius up) at the right end: a curve of the share u of the way from
+// the line to either end (-1 to 1).
+export function arcY(m, plan, x) {
+  const u = (x - m.x0) / plan.far, r = m.load.h / 2;
+  return m.y + (r - MUZZLE_Y) / 2 * u + ((r + MUZZLE_Y) / 2 - m.y) * u * u;
+}
+// Where a machine's snowballs burst (x, m): the first thing their path meets (in 2 cm steps from the muzzle), else the snow.
+function arcEnd(m, far, meets) {
+  const r = m.load.w / 2, hs = [r, r, r];
+  for (let x = m.x0 - far; x < m.x0 + far; x += 0.02) if (meets([x, arcY(m, { far }, x), m.z], hs)) return +x.toFixed(3);
+  return +(m.x0 + far).toFixed(3);
+}
+
 // How far the stream's line has gone t s in (m).
 function streamD(plan, t) {
   const { knots, len } = plan, laps = Math.floor(t / len), u = t - laps * len;
@@ -276,9 +425,16 @@ function streamD(plan, t) {
 }
 
 // Where the mover's loads are t s after the scene started: [{ p: [x, y, z],
-// tilt (rad, about the depth axis: the swing's lean) }], one per load.
+// tilt (rad, about the depth axis: the swing's lean, the snowflake's turn,
+// a snowball's roll), gone (the snowflake broken up on the snow, waiting
+// for the next, or a snowball burst: up at m.from, out of the way) }], one per load.
 export function moverAt(m, t) {
   const plan = m.plan;
+  if (m.move === 'fall') {
+    const u = wrap(t, plan.len), f = at(plan.flakes, u), s = u - f.t0;
+    if (s >= f.fall) return [{ p: [m.x0, m.from, m.z], tilt: 0, gone: true }];
+    return [{ p: flakeAt(m, f, s), tilt: f.spin0 + f.spin * s, gone: false }];
+  }
   if (m.move === 'drop') {
     // straight down over the throw line, and back up
     const u = wrap(t, plan.len), d = at(plan.drops, u);
@@ -294,18 +450,26 @@ export function moverAt(m, t) {
   if (m.move === 'stream') {
     // one way, left to right; each load comes round again once out past the end
     const D = streamD(plan, t);
-    return plan.offsets.map(o => ({ p: [m.x0 - plan.far + wrap(D + o, plan.loop), m.y, m.z], tilt: 0 }));
+    return plan.offsets.map(o => {
+      const x = m.x0 - plan.far + wrap(D + o, plan.loop);
+      if (!m.load.arc) return { p: [x, m.y, m.z], tilt: 0 };
+      // the machine's snowballs: lobbed from its muzzle over the line (at m.y) down to the snow, rolling over as they
+      // go; burst at plan.end (gone, up out of the way, till round again)
+      if (x >= plan.end) return { p: [m.x0, m.from, m.z], tilt: 0, gone: true };
+      return { p: [x, arcY(m, plan, x), m.z], tilt: -(x - m.x0) / (m.load.w / 2) };
+    });
   }
   // slide
   const u = wrap(t, plan.len), seg = at(plan.segs, u);
   const f = seg.a + (seg.b - seg.a) * eased((u - seg.t0) / seg.d);
-  return [{ p: [m.x0 + m.span * f, m.y, m.z], tilt: 0 }];
+  // (the snowman's ends may each be nearer: spanL, spanR)
+  return [{ p: [m.x0 + (f < 0 ? m.spanL ?? m.span : m.spanR ?? m.span) * f, m.y, m.z], tilt: 0 }];
 }
 
 // Whether a load is in the throw line's way: across it (its half-width and
 // the ball's radius r), and lower than a throw passes (a drop's load up
 // out of sight is not).
-export const inWay = (m, l, r = 0.07) => Math.abs(l.p[0] - m.x0) < m.load.w / 2 + r && l.p[1] - m.load.h / 2 < THROW_TOP;
+export const inWay = (m, l, r = 0.07) => !l.gone && Math.abs(l.p[0] - m.x0) < m.load.w / 2 + r && l.p[1] - m.load.h / 2 < THROW_TOP;
 
 // The share of the time the throw line (x0) is clear of every load, over
 // the plan (30 s at most) in steps of dt: how open the way is (the log,
@@ -335,6 +499,81 @@ export function gaps(m, r = 0.07, dt = 1 / 120) {
   return { openS: +open.toFixed(2), shutS: +shut.toFixed(2), changes: ends.length };
 }
 
+/* ---------- clear of the things (Frosty Times, session 3) ---------- */
+
+// The snowball machine on the snow, its muzzle (MUZZLE_Y up) at the left end
+// of its snowballs' loop, its body behind it (m): drawn only, but it must
+// not stand in a thing.
+export const MACHINE = { w: 0.9, h: 1.1, d: 0.8, back: 0.35 };
+export const machineAt = (m) => [m.x0 - m.plan.far - MACHINE.back, MACHINE.h / 2, m.z];
+// The scene's things (sceneParts()'s bodies but the blocks: the rock, the
+// pine, ...) as a test: meets(c, hs), the name of the first thing a box
+// round c (half-sizes hs) goes into, else null. Each shape: a sphere, an
+// upright cylinder, a box by its circle round.
+export function meetsThings(parts) {
+  const things = parts.bodies.filter(b => b.kind !== 'block');
+  // the distance from a point to a box round c of half-sizes hs, along each axis
+  const out = (p, c, hs) => p.map((v, i) => Math.max(0, Math.abs(v - c[i]) - hs[i]));
+  return (c, hs) => {
+    for (const b of things) for (const s of b.shapes) {
+      if (s.type === 'sphere') { if (Math.hypot(...out(s.at, c, hs)) < s.r) return b.thing ?? b.kind; continue; }
+      const r = s.type === 'cyl' ? s.r : Math.hypot(s.half[0], s.half[2]), hh = s.type === 'cyl' ? s.hh : s.half[1];
+      const o = out(s.at, c, [hs[0], hs[1] + hh, hs[2]]);
+      if (o[1] === 0 && Math.hypot(o[0], o[2]) < r) return b.thing ?? b.kind;
+    }
+    return null;
+  };
+}
+// How far the snowman may skate to one side (sd -1 left, 1 right) of the
+// line, at most his span: 5 cm short of the first thing his box meets, in
+// 2 cm steps out from the line; never less than ENDS_PAST past it (so the
+// way opens), which clashes() then finds.
+export const ENDS_PAST = 0.25;
+function groundReach(m, sd, meets) {
+  const { w, h, d } = m.load, hs = [w / 2, h / 2, d / 2], least = w / 2 + 0.07 + ENDS_PAST;
+  for (let e = 0; e <= m.span; e += 0.02) if (meets([m.x0 + sd * e, m.y, m.z], hs)) return +Math.max(least, e - 0.05).toFixed(3);
+  return m.span;
+}
+// Whether a Frosty Times thing (`clear` looks) would go through one of the
+// scene's things: the snowman, his box every 1/30 s of the plan (30 s at
+// most) as he skates; the machine standing in one, or its snowballs
+// bursting on one before they're across the line; the snowflakes coming
+// down on one (the rock on the line) more than ON_THINGS of the time, so
+// they'd seldom fall past the low throws. (The crane's loads and the
+// park's things go over or past them.) Returns the things ([] none).
+export const ON_THINGS = 0.3;
+export function clashes(m, parts, dt = 1 / 30) {
+  if (!LOADS[m.look]?.clear) return [];
+  const meets = meetsThings(parts), hits = new Set(), add = k => k && hits.add(k);
+  const { w, h, d } = m.load;
+  if (m.load.ground) {
+    const T = Math.min(m.plan.len, 30), hs = [w / 2, h / 2, d / 2];
+    for (let t = 0; t < T; t += dt) for (const l of moverAt(m, t)) if (!l.gone) add(meets(l.p, hs));
+  }
+  if (m.load.arc) {
+    add(meets(machineAt(m), [MACHINE.w / 2, MACHINE.h / 2, MACHINE.d / 2]));
+    const r = w / 2;
+    if (m.plan.end < m.x0 + r + 0.07) add(meets([m.plan.end, arcY(m, m.plan, m.plan.end), m.z], [r, r, r]) ?? 'snow');
+  }
+  if (m.move === 'fall') {
+    const on = flakesOn(m, meets);
+    if (on.share > ON_THINGS) add(on.top);
+  }
+  return [...hits];
+}
+// The share of a plan's snowflakes that come down on a thing, not the snow,
+// and the thing most of them come down on.
+export function flakesOn(m, meets = () => null) {
+  const n = {}, hs = [0.85 * m.load.w / 2, 0.85 * m.load.h / 2, m.load.d / 2];
+  let on = 0;
+  for (const f of m.plan.flakes) {
+    const p = moverAt(m, f.t0 + Math.max(0, f.fall - 1e-3))[0].p;
+    if (p[1] > m.load.h / 2 + 0.01) { on++; const k = meets(flakeAt(m, f, f.fall), hs) ?? 'something'; n[k] = (n[k] || 0) + 1; }
+  }
+  const top = Object.keys(n).sort((a, b) => n[b] - n[a])[0] ?? null;
+  return { share: +(on / m.plan.flakes.length).toFixed(3), top };
+}
+
 /* ---------- Hardest's scenes (the build, session 1) ---------- */
 
 // The levels with a thing that moves (one level a session: the building
@@ -343,7 +582,7 @@ export function gaps(m, r = 0.07, dt = 1 / 120) {
 // others as it was until theirs is built). Each level's things: `looks`
 // dealt in turn over any of MOVES (the crane's loads), or `ways` (each
 // thing its own way: the park).
-export const LEVEL_MOVERS = { 1: { ways: PARK }, 2: { looks: LOOKS } };
+export const LEVEL_MOVERS = { 1: { ways: PARK }, 2: { looks: LOOKS }, 3: { ways: FROSTY } };
 export const MOVER_LEVELS = Object.keys(LEVEL_MOVERS).map(Number);
 // Scenes with the mover; the others spread out (developer, 2026-11-14:
 // "moving things every other scene and then use space").

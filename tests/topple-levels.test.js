@@ -407,10 +407,10 @@ test('topple levels: every scene of two games can be won by a player throwing as
   assert.equal(rows.filter(r => !r.won).length, 0, summary);
 });
 
-// Hardest at the building site and in the park (journal Q106, the build's
-// sessions 1 and 2): the spread-out scenes, and the mover's.
-const SPREADS = { 1: ['spreadRow', 'spreadGates', 'spreadMix'], 2: ['spreadPosts', 'spreadFrames', 'spreadMix'] };
-for (const level of [2, 1]) test(`topple levels: Hardest's spread-out structures in level ${level} are made as scenes 2 and 4, pass the check, stand still, within aim and range; each piece its own throw`, () => {
+// Hardest at the building site, in the park and in Frosty Times (journal
+// Q106, the build's sessions 1-3): the spread-out scenes, and the mover's.
+const SPREADS = { 1: ['spreadRow', 'spreadGates', 'spreadMix'], 2: ['spreadPosts', 'spreadFrames', 'spreadMix'], 3: ['iceSpreadPillars', 'iceSpreadGates', 'iceSpreadMix'] };
+for (const level of [2, 1, 3]) test(`topple levels: Hardest's spread-out structures in level ${level} are made as scenes 2 and 4, pass the check, stand still, within aim and range; each piece its own throw`, () => {
   const info = LEVELS[level - 1];
   assert.deepEqual(info.spread, SPREADS[level]);
   const dealt = level === 1 ? [...sceneOpts(1).stacks, ...sceneOpts(5).stacks] : [...info.pool, ...info.challenges];
@@ -453,7 +453,7 @@ for (const level of [2, 1]) test(`topple levels: Hardest's spread-out structures
   assert.equal(throws, 3 * 2 * 8);
 });
 
-for (const level of [2, 1]) test(`topple levels: every Hardest scene of two games in level ${level} can be won, timing the throws round the mover; at random moments it stops some`, () => {
+for (const level of [2, 1, 3]) test(`topple levels: every Hardest scene of two games in level ${level} can be won, timing the throws round the mover; at random moments it stops some`, () => {
   const rows = [];
   let stoppedRandom = 0, thrownRandom = 0;
   for (const seed of [12345, 404]) {
