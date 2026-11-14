@@ -14,6 +14,12 @@ time, each tried before publishing:
   hitting one loses the scene, "the challenge is making it clear your
   should not hit it. We should discuss presentation options before
   building"). For Harder and Hardest; to discuss.
+  2026-11-14, developer: "Since we lose a heart, maybe the ball turns
+  into a heart and then explodes? I guess we also have to make it clear
+  what should not be hit. We can discuss in the next session." Two parts
+  to discuss: what a hit looks like (the developer's idea: the ball
+  turns into a heart and explodes), and how a thing shows beforehand
+  that it mustn't be hit.
 - **Q106. Topple! Hardest: moving things in the way: what moves, and
   how** (2026-11-14, developer: "I like the idea of moving obstacles
   better than just spreading things out. All spreading things out does
@@ -21771,3 +21777,30 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q97 (things not to hit: how they would show it),
   Q106 (Hardest's moving things, level by level: the building site, the
   park and Frosty Times live in 10.12).
+
+## 2026-11-14: Q97's first idea; Q106 isn't a question
+
+- **The developer:** "I will start a new session and give feedback on
+  frosty times."
+- **Q97** (things not to hit): "Since we lose a heart, maybe the ball
+  turns into a heart and then explodes? I guess we also have to make it
+  clear what should not be hit. We can discuss in the next session."
+  Recorded under Q97 in Open questions.
+- **Q106:** "does not appear to be a question, so I am not sure what you
+  need from me." Right: it has become a record of the build, level by
+  level, with nothing for the developer to decide. Claude's proposal:
+  close it (the three built levels live in 10.12, as the developer's
+  answers decided) and keep what's left, Cactus Canyon and Star Light,
+  as the status entries' "Then". Asked the developer.
+
+**Status (start here next session)**
+- **Live: 10.12.** `block-game` = `main` plus journal entries. Nothing
+  waiting to publish.
+- **From the developer:** feedback on Hardest in Frosty Times (from the
+  devices); OK to close Q106?
+- **Then:** Q97 to discuss (what a hit on a thing not to hit looks
+  like; how such a thing shows it); session 4 of the build, Cactus
+  Canyon's moving things.
+- **Open questions:** Q97 (things not to hit: how they show it, and the
+  developer's idea of the ball turning into a heart that explodes), Q106
+  (Hardest's moving things: proposed for closing).
