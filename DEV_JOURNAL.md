@@ -199,6 +199,13 @@ time, each tried before publishing:
   wait: the glow's count now starts at the latest 3 s after the next ball
   is ready, and what kept moving is logged. Still open: what the flat
   thing was (the developer to say: near the front or far back).
+  2026-11-13, developer: "it seemed to be right behind the wheel barrow
+  rather than behind other fallen bits". Published in 10.8 (the wait).
+  **Found** ("Release 10.8 published; what was behind the barrow"): the
+  scene's front-left wall brick, never moved, 1 of 5 points seen past the
+  barrow from the start; the building site's scene 5 (twin towers) starts
+  like this in 15 of 30 games, no other scene of levels 2-5. A fix
+  proposed there (the scene check); to agree.
 
 ## Proposed additions to the standards skill
 
@@ -20425,3 +20432,70 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103, Q104
   (built, to see), Q105 (the glow's wait fixed; the flat thing to name).
+
+## 2026-11-13: Release 10.8 published; what was behind the barrow (Q105)
+
+- The developer: "OK" to publish 10.8; away until tomorrow, then trying
+  it on the tablet and the phone. On Q105: the thing that glowed "seemed
+  to be right behind the wheel barrow rather than behind other fallen
+  bits".
+- **Release 10.8**: `src/core/release.js` 10.8, `node tools/offline.js`
+  (version c8e64e475041, 190 files; the three files put back to CRLF,
+  since `sed -i` had dropped release.js's too), notes in RELEASES.md; 622
+  tests pass; `node tools/release.js` said ready. `main` fast-forwarded to
+  be93640, tag `v10.8` pushed, the GitHub release made from `node
+  tools/release.js notes`. The Pages build ran (built be93640); the live
+  `version.js` reads c8e64e475041, `release.js` and `sw.js` 10.8. No
+  `serve.js` or headless browser was running (checked at the start).
+- **What was behind the barrow** (a scratch script, the logged layout
+  rebuilt: `frameLayout(1146799505, 2, 5, 'twinTowers')`, the seed from
+  the log's `scene` line; `makeScene` from the game's seed gave another
+  scene, as the level was on its second round, which deals new scenes):
+  - the barrow at (0.18, -3.30), its tray's top 0.69 m up, straight in
+    front of the structure's low front wall: two bricks 50 x 38-40 x 14
+    cm at z -4.92, x -0.19 and 0.42.
+  - The brick left standing at the end, (-0.19, 0.19, -4.92), is the
+    wall's left brick **exactly where it was built**: it never moved.
+    From the camera, 1 of the scene check's 5 points shows past the
+    barrow (its top's middle); the right brick 2 of 5. So what showed of
+    it was a strip of its top, 50 cm wide and 14 deep, just over the
+    tray: "a long structure flat on the ground". It was counted standing
+    rightly (upright as built); the trouble is it can hardly be seen.
+  - Why the check let it through: it asks that every block be **at least
+    partly** seen past the things (and a third wholly), and level 2's
+    frames may hide behind each other (Q73). One point of five passes.
+- **How often** (a scratch script: 30 games, levels 2-4, the scenes with
+  the soft thing, 1, 3 and 5; 20 games of level 5; each block's points
+  seen past the things at the start): **only the building site's scene 5**
+  (twin towers, the barrow and the light, the level's challenge) has
+  blocks with 2 or fewer of 5 seen: **15 of 30 games**, 19 blocks (17
+  with 1 of 5, 2 with 2). Every other scene: 0 (levels 3 and 4 had two
+  blocks with 4 of 5, level 5 none under 5). About 0.25 s a scene.
+- **Proposed fix** (not built): from level 2, the scene check asks that
+  **each block's front shows past the things**, at least 3 of its 5
+  points, instead of "some"; a layout that fails is tried again with the
+  next try's seed, as now. It's the rule the developer gave for level 2
+  ("never behind a thing for the whole scene", Q73), made strict; any
+  later level gets it too. To measure when built: how many tries twin
+  towers then takes (the old tablet makes it in 5.2 s a try). The
+  alternative, the barrow moved aside in that one scene, fixes only this
+  case.
+
+**Status (start here next session)**
+- **Live: 10.8** (the set-up notice in the middle, Q104; the glow at the
+  latest ~8 s after a throw, Q105's wait). `block-game` = `main` plus
+  this entry. Nothing waiting to publish.
+- **For the developer** (tomorrow, on the tablet and the phone; the
+  installed app picks up 10.8 on its next opening or two, the version
+  line ending c8e64e475041): the set-up notice between scenes and for a
+  new level; the glow's timing, especially on the building site. A log
+  after, if anything looks wrong, into
+  `Web-Games-testing/2026-11-13_old-tablet/`.
+- **To agree:** Q105's fix (a block's front must show past the things,
+  from level 2), or the barrow moved aside in twin towers.
+- **Then:** Q101-Q105 closed if liked; the testing folder
+  (`2026-11-13_old-tablet`, five logs, all recorded here) to purge with
+  the developer's OK.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103, Q104
+  (live, to see), Q105 (the wait live; the hidden brick's fix to agree).
