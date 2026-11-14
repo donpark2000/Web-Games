@@ -7,6 +7,19 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.8 (2026-11-13, version c8e64e475041)
+
+Topple!: a clearer wait while a scene is set up, and the glow on time.
+
+- **Setting up a scene**: the screen fades to the sky's colour, with a
+  turning circle and "Setting up the scene…" in the middle, the same
+  for a new level and between scenes (it was small words at the
+  bottom, over the old scene).
+- **The blocks left glow** at the latest about 8 seconds after a
+  throw, even when something in a pile is still moving (on a slow
+  tablet it could take 26 seconds).
+- **The log** says which blocks were still moving when the glow came.
+
 ## 10.7 (2026-11-13, version 5b600264a535)
 
 Topple!: starting again, blocks out of reach, and a quicker glow.
