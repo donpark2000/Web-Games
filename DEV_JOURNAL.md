@@ -10,47 +10,12 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q64. Topple!: how hard are the scenes for the kids?** (2026-11-10,
-  building it; "Topple! built"). A perfect-aim player clears 21 of 30
-  scenes (the arch 6 of 11); a heart lost to a scene a child can't clear
-  feels unfair (Claude, "Mockup v5 tried": fairness the first risk).
-  To judge on the phone, and with the kids; if too hard, the arch's
-  plank lighter or more balls, as the developer prefers.
-  2026-11-10, developer: "I don't recall Q 64. So I am not sure what to
-  answer." Explained again in "Q65 built; Q47 retired"; nothing to
-  answer yet: it stays open for the phone and the kids.
-  2026-11-10, developer: "In my own testing, it seemed fairly easy ... I
-  see no point in publishing a game than can not be won. Does [21 of 30]
-  imply the games can not be won?" **No** ("Release 9.1 published; Q64:
-  every scene can be won"): the 21 of 30 was one fixed plan; over 100
-  scenes, players throwing anywhere that hits a standing block won all
-  100, 874 of 1,000 tries. Open now only as "too hard for a child's aim?".
 - **Q73. Topple! level 2, 3D frames: the targets, the hidden-blocks rule,
   the "Level N" screen** (2026-11-11; "Level 2 picked: 3D frames").
   Agreed so far: the setting, blocks, camera, Level screen, map, things
   in the way, the iron ball, sounds (mockups v1-v6). 2026-11-11: the
   developer left the frames to Claude ("Q75 trial wanted; level 2's five
   scenes picked"): picked, with pass criteria; to build and measure.
-- **Q74. Recorded sounds (CC0 files kept in the repo) for the building
-  site, instead of sounds made in the page?** (2026-11-11; "Sounds
-  picked; made in the page or recorded?"). DESIGN.md "Sound" says made in
-  the page; the developer asked why not free recorded ones.
-  2026-11-11, developer: "definately worth a try. And we could
-  collaborate. I could find sound samples and give them you you." Next:
-  the developer finds CC0 recordings for the five building-site sounds;
-  Claude builds a sampler with them beside the made ones ("Q74 to try;
-  photo-real looks? (Q75)").
-  2026-11-11, later, developer: "It is proving harder than I thought to
-  find good free sounds. So lets stick with what we have fore now and I
-  can treat this as a side research project." **Parked:** level 2 uses
-  the made sounds picked in mockup version 6; open until the developer
-  brings recordings ("Q74 parked").
-
-- **Q78. The map's and Level screens' pictures** (2026-11-11 night): a
-  sign of each setting for now (🏗️, ❄️, 🌵; level 1 its drawing); the
-  mockup's were stills drawn by the 3D. Stills of each level could be
-  made by tools/home-pics.js's way (the game's own page in headless
-  Edge), as WebP files.
 - **Q79. A phone's frame rate and the download** (2026-11-11 night): the
   photos add 5.57 MB to the offline app (now 9.08 MB, 183 files); each
   sky is a 4096 x 2048 photo. To measure on the phone before release
@@ -308,6 +273,23 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q64. Topple!: how hard are the scenes for the kids?** (2026-11-10,
+  building it; "Topple! built"). A perfect-aim player clears 21 of 30
+  scenes (the arch 6 of 11); every scene can be won ("Release 9.1
+  published; Q64: every scene can be won": players throwing anywhere
+  that hits a standing block won all 100 scenes, 874 of 1,000 tries).
+  Left open as "too hard for a child's aim?", for the kids to play.
+  **Dropped** 2026-11-14, developer: "Lets get rid of Q64, Q74, Q78"
+  ("10.10 tried: liked; ..."; Normal, Harder and Hardest since let the
+  player pick how hard).
+- **Q74. Recorded sounds (CC0 files kept in the repo) instead of sounds
+  made in the page?** (2026-11-11). Parked the same day ("It is proving
+  harder than I thought to find good free sounds"); level 2 uses the
+  made sounds of mockup v6. **Dropped** 2026-11-14, developer (as Q64).
+  The sounds stay made in the page (DESIGN.md "Sound").
+- **Q78. The map's pictures** (2026-11-11 night): a sign of each setting
+  (level 1's drawing, 🏗️, ❄️, 🌵, 🌙), not stills drawn by the 3D.
+  **Dropped** 2026-11-14, developer (as Q64): the signs stay.
 - **Q105. Topple!: the glow 26 s late; what glowed behind the
   wheelbarrow** (2026-11-13, developer, on 10.7, the old tablet): the
   building site "seems to be the most likely level to have blocks left
@@ -21382,3 +21364,37 @@ anything to show it (the dots are the developer's choice per How hard).
   and the ones built and released (and played since) proposed for
   closing. From now on the status entries' "Open questions" line gives
   each question a few words, not only its number.
+
+## 2026-11-14: Q64, Q74, Q78 dropped; the park's movers; no load on the old tablet?
+
+- **The developer:** "Lets get rid of Q64, Q74, Q78. And we are working on
+  Q106 now." Moved to Resolved as dropped (DESIGN.md's map pictures: the
+  signs stay). The ten proposed for closing (Q73, Q79, Q81, Q90-Q92,
+  Q94-Q96, Q98) and Q87, Q88, Q93 to DESIGN.md "Later": not answered;
+  asked again.
+- **The park's movers** (Claude's picks: the tyre swing, a zip-line seat,
+  a kite diving down, a roundabout spare): "For the park I would skip the
+  roundabout idea. For the tire, being able to shoot through the hole
+  would be cool." So the tyre swing (swing), the zip-line seat (slide),
+  the kite (drop); a ball through the tyre's hole goes on (a hole the
+  ball fits through: the tyre a ring, not a solid).
+- **The old tablet:** "I tried building site on my old tablet and it
+  shows no moving obstacles. Is that a bug?" Looked at, before any
+  evidence from the tablet:
+  - The code adds the load only when the scene's layout was dealt on
+    Hardest (`placeMover()` in `src/ui/topple.js`, from
+    `layout.hardest.mover`), only in scenes 1, 3 and 5; none in 2 and 4
+    (spread out). Nothing in the drawing's cuts for slow devices hides it
+    (`applyCuts` in `src/ui/drawcuts.js` hides only the far-off trees).
+  - **How hard is kept with each device's game**, so the tablet's game
+    is on whatever was picked there; Hardest on the phone doesn't carry
+    over.
+  - The offline app updates itself in the background when online
+    (DESIGN.md "Offline app"), so an old copy is less likely, but the
+    setup screen's Hardest line tells: 10.10 says "shorter dots; moving
+    things at the building site", 10.9 "harder scenes to come".
+  - A scene under way from before 10.10, carried on (kept for the
+    visit), would have no load; the next scenes would.
+  The tablet's log settles it: each `scene` line has `mode` and, on
+  Hardest, `hardest`; a `mover` line when the load is placed. Asked the
+  developer for the setup screen's line and the log.

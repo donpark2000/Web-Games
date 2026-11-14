@@ -2318,7 +2318,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   on: see Play). (**New scenes from scene 1**, on the setup screen, new
   scenes for every level, the levels kept open: dropped in 10.7, Q102.) The
   pictures are a sign of each setting for now (level 1's drawing, 🏗️,
-  ❄️, 🌵, 🌙; Claude's pick, to review: the mockup's were drawn by the 3D).
+  ❄️, 🌵, 🌙; the mockup's were drawn by the 3D; developer, 2026-11-14,
+  Q78 dropped: the signs stay).
   The map is 140 px a level (at most 700 px tall for five).
 - **Levels 2-5: eight structures each, dealt** (10.3; until then five in
   a fixed order; developer, 2026-11-12: "every time I play the game from
