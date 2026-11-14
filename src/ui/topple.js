@@ -547,7 +547,7 @@ function placeMover() {
   const m = moverFor(current.parts, choice, current.layout.seed);
   world.setMovers(m);
   stage.setMovers(m);
-  stage.syncMovers(world.movers);
+  stage.syncMovers(world.movers, world.moverT);
   L('mover', { move: m.move, pace: m.pace, height: m.height, timing: m.timing, look: m.look, crossS: m.cross, planS: r2(m.plan.len), at: [m.x0, m.y, m.z], spanM: m.span, loads: m.n, open: openShare(m), ...gaps(m) });
 }
 
@@ -658,8 +658,12 @@ const SET_SOUND = { hoot: 'hoot' };
 // the ball into the wheelbarrow's gravel, or into snow
 // (the snowy rock: the iron ball's clonk on stone)
 const SOFT_SOUND = { barrow: 'crunch', rock: 'clonk' };
-function onHit({ a, b, v, y, ball, other, mat, thing }) {
+// the park's movers (Q106): the tyre's rubber and the bucket seat a thud, the kite a rustle
+const MOVER_SOUND = { tyre: 'thud', zip: 'thud', kite: 'rustle' };
+function onHit({ a, b, v, y, ball, other, mat, thing, offM }) {
   const now = performance.now(), vs = v / Math.sqrt(SCALE);
+  // through the tyre's hole (Q106): told, no touch
+  if (b === 'through') { L('ball through the tyre', { t: r2(world.time - (shot?.at ?? 0)), moverT: r2(world.moverT), offM, at: [ball.position.x, ball.position.y, ball.position.z].map(r2), speed: r2(vs) }); return; }
   if (a === 'ball' && shot && shot.body === ball && shot.touches.length < 2 && shot.last !== other) {
     // where it touched, against the path worked out for it (its first two touches)
     shot.last = other;
@@ -676,8 +680,8 @@ function onHit({ a, b, v, y, ball, other, mat, thing }) {
     sound.play(MAT_SOUND[mat] ?? 'knock', 0, { level: Math.min(1, (vs + (a === 'ball' ? 1 : 0)) / 6), quiet: true });
   } else if (a === 'ball' && v >= 0.5) {
     if (b === 'mover') {
-      sound.play('clonk', 0, { level: Math.min(1, vs / 6 + 0.3), quiet: true });
-      L('ball stopped by the mover', { t: r2(world.time - (shot?.at ?? 0)), moverT: r2(world.moverT), at: [ball.position.x, ball.position.y, ball.position.z].map(r2), speed: r2(vs) });
+      sound.play(MOVER_SOUND[thing] ?? 'clonk', 0, { level: Math.min(1, vs / 6 + 0.3), quiet: true });
+      L('ball stopped by the mover', { look: thing, t: r2(world.time - (shot?.at ?? 0)), moverT: r2(world.moverT), at: [ball.position.x, ball.position.y, ball.position.z].map(r2), speed: r2(vs) });
     } else if (b === 'glass') sound.play('boing', 0, { quiet: true });
     else if (b === 'soft') sound.play(SOFT_SOUND[thing] ?? 'crunch', 0, { level: Math.min(1, vs / 6), quiet: true });
     else if (thing === 'light') sound.play('ring', 0, { level: Math.min(1, vs / 6), quiet: true });
@@ -735,7 +739,7 @@ function tick(dt, draw = true) {
   noteSettled();
   if (!draw) return;
   stage.sync(world.blocks, world.balls);
-  if (world.movers.length) stage.syncMovers(world.movers);
+  if (world.movers.length) stage.syncMovers(world.movers, world.moverT);
   const ok = ready();
   const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);

@@ -367,7 +367,9 @@ export const STRUCTURES = {
 // that moves (src/core/topple-movers.js, hardestDeal; the building site
 // first, 2026-11-14).
 export const LEVELS = [
-  { n: 1, name: 'The park', line: 'Knock every block down. 5 balls a scene.', soft: 'bush', tall: 'tree', ball: 'toy' },
+  // (level 1's structures are src/core/topple.js's STACKS; its spread-out ones there too)
+  { n: 1, name: 'The park', line: 'Knock every block down. 5 balls a scene.', soft: 'bush', tall: 'tree', ball: 'toy',
+    spread: ['spreadRow', 'spreadGates', 'spreadMix'] },
   { n: 2, name: 'The building site', line: 'Tall frames: knock the front down to get at the back.', soft: 'barrow', tall: 'light', ball: 'iron',
     pool: ['twoStoreys', 'scaffold', 'threeStoreys', 'bridge', 'brickStacks', 'steps'], challenges: ['towerWall', 'twinTowers'],
     spread: ['spreadPosts', 'spreadFrames', 'spreadMix'] },

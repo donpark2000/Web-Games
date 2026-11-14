@@ -11,7 +11,7 @@
 import * as CANNON from '../vendor/cannon-es/cannon-es.js';
 import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel,
-  sceneParts, layoutFor, isDown, MATS, throwRange, shiftThing,
+  sceneParts, layoutFor, isDown, MATS, throwRange, shiftThing, SPREAD_STACKS,
 } from './topple.js';
 import { moverAt, moverFor, openShare, gaps, hardestScene } from './topple-movers.js';
 import { fixedStepper } from './fixed-step.js';
@@ -235,16 +235,37 @@ export function createWorld({ onHit = () => {} } = {}) {
     moverT += STEP;
   }
   world.addEventListener('preStep', moveMovers);
+  // A ball through the tyre's hole (developer, 2026-11-14: "being able to
+  // shoot through the hole would be cool"): crossing the tyre's middle
+  // plane within the hole (the ball's middle within TYRE_HOLE less its
+  // radius of the tyre's middle, as the tyre leans), told once a ball.
+  const was = new Map();
+  world.addEventListener('preStep', () => { if (mover?.load.hole) for (const { body: b } of balls) was.set(b, b.position.z); });
+  world.addEventListener('postStep', () => {
+    if (!mover?.load.hole) return;
+    const t = moverBodies[0];
+    for (const { body: b } of balls) {
+      const z0 = was.get(b);
+      if (z0 == null || b.through || b.stopped || (z0 - t.position.z) * (b.position.z - t.position.z) > 0) continue;
+      const k = (t.position.z - z0) / ((b.position.z - z0) || 1e-9), v = b.velocity;
+      const x = b.position.x - v.x * STEP * (1 - k) - t.position.x, y = b.position.y - v.y * STEP * (1 - k) - t.position.y;
+      const off = Math.hypot(x, y);
+      if (off < mover.load.hole - (b.shapes[0]?.radius ?? BALL.r)) { b.through = true; onHit({ a: 'ball', b: 'through', v: Math.hypot(v.x, v.y, v.z), y: b.position.y, ball: b, other: t, thing: mover.look, offM: +off.toFixed(3) }); }
+    }
+  });
   // m: moverFor()'s, or null for none. Starts from its t = 0.
   function setMovers(m) {
     for (const b of moverBodies) world.removeBody(b);
     moverBodies = []; moverT = 0; mover = m;
     if (!m) return [];
     for (const { p, tilt } of moverAt(m, 0)) {
-      const b = new CANNON.Body({ mass: 0, type: CANNON.Body.KINEMATIC, material: M.mover, shape: new CANNON.Box(new CANNON.Vec3(m.load.w / 2, m.load.h / 2, m.load.d / 2)) });
+      // one box, or the load's own boxes (the tyre's ring round its hole, the kite's diamond)
+      const b = new CANNON.Body({ mass: 0, type: CANNON.Body.KINEMATIC, material: M.mover });
+      if (m.load.shapes) for (const s of m.load.shapes) b.addShape(new CANNON.Box(new CANNON.Vec3(...s.half)), new CANNON.Vec3(...s.at), new CANNON.Quaternion().setFromEuler(0, 0, s.rot));
+      else b.addShape(new CANNON.Box(new CANNON.Vec3(m.load.w / 2, m.load.h / 2, m.load.d / 2)));
       b.position.set(...p);
       b.quaternion.setFromEuler(0, 0, tilt);
-      b.kind = 'mover'; b.thing = 'load';
+      b.kind = 'mover'; b.thing = m.look;
       b.allowSleep = false;
       b.collisionFilterGroup = MOVER_GROUP; b.collisionFilterMask = BALL_GROUP;
       moverBodies.push(addBody(b));
@@ -488,7 +509,8 @@ export function createWorld({ onHit = () => {} } = {}) {
     const why = [];
     if (unhit > 0) why.push(`${unhit} block${unhit > 1 ? 's' : ''} hard to hit from the front`);
     // (from level 2 the frames are the challenge; a wheelbarrow or a pole seldom takes a straight throw: Claude's pick)
-    if (!later && hides && hidden === 0 && front.full === live && nDirect > 0.75 * nBase) why.push('the things hardly matter');
+    // (nor in the park's Hardest spread-out scenes: the aim is their challenge, the tree beside them)
+    if (!later && !SPREAD_STACKS.includes(L.stack) && hides && hidden === 0 && front.full === live && nDirect > 0.75 * nBase) why.push('the things hardly matter');
     if (!enough(front)) why.push('too little shows from the front');
     if (later && fewestSeen < MIN_SEEN) why.push('a block mostly behind a thing');
     if (nDirect < 15) why.push('too few throws hit');

@@ -10,7 +10,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng, FAR_TREES, farBalls, treeBalls, CORE } from '../core/topple.js';
-import { CABLE_TOP, DROP_FROM } from '../core/topple-movers.js';
+import { CABLE_TOP, DROP_FROM, ZIP_Y } from '../core/topple-movers.js';
 
 // Where the crane's cable goes up to (out of sight): the jib; a drop's from
 // higher, over the load hauled up out of sight.
@@ -373,7 +373,63 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     g.add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.96, sh, d * 0.94), [brickSide, brickSide, brickTop, palletMat, brickSide, brickSide]));
     g.children.at(-1).position.y = -h / 2 + ph + sh / 2;
   }
+  // The park's (Q106, session 2): a tyre on a rope up to a branch out of
+  // sight (the swing's pivot, CABLE_TOP); a black bucket seat on two chains
+  // from a trolley on the zip line's cable (ZIP_Y, drawn across the park);
+  // a kite (red and yellow, two spars, a tail of bows) on a string to
+  // someone behind you, off the right of the view. Drawn only: the rope,
+  // chains, cable, tail and string (the physics has the tyre's ring, the
+  // seat's box and the kite's diamond).
+  const rubberMat = new THREE.MeshStandardMaterial({ color: '#232323', roughness: 0.92 });
+  const ropeMat = new THREE.MeshStandardMaterial({ color: '#9C7A4E', roughness: 0.95 });
+  const seatMat = new THREE.MeshStandardMaterial({ color: '#262626', roughness: 0.85, side: THREE.DoubleSide });
+  const seatIn = new THREE.MeshStandardMaterial({ color: '#111111', roughness: 0.9 });
+  const kiteMats = ['#E23B2E', '#F5C636'].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.7, side: THREE.DoubleSide }));
+  const sparMat = new THREE.MeshStandardMaterial({ color: '#4A3826', roughness: 0.8 });
+  const stringMat = new THREE.MeshBasicMaterial({ color: '#F4F1EA' });
+  const rod = (r, L, mat) => new THREE.Mesh(new THREE.CylinderGeometry(r, r, L, 6), mat);
+  // a line from a to b (Vector3s, in g's frame)
+  const span = (g, a, b, r, mat) => { const v = b.clone().sub(a), c = rod(r, v.length(), mat); c.position.copy(a).add(b).multiplyScalar(0.5); c.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.normalize()); g.add(c); return c; };
+  function tyre(g, m) {
+    const { w, d, hole } = m.load, R = w / 2, tube = (R - hole) / 2;
+    const t = new THREE.Mesh(new THREE.TorusGeometry(hole + tube, tube, 12, 28), rubberMat);
+    t.scale.z = d / (2 * tube); g.add(t);
+    // the rope tied round its top, up to the branch
+    const L = CABLE_TOP - m.y - R;
+    const rope = rod(0.025, L, ropeMat); rope.position.y = R + L / 2; g.add(rope);
+  }
+  function zipSeat(g, m) {
+    const { w, h } = m.load;
+    // a black rubber bucket seat (a red box read as one of the blocks): open at the top, a rim, a floor
+    const b = new THREE.Mesh(new THREE.CylinderGeometry(w / 2, w * 0.42, h, 24, 1, true), seatMat); g.add(b);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(w / 2, 0.035, 8, 24), seatMat); rim.rotation.x = Math.PI / 2; rim.position.y = h / 2; g.add(rim);
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(w * 0.42, 24), seatIn); floor.rotation.x = -Math.PI / 2; floor.position.y = -h / 2 + 0.02; g.add(floor);
+    const ty = ZIP_Y - m.y - 0.12;   // the trolley, just under the cable
+    g.add(part(0.22, 0.12, 0.1, chainMat, 0, ty, 0));
+    for (const sx of [-1, 1]) span(g, new THREE.Vector3(sx * w * 0.45, h / 2, 0), new THREE.Vector3(sx * 0.06, ty - 0.06, 0), 0.012, chainMat);
+  }
+  function kite(g, m) {
+    const { w, h } = m.load;
+    const tri = (pts, mat) => { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pts.flat(), 3)); geo.computeVertexNormals(); g.add(new THREE.Mesh(geo, mat)); };
+    const T = [0, h / 2, 0], B = [0, -h / 2, 0], Lf = [-w / 2, 0, 0], Rt = [w / 2, 0, 0], C = [0, 0, 0];
+    tri([T, Lf, C], kiteMats[0]); tri([T, C, Rt], kiteMats[1]); tri([Lf, B, C], kiteMats[1]); tri([C, B, Rt], kiteMats[0]);
+    const v = rod(0.012, h, sparMat); v.position.z = -0.01; g.add(v);
+    const x = rod(0.012, w, sparMat); x.rotation.z = Math.PI / 2; x.position.z = -0.01; g.add(x);
+    // the tail: a line and five bows below the bottom point
+    span(g, new THREE.Vector3(...B), new THREE.Vector3(0.05, -h / 2 - 1.1, 0), 0.006, stringMat);
+    for (let k = 1; k <= 5; k++) { const bow = part(0.12, 0.05, 0.01, kiteMats[k % 2], 0.01 * k, -h / 2 - 0.2 * k, 0); bow.rotation.z = 0.5 * (k % 2 ? 1 : -1); g.add(bow); }
+  }
+  // The kite's string: to someone behind you, off the right of the view (world m)
+  const KITE_HAND = new THREE.Vector3(7, 1.3, 2.5);
+  let moverStatic = [];   // the zip line's cable, the kite's string: not on a body
   function loadMesh(m) {
+    if (m.look === 'tyre' || m.look === 'zip' || m.look === 'kite') {
+      const g = new THREE.Group();
+      ({ tyre, zip: zipSeat, kite })[m.look](g, m);
+      g.userData = { kite: m.look === 'kite' };
+      g.traverse(o => { if (o.isMesh && o.material !== stringMat) { o.castShadow = true; o.receiveShadow = true; } });
+      return g;
+    }
     const g = new THREE.Group(), { w, h, d } = m.load, top = h / 2;
     (m.look === 'bricks' ? bricks : girders)(g, m.load);
     // the chains from the load's top to the hook (girders: two, at a third from each end; bricks: four corners), the hook, the cable up
@@ -395,10 +451,21 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     return g;
   }
   function setMovers(m) {
-    for (const g of moverMeshes) { scene.remove(g); g.traverse(o => o.geometry?.dispose()); }
-    moverMeshes = [];
+    for (const g of [...moverMeshes, ...moverStatic]) { scene.remove(g); g.traverse(o => o.geometry?.dispose()); }
+    moverMeshes = []; moverStatic = [];
     if (!m) return;
     for (let i = 0; i < m.n; i++) { const g = loadMesh(m); scene.add(g); moverMeshes.push(g); }
+    if (m.look === 'zip') {
+      // the cable across the park, well past both ends of the seat's way
+      const c = rod(0.016, 2 * (m.span + 12), chainMat);
+      c.rotation.z = Math.PI / 2; c.position.set(m.x0, ZIP_Y, m.z);
+      scene.add(c); moverStatic.push(c);
+    }
+    if (m.look === 'kite') {
+      const s = rod(0.005, 1, stringMat);
+      s.userData.string = true;
+      scene.add(s); moverStatic.push(s);
+    }
     applyCuts(three, cuts);
   }
 
@@ -416,12 +483,23 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     setScene,
     // Hardest's thing that moves (Q106): its look (moverFor()'s, or null), and each load where the physics has it.
     setMovers,
-    syncMovers(bodies) {
+    syncMovers(bodies, t = 0) {
       bodies.forEach((b, i) => {
         const g = moverMeshes[i];
         if (!g) return;
         g.position.set(b.position.x, b.position.y, b.position.z);
         g.quaternion.set(b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w);
+        if (g.userData.kite) {
+          // the kite flutters as it hangs in the wind (drawn only: the physics' diamond stays upright)
+          g.rotation.z += 0.1 * Math.sin(2.7 * t) + 0.04 * Math.sin(7.3 * t);
+          const s = moverStatic.find(o => o.userData.string);
+          if (s) {
+            const a = g.position, v = KITE_HAND.clone().sub(a), L = v.length();
+            s.position.copy(a).add(KITE_HAND).multiplyScalar(0.5);
+            s.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.normalize());
+            s.scale.y = L;
+          }
+        }
         // a drop: the cable from the load up to the jib, however high the load is
         const u = g.userData;
         if (u.drop) {

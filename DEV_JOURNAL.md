@@ -49,6 +49,9 @@ time, each tried before publishing:
   2 and 4 spread out; to publish (10.10) and try.
   2026-11-14, developer, 10.10 on the phone: "I like it." Next the
   park (level 1), then the levels in order ("10.10 tried: liked").
+  Built ("Hardest in the park built"): the tyre swing (a ball can go
+  through its hole), the bucket seat on a zip line, the kite; to publish
+  (10.11) and try.
 
 ## Proposed additions to the standards skill
 
@@ -21423,3 +21426,115 @@ anything to show it (the dots are the developer's choice per How hard).
   Q90-Q92, Q94-Q96, Q98 to Resolved; Q87, Q88, Q93 to DESIGN.md
   "Later" (and Resolved, saying so). Open now: Q97 (things not to hit:
   how they show it) and Q106 (Hardest's moving things, level by level).
+
+## 2026-11-14: Hardest in the park built (session 2 of the build; Q106)
+
+- **Asked for:** the developer, "we are OK to move on to level 1
+  hardest", with the park's things agreed above (the tyre swing, the
+  zip-line seat, the kite; no roundabout; a ball through the tyre's hole).
+- **Built** (on `block-game`, not published):
+  - `src/core/topple-movers.js`: `LOADS` (each look's box; `shapes`
+    where one box would stop a ball in thin air): the **tyre** (1.2 m
+    across, a ring of `TYRE_N` 10 boxes round a 0.6 m hole, `TYRE_HOLE`
+    0.3 m), the **bucket seat** (`zip`, 0.8 x 0.6 x 0.8 m), the **kite**
+    (1.0 x 1.3 m, its diamond as seven bands of boxes, none past its
+    edge). `PARK` = { swing: tyre, slide: zip, drop: kite };
+    `LEVEL_MOVERS` (level 1 `ways`, level 2 `looks`), `MOVER_LEVELS`
+    [1, 2]. `hardestDeal`: the park's three things each once, in a dealt
+    order; **the building site's deals unchanged** (same random draws:
+    games 5, 12345, 404 checked against 10.10's code). `ZIP_Y` 2.7 m.
+    The scene check and `inWay` still take each thing's whole box: the
+    tyre's hole is a bonus, never counted on.
+  - `src/core/topple-world.js`: the mover's physics body made of the
+    look's boxes; **a ball through the tyre's hole** (crossing the
+    tyre's middle plane within the hole less the ball's radius) told
+    once a ball (`onHit` b 'through'); the scene check's "the things
+    hardly matter" left out for the park's spread-out structures (as for
+    levels 2 on: their aim is the challenge).
+  - `src/core/topple.js`: level 1's spread-out structures in `STACKS`
+    (`spreadRow`, `spreadGates`, `spreadMix`; `SPREAD_STACKS`), laid out
+    nearer the middle (x within ±0.12, not ±0.35, so their sides stay in
+    the aim) and with **the tree beside them**, not in front;
+    `layoutFor` takes a name for level 1 too. The setup screen's Hardest
+    line: "shorter dots; moving things in the park and at the building
+    site".
+  - `src/core/topple-levels.js`: the park's `spread` list.
+  - `src/ui/topple-scene.js`: the tyre (a torus, its rope up to the
+    branch out of sight), the bucket seat (an open black rubber bucket, a
+    rim, two chains to a trolley on the cable drawn across the park), the
+    kite (red and yellow, two spars, a tail of five bows, fluttering as
+    drawn; its string to a point behind you, off the right of the view).
+  - `src/ui/topple.js`: sounds when a ball meets one (the tyre and the
+    seat a thud, the kite a rustle; the crane's loads the clonk as
+    before); logged `ball stopped by the mover` with its look, and
+    `ball through the tyre` (the time, where, how far off the middle).
+- **Found on the way:**
+  - **The tree hid the spread-out pieces.** Level 1's tree stands
+    0.15-0.55 m left of the line to the structure, its trunk in the way
+    of a straight throw; with the pieces spread, that is in front of the
+    left one. Measured (six seeds, scenes 2 and 4): spreadGates as scene
+    4 took 21, 11 and 9 tries (the level 2 test's bar is 15), "blocks
+    hard to hit from the front". The gates the other way round: worse (25,
+    out of tries). The tree beside the whole structure (as a later
+    level's tall thing): every try then failed "the things hardly matter"
+    (level 1's rule; levels 2 on don't have it). Both changes: **all 36
+    scenes first time**.
+  - **The zip line's cable out of sight.** At 6 m (a real 3 m, over the
+    lobs) the chains ran off the top of the picture and the seat, first a
+    red box, read as one of the blocks. Measured, the view's top over the
+    line at the mover's depth: 2.81-4.42 m (20 park scenes, four screen
+    shapes). The cable now 2.7 m, the seat a black bucket; a test keeps
+    the cable in sight at every screen shape.
+  - **Git Bash's `sed -i` drops the CRs** of a CRLF file (two files
+    turned LF; put back). And a heredoc lost a backslash from a helper
+    script: written as a file instead (as the memory rule says).
+- **Tests:** `tests/topple-movers.test.js`: the park's deal (200 games:
+  each thing once, its own way, all six orders, each thing in each
+  moving scene 40+ times, varied, varied, tricky); the building site's
+  game 5 deal pinned as 10.10 dealt it; the tyre's ring clear of the
+  hole and closed all round, the kite's boxes inside the diamond
+  covering over 70% of it; **a ball through the hole goes on to a
+  block, told; the same throw at the ring stops**; the park's Hardest
+  scenes as dealt (two games; spread ones first try; the way open often
+  enough); the kite up at the top out of sight, the zip line's cable in
+  sight (four screen shapes). `tests/topple-levels.test.js`: the
+  spread-out test and the timed player's "every Hardest scene can be
+  won" now for the park too (the park's: 27 s, every scene of two games
+  won, none stopped). **Shown to fail** (a temp copy of the repo, one
+  break each, the copy removed; all 10 caught): the tyre dealt to slide;
+  the park's things always in one order; the building site's deal
+  changed ("strictly deep-equal"); the ring into the hole (its boxes to
+  0.18 m: "a ring box ... from the middle"; the ball still went through,
+  the shape test the one that caught it); the tyre one solid box ("touched
+  the tyre"); a kite box past the diamond ("a kite corner outside the
+  diamond: -0.45, -0.13"); the cable back at 6 m ("out of sight"); the
+  tree back in front of the spread pieces ("park 404 scene 4: 11 tries");
+  the spread posts close ("1 piece"); the hole never told. Whole suite:
+  **651 tests, 651 pass**; `node tools/offline.js` run (version
+  5e1933fded61, release still 10.10; `version.js` put back to CRLF).
+- **Checked in the built-in browser** (`tools/serve.js` on 8123): no
+  console errors; Hardest, level 1, through the checking hooks: scene 1
+  the tyre swinging, its hole clear, the rope up out of sight; scene 3
+  the bucket seat on its zip line (the cable through the picture,
+  crossing near the tree); scene 5 the kite held over the line, its
+  string off to the right; on a 375 px phone, scene 2 `spreadMix`, the
+  tree beside it, no sideways scroll; the cable in sight there too.
+- **Not checked:** a ball thrown through the tyre in the page (the
+  physics test does it); a whole level played through on Hardest; the
+  old tablet's frame rate. A lob may pass through the zip line's cable
+  (drawn only): for the developer to say whether it matters.
+
+**Status (start here next session)**
+- **Live: 10.10.** `block-game` = `main` plus journal entries and Hardest
+  in the park (above), ready to publish as **10.11** with the
+  developer's OK.
+- **From the developer:** OK to publish 10.11? Then try Hardest in the
+  park on the devices: the tyre swing (and a ball through its hole), the
+  bucket seat on its zip line, the kite, the spread-out scenes; whether
+  a lob through the zip line's cable matters.
+- **Then:** session 3 of the build, in a fresh session: Frosty Times'
+  moving things (the developer's earlier ideas: a moving snowman or a
+  snowball machine; three things, one per way, as the park's).
+- **Open questions:** Q97 (things not to hit: how they would show it),
+  Q106 (Hardest's moving things, level by level: the building site live,
+  the park built).

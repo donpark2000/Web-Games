@@ -2500,9 +2500,11 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   scene and then use space ... for the scenes that don't have moving
   obstacles. And maybe sometimes the obstacle can be something falling
   from the sky"). Built one level at a time (the build plan, agreed
-  2026-11-14): **the building site** first; in the levels not built yet
-  Hardest is as before (Harder's dots, the usual scenes). In a built
-  level, dealt once per game and level (`hardestDeal`):
+  2026-11-14): **the building site** first, then **the park**, then the
+  levels in order (developer, 2026-11-14: "I suggest we just tackle them
+  in order"); in the levels not built yet Hardest is as before (Harder's
+  dots, the usual scenes). In a built level, dealt once per game and
+  level (`hardestDeal`):
   - **Scenes 1, 3 and 5: a thing that moves in the way**, each its own
     way (three of slide, swing, stream and drop) and look, scenes 1 and
     3 varied timing, the 5th (the challenge) tricky. The building
@@ -2515,15 +2517,26 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     loads one way; **drop**: let fall from out of sight above, braked
     where it hangs with a bounce, held, hauled back up. Tricky: now and
     then a slide stops part way (on or back), a stream stops, a drop is
-    hauled only part way and dropped again. A ball that touches it stops
+    hauled only part way and dropped again. **The park's** (developer,
+    2026-11-14: the tyre swing, the zip-line seat, the kite; "skip the
+    roundabout"): three things, each once, each its own way, in a dealt
+    order: a **tyre swing** (a car tyre on a rope from a branch out of
+    sight; **a ball can go through its hole**: "being able to shoot
+    through the hole would be cool"; logged `ball through the tyre`), a
+    black rubber **bucket seat on a zip line** (slide; the cable across
+    the park in sight, 2.7 m up; drawn only, so a lob may pass through
+    it), a red and yellow **kite** (drop: it dives in, flutters, is
+    pulled back up; its string to someone behind you, off the right). A
+    ball that touches it stops
     and drops; it never touches a block; the dots ignore it (the timing
     is the player's). A layout whose mover leaves the way open under 40%
     of the time, or shuts it over 3.5 s at once, is thrown away (the
     scene check).
   - **Scenes 2 and 4: spread out**: the level's small pieces set well
     apart, left and right, nearer and further (the building site: three
-    posts with bricks; two small frames; a frame and two posts), each
-    its own throw.
+    posts with bricks; two small frames; a frame and two posts; the park:
+    three posts with cubes, two small gates, a gate and two posts, the
+    tree beside them, not in front), each its own throw.
   Later, to discuss: things not to hit (a hit loses the scene, a ❤️; how
   they show it, Q97). Not wanted: fewer balls (scenes must stay
   winnable), wind, a smaller ball or another camera (developer,

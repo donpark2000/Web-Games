@@ -120,7 +120,37 @@ export const STACKS = {
       Bk(0.1, 0.1, 0.1, cx, 0.37 + 3 * e, cz, ['green', 'purple', 'red'][k + 1]),
     ];
   }),
+  // Hardest's spread-out scenes in the park (scenes 2 and 4; as the
+  // building site's, src/core/topple-levels.js spreadPosts...: the pieces
+  // set well apart, left and right, nearer and further, each its own throw;
+  // here 0.34-0.55 apart, 1.0-1.7 m in the world, the pieces 1.1-1.3 m
+  // tall). Three posts, a cube on each: left near, middle far, right between.
+  spreadRow: () => [[-1, 0.17, 0.34], [0, -0.2, 0.37], [1, 0, 0.31]].flatMap(([k, z, h], n) => [
+    Bk(0.08, h, 0.12, k * 0.42, h / 2 + e, z, 'blue'),
+    Bk(0.1, 0.1, 0.1, k * 0.42, h + 0.05 + 2 * e, z, ['green', 'purple', 'red'][n]),
+  ]),
+  // Two small gates, a cube on each: left near and low, right far and taller.
+  spreadGates: () => [[-1, 0.15, 0.24], [1, -0.17, 0.3]].flatMap(([k, z, h]) => {
+    const cx = k * 0.4;
+    return [
+      Bk(0.07, h, 0.1, cx - 0.08, h / 2 + e, z, 'blue'), Bk(0.07, h, 0.1, cx + 0.08, h / 2 + e, z, 'blue'),
+      Bk(0.25, 0.06, 0.12, cx, h + 0.03 + 2 * e, z, 'yellow'),
+      Bk(0.1, 0.1, 0.1, cx, h + 0.11 + 3 * e, z, k < 0 ? 'green' : 'red'),
+    ];
+  }),
+  // A small gate at the back in the middle, a post and cube near on each side.
+  spreadMix: () => [
+    Bk(0.07, 0.28, 0.1, -0.08, 0.14 + e, -0.2, 'blue'), Bk(0.07, 0.28, 0.1, 0.08, 0.14 + e, -0.2, 'blue'),
+    Bk(0.25, 0.06, 0.12, 0, 0.31 + 2 * e, -0.2, 'yellow'),
+    Bk(0.1, 0.1, 0.1, 0, 0.39 + 3 * e, -0.2, 'purple'),
+    ...[-1, 1].flatMap(k => [
+      Bk(0.08, 0.3, 0.12, k * 0.44, 0.15 + e, 0.13, 'blue'),
+      Bk(0.1, 0.1, 0.1, k * 0.44, 0.35 + 2 * e, 0.13, k < 0 ? 'green' : 'red'),
+    ]),
+  ],
 };
+// Hardest's spread-out structures in the park (not dealt on Normal or Harder).
+export const SPREAD_STACKS = ['spreadRow', 'spreadGates', 'spreadMix'];
 // The ones where a hit knocks only some: at least SOME_MIN of scenes 1-4
 // (levelPlan), so a level has both kinds (developer: "use both in
 // different scenes").
@@ -307,7 +337,10 @@ const PLACE = {
   tree(R, table, rng, stackTop, camN, room, placed = []) {
     rng();
     const z = Math.min(-1.7, table.z + R(0.55, 1.6)), r = R(0.07, 0.11), trunkH = 1.9;
-    let x = lineX(table, z) - R(0.15, 0.55);
+    // (Hardest's spread-out pieces: beside the whole structure, as a later
+    // level's tall thing, not in front of its left piece: there it threw
+    // away up to 25 layouts a scene; journal, "Hardest in the park built")
+    let x = room.spread ? besideX(table, z, room, 0.45, R(0.15, 0.55)) : lineX(table, z) - R(0.15, 0.55);
     const bush = placed.find(t => t.kind === 'bush');
     if (bush && z + 0.2 > bush.foot.z0 && z - 0.2 < bush.foot.z1) x = Math.min(x, bush.foot.x0 - 0.21);
     const fork = R(1.3, 1.5), a0 = R(0, 2 * Math.PI);
@@ -433,7 +466,8 @@ export function makeLayout(seed, opts = sceneOpts(1), pool = KINDS) {
   // does (in front, the row's near post left a tree no room 80 times in 300).
   const deep = 2 * Math.max(...rel.map(b => Math.abs(b.z) + b.d / 2)) + TABLE.side * 2;
   const back = Math.max(0, Math.max(...rel.map(b => b.z + b.d / 2)) - 0.07 * SIZE);
-  const table = { w: 2 * half + TABLE.side * 2, d: Math.max(TABLE.d * SIZE, deep), top: 0, x: R(-0.35, 0.35), z: R(-3.1, -2.5) - back };
+  // (a spread-out one nearer the middle, so its sides stay within the aim)
+  const table = { w: 2 * half + TABLE.side * 2, d: Math.max(TABLE.d * SIZE, deep), top: 0, x: SPREAD_STACKS.includes(stack) ? R(-0.12, 0.12) : R(-0.35, 0.35), z: R(-3.1, -2.5) - back };
   const blocks = rel.map(b => ({ ...b, x: table.x + b.x, y: table.top + b.y, z: table.z + b.z }));
   const kinds = [];
   for (let i = 0; i < opts.n; i++) { const left = pool.filter(k => !kinds.includes(k)); kinds.push(pick(left.length ? left : pool)); }
@@ -445,7 +479,7 @@ export function makeLayout(seed, opts = sceneOpts(1), pool = KINDS) {
   const tallest = Math.max(...blocks.map(b => b.h));
   const room = {
     rect: { x0: Math.min(...blocks.map(b => b.x - b.w / 2)), x1: Math.max(...blocks.map(b => b.x + b.w / 2)), z0: Math.min(...blocks.map(b => b.z - b.d / 2)), z1: Math.max(...blocks.map(b => b.z + b.d / 2)) },
-    reach: tallest + REACH_SPARE, reachH: tallest + REACH_SPARE,
+    reach: tallest + REACH_SPARE, reachH: tallest + REACH_SPARE, spread: SPREAD_STACKS.includes(stack),
   };
   const things = [];
   let tooNear = 0;
@@ -556,7 +590,8 @@ export function shiftThing(L, t, dx) {
 // (`name`: a structure of the level instead of the deal's, for the tests)
 export function layoutFor(gameSeed, level, i, tryN = 0, name = null) {
   const seed = sceneSeed(gameSeed, level, i, tryN);
-  return level === 1 ? makeLayout(seed, sceneChoice(gameSeed, level, i)) : frameLayout(seed, level, i, name ?? levelDeal(gameSeed, level)[i - 1]);
+  if (level === 1) { const c = sceneChoice(gameSeed, level, i); return makeLayout(seed, name ? { ...c, stacks: [name] } : c); }
+  return frameLayout(seed, level, i, name ?? levelDeal(gameSeed, level)[i - 1]);
 }
 
 // A layout in the world's metres, for the physics and the drawing alike:
@@ -811,7 +846,7 @@ export const MODES = ['normal', 'harder', 'hardest'];
 export const MODE_INFO = {
   normal: { name: 'Normal', dots: DOT_SECONDS, firstOnly: false, line: 'the dots show the way' },
   harder: { name: 'Harder', dots: 0.15, firstOnly: false, line: 'shorter dots' },
-  hardest: { name: 'Hardest', dots: 0.15, firstOnly: false, line: 'shorter dots; moving things at the building site' },
+  hardest: { name: 'Hardest', dots: 0.15, firstOnly: false, line: 'shorter dots; moving things in the park and at the building site' },
 };
 export function dotSeconds(mode, used) {
   const m = MODE_INFO[mode] ?? MODE_INFO.normal;

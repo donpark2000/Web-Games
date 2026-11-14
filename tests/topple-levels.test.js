@@ -407,15 +407,17 @@ test('topple levels: every scene of two games can be won by a player throwing as
   assert.equal(rows.filter(r => !r.won).length, 0, summary);
 });
 
-// Hardest at the building site (journal Q106, the build's session 1): the
-// spread-out scenes, and the mover's.
-test('topple levels: Hardest\'s spread-out structures are made as scenes 2 and 4, pass the check, stand still, within aim and range; each piece its own throw', () => {
-  const site = LEVELS[1];
-  assert.deepEqual(site.spread, ['spreadPosts', 'spreadFrames', 'spreadMix']);
-  for (const n of site.spread) assert.ok(!site.pool.includes(n) && !site.challenges.includes(n), `${n}: Hardest's only`);
+// Hardest at the building site and in the park (journal Q106, the build's
+// sessions 1 and 2): the spread-out scenes, and the mover's.
+const SPREADS = { 1: ['spreadRow', 'spreadGates', 'spreadMix'], 2: ['spreadPosts', 'spreadFrames', 'spreadMix'] };
+for (const level of [2, 1]) test(`topple levels: Hardest's spread-out structures in level ${level} are made as scenes 2 and 4, pass the check, stand still, within aim and range; each piece its own throw`, () => {
+  const info = LEVELS[level - 1];
+  assert.deepEqual(info.spread, SPREADS[level]);
+  const dealt = level === 1 ? [...sceneOpts(1).stacks, ...sceneOpts(5).stacks] : [...info.pool, ...info.challenges];
+  for (const n of info.spread) assert.ok(!dealt.includes(n), `${n}: Hardest's only`);
   let n = 0, throws = 0;
-  for (const name of site.spread) for (const i of [2, 4]) for (const seed of [777, 31]) {
-    const w = createWorld(), s = w.makeScene(seed, 2, i, name, 'hardest'), at = `${name} as ${i} (${seed})`;
+  for (const name of info.spread) for (const i of [2, 4]) for (const seed of [777, 31]) {
+    const w = createWorld(), s = w.makeScene(seed, level, i, name, 'hardest'), at = `level ${level} ${name} as ${i} (${seed})`;
     n++;
     assert.equal(s.layout.stack, name);
     assert.ok(s.check.ok, `${at}: ${s.check.why}`);
@@ -451,15 +453,15 @@ test('topple levels: Hardest\'s spread-out structures are made as scenes 2 and 4
   assert.equal(throws, 3 * 2 * 8);
 });
 
-test('topple levels: every Hardest scene of two games at the building site can be won, timing the throws round the mover; at random moments it stops some', () => {
+for (const level of [2, 1]) test(`topple levels: every Hardest scene of two games in level ${level} can be won, timing the throws round the mover; at random moments it stops some`, () => {
   const rows = [];
   let stoppedRandom = 0, thrownRandom = 0;
   for (const seed of [12345, 404]) {
     const w = createWorld();
     for (let i = 1; i <= SCENES; i++) {
-      const s = w.makeScene(seed, 2, i, null, 'hardest');
+      const s = w.makeScene(seed, level, i, null, 'hardest');
       const r = canBeWon(s, seed * 31 + i, 1, 12);
-      rows.push({ at: `${seed} ${i} ${s.layout.stack} ${s.mover ? s.mover.move : 'spread'}`, ...r });
+      rows.push({ at: `${seed} ${i} ${s.layout.stack} ${s.mover ? `${s.mover.move} ${s.mover.look}` : 'spread'}`, ...r });
       assert.equal(r.stopped, 0, `${seed} ${i}: a timed throw stopped by the mover`);
       // the same scene's mover, thrown at random moments (scenes 1 and 3: the challenge's are slow to play out)
       if (s.mover && i < SCENES) {

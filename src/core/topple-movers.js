@@ -6,6 +6,9 @@
 // step, the drawing (src/ui/topple-scene.js) draws them where the physics
 // has them.
 //
+// The park's (session 2): a tyre swing (a ball can go through its hole), a
+// bucket seat on a zip line, a kite diving: see LOADS, PARK.
+//
 // The building site's: the crane's load (girders or a pallet of bricks on
 // its hook) crossing between the slingshot and the structure, three ways
 // (Claude's options, agreed to try all three in the mockup):
@@ -52,8 +55,51 @@ export const HEIGHTS = { low: 1.0, middle: 1.5, high: 2.4 };
 export const TIMINGS = ['steady', 'varied', 'tricky'];
 // What the load looks like (the drawing's; the physics' box is the same):
 // v1's yellow skip "did not really look like anything" (2026-11-14).
+// The building site's (the crane's loads):
 export const LOOKS = ['girders', 'bricks'];
 export const LOAD = { w: 1.2, h: 0.6, d: 0.45 };                   // the load's box (m): a bundle of girders, a pallet of bricks
+// The park's (session 2 of the build; developer, 2026-11-14: the tyre
+// swing, the zip-line seat, the kite, "skip the roundabout"; "For the tire,
+// being able to shoot through the hole would be cool"), each its own way
+// (PARK). Sizes at Far (twice real): a car tyre 0.6 m across, a toddler's
+// bucket seat, a child's kite. `shapes`: the physics' boxes ({ half, at,
+// rot: about the depth axis }) where one box would stop a ball in thin air:
+// the tyre a ring of TYRE_N boxes round a hole (TYRE_HOLE across, clear),
+// the kite a diamond in three. The box (w, h, d) is still what inWay and
+// the scene check take: the hole is the player's bonus, never counted on.
+export const TYRE_N = 10, TYRE_OUT = 0.6, TYRE_HOLE = 0.3;
+const ring = (n, rOut, rIn, d) => {
+  const rm = (rOut + rIn) / 2, len = 2 * rm * Math.tan(Math.PI / n) * 1.04;
+  return Array.from({ length: n }, (_, k) => {
+    const a = (k + 0.5) * 2 * Math.PI / n;
+    return { half: [len / 2, (rOut - rIn) / 2, d / 2], at: [rm * Math.cos(a), rm * Math.sin(a), 0], rot: a - Math.PI / 2 };
+  });
+};
+// the diamond as bands, each box as wide as the diamond at its outer edge
+// (so none sticks out past it): a middle band and three above and below
+const BANDS = [0.1, 0.22, 0.34, 0.44];
+const diamond = (w, h, d) => {
+  const box = (y0, y1, s) => ({ half: [(1 - 2 * y1) * w / 2, (y1 - y0) * h / 2, d / 2], at: [0, s * (y0 + y1) * h / 2, 0], rot: 0 });
+  const out = [{ ...box(0, BANDS[0], 0), half: [(1 - 2 * BANDS[0]) * w / 2, BANDS[0] * h, d / 2] }];
+  for (let i = 1; i < BANDS.length; i++) for (const s of [1, -1]) out.push(box(BANDS[i - 1], BANDS[i], s));
+  return out;
+};
+export const LOADS = {
+  girders: LOAD,
+  bricks: LOAD,
+  tyre: { w: 2 * TYRE_OUT, h: 2 * TYRE_OUT, d: 0.36, hole: TYRE_HOLE, shapes: ring(TYRE_N, TYRE_OUT, TYRE_HOLE, 0.36) },
+  zip: { w: 0.8, h: 0.6, d: 0.8 },
+  kite: { w: 1.0, h: 1.3, d: 0.08, shapes: diamond(1.0, 1.3, 0.08) },
+};
+export const ALL_LOOKS = Object.keys(LOADS);
+// The park's: each thing its own way (a tyre swings, a seat slides on its
+// zip line, a kite dives).
+export const PARK = { swing: 'tyre', slide: 'zip', drop: 'kite' };
+// The zip line's cable (m up): in sight (the view's top over the line at
+// the mover's depth measured 2.81-4.42 m, park scenes, phone upright to
+// wide; at 6 m it was out of sight and the seat hung from nowhere). Drawn
+// only: a lob may pass through it.
+export const ZIP_Y = 2.7;
 export const AT = 0.55;          // where it crosses: this share of the way from the hand to the structure
 export const CLEAR = 0.6;        // how far past the structure's side (as seen from the hand) its ends are (m)
 export const PAUSE = 0.4;        // slide, steady: the stop at each end (s)
@@ -99,14 +145,15 @@ export function moverFor(parts, choice = {}, seed = 1) {
   const pace = PACES[c.pace] ? c.pace : DEFAULT.pace;
   const height = HEIGHTS[c.height] ? c.height : DEFAULT.height;
   const timing = pick(c.timing, TIMINGS, DEFAULT.timing);
-  const look = pick(c.look, LOOKS, DEFAULT.look);
+  const look = pick(c.look, ALL_LOOKS, DEFAULT.look);
+  const load = LOADS[look];
   const st = parts.stand;
   const z = HAND.z + (st.z - HAND.z) * AT;
   const x0 = HAND.x + (st.x - HAND.x) * AT;
   // the structure's half-width as seen at this depth (from the hand), then past it by CLEAR and half the load
   const halfAt = Math.max(Math.abs(parts.bounds.min[0] - st.x), Math.abs(parts.bounds.max[0] - st.x), st.w / 2) * AT;
-  const span = +(halfAt + CLEAR + LOAD.w / 2).toFixed(3);
-  const m = { move, pace, height, timing, look, cross: PACES[pace], x0: +x0.toFixed(3), z: +z.toFixed(3), y: HEIGHTS[height], span, load: { ...LOAD }, n: move === 'stream' ? STREAM_N : 1 };
+  const span = +(halfAt + CLEAR + load.w / 2).toFixed(3);
+  const m = { move, pace, height, timing, look, cross: PACES[pace], x0: +x0.toFixed(3), z: +z.toFixed(3), y: HEIGHTS[height], span, load: { ...load }, n: move === 'stream' ? STREAM_N : 1 };
   m.plan = PLANS[move](m, rng((seed ^ 0x5EED1066) >>> 0));
   return m;
 }
@@ -291,8 +338,13 @@ export function gaps(m, r = 0.07, dt = 1 / 120) {
 /* ---------- Hardest's scenes (the build, session 1) ---------- */
 
 // The levels with a thing that moves (one level a session: the building
-// site first; Hardest in the others as it was until theirs is built).
-export const MOVER_LEVELS = [2];
+// site first, then the park, then the levels in order: developer,
+// 2026-11-14, "I suggest we just tackle them in order"; Hardest in the
+// others as it was until theirs is built). Each level's things: `looks`
+// dealt in turn over any of MOVES (the crane's loads), or `ways` (each
+// thing its own way: the park).
+export const LEVEL_MOVERS = { 1: { ways: PARK }, 2: { looks: LOOKS } };
+export const MOVER_LEVELS = Object.keys(LEVEL_MOVERS).map(Number);
 // Scenes with the mover; the others spread out (developer, 2026-11-14:
 // "moving things every other scene and then use space").
 export const MOVING_SCENES = [1, 3, 5];
@@ -301,20 +353,22 @@ export const MOVING_SCENES = [1, 3, 5];
 // so a scene played again is the same one), or null for a level without a
 // mover yet: [{ mover: { move, look, timing, pace, height } } | { spread:
 // a structure }], scene 1 first. The moving scenes each a different way
-// (3 of MOVES), the loads in turn (girders, bricks, or the other way
-// round), varied, the 5th (the challenge) tricky; the spread-out scenes two
+// (3 of MOVES): the crane's loads in turn (girders, bricks, or the other
+// way round), the park's three things each once (its own way), in a dealt
+// order; varied, the 5th (the challenge) tricky; the spread-out scenes two
 // different structures of the level's `spread`.
 export function hardestDeal(gameSeed, level) {
-  const info = levelInfo(level);
-  if (!MOVER_LEVELS.includes(level) || !info?.spread) return null;
+  const info = levelInfo(level), own = LEVEL_MOVERS[level];
+  if (!own || !info?.spread) return null;
   const random = rng((gameSeed ^ Math.imul(level, 0x2C1B3C6D) ^ 0x297A2D39) >>> 0);
   const shuffled = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-  const moves = shuffled(MOVES), spreads = shuffled(info.spread), look0 = random() < 0.5 ? 0 : 1;
+  const moves = shuffled(own.ways ? Object.keys(own.ways) : MOVES), spreads = shuffled(info.spread), look0 = random() < 0.5 ? 0 : 1;
+  const lookOf = k => (own.ways ? own.ways[moves[k]] : own.looks[(look0 + k) % own.looks.length]);
   let k = 0, j = 0;
   return Array.from({ length: SCENES }, (_, i) => {
     const n = i + 1;
     if (!MOVING_SCENES.includes(n)) return { spread: spreads[j++ % spreads.length] };
-    const c = { move: moves[k], look: LOOKS[(look0 + k) % LOOKS.length], timing: n === SCENES ? 'tricky' : 'varied', pace: DEFAULT.pace, height: DEFAULT.height };
+    const c = { move: moves[k], look: lookOf(k), timing: n === SCENES ? 'tricky' : 'varied', pace: DEFAULT.pace, height: DEFAULT.height };
     k++;
     return { mover: c };
   });
