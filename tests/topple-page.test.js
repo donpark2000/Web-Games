@@ -391,3 +391,16 @@ test('topple page: the scene log tells the barrow moved aside and the fewest poi
   assert.match(js, /\.\.\.\(t\.aside \? \{ asideCm: Math\.round\(t\.aside \* 100\) \} : \{\}\)/);
   assert.match(js, /seen: current\.check\.seen, fewestSeen: current\.check\.fewestSeen \}/);
 });
+
+test('topple page: the moving-things mockup (Q106, v2) is kept to its level, the mover only there, from the scene\'s own plan', () => {
+  // v1 let the map lead to other levels: the crane's load in the park, level 3 without its photos (journal, 2026-11-14)
+  assert.match(js, /const MOCK_LEVEL = MOCK \? MOCK\.level \?\? 2 : null;/);
+  assert.match(js, /function startLevel\(n\) \{\s+if \(MOCK && n !== MOCK_LEVEL\) \{[^\n]*n = MOCK_LEVEL;/, 'startLevel kept to the mockup\'s level');
+  assert.match(js, /\$\('playBtn'\)\.onclick = \(\) => \{\s+if \(checkSetup\(setup\)\) return;\s+if \(MOCK\) \{[^\n]*startLevel\(MOCK_LEVEL\); return; \}/, 'Play! goes to the level, not the map');
+  assert.match(js, /if \(MOCK && \(o === 'level' \|\| o === 'all'\)\) \{[\s\S]{0,200}startLevel\(MOCK_LEVEL\);/, 'a level done: that level again');
+  assert.match(js, /const lv = MOCK_LEVEL;\s+\$\('mapBtn'\)\.hidden = true;/, 'no Map button in the mockup');
+  assert.match(js, /if \(!moverChoice \|\| !current \|\| \(MOCK && game\.level !== MOCK_LEVEL\)\)/, 'the mover only in the mockup\'s level');
+  assert.match(js, /moverFor\(current\.parts, moverChoice, current\.layout\.seed\)/, 'the plan from the scene\'s seed');
+  // every other way into a level (the map's buttons, Start again) goes through startLevel
+  assert.equal((js.match(/switchLevel\(game, /g) ?? []).length, 3, 'switchLevel only in startLevel, the mockup\'s start and the checking hook');
+});

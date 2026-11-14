@@ -29,14 +29,19 @@ import { sound } from './sound.js';
 import { resumable } from './resume.js';
 import { drawWatch } from './drawwatch.js';
 import { MAX_FRAME_S } from '../core/fixed-step.js';
-import { moverFor, openShare } from '../core/topple-movers.js';
+import { moverFor, openShare, gaps } from '../core/topple-movers.js';
 
 // Hardest's thing that moves in the way (journal Q106, 2026-11-14): for
 // now only in its mockup, a page that sets window.TOPPLE_MOCKUP = { level,
-// mover: { move, pace, height } } before this file runs: the game starts in
-// that level on Hardest, the mover in every scene, and the page changes it
-// with window.topple.mover(). Without it the game is as published.
+// mover: { move, pace, height, timing, look } } before this file runs: the
+// game starts in that level on Hardest, the mover in each of its scenes,
+// and the page changes it with window.topple.mover(). The mockup is kept to
+// that level (v2; developer, 2026-11-14, "Just building site": v1's map led
+// to other levels, the skip in the park, level 3 without its photos): no
+// Map button, a level done or started again starts that level again.
+// Without it the game is as published.
 const MOCK = globalThis.TOPPLE_MOCKUP ?? null;
+const MOCK_LEVEL = MOCK ? MOCK.level ?? 2 : null;
 let moverChoice = MOCK ? { ...(MOCK.mover ?? {}) } : null;
 
 const $ = id => document.getElementById(id);
@@ -148,6 +153,7 @@ $('rulesPic').innerHTML = toppleMini('av');
 // Play! opens the map (level 2 mockup v1); a level on it opens its screen.
 $('playBtn').onclick = () => {
   if (checkSetup(setup)) return;
+  if (MOCK) { L('mockup: play, its level', { face: setup.p1, ...game }); startLevel(MOCK_LEVEL); return; }
   L('play: the map', { face: setup.p1, ...game });
   showMap();
 };
@@ -310,6 +316,7 @@ function stopWalk() {
 }
 // Play level n straight from the map (a tap on it, or Play after a walk).
 function startLevel(n) {
+  if (MOCK && n !== MOCK_LEVEL) { L('mockup: kept to its level', { asked: n, level: MOCK_LEVEL }); n = MOCK_LEVEL; game.reached = Math.max(game.reached, n); }
   const was = game.rounds?.[n] ?? 0;
   if (!switchLevel(game, n)) { L('level not open', { level: n, reached: game.reached }); showMap(); return; }
   saveGame();
@@ -536,12 +543,12 @@ async function startScene(kept = null) {
 // only, for now): started from the start of its path; logged with how
 // much of the time the throw line is clear.
 function placeMover() {
-  if (!moverChoice || !current) { world.setMovers(null); stage.setMovers(null); return; }
-  const m = moverFor(current.parts, moverChoice);
+  if (!moverChoice || !current || (MOCK && game.level !== MOCK_LEVEL)) { world.setMovers(null); stage.setMovers(null); return; }
+  const m = moverFor(current.parts, moverChoice, current.layout.seed);
   world.setMovers(m);
   stage.setMovers(m);
   stage.syncMovers(world.movers);
-  L('mover', { move: m.move, pace: m.pace, height: m.height, crossS: m.cross, at: [m.x0, m.y, m.z], spanM: m.span, loads: m.n, open: openShare(m) });
+  L('mover', { move: m.move, pace: m.pace, height: m.height, timing: m.timing, look: m.look, crossS: m.cross, planS: r2(m.plan.len), at: [m.x0, m.y, m.z], spanM: m.span, loads: m.n, open: openShare(m), ...gaps(m) });
 }
 
 function renderTally() {
@@ -805,7 +812,8 @@ function endScene(result, quiet = false) {
   // a level done: the game is on to the next level (or every level done: 'all')
   const outcome = sceneOver(game, result.won), lvDone = outcome === 'level' || outcome === 'all';
   saveGame();
-  const words = endWords(outcome, lvDone ? was : game, nameOf(setup.p1));
+  let words = endWords(outcome, lvDone ? was : game, nameOf(setup.p1));
+  if (MOCK && lvDone) words = { ...words, sub: 'The mockup stays on this level', next: 'Play it again ▸' };
   // the pills over the park show the scene's end until the next one starts
   // (no hearts left, or all 5 jewels), not the game already moved on
   const shown = outcome === 'out' ? { ...game, hearts: 0, jewels: was.jewels } : lvDone ? { ...was, jewels: SCENES } : null;
@@ -850,6 +858,13 @@ $('nextBtn').onclick = () => {
   const o = ended?.outcome;
   L('next', { outcome: o, ...game });
   // a level done: the map, the next level unlocking, your face walking there (Q81)
+  // the mockup: its level again from scene 1 (new scenes), not the map
+  if (MOCK && (o === 'level' || o === 'all')) {
+    current = null; round = null; ended = null; settled = null;
+    L('mockup: its level again', { ...game });
+    startLevel(MOCK_LEVEL);
+    return;
+  }
   if (o === 'level') {
     const walk = { from: game.level - 1, to: game.level, unlock: !!ended.unlocked };
     current = null; round = null; ended = null; settled = null;
@@ -958,8 +973,9 @@ if (why) {
   L('no 3D: told this device can’t show it', { why, ua: navigator.userAgent });
   for (const el of document.querySelectorAll('#setup > .panel, #setup > .go')) el.hidden = el.id !== 'no3d';
 } else if (MOCK) {
-  // the mockup (Q106): a new game, straight into the level on Hardest
-  const lv = MOCK.level ?? 2;
+  // the mockup (Q106): a new game, straight into the level on Hardest; no map (kept to the level)
+  const lv = MOCK_LEVEL;
+  $('mapBtn').hidden = true;
   game = createGame(newSeed(), null, 'hardest');
   game.reached = Math.max(game.reached, lv);
   switchLevel(game, lv);

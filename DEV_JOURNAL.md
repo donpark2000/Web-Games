@@ -160,10 +160,27 @@ time, each tried before publishing:
   perspective"; the crane's skip in two levels, and level 3 in the
   park's look with ice blocks ("Mockup v1 tried"): to fix in a new
   session.
+  2026-11-14, developer: "Just building site"; the load "did not really
+  look like anything. Maybe make it look more like bricks or some other
+  building material"; its movement "rather slow and competely
+  predictable ... it just slows it down while you wait for it to get out
+  of the way" (faster, some variance). Mockup v2 built ("Mockup v2"):
+  to try. The build's plan proposed there (shared part with the
+  building site, then one level per session).
 
 ## Proposed additions to the standards skill
 
-None waiting. (2026-11-13: "Make a slow device the bar, and adapt to it
+- **Parse every module, including the ones only a browser runs**
+  (2026-11-14, "Mockup v2"): tests that read a page's code as text, or
+  import only the parts that run outside a browser, can't see that a
+  page's module no longer parses. A second `box` declared in
+  topple-scene.js stopped the whole 3D game loading while all 631 tests
+  passed; the site's own log named it. Now `tests/parse.test.js` runs
+  `node --check` on every module. Generic: one check that every source
+  file parses is cheap and covers the code no test imports. (Fits
+  section 3, near "Prove every check can fail".)
+
+Earlier: (2026-11-13: "Make a slow device the bar, and adapt to it
 from measurements" (from Q99; the developer asked how to record a lesson
 about accommodating different devices) approved by the developer ("Add
 it") and added to the skill, section 4, after "Measure a worry before
@@ -20992,3 +21009,133 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
   part), Q106 (moving things: mockup v1 to fix).
+
+## 2026-11-14: Mockup v2: the building site only; girders or bricks; faster, varied timing (Q106)
+
+- **The developer** (this session): "Just building site" (the first of
+  the two fixes offered: keep the mockup to the building site, not every
+  level's photos and movers). Of v1's load: "the swinging "thing" did not
+  really look like anything. Maybe make it look more like bricks or some
+  other building material. And its movement was rather slow and
+  competely predictable. So it doe not complicate game play much - it
+  just slows it down while you wait for it to get out of the way. So a bit
+  more complexity in the movement (maybe faster and maybe a bit of
+  variance or randomness in the speed) would enhance things." Asked about
+  a strategy for building Hardest's 25 scenes ("Maybe one level per
+  session?"): proposed below.
+- **Kept to the building site** (`src/ui/topple.js`, only while
+  `window.TOPPLE_MOCKUP` is set): every way into a level goes through
+  `startLevel`, which now plays the mockup's level whatever is asked
+  (logged `mockup: kept to its level`); Play! on the setup screen goes
+  there, not the map; no Map button; a level done says "The mockup stays
+  on this level" and "Play it again ▸" (that level again, new scenes);
+  the mover only in the mockup's level (`placeMover`). Only the
+  `window.topple.level()` checking hook gets past it, as before.
+- **Faster, and a timing choice** (`src/core/topple-movers.js`): paces
+  now 3 / 2 / 1.4 s a crossing (v1: 4 / 3 / 2). New `timing`:
+  - steady: v1's, every crossing the same;
+  - varied (the default): each crossing 0.6-1.35 times the pace, each
+    stop 0.1-0.9 s; a swing's each half its own time and 75-100% of the
+    width; a stream's speed changing smoothly between 0.74 and 1.67
+    times the pace every 0.8-1.8 s, its loads unevenly spaced;
+  - tricky: varied, plus a slide stopping part-way 40% of crossings
+    (then on or back, even odds), swings 50-100% wide, a stream stopping
+    now and then.
+  Made as a plan from the scene's seed (`moverFor(parts, choice, seed)`,
+  the layout's seed: the same scene, the same plan; no clock read), 60 s
+  long, then round again from where it started, so nothing jumps.
+- **How open the way is** (scratchpad survey, five building-site scenes,
+  every move, pace and timing; open = the throw line clear of the load):
+  open 0.67-0.79 of the time for slide and swing, 0.55-0.56 for stream,
+  whatever the timing; what changes is how often and how unevenly: in 30
+  s the way opens and shuts 5-7 times steady (one cycle), 20-63 varied or
+  tricky. Longest wait, shut: slide medium 0.68 s steady, 0.92 varied,
+  1.58 tricky; stream slow tricky 3.0 s (a load stopped in the line).
+  Logged per scene now: `mover` with timing, look, plan length, `open`,
+  `openS`, `shutS`, `changes` (`gaps()`).
+- **The load's look** (`src/ui/topple-scene.js`), a choice in the
+  mockup: **girders** (default), a bundle of six orange steel I-beams on
+  two chains (orange so it doesn't read as the structure's grey steel
+  posts), or **bricks**, a pallet of red bricks with mortar lines and
+  two blue straps on four chains. The load's box is now 1.2 x 0.6 x
+  0.45 m (v1's skip 0.9 x 0.6 x 0.7): wider, like the loads it draws.
+  Seen in the built-in browser: the bricks read clearly as a pallet of
+  bricks; the girders as an orange bundle of beams (the I-shape shows
+  only from a slant).
+- **The mockup's sheet**: How it moves, **Timing**, Speed, Height,
+  **The load**; the bar names all five. On a 375 px phone the sheet fits
+  (718 px, no scroll inside, no sideways scroll).
+- **A bug the suite didn't see**: the first load of the page said "This
+  phone or tablet can't show the 3D park". The site's log: `no 3D ...
+  "three.js or cannon-es not loaded: Identifier 'box' has already been
+  declared"`: the drawing's new helper `box` clashed with an older
+  `box()` in the same file, so the module didn't parse, with all tests
+  passing (no test imports the page's modules). Renamed `part`. New
+  `tests/parse.test.js`: `node --check` on every module under `src/`
+  (vendor aside; 90 modules, about 9 s). **Shown to fail**: with the
+  clash put back it names `src/ui/topple-scene.js: SyntaxError:
+  Identifier 'box' has already been declared`. Proposed for the skill
+  (above).
+- **Tests**: `tests/topple-movers.test.js` 7 to 12: unknown timing and
+  look fall back; the earlier tests ask for steady; open 30-95% for all
+  27 ways, paces and timings; one seed one plan, another seed another,
+  no step bigger than 4 times steady's top speed over two plans for 8
+  seeds (the plan's wrap included); varied slide's crossings and stops
+  of their own lengths, never past the ends, ending where it starts,
+  steady's exactly v1's; tricky slide's stops part-way and turns back;
+  varied swing's cable, widths and times; streams' speeds, stops only
+  when tricky, loads never closer than a load's width.
+  `tests/topple-page.test.js`: the mockup kept to its level (startLevel,
+  Play!, a level done, no Map button, the mover only there, the plan
+  from the scene's seed, `switchLevel(game, ` only in startLevel, the
+  mockup's start and the hook). **Shown to fail**: varied made steady
+  (3 tests: "crossings 2.00-2.00 s (pace 2)"); no part-way stops ("0
+  stops part-way"); stream loads bunched ("loads 0.42 m apart"); the
+  slide plan free to end at the right end ("seed 1: the biggest step
+  3.3538 m": the first version of that check let any jump over 1 m by,
+  meant only for a stream's load coming round; tightened); the
+  startLevel guard taken out; the Map button left. A swing plan free to
+  end on an odd half isn't caught, and needn't be: every half starts and
+  ends hanging straight down, so it can't jump. Whole suite: 638 tests,
+  638 pass. `node tools/offline.js` run (version 5c46aef1a124; release
+  still 10.9).
+- **Checked in the built-in browser** (the page wrapped as the viewer
+  wraps it, a scratchpad server, a temporary `.claude/launch.json` entry
+  taken out after): no console errors; level 2 on Hardest, the Map
+  button gone; varied slide with girders, then bricks; Start again → the
+  whole game: level 2 (`mockup: kept to its level {"asked":1}`); the
+  hook's level 3: no mover; Start again → the level: level 2, the mover
+  back. **Not exercised**: a level won to its end (no hook wins a scene);
+  its path is `startLevel(MOCK_LEVEL)`, the same as the two above.
+- **Mockup v2**: [Topple! Moving Things](https://claude.ai/artifact/Ewh25ors8MqgL1VasXkUrE)
+  (the same link, version 2; the four changed files sent, the rest kept).
+  Starts on Slide · Varied · Medium · Middle · Girders.
+- **Strategy for building Hardest (Claude's proposal, to agree):** the
+  25 scenes aren't built one by one: each level's scenes come from its
+  structures and the seed, and the mover is placed from each scene's
+  sizes. So the work is one shared part and one mover per level:
+  1. **Session 1: the shared part, with the building site.** The mover
+     in the real game on Hardest (no flag), with the choices v2 settles;
+     the scene check throwing at several moments so every Hardest scene
+     can still be cleared with the mover in the way; logs and tests.
+     A release to try on the devices (10.10).
+  2. **One session per other level** (park: the tyre swing; Frosty
+     Times: snowman or snowball machine; mine: the cart; the last level:
+     the lantern), each with its look, movement, tests, a browser check
+     and a release. Hardest in a level not done yet stays as now, so
+     each release is complete.
+  Each session ends with a status entry, a commit and a push, so the
+  next starts from the notes.
+
+**Status (start here next session)**
+- **Live: 10.9.** `block-game` = `main` plus journal entries, and the
+  mover behind `window.TOPPLE_MOCKUP` (the game unchanged without it).
+  Not published.
+- **From the developer:** try mockup v2 (link above): which way of
+  moving, timing, speed, height, and girders or bricks; and the build
+  strategy (above): agree or change it.
+- **Then:** session 1 of the build (the shared part with the building
+  site).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
+  part), Q106 (moving things: mockup v2 to try).

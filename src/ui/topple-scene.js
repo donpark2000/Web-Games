@@ -318,40 +318,65 @@ export function makePark3d(canvas, { antialias = true } = {}) {
 
   /* ---------- the thing that moves in the way (Hardest, Q106) ---------- */
 
-  // The crane's load: a yellow skip with black and yellow hazard stripes
-  // round its foot (first a pallet of bricks: in front of a brick and
-  // timber structure it read as part of it, 2026-11-14), four sling chains
-  // to a hook, and the cable up out of view to the jib (CABLE_TOP; the
-  // swing's pivot). Drawn round the body's middle, turned as the body is
-  // (the swing's lean), so the cable always points at its top.
+  // The crane's load (mockup v2; developer, 2026-11-14, of v1's yellow
+  // skip: "did not really look like anything. Maybe make it look more like
+  // bricks or some other building material"), drawn to fill the physics'
+  // box (m.load), round the body's middle, turned as the body is (the
+  // swing's lean), so the cable always points at its top (CABLE_TOP):
+  // - girders: a bundle of six orange steel I-beams, two deep and three high,
+  //   slung on two chains (orange, so it doesn't read as the structure's
+  //   grey steel posts);
+  // - bricks: a strapped pallet of bricks on four chains (v1's first look,
+  //   a plain pallet, read as part of a brick structure; this one has its
+  //   pallet, mortar lines and blue straps).
   let moverMeshes = [];
   const chainMat = new THREE.MeshStandardMaterial({ color: '#3A3D40', roughness: 0.5, metalness: 0.6 });
   const hookMat = new THREE.MeshStandardMaterial({ color: '#E8B22A', roughness: 0.5, metalness: 0.3 });
-  const skipSide = new THREE.MeshStandardMaterial({
-    roughness: 0.55, metalness: 0.25,
-    map: canvasTex(256, 170, (g, w, h) => {
-      g.fillStyle = '#F2B705'; g.fillRect(0, 0, w, h);
-      // the hazard band along the foot, and a darker rim at the top
-      const band = h * 0.3;
-      g.save(); g.beginPath(); g.rect(0, h - band, w, band); g.clip();
-      g.fillStyle = '#1C1C1C';
-      for (let x = -band; x < w + band; x += 36) { g.beginPath(); g.moveTo(x, h); g.lineTo(x + 18, h); g.lineTo(x + 18 + band, h - band); g.lineTo(x + band, h - band); g.closePath(); g.fill(); }
-      g.restore();
-      g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(0, 0, w, 8);
-      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 6; g.strokeRect(0, 0, w, h);
-    }),
+  const girderMat = new THREE.MeshStandardMaterial({ color: '#E0641F', roughness: 0.5, metalness: 0.35 });
+  const brickTex = (rows, cols) => canvasTex(256, 256, (g, w, h) => {
+    g.fillStyle = '#C9C1B4'; g.fillRect(0, 0, w, h);           // mortar
+    const bh = h / rows, bw = w / cols;
+    for (let r = 0; r < rows; r++) for (let c = -1; c < cols + 1; c++) {
+      const x = c * bw + (r % 2 ? bw / 2 : 0), shade = 0.85 + 0.3 * (((r * 7 + c * 13) % 5) / 5);
+      g.fillStyle = `rgb(${Math.round(178 * shade)},${Math.round(74 * shade)},${Math.round(52 * shade)})`;
+      g.fillRect(x + 3, r * bh + 3, bw - 6, bh - 6);
+    }
+    // two blue straps round the stack
+    g.fillStyle = '#2C6FD6';
+    for (const sx of [0.27, 0.73]) g.fillRect(w * sx - 7, 0, 14, h);
   });
-  const skipTop = new THREE.MeshStandardMaterial({ color: '#5E5A55', roughness: 0.9 });
-  const skipFoot = new THREE.MeshStandardMaterial({ color: '#B08500', roughness: 0.6, metalness: 0.3 });
+  const brickSide = new THREE.MeshStandardMaterial({ map: brickTex(6, 4), roughness: 0.85 });
+  const brickTop = new THREE.MeshStandardMaterial({ map: brickTex(4, 4), roughness: 0.85 });
+  const palletMat = new THREE.MeshStandardMaterial({ color: '#B98A55', roughness: 0.9 });
+  const part = (w, h, d, mat, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); o.position.set(x, y, z); return o; };
+  function girders(g, { w, h, d }) {
+    // each I-beam: two flanges and a web; two deep, three high, filling the box
+    const bh = h / 3, fd = d / 2 - 0.02, ft = 0.035;
+    for (let row = 0; row < 3; row++) for (const sz of [-1, 1]) {
+      const y = -h / 2 + bh * (row + 0.5), z = sz * d / 4;
+      g.add(part(w, ft, fd, girderMat, 0, y - bh / 2 + ft / 2 + 0.005, z));
+      g.add(part(w, ft, fd, girderMat, 0, y + bh / 2 - ft / 2 - 0.005, z));
+      g.add(part(w, bh - 2 * ft - 0.01, 0.03, girderMat, 0, y, z));
+    }
+  }
+  function bricks(g, { w, h, d }) {
+    const ph = 0.12;
+    // the pallet: a deck, three runners under it
+    g.add(part(w, 0.03, d, palletMat, 0, -h / 2 + ph - 0.015, 0));
+    for (const sx of [-0.42, 0, 0.42]) g.add(part(0.09, ph - 0.03, d, palletMat, sx * w, -h / 2 + (ph - 0.03) / 2, 0));
+    // the stack, a little in from the pallet's edges
+    const sh = h - ph;
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.96, sh, d * 0.94), [brickSide, brickSide, brickTop, palletMat, brickSide, brickSide]));
+    g.children.at(-1).position.y = -h / 2 + ph + sh / 2;
+  }
   function loadMesh(m) {
     const g = new THREE.Group(), { w, h, d } = m.load, top = h / 2;
-    // sides striped, the top (what's in it) grey, the bottom darker yellow
-    const skip = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), [skipSide, skipSide, skipTop, skipFoot, skipSide, skipSide]);
-    g.add(skip);
-    // the chains from the skip's top corners to the hook, the hook, the cable up
+    (m.look === 'bricks' ? bricks : girders)(g, m.load);
+    // the chains from the load's top to the hook (girders: two, at a third from each end; bricks: four corners), the hook, the cable up
     const hookY = top + 0.55, hook = new THREE.Vector3(0, hookY, 0);
-    for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-      const a = new THREE.Vector3(sx * w * 0.47, top, sz * d * 0.47), v = hook.clone().sub(a);
+    const ends = m.look === 'bricks' ? [[-1, -1], [-1, 1], [1, -1], [1, 1]].map(([sx, sz]) => [sx * w * 0.47, sz * d * 0.45]) : [[-w * 0.33, 0], [w * 0.33, 0]];
+    for (const [x, z] of ends) {
+      const a = new THREE.Vector3(x, top, z), v = hook.clone().sub(a);
       const c = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, v.length(), 6), chainMat);
       c.position.copy(a).add(hook).multiplyScalar(0.5); c.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.normalize());
       g.add(c);

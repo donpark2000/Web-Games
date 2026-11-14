@@ -5,7 +5,7 @@
 // Seconds of physics, nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { MOVES, PACES, HEIGHTS, DEFAULT, PAUSE, CABLE_TOP, STREAM_N, moverFor, moverAt, openShare } from '../src/core/topple-movers.js';
+import { MOVES, PACES, HEIGHTS, TIMINGS, LOOKS, DEFAULT, PAUSE, CABLE_TOP, STREAM_N, PLAN_S, moverFor, moverAt, openShare, gaps } from '../src/core/topple-movers.js';
 import { createWorld, MOVER_KEEP } from '../src/core/topple-world.js';
 import { STEP, HAND, launchVel } from '../src/core/topple.js';
 
@@ -21,8 +21,10 @@ function siteScene(seed = 4242, i = 1) {
 
 test('movers: unknown choices fall back to the defaults; it crosses between the hand and the structure, past its sides', () => {
   const { s } = siteScene();
-  const m = moverFor(s.parts, { move: 'hop', pace: 'warp', height: 'sky' });
+  const m = moverFor(s.parts, { move: 'hop', pace: 'warp', height: 'sky', timing: 'jumpy', look: 'piano' });
   assert.equal(m.move, DEFAULT.move); assert.equal(m.pace, DEFAULT.pace); assert.equal(m.height, DEFAULT.height);
+  assert.equal(m.timing, DEFAULT.timing); assert.equal(m.look, DEFAULT.look);
+  assert.ok(LOOKS.includes(DEFAULT.look));
   assert.equal(m.cross, PACES[DEFAULT.pace]); assert.equal(m.y, HEIGHTS[DEFAULT.height]);
   const st = s.parts.stand;
   assert.ok(m.z < HAND.z && m.z > st.z, `crosses at z ${m.z}, between the hand (${HAND.z}) and the structure (${st.z})`);
@@ -34,7 +36,7 @@ test('movers: unknown choices fall back to the defaults; it crosses between the 
 
 test('movers: slide goes across at a steady speed, stops at each end, and comes back', () => {
   const { s } = siteScene();
-  const m = moverFor(s.parts, { move: 'slide', pace: 'medium' }), T = m.cross;
+  const m = moverFor(s.parts, { move: 'slide', pace: 'medium', timing: 'steady' }), T = m.cross;
   assert.ok(near(xs(m, 0)[0], m.x0 - m.span), 'starts at the left end');
   assert.ok(near(xs(m, T / 2)[0], m.x0, 1e-3), 'the middle half way across');
   assert.ok(near(xs(m, T)[0], m.x0 + m.span), 'the right end after one crossing');
@@ -50,7 +52,7 @@ test('movers: slide goes across at a steady speed, stops at each end, and comes 
 
 test('movers: swing hangs from the jib, leans as it swings, fastest in the middle', () => {
   const { s } = siteScene();
-  const m = moverFor(s.parts, { move: 'swing', pace: 'slow' }), T = m.cross, L = CABLE_TOP - m.y;
+  const m = moverFor(s.parts, { move: 'swing', pace: 'slow', timing: 'steady' }), T = m.cross, L = CABLE_TOP - m.y;
   const at = t => moverAt(m, t)[0];
   assert.ok(near(at(0).p[0], m.x0) && near(at(0).p[1], m.y), 'starts hanging straight down, in the middle');
   assert.ok(near(at(T / 2).p[0], m.x0 + m.span, 1e-6), `out to the right end at T/2: ${at(T / 2).p[0]}`);
@@ -66,7 +68,7 @@ test('movers: swing hangs from the jib, leans as it swings, fastest in the middl
 
 test('movers: stream sends loads one way, evenly spaced, round again', () => {
   const { s } = siteScene();
-  const m = moverFor(s.parts, { move: 'stream', pace: 'fast' });
+  const m = moverFor(s.parts, { move: 'stream', pace: 'fast', timing: 'steady' });
   const a = xs(m, 1).sort((p, q) => p - q), b = xs(m, 1.1);
   assert.equal(a.length, STREAM_N);
   const gaps = a.slice(1).map((x, i) => x - a[i]);
@@ -76,15 +78,15 @@ test('movers: stream sends loads one way, evenly spaced, round again', () => {
   assert.ok(moved.length >= STREAM_N - 1 && moved.every(d => near(d, v * 0.1, 1e-9)), 'each moves right at the steady speed (one may have come round)');
 });
 
-test('movers: the way is open some of the time and closed some of the time, every way and pace', () => {
+test('movers: the way is open some of the time and closed some of the time, every way, pace and timing', () => {
   const { s } = siteScene();
   const seen = [];
-  for (const move of MOVES) for (const pace of Object.keys(PACES)) {
-    const share = openShare(moverFor(s.parts, { move, pace }));
-    seen.push(`${move} ${pace} ${share}`);
-    assert.ok(share > 0.3 && share < 0.95, `${move} ${pace}: open ${share}`);
+  for (const move of MOVES) for (const pace of Object.keys(PACES)) for (const timing of TIMINGS) {
+    const share = openShare(moverFor(s.parts, { move, pace, timing }, s.layout.seed));
+    seen.push(`${move} ${pace} ${timing} ${share}`);
+    assert.ok(share > 0.3 && share < 0.95, `${move} ${pace} ${timing}: open ${share}`);
   }
-  assert.equal(seen.length, 9);
+  assert.equal(seen.length, 27);
 });
 
 // The first straight throw (up 2-20°, aimed along the scan) whose path's
@@ -110,7 +112,7 @@ test('movers: a ball that meets the load stops and drops; the same throw with th
   const hits = [];
   const w = createWorld({ onHit: h => { if (h.a === 'ball') hits.push(h.b); } });
   const s = w.makeScene(4242, 2, 1);
-  const m = moverFor(s.parts, { move: 'slide', pace: 'medium', height: 'middle' });
+  const m = moverFor(s.parts, { move: 'slide', pace: 'medium', height: 'middle', timing: 'steady' });
   w.setMovers(m);
   assert.equal(w.movers.length, 1);
   const shot = straightAtBlock(w, s.layout.power, m);
@@ -146,4 +148,87 @@ test('movers: a load swept through the structure itself touches no block', () =>
   assert.ok(w.drift() < 1e-6, `the blocks still (${w.drift()} m)`);
   w.setMovers(null);
   assert.equal(w.movers.length, 0);
+});
+
+// Mockup v2 (developer, 2026-11-14, of v1: "rather slow and competely
+// predictable"): varied and tricky timing, from a plan made from the
+// scene's seed.
+
+// Every load's x over the first 2 plans' worth, in steps of dt, and the biggest jump between steps.
+function track(m, dt = 1 / 120, T = 2 * m.plan.len) {
+  const out = [];
+  for (let t = 0; t <= T; t += dt) out.push(moverAt(m, t));
+  return out;
+}
+
+test('movers: varied and tricky are the same plan for the same scene, another for another, and run on round again smoothly', () => {
+  const { s } = siteScene();
+  for (const move of MOVES) for (const timing of ['varied', 'tricky']) {
+    const a = moverFor(s.parts, { move, timing }, 11), b = moverFor(s.parts, { move, timing }, 11), c = moverFor(s.parts, { move, timing }, 12);
+    assert.deepEqual(a.plan, b.plan, `${move} ${timing}: one seed, one plan`);
+    assert.notDeepEqual(a.plan, c.plan, `${move} ${timing}: another seed, another plan`);
+    assert.ok(a.plan.len >= PLAN_S, `${move} ${timing}: the plan ${a.plan.len} s`);
+    // no jump anywhere, the plan's end into its start included (a stream's load coming round aside), over 8 scenes' plans
+    for (let seed = 1; seed <= 8; seed++) {
+      const p = moverFor(s.parts, { move, timing }, seed), dt = 1 / 120, v = 2 * p.span / p.cross, xs0 = track(p, dt);
+      let worst = 0;
+      for (let k = 1; k < xs0.length; k++) xs0[k].forEach((l, i) => { const d = Math.abs(l.p[0] - xs0[k - 1][i].p[0]); if (move !== 'stream' || d < 1) worst = Math.max(worst, d); });
+      assert.ok(worst < 4 * v * dt, `${move} ${timing} seed ${seed}: the biggest step ${worst.toFixed(4)} m in ${dt.toFixed(4)} s (steady top ${(v * dt).toFixed(4)})`);
+    }
+  }
+});
+
+test('movers: varied slide: each crossing its own time, each stop its own, never past the ends', () => {
+  const { s } = siteScene();
+  const m = moverFor(s.parts, { move: 'slide', pace: 'medium', timing: 'varied' }, s.layout.seed), T = m.cross;
+  const moves = m.plan.segs.filter(g => g.a !== g.b), stops = m.plan.segs.filter(g => g.a === g.b);
+  assert.ok(moves.length >= 10, `${moves.length} crossings`);
+  for (const g of moves) assert.ok(Math.abs(g.b - g.a) === 2, 'varied crosses end to end');
+  const ds = moves.map(g => g.d), lo = Math.min(...ds), hi = Math.max(...ds);
+  assert.ok(lo < 0.8 * T && hi > 1.2 * T, `crossings ${lo.toFixed(2)}-${hi.toFixed(2)} s (pace ${T})`);
+  assert.ok(new Set(stops.map(g => g.d.toFixed(3))).size > stops.length / 2, 'stops of different lengths');
+  for (const st of track(m)) assert.ok(Math.abs(st[0].p[0] - m.x0) <= m.span + 1e-9);
+  assert.equal(m.plan.segs.at(-1).b, -1, 'ends at the left end, where it starts');
+  // steady is v1's: every crossing the pace, every stop PAUSE
+  const st = moverFor(s.parts, { move: 'slide', pace: 'medium', timing: 'steady' }, s.layout.seed);
+  for (const g of st.plan.segs) assert.ok(g.a !== g.b ? g.d === T : g.d === PAUSE);
+});
+
+test('movers: tricky slide stops part-way now and then, and sometimes turns back', () => {
+  const { s } = siteScene();
+  const m = moverFor(s.parts, { move: 'slide', timing: 'tricky' }, s.layout.seed), segs = m.plan.segs;
+  const partStops = segs.filter(g => g.a === g.b && Math.abs(g.a) < 0.5);
+  assert.ok(partStops.length >= 3, `${partStops.length} stops part-way`);
+  // turned back: after a part-way stop, the next move goes back to the end it came from
+  let back = 0;
+  segs.forEach((g, i) => { if (g.a === g.b && Math.abs(g.a) < 0.5 && i > 0 && segs[i + 1]?.b === segs[i - 1].a) back++; });
+  assert.ok(back >= 1 && back < partStops.length, `turned back ${back} of ${partStops.length}`);
+  assert.ok(gaps(m).shutS > gaps(moverFor(s.parts, { move: 'slide', timing: 'steady' }, s.layout.seed)).shutS, 'a longer wait now and then than steady');
+});
+
+test('movers: varied swing keeps its cable, each swing its own time and width, none wider than the steady one', () => {
+  const { s } = siteScene();
+  const m = moverFor(s.parts, { move: 'swing', pace: 'medium', timing: 'varied' }, s.layout.seed), L = CABLE_TOP - m.y;
+  const lobes = m.plan.lobes;
+  assert.equal(lobes.length % 2, 0, 'ends back on the side it starts');
+  assert.ok(new Set(lobes.map(l => l.d.toFixed(3))).size > lobes.length / 2 && Math.max(...lobes.map(l => l.amp)) <= 1 && Math.min(...lobes.map(l => l.amp)) < 0.9, 'swings of their own time and width');
+  for (const [l] of track(m, 1 / 30)) {
+    assert.ok(near(Math.hypot(l.p[0] - m.x0, l.p[1] - CABLE_TOP), L, 1e-9), 'the cable keeps its length');
+    assert.ok(Math.abs(l.p[0] - m.x0) <= m.span + 1e-6, 'never past the ends');
+  }
+});
+
+test('movers: varied and tricky streams: the line speeds up and slows down, the loads never bump, tricky stops now and then', () => {
+  const { s } = siteScene();
+  for (const timing of ['varied', 'tricky']) {
+    const m = moverFor(s.parts, { move: 'stream', pace: 'medium', timing }, s.layout.seed), v = 2 * m.span / m.cross;
+    const speeds = m.plan.knots.map(k => k.v);
+    assert.ok(Math.min(...speeds.filter(x => x > 0)) < 0.85 * v && Math.max(...speeds) > 1.2 * v, `${timing}: speeds ${Math.min(...speeds).toFixed(2)}-${Math.max(...speeds).toFixed(2)} m/s (pace ${v.toFixed(2)})`);
+    assert.equal(speeds.filter(x => x === 0).length > 0, timing === 'tricky', `${timing}: stops`);
+    assert.ok(speeds.every(x => x >= 0), 'never backwards');
+    for (const at of track(m, 1 / 30)) {
+      const xs1 = at.map(l => l.p[0]).sort((a, b) => a - b);
+      for (let i = 1; i < xs1.length; i++) assert.ok(xs1[i] - xs1[i - 1] > m.load.w, `${timing}: loads ${(xs1[i] - xs1[i - 1]).toFixed(2)} m apart`);
+    }
+  }
 });
