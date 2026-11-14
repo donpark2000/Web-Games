@@ -7,6 +7,22 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.12 (2026-11-14, version 1b0b7a7cccc1)
+
+Topple!: Hardest in Frosty Times has things that move in the way.
+
+- **Scenes 1, 3 and 5**: one of three winter things moves between you
+  and the structure, each once, in a different order each game: a
+  **snowman on skates** gliding across and back (hit his head and his
+  top hat flies off), the **snowball machine** lobbing big snowballs
+  across (one you hit bursts), and a **giant snowflake** drifting down
+  from the sky, swaying side to side (a ball can slip between its arms).
+  A ball that hits one stops and drops: time your throw.
+- **Scenes 2 and 4**: the ice pieces are spread out, left and right,
+  near and far, each needing its own aim.
+- The park's and the building site's Hardest are as they were; Normal
+  and Harder, and Hardest in the other levels, are as they were.
+
 ## 10.11 (2026-11-14, version 1886c0185240)
 
 Topple!: Hardest in the park has things that move in the way.
