@@ -21337,3 +21337,31 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
   part), Q106 (moving things: the building site built, to try).
+
+## 2026-11-14: Release 10.10 published and live
+
+- The developer: "Publish 10.10".
+- Release set to 10.10, `node tools/offline.js` (version 142295fec36f,
+  191 files; sw.js and version.js put back to CRLF), notes in
+  RELEASES.md; 645 tests pass; `node tools/release.js` said ready.
+- `main` fast-forwarded to a321110, tag `v10.10` pushed, the GitHub
+  release made from `node tools/release.js notes`. The Pages build ran
+  (built a321110); the live `version.js` reads 142295fec36f,
+  `release.js` and `sw.js` 10.10. No `serve.js` running (Claude's
+  preview server stopped before the publish).
+
+**Status (start here next session)**
+- **Live: 10.10** (Hardest at the building site: the crane's load in
+  scenes 1, 3, 5, spread out in 2 and 4). `block-game` = `main` plus
+  this entry. Nothing waiting to publish.
+- **For the developer:** on the devices, Hardest at the building site:
+  the four ways (slide, swing, stream, drop), the speed changes, the
+  spread-out scenes; whether a lob over the load makes it too easy;
+  the old tablet's frame rate with the load moving.
+- **Then:** session 2 of the build, in a fresh session: the next
+  level's mover (the park's tyre swing, Frosty Times' snowman or
+  snowball machine, the mine cart, the lantern; which next, the
+  developer's pick).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
+  part), Q106 (moving things: the building site live in 10.10, to try).
