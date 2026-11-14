@@ -167,6 +167,11 @@ time, each tried before publishing:
   of the way" (faster, some variance). Mockup v2 built ("Mockup v2"):
   to try. The build's plan proposed there (shared part with the
   building site, then one level per session).
+  2026-11-14, developer, mockup v2: "Better"; more variance in the
+  speed; a different obstacle from scene to scene; moving things every
+  other scene, the others spread out or smaller balls; sometimes
+  something falling from the sky. The build plan: "agree" ("Mockup v2
+  tried"). What session 1 covers: to agree.
 
 ## Proposed additions to the standards skill
 
@@ -21139,3 +21144,48 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
   part), Q106 (moving things: mockup v2 to try).
+
+## 2026-11-14: Mockup v2 tried: better; a different thing each scene, every other scene, things falling; the plan agreed (Q106)
+
+- **The developer**, on mockup v2: "Better. I think more variance in the
+  speed would be good. And it would be good to change the obstacle from
+  scene to scene. Maybe moving things every other scene and then use
+  space or smaller balls for the scenes that don't have moving
+  obstacles. And maybe sometimes the obstacle can be something falling
+  from the sky instead of back and forth." On the build plan (session 1
+  the shared part with the building site, then one level a session):
+  "agree". Asked: "Shall we move on to a build for level 1 or do we need
+  to check something else out first?"
+- **Claude's reading, to confirm:**
+  - "Level 1" most likely means step 1 of the plan, the building site
+    (level 2 of the game), where the mover and its looks already exist;
+    the park (level 1) has no mover yet. Asked.
+  - **Smaller balls** were ruled out earlier the same day ("Hardest:
+    build, moving things and spread out": hard to see on a small screen).
+    Asked whether that still holds; Claude's pick: spread out only.
+  - **No mockup first**: the developer prefers builds tried on the
+    devices; what's new (falling things, the scene-by-scene pattern) is
+    cheap to change after a release; the check that every Hardest scene
+    can be cleared with the mover in the way is part of the build.
+- **Session 1, as Claude proposes it** (Hardest at the building site,
+  no flag):
+  - scenes 1, 3, 5 with a moving thing, 2 and 4 spread out;
+  - each moving scene its own way of moving and load, dealt from the
+    scene's seed: slide, swing, stream, and a new **drop** (a load let go
+    from above, falling through the throw line out of sight, again and
+    again at uneven times); girders or bricks;
+  - more variance: each crossing 0.45-1.8 times the pace (v2's varied:
+    0.6-1.35), the stream's speed likewise wider;
+  - spread out: the structure's parts set further apart (aiming tested,
+    as the developer put it);
+  - the scene check, logs, tests, a browser check; release 10.10.
+
+**Status (start here next session)**
+- **Live: 10.9.** `block-game` = `main` plus journal entries, and the
+  mover behind `window.TOPPLE_MOCKUP`. Not published.
+- **From the developer:** confirm session 1 is the building site; smaller
+  balls or not; session 1's contents (above).
+- **Then:** build session 1.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
+  part), Q106 (moving things: session 1 to agree).
