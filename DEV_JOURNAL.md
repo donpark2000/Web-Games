@@ -133,28 +133,12 @@ time, each tried before publishing:
   scenes. What Hardest does until those exist: to agree.
   2026-11-13, developer: "Use Harder's dots for now". Built (for 10.6,
   "Responsiveness first; ..."): to try; Hardest's own scenes still to come.
-- **Q102. Starting again: not everywhere, and hard to find** (2026-11-13,
-  developer: "the ability to start a scene or level again is not
-  available everywhere and it is confusing to figure out how to find it.
-  For example, once you are in a scene you can only start the scene
-  again"). Today's ways and a proposal in "10.6 tried: ..."; to agree.
-  2026-11-13, developer: the proposal "yes"; "build it. I need to test on
-  both tablet and phone and I can not do that from a mockup". Built (for
-  10.7, "Start again: one question (Q102)"): to try.
-- **Q103. Frosty Times: a block knocked where it can't be hit**
-  (2026-11-13, developer, the old tablet): a last cube knocked so far
-  right it was off the screen upright (seen sideways, hit, but "I could
-  not get enough energy for a direct hit", the ball landing short and
-  pushing it further); an upright block hit on its side "just spun and
-  moved further back ... far enough back and to the left side that it
-  was unreachable". "Not sure if we should consider this a bug or a skill
-  testing part of play." Measured, and a proposal, in "Frosty Times:
-  blocks knocked out of sight or range (Q103)"; to agree.
-  2026-11-13, developer: "too far to reach = down"; out of sight (a),
-  counted down ("Making things smaller to fit is only going to make a hard
-  situation much harder"); ice as it is ("pushing blocks too far is part
-  of game play vs making it impossible to win"). Built (for 10.7, "Out of
-  range and out of sight count as down (Q103)"): to try.
+  2026-11-14, developer ("Hardest: build, moving things and spread out"):
+  build, not mockups ("testing on real devices seems to be better showing
+  up issues"); moving things liked, spread out "would help too"; no
+  smaller ball, no other camera ("hard to see on a small screen as it gets
+  farther away"). Open: the miss-player (developer unsure), which moving
+  things, and the order.
 - **Q105. Topple!: the glow 26 s late; what glowed behind the
   wheelbarrow** (2026-11-13, developer, on 10.7, the old tablet): the
   building site "seems to be the most likely level to have blocks left
@@ -298,6 +282,36 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q103. Frosty Times: a block knocked where it can't be hit**
+  (2026-11-13, developer, the old tablet): a last cube knocked so far
+  right it was off the screen upright (seen sideways, hit, but "I could
+  not get enough energy for a direct hit", the ball landing short and
+  pushing it further); an upright block hit on its side "just spun and
+  moved further back ... far enough back and to the left side that it
+  was unreachable". "Not sure if we should consider this a bug or a skill
+  testing part of play." Measured, and a proposal, in "Frosty Times:
+  blocks knocked out of sight or range (Q103)"; to agree.
+  2026-11-13, developer: "too far to reach = down"; out of sight (a),
+  counted down ("Making things smaller to fit is only going to make a hard
+  situation much harder"); ice as it is ("pushing blocks too far is part
+  of game play vs making it impossible to win"). Built (for 10.7, "Out of
+  range and out of sight count as down (Q103)"): to try.
+  2026-11-14, developer, asked whether 10.7's fixes can close: "I think
+  so. Since it is a bit random, hard to say for certain, but I will report
+  it if I ever see it again". **Closed** ("Hardest: build, moving things
+  and spread out").
+- **Q102. Starting again: not everywhere, and hard to find** (2026-11-13,
+  developer: "the ability to start a scene or level again is not
+  available everywhere and it is confusing to figure out how to find it.
+  For example, once you are in a scene you can only start the scene
+  again"). Today's ways and a proposal in "10.6 tried: ..."; to agree.
+  2026-11-13, developer: the proposal "yes"; "build it. I need to test on
+  both tablet and phone and I can not do that from a mockup". Built (for
+  10.7, "Start again: one question (Q102)"): to try.
+  2026-11-14, developer, asked whether 10.7's fixes can close: "I think
+  so. Since it is a bit random, hard to say for certain, but I will report
+  it if I ever see it again". **Closed** ("Hardest: build, moving things
+  and spread out").
 - **Q104. Topple!: the wait while a scene is set up** (2026-11-13,
   developer, after 10.7 went live): "When starting a new level I see a
   blank screen when the level is being set up. But when moving between
@@ -20678,3 +20692,59 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q102, Q103, Q105 (the
   barrow aside, live, to try).
+
+## 2026-11-14: Hardest: build, moving things and spread out
+
+- The developer, on the questions in "Release 10.9 published and live":
+  1. Q102, Q103: "I think so. Since it is a bit random, hard to say for
+     certain, but I will report it if I ever see it again, and keep the
+     logs." Closed, moved to Resolved.
+  2. Purge: "yes". **Purged** `Web-Games-testing/2026-11-13_old-tablet/`
+     (five logs, 429 KB; their results in "The old tablet's log" to "The
+     glow 26 s late") to the Recycle Bin. The testing folder is now empty.
+  3. Hardest (Claude's four points in "10.8 tried: all good; ..."):
+     "Probably build - testing on real devices seems to be better showing
+     up issues." On a player that can miss: "Doesn't that make the easy
+     games look hard too?" Features: "I like the idea of moving things.
+     Not so much another camera angle or smaller ball - it becomes hard
+     to see on a small screen as it gets farther away. Spread out would
+     help too." "I forget what Q97 is."
+- **Claude's answers:**
+  - **The player that misses**: yes, it makes every mode look harder than
+    it feels to a person, so its numbers mean nothing alone; it would only
+    compare (the same scenes on Harder and Hardest, or Hardest before and
+    after a change). With the developer's device play as the judge, it
+    isn't needed now; the existing "every scene can be won" check (the
+    perfect player) stays, so Hardest can't become unwinnable. Build it
+    later only if play can't tell whether a change matters.
+  - **Q97** (2026-11-12): things not to hit (a glass pane, a bird's nest)
+    for the harder modes; hitting one loses the scene (a ❤️), as agreed;
+    open is how to make clear it mustn't be hit, to discuss before
+    building. Not part of this step.
+  - **Spread out**: Hardest's scenes built from the same structures in 2-3
+    parts with gaps between, each part needing its own hit (Q88's idea of
+    targets at different distances is close); still in reach and checked
+    winnable in 5 balls.
+  - **Moving things**, two kinds: (a) **in the way**: a thing crossing
+    between the thrower and the structure, back and forth at a steady
+    pace (a crane's hanging load on the building site, a sled on the ice,
+    a mine cart in the desert, a drifting cloud or comet at night); a ball
+    that hits it is stopped; (b) **the target moving**: the structure on a
+    slowly turning or sliding stand. (a) is simpler and easier to read
+    (the structure stays still, only the timing of the throw matters);
+    (b) moves the blocks on a platform in the physics (riskier: blocks
+    may slide or tip by themselves). Both on the physics' clock, so the
+    same pace on the old tablet; the check throws at several moments.
+  - **Order (Claude's pick)**: spread out first (small, reuses the scene
+    check), published and tried; then moving things, kind (a).
+
+**Status (start here next session)**
+- **Live: 10.9.** `block-game` = `main` plus journal entries. Nothing
+  waiting to publish. The testing folder is empty.
+- **From the developer:** (1) skip the player that misses for now? (2)
+  spread out first, then moving things? (3) moving things in the way, or
+  the structure itself moving?
+- **Then:** build Hardest's spread-out scenes (Q98), for the devices.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
+  part), Q105 (the barrow aside, live, to try).
