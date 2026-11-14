@@ -172,6 +172,10 @@ time, each tried before publishing:
   other scene, the others spread out or smaller balls; sometimes
   something falling from the sky. The build plan: "agree" ("Mockup v2
   tried"). What session 1 covers: to agree.
+  2026-11-14, developer: "1) building site 2) no smaller balls 3) OK, go
+  ahead". Built ("Hardest at the building site built"): scenes 1, 3, 5
+  the crane's load (slide, swing, stream or the new drop, each its own),
+  2 and 4 spread out; to publish (10.10) and try.
 
 ## Proposed additions to the standards skill
 
@@ -21189,3 +21193,147 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
   part), Q106 (moving things: session 1 to agree).
+
+## 2026-11-14: Hardest at the building site built (session 1 of the build; Q106)
+
+- **The developer's answers** (to the three questions above): "1)
+  building site 2) no smaller balls 3) OK, go ahead".
+- **Two changes from what was proposed, and why:**
+  - **The drop doesn't fall out of sight at the bottom.** Proposed: "a
+    load let go from above, falling through the throw line out of
+    sight". At the depth where it crosses, the ground is in view, so a
+    load falling out of sight would have to vanish into the ground.
+    Built instead: the crane lets it fall from out of sight above (as a
+    thing falls, 9.82 m/s²), brakes it where it hangs (1.5 m) with a
+    bounce on the cable, holds it, hauls it back up out of sight, and
+    waits. Tricky: now and then hauled only part way (still clear of the
+    throws, in sight) and dropped again.
+  - **Spread out is new structures, not the dealt one's parts pulled
+    apart.** Proposed: "the structure's parts set further apart". The
+    building site's structures are frames joined by slabs that can't be
+    pulled apart, so three new ones made of the site's small pieces set
+    well apart, left and right, nearer and further: `spreadPosts` (three
+    posts with a brick on each), `spreadFrames` (two small one-storey
+    frames), `spreadMix` (a small frame at the back, a post and brick on
+    each side). LEVELS' new `spread` list.
+- **Built** (on `block-game`, not published):
+  - `src/core/topple-movers.js`: the fourth way, **drop** (`DROP_FROM`
+    11 m, `HOLD`, `UP_SPREAD`, `WAIT`, `BOUNCE_M`/`BOUNCE_S`); `inWay()`
+    (a load counts as in the way only below `THROW_TOP`, 5 m: up there a
+    drop's load is out of it), used by `openShare` and `gaps`; varied and
+    tricky crossings now 0.45-1.8 times the pace (v2: 0.6-1.35 and
+    0.5-1.4), stops 0.1-1.0 s. **Hardest's deal** `hardestDeal(gameSeed,
+    level)`: only levels in `MOVER_LEVELS` ([2]); scenes 1, 3, 5
+    (`MOVING_SCENES`) three different ways of the four, the loads in
+    turn (girders, bricks, or the other way round), varied, varied,
+    tricky; scenes 2 and 4 two different spread structures.
+  - `src/core/topple-world.js`: `makeScene(gameSeed, level, i, name,
+    mode)`: on Hardest the scene as dealt, kept in the layout as
+    `hardest` (so a scene picked up again has it), returns `mover`; a
+    mover's way must be open at least `MOVER_OPEN` (0.4) of the time and
+    never shut over `MOVER_SHUT` (3.5 s), or the layout's next try
+    (`moverFits`).
+  - `src/ui/topple.js`: **the mockup flag is gone** (`window.TOPPLE_MOCKUP`
+    and the "kept to its level" code); the game makes each scene on
+    `game.mode` and places the mover its layout was dealt. The mockup v2
+    artifact keeps its own copies of the files, so it still works as it
+    was. The checking hook `window.topple.mover(choice)` changes this
+    scene's mover (null none, 'deal' back to the deal's). Logged: the
+    scene log's `hardest` (spread, or move, look, timing) and
+    `check.mover` (open, openS, shutS, changes); `mover` as before.
+  - `src/ui/topple-scene.js`: a drop's cable runs from the load up to
+    14 m and follows it as it falls and rises.
+  - The setup screen's Hardest line: "shorter dots; moving things at the
+    building site" (was "shorter dots; harder scenes to come").
+- **Measured** (scratchpad scripts):
+  - **First try**: the first drop kept the way shut up to 3.4 s (its
+    hold also scaled by the move spread), so most drop plans were thrown
+    away by the check. The hold now 0.15-0.6 of the pace after the
+    bounce, the haul 0.6-1.3 of 1.1 paces: a drop's longest shut 2.5 s
+    steady, 2.5-3.0 varied and tricky (six plans each); open 0.63
+    steady, 0.58-0.66 varied, 0.46-0.58 tricky. Then **150 scenes (30 games x 5) all
+    passed the check first time**. Over 1,011 games, 6 of 3,033 first
+    layouts' movers failed it (all tricky drops, open 0.35-0.40); the
+    next try passes.
+  - **Spread out, one throw a piece**: gaps between pieces 0.98-2.32 m,
+    the pieces 1.08-1.33 m tall (so a gap is sometimes less than a
+    piece's height); in the physics, **0 of 333** single throws (three
+    structures, three seeds) brought down more than one piece.
+  - **Who the load stops**: at its middle height, 30-67% of a person's
+    possible throws at a block pass the load's depth within its height
+    (six scenes, two games); the rest pass under it or are lobs over it.
+    So a lob gets past it whatever it's doing; the developer's play will
+    say whether that matters.
+  - **Can be won**: two games' Hardest building-site scenes (10): a
+    player who waits until the throw won't meet the load (as a person
+    watching it) won all 10, no ball stopped, the longest wait 1.5 s.
+    Throwing at random moments, 7-31% of balls a scene were stopped by
+    the load (it matters). **Surprise, classified**: the first random-moment
+    player had 0 of 24 balls stopped on a slide. The cause was the
+    test player, not the game: each of its games started the mover from
+    the same moment and threw at the same times, so it kept meeting the
+    same gaps; with a random 0-4 s wait before each throw it lost 7-31%.
+- **Tests**: `tests/topple-movers.test.js`: four ways now (36 ways,
+  paces and timings open 30-95%); varied slide crossings 0.45-1.8 of
+  the pace over 8 plans; **drop**: falls as a thing falls, the bounce no
+  deeper than `BOUNCE_M`, held, back up, waits, always over the line;
+  varied and tricky drops' own holds, hauls and waits, tricky part way
+  (above `THROW_TOP`), no jump; **out of sight up there** in 20 scenes
+  at four screen shapes (phone upright and sideways, tablet), the
+  closest 1.94 times the view's top (as tangents); **the deal** (200 games: three
+  different ways, loads in turn, timings, two different spreads, each
+  dealt 40+ times; none in levels 1, 3-5); **scenes made as dealt** (two
+  games: the layout keeps the deal, the mover's plan from the scene's
+  seed, its way open enough; Normal and Harder no deal; the park on
+  Hardest as before; a mover blocking 9 loads' worth fails; game 101's
+  scene 5 throws away a layout for its mover). `tests/topple-levels.test.js`:
+  the spread structures as scenes 2 and 4 (check, still 5 s, within aim
+  and range, one throw never two pieces: 48 throws); every Hardest
+  scene of two games won by the timed player, none stopped, and at
+  random moments at least 8% stopped. `tests/topple-players.js`: the
+  player times its throws round the mover (`meetsMover`), or throws at a
+  random moment. `tests/topple-page.test.js`: the mockup flag gone, the
+  scene made on `game.mode`, the mover from the layout's deal, the log.
+  **Shown to fail** (a temp copy of the repo, one break each, the copy
+  removed): the page making scenes without how hard ("the scene made on
+  how hard the game is"); the mover placed whatever the layout; every
+  moving scene the same way ("three different ways"); the loads not in
+  turn; the drop's top at 6 m ("the load up there shows (0.82 of the
+  view's top)"); its bounce left out; tricky never part way ("0 of 9");
+  spread posts close together ("one throw brought down 2 pieces"); the
+  timed player not waiting ("a timed throw stopped by the mover");
+  `inWay` always false ("open 1"); the mover check left out of
+  makeScene ("thrown: []", caught only once the game-101 case was
+  added: the first try passed, no scene in the two games needs the
+  check). Whole suite: **645 tests, 645 pass** (the game-101 case in);
+  `node tools/offline.js` run (version beac9f170dc9; release still
+  10.9).
+- **Checked in the built-in browser** (`tools/serve.js` on 8123): no
+  console errors; Hardest, level 2 through the checking hook: scene 1 a
+  stream of girders before the two storeys; scene 2 `spreadMix`, no
+  mover; scene 3 a slide of bricks; scene 4 `spreadPosts`; scene 5 a
+  tricky drop of girders before the twin towers. The drop: at 0.5 s 9.8
+  m up, not in the picture; held at 1.5 m in front of the towers; drawn
+  rising with the load (1.5, 2.3, 2.7 m, screenshots bracketed by the
+  load's height read before and after: one earlier screenshot showed a
+  stale frame). A throw at 8° up went under the held load to a block; a
+  throw at 16° (at the load's depth 1.42 m up) touched the mover, then
+  the ground. A reload: the scene picked up again with its drop, up out
+  of sight on a 375 px phone, no sideways scroll.
+- **Not checked**: a whole level played through to its end on Hardest
+  (the hook jumps scenes); the old tablet's frame rate with the loads
+  moving (one more moving body; the drawing's cuts reach it as in v1).
+
+**Status (start here next session)**
+- **Live: 10.9.** `block-game` = `main` plus journal entries and Hardest
+  at the building site (above), ready to publish as **10.10** with the
+  developer's OK.
+- **From the developer:** OK to publish 10.10? Then try Hardest's
+  building site on the devices: the four ways, the drop, the spread-out
+  scenes, whether a lob over the load makes it too easy.
+- **Then:** session 2, the next level's mover (the build plan: park's
+  tyre swing, Frosty Times' snowman or snowball machine, the mine cart,
+  the lantern), one a session.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
+  part), Q106 (moving things: the building site built, to try).

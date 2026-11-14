@@ -10,7 +10,11 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng, FAR_TREES, farBalls, treeBalls, CORE } from '../core/topple.js';
-import { CABLE_TOP } from '../core/topple-movers.js';
+import { CABLE_TOP, DROP_FROM } from '../core/topple-movers.js';
+
+// Where the crane's cable goes up to (out of sight): the jib; a drop's from
+// higher, over the load hauled up out of sight.
+const cableTop = m => (m.move === 'drop' ? DROP_FROM + 3 : CABLE_TOP);
 import { makeSetting, birds } from './topple-sets.js';
 import { applyCuts } from './drawcuts.js';
 
@@ -382,9 +386,11 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       g.add(c);
     }
     const blockH = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.22, 0.1), hookMat); blockH.position.y = hookY + 0.11; g.add(blockH);
-    const L = CABLE_TOP - m.y - hookY - 0.22;
+    // (a drop's cable from higher up, so it reaches the load hauled up out of sight; its length follows the load: syncMovers)
+    const L = cableTop(m) - m.y - hookY - 0.22;
     const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, L, 6), chainMat);
     cable.position.y = hookY + 0.22 + L / 2; g.add(cable);
+    g.userData = { cable, cableL: L, cableFrom: hookY + 0.22, drop: m.move === 'drop', top: cableTop(m) };
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     return g;
   }
@@ -416,6 +422,13 @@ export function makePark3d(canvas, { antialias = true } = {}) {
         if (!g) return;
         g.position.set(b.position.x, b.position.y, b.position.z);
         g.quaternion.set(b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w);
+        // a drop: the cable from the load up to the jib, however high the load is
+        const u = g.userData;
+        if (u.drop) {
+          const len = Math.max(0.01, u.top - b.position.y - u.cableFrom);
+          u.cable.scale.y = len / u.cableL;
+          u.cable.position.y = u.cableFrom + len / 2;
+        }
       });
     },
     // Each block's mesh where the physics has it; the balls in flight (meshes of balls gone taken away).

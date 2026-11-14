@@ -133,6 +133,32 @@ export const STRUCTURES = {
     return [...wall, ...out];
   },
 
+  // Hardest's spread-out scenes (scenes 2 and 4; developer, 2026-11-14:
+  // "moving things every other scene and then use space ... for the scenes
+  // that don't have moving obstacles"; "spreading things out ... test[s]
+  // aiming"): the site's small pieces set well apart, left and right,
+  // nearer and further, so each needs its own throw, aimed anew (gaps
+  // 1.0-2.3 m, the pieces 1.1-1.3 m tall: in the physics no single throw of
+  // 333, over the three and three seeds, brought down more than one piece).
+  // Three posts, a brick on each: left near, middle far, right between.
+  spreadPosts: k => {
+    const s = 1.25 * k('s'), out = [];
+    [[-1, 0.5, 0.9], [0, -0.6, 1.05], [1, 0, 0.8]].forEach(([i, z, h], n) => { const p = box('steel', 0.2, h * k('h' + n), 0.2, i * s, 0, z); out.push(p, box('brick', 0.28, 0.28, 0.28, p.x, topOf(p), z)); });
+    return out;
+  },
+  // Two small one-storey frames, a brick on each: left near and low, right far and taller.
+  spreadFrames: k => {
+    const g = 1.2 * k('g');
+    const l = storey(-g, 0.45, 0, 0.24, 0.18, 0.7, 0.72, 0.58, SITE), r = storey(g, -0.5, 0, 0.24, 0.18, 0.9 * k('h'), 0.72, 0.58, SITE);
+    return [...l.bs, box('brick', 0.28, 0.28, 0.28, -g, l.y, 0.45), ...r.bs, box('brick', 0.28, 0.28, 0.28, g, r.y, -0.5)];
+  },
+  // A small frame at the back in the middle, a post and brick near on each side.
+  spreadMix: k => {
+    const s = 1.3 * k('s'), f = storey(0, -0.6, 0, 0.24, 0.18, 0.85 * k('h'), 0.72, 0.58, SITE), out = [...f.bs, box('brick', 0.28, 0.28, 0.28, 0, f.y, -0.6)];
+    for (const i of [-1, 1]) { const p = box('steel', 0.2, 0.8 * k('p' + i), 0.2, i * s, 0, 0.4); out.push(p, box('brick', 0.28, 0.28, 0.28, p.x, topOf(p), 0.4)); }
+    return out;
+  },
+
   /* ---------- level 3, Frosty Times: ice (Claude's picks, to review) ---------- */
   // 1. An ice gate: two pillars, a lintel, two cubes on it.
   iceGate: k => {
@@ -337,10 +363,14 @@ export const STRUCTURES = {
 // the 6 each game, played in this order, so the climb is sure);
 // `challenges`: the 5th scene's, one of them (10.3; until then five in a
 // fixed order: developer, 2026-11-12, "different target arrangements").
+// `spread`: Hardest's spread-out scenes (2 and 4) in a level with a thing
+// that moves (src/core/topple-movers.js, hardestDeal; the building site
+// first, 2026-11-14).
 export const LEVELS = [
   { n: 1, name: 'The park', line: 'Knock every block down. 5 balls a scene.', soft: 'bush', tall: 'tree', ball: 'toy' },
   { n: 2, name: 'The building site', line: 'Tall frames: knock the front down to get at the back.', soft: 'barrow', tall: 'light', ball: 'iron',
-    pool: ['twoStoreys', 'scaffold', 'threeStoreys', 'bridge', 'brickStacks', 'steps'], challenges: ['towerWall', 'twinTowers'] },
+    pool: ['twoStoreys', 'scaffold', 'threeStoreys', 'bridge', 'brickStacks', 'steps'], challenges: ['towerWall', 'twinTowers'],
+    spread: ['spreadPosts', 'spreadFrames', 'spreadMix'] },
   { n: 3, name: 'Frosty Times', line: 'Ice blocks slide, and smash when they’re hit hard.', soft: 'rock', tall: 'pine', ball: 'iron',
     pool: ['iceGate', 'iceSteps', 'iceTower', 'icePyramid', 'icePillars', 'iceWall'], challenges: ['iceCastle', 'iceKeep'] },
   { n: 4, name: 'Cactus Canyon', line: 'Burst the water barrels and the beams come down.', soft: 'scrub', tall: 'cactus', ball: 'iron',

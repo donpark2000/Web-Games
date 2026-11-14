@@ -4,7 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-13, latest): **Topple!: the glow by about 8 s after a
+*Status (2026-11-14, latest): **Topple! Hardest at the building site:
+scenes 1, 3, 5 a crane's load moving in the way (slide, swing, stream or
+a new drop, each scene its own), 2 and 4 spread out** (on `block-game`,
+for release 10.10; see "Topple!", Hardest's scenes). 2026-11-13: **Topple!: the glow by about 8 s after a
 throw, moving or not; a notice in the middle while a scene is set up**
 (on `block-game`, for release 10.8; see "Topple!"). Earlier the same day:
 **Topple!: a block knocked further out than
@@ -2490,14 +2493,41 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   harder scenes, not other controls). Kept with the game on the
   device; changed any time, the levels and places as they are; Start
   again and Start over keep it. The pad's show is the same in all three.
-  Next for Hardest: **things that move in the way** (developer,
-  2026-11-14: "The moving obstacles introduces a timing element"; a
-  mockup first, what moves and how to discuss: journal Q106), before
-  spreading a scene out ("All spreading things out does is test
-  aiming"). Later, to discuss: things not to hit (a hit loses the
-  scene, a ❤️; how they show it, Q97). Not wanted: fewer balls (scenes
-  must stay winnable), wind, a smaller ball or another camera (developer,
-  2026-11-14: "hard to see on a small screen as it gets farther away").
+- **Hardest's scenes** (developer, 2026-11-14: "The moving obstacles
+  introduces a timing element"; mockups v1-v2, journal Q106; then "change
+  the obstacle from scene to scene. Maybe moving things every other
+  scene and then use space ... for the scenes that don't have moving
+  obstacles. And maybe sometimes the obstacle can be something falling
+  from the sky"). Built one level at a time (the build plan, agreed
+  2026-11-14): **the building site** first; in the levels not built yet
+  Hardest is as before (Harder's dots, the usual scenes). In a built
+  level, dealt once per game and level (`hardestDeal`):
+  - **Scenes 1, 3 and 5: a thing that moves in the way**, each its own
+    way (three of slide, swing, stream and drop) and look, scenes 1 and
+    3 varied timing, the 5th (the challenge) tricky. The building
+    site's is the crane's load: **girders** (an orange bundle of
+    I-beams) or **bricks** (a strapped pallet), in turn. It crosses the
+    throw's line at 0.55 of the way to the structure, its middle 1.5 m
+    up, a crossing about 2 s (each 0.45-1.8 times that: "more variance
+    in the speed"). **Slide**: across and back, stops at the ends;
+    **swing**: on its cable, fast in the middle; **stream**: three
+    loads one way; **drop**: let fall from out of sight above, braked
+    where it hangs with a bounce, held, hauled back up. Tricky: now and
+    then a slide stops part way (on or back), a stream stops, a drop is
+    hauled only part way and dropped again. A ball that touches it stops
+    and drops; it never touches a block; the dots ignore it (the timing
+    is the player's). A layout whose mover leaves the way open under 40%
+    of the time, or shuts it over 3.5 s at once, is thrown away (the
+    scene check).
+  - **Scenes 2 and 4: spread out**: the level's small pieces set well
+    apart, left and right, nearer and further (the building site: three
+    posts with bricks; two small frames; a frame and two posts), each
+    its own throw.
+  Later, to discuss: things not to hit (a hit loses the scene, a ❤️; how
+  they show it, Q97). Not wanted: fewer balls (scenes must stay
+  winnable), wind, a smaller ball or another camera (developer,
+  2026-11-14: "hard to see on a small screen as it gets farther away";
+  smaller balls again "no", the same day).
 - **The drag pad** (developer, 2026-11-10, Q67: a finger that starts on
   the ball covers the dots; "The drag pad idea helps a lot"; a concept
   to "anchor" play across levels, whatever they throw): a round pad with

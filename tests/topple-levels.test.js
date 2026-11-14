@@ -12,9 +12,9 @@ import assert from 'node:assert/strict';
 import { createWorld, touch, outOfReach, outOfRange, RANGE_MARGIN, CALM_SPEED, MIN_SEEN } from '../src/core/topple-world.js';
 import {
   SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, shiftThing, levelDeal, sceneParts, launchVel, HAND, MAX_AIM, MAX_UP, R2D, makeLayout, sceneOpts, FRAME_REACH,
-  throwRange, offScreen,
+  throwRange, offScreen, rng,
 } from '../src/core/topple.js';
-import { canBeWon } from './topple-players.js';
+import { canBeWon, personPlays, personThrows } from './topple-players.js';
 import { GLOWS, STRUCTURES } from '../src/core/topple-levels.js';
 
 const DT = 1 / 60;
@@ -405,6 +405,73 @@ test('topple levels: every scene of two games can be won by a player throwing as
   const summary = rows.filter(r => !r.won).map(r => `${r.at}: NOT WON by ${r.players} (best ${r.best}/${r.total})`).join('; ');
   assert.equal(rows.length, 2 * 4 * SCENES);
   assert.equal(rows.filter(r => !r.won).length, 0, summary);
+});
+
+// Hardest at the building site (journal Q106, the build's session 1): the
+// spread-out scenes, and the mover's.
+test('topple levels: Hardest\'s spread-out structures are made as scenes 2 and 4, pass the check, stand still, within aim and range; each piece its own throw', () => {
+  const site = LEVELS[1];
+  assert.deepEqual(site.spread, ['spreadPosts', 'spreadFrames', 'spreadMix']);
+  for (const n of site.spread) assert.ok(!site.pool.includes(n) && !site.challenges.includes(n), `${n}: Hardest's only`);
+  let n = 0, throws = 0;
+  for (const name of site.spread) for (const i of [2, 4]) for (const seed of [777, 31]) {
+    const w = createWorld(), s = w.makeScene(seed, 2, i, name, 'hardest'), at = `${name} as ${i} (${seed})`;
+    n++;
+    assert.equal(s.layout.stack, name);
+    assert.ok(s.check.ok, `${at}: ${s.check.why}`);
+    assert.ok(s.tries <= 15, `${at}: ${s.tries} tries`);
+    assert.equal(s.layout.unplaced.length, 0, `${at}: no room for ${s.layout.unplaced}`);
+    const far = throwRange(s.parts.power);
+    for (const b of s.parts.blocks) {
+      assert.equal(outOfReach([b.x, b.y, b.z]), false, `${at}: a block out of the aim's reach`);
+      assert.equal(outOfRange([b.x, b.y, b.z], far, Math.hypot(b.w, b.d) / 2), false, `${at}: a block out of range`);
+    }
+    for (let k = 0; k < 300; k++) w.step(DT);
+    assert.equal(w.awake(), 0, `${at}: woke with nothing touching it`);
+    assert.equal(w.downCount(), 0, `${at}: a block fell`);
+    // the pieces (blocks whose footprints touch): one throw that knocks some never takes two pieces
+    if (seed !== 777) continue;
+    const bs = s.parts.blocks, foot = b => [b.x - b.w / 2, b.x + b.w / 2, b.z - b.d / 2, b.z + b.d / 2];
+    const g = bs.map((_, k) => k), find = k => (g[k] === k ? k : (g[k] = find(g[k])));
+    for (let a = 0; a < bs.length; a++) for (let b = 0; b < a; b++) { const A = foot(bs[a]), B = foot(bs[b]); if (A[0] <= B[1] + 0.02 && B[0] <= A[1] + 0.02 && A[2] <= B[3] + 0.02 && B[2] <= A[3] + 0.02) g[find(a)] = find(b); }
+    const piece = bs.map((_, k) => find(k));
+    assert.ok(new Set(piece).size >= 2, `${at}: ${new Set(piece).size} piece`);
+    const cands = personThrows(w, s.layout.power);
+    for (let k = 0; k < 8; k++) {
+      const v = cands[Math.floor(cands.length * k / 8)], one = createWorld();
+      one.setScene(s.parts);
+      one.throwBall(v.vec);
+      for (let t = 0; t < 6; t += DT) one.step(DT);
+      const fell = new Set(one.blocks.map((b, j) => (b.down ? piece[j] : null)).filter(x => x != null));
+      throws++;
+      assert.ok(fell.size <= 1, `${at}: one throw brought down ${fell.size} pieces`);
+    }
+  }
+  assert.equal(n, 3 * 2 * 2);
+  assert.equal(throws, 3 * 2 * 8);
+});
+
+test('topple levels: every Hardest scene of two games at the building site can be won, timing the throws round the mover; at random moments it stops some', () => {
+  const rows = [];
+  let stoppedRandom = 0, thrownRandom = 0;
+  for (const seed of [12345, 404]) {
+    const w = createWorld();
+    for (let i = 1; i <= SCENES; i++) {
+      const s = w.makeScene(seed, 2, i, null, 'hardest');
+      const r = canBeWon(s, seed * 31 + i, 1, 12);
+      rows.push({ at: `${seed} ${i} ${s.layout.stack} ${s.mover ? s.mover.move : 'spread'}`, ...r });
+      assert.equal(r.stopped, 0, `${seed} ${i}: a timed throw stopped by the mover`);
+      // the same scene's mover, thrown at random moments (scenes 1 and 3: the challenge's are slow to play out)
+      if (s.mover && i < SCENES) {
+        const random = rng(seed + i);
+        for (let k = 0; k < 3; k++) { const p = personPlays(s, random, 1, { timed: false }); stoppedRandom += p.stopped; thrownRandom += p.balls; }
+      }
+    }
+  }
+  const summary = rows.filter(r => !r.won).map(r => `${r.at}: NOT WON by ${r.players} (best ${r.best}/${r.total})`).join('; ');
+  assert.equal(rows.length, 2 * SCENES);
+  assert.equal(rows.filter(r => !r.won).length, 0, summary);
+  assert.ok(thrownRandom > 20 && stoppedRandom >= 0.08 * thrownRandom, `at random moments, ${stoppedRandom} of ${thrownRandom} balls stopped by the mover`);
 });
 
 test('topple levels: level 1 is as it was: its layouts don\'t change (the toy blocks, no material, the painted ball)', () => {

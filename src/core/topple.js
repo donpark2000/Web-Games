@@ -811,7 +811,7 @@ export const MODES = ['normal', 'harder', 'hardest'];
 export const MODE_INFO = {
   normal: { name: 'Normal', dots: DOT_SECONDS, firstOnly: false, line: 'the dots show the way' },
   harder: { name: 'Harder', dots: 0.15, firstOnly: false, line: 'shorter dots' },
-  hardest: { name: 'Hardest', dots: 0.15, firstOnly: false, line: 'shorter dots; harder scenes to come' },
+  hardest: { name: 'Hardest', dots: 0.15, firstOnly: false, line: 'shorter dots; moving things at the building site' },
 };
 export function dotSeconds(mode, used) {
   const m = MODE_INFO[mode] ?? MODE_INFO.normal;

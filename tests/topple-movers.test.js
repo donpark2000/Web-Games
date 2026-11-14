@@ -5,9 +5,12 @@
 // Seconds of physics, nothing written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { MOVES, PACES, HEIGHTS, TIMINGS, LOOKS, DEFAULT, PAUSE, CABLE_TOP, STREAM_N, PLAN_S, moverFor, moverAt, openShare, gaps } from '../src/core/topple-movers.js';
-import { createWorld, MOVER_KEEP } from '../src/core/topple-world.js';
-import { STEP, HAND, launchVel } from '../src/core/topple.js';
+import {
+  MOVES, PACES, HEIGHTS, TIMINGS, LOOKS, DEFAULT, PAUSE, CABLE_TOP, STREAM_N, PLAN_S, SPREAD, DROP_FROM, DROP_G, BOUNCE_M, BOUNCE_S, THROW_TOP,
+  MOVER_LEVELS, MOVING_SCENES, moverFor, moverAt, openShare, gaps, inWay, hardestDeal, hardestScene,
+} from '../src/core/topple-movers.js';
+import { createWorld, MOVER_KEEP, MOVER_OPEN, MOVER_SHUT, moverFits } from '../src/core/topple-world.js';
+import { STEP, HAND, SCENES, MAX_LEVEL, LEVELS, launchVel, behindView } from '../src/core/topple.js';
 
 const near = (a, b, eps = 1e-6) => Math.abs(a - b) < eps;
 const xs = (m, t) => moverAt(m, t).map(l => l.p[0]);
@@ -86,7 +89,8 @@ test('movers: the way is open some of the time and closed some of the time, ever
     seen.push(`${move} ${pace} ${timing} ${share}`);
     assert.ok(share > 0.3 && share < 0.95, `${move} ${pace} ${timing}: open ${share}`);
   }
-  assert.equal(seen.length, 27);
+  assert.equal(seen.length, MOVES.length * 3 * 3);
+  assert.equal(MOVES.length, 4);
 });
 
 // The first straight throw (up 2-20°, aimed along the scan) whose path's
@@ -150,6 +154,150 @@ test('movers: a load swept through the structure itself touches no block', () =>
   assert.equal(w.movers.length, 0);
 });
 
+// The build, session 1 (developer, 2026-11-14, of v2: "maybe sometimes the
+// obstacle can be something falling from the sky instead of back and
+// forth"): drop.
+test('movers: drop falls from out of sight as a thing falls, is braked where it hangs with a bounce, held, hauled back up; always over the line', () => {
+  const { s } = siteScene();
+  const m = moverFor(s.parts, { move: 'drop', pace: 'medium', timing: 'steady' }), d = m.plan.drops[0];
+  const at = t => moverAt(m, t)[0].p;
+  assert.equal(m.n, 1);
+  assert.ok(near(at(0)[1], DROP_FROM), 'starts up out of sight');
+  assert.equal(inWay(m, moverAt(m, 0)[0]), false, 'up there, out of the way');
+  // the fall: as a thing falls, from DROP_FROM to where it hangs
+  assert.ok(near(d.fall, Math.sqrt(2 * (DROP_FROM - m.y) / DROP_G), 1e-9));
+  for (const f of [0.25, 0.5, 0.9]) assert.ok(near(at(f * d.fall)[1], DROP_FROM - DROP_G * (f * d.fall) ** 2 / 2, 1e-9), `falling at ${f}`);
+  // the brake: down past where it hangs, by no more than BOUNCE_M, then held there
+  let low = Infinity;
+  for (let t = d.fall; t < d.fall + BOUNCE_S; t += 0.005) low = Math.min(low, at(t)[1]);
+  assert.ok(low < m.y - 0.05 && low > m.y - BOUNCE_M - 1e-9, `the bounce down to ${low.toFixed(3)} (hangs at ${m.y})`);
+  assert.ok(near(at(d.fall + (BOUNCE_S + d.hold) / 2)[1], m.y, 1e-9) && d.hold > BOUNCE_S, 'held where it hangs');
+  assert.equal(inWay(m, moverAt(m, d.fall + d.hold * 0.9)[0]), true, 'in the way while held');
+  // hauled up, back to the top, waiting; then the next drop
+  assert.ok(near(at(d.fall + d.hold + d.up)[1], DROP_FROM, 1e-9), 'back up');
+  assert.ok(near(at(d.fall + d.hold + d.up + d.wait / 2)[1], DROP_FROM, 1e-9), 'waits up there');
+  for (let t = 0; t < 2 * m.plan.len; t += 0.01) {
+    const p = at(t);
+    assert.ok(near(p[0], m.x0, 1e-12) && near(p[2], m.z, 1e-12), 'straight down over the throw line');
+    assert.ok(p[1] <= DROP_FROM + 1e-9 && p[1] >= m.y - BOUNCE_M - 1e-9);
+  }
+});
+
+test('movers: varied and tricky drops: holds and waits of their own lengths; tricky hauled only part way now and then (still out of the throws\' way)', () => {
+  const { s } = siteScene();
+  const v = moverFor(s.parts, { move: 'drop', timing: 'varied' }, s.layout.seed).plan.drops;
+  assert.ok(v.length >= 8, `${v.length} drops`);
+  for (const key of ['hold', 'up', 'wait']) assert.ok(new Set(v.map(d => d[key].toFixed(3))).size > v.length / 2, `varied: ${key}s of their own lengths`);
+  assert.ok(v.every(d => d.from === DROP_FROM && d.to === DROP_FROM), 'varied: every drop from the top');
+  const t = moverFor(s.parts, { move: 'drop', timing: 'tricky' }, s.layout.seed);
+  const part = t.plan.drops.filter(d => d.to < DROP_FROM);
+  assert.ok(part.length >= 2 && part.length < t.plan.drops.length - 2, `tricky: ${part.length} of ${t.plan.drops.length} hauled part way`);
+  for (const d of part) assert.ok(d.to - t.load.h / 2 > THROW_TOP, `part way to ${d.to.toFixed(2)} m: out of the throws' way`);
+  assert.equal(t.plan.drops.at(-1).to, DROP_FROM, 'ends at the top, where it starts (round again smoothly)');
+  // no jump up or down anywhere (the plan's end into its start included): never faster than the fall's end
+  const top = Math.sqrt(2 * DROP_G * (DROP_FROM - t.y)), dt = 1 / 120;
+  let worst = 0, prev = moverAt(t, 0)[0].p[1];
+  for (let u = dt; u < 2 * t.plan.len; u += dt) { const y = moverAt(t, u)[0].p[1]; worst = Math.max(worst, Math.abs(y - prev)); prev = y; }
+  assert.ok(worst < 1.05 * top * dt, `the biggest step ${worst.toFixed(3)} m in ${dt.toFixed(4)} s (the fall's end ${(top * dt).toFixed(3)})`);
+});
+
+// The load up at DROP_FROM is out of sight in every building-site scene,
+// on a phone upright and sideways and a tablet (the camera fitted as the
+// page fits it): its bottom over the top of the view.
+test('movers: a drop\'s load up at the top is out of sight, upright and sideways', () => {
+  const w = createWorld();
+  let n = 0, closest = Infinity;
+  for (const seed of [1, 2, 3, 4]) for (let i = 1; i <= SCENES; i++) {
+    const s = w.makeScene(seed, 2, i), m = moverFor(s.parts, { move: 'drop' });
+    for (const aspect of [0.46, 0.75, 1.33, 2.17]) {
+      const v = behindView(aspect, s.parts), yw = v.yaw / 57.29578, pt = v.pitch / 57.29578;
+      const f = [Math.sin(yw) * Math.cos(pt), Math.sin(pt), -Math.cos(yw) * Math.cos(pt)], u = [-Math.sin(yw) * Math.sin(pt), Math.cos(pt), Math.cos(yw) * Math.sin(pt)];
+      const limit = Math.tan(v.fov / 2 / 57.29578);
+      for (const dx of [-1, 1]) for (const dz of [-1, 1]) {
+        const p = [m.x0 + dx * m.load.w / 2, DROP_FROM - m.load.h / 2, m.z + dz * m.load.d / 2], d = p.map((q, k) => q - v.pos[k]);
+        const up = d.reduce((a, q, k) => a + q * u[k], 0) / d.reduce((a, q, k) => a + q * f[k], 0);
+        n++;
+        closest = Math.min(closest, up / limit);
+        assert.ok(up > limit, `${seed}/${i} at ${aspect}: the load up there shows (${(up / limit).toFixed(2)} of the view's top)`);
+      }
+    }
+  }
+  assert.equal(n, 4 * SCENES * 4 * 4);
+  assert.ok(closest > 1, `closest ${closest.toFixed(2)}`);
+});
+
+// Hardest's scenes, dealt (developer, 2026-11-14: "change the obstacle from
+// scene to scene. Maybe moving things every other scene and then use space").
+test('movers: Hardest\'s deal: the building site\'s scenes 1, 3, 5 each a different way and load, 2 and 4 spread out; other levels none yet', () => {
+  assert.deepEqual(MOVER_LEVELS, [2]);
+  assert.deepEqual(MOVING_SCENES, [1, 3, 5]);
+  for (let lv = 1; lv <= MAX_LEVEL; lv++) if (!MOVER_LEVELS.includes(lv)) assert.equal(hardestDeal(5, lv), null, `level ${lv}: no mover yet`);
+  assert.equal(hardestDeal(5, 9), null);
+  const spread = LEVELS[1].spread, seen = new Map(), deals = new Set();
+  const tally = k => seen.set(k, (seen.get(k) || 0) + 1);
+  for (let seed = 1; seed <= 200; seed++) {
+    const d = hardestDeal(seed, 2);
+    assert.deepEqual(d, hardestDeal(seed, 2), 'the same game, the same deal');
+    assert.deepEqual(hardestScene(seed, 2, 3), d[2]);
+    assert.equal(d.length, SCENES);
+    deals.add(JSON.stringify(d));
+    const movers = d.filter((h, i) => MOVING_SCENES.includes(i + 1)).map(h => h.mover), spreads = d.filter((h, i) => !MOVING_SCENES.includes(i + 1)).map(h => h.spread);
+    assert.ok(movers.every(Boolean) && spreads.every(Boolean), `${seed}: ${JSON.stringify(d)}`);
+    assert.equal(new Set(movers.map(c => c.move)).size, 3, `${seed}: three different ways`);
+    assert.ok(movers.every(c => MOVES.includes(c.move) && LOOKS.includes(c.look)));
+    assert.ok(movers[0].look !== movers[1].look && movers[1].look !== movers[2].look, `${seed}: the loads in turn`);
+    assert.deepEqual(movers.map(c => c.timing), ['varied', 'varied', 'tricky']);
+    assert.ok(spreads[0] !== spreads[1] && spreads.every(n => spread.includes(n)), `${seed}: ${spreads}`);
+    movers.forEach(c => tally(c.move)); spreads.forEach(tally); tally(movers[0].look);
+  }
+  for (const k of [...MOVES, ...spread, ...LOOKS]) assert.ok(seen.get(k) >= 40, `${k} dealt only ${seen.get(k) ?? 0} times in 200 games`);
+  assert.ok(deals.size >= 50, `only ${deals.size} different deals`);
+});
+
+test('movers: Hardest\'s scenes are made as dealt, the mover\'s way open often enough; Normal and Harder as before; a mover that blocks too much fails', () => {
+  let n = 0;
+  for (const seed of [12345, 404]) {
+    const w = createWorld(), d = hardestDeal(seed, 2);
+    for (let i = 1; i <= SCENES; i++) {
+      const s = w.makeScene(seed, 2, i, null, 'hardest'), h = d[i - 1], at = `${seed} scene ${i}`;
+      n++;
+      assert.ok(s.check.ok, `${at}: ${s.check.why}`);
+      assert.deepEqual(s.layout.hardest, h, `${at}: the deal kept in the layout`);
+      if (h.spread) {
+        assert.equal(s.layout.stack, h.spread);
+        assert.equal(s.mover, null);
+      } else {
+        assert.equal(s.mover.move, h.mover.move); assert.equal(s.mover.look, h.mover.look); assert.equal(s.mover.timing, h.mover.timing);
+        assert.deepEqual(s.mover.plan, moverFor(s.parts, h.mover, s.layout.seed).plan, `${at}: the plan from the scene's seed (a scene picked up again: the same)`);
+        assert.ok(s.check.mover.open >= MOVER_OPEN && s.check.mover.shutS <= MOVER_SHUT, `${at}: ${JSON.stringify(s.check.mover)}`);
+      }
+      // Normal and Harder: no deal, no mover
+      for (const mode of ['normal', 'harder']) {
+        const o = createWorld().makeScene(seed, 2, i, null, mode);
+        assert.equal(o.layout.hardest, undefined); assert.equal(o.mover, null);
+      }
+    }
+  }
+  assert.equal(n, 2 * SCENES);
+  // the park on Hardest: as it was (no deal there yet)
+  const p = createWorld().makeScene(12345, 1, 1, null, 'hardest');
+  assert.equal(p.layout.hardest, undefined); assert.equal(p.mover, null);
+  // a mover in the way most of the time, and for long: fails, saying why
+  const { s } = siteScene();
+  const blocking = { ...moverFor(s.parts, { move: 'stream', pace: 'slow', timing: 'steady' }), n: 9 };
+  blocking.plan = { ...blocking.plan, offsets: Array.from({ length: 9 }, (_, k) => k * blocking.plan.loop / 9) };
+  const f = moverFits(blocking);
+  assert.ok(f.open < MOVER_OPEN, `open ${f.open}`);
+  assert.ok(f.why.some(w => /too seldom/.test(w)), f.why.join('; '));
+  assert.deepEqual(moverFits(moverFor(s.parts, { move: 'slide', timing: 'steady' })).why, []);
+  // in the game: a layout whose mover blocks too much is thrown away, the next tried (rare: 6 of 3,033
+  // first layouts over 1,011 games, all tricky drops; game 101's scene 5 one of them)
+  const r = createWorld().makeScene(101, 2, 5, null, 'hardest');
+  assert.equal(r.layout.hardest.mover.move, 'drop');
+  assert.ok(r.thrown.some(t => /the mover too seldom out of the way/.test(t.why)), `thrown: ${JSON.stringify(r.thrown)}`);
+  assert.ok(r.check.ok && r.tries >= 2, `${r.tries} tries: ${r.check.why}`);
+});
+
 // Mockup v2 (developer, 2026-11-14, of v1: "rather slow and competely
 // predictable"): varied and tricky timing, from a plan made from the
 // scene's seed.
@@ -186,6 +334,11 @@ test('movers: varied slide: each crossing its own time, each stop its own, never
   for (const g of moves) assert.ok(Math.abs(g.b - g.a) === 2, 'varied crosses end to end');
   const ds = moves.map(g => g.d), lo = Math.min(...ds), hi = Math.max(...ds);
   assert.ok(lo < 0.8 * T && hi > 1.2 * T, `crossings ${lo.toFixed(2)}-${hi.toFixed(2)} s (pace ${T})`);
+  // (the build: wider than v2's 0.6-1.35 of the pace: "more variance in the speed"), over 8 scenes' plans
+  const all = [1, 2, 3, 4, 5, 6, 7, 8].flatMap(seed => moverFor(s.parts, { move: 'slide', pace: 'medium', timing: 'varied' }, seed).plan.segs.filter(g => g.a !== g.b).map(g => g.d / T));
+  const [l8, h8] = [Math.min(...all), Math.max(...all)];
+  assert.ok(l8 < 0.55 && h8 > 1.7, `crossings ${l8.toFixed(2)}-${h8.toFixed(2)} of the pace over ${all.length}`);
+  assert.ok(l8 >= SPREAD.varied.move[0] - 1e-9 && h8 <= SPREAD.varied.move[1] + 1e-9);
   assert.ok(new Set(stops.map(g => g.d.toFixed(3))).size > stops.length / 2, 'stops of different lengths');
   for (const st of track(m)) assert.ok(Math.abs(st[0].p[0] - m.x0) <= m.span + 1e-9);
   assert.equal(m.plan.segs.at(-1).b, -1, 'ends at the left end, where it starts');

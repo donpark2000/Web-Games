@@ -31,18 +31,14 @@ import { drawWatch } from './drawwatch.js';
 import { MAX_FRAME_S } from '../core/fixed-step.js';
 import { moverFor, openShare, gaps } from '../core/topple-movers.js';
 
-// Hardest's thing that moves in the way (journal Q106, 2026-11-14): for
-// now only in its mockup, a page that sets window.TOPPLE_MOCKUP = { level,
-// mover: { move, pace, height, timing, look } } before this file runs: the
-// game starts in that level on Hardest, the mover in each of its scenes,
-// and the page changes it with window.topple.mover(). The mockup is kept to
-// that level (v2; developer, 2026-11-14, "Just building site": v1's map led
-// to other levels, the skip in the park, level 3 without its photos): no
-// Map button, a level done or started again starts that level again.
-// Without it the game is as published.
-const MOCK = globalThis.TOPPLE_MOCKUP ?? null;
-const MOCK_LEVEL = MOCK ? MOCK.level ?? 2 : null;
-let moverChoice = MOCK ? { ...(MOCK.mover ?? {}) } : null;
+// Hardest's thing that moves in the way (journal Q106; the mockup v1-v2
+// through window.TOPPLE_MOCKUP, 2026-11-14, now the game): in a level with
+// a mover (the building site so far), on Hardest, scenes 1, 3 and 5 have
+// it, each its own way and load, 2 and 4 are spread out (hardestDeal;
+// kept in the scene's layout as `hardest`). window.topple.mover() changes
+// the scene's mover, for checking in a browser (null: none; undefined in
+// moverOverride: the deal's).
+let moverOverride;
 
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('topple', msg, data);
@@ -153,7 +149,6 @@ $('rulesPic').innerHTML = toppleMini('av');
 // Play! opens the map (level 2 mockup v1); a level on it opens its screen.
 $('playBtn').onclick = () => {
   if (checkSetup(setup)) return;
-  if (MOCK) { L('mockup: play, its level', { face: setup.p1, ...game }); startLevel(MOCK_LEVEL); return; }
   L('play: the map', { face: setup.p1, ...game });
   showMap();
 };
@@ -316,7 +311,6 @@ function stopWalk() {
 }
 // Play level n straight from the map (a tap on it, or Play after a walk).
 function startLevel(n) {
-  if (MOCK && n !== MOCK_LEVEL) { L('mockup: kept to its level', { asked: n, level: MOCK_LEVEL }); n = MOCK_LEVEL; game.reached = Math.max(game.reached, n); }
   const was = game.rounds?.[n] ?? 0;
   if (!switchLevel(game, n)) { L('level not open', { level: n, reached: game.reached }); showMap(); return; }
   saveGame();
@@ -500,12 +494,13 @@ async function startScene(kept = null) {
     world.setScene(parts, kept.settled?.poses ?? null);
     current = { id: sceneId(), layout: kept.layout, parts, check: null, tries: 0 };
   } else {
-    const s = world.makeScene(seedOf(game), game.level, game.scene);
+    const s = world.makeScene(seedOf(game), game.level, game.scene, null, game.mode);
     current = { id: sceneId(), layout: s.layout, parts: s.parts, check: s.check, tries: s.tries };
     for (const t of s.thrown) L('layout thrown away', t);
   }
   current.ms = Math.round(performance.now() - t0);
   const drawn = stage.setScene(current.parts);
+  moverOverride = undefined;
   placeMover();
   round = kept?.settled?.round ?? newRound(world.blocks.length);
   if (round.since != null) round.since = 99;   // a ball in flight when the page was left comes back to the pouch
@@ -531,7 +526,8 @@ async function startScene(kept = null) {
     things: L0.things.map(t => ({ kind: t.kind, ...(t.where ? { where: t.where } : {}), gapCm: Math.round(t.gap * 100), ...(t.arm ? { armCm: Math.round(t.arm * 100) } : {}), ...(t.aside ? { asideCm: Math.round(t.aside * 100) } : {}) })),
     ...(L0.unplaced.length ? { noRoomFor: L0.unplaced } : {}), blocks: world.blocks.length, ms: current.ms, tries: current.tries,
     leaves: drawn.leaves, drawMs: drawn.ms, trunkInLeavesM: trunksIn(current.parts.props).scene,
-    ...(current.check ? { check: { ok: current.check.ok, why: current.check.why, direct: current.check.direct, fewest: current.check.fewest, bank: current.check.bank, share: current.check.share, seen: current.check.seen, fewestSeen: current.check.fewestSeen } } : {}),
+    ...(current.check ? { check: { ok: current.check.ok, why: current.check.why, direct: current.check.direct, fewest: current.check.fewest, bank: current.check.bank, share: current.check.share, seen: current.check.seen, fewestSeen: current.check.fewestSeen, ...(current.check.mover ? { mover: current.check.mover } : {}) } } : {}),
+    ...(L0.hardest ? { hardest: L0.hardest.spread ? { spread: L0.hardest.spread } : { mover: L0.hardest.mover.move, look: L0.hardest.mover.look, timing: L0.hardest.mover.timing } } : {}),
     ...(kept ? { used: round.used, down: round.down } : {}),
   });
   busy = false;
@@ -539,12 +535,16 @@ async function startScene(kept = null) {
   return current;
 }
 
-// The thing that moves in the way, for the scene drawn (Q106; the mockup
-// only, for now): started from the start of its path; logged with how
-// much of the time the throw line is clear.
+// The thing that moves in the way, for the scene drawn (Q106): the one its
+// layout was dealt on Hardest (a scene picked up again too; none on
+// Normal or Harder, nor in a level without one yet), or the checking
+// hook's; started from the start of its path; logged with how much of the
+// time the throw line is clear.
 function placeMover() {
-  if (!moverChoice || !current || (MOCK && game.level !== MOCK_LEVEL)) { world.setMovers(null); stage.setMovers(null); return; }
-  const m = moverFor(current.parts, moverChoice, current.layout.seed);
+  const dealt = current?.layout.hardest?.mover ?? null;
+  const choice = moverOverride === null ? null : moverOverride ? { ...(dealt ?? {}), ...moverOverride } : dealt;
+  if (!choice) { world.setMovers(null); stage.setMovers(null); return; }
+  const m = moverFor(current.parts, choice, current.layout.seed);
   world.setMovers(m);
   stage.setMovers(m);
   stage.syncMovers(world.movers);
@@ -812,8 +812,7 @@ function endScene(result, quiet = false) {
   // a level done: the game is on to the next level (or every level done: 'all')
   const outcome = sceneOver(game, result.won), lvDone = outcome === 'level' || outcome === 'all';
   saveGame();
-  let words = endWords(outcome, lvDone ? was : game, nameOf(setup.p1));
-  if (MOCK && lvDone) words = { ...words, sub: 'The mockup stays on this level', next: 'Play it again ▸' };
+  const words = endWords(outcome, lvDone ? was : game, nameOf(setup.p1));
   // the pills over the park show the scene's end until the next one starts
   // (no hearts left, or all 5 jewels), not the game already moved on
   const shown = outcome === 'out' ? { ...game, hearts: 0, jewels: was.jewels } : lvDone ? { ...was, jewels: SCENES } : null;
@@ -858,13 +857,6 @@ $('nextBtn').onclick = () => {
   const o = ended?.outcome;
   L('next', { outcome: o, ...game });
   // a level done: the map, the next level unlocking, your face walking there (Q81)
-  // the mockup: its level again from scene 1 (new scenes), not the map
-  if (MOCK && (o === 'level' || o === 'all')) {
-    current = null; round = null; ended = null; settled = null;
-    L('mockup: its level again', { ...game });
-    startLevel(MOCK_LEVEL);
-    return;
-  }
   if (o === 'level') {
     const walk = { from: game.level - 1, to: game.level, unlock: !!ended.unlocked };
     current = null; round = null; ended = null; settled = null;
@@ -972,17 +964,6 @@ async function restore() {
 if (why) {
   L('no 3D: told this device can’t show it', { why, ua: navigator.userAgent });
   for (const el of document.querySelectorAll('#setup > .panel, #setup > .go')) el.hidden = el.id !== 'no3d';
-} else if (MOCK) {
-  // the mockup (Q106): a new game, straight into the level on Hardest; no map (kept to the level)
-  const lv = MOCK_LEVEL;
-  $('mapBtn').hidden = true;
-  game = createGame(newSeed(), null, 'hardest');
-  game.reached = Math.max(game.reached, lv);
-  switchLevel(game, lv);
-  saveGame();
-  L('mockup: moving things', { level: lv, mover: moverChoice });
-  showPlay();
-  await startScene();
 } else {
   L('the game on this device', { ...game, fresh: isFresh(game) });
   (await restore()) || renderSetup();
@@ -1041,11 +1022,15 @@ window.topple = {
   hand: HAND,
   // the physics and the scene, for a test player in the page (as the mockup's)
   inside: () => ({ world, current, launchVel }),
-  // Hardest's thing that moves (Q106, the mockup): change it ({ move, pace, height }, or null for none); where it is
+  // Hardest's thing that moves (Q106): change this scene's ({ move, pace, height, timing, look } over the
+  // deal's, null for none, 'deal' for the deal's again; until the next scene); where it is
   mover(choice) {
-    if (choice !== undefined) { moverChoice = choice ? { ...moverChoice, ...choice } : null; L('mover changed', { choice: moverChoice }); placeMover(); }
+    if (choice !== undefined) {
+      moverOverride = choice === 'deal' ? undefined : choice ? { ...(moverOverride || {}), ...choice } : null;
+      L('mover changed', { choice: moverOverride ?? 'the deal' }); placeMover();
+    }
     return world.mover && { ...world.mover, t: r2(world.moverT), loads: world.movers.map(b => [b.position.x, b.position.y, b.position.z].map(r2)) };
   },
-  // the next scene of the level (1-5, round again), with 3 hearts (the mockup's "Next scene")
+  // the next scene of the level (1-5, round again), with 3 hearts
   async nextScene() { if (busy) return null; return this.scene(game.scene % SCENES + 1); },
 };

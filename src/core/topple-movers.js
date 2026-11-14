@@ -25,11 +25,21 @@
 // tricky come from a plan made once from the scene's seed (the same scene,
 // the same plan; no clock read), PLAN_S long, then round again.
 //
+// The build (session 1, the building site; developer, 2026-11-14, of v2:
+// "more variance in the speed ... change the obstacle from scene to scene.
+// Maybe moving things every other scene and then use space ... for the
+// scenes that don't have moving obstacles. And maybe sometimes the obstacle
+// can be something falling from the sky"): a fourth way, drop (the crane
+// lets the load fall from above the screen, brakes it in the throw's way,
+// holds it, hauls it back up); the varied speeds wider; and Hardest's
+// scenes dealt (hardestDeal): scenes 1, 3, 5 each a different way and
+// load, 2 and 4 spread out (the level's `spread` structures).
+//
 // Sizes in the world's metres (Far), as sceneParts() gives them.
 
-import { HAND, rng } from './topple.js';
+import { HAND, SCENES, levelInfo, rng } from './topple.js';
 
-export const MOVES = ['slide', 'swing', 'stream'];
+export const MOVES = ['slide', 'swing', 'stream', 'drop'];
 // s for one crossing (v1's 4 / 3 / 2 s: "rather slow", 2026-11-14)
 export const PACES = { slow: 3, medium: 2, fast: 1.4 };
 // The load's middle over the ground (m). Measured 2026-11-14 over five
@@ -53,8 +63,26 @@ export const STREAM_N = 3;       // stream: how many loads
 export const STREAM_OUT = 2.5;   // stream: how far past the ends a load goes before it comes round again (m)
 export const PLAN_S = 60;        // varied, tricky: how long a plan runs before it goes round again (s)
 // varied and tricky: each move's time is the pace times one of these (lo, hi); each stop's (s)
-export const SPREAD = { varied: { move: [0.6, 1.35], stop: [0.1, 0.9] }, tricky: { move: [0.5, 1.4], stop: [0.1, 0.9] } };
+// (v2's: varied 0.6-1.35, tricky 0.5-1.4; developer, 2026-11-14: "more variance in the speed")
+export const SPREAD = { varied: { move: [0.45, 1.8], stop: [0.1, 1.0] }, tricky: { move: [0.45, 1.8], stop: [0.1, 1.0] } };
 export const FEINT = 0.4;        // tricky, slide: the share of crossings that stop part-way (then on, or back: even odds)
+// drop: the load up out of sight (its middle, m), let fall as a thing
+// falls (GRAVITY), braked where it hangs (m.y) with a bounce on the cable
+// (BOUNCE_M, BOUNCE_S), held, then hauled up (UP_PACES of the pace), and
+// a wait up there. Varied and tricky: each hold, haul and wait its own
+// (HOLD, UP_SPREAD, WAIT; the first try, the hold also times the move
+// spread, kept the way shut up to 3.4 s, most plans thrown away by the
+// check's MOVER_SHUT). Tricky: now and then (FEINT) hauled only part way
+// and let fall again.
+export const DROP_FROM = 11;
+export const DROP_G = 9.82;
+export const BOUNCE_M = 0.22, BOUNCE_S = 0.5;
+export const UP_PACES = 1.1, UP_SPREAD = [0.6, 1.3];
+export const HOLD = [0.15, 0.6];    // the hold after the bounce, of the pace
+export const WAIT = [0.4, 1.5];    // the wait up out of sight, of the pace
+// A throw passes the mover's depth no higher than this (m: measured, lobs
+// 2.3-5 m, see HEIGHTS): a load above it is out of the way.
+export const THROW_TOP = 5;
 
 export const DEFAULT = { move: 'slide', pace: 'medium', height: 'middle', timing: 'varied', look: 'girders' };
 
@@ -158,7 +186,38 @@ const PLANS = {
     for (let k = 1; k < knots.length; k++) knots[k].D = knots[k - 1].D + (knots[k - 1].v + knots[k].v) / 2 * (knots[k].t0 - knots[k - 1].t0);
     return { knots, len: t, far, loop, offsets };
   },
+  // Drops: { t0, from (where the fall starts, m), fall (s), hold (s), up (s, back to DROP_FROM), wait (s) }.
+  drop(m, rand) {
+    const T = m.cross, sp = SPREAD[m.timing], r = (lo, hi) => lo + (hi - lo) * rand(), k = () => (sp ? r(...UP_SPREAD) : 1);
+    const drops = [];
+    let t = 0, from = DROP_FROM;
+    do {
+      const fall = Math.sqrt(2 * (from - m.y) / DROP_G);
+      const hold = BOUNCE_S + T * (sp ? r(...HOLD) : (HOLD[0] + HOLD[1]) / 2);
+      // tricky: hauled only part way (out of the throws' way, still in sight), let fall again at once
+      const part = m.timing === 'tricky' && rand() < FEINT;
+      const to = part ? THROW_TOP + m.load.h + r(0.3, 1.2) : DROP_FROM;
+      const up = T * UP_PACES * k() * (to - m.y) / (DROP_FROM - m.y);
+      const wait = part ? r(0.1, 0.5) : T * (sp ? r(...WAIT) : (WAIT[0] + WAIT[1]) / 2);
+      drops.push({ t0: t, from, to, fall, hold, up, wait });
+      t += fall + hold + up + wait;
+      from = to;
+    } while (sp ? t < PLAN_S || from !== DROP_FROM : drops.length < 2);
+    return { drops, len: t };
+  },
 };
+
+// The drop's height t s into one drop (m): falling, the brake's bounce, held, hauled up, waiting.
+function dropY(m, d, s) {
+  if (s < d.fall) return d.from - DROP_G * s * s / 2;
+  s -= d.fall;
+  // the brake: down past where it hangs and back, dying away
+  if (s < BOUNCE_S) return m.y - BOUNCE_M * Math.sin(2 * Math.PI * s / BOUNCE_S) * Math.exp(-4 * s / BOUNCE_S);
+  if (s < d.hold) return m.y;   // (the hold takes in the bounce)
+  s -= d.hold;
+  if (s < d.up) return m.y + (d.to - m.y) * eased(s / d.up);
+  return d.to;
+}
 
 // How far the stream's line has gone t s in (m).
 function streamD(plan, t) {
@@ -173,6 +232,11 @@ function streamD(plan, t) {
 // tilt (rad, about the depth axis: the swing's lean) }], one per load.
 export function moverAt(m, t) {
   const plan = m.plan;
+  if (m.move === 'drop') {
+    // straight down over the throw line, and back up
+    const u = wrap(t, plan.len), d = at(plan.drops, u);
+    return [{ p: [m.x0, dropY(m, d, u - d.t0), m.z], tilt: 0 }];
+  }
   if (m.move === 'swing') {
     // a pendulum from CABLE_TOP over the line, out to span at its widest
     const L = CABLE_TOP - m.y, full = Math.asin(Math.min(0.9, m.span / L));
@@ -191,15 +255,20 @@ export function moverAt(m, t) {
   return [{ p: [m.x0 + m.span * f, m.y, m.z], tilt: 0 }];
 }
 
-// The share of the time the throw line (x0) is clear of every load (its
-// half-width and the ball's radius r), over the plan (30 s at most) in
-// steps of dt: how open the way is (the log, the tests).
+// Whether a load is in the throw line's way: across it (its half-width and
+// the ball's radius r), and lower than a throw passes (a drop's load up
+// out of sight is not).
+export const inWay = (m, l, r = 0.07) => Math.abs(l.p[0] - m.x0) < m.load.w / 2 + r && l.p[1] - m.load.h / 2 < THROW_TOP;
+
+// The share of the time the throw line (x0) is clear of every load, over
+// the plan (30 s at most) in steps of dt: how open the way is (the log,
+// the tests).
 export function openShare(m, r = 0.07, dt = 1 / 120) {
   const T = Math.min(m.plan.len, 30);
   let open = 0, n = 0;
   for (let t = 0; t < T; t += dt) {
     n++;
-    if (moverAt(m, t).every(l => Math.abs(l.p[0] - m.x0) > m.load.w / 2 + r)) open++;
+    if (!moverAt(m, t).some(l => inWay(m, l, r))) open++;
   }
   return +(open / n).toFixed(3);
 }
@@ -211,10 +280,43 @@ export function gaps(m, r = 0.07, dt = 1 / 120) {
   let run = 0, was = null, open = 0, shut = 0;
   const ends = [];
   for (let t = 0; t < T; t += dt) {
-    const o = moverAt(m, t).every(l => Math.abs(l.p[0] - m.x0) > m.load.w / 2 + r);
+    const o = !moverAt(m, t).some(l => inWay(m, l, r));
     if (o === was) run += dt; else { if (was !== null) ends.push([was, run]); run = dt; was = o; }
   }
   ends.push([was, run]);
   for (const [o, d] of ends) if (o) open = Math.max(open, d); else shut = Math.max(shut, d);
   return { openS: +open.toFixed(2), shutS: +shut.toFixed(2), changes: ends.length };
 }
+
+/* ---------- Hardest's scenes (the build, session 1) ---------- */
+
+// The levels with a thing that moves (one level a session: the building
+// site first; Hardest in the others as it was until theirs is built).
+export const MOVER_LEVELS = [2];
+// Scenes with the mover; the others spread out (developer, 2026-11-14:
+// "moving things every other scene and then use space").
+export const MOVING_SCENES = [1, 3, 5];
+
+// Hardest's five scenes of a game's level (dealt once per game and level,
+// so a scene played again is the same one), or null for a level without a
+// mover yet: [{ mover: { move, look, timing, pace, height } } | { spread:
+// a structure }], scene 1 first. The moving scenes each a different way
+// (3 of MOVES), the loads in turn (girders, bricks, or the other way
+// round), varied, the 5th (the challenge) tricky; the spread-out scenes two
+// different structures of the level's `spread`.
+export function hardestDeal(gameSeed, level) {
+  const info = levelInfo(level);
+  if (!MOVER_LEVELS.includes(level) || !info?.spread) return null;
+  const random = rng((gameSeed ^ Math.imul(level, 0x2C1B3C6D) ^ 0x297A2D39) >>> 0);
+  const shuffled = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const moves = shuffled(MOVES), spreads = shuffled(info.spread), look0 = random() < 0.5 ? 0 : 1;
+  let k = 0, j = 0;
+  return Array.from({ length: SCENES }, (_, i) => {
+    const n = i + 1;
+    if (!MOVING_SCENES.includes(n)) return { spread: spreads[j++ % spreads.length] };
+    const c = { move: moves[k], look: LOOKS[(look0 + k) % LOOKS.length], timing: n === SCENES ? 'tricky' : 'varied', pace: DEFAULT.pace, height: DEFAULT.height };
+    k++;
+    return { mover: c };
+  });
+}
+export const hardestScene = (gameSeed, level, i) => hardestDeal(gameSeed, level)?.[i - 1] ?? null;

@@ -13,7 +13,7 @@ import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel,
   sceneParts, layoutFor, isDown, MATS, throwRange, shiftThing,
 } from './topple.js';
-import { moverAt } from './topple-movers.js';
+import { moverAt, moverFor, openShare, gaps, hardestScene } from './topple-movers.js';
 import { fixedStepper } from './fixed-step.js';
 
 export const MAX_SUBSTEPS = 12;                      // MAX_FRAME_S (0.1 s) of steps a frame (8 until 10.6: Q99)
@@ -66,6 +66,17 @@ const MOVER_GROUP = 4, BALL_GROUP = 8;
 // A ball that touches the mover keeps this much of its speed and drops (the
 // developer's agreed "stops and drops", 2026-11-14).
 export const MOVER_KEEP = 0.1;
+// Hardest's mover scenes: the throw line clear at least this share of the
+// time, and never shut longer than this (s), or the layout's next try.
+export const MOVER_OPEN = 0.4, MOVER_SHUT = 3.5;
+// How open a mover leaves the way ({ open, openS, shutS, changes }) and
+// why it doesn't do (empty: it does).
+export function moverFits(m) {
+  const fit = { open: openShare(m), ...gaps(m) }, why = [];
+  if (fit.open < MOVER_OPEN) why.push('the mover too seldom out of the way');
+  if (fit.shutS > MOVER_SHUT) why.push('the mover in the way too long');
+  return { ...fit, why };
+}
 export const TRIES = 25;   // layouts tried for a scene before taking the best
 // The fewest straight throws of the scene check's scan that must hit each
 // block first. 5, not 3: over 500 scenes it cost 1.82 tries a scene, not
@@ -545,22 +556,36 @@ export function createWorld({ onHit = () => {} } = {}) {
   // most, else the best of them). The same game, level and scene always give
   // the same scene. Returns { layout, parts, check, tries, thrown (why each
   // was thrown away) }, the scene set up in the world.
-  function makeScene(gameSeed, level, i, name = null) {
+  // `mode`: how hard (Hardest: the scene as hardestDeal deals it, in a
+  // level with a mover: a spread-out structure, or the mover, whose way
+  // must open often enough: MOVER_OPEN, MOVER_SHUT; kept in the layout as
+  // `hardest`, so a scene picked up again has it). Returns also `mover`
+  // (moverFor()'s, or null), not yet set moving.
+  function makeScene(gameSeed, level, i, name = null, mode = 'normal') {
     const score = c => (c.ok ? 1000 : 0) - c.unhit * 50 - Math.max(0, c.share - 0.75) * 100 + Math.min(c.direct, 15);
-    let best = null, tries = 0, L, p, chk;
+    const h = mode === 'hardest' ? hardestScene(gameSeed, level, i) : null;
+    if (h?.spread) name ??= h.spread;
+    let best = null, tries = 0, L, p, chk, m = null;
     const thrown = [];
     do {
       L = layoutFor(gameSeed, level, i, tries, name);
+      if (h) L.hardest = JSON.parse(JSON.stringify(h));
       tries++;
       p = sceneParts(L);
       setScene(p);
       if (level > 1 && moveAside(L)) { p = sceneParts(L); setScene(p); }
       chk = check(L);
+      m = h?.mover ? moverFor(p, h.mover, L.seed) : null;
+      if (m) {
+        const { why, ...fit } = moverFits(m);
+        chk.mover = fit;
+        if (why.length) { chk.ok = false; chk.why = [chk.why, ...why].filter(Boolean).join('; '); }
+      }
       if (!chk.ok) thrown.push({ seed: L.seed, stack: L.stack, things: L.things.map(t => t.kind), why: chk.why });
-      if (!best || score(chk) > score(best.chk)) best = { L, p, chk };
+      if (!best || score(chk) > score(best.chk)) best = { L, p, chk, m };
     } while (!chk.ok && tries < TRIES);
-    if (!chk.ok) { ({ L, p, chk } = best); setScene(p); }
-    return { layout: L, parts: p, check: chk, tries, thrown };
+    if (!chk.ok) { ({ L, p, chk, m } = best); setScene(p); }
+    return { layout: L, parts: p, check: chk, tries, thrown, mover: m };
   }
 
   return {
