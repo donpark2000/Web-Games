@@ -384,3 +384,10 @@ test('topple page: the blocks left glow (Q101): counted while waiting, the stand
   assert.match(sceneJs, /m\.add\(over\); m\.userData\.glow = over;/, 'every block its glow');
   assert.match(sceneJs, /m\.userData\.glow\.visible = glowing && m\.visible && !!standing\?\.\[i\];/);
 });
+
+// Q105: the scene's log says how far the soft thing was moved aside (so it hides
+// no block's front) and the fewest of a block's 5 points seen past the things.
+test('topple page: the scene log tells the barrow moved aside and the fewest points of a block seen', () => {
+  assert.match(js, /\.\.\.\(t\.aside \? \{ asideCm: Math\.round\(t\.aside \* 100\) \} : \{\}\)/);
+  assert.match(js, /seen: current\.check\.seen, fewestSeen: current\.check\.fewestSeen \}/);
+});

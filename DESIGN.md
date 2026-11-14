@@ -2258,7 +2258,16 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   block at least partly, a third wholly). The things matter; at least 15
   straight throws hit a block (a backboard, when there is one, at least 3
   bank shots). A layout that fails is thrown away and the next tried (25
-  at most, else the best).
+  at most, else the best). **From level 2, each block's front shows past
+  the things** (developer, 2026-11-13, Q105: a wall brick behind the
+  wheelbarrow showed only a strip of its top and looked like something
+  lying flat; "Stricter scene check"): at least 3 of the 5 points the
+  check looks at (its top's middle, three across its front, its side),
+  not just one. Before the check, the soft thing (the barrow, the rock,
+  the scrub) is moved aside in 10 cm steps (1 m at most) till every block
+  shows that well: the nearest step on each side, the one the view needn't
+  widen for, else the nearer; never onto another thing. (Only the twin
+  towers' barrow needs it, in about half of games.)
 - **Levels** (developer, 2026-11-10): a level is **5 scenes**, the 5th
   harder. **From level 2 on, the 5th is the challenge** (developer,
   2026-11-11): the level's theme kept, a bigger challenge than scenes

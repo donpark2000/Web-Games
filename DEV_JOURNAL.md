@@ -206,6 +206,9 @@ time, each tried before publishing:
   barrow from the start; the building site's scene 5 (twin towers) starts
   like this in 15 of 30 games, no other scene of levels 2-5. A fix
   proposed there (the scene check); to agree.
+  2026-11-13, developer: "Stricter scene check". Built, with the barrow
+  moved aside too (the check alone left no layout that passes: "The
+  barrow moved aside (Q105)"); on `block-game`, for 10.9: to try.
 
 ## Proposed additions to the standards skill
 
@@ -20499,3 +20502,88 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103, Q104
   (live, to see), Q105 (the wait live; the hidden brick's fix to agree).
+
+## 2026-11-13: The barrow moved aside (Q105)
+
+- The developer: "Stricter scene check" (of the two fixes proposed in the
+  entry above).
+- **The check alone doesn't work, and the proposal overstated it.** Built
+  first as proposed: from level 2, a block fails the check when fewer than
+  `MIN_SEEN` = 3 of its 5 points show past the things (`a block mostly
+  behind a thing`). Measured (a scratch script, 10 games' twin towers):
+  in 5 of 10 games **all 25 tries failed** (12 s on the computer; at the
+  old tablet's 5.2 s a try, about 2 minutes), and the scene shown was
+  still the best of the failures, the brick still hidden. The barrow
+  always stands on the line from the hand to the structure (± 12 cm), and
+  the twin towers' low front wall is always there, so a new seed never
+  helps. Said so to the developer.
+- **The barrow's place, measured** (the tablet's layout, the barrow moved
+  sideways 0.1 m at a time): the check passes from 0.3 m left or 0.4 m
+  right, with every block 5 of 5 seen from 0.4 m left or 0.5 m right; the
+  first throws hitting a block barely change (252 to 260-268 of the scan).
+- **Built** (on `block-game`):
+  - `shiftThing(L, t, dx)` (src/core/topple.js): a thing moved sideways,
+    its middle, parts (the gap's), foot and balls (a bush's or scrub's);
+    refused (false, left where it was) onto the structure's table or
+    another thing. `t.aside` says how far.
+  - `moveAside(L)` in `world.makeScene` (src/core/topple-world.js), from
+    level 2, before the check: when a block shows fewer than 3 points,
+    the soft thing (barrow, rock, scrub) is stepped 0.1 m at a time (1 m
+    at most) each way, looking only at the points (no throw scan); the
+    nearest step that shows every block on each side; of the two, the one
+    whose view is narrower, then the nearer. The check (with `MIN_SEEN`)
+    still runs after, as the backstop.
+  - **Why the view matters:** the first version tried right first, and in
+    5 of 20 games the view (sceneParts' bounds, which the camera fits) got
+    0.7-0.9 m wider (2.76 to 3.65 m, say), the scene drawn about a fifth
+    smaller. Choosing by width didn't change those 5: there the light
+    stands just left of the barrow (game 2: the barrow's foot -0.63..0.47,
+    the light's -1.35..-0.75, overlapping 0.2 m to the left), so right is
+    the only way. Left as it is; a way to keep the size (the view not
+    fitted to the whole barrow, so it may be cut at the side) is for the
+    developer to say if those scenes look small.
+  - The log: the scene line's `things` say `asideCm` when moved; its
+    `check` says `fewestSeen`.
+- **Measured, one run of the same script on the published code and the
+  new** (20 games, levels 2-5, all 5 scenes): the same tries in every
+  scene (20-51 per 20 scenes, as before), none run out. Only the twin
+  towers changed: the barrow moved in 10 of 20 games (-0.3 to +0.6 m),
+  each made on its first try, about 0.5 s on the computer as before. The
+  new reason shows only in layouts thrown away for other reasons
+  already (scenes 2 and 4, the light or the pine).
+- Tests (tests/topple-levels.test.js): the tablet's layout fails the check
+  (`fewestSeen` 1); game 64352's barrow moved 0.3 m left, game 16838's
+  0.5 m right (the light in the way), its middle and parts moved, drawn
+  where it is, the scene then passing; 16838's barrow refused 0.2 m left
+  (into the light) and let 0.1 m; a scrub's balls move with it; 3 games'
+  scenes 1, 3 and 5 of levels 2-5 all pass with every block 3 of 5 seen
+  or better; level 1 as before. tests/topple-page.test.js: the log's two
+  new fields. Each check shown to fail on a broken copy (the `MIN_SEEN`
+  rule off, nothing moved, the overlap test off, the parts or the balls
+  not moved; the log's field gone), each file put back byte for byte.
+- `node tools/offline.js`: version 8459c89f20e3 (sw.js and version.js put
+  back to CRLF). 624 tests pass.
+- Not seen in the browser (the last session's preview pane timed out
+  loading the page, just before the app hung). The layout and what is
+  drawn come from the same `sceneParts`, checked in the test.
+- Note for these sessions: twice, a Bash-tool heredoc lost its
+  backslashes (JavaScript written that way lost its escapes); scripts
+  with backslashes go in scratchpad files with the Write tool.
+
+**Status (start here next session)**
+- **Live: 10.8.** On `block-game`, not published: Q105's fix (a block's
+  front must show past the things from level 2; the barrow moved aside to
+  allow it). A release to propose: 10.9.
+- **For the developer** (tomorrow, on the tablet and the phone): 10.8's
+  set-up notice and the glow's timing; then, once 10.9 is published, the
+  building site's scene 5 (twin towers), the barrow standing aside of
+  the low wall, and whether the scene looks small when it stands right.
+  A log after, if anything looks wrong, into
+  `Web-Games-testing/2026-11-13_old-tablet/`.
+- **To ask:** the OK to publish 10.9.
+- **Then:** Q101-Q105 closed if liked; the testing folder
+  (`2026-11-13_old-tablet`, five logs, all recorded here) to purge with
+  the developer's OK.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98, Q101, Q102, Q103, Q104
+  (live, to see), Q105 (the wait live; the barrow aside built, to try).

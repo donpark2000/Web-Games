@@ -9,9 +9,9 @@
 // by a player throwing as a person can.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createWorld, touch, outOfReach, outOfRange, RANGE_MARGIN, CALM_SPEED } from '../src/core/topple-world.js';
+import { createWorld, touch, outOfReach, outOfRange, RANGE_MARGIN, CALM_SPEED, MIN_SEEN } from '../src/core/topple-world.js';
 import {
-  SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, levelDeal, sceneParts, launchVel, HAND, MAX_AIM, MAX_UP, R2D, makeLayout, sceneOpts, FRAME_REACH,
+  SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, shiftThing, levelDeal, sceneParts, launchVel, HAND, MAX_AIM, MAX_UP, R2D, makeLayout, sceneOpts, FRAME_REACH,
   throwRange, offScreen,
 } from '../src/core/topple.js';
 import { canBeWon } from './topple-players.js';
@@ -334,6 +334,60 @@ test('topple levels: a thing that hides a block for the whole scene is caught by
   assert.equal(w.frontSeen()[0], 0, 'the front barrel still seen');
   assert.equal(c.ok, false);
   assert.match(c.why, /too little shows from the front/);
+});
+
+// Q105 (journal, "Release 10.8 published; what was behind the barrow" and
+// "The barrow moved aside"): the old tablet's building-site scene 5 (twin
+// towers), its front wall's left brick 1 of 5 points seen past the
+// wheelbarrow, looked like something lying flat and was left standing. From
+// level 2, a block's front must show past the things (MIN_SEEN of 5
+// points): the check fails such a layout, and the soft thing is moved aside
+// till every block shows (the side the view needn't widen for, else the
+// other: the light in the way).
+test('topple levels: a block mostly behind a thing fails the check; the barrow moved aside; every scene shows each block’s front', () => {
+  const w = createWorld();
+  const L = frameLayout(1146799505, 2, 5, 'twinTowers');
+  w.setScene(sceneParts(L));
+  const c = w.check(L);
+  assert.equal(w.frontSeen()[0], 1, 'the tablet’s brick no longer 1 of 5 seen');
+  assert.equal(c.fewestSeen, 1);
+  assert.equal(c.ok, false);
+  assert.match(c.why, /a block mostly behind a thing/);
+  // moved: game 64352's barrow left (0.3 m), game 16838's right (0.5 m: the light just left of it)
+  for (const [seed, aside] of [[64352, -0.3], [16838, 0.5]]) {
+    const s = w.makeScene(seed, 2, 5), t = s.layout.things.find(o => o.kind === 'barrow');
+    assert.equal(s.layout.stack, 'twinTowers');
+    assert.equal(t.aside, aside, `${seed}: the barrow moved ${t.aside}`);
+    const first = layoutFor(seed, 2, 5, s.tries - 1), t0 = first.things.find(o => o.kind === 'barrow');
+    assert.ok(Math.abs(t.x - t0.x - aside) < 1e-9, `${seed}: the barrow's middle`);
+    assert.deepEqual(t.parts.map(p => +(p.x - aside).toFixed(9)), t0.parts.map(p => +p.x.toFixed(9)), `${seed}: its parts`);
+    assert.ok(s.check.ok && s.check.fewestSeen >= MIN_SEEN, `${seed}: ${s.check.why} (${s.check.fewestSeen} of 5)`);
+    assert.equal(s.parts.props.find(p => p.part === 'barrow').at[0], sceneParts(s.layout).props.find(p => p.part === 'barrow').at[0], `${seed}: drawn where it is`);
+  }
+  // never onto another thing: game 16838's barrow can't go 0.2 m left, into the light
+  const B = layoutFor(16838, 2, 5, 0), b = B.things.find(o => o.kind === 'barrow'), x0 = b.x;
+  assert.equal(shiftThing(B, b, -0.2), false);
+  assert.equal(b.x, x0, 'left where it was');
+  assert.equal(shiftThing(B, b, -0.1), true);
+  assert.equal(b.aside, -0.1);
+  // a scrub's balls move with it
+  const S = frameLayout(21, 4, 5, 'saloon'), sc = S.things.find(o => o.kind === 'scrub'), bx = sc.balls.map(q => q.x);
+  assert.ok(shiftThing(S, sc, 0.1) || shiftThing(S, sc, -0.1));
+  assert.ok(sc.balls.every((q, j) => Math.abs(Math.abs(q.x - bx[j]) - 0.1) < 1e-9), 'the scrub’s balls');
+  let scenes = 0, blocks = 0, moved = 0;
+  for (const seed of [434210791, 12345, 16838]) for (const l of LATER) for (const i of [1, 3, 5]) {
+    const s = w.makeScene(seed, l.n, i);
+    scenes++; blocks += w.blocks.length; if (s.layout.things.some(o => o.aside)) moved++;
+    assert.ok(s.check.ok, `${seed}, level ${l.n}, scene ${i}: ${s.check.why}`);
+    assert.ok(s.check.fewestSeen >= MIN_SEEN, `${seed}, level ${l.n}, scene ${i}: a block ${s.check.fewestSeen} of 5 seen`);
+    w.frontSeen().forEach((k, j) => assert.ok(w.blocks[j].broken || k >= MIN_SEEN, `${seed}, level ${l.n}, scene ${i}: block ${j} ${k} of 5 seen`));
+  }
+  assert.equal(scenes, 3 * LATER.length * 3, 'scenes checked');
+  assert.ok(blocks > 150, `only ${blocks} blocks checked`);
+  assert.ok(moved >= 1, 'no scene had its barrow moved');
+  // level 1's bushes and trees may still hide part of a block (a block at least partly seen, as before)
+  w.makeScene(12345, 1, 5);
+  assert.ok(w.frontSeen().every(k => k > 0));
 });
 
 // Pass criteria (journal, "Level 2's scenes" and "Levels 2-4 balanced"):

@@ -536,6 +536,22 @@ export function frameLayout(seed, level, i, name = null) {
   const unplaced = kinds.filter(kd => !things.some(t => t.kind === kd));
   return { seed, level, n: kinds.length, stack: name, table, blocks, things, power: +power.toFixed(3), reach: +reach.toFixed(2), unplaced, tooNear, ball: info.ball };
 }
+// A thing moved sideways by dx (Near metres): its middle, its parts (the
+// gap's), its foot and its balls (a bush's or scrub's). It never comes onto
+// the structure's table or another thing (false, and left where it was).
+// For the soft thing that would hide a block's front (Q105: the wheelbarrow
+// before the twin towers' low wall), moved aside by world.makeScene.
+export function shiftThing(L, t, dx) {
+  const foot = { x0: t.foot.x0 + dx, x1: t.foot.x1 + dx, z0: t.foot.z0, z1: t.foot.z1 };
+  const bx = L.blocks.map(b => [b.x - b.w / 2, b.x + b.w / 2]), bz = L.blocks.map(b => [b.z - b.d / 2, b.z + b.d / 2]);
+  const table = { x0: Math.min(...bx.map(v => v[0])) - 0.05, x1: Math.max(...bx.map(v => v[1])) + 0.05, z0: Math.min(...bz.map(v => v[0])) - 0.05, z1: Math.max(...bz.map(v => v[1])) + 0.05 };
+  if (overlaps(foot, table) || L.things.some(o => o !== t && overlaps(o.foot, foot))) return false;
+  t.x += dx; t.foot = foot;
+  for (const p of t.parts ?? []) p.x += dx;
+  for (const b of t.balls ?? []) b.x += dx;
+  t.aside = +((t.aside ?? 0) + dx).toFixed(3);
+  return true;
+}
 // Scene i of a game's level, try tryN: level 1's dealt structures, or the level's own.
 // (`name`: a structure of the level instead of the deal's, for the tests)
 export function layoutFor(gameSeed, level, i, tryN = 0, name = null) {

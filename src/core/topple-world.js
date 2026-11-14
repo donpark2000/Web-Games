@@ -11,7 +11,7 @@
 import * as CANNON from '../vendor/cannon-es/cannon-es.js';
 import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel,
-  sceneParts, layoutFor, isDown, MATS, throwRange,
+  sceneParts, layoutFor, isDown, MATS, throwRange, shiftThing,
 } from './topple.js';
 import { fixedStepper } from './fixed-step.js';
 
@@ -64,6 +64,18 @@ export const TRIES = 25;   // layouts tried for a scene before taking the best
 // 1.63, and none ran out of tries (journal, "Every block seen and hit from
 // the front").
 export const MIN_HITS = 5;
+// From level 2, the fewest of a block's 5 points (pointsSeen) the camera
+// must see past the things. 3, not 1: a wall brick behind the wheelbarrow
+// showed only a strip of its top, looked like something lying flat, and
+// was left standing (developer, Q105; journal, "Release 10.8 published;
+// what was behind the barrow": the building site's 5th scene in 15 of 30
+// games, no other scene).
+export const MIN_SEEN = 3;
+// How far the soft thing may be moved aside so it hides no block's front
+// (Near metres, in steps of ASIDE_STEP, right then left, nearest first):
+// the twin towers' barrow needed 0.4-0.5 m (journal, "The barrow moved
+// aside"; the check alone threw away all 25 tries in half the games).
+export const ASIDE_STEP = 0.1, ASIDE_MAX = 1;
 
 /* ---------- small vector maths (arrays) ---------- */
 
@@ -377,6 +389,8 @@ export function createWorld({ onHit = () => {} } = {}) {
   // - the things matter (a bush or a tree; a backboard only adds a way):
   //   some block at least partly hidden from the camera, or keeping under
   //   half its straight hits, or at most 75% as many first hits in all;
+  // - from level 2, every block's front shows past the things: at least
+  //   MIN_SEEN of its 5 points (Q105);
   // - enough shows from the front: every block at least partly seen, a
   //   third wholly;
   // - not a pinhole: at least 15 straight throws of the scan hit a block;
@@ -406,7 +420,8 @@ export function createWorld({ onHit = () => {} } = {}) {
     const unhit = [...base].filter(([b, c]) => (direct.get(b) || 0) < (later ? Math.min(MIN_HITS, c) : MIN_HITS)).length;
     const fewest = Math.min(...[...base.keys()].map(b => direct.get(b) || 0));
     const hidden = [...base].filter(([b, c]) => (direct.get(b) || 0) < 0.5 * c).length;
-    const front = viewOfBlocks(CAM, inTheWay);
+    const pts = pointsSeen(CAM, inTheWay), front = countSeen(pts);
+    const fewestSeen = Math.min(SEEN_POINTS, ...pts.filter((k, j) => !blocks[j].broken));
     // (only the things count here, not other blocks: from level 2 a block may hide behind another until it
     // falls, but never behind a thing for the whole scene: developer, Q73. The saloon's front barrels behind
     // the scrub, let through while this was loosened, were never hit.)
@@ -418,20 +433,21 @@ export function createWorld({ onHit = () => {} } = {}) {
     // (from level 2 the frames are the challenge; a wheelbarrow or a pole seldom takes a straight throw: Claude's pick)
     if (!later && hides && hidden === 0 && front.full === live && nDirect > 0.75 * nBase) why.push('the things hardly matter');
     if (!enough(front)) why.push('too little shows from the front');
+    if (later && fewestSeen < MIN_SEEN) why.push('a block mostly behind a thing');
     if (nDirect < 15) why.push('too few throws hit');
     if (hasBoard && nBank < 3) why.push('the backboard is no use');
     return {
       ok: why.length === 0, why: why.join('; '), shots: n, clear: nBase, direct: nDirect, bank: nBank, share: +(nDirect / Math.max(1, nBase)).toFixed(2),
-      blocks: blocks.length, unhit, fewest, hidden,
+      blocks: blocks.length, unhit, fewest, hidden, fewestSeen,
       seen: `${front.full} whole, ${front.part} part, ${blocks.length - front.full - front.part} hidden`,
     };
   }
-  // What a camera at cam sees of each block past the things keep() lets
-  // through: its top's middle, three points across its front and its right
-  // side's middle (whole: all; part: some).
-  function viewOfBlocks(cam, keep) {
+  // How many blocks the camera sees whole (all 5 points, below: its top's
+  // middle, three across its front and its right side's middle) and in part
+  // (some), from pointsSeen's counts.
+  function countSeen(pts) {
     let full = 0, part = 0;
-    for (const k of pointsSeen(cam, keep)) { if (k === SEEN_POINTS) full++; else if (k) part++; }
+    for (const k of pts) { if (k === SEEN_POINTS) full++; else if (k) part++; }
     return { full, part };
   }
   // How many of those 5 points of each block (in the blocks' order) a
@@ -448,6 +464,36 @@ export function createWorld({ onHit = () => {} } = {}) {
     });
   }
 
+  // From level 2: the soft thing (the barrow, the rock, the scrub) moved
+  // aside when a block shows fewer than MIN_SEEN of its points past the
+  // things (Q105): on each side the nearest step that shows every block,
+  // and of those two the one the view needn't widen for (the view fits
+  // everything; the twin towers' barrow moved right widened it by up to
+  // 0.9 m, left not at all: the light stands left), then the nearer. Only
+  // the points are looked at for each step (no throws scanned). Whether the
+  // scene must be set up again from L (moved, or steps tried and it left
+  // where it was).
+  function moveAside(L) {
+    const t = L.things.find(o => o.job === 'soft');
+    const fewest = () => Math.min(SEEN_POINTS, ...pointsSeen(CAM, inTheWay).filter((k, j) => !blocks[j].broken));
+    if (!t || fewest() >= MIN_SEEN) return false;
+    const width = q => q.bounds.max[0] - q.bounds.min[0], found = [];
+    for (const side of [-1, 1]) {
+      let at = 0;
+      for (let k = 1; k * ASIDE_STEP <= ASIDE_MAX + 1e-9; k++) {
+        const dx = +(side * k * ASIDE_STEP).toFixed(3);
+        if (!shiftThing(L, t, dx - at)) break;   // on the table or another thing: no further this way
+        at = dx;
+        const q = sceneParts(L);
+        setScene(q);
+        if (fewest() >= MIN_SEEN) { found.push({ dx, w: width(q) }); break; }
+      }
+      if (at) shiftThing(L, t, -at);
+    }
+    found.sort((a, b) => a.w - b.w || Math.abs(a.dx) - Math.abs(b.dx));
+    if (found.length) shiftThing(L, t, found[0].dx);
+    return true;
+  }
   // Scene i of a game's level: its layout made from its seed and checked; a
   // layout that fails is thrown away and the next try's seed used (TRIES at
   // most, else the best of them). The same game, level and scene always give
@@ -462,6 +508,7 @@ export function createWorld({ onHit = () => {} } = {}) {
       tries++;
       p = sceneParts(L);
       setScene(p);
+      if (level > 1 && moveAside(L)) { p = sceneParts(L); setScene(p); }
       chk = check(L);
       if (!chk.ok) thrown.push({ seed: L.seed, stack: L.stack, things: L.things.map(t => t.kind), why: chk.why });
       if (!best || score(chk) > score(best.chk)) best = { L, p, chk };
