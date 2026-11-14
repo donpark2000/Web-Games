@@ -20744,6 +20744,8 @@ anything to show it (the dots are the developer's choice per How hard).
 - **From the developer:** (1) skip the player that misses for now? (2)
   spread out first, then moving things? (3) moving things in the way, or
   the structure itself moving?
+  2026-11-14, developer: "1) yes 2) yes 3) a". So: no player that misses;
+  spread out first, published and tried; then moving things in the way.
 - **Then:** build Hardest's spread-out scenes (Q98), for the devices.
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
