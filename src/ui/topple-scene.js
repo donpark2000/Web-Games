@@ -10,6 +10,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng, FAR_TREES, farBalls, treeBalls, CORE } from '../core/topple.js';
+import { CABLE_TOP } from '../core/topple-movers.js';
 import { makeSetting, birds } from './topple-sets.js';
 import { applyCuts } from './drawcuts.js';
 
@@ -315,6 +316,61 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   for (let i = 0; i < MAX_DOTS; i++) dots.setColorAt(i, WHITE);
   const m4 = new THREE.Matrix4(), one = new THREE.Quaternion(), sv = new THREE.Vector3(), pv = new THREE.Vector3();
 
+  /* ---------- the thing that moves in the way (Hardest, Q106) ---------- */
+
+  // The crane's load: a yellow skip with black and yellow hazard stripes
+  // round its foot (first a pallet of bricks: in front of a brick and
+  // timber structure it read as part of it, 2026-11-14), four sling chains
+  // to a hook, and the cable up out of view to the jib (CABLE_TOP; the
+  // swing's pivot). Drawn round the body's middle, turned as the body is
+  // (the swing's lean), so the cable always points at its top.
+  let moverMeshes = [];
+  const chainMat = new THREE.MeshStandardMaterial({ color: '#3A3D40', roughness: 0.5, metalness: 0.6 });
+  const hookMat = new THREE.MeshStandardMaterial({ color: '#E8B22A', roughness: 0.5, metalness: 0.3 });
+  const skipSide = new THREE.MeshStandardMaterial({
+    roughness: 0.55, metalness: 0.25,
+    map: canvasTex(256, 170, (g, w, h) => {
+      g.fillStyle = '#F2B705'; g.fillRect(0, 0, w, h);
+      // the hazard band along the foot, and a darker rim at the top
+      const band = h * 0.3;
+      g.save(); g.beginPath(); g.rect(0, h - band, w, band); g.clip();
+      g.fillStyle = '#1C1C1C';
+      for (let x = -band; x < w + band; x += 36) { g.beginPath(); g.moveTo(x, h); g.lineTo(x + 18, h); g.lineTo(x + 18 + band, h - band); g.lineTo(x + band, h - band); g.closePath(); g.fill(); }
+      g.restore();
+      g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(0, 0, w, 8);
+      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 6; g.strokeRect(0, 0, w, h);
+    }),
+  });
+  const skipTop = new THREE.MeshStandardMaterial({ color: '#5E5A55', roughness: 0.9 });
+  const skipFoot = new THREE.MeshStandardMaterial({ color: '#B08500', roughness: 0.6, metalness: 0.3 });
+  function loadMesh(m) {
+    const g = new THREE.Group(), { w, h, d } = m.load, top = h / 2;
+    // sides striped, the top (what's in it) grey, the bottom darker yellow
+    const skip = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), [skipSide, skipSide, skipTop, skipFoot, skipSide, skipSide]);
+    g.add(skip);
+    // the chains from the skip's top corners to the hook, the hook, the cable up
+    const hookY = top + 0.55, hook = new THREE.Vector3(0, hookY, 0);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+      const a = new THREE.Vector3(sx * w * 0.47, top, sz * d * 0.47), v = hook.clone().sub(a);
+      const c = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, v.length(), 6), chainMat);
+      c.position.copy(a).add(hook).multiplyScalar(0.5); c.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.normalize());
+      g.add(c);
+    }
+    const blockH = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.22, 0.1), hookMat); blockH.position.y = hookY + 0.11; g.add(blockH);
+    const L = CABLE_TOP - m.y - hookY - 0.22;
+    const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, L, 6), chainMat);
+    cable.position.y = hookY + 0.22 + L / 2; g.add(cable);
+    g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    return g;
+  }
+  function setMovers(m) {
+    for (const g of moverMeshes) { scene.remove(g); g.traverse(o => o.geometry?.dispose()); }
+    moverMeshes = [];
+    if (!m) return;
+    for (let i = 0; i < m.n; i++) { const g = loadMesh(m); scene.add(g); moverMeshes.push(g); }
+    applyCuts(three, cuts);
+  }
+
   /* ---------- the bodies ---------- */
 
   const ballMeshes = new Map();   // physics body -> its mesh
@@ -327,6 +383,16 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     webgl,
     farLeaves,
     setScene,
+    // Hardest's thing that moves (Q106): its look (moverFor()'s, or null), and each load where the physics has it.
+    setMovers,
+    syncMovers(bodies) {
+      bodies.forEach((b, i) => {
+        const g = moverMeshes[i];
+        if (!g) return;
+        g.position.set(b.position.x, b.position.y, b.position.z);
+        g.quaternion.set(b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w);
+      });
+    },
     // Each block's mesh where the physics has it; the balls in flight (meshes of balls gone taken away).
     sync(blockRecs, ballBodies) {
       blockRecs.forEach((rec, i) => {

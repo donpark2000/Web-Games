@@ -29,6 +29,15 @@ import { sound } from './sound.js';
 import { resumable } from './resume.js';
 import { drawWatch } from './drawwatch.js';
 import { MAX_FRAME_S } from '../core/fixed-step.js';
+import { moverFor, openShare } from '../core/topple-movers.js';
+
+// Hardest's thing that moves in the way (journal Q106, 2026-11-14): for
+// now only in its mockup, a page that sets window.TOPPLE_MOCKUP = { level,
+// mover: { move, pace, height } } before this file runs: the game starts in
+// that level on Hardest, the mover in every scene, and the page changes it
+// with window.topple.mover(). Without it the game is as published.
+const MOCK = globalThis.TOPPLE_MOCKUP ?? null;
+let moverChoice = MOCK ? { ...(MOCK.mover ?? {}) } : null;
 
 const $ = id => document.getElementById(id);
 const L = (msg, data) => log.add('topple', msg, data);
@@ -490,6 +499,7 @@ async function startScene(kept = null) {
   }
   current.ms = Math.round(performance.now() - t0);
   const drawn = stage.setScene(current.parts);
+  placeMover();
   round = kept?.settled?.round ?? newRound(world.blocks.length);
   if (round.since != null) round.since = 99;   // a ball in flight when the page was left comes back to the pouch
   settled = kept?.settled ?? null;
@@ -520,6 +530,18 @@ async function startScene(kept = null) {
   busy = false;
   resume.keep();
   return current;
+}
+
+// The thing that moves in the way, for the scene drawn (Q106; the mockup
+// only, for now): started from the start of its path; logged with how
+// much of the time the throw line is clear.
+function placeMover() {
+  if (!moverChoice || !current) { world.setMovers(null); stage.setMovers(null); return; }
+  const m = moverFor(current.parts, moverChoice);
+  world.setMovers(m);
+  stage.setMovers(m);
+  stage.syncMovers(world.movers);
+  L('mover', { move: m.move, pace: m.pace, height: m.height, crossS: m.cross, at: [m.x0, m.y, m.z], spanM: m.span, loads: m.n, open: openShare(m) });
 }
 
 function renderTally() {
@@ -646,7 +668,10 @@ function onHit({ a, b, v, y, ball, other, mat, thing }) {
     // each material its own (level 2 mockup v4-v6: wood C, brick B, steel C, concrete C); level 1's toy knock
     sound.play(MAT_SOUND[mat] ?? 'knock', 0, { level: Math.min(1, (vs + (a === 'ball' ? 1 : 0)) / 6), quiet: true });
   } else if (a === 'ball' && v >= 0.5) {
-    if (b === 'glass') sound.play('boing', 0, { quiet: true });
+    if (b === 'mover') {
+      sound.play('clonk', 0, { level: Math.min(1, vs / 6 + 0.3), quiet: true });
+      L('ball stopped by the mover', { t: r2(world.time - (shot?.at ?? 0)), moverT: r2(world.moverT), at: [ball.position.x, ball.position.y, ball.position.z].map(r2), speed: r2(vs) });
+    } else if (b === 'glass') sound.play('boing', 0, { quiet: true });
     else if (b === 'soft') sound.play(SOFT_SOUND[thing] ?? 'crunch', 0, { level: Math.min(1, vs / 6), quiet: true });
     else if (thing === 'light') sound.play('ring', 0, { level: Math.min(1, vs / 6), quiet: true });
     else if (b === 'bush' || (b === 'tree' && thing !== 'cactus' && y > 1.0 * SCALE)) sound.play('rustle', 0, { quiet: true });
@@ -703,6 +728,7 @@ function tick(dt, draw = true) {
   noteSettled();
   if (!draw) return;
   stage.sync(world.blocks, world.balls);
+  if (world.movers.length) stage.syncMovers(world.movers);
   const ok = ready();
   const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);
@@ -931,6 +957,16 @@ async function restore() {
 if (why) {
   L('no 3D: told this device can’t show it', { why, ua: navigator.userAgent });
   for (const el of document.querySelectorAll('#setup > .panel, #setup > .go')) el.hidden = el.id !== 'no3d';
+} else if (MOCK) {
+  // the mockup (Q106): a new game, straight into the level on Hardest
+  const lv = MOCK.level ?? 2;
+  game = createGame(newSeed(), null, 'hardest');
+  game.reached = Math.max(game.reached, lv);
+  switchLevel(game, lv);
+  saveGame();
+  L('mockup: moving things', { level: lv, mover: moverChoice });
+  showPlay();
+  await startScene();
 } else {
   L('the game on this device', { ...game, fresh: isFresh(game) });
   (await restore()) || renderSetup();
@@ -989,4 +1025,11 @@ window.topple = {
   hand: HAND,
   // the physics and the scene, for a test player in the page (as the mockup's)
   inside: () => ({ world, current, launchVel }),
+  // Hardest's thing that moves (Q106, the mockup): change it ({ move, pace, height }, or null for none); where it is
+  mover(choice) {
+    if (choice !== undefined) { moverChoice = choice ? { ...moverChoice, ...choice } : null; L('mover changed', { choice: moverChoice }); placeMover(); }
+    return world.mover && { ...world.mover, t: r2(world.moverT), loads: world.movers.map(b => [b.position.x, b.position.y, b.position.z].map(r2)) };
+  },
+  // the next scene of the level (1-5, round again), with 3 hearts (the mockup's "Next scene")
+  async nextScene() { if (busy) return null; return this.scene(game.scene % SCENES + 1); },
 };

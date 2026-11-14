@@ -13,6 +13,7 @@ import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel,
   sceneParts, layoutFor, isDown, MATS, throwRange, shiftThing,
 } from './topple.js';
+import { moverAt } from './topple-movers.js';
 import { fixedStepper } from './fixed-step.js';
 
 export const MAX_SUBSTEPS = 12;                      // MAX_FRAME_S (0.1 s) of steps a frame (8 until 10.6: Q99)
@@ -58,6 +59,13 @@ export const BUSH_KEEP = 0.1;
 export const CAUGHT_DAMPING = 0.9;   // the ball's damping once in the bush (keeps 0.1 of its speed a second)
 export const SOFT_DAMPING = 0.999;   // ... once in gravel or snow: it stays where it lands
 const BUSH_GROUP = 2;                // the bushes' collision group, which a ball in a bush stops touching
+// Hardest's thing that moves in the way (Q106; src/core/topple-movers.js):
+// its bodies in their own group, touching only the balls (their group), so
+// a block can never be knocked by it or rest on it.
+const MOVER_GROUP = 4, BALL_GROUP = 8;
+// A ball that touches the mover keeps this much of its speed and drops (the
+// developer's agreed "stops and drops", 2026-11-14).
+export const MOVER_KEEP = 0.1;
 export const TRIES = 25;   // layouts tried for a scene before taking the best
 // The fewest straight throws of the scene check's scan that must hit each
 // block first. 5, not 3: over 500 scenes it cost 1.82 tries a scene, not
@@ -115,7 +123,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   // Each block material its own (MATS: weight, bounce, grip; mockup v3);
   // level 1's toy blocks as before (a block on a block 0.5, on the ground 0.5).
   const mats = Object.keys(MATS);
-  const M = Object.fromEntries(['ball', 'stand', 'glass', 'bush', 'tree', 'soft', ...mats].map(k => [k, new CANNON.Material(k)]));
+  const M = Object.fromEntries(['ball', 'stand', 'glass', 'bush', 'tree', 'soft', 'mover', ...mats].map(k => [k, new CANNON.Material(k)]));
   world.defaultContactMaterial.friction = 0.4;
   world.defaultContactMaterial.restitution = 0.15;
   const CM = (a, b, friction, restitution) => world.addContactMaterial(new CANNON.ContactMaterial(M[a], M[b], { friction, restitution }));
@@ -135,6 +143,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   }
   CM('ball', 'stand', 0.4, BOUNCE.stand); CM('ball', 'glass', 0.05, BOUNCE.glass);
   CM('ball', 'bush', 0.8, BOUNCE.bush); CM('ball', 'tree', 0.5, BOUNCE.tree); CM('ball', 'soft', 0.9, BOUNCE.soft);
+  CM('ball', 'mover', 0.5, 0);
   const ground = new CANNON.Body({ mass: 0, material: M.stand, shape: new CANNON.Plane() });
   ground.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
   ground.kind = 'ground';
@@ -166,6 +175,8 @@ export function createWorld({ onHit = () => {} } = {}) {
     // gravel or snow (the bush's job, a solid heap): it keeps BUSH_KEEP of its speed and stays in it
     // (damped harder than in a bush: on the heap's slope it rolled off, 1.1 m from its middle)
     if (kind === 'soft' && !b.inBush) { b.inBush = true; b.velocity.scale(BUSH_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); b.linearDamping = b.angularDamping = SOFT_DAMPING; }
+    // the thing that moves (Q106): the ball stops and drops, once
+    if (kind === 'mover' && !b.stopped) { b.stopped = true; b.velocity.scale(MOVER_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); }
     onHit({ a: 'ball', b: kind, v, y: b.position.y, ball: b, other: e.body, mat: e.body.mat, thing: e.body.thing });
   }
 
@@ -195,6 +206,40 @@ export function createWorld({ onHit = () => {} } = {}) {
     }
   }
   world.addEventListener('preStep', catchInBush);
+
+  // Hardest's thing that moves in the way (Q106): kinematic boxes, moved
+  // each step to where moverAt() has them one step on (their speed set to
+  // get there, so a ball they meet is met by a moving thing), on the
+  // physics' own clock (the same pace on a slow device as the throw).
+  let mover = null, moverBodies = [], moverT = 0;
+  function moveMovers() {
+    if (!mover) return;
+    const at = moverAt(mover, moverT + STEP);
+    moverBodies.forEach((b, i) => {
+      const { p, tilt } = at[i];
+      // a stream's load coming round again: put there, not swept across
+      if (Math.abs(p[0] - b.position.x) > 1) { b.position.set(...p); b.velocity.set(0, 0, 0); } else b.velocity.set((p[0] - b.position.x) / STEP, (p[1] - b.position.y) / STEP, (p[2] - b.position.z) / STEP);
+      b.quaternion.setFromEuler(0, 0, tilt);
+    });
+    moverT += STEP;
+  }
+  world.addEventListener('preStep', moveMovers);
+  // m: moverFor()'s, or null for none. Starts from its t = 0.
+  function setMovers(m) {
+    for (const b of moverBodies) world.removeBody(b);
+    moverBodies = []; moverT = 0; mover = m;
+    if (!m) return [];
+    for (const { p, tilt } of moverAt(m, 0)) {
+      const b = new CANNON.Body({ mass: 0, type: CANNON.Body.KINEMATIC, material: M.mover, shape: new CANNON.Box(new CANNON.Vec3(m.load.w / 2, m.load.h / 2, m.load.d / 2)) });
+      b.position.set(...p);
+      b.quaternion.setFromEuler(0, 0, tilt);
+      b.kind = 'mover'; b.thing = 'load';
+      b.allowSleep = false;
+      b.collisionFilterGroup = MOVER_GROUP; b.collisionFilterMask = BALL_GROUP;
+      moverBodies.push(addBody(b));
+    }
+    return moverBodies;
+  }
 
   function addBody(body) {
     body.aabbNeedsUpdate = true;   // its box was worked out at the origin (Q63)
@@ -269,6 +314,7 @@ export function createWorld({ onHit = () => {} } = {}) {
     body.velocity.set(...vec);
     body.kind = 'ball';
     body.thrownAt = time;
+    body.collisionFilterGroup = BALL_GROUP;   // the one group the mover touches
     body.collisionFilterMask = ~BUSH_GROUP;   // the bush catches it instead (catchInBush)
     body.addEventListener('collide', onBallCollide);
     world.addBody(body);
@@ -525,6 +571,11 @@ export function createWorld({ onHit = () => {} } = {}) {
     get time() { return time; },
     get parts() { return parts; },
     setScene, makeScene, throwBall, step, obstacles, trace, check,
+    // the thing that moves in the way (Q106): set (moverFor()'s, or null), its bodies, its time (s)
+    setMovers,
+    get movers() { return moverBodies; },
+    get mover() { return mover; },
+    get moverT() { return moverT; },
     // how far a throw reaches in this scene (m from the hand, throwRange)
     get far() { return far; },
     // the page's test for a block off the screen as it's held (Q103: fn(block) -> true), or null

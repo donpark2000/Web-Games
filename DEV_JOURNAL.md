@@ -151,6 +151,11 @@ time, each tried before publishing:
   versions of 25 scenes. And we need to discuss what is moving and how
   it is moving"). Claude's options and picks in "Hardest: moving things
   first, a mockup first (Q106)"; to discuss, then a mockup.
+  2026-11-14, developer: (1) "Not wild about the chairlift for frosty
+  times. Maybe a moving snowman or a snowball machine?" (the other
+  levels' things as listed); (2) slide, swing and stream "all three";
+  (3) the dots ignoring it "yes". Mockup v1 built ("Moving things
+  mockup v1 (Q106)"): to try.
 
 ## Proposed additions to the standards skill
 
@@ -20832,3 +20837,108 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
   part), Q106 (moving things: to discuss).
+
+## 2026-11-14: Moving things mockup v1 (Q106)
+
+- **The developer's answers** (to the three questions above): (1) "Not
+  wild about the chairlift for frosty times. Maybe a moving snowman or a
+  snowball machine?"; (2) "all three"; (3) "yes" (the dots ignore the
+  moving thing). The other levels' things as Claude listed them.
+  Claude's note for Frosty Times, to settle after the mockup: the
+  snowball machine fits a stream (snowballs shot across one after
+  another), a snowman on the ice fits a slide; which one follows from how
+  the developer likes slide and stream.
+- **How the mockup is made (a change from earlier mockups, and why):**
+  earlier Topple! mockups were stand-alone pages built from the game's
+  sizes, not its code. This one is **the game itself**: the page carries
+  copies of the game's own files (its modules, styles and the building
+  site's photos, nothing from other sites) and turns the mover on through
+  `window.TOPPLE_MOCKUP`. Why: whether the timing feels right depends on
+  the real throw, dots, camera and scene, which a copy would only guess;
+  and the code carries over to the build. Without the flag the game is
+  as published (no mover), so `block-game` can still publish other work.
+- **Built** (on `block-game`, not published):
+  - `src/core/topple-movers.js` (no DOM): `moverFor(parts, { move, pace,
+    height })`, `moverAt(m, t)` (where each load is t s in),
+    `openShare(m)` (the share of the time the throw line is clear).
+    Crosses at 0.55 of the way from the hand to the structure, its ends
+    0.6 m past the structure's sides as seen from the hand. Slide: across
+    at a steady speed (15% of the crossing speeding up, 15% slowing), a
+    0.4 s stop at each end, back. Swing: a pendulum from the jib (9 m up),
+    out to the same ends, leaning as it swings. Stream: three loads
+    going right, evenly spaced, coming round 2.5 m past the end (out of
+    sight). Paces: one crossing in 4, 3 or 2 s.
+  - **Heights measured**, not guessed: over five building-site scenes,
+    the straight throws (under 30°) that hit a block pass the load's
+    depth 1.0-2.1 m up (half under 1.5 m), lobs 2.3-5 m, 0.34-0.42 s
+    after the throw. So low 1.0 m, middle 1.5 m, high 2.4 m (the load's
+    middle; it is 0.6 m tall). The first guess (0.7 / 1.3 / 2.1) put
+    "middle" above most straight throws; a test caught it.
+  - The physics (`src/core/topple-world.js`, `setMovers`): kinematic
+    boxes moved each step to where `moverAt` has them one step on, on the
+    physics' own clock (the same pace on a slow device). Their own
+    collision group touches only the balls (a new ball group), so a block
+    can never be knocked by one or rest on one. A ball that touches one
+    keeps 0.1 of its speed and drops (`MOVER_KEEP`). Not in the path ahead
+    (the dots) or the scene check.
+  - The drawing (`src/ui/topple-scene.js`): the crane's load as a
+    **yellow skip with black and yellow hazard stripes**, four chains to
+    a hook, the cable up out of view. First drawn as a pallet of bricks:
+    in front of a brick and timber structure it read as part of the
+    structure (seen in the first screenshot), so changed before
+    publishing.
+  - The page (`src/ui/topple.js`): with `window.TOPPLE_MOCKUP`, a new game
+    straight into level 2 on Hardest, the mover in every scene;
+    `window.topple.mover(choice)` and `nextScene()` for the mockup's bar.
+    Logged: `mover` (the choice, where, the span, how open), `mover
+    changed`, `ball stopped by the mover` (when, where, how fast), and
+    the ball's touch of it in `ball touched`.
+- **Tests** (`tests/topple-movers.test.js`, 7): defaults for unknown
+  choices and where it crosses; slide's ends, stops and steady middle;
+  swing's cable length, lean and speed; stream's even gaps and one way;
+  the way open 30-95% of the time for every way and pace; in the physics,
+  a straight throw timed to meet the load stops and drops (no block
+  touched or moved) and the same throw with the load at its end hits a
+  block; a load swept through the structure itself wakes no block. **Shown
+  to fail**: with the mover touching everything, the last test fails;
+  with the ball out of the mover's group, the ball test fails ("first
+  touched: block"). `tests/drawing.test.js` counted the places the drawing
+  re-applies its cuts (3); the skip adds one (so a slow device's cuts reach
+  it): now 4. Whole suite: 631 tests, 631 pass. `node tools/offline.js`
+  run (the new module is in the offline list; version 12751f2d1689;
+  release still 10.9).
+- **Checked in the built-in browser** (the page served as the viewer
+  wraps it, by a scratchpad server and a temporary launch.json entry,
+  taken out after): no console errors; the building site on Hardest, the
+  skip moving; a straight throw timed into the skip touched "mover" then
+  the ground, 0 blocks down; the same throw with the skip at its end
+  knocked 11 down; the bar's Change sheet, Swing, Stream and Next scene
+  work; on a 375 px phone the page fits (no sideways scroll), the sheet
+  fits. Not seen: the live artifact (the built-in browser isn't signed
+  in to claude.ai). The files it needs were checked against the page's
+  import closure (27 modules, all published).
+- **Mockup v1**: [Topple! Moving Things](https://claude.ai/artifact/Ewh25ors8MqgL1VasXkUrE)
+  (private, version 1). A bar over the game: what's on (Slide · Medium ·
+  Middle), **Change** (how it moves, speed, height; a change starts the
+  load from the start of its path), **Next scene ▸** (a new structure).
+  The page lives only as the artifact; its game code is this branch's.
+  To change it: read it with the Artifact tool (`read`), edit, publish to
+  the same link with the same `files` (the game's files from the repo).
+- **To look at in the mockup**: which way of moving is most fun and
+  clearest; the pace; the height (middle hides small structures for a
+  moment as it passes, as anything in the way does); whether the skip
+  reads as "don't hit this" rather than a target.
+
+**Status (start here next session)**
+- **Live: 10.9.** `block-game` = `main` plus journal entries, and the
+  mover behind `window.TOPPLE_MOCKUP` (the game unchanged without it). Not
+  published.
+- **From the developer:** try mockup v1 (link above) and say: which way
+  of moving (slide, swing, stream), speed and height; whether the skip
+  reads as a thing not to hit; then Frosty Times' snowman or snowball
+  machine.
+- **Then:** the movers for the five levels, Hardest only, the scene check
+  throwing at several moments; a release to try on the devices.
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
+  part), Q106 (moving things: mockup v1 to try).

@@ -164,7 +164,8 @@ test('drawing: both games watch their frames, start again on a scene or round, l
   }
   const scene = await read('src/ui/topple-scene.js');
   assert.match(scene, /setDrawing\(c\) \{ cuts = \{ \.\.\.c \}; return applyCuts\(three, cuts\); \}/);
-  assert.equal((scene.match(/applyCuts\(three, cuts\);/g) ?? []).length, 3, 'topple-scene: cuts made again on each scene and setting');
+  // (each scene, each setting, and Hardest's thing that moves as it's made: Q106)
+  assert.equal((scene.match(/applyCuts\(three, cuts\);/g) ?? []).length, 4, 'topple-scene: cuts made again on each scene, setting and mover');
   assert.match(await read('src/ui/tin-can-alley-stall.js'), /setDrawing\(c\) \{ return applyCuts\(\{ renderer, scene, sun \}, c\); \}/);
   const watch = await read('src/ui/drawwatch.js');
   assert.match(watch, /say\('drawing lighter', \{/);
