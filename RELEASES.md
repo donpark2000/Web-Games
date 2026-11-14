@@ -7,6 +7,16 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.9 (2026-11-14, version 138e91dcd48f)
+
+Topple!: no block hidden behind the wheelbarrow.
+
+- **Every block shows**: from level 2, each block's front can be seen
+  past the wheelbarrow, the snowy rock, the scrub and the light. On the
+  building site's last scene (the twin towers) the wheelbarrow now
+  stands to one side of the low wall when it would hide a brick (it
+  could look like something lying flat, and be left standing).
+
 ## 10.8 (2026-11-13, version c8e64e475041)
 
 Topple!: a clearer wait while a scene is set up, and the glow on time.

@@ -20,9 +20,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '8459c89f20e3';
-const MADE = '2026-11-13';
-const RELEASE = '10.8';
+const VERSION = '138e91dcd48f';
+const MADE = '2026-11-14';
+const RELEASE = '10.9';
 const FILES = [
   'bridges.html',
   'colour-sudoku.html',
