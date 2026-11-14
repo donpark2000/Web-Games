@@ -139,29 +139,18 @@ time, each tried before publishing:
   smaller ball, no other camera ("hard to see on a small screen as it gets
   farther away"). Open: the miss-player (developer unsure), which moving
   things, and the order.
-- **Q105. Topple!: the glow 26 s late; what glowed behind the
-  wheelbarrow** (2026-11-13, developer, on 10.7, the old tablet): the
-  building site "seems to be the most likely level to have blocks left
-  standing that are hard to see"; "still took a long time (15 seconds or
-  more) before I saw the glowing. And one of the things glowing was behind
-  the wheelbarrow and already seemed to be a long structure flat on the
-  ground. So I have not idea what I was really aiming at." The log:
-  "2026-11-13: The glow 26 s late; the set-up notice (Q104, Q105)". The
-  wait: the glow's count now starts at the latest 3 s after the next ball
-  is ready, and what kept moving is logged. Still open: what the flat
-  thing was (the developer to say: near the front or far back).
-  2026-11-13, developer: "it seemed to be right behind the wheel barrow
-  rather than behind other fallen bits". Published in 10.8 (the wait).
-  **Found** ("Release 10.8 published; what was behind the barrow"): the
-  scene's front-left wall brick, never moved, 1 of 5 points seen past the
-  barrow from the start; the building site's scene 5 (twin towers) starts
-  like this in 15 of 30 games, no other scene of levels 2-5. A fix
-  proposed there (the scene check); to agree.
-  2026-11-13, developer: "Stricter scene check". Built, with the barrow
-  moved aside too (the check alone left no layout that passes: "The
-  barrow moved aside (Q105)"); on `block-game`, for 10.9: to try.
-  2026-11-14, developer: 10.8 "All good" (the glow's wait). Open for the
-  barrow aside (10.9).
+  2026-11-14, developer: no miss-player; moving things in the way (kind
+  a). Later the same day: **moving things before spreading out**
+  ("spreading things out ... test[s] aiming"; moving ones add timing),
+  with a mockup first: Q106.
+- **Q106. Topple! Hardest: moving things in the way: what moves, and
+  how** (2026-11-14, developer: "I like the idea of moving obstacles
+  better than just spreading things out. All spreading things out does
+  is test aiming. The moving obstacles introduces a timing element to
+  game play. It is probably worth a mock up before building hard
+  versions of 25 scenes. And we need to discuss what is moving and how
+  it is moving"). Claude's options and picks in "Hardest: moving things
+  first, a mockup first (Q106)"; to discuss, then a mockup.
 
 ## Proposed additions to the standards skill
 
@@ -282,6 +271,33 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q105. Topple!: the glow 26 s late; what glowed behind the
+  wheelbarrow** (2026-11-13, developer, on 10.7, the old tablet): the
+  building site "seems to be the most likely level to have blocks left
+  standing that are hard to see"; "still took a long time (15 seconds or
+  more) before I saw the glowing. And one of the things glowing was behind
+  the wheelbarrow and already seemed to be a long structure flat on the
+  ground. So I have not idea what I was really aiming at." The log:
+  "2026-11-13: The glow 26 s late; the set-up notice (Q104, Q105)". The
+  wait: the glow's count now starts at the latest 3 s after the next ball
+  is ready, and what kept moving is logged. Still open: what the flat
+  thing was (the developer to say: near the front or far back).
+  2026-11-13, developer: "it seemed to be right behind the wheel barrow
+  rather than behind other fallen bits". Published in 10.8 (the wait).
+  **Found** ("Release 10.8 published; what was behind the barrow"): the
+  scene's front-left wall brick, never moved, 1 of 5 points seen past the
+  barrow from the start; the building site's scene 5 (twin towers) starts
+  like this in 15 of 30 games, no other scene of levels 2-5. A fix
+  proposed there (the scene check); to agree.
+  2026-11-13, developer: "Stricter scene check". Built, with the barrow
+  moved aside too (the check alone left no layout that passes: "The
+  barrow moved aside (Q105)"); on `block-game`, for 10.9: to try.
+  2026-11-14, developer: 10.8 "All good" (the glow's wait).
+  2026-11-14, developer, on 10.9: "The last scene in building site still
+  has the wheel barrow. The visibility of the object on the ground behind
+  the barrow is better and I was able to hit it. It was hard. But not
+  impossible. So I would leave it as is for now." **Closed**: 10.9 as it
+  is ("Hardest: moving things first, a mockup first (Q106)").
 - **Q103. Frosty Times: a block knocked where it can't be hit**
   (2026-11-13, developer, the old tablet): a last cube knocked so far
   right it was off the screen upright (seen sideways, hit, but "I could
@@ -20750,3 +20766,69 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
   Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
   part), Q105 (the barrow aside, live, to try).
+
+## 2026-11-14: Hardest: moving things first, a mockup first (Q106)
+
+- **The developer, on 10.9** (Q105): "The last scene in building site
+  still has the wheel barrow. The visibility of the object on the ground
+  behind the barrow is better and I was able to hit it. It was hard. But
+  not impossible. So I would leave it as is for now." **Q105 closed**, 10.9
+  as it is.
+- **The order changed** (Q98): "I like the idea of moving obstacles
+  better than just spreading things out. All spreading things out does is
+  test aiming. The moving obstacles introduces a timing element to game
+  play. It is probably worth a mock up before building hard versions of
+  25 scenes. And we need to discuss what is moving and how it is moving."
+  So: moving things in the way first, discussed, then a mockup; spreading
+  out later or not at all. This replaces the morning's "spread out
+  first" (Claude's pick, agreed then).
+- **Facts that shape it** (`src/core/topple.js`): the dots show 0.3 s of
+  flight, about half the way to the structure, so a straight throw takes
+  about 0.6 s to get there (a lob longer); the dots stop where the ball
+  would touch something. The scene check scans straight throws from the
+  front. The animals are decor, out of the ball's way.
+- **Claude's options and picks (Q106), to discuss:**
+  - **What moves**, one thing per level, from its setting; never an
+    animal (they stay out of play: a child shouldn't aim at one):
+    1 the park: a **tyre swing** on a frame; 2 the building site: the
+    **crane's load** (a pallet of bricks on its hook), carried across and
+    back; 3 Frosty Times: a **chairlift**, its chairs passing one way with
+    gaps; 4 Cactus Canyon: a **mine cart** on rails, across and back;
+    5 Star Light: a glowing **paper lantern** drifting across and back,
+    bobbing.
+  - **How it moves**, three ways: **slide** (across and back at a steady
+    speed, a short stop at each end: the load, the cart, the lantern);
+    **swing** (a pendulum: fast in the middle, slow at the ends: the
+    tyre); **stream** (one way, one after another with gaps: the
+    chairlift). Pick: slide as the main one (steady is easiest to time;
+    the developer in Q96: "smooth and predictable timing"); the mockup to
+    show all three.
+  - **Where and how fast**: about half way between the slingshot and the
+    structure, across the throw's line; the way open about half the
+    time; a crossing in 3-4 s, so the throw goes as the way starts to
+    clear, not into the gap. Its height to see in the mockup (low, it's
+    lobbed over; high, it's thrown under).
+  - **A hit**: the ball stops and drops (a clonk), the ball used; the
+    thing keeps going, never knocked; it never touches the blocks.
+  - **The dots ignore it** (they show where the ball goes if it gets
+    past: the timing is the player's). The other way, dots that stop at
+    it where it is now, would flicker as it passes.
+  - **Hardest only**, in every scene, with the still things; moving from
+    the scene's start, on the physics' clock (the same pace on the old
+    tablet); the scene check throws at several moments, so every block
+    can still be hit when the way is open.
+  - **The mockup**: the building site's crane load in one Hardest scene,
+    throwable as in the game, a tab each for slide, swing and stream and
+    a choice of speeds; the other levels' things once the way of moving
+    is agreed.
+
+**Status (start here next session)**
+- **Live: 10.9.** `block-game` = `main` plus journal entries. Nothing
+  waiting to publish. The testing folder is empty.
+- **From the developer (Q106):** (1) what moves in each level: Claude's
+  list, or other ideas? (2) the mockup to show slide, swing and stream?
+  (3) the dots ignoring the moving thing: OK?
+- **Then:** the moving-things mockup (the building site first).
+- **Open questions:** Q64, Q73, Q74 (parked), Q78, Q79, Q81, Q87, Q88,
+  Q90, Q91, Q92, Q93, Q94, Q95, Q96, Q97, Q98 (the approach agreed in
+  part), Q106 (moving things: to discuss).

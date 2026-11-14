@@ -2490,10 +2490,14 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   harder scenes, not other controls). Kept with the game on the
   device; changed any time, the levels and places as they are; Start
   again and Start over keep it. The pad's show is the same in all three.
-  Later, for Harder and Hardest (to discuss): a smaller ball, wider gaps,
-  another camera; things that move; things not to hit (a hit loses the
+  Next for Hardest: **things that move in the way** (developer,
+  2026-11-14: "The moving obstacles introduces a timing element"; a
+  mockup first, what moves and how to discuss: journal Q106), before
+  spreading a scene out ("All spreading things out does is test
+  aiming"). Later, to discuss: things not to hit (a hit loses the
   scene, a ❤️; how they show it, Q97). Not wanted: fewer balls (scenes
-  must stay winnable), wind.
+  must stay winnable), wind, a smaller ball or another camera (developer,
+  2026-11-14: "hard to see on a small screen as it gets farther away").
 - **The drag pad** (developer, 2026-11-10, Q67: a finger that starts on
   the ball covers the dots; "The drag pad idea helps a lot"; a concept
   to "anchor" play across levels, whatever they throw): a round pad with
