@@ -22378,3 +22378,55 @@ anything to show it (the dots are the developer's choice per How hard).
   shader failed. If it does not happen on 10.16 the tablet's kept drawing
   level (per release) is a condition. If the ice material is the cause: ice
   drawn opaque on the lighter drawing steps (or everywhere) is the idea.
+
+## 2026-11-15: Q109: the second log; the drawing level is the pattern; 10.17
+
+- **The log** (`web-games-log_2026-11-15T18-20-55.txt`, read from OneDrive;
+  the file was gone from the folder by the time I went back to it, so
+  these are the lines I read): sessions of the tablet (10.14 offline,
+  961x529 sideways, one upright turn) from the developer's returning on
+  2026-11-15 morning:
+  - 10:48, Hardest, level 3 scene 1: drawing **"as drawn"** when the
+    Frosty setting was made (kept level reset by 10.14: "measured again"),
+    stepping to "light" 34 s in. **Worked** (the developer: it drew the
+    blocks as normal).
+  - 10:55, Hardest, drawing "light" kept, then "lightest" at +715 s, level
+    3 entered at +950 s (scene 2 `iceSpreadMix`, then "Level 3 from scene
+    1", `iceGate`, no throw in 25 s): the developer started the level
+    again at once (not stated why); the developer's later account: "did
+    not happen in Hardest".
+  - 11:12, **Harder** (changed on the setup screen), a fresh page: drawing
+    **"lightest" kept from the start** (applied when the stage was made),
+    Frosty Times' first scene `iceGate` (5 blocks, the same layout seed
+    162265297 as the Hardest one above): **no blocks** (the blocks seen only
+    while they glow), through Try again, a trip to level 4 and back, a
+    turn sideways and back, to the end of the page's visit. After it, the
+    developer chose Normal and then Harder again: both **looked fine**.
+- **The pattern:** in every case the blocks were invisible, the tablet
+  was drawing at **"lightest"** (no shadows, no sky light, plain surfaces,
+  0.75 pixels); when it was "as drawn" or "light" they showed. The
+  night's missing snowflake (an opaque, plain material) and ice (transparent)
+  fit one cause that is not the transparency. In Harder and Hardest the first
+  scene has the same layout, so the mode is not itself the cause.
+  **Not explained:** why my computer draws "lightest" fine, why the
+  one visit that looked fine after Normal did (a fresh page that was not at
+  "lightest"? the level kept for the device is written only when it
+  steps, and a step to "lightest" is written; if the tablet's step-down
+  keeps differing, that would do it); and what about the ice and the
+  snowflake and not the rock and the trees (both of these were made at
+  level 3's first scene, the rock and trees are shaders used on earlier
+  levels' scenes).
+- **Built (10.17):** \`?drawing=lightest\` (or \`light\`, \`asdrawn\`, 0-2) in the
+  page's address draws at that level for the visit, not kept, never stepped
+  further (\`levelFromParam\` in \`src/core/drawing.js\`, \`drawWatch\`); the
+  log's \`drawing\` line says \`asked\`. Checked here: the level applied and
+  nothing written to the device (my computer still draws the blocks).
+- **What to ask the developer (the tablet):** load 10.17, open
+  \`https://donpark2000.github.io/Web-Games/topple.html?drawing=lightest\`
+  in the browser, Harder (or any), Frosty Times' first scene: do the blocks
+  show? Then \`?drawing=light\`. Save the log when they do not (the log's
+  \`blocks drawn\` and a \`shader error\` line will say why).
+- **If it is the "lightest" cuts on that chip:** options (not built): draw
+  ice and the snowflake with a simpler material at "lightest"; keep the
+  basic shadows at "lightest" (shadows were 60% of the frame on the 2019
+  tablet, journal Q99); or split "lightest" into two cuts and find which.

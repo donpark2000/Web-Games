@@ -77,6 +77,17 @@ export function keptLevel(raw, game, release) {
   if (!k || k.release !== release) return 0;
   return clampLevel(k.level);
 }
+// A level asked for in the page's address (?drawing=lightest, ?drawing=2,
+// ?drawing=light, ?drawing=asdrawn), to try a device at a level on purpose
+// (Q109: the blocks went missing on the tablet at "lightest"): its number, or
+// null for no such level or none asked.
+export function levelFromParam(text) {
+  if (typeof text !== 'string' || !text) return null;
+  const t = text.trim().toLowerCase();
+  if (/^[0-9]$/.test(t)) return Number(t) < LEVELS.length ? Number(t) : null;
+  const i = LEVELS.map(l => l.name.replace(/\s/g, '')).indexOf(t.replace(/[\s_-]/g, ''));
+  return i >= 0 ? i : null;
+}
 // The value to keep once `game` is at `level`.
 export function keepLevel(raw, game, level, release) {
   const out = raw && typeof raw === 'object' && !Array.isArray(raw) ? { ...raw } : {};

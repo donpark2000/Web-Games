@@ -173,3 +173,18 @@ test('drawing: both games watch their frames, start again on a scene or round, l
   // the speed test makes its cuts the same way
   assert.match(await read('src/ui/speedtest.js'), /applyCuts\(stage\.three, cut\);/);
 });
+
+test('drawing: a level asked for in the address (?drawing=...): by name or number, anything else none (Q109)', async () => {
+  const { levelFromParam } = await import('../src/core/drawing.js');
+  assert.equal(levelFromParam('asdrawn'), 0); assert.equal(levelFromParam('as drawn'), 0); assert.equal(levelFromParam('As-Drawn'), 0);
+  assert.equal(levelFromParam('light'), 1); assert.equal(levelFromParam('Light'), 1);
+  assert.equal(levelFromParam('lightest'), 2); assert.equal(levelFromParam(' LIGHTEST '), 2);
+  assert.equal(levelFromParam('0'), 0); assert.equal(levelFromParam('1'), 1); assert.equal(levelFromParam('2'), 2);
+  for (const junk of [null, undefined, '', '3', '-1', '12', 'lighter', 'heavy', 2, {}]) assert.equal(levelFromParam(junk), null, String(junk));
+  // the watcher: the page keeps the asked level, writes nothing to the device, and says so in the log
+  const watch = await readFile(path.join(root, 'src/ui/drawwatch.js'), 'utf8');
+  assert.match(watch, /asked = levelFromParam\(new URLSearchParams\(window\.location\.search\)\.get\('drawing'\)\)/);
+  assert.match(watch, /const raw = read\(\), level = asked \?\? keptLevel\(raw, game, RELEASE\)/);
+  assert.match(watch, /if \(!s \|\| asked !== null\) return;/);
+  assert.match(watch, /\.\.\.\(asked !== null \? \{ asked: true \} : \{\}\)/);
+});

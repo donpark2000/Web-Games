@@ -7,6 +7,18 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.17 (2026-11-15, version b54153c55a75)
+
+Topple!: the page's address can ask for a drawing level, to try a device
+on purpose.
+
+- **For finding a bug**: the tablet that showed no blocks was drawing at
+  its "lightest" level. Opening `topple.html?drawing=lightest` (or
+  `light`, or `asdrawn`) draws at that level for that visit, as the
+  tablet's slow-device step-down would, whatever the tablet has kept. It
+  is not kept, and the game never steps it lighter. The log says so.
+- Nothing changes without it.
+
 ## 10.16 (2026-11-15, version 093912c3851c)
 
 Topple!: the log now also says when the graphics chip can't build part of
