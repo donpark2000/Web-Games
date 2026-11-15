@@ -7,7 +7,6 @@
 .logbtns.speed { grid-template-columns: 1fr; }
 .drawlevel { margin: 10px 0; }
 .drawsay { margin: 0 0 6px; font-size: 15px; }
-.logbtns.three { grid-template-columns: repeat(3, 1fr); }
 .drawlevel .pill[aria-pressed="true"] { background: var(--ink); color: #FFF; }
 /* The speed test (Q99): its canvas over the whole page while it runs. */
 .speedbox { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; background: #000; }

@@ -193,13 +193,13 @@ test('drawing: the log page sets the level the 3D games start at, in the install
   const page = await readFile(path.join(root, 'log.html'), 'utf8');
   const js = await readFile(path.join(root, 'src/ui/logpage.js'), 'utf8');
   const css = await readFile(path.join(root, 'css/log.css'), 'utf8');
-  assert.match(page, /<p class="drawsay" id="drawSay"><\/p>\s*<div class="logbtns three" id="drawBtns"><\/div>/);
+  assert.match(page, /<p class="drawsay" id="drawSay"><\/p>\s*<div class="logbtns" id="drawBtns"><\/div>/);
   assert.match(js, /import \{ LEVELS, KEY as DRAW_KEY, keptLevel, keepLevel \} from '\.\.\/core\/drawing\.js';/);
   assert.match(js, /const GAMES = \['topple', 'tin-can-alley'\];/);
   assert.match(js, /for \(const g of GAMES\) out = keepLevel\(out, g, i, RELEASE\);/, 'kept for this release, as the step-down keeps it');
   assert.match(js, /log\.add\('draw', 'drawing level set by hand'/);
   assert.match(js, /setAttribute\('aria-pressed', String\(levels\.every\(v => v === i\)\)\)/);
-  assert.match(css, /\.logbtns\.three \{ grid-template-columns: repeat\(3, 1fr\); \}/);
+  assert.match(css, /\.logbtns \{ display: grid; grid-template-columns: repeat\(3, 1fr\);/, 'three buttons across: the log buttons own grid');
   // every level on offer is one the games know, in order
   assert.deepEqual(LEVELS.map(l => l.name), ['as drawn', 'light', 'lightest']);
   // what it writes, the games read back: a level for this release, none for another

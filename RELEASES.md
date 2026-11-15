@@ -7,7 +7,7 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
-## 10.18 (2026-11-15, version 15f5b2c361fd)
+## 10.18 (2026-11-15, version 26ac120bc852)
 
 The log page can set the drawing level of the 3D games, for trying a
 device on purpose.
