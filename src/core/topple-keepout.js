@@ -20,9 +20,9 @@
 export const KEEP_SCENES = [2, 4];
 export const KEEP_MODES = ['hardest'];
 
-// By level: Park, Building site, Frosty Times (Cactus Canyon and Star Light
-// follow their Hardest). `the` is the words the notice and the card use.
-export const KEEP = { 1: 'nest', 2: 'pane', 3: 'lantern', 4: 'pot' };
+// By level: Park, Building site, Frosty Times, Cactus Canyon, Star Light.
+// `the` is the words the notice and the card use.
+export const KEEP = { 1: 'nest', 2: 'pane', 3: 'lantern', 4: 'pot', 5: 'telescope' };
 export const THINGS = {
   // a bird's nest with eggs on a tree stump: it tumbles
   nest: { name: 'bird\'s nest', the: 'the bird\'s nest', w: 0.7, h: 0.62, d: 0.7, reacts: 'tumbles' },
@@ -32,6 +32,10 @@ export const THINGS = {
   lantern: { name: 'lantern', the: 'the lantern', w: 0.5, h: 0.95, d: 0.5, reacts: 'shatters' },
   // a clay pot with a red flower (Cactus Canyon, session 4): it shatters in clay shards
   pot: { name: 'clay pot', the: 'the clay pot', w: 0.6, h: 0.7, d: 0.6, reacts: 'shatters' },
+  // a brass telescope on a tripod (Star Light, session 5): dark, so it is not taken for a glowing block; the tube is knocked off and the lens pops
+  // (1.0 x 0.7 m at first: in the way of too many throws, 2.4 layouts a spread scene, up to 11, 2.4 s a scene here;
+  // 0.8 x 0.5: 1.2 layouts, at most 3, 1.5 s: measured 2026-11-15 over 60 scenes of 30 games)
+  telescope: { name: 'telescope', the: 'the telescope', w: 0.5, h: 0.8, d: 0.45, reacts: 'tumbles' },
 };
 export const KEEP_THINGS = Object.keys(THINGS);
 
@@ -42,7 +46,7 @@ export const keepFor = (mode, level, scene) => (KEEP_MODES.includes(mode) && KEE
 // with its picture, as the developer agreed: "Don't hit the nest!").
 export const keepLine = thing => (THINGS[thing] ? `Don't hit ${THINGS[thing].the}!` : null);
 // The picture beside it: the thing's emoji
-export const KEEP_EMOJI = { nest: '🐦', pane: '🖼️', lantern: '🏮', pot: '🌺' };
+export const KEEP_EMOJI = { nest: '🐦', pane: '🖼️', lantern: '🏮', pot: '🌺', telescope: '🔭' };
 
 // A thing placed: { thing, x, z } (world m, its base's middle on the ground).
 // Its physics ({ kind, thing, shapes }), what's drawn ({ part, ... }) and the

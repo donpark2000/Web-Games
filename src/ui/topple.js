@@ -699,8 +699,9 @@ const SOFT_SOUND = { barrow: 'crunch', rock: 'clonk' };
 // the park's movers (Q106): the tyre's rubber and the bucket seat a thud, the kite a rustle;
 // Frosty Times': the snowman and a snowball a soft poof, the snowflake an icy clink
 // Cactus Canyon's: a tumbleweed a dry rustle, the cart's iron a clonk, the vulture a soft thud
-const MOVER_SOUND = { tyre: 'thud', zip: 'thud', kite: 'rustle', snowman: 'poof', snowball: 'poof', flake: 'iceknock', tumbleweed: 'rustle', cart: 'clonk', vulture: 'thud' };
-const THROUGH = { tyre: 'ball through the tyre', flake: 'ball through the snowflake', tumbleweed: 'ball through the tumbleweed' };
+const MOVER_SOUND = { tyre: 'thud', zip: 'thud', kite: 'rustle', snowman: 'poof', snowball: 'poof', flake: 'iceknock', tumbleweed: 'rustle', cart: 'clonk', vulture: 'thud', sled: 'thud', paperLantern: 'rustle', star: 'chime' };
+const THROUGH = { tyre: 'ball through the tyre', flake: 'ball through the snowflake', tumbleweed: 'ball through the tumbleweed', star: 'ball through the star' };
+// (Star Light's: the sled a thud, the paper lantern a rustle, the star a crystal chime)
 function onHit({ a, b, v, y, ball, other, mat, thing, offM }) {
   const now = performance.now(), vs = v / Math.sqrt(SCALE);
   // Hardest's thing not to hit (Q97): the scene is lost, the ball turns into a heart

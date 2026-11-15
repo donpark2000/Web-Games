@@ -580,9 +580,85 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     });
     Object.assign(g.userData, { vulture: true, wings, lastY: null });
   }
+  // Star Light's (Q110, session 5), drawn round the physics' shapes:
+  // - the sled: a red wooden sleigh on two steel runners that curl up at
+  //   both ends (so it has no front, and slides either way), a fir tree and
+  //   two sacks lashed in it, filling the physics' box (nothing alive in it);
+  // - the paper lantern: a red paper lantern with ribs and gold caps and a
+  //   tassel, glowing from inside, on a chain up out of sight;
+  // - the falling star: five points (a gold face over a darker edge), a long
+  //   glowing tail behind it (drawn only; it points the way the star goes),
+  //   breaking up in gold sparkles where it lands.
+  const sledRed = new THREE.MeshStandardMaterial({ color: '#8E2A2A', roughness: 0.7 });
+  const sledGold = new THREE.MeshStandardMaterial({ color: '#C9A24A', roughness: 0.5, metalness: 0.4 });
+  const steelMat = new THREE.MeshStandardMaterial({ color: '#B9C0C8', roughness: 0.3, metalness: 0.8 });
+  const firMat = new THREE.MeshStandardMaterial({ color: '#2F6B3F', roughness: 0.9, flatShading: true });
+  const sackMat = new THREE.MeshStandardMaterial({ color: '#B59A66', roughness: 1 });
+  const lanternPaper = new THREE.MeshStandardMaterial({ color: '#D8362B', emissive: '#FF4B2B', emissiveIntensity: 0.75, roughness: 0.6 });
+  const lanternGold = new THREE.MeshStandardMaterial({ color: '#D9AE4B', roughness: 0.4, metalness: 0.5 });
+  const starFace = new THREE.MeshStandardMaterial({ color: '#FFF1B8', emissive: '#FFD54A', emissiveIntensity: 0.95, roughness: 0.4 });
+  const starEdge = new THREE.MeshStandardMaterial({ color: '#E8A91C', emissive: '#E8A91C', emissiveIntensity: 0.5, roughness: 0.5 });
+  const tailTex = canvasTex(128, 32, (g, w, h) => {
+    const gr = g.createLinearGradient(0, 0, w, 0);
+    gr.addColorStop(0, 'rgba(255,238,170,1)'); gr.addColorStop(0.35, 'rgba(255,214,90,0.55)'); gr.addColorStop(1, 'rgba(255,190,60,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    // fade the sides too: a streak, not a band
+    g.globalCompositeOperation = 'destination-in';
+    const v = g.createLinearGradient(0, 0, 0, h);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(0.5, 'rgba(0,0,0,1)'); v.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = v; g.fillRect(0, 0, w, h);
+  });
+  const tailGeo = new THREE.PlaneGeometry(1, 1); tailGeo.translate(0.5, 0, 0);
+  const tailMat = new THREE.MeshBasicMaterial({ map: tailTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+  function sled(g, m) {
+    // heights are over the snow (Y: from the box's middle); the physics' boxes are the body (to 0.55 m), a board curling up
+    // at each end (to 0.9 m) and the tree's three tiers (to 1.3 m): what a ball touches is what is drawn
+    const { w, h, d } = m.load, Y = v => v - h / 2;
+    for (const sz of [-1, 1]) {
+      // a runner: a long bar, an upturned end each side
+      g.add(part(w * 0.82, 0.07, 0.07, steelMat, 0, Y(0.05), sz * d * 0.34));
+      for (const sx of [-1, 1]) { const up = part(0.3, 0.07, 0.07, steelMat, sx * (w * 0.41 + 0.12), Y(0.12), sz * d * 0.34); up.rotation.z = sx * 0.5; g.add(up); }
+      for (const sx of [-0.28, 0.28]) g.add(part(0.06, 0.14, 0.06, sledGold, sx * w, Y(0.13), sz * d * 0.34));
+    }
+    // the body: a floor, sides to 0.55 m and a board swept up at each end (to 0.9 m) with a gold curl on top
+    g.add(part(w * 0.86, 0.07, d * 0.8, sledRed, 0, Y(0.2), 0));
+    for (const sz of [-1, 1]) g.add(part(w * 0.86, 0.35, 0.05, sledRed, 0, Y(0.375), sz * d * 0.4));
+    for (const sx of [-1, 1]) {
+      const end = part(0.07, 0.7, d * 0.8, sledRed, sx * w * 0.45, Y(0.55), 0); end.rotation.z = -sx * 0.1; g.add(end);
+      const curl = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.035, 8, 14, Math.PI * 1.4), sledGold); curl.rotation.z = sx > 0 ? 1.1 : Math.PI + 0.64 - Math.PI * 0.1; curl.position.set(sx * (w * 0.45 + 0.04), Y(0.92), 0); g.add(curl);
+      g.add(part(0.06, 0.05, d * 0.8, sledGold, sx * w * 0.43, Y(0.5), 0));
+    }
+    // a fir tree (three tiers of cones, up to 1.3 m) lashed on in the middle, a sack at each end of the body
+    for (const [r, hh, base] of [[0.44, 0.5, 0.5], [0.32, 0.45, 0.75], [0.2, 0.32, 0.98]]) { const c = new THREE.Mesh(new THREE.ConeGeometry(r, hh, 8), firMat); c.position.set(0, Y(base + hh / 2), 0); g.add(c); }
+    g.add(part(0.07, 0.2, 0.07, stickMat, 0, Y(0.55), 0));
+    for (const [x, z] of [[-0.5, 0.1], [0.5, -0.1]]) { const s = ball(0.18, sackMat, x, Y(0.4), z, 12); s.scale.y = 1.05; g.add(s); }
+    const rope = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.012, 6, 18), ropeMat); rope.position.set(0, Y(0.68), 0); rope.rotation.x = Math.PI / 2; g.add(rope);
+  }
+  function paperLantern(g, m) {
+    const { w, h } = m.load, R = w / 2;
+    const body = ball(1, lanternPaper, 0, 0, 0, 24); body.scale.set(R, h * 0.36, R); g.add(body);
+    // ribs: rings round it, narrowing towards the caps
+    for (const k of [-0.6, -0.3, 0, 0.3, 0.6]) { const r = R * Math.sqrt(1 - k * k) * 1.01, rib = new THREE.Mesh(new THREE.TorusGeometry(r, 0.012, 6, 28), lanternGold); rib.rotation.x = Math.PI / 2; rib.position.y = k * h * 0.36; g.add(rib); }
+    for (const s of [-1, 1]) { const cap = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.38, R * 0.3, 0.1, 18), lanternGold); cap.position.y = s * (h * 0.36 + 0.02); g.add(cap); }
+    // the tassel under it, a ring and the chain above up out of sight (the swing's pivot)
+    const tassel = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.28, 8), lanternPaper); tassel.rotation.x = Math.PI; tassel.position.y = -h / 2 + 0.1; g.add(tassel);
+    const L = CABLE_TOP - m.y - h / 2;
+    const chain = rod(0.02, L, chainMat); chain.position.y = h / 2 + L / 2 - 0.05; g.add(chain);
+    g.userData.lantern = true;
+  }
+  function fallingStar(g, m) {
+    const R = m.load.w / 2 - 0.03, pts = [];
+    for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? R * 0.42 : R; pts.push(new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r)); }
+    const shape = new THREE.Shape(pts);
+    const face = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.05, bevelEnabled: false }), starFace); face.position.z = -0.01; g.add(face);
+    const edge = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.03, bevelEnabled: false }), starEdge); edge.scale.setScalar(1.12); edge.position.z = -0.06; g.add(edge);
+    // the tail: a glowing streak from the star's middle back the way it came (turned each frame to point behind its motion)
+    const tail = new THREE.Mesh(tailGeo, tailMat); tail.scale.set(2.3, 0.55, 1); tail.position.z = -0.08; tail.renderOrder = 5; g.add(tail);
+    Object.assign(g.userData, { star: true, tail, lastX: null, lastY: null, ang: Math.PI / 2 });
+  }
   // Puffs of snow (a snowball burst, or come down) and sparkles (the snowflake breaking up): little bits flying out and fading
   const puffGeo = new THREE.IcosahedronGeometry(1, 0);
-  const puffMats = { snow: new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.9, depthWrite: false }), sparkle: new THREE.MeshBasicMaterial({ color: '#CDEFFF', transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }) };
+  const puffMats = { snow: new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.9, depthWrite: false }), sparkle: new THREE.MeshBasicMaterial({ color: '#CDEFFF', transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }), gold: new THREE.MeshBasicMaterial({ color: '#FFD76A', transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }) };
   let puffs = [];
   function puff(kind, at, n = 26, size = 0.08) {
     const rand = rng((Math.abs(Math.round(at[0] * 997 + at[1] * 131 + at[2] * 17)) >>> 0) || 1);
@@ -627,7 +703,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   const KITE_HAND = new THREE.Vector3(7, 1.3, 2.5);
   let moverStatic = [];   // the zip line's cable, the kite's string, the snowball machine, a knocked-off hat: not on a body
   let lastT = null;       // syncMovers' last time (s): the puffs' and the hat's steps
-  const OWN = { tyre, zip: zipSeat, kite, snowman, snowball, flake: snowflake, tumbleweed, cart, vulture };
+  const OWN = { tyre, zip: zipSeat, kite, snowman, snowball, flake: snowflake, tumbleweed, cart, vulture, sled, paperLantern, star: fallingStar };
   function loadMesh(m, i = 0) {
     if (OWN[m.look]) {
       const g = new THREE.Group();
@@ -713,6 +789,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
         if (hidden && g.visible && dt > 0) {
           if (u0.snowball) puff('snow', [was.x, was.y, was.z], b.burst ? 30 : 18, b.burst ? 0.09 : 0.06);
           if (u0.flake) puff('sparkle', [was.x, was.y, was.z], 34, 0.05);
+          if (u0.star) puff('gold', [was.x, was.y, was.z], 40, 0.055);
         }
         g.visible = !hidden;
         g.position.set(b.position.x, b.position.y, b.position.z);
@@ -736,6 +813,15 @@ export function makePark3d(canvas, { antialias = true } = {}) {
           u0.lastY = b.position.y;
           const ang = vy < -2.5 ? 1.25 : 0.15 + 0.55 * Math.sin(t * 13);
           u0.wings.forEach((wg, k) => { wg.rotation.z = (k ? 1 : -1) * ang; });
+        }
+        // the star's tail streams out behind it, the way it is going (drawn only); twinkling as it falls
+        if (u0.star) {
+          const vx = dt > 0 && u0.lastX != null ? (b.position.x - u0.lastX) / dt : 0, vy = dt > 0 && u0.lastY != null ? (b.position.y - u0.lastY) / dt : 0;
+          u0.lastX = b.position.x; u0.lastY = b.position.y;
+          if (Math.hypot(vx, vy) > 0.3) u0.ang = Math.atan2(-vy, -vx);
+          u0.tail.rotation.z = u0.ang;
+          const tw = 1 + 0.06 * Math.sin(t * 17);
+          u0.tail.scale.set(2.3 * tw, 0.55, 1);
         }
         // the snowflake rocks a little as it falls (drawn only: the physics keeps its arms face on)
         if (u0.flake) g.rotateY(0.28 * Math.sin(1.9 * t));

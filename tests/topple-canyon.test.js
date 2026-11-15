@@ -55,7 +55,7 @@ const corners = s => [-1, 1].flatMap(sx => [-1, 1].map(sy => {
 const DEALS_1018 = '4e54074c5dc0f685bc2b27472c7826710cd60120';
 test('canyon: Hardest\'s deal: the tumbleweeds stream, the cart slides, the vulture dives, each once in scenes 1, 3, 5; 2 and 4 spread out; levels 1-3 dealt as before', () => {
   assert.deepEqual(CANYON, { slide: 'cart', stream: 'tumbleweed', drop: 'vulture' });
-  assert.deepEqual(MOVER_LEVELS, [1, 2, 3, 4]);
+  assert.deepEqual(MOVER_LEVELS, [1, 2, 3, 4, 5]);
   const spread = LEVELS[3].spread, seen = new Map(), orders = new Set();
   const tally = k => seen.set(k, (seen.get(k) || 0) + 1);
   assert.deepEqual(spread, ['canyonSpreadPosts', 'canyonSpreadTrestles', 'canyonSpreadMix']);
@@ -80,7 +80,7 @@ test('canyon: Hardest\'s deal: the tumbleweeds stream, the cart slides, the vult
   assert.deepEqual(PARK, { swing: 'tyre', slide: 'zip', drop: 'kite' });
   assert.deepEqual(FROSTY, { slide: 'snowman', stream: 'snowball', fall: 'flake' });
   assert.deepEqual(WAYS, [...MOVES, 'fall']);
-  assert.equal(hardestDeal(5, 5), null, 'Star Light: none yet');
+  assert.equal(hardestDeal(5, 6), null, 'no level 6');
 });
 
 test('canyon: the spread-out structures: small pieces well apart, each on the sand, a small barrel on each post, trestle or beam', () => {
@@ -328,12 +328,12 @@ test('canyon: the page: each thing\'s sound, a ball through the tumbleweed logge
   const { readFile } = await import('node:fs/promises');
   const read = f => readFile(new URL(`../${f}`, import.meta.url), 'utf8');
   const page = await read('src/ui/topple.js'), scene = await read('src/ui/topple-scene.js'), keep = await read('src/ui/topple-keepout.js'), core = await read('src/core/topple.js');
-  assert.match(page, /tumbleweed: 'rustle', cart: 'clonk', vulture: 'thud' \};/);
-  assert.match(page, /tumbleweed: 'ball through the tumbleweed' \};/);
-  assert.match(scene, /const OWN = \{ tyre, zip: zipSeat, kite, snowman, snowball, flake: snowflake, tumbleweed, cart, vulture \};/);
+  assert.match(page, /tumbleweed: 'rustle', cart: 'clonk', vulture: 'thud'/);
+  assert.match(page, /tumbleweed: 'ball through the tumbleweed'/);
+  assert.match(scene, /const OWN = \{ tyre, zip: zipSeat, kite, snowman, snowball, flake: snowflake, tumbleweed, cart, vulture/);
   assert.match(scene, /if \(m\.look === 'cart'\) \{\s*\/\/ the rails across its way/);
   assert.match(scene, /u0\.wings\.forEach\(\(wg, k\) => \{ wg\.rotation\.z = \(k \? 1 : -1\) \* ang; \}\);/, 'the vulture flaps, folds up in the dive');
   assert.match(scene, /for \(const wh of u0\.wheels\) wh\.rotation\.z -= vx \* dt \/ \(0\.19 \* u0\.k\);/, 'the cart\'s wheels turn as it goes');
-  assert.match(keep, /const BUILD = \{ nest, pane, lantern, pot \};/);
-  assert.match(core, /moving things in levels 1 to 4/);
+  assert.match(keep, /const BUILD = \{ nest, pane, lantern, pot, telescope \};/);
+  assert.match(core, /moving things in levels 1 to 5/);
 });

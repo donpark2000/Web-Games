@@ -156,6 +156,57 @@ const flake = (R, d) => {
 //   away out of sight.
 export const TUMBLE_R = 0.65, TUMBLE_D = 0.35, TUMBLE_N = 16;
 const tumbleSpokes = (R, d) => [0, 1, 2, 3].map(k => ({ half: [R - 0.03, 0.03, d / 2], at: [0, 0, 0], rot: k * Math.PI / 4 }));
+// Star Light's (session 5; developer, 2026-11-15, of Claude's proposals:
+// "I like it all except for the owl. I don't want to be hitting a creature
+// with the balls. Something inanimate but moving. It could be a tumbleweed or
+// maybe a sled going by"). Measured the same day over 12 scenes (13,395
+// straight throws that hit a block): they pass the mover's depth 0.90-1.65 m
+// up, so the sled stands 1.3 m tall (see SLED_H) and the lantern 1.2 m. Sizes at Far:
+// - the paper lantern: 0.9 m across and 1.2 m tall, swing, hung from out of
+//   sight (CABLE_TOP) on a chain like the tyre; one box to the physics;
+// - the sled: 1.7 m long and 1.3 m tall (2.0 m long at first: at its nearest
+//   depth, 0.4 of the way, 43% of the view's width; 1.7 m, 36%), slide, on the snow as the cart and
+//   the snowman are (the low and middle throws, not the lobs), its ends short
+//   of a thing; empty of anything alive: a sleigh with a curled end each
+//   side (so it needs no front) and sacks and logs on it;
+// - the falling star: 1.3 m across, five points, fall (as the snowflake, but
+//   it comes down at a slant, not rocking from side to side: `slant`), a
+//   tail drawn behind it; the gaps between the points are real (`gaps`, as
+//   the snowflake's), so a ball can pass between them.
+// (the sled first stood 1.0 m tall: the lowest throws only, under 1.0 m, about 1 in 20 of the 13,395; at 1.3 m
+// about half pass under its top, so its tree is what a throw may meet over the body). It is 0.7 m deep and may
+// cross as near as 0.4 of the way, the last place tried (AT_TRY: further first): at 0.9 m deep and no nearer than
+// 0.5 (the cart's), a rock on the throw line (0.63 m across, 0.5-0.75 of the way) left no depth clear in 14 of 24
+// scenes (the check passed 10), and the layout was never found (journal, Q110)
+export const SLED_H = 1.3, SLED_W = 1.7;
+// the sled's boxes, from its box's middle (y up from the snow: its body 0.1-0.55 m, a board curling up at each
+// end to 0.9 m, a fir tree in three tiers to 1.3 m): what a ball touches is what is drawn
+const sledShapes = () => {
+  const y = w => w - SLED_H / 2;   // a height over the snow -> from the box's middle
+  return [
+    { half: [SLED_W * 0.45 + 0.06, 0.225, 0.3], at: [0, y(0.325), 0], rot: 0 },
+    { half: [0.06, 0.35, 0.3], at: [-SLED_W * 0.45, y(0.55), 0], rot: 0 },
+    { half: [0.06, 0.35, 0.3], at: [SLED_W * 0.45, y(0.55), 0], rot: 0 },
+    { half: [0.42, 0.175, 0.32], at: [0, y(0.675), 0], rot: 0 },
+    { half: [0.3, 0.125, 0.25], at: [0, y(0.975), 0], rot: 0 },
+    { half: [0.18, 0.1, 0.18], at: [0, y(1.2), 0], rot: 0 },
+  ];
+};
+export const STAR_R = 0.65, STAR_D = 0.08;
+export const STAR_SLOPE = [0.35, 0.8];   // fall: how far to the side it goes for each metre it falls (a share), either way
+const star = (R, d) => {
+  const out = [{ half: [0.12, 0.12, d / 2], at: [0, 0, 0], rot: Math.PI / 4 }];
+  // five points, each an inner box (broad, from the middle) and an outer one (thin, to the tip), none past the circle
+  const inner = [0.08, 0.34], outer = [0.34, R - 0.02];
+  for (let k = 0; k < 5; k++) {
+    const a = Math.PI / 2 + k * 2 * Math.PI / 5, c = Math.cos(a), s = Math.sin(a);
+    for (const [[from, to], w] of [[inner, 0.2], [outer, 0.09]]) {
+      const L = to - from, rm = from + L / 2;
+      out.push({ half: [L / 2, w / 2, d / 2], at: [rm * c, rm * s, 0], rot: a });
+    }
+  }
+  return out;
+};
 export const LOADS = {
   girders: LOAD,
   bricks: LOAD,
@@ -167,6 +218,9 @@ export const LOADS = {
   flake: { w: 2 * FLAKE_R, h: 2 * FLAKE_R, d: FLAKE_D, gaps: true, clear: true, shapes: flake(FLAKE_R, FLAKE_D) },
   tumbleweed: { w: 2 * TUMBLE_R, h: 2 * TUMBLE_R, d: TUMBLE_D, n: 3, ground: true, clear: true, roll: true, hop: 0.2, gaps: true, minShare: 0.5, shapes: [...ring(TUMBLE_N, TUMBLE_R, TUMBLE_R - 0.09, TUMBLE_D), ...tumbleSpokes(TUMBLE_R, TUMBLE_D)] },
   cart: { w: 1.95, h: 1.125, d: 1.05, ground: true, clear: true, minShare: 0.5 },
+  paperLantern: { w: 0.9, h: 1.2, d: 0.9 },
+  sled: { w: SLED_W, h: SLED_H, d: 0.7, ground: true, clear: true, minShare: 0.4, shapes: sledShapes() },
+  star: { w: 2 * STAR_R, h: 2 * STAR_R, d: STAR_D, gaps: true, clear: true, slant: true, shapes: star(STAR_R, STAR_D) },
   vulture: { w: 1.8, h: 0.6, d: 0.4, shapes: [{ half: [0.17, 0.25, 0.15], at: [0, -0.05, 0], rot: 0 }, { half: [0.35, 0.05, 0.18], at: [-0.5, 0.12, 0], rot: -0.15 }, { half: [0.35, 0.05, 0.18], at: [0.5, 0.12, 0], rot: 0.15 }] },
 };
 export const ALL_LOOKS = Object.keys(LOADS);
@@ -177,6 +231,8 @@ export const PARK = { swing: 'tyre', slide: 'zip', drop: 'kite' };
 export const FROSTY = { slide: 'snowman', stream: 'snowball', fall: 'flake' };
 // Cactus Canyon's: the mine cart slides on its rails, the tumbleweeds stream by, the vulture dives.
 export const CANYON = { slide: 'cart', stream: 'tumbleweed', drop: 'vulture' };
+// Star Light's: the sled slides on the snow, the paper lantern swings on its chain, the star falls.
+export const STAR_LIGHT = { slide: 'sled', swing: 'paperLantern', fall: 'star' };
 // The zip line's cable (m up): in sight (the view's top over the line at
 // the mover's depth measured 2.81-4.42 m, park scenes, phone upright to
 // wide; at 6 m it was out of sight and the seat hung from nowhere). Drawn
@@ -389,10 +445,12 @@ const PLANS = {
       const spin0 = r(0, Math.PI / 3), spin = sp ? r(-SPIN, SPIN) : SPIN / 2;
       const gust = m.timing === 'tricky' && rand() < FEINT ? { y: r(1.8, 4), d: r(...GUST) } : null;
       let fall = (m.from - land) / v + (gust ? gust.d : 0);
-      const f = { v, c, A, P, ph, gust }, hs = [0.85 * m.load.w / 2, 0.85 * m.load.h / 2, m.load.d / 2];
+      // (a falling star: which way it slants and how far; drawn after the others, so the snowflake's plans stay as they were)
+      const slope = m.load.slant ? (rand() < 0.5 ? -1 : 1) * r(...STAR_SLOPE) : 0;
+      const f = { v, c, A, P, ph, gust, slope }, hs = [0.85 * m.load.w / 2, 0.85 * m.load.h / 2, m.load.d / 2];
       for (let s = 0; s < fall; s += 1 / 60) if (meets(flakeAt(m, f, s), hs)) { fall = s; break; }
       const wait = T * (sp ? r(...FALL_WAIT) : (FALL_WAIT[0] + FALL_WAIT[1]) / 2);
-      flakes.push({ t0: t, v, c, A, P, ph, spin0, spin, gust, fall, wait });
+      flakes.push({ t0: t, v, c, A, P, ph, spin0, spin, gust, fall, wait, ...(m.load.slant ? { slope } : {}) });
       t += fall + wait;
     } while (sp ? t < PLAN_S : flakes.length < 2);
     return { flakes, len: t };
@@ -401,7 +459,10 @@ const PLANS = {
 
 // Where the snowflake is s s into its fall ([x, y, z]; before it lands).
 function flakeAt(m, f, s) {
-  return [m.x0 + f.c + f.A * Math.sin(2 * Math.PI * s / f.P + f.ph), Math.max(m.load.h / 2, fallY(m, f, s)), m.z];
+  const y = Math.max(m.load.h / 2, fallY(m, f, s));
+  // a falling star slants (over the line at m.y, further right the lower it is if it falls to the right), the snowflake sways
+  const dx = m.load.slant ? f.slope * (m.y - y) : f.A * Math.sin(2 * Math.PI * s / f.P + f.ph);
+  return [m.x0 + f.c + dx, y, m.z];
 }
 // The snowflake's height s s into its fall (m): steady down, held up by a gust a while (tricky), to the snow.
 function fallY(m, f, s) {
@@ -457,7 +518,8 @@ export function moverAt(m, t) {
   if (m.move === 'fall') {
     const u = wrap(t, plan.len), f = at(plan.flakes, u), s = u - f.t0;
     if (s >= f.fall) return [{ p: [m.x0, m.from, m.z], tilt: 0, gone: true }];
-    return [{ p: flakeAt(m, f, s), tilt: f.spin0 + f.spin * s, gone: false }];
+    // (a star keeps its points up: it does not turn)
+    return [{ p: flakeAt(m, f, s), tilt: m.load.slant ? 0 : f.spin0 + f.spin * s, gone: false }];
   }
   if (m.move === 'drop') {
     // straight down over the throw line, and back up
@@ -611,7 +673,7 @@ export function flakesOn(m, meets = () => null) {
 // others as it was until theirs is built). Each level's things: `looks`
 // dealt in turn over any of MOVES (the crane's loads), or `ways` (each
 // thing its own way: the park).
-export const LEVEL_MOVERS = { 1: { ways: PARK }, 2: { looks: LOOKS }, 3: { ways: FROSTY }, 4: { ways: CANYON } };
+export const LEVEL_MOVERS = { 1: { ways: PARK }, 2: { looks: LOOKS }, 3: { ways: FROSTY }, 4: { ways: CANYON }, 5: { ways: STAR_LIGHT } };
 export const MOVER_LEVELS = Object.keys(LEVEL_MOVERS).map(Number);
 // Scenes with the mover; the others spread out (developer, 2026-11-14:
 // "moving things every other scene and then use space").

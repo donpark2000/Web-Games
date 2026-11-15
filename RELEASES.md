@@ -7,10 +7,10 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
-## 10.19 (2026-11-15, version 5ceb8fa70d6f)
+## 10.19 (2026-11-15, version c70caa5ef1c9)
 
-Topple!: Hardest in Cactus Canyon has things that move in the way, and a
-clay pot not to hit.
+Topple!: Hardest in Cactus Canyon and Star Light has things that move in
+the way, and a thing not to hit.
 
 - **Scenes 1, 3 and 5**: one of three desert things moves between you and
   the structure, each once, in a different order each game: **tumbleweeds**
@@ -23,7 +23,16 @@ clay pot not to hit.
   and far, each needing its own aim, and a **clay pot with a red flower**
   stands in the way of some throws: hit it and the ball turns into a heart
   that pops, the pot shatters, a ❤️ breaks and the scene is lost.
-- The other levels, Normal and Harder are as they were.
+- **Star Light, the same way**: in scenes 1, 3 and 5 a **paper lantern**
+  swings on its chain, an empty **sled** (with a fir tree on it) slides
+  across and back on the snow, and a **star** falls at a slant with a
+  glowing tail (a ball can slip between its points), each once, in a
+  different order each game. In scenes 2 and 4 the glowing pieces are
+  spread out, and a **brass telescope** stands in the way of some throws:
+  hit it and the ball turns into a heart that pops, the tube falls off its
+  stand, a ❤️ breaks and the scene is lost.
+- All five levels now have Hardest's moving things. Normal and Harder
+  are as they were.
 
 ## 10.18 (2026-11-15, version 26ac120bc852)
 

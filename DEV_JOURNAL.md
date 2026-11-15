@@ -10,10 +10,15 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q110. Star Light's Hardest: which three moving things, which spread-out
-  scenes, which thing not to hit** (2026-11-15, Claude's proposals, to
-  pick or change: see "Star Light's Hardest: measured, and proposals"). Waiting for the
-  developer's picks before anything is built.
+- **Q111. Star Light's Hardest on the tablet: the picks as built** (2026-11-15,
+  built in 10.19 with Cactus Canyon's, not yet on a device). To ask: (a) the
+  **sled**: a rock on the throw line makes it cross as near as 0.4 of the way
+  in more than half the scenes, then 36% of the view's width: too big?;
+  (b) do the lantern, the sled and the star read well and play fair (a ball
+  between the star's points; the sled's tree is what a ball can meet over
+  its body); (c) the telescope: dark brass, ringed: clear enough at night?;
+  the setup of a spread scene (1.5 s here); (d) the sounds (thud, rustle,
+  chime).
 
 - **Q109. Topple!: a scene drawn with no blocks** (2026-11-15, developer,
   the tablet, the last scene played the night of 2026-11-14: "did not draw
@@ -37,10 +42,25 @@ time, each tried before publishing:
   (the design notes said "Harder and Hardest"): add one to Harder's
   scenes 2 and 4 too? (d) the setup notice **held 3 s** in those scenes
   so the line can be read (it was a blink on a fast phone); (e) the card
-  **1.6 s** after a hit; (f) the ring's size and look. Cactus Canyon and
-  Star Light get theirs with their Hardest.
+  **1.6 s** after a hit; (f) the ring's size and look. Cactus Canyon's pot and
+  Star Light's telescope came with their Hardest (10.19, the same ring and
+  notice line; Star Light on the tablet: Q111).
 
 ## Proposed additions to the standards skill
+
+- **Look at the worst case of a generator, not its mean, and check a
+  script's inputs agree** (2026-11-15, "Star Light's Hardest built"): a
+  scene maker's mean was 2.5 tries over 80 scenes, which looked fine;
+  the worst scene took 14 tries, 13 s on a PC (a tablet is several times
+  slower), found only by timing the worst by itself. Making the one
+  thing it was rejecting smaller (a 0.8 m telescope for 1.0 m) took the
+  mean to 1.2 and the worst to 3. And a measuring script that dealt
+  with one seed and made the scene with another gave plausible numbers
+  (a third of the scenes failing) that were noise; the failures it
+  named didn't fit what the code could do. Generic: report the worst and
+  the share over the limit, not only the mean; and when a result doesn't
+  fit the design, suspect the script's own inputs first. (Fits section 4,
+  with "Time one run before looping over many".)
 
 - **Parse every module, including the ones only a browser runs**
   (2026-11-14, "Mockup v2"): tests that read a page's code as text, or
@@ -168,6 +188,16 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q110. Star Light's Hardest: which three moving things, which
+  spread-out scenes, which thing not to hit** (2026-11-15, Claude's
+  proposals: a paper lantern (swing), an owl gliding (slide), a falling star
+  (fall); glowing columns and cubes set apart; a telescope). Developer: "I
+  like it all except for the owl. I don't want to be hitting a creature with
+  the balls. Something inanimate but moving. It could be a tumbleweed or
+  maybe a sled going by." Settled: **a sled** for the owl (an empty sleigh;
+  the tumbleweed is Cactus Canyon's); built (entry "Star Light's Hardest
+  built"), the picks on the tablet are now Q111.
 
 - **Q97. Things not to hit: how they show it** (2026-11-12, developer:
   hitting one loses the scene, "the challenge is making it clear your
@@ -22669,3 +22699,115 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Then:** build what is picked (see the previous status entry's steps 2
   and 3), test, check in the Browser pane, DESIGN, RELEASES, ask to publish.
 - **Open questions:** Q110, Q109, Q108.
+
+## 2026-11-15: Star Light's Hardest built (session 5 of the build)
+
+- **Developer**, of Claude's proposals (the owl, a paper lantern, a falling
+  star; a telescope not to hit): "I like it all except for the owl. I
+  don't want to be hitting a creature with the balls. Something inanimate
+  but moving. It could be a tumbleweed or maybe a sled going by." Claude
+  took the **sled** (the tumbleweed is Cactus Canyon's), an empty sleigh.
+  Q110 is settled (moved to Resolved).
+- **Built:** `LOADS.paperLantern` (swing), `LOADS.sled` (slide, on the
+  snow, `clear`), `LOADS.star` (fall, `slant`, `gaps`) and `STAR_LIGHT` in
+  `topple-movers.js` (`LEVEL_MOVERS[5]`); the fall plan's `slope` (a star's
+  slant; the snowflake's plans carry none and are unchanged: hash of 60
+  plans equal to 10.19's code); `starSpreadColumns`, `starSpreadGates`,
+  `starSpreadMix` (level 5's `spread`) in `topple-levels.js`; the
+  `telescope` (`KEEP[5]`, 🔭) in `topple-keepout.js`; the drawings in
+  `topple-scene.js` (the sleigh with a fir tree and sacks, the red paper
+  lantern with ribs and a tassel, the gold star with a glowing tail turned
+  to point behind its motion, gold sparkles where it lands) and
+  `ui/topple-keepout.js` (the telescope: the tube knocked off its mount,
+  the lens popping in glass); sounds `thud`, `rustle`, `chime` in
+  `ui/topple.js`; the Hardest line "levels 1 to 5".
+- **Measured (2026-11-15), and what each changed:**
+  - **Throw heights** (13,395 straight throws that hit a block, 12 scenes
+    of 4 games): they pass the mover's depth 0.90-1.65 m up, median 1.30;
+    **under 1.0 m 6.4%, under 1.125 m (the cart) 22.9%, under 1.3 m 51.4%.**
+    The sled was 1.0 m tall in the first build: in the way of 1 throw in 16.
+    Now 1.3 m, its tree (three tiers of boxes) reaching the top, a board up
+    each end to 0.9 m, the body to 0.55 m: what a ball touches is what is
+    drawn.
+  - **A wrong script first.** The first run of the scene check by thing
+    dealt with one seed and made the scene with another (`seed * 7919`): its
+    numbers (a third of the lantern's scenes failing) were noise, caught by
+    reading why the lantern, which never goes through a thing, "went through
+    the rock". Fixed, rerun.
+  - **The scene check, the sled** (24 games, 72 moving scenes, sled 0.9 m
+    deep and no nearer than 0.5 of the way, as the cart): **sled 10 of 24
+    passed, 19.4 tries a scene** (the others used all 25 and kept the sled
+    going through the rock); star 24 of 24 and lantern 24 of 24, 1.0 tries.
+    Cause (game 12345, scene 3): the rock (a sphere 0.63 m, on the throw
+    line, 0.5-0.75 of the way) needs 1.06 m between it and a sled of 0.45 m
+    half-depth, and the nearest depth allowed, 0.5, gave 0.87. **Fixed**:
+    0.7 m deep, nearest 0.4 (AT_TRY already tries the nearer depths last):
+    **80 games, 240 moving scenes, all passed**; sled 1.20 tries (at most
+    4), star 1.00, lantern 1.00. It crosses at 0.4 in 24 of 40 scenes, 0.45
+    in 8, 0.75 in 6, 0.5 in 2. At 0.4 a 2.0 m sled was 43% of the view's
+    width (project(), phone-ish pane), so it is **1.7 m long: 36%**.
+  - **The spread scenes and the telescope, a surprise in cost:** the first
+    telescope (0.7 m wide and deep, 1.0 m tall) took 3.0 tries a spread
+    scene over 40 games (80 scenes), up to 13; at 0.55 x 1.0 x 0.5, 2.5
+    tries, up to 12, and one scene (game 404, scene 4) **14 tries, 13 s
+    here** (Frosty Times' spread scene 2.8 s, Cactus Canyon's 1.7 s). The
+    reason was always "in the way of too many" (over 35% of the throws
+    first stop at it): taller than the pot or the lantern, and the Mix
+    layout the worst (4.3 tries). Three sizes on 60 scenes of 30 games:
+    0.55 x 1.0 x 0.5: 2.40 tries, max 11, 2.4 s a scene; **0.5 x 0.8 x
+    0.45: 1.20, max 3, 1.5 s**; 0.45 x 0.7 x 0.4: 1.15, max 3, 1.4 s. Took
+    the middle one (a mean over 80 scenes had hidden the tail: the one
+    scene that took 13 s).
+  - Not tried: the star's tail and the sled on a real device's frame rate;
+    scene making is 1.5 s for a spread scene on this PC, slower on a
+    tablet (as the other levels' are).
+- **Checked in the Browser pane (not on a device):** the star falling with
+  its tail pointing back up the slant (a first look: a hard-edged band;
+  the tail's sides now fade), the paper lantern swinging with its chain,
+  the sled behind the rock with its tree and sacks, the spread scene with
+  the telescope and its ring, and a hit (hearts, the tube lying on the
+  snow). The pane's page was frozen with `requestAnimationFrame` stubbed
+  and stepped by hand (`window.topple.step`): a screenshot of a running
+  page showed a frame or two late, the star missing. Not seen: any of it
+  on the tablet, the sounds.
+- **Tests:** `tests/topple-star.test.js` (12): the deal (200 games: each
+  thing once, its own way, all six orders, each in each moving scene 40+
+  times; levels 1-4's deals for 200 games hashed against 10.19's code,
+  run from a `git archive` of the commit before: the same), the spread
+  structures, the shapes (the star's five points within its circle, a gap
+  between each pair and a point at each; the sled's boxes inside its box,
+  the tree to its top; the lantern's box), the star's slant (the sideways
+  travel the slope times the height fallen, not turning, down to the snow,
+  gone and back; slants both ways; the snowflake's 60 plans as 10.19's),
+  the lantern on its chain and the sled across and back short of a rock,
+  the depth clear of a rock (the star's plan against the rock at most 30%),
+  in the physics a ball between the points told once and one at a point
+  stopped, the sled and lantern stopping a ball (the same throw with the
+  way clear reaches the structure), the scenes of three games as dealt (the
+  telescope in 2 and 4, none beside a mover; Normal and Harder as before),
+  the telescope's size, words and where, the page's wiring. Tests of
+  levels 1-4 that said "level 5 has no Hardest yet" updated (keepout,
+  movers, canyon, page). **Shown to fail:** with the star's slant set to
+  0, the tree's top tier taken out, the star swapped for the snowflake in
+  `STAR_LIGHT`, each caught by the test named for it (a fourth, a spread
+  structure's spacing, not run: my script's text did not match).
+- **Debug output:** none new needed: the log's `mover` line (move, look,
+  spans, open share, gaps), `ball stopped by the mover`, `ball through the
+  star`, the scene line's `keepout`.
+- **To ask the developer (Star Light on the tablet, Hardest):** is the sled
+  too big when it crosses near (36% of the width at 0.4 of the way, in
+  more than half the scenes)?; do the lantern, the sled and the star read
+  well and are they fair (the star between its points, the sled's tree);
+  is the telescope clear (dark, ringed) and the scene's setup not too
+  slow; the sounds.
+- **Suite:** `npm test` 699 of 699 (12 of them new, in tests/topple-star.test.js); `node tools/release.js` says ready for 10.19.
+
+**Status (start here next session)**
+- **Live: 10.18.** On `block-game`, not published: **release 10.19**, Hardest
+  in Cactus Canyon and in Star Light (every level's Hardest is built now).
+  Waiting for the developer's OK to publish.
+- **From the developer:** OK to publish 10.19?; then to try Cactus Canyon and
+  Star Light on Hardest on the tablet (Q108, Q111); Q109 (the blank scene:
+  save the log if it recurs).
+- **Then:** what the tablet says (Q108, Q111); Q109 if it recurs.
+- **Open questions:** Q111, Q109, Q108.

@@ -4,7 +4,12 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-15, latest): **Topple! Hardest in Cactus Canyon: tumbleweeds
+*Status (2026-11-15, latest): **Topple! Hardest in Star Light: a paper lantern
+swinging on its chain, a sled sliding by on the snow, a star falling at a
+slant (a ball can pass between its points), each once in scenes 1, 3, 5; 2
+and 4 spread out, with a telescope not to hit** (on `block-game`, for
+release 10.19 with Cactus Canyon's: all five levels' Hardest are built; see
+"Topple!", Hardest's scenes). Earlier the same day: **Topple! Hardest in Cactus Canyon: tumbleweeds
 rolling across (a ball can pass between the spokes), a mine cart on its
 rails, a vulture diving in, each once in scenes 1, 3, 5; 2 and 4 spread
 out, with a clay pot not to hit** (on `block-game`, for release 10.19; see
@@ -2521,7 +2526,8 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   from the sky"). Built one level at a time (the build plan, agreed
   2026-11-14): **the building site** first, then **the park**, then the
   levels in order (developer, 2026-11-14: "I suggest we just tackle them
-  in order"); then **Frosty Times** (2026-11-14); in the levels not
+  in order"); then **Frosty Times** (2026-11-14), **Cactus Canyon** and
+  **Star Light** (2026-11-15: all five levels are built); in a level not
   built yet Hardest is as before (Harder's
   dots, the usual scenes). In a built level, dealt once per game and
   level (`hardestDeal`):
@@ -2600,6 +2606,38 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     (measured, 18 scenes of 6 games: one needed 5 tries, the others 1).
     Sounds: a tumbleweed a dry `rustle`, the cart's iron a `clonk`, the
     vulture a soft `thud`.
+    **Star Light's** (the build's session 5; developer, 2026-11-15, of
+    Claude's proposals: "I like it all except for the owl. I don't want to
+    be hitting a creature with the balls. Something inanimate but moving.
+    It could be a tumbleweed or maybe a sled going by"): three things, each
+    once, each its own way, in a dealt order, **nothing alive**: a **paper
+    lantern** (swing: red paper with ribs, gold caps and a tassel, glowing
+    from inside, 0.9 m across and 1.2 m tall, on a chain up out of sight;
+    one box to the physics), a **sled** (slide: an empty red sleigh on two
+    steel runners that curl up at both ends, so it has no front and goes
+    either way, a fir tree and two sacks lashed in it; 1.7 m long, 0.7 m
+    deep, 1.3 m tall, on the snow; across and back, stopping short of a
+    thing at either end; to the physics a body, a board up each end and the
+    tree in three tiers, so a throw over the body that misses the tree goes
+    on), a **falling star** (fall: five points, gold, a glowing tail behind
+    it, 1.3 m across, coming down at a slant either way, 0.35-0.8 m over
+    for each metre it falls, not turning and not rocking as the snowflake
+    does, breaking up in gold sparkles where it lands; **a ball can pass
+    between the points**, logged `ball through the star`). **Sized by
+    measurement** (2026-11-15; 13,395 straight throws that hit a block, 12
+    scenes of 4 games): they pass the mover's depth 0.90-1.65 m up (median
+    1.30); **under 1.0 m 6.4% of them, 1.125 m 22.9%, 1.3 m 51.4%**. The
+    sled was 1.0 m tall at first, in the way of 1 throw in 16, so it stands
+    1.3 m. It crosses where it goes through neither the rock nor the pine,
+    further first, **down to 0.4 of the way as a last resort**: 0.9 m deep
+    and no nearer than 0.5 (as the cart), a rock on the throw line (0.63 m
+    across, 0.5-0.75 of the way) left no depth clear and the check passed 10
+    of 24 scenes; 0.7 m deep and 0.4 allowed, all of 240 moving scenes (80
+    games) passed, 1.2 tries a scene, at most 4, the sled crossing at 0.4
+    in 24 of 40 scenes (43% of the view's width at 2.0 m long, so it is
+    1.7 m: 36%). The star comes down on the rock at most 30% of the time.
+    Sounds: the sled a `thud`, the lantern a `rustle`, the star a crystal
+    `chime`.
   - **Scenes 2 and 4: spread out**: the level's small pieces set well
     apart, left and right, nearer and further (the building site: three
     posts with bricks; two small frames; a frame and two posts; the park:
@@ -2607,11 +2645,12 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     tree beside them, not in front; Frosty Times: three ice pillars with
     cubes, two small ice gates, an ice gate and two pillars; Cactus
     Canyon: three wood posts with small barrels, two small trestles, a
-    trestle and two posts), each its
+    trestle and two posts; Star Light: three glowing columns with cubes,
+    two small glowing gates, a gate and two columns), each its
     own throw.
   **Things not to hit** (Q97; agreed and built 2026-11-14, release 10.14;
   a hit loses the scene and a ❤️). **Built for Hardest only, in the levels
-  whose Hardest is built (1-4: Cactus Canyon's pot added 2026-11-15), in scenes 2 and 4** (the spread-out ones:
+  whose Hardest is built (1-5, all: Cactus Canyon's pot and Star Light's telescope added 2026-11-15), in scenes 2 and 4** (the spread-out ones:
   nothing moves there; Claude's suggestion, taken while the developer was
   away: to confirm, journal Q108, with Harder, whose scenes are Normal's
   and have no spread-out scene to stand one in), **one thing a scene**, each
@@ -2620,8 +2659,14 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   roll away), the building site's **window pane** in a wooden frame on
   feet (it shatters), Frosty Times' **lantern** on a post, lit (its glass
   shatters and the light goes out), Cactus Canyon's **clay pot with a red
-  flower** (it shatters in clay shards; notice picture 🌺). Each a box to the physics (nest 0.7 x
-  0.62 m, pane 1.0 x 1.1 x 0.2, lantern 0.5 x 0.95, pot 0.6 x 0.7; Far metres), standing
+  flower** (it shatters in clay shards; notice picture 🌺), Star Light's
+  **brass telescope on a tripod** (dark, so it is not taken for one of the
+  glowing blocks; the tube is knocked off its mount and falls, the lens
+  pops; notice picture 🔭). Each a box to the physics (nest 0.7 x
+  0.62 m, pane 1.0 x 1.1 x 0.2, lantern 0.5 x 0.95, pot 0.6 x 0.7,
+  telescope 0.5 x 0.8 x 0.45 (1.0 x 0.7 at first: in the way of too many
+  throws, 2.4 layouts a spread scene, up to 11, 2.4 s a scene; 1.2 layouts,
+  at most 3, 1.5 s); Far metres), standing
   on the ground facing you, in `src/core/topple-keepout.js`.
   **Where it stands**: on the line from the slingshot to one of the
   blocks, 0.62-0.88 of the way (further out first: nearer the hand it

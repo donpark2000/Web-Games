@@ -392,6 +392,27 @@ export const STRUCTURES = {
     const legs = [-0.4, 0.4].map(x => box('glow', 0.26, 0.48, 0.22, x, 0, 0.35)), slab = box('glow', 1.1, 0.1, 0.24, 0, topOf(legs[0]), 0.35);
     return lit([...legs, slab, ...a, s, ...top, box('glow', 0.26, 0.26, 0.26, 0, topOf(top[0]), z)], 3);
   },
+
+  // Hardest's spread-out scenes (2 and 4; the build's session 5), as the
+  // other levels': the level's small pieces well apart, each its own throw.
+  // Three glowing columns, a cube on each: left near, middle far, right between.
+  starSpreadColumns: k => {
+    const s = 1.25 * k('s'), out = [];
+    [[-1, 0.5, 0.85], [0, -0.6, 1.0], [1, 0, 0.75]].forEach(([i, z, h], n) => { const c = column(i * s, 0, z, 0.13, h * k('h' + n)); out.push(c, box('glow', 0.26, 0.26, 0.26, c.x, topOf(c), z)); });
+    return lit(out);
+  },
+  // Two small glowing gates, a cube on each: left near and low, right far and taller.
+  starSpreadGates: k => {
+    const g = 1.2 * k('g');
+    const l = gate(-g, 0.45, 0, 0.2, 0.6, 0.66, 0.34, GLOW), r = gate(g, -0.5, 0, 0.2, 0.8 * k('h'), 0.66, 0.34, GLOW);
+    return lit([...l.bs, box('glow', 0.26, 0.26, 0.26, -g, l.y, 0.45), ...r.bs, box('glow', 0.26, 0.26, 0.26, g, r.y, -0.5)], 2);
+  },
+  // A small glowing gate at the back in the middle, a column and cube near on each side.
+  starSpreadMix: k => {
+    const s = 1.3 * k('s'), f = gate(0, -0.6, 0, 0.2, 0.75 * k('h'), 0.66, 0.34, GLOW), out = [...f.bs, box('glow', 0.26, 0.26, 0.26, 0, f.y, -0.6)];
+    for (const i of [-1, 1]) { const c = column(i * s, 0, 0.4, 0.13, 0.75 * k('p' + i)); out.push(c, box('glow', 0.26, 0.26, 0.26, c.x, topOf(c), 0.4)); }
+    return lit(out, 4);
+  },
 };
 
 /* ---------- the levels ---------- */
@@ -425,7 +446,8 @@ export const LEVELS = [
   // sky. Similar vista to the winter level but low light. Blocks and balls
   // glow"; the things in the way level 3's, at night: Claude's pick)
   { n: 5, name: 'Star Light', line: 'Glowing blocks at night: hit them and they shatter.', soft: 'rock', tall: 'pine', ball: 'iron',
-    pool: ['crystalStack', 'lanternArch', 'lighthouse', 'candles', 'starGate', 'twinLanterns'], challenges: ['starPalace', 'moonTemple'] },
+    pool: ['crystalStack', 'lanternArch', 'lighthouse', 'candles', 'starGate', 'twinLanterns'], challenges: ['starPalace', 'moonTemple'],
+    spread: ['starSpreadColumns', 'starSpreadGates', 'starSpreadMix'] },
 ];
 export const MAX_LEVEL = LEVELS.length;
 export const levelInfo = n => LEVELS[n - 1] ?? null;

@@ -109,7 +109,30 @@ export function makeKeepout({ THREE, scene, canvasTex }) {
     add(g, new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), centre), 0, fy, 0.03);
     g.userData = { glass: [pg], extra: g.children.filter(c => c !== pg), shard: clay, shatter: { w: 0.5, h: h * 0.7, y: h * 0.35 } };
   }
-  const BUILD = { nest, pane, lantern, pot };
+  // a telescope on a tripod (Star Light): dark wood legs, a brass tube on its mount pointing up at the sky, rings round it, a glass lens in the end;
+  // dark and brass, so it can't be taken for one of the level's glowing blocks. A hit knocks the tube off its mount; the lens pops.
+  const brass = M('#B98A3E', { roughness: 0.4, metalness: 0.7 }), brassDark = M('#7A5A24', { roughness: 0.5, metalness: 0.6 }), legWood = M('#3E2C20', { roughness: 0.9 });
+  function telescope(g, p) {
+    const h = p.h, head = h * 0.62, spread = p.w * 0.42, legL = Math.hypot(head, spread);
+    // three legs from the mount down to the ground: two to the front sides, one behind
+    for (const [sx, sz] of [[-1, 0.6], [1, 0.6], [0, -1]]) {
+      const leg = cyl(0.03, 0.022, legL, legWood, 6), tx = sx * spread, tz = sz * spread * 0.7;
+      leg.position.set(tx / 2, head / 2, tz / 2);
+      leg.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(tx, -head, tz).normalize().negate());
+      g.add(leg);
+    }
+    add(g, cyl(0.07, 0.07, 0.08, brassDark, 12), 0, head, 0);
+    // the tube along its own +y, tipped up and to the right: eyepiece end low on the left, lens end high
+    const tube = new THREE.Group(); tube.position.set(0, head + 0.04, 0); tube.rotation.z = -40 * Math.PI / 180; g.add(tube);
+    const L = h * 0.78, back = L * 0.3;
+    add(tube, cyl(0.075, 0.065, L, brass, 18), 0, (L - 2 * back) / 2, 0);   // from -back to L - back along its own y
+    add(tube, cyl(0.1, 0.1, 0.1, brassDark, 18), 0, L - back - 0.05, 0);                  // the lens end's hood
+    add(tube, cyl(0.04, 0.04, 0.14, brassDark, 10), 0, -back - 0.05, 0);                  // the eyepiece
+    for (const y of [0.12, 0.3]) add(tube, cyl(0.082, 0.082, 0.025, brassDark, 18), 0, y, 0);   // two rings
+    const lens = cyl(0.088, 0.088, 0.012, glass.clone(), 18); lens.material.opacity = 0.6; add(tube, lens, 0, L - back + 0.002, 0);
+    g.userData = { tube, lens, tubeTo: new THREE.Vector3(0, head + 0.04, 0) };
+  }
+  const BUILD = { nest, pane, lantern, pot, telescope };
 
   /* ---------- a thing and its mark ---------- */
 
@@ -191,6 +214,18 @@ export function makeKeepout({ THREE, scene, canvasTex }) {
         n.remove(e); e.position.copy(p); scene.add(e);
         spawn(e, { kind: 'fall', v: [(1.0 + i * 0.5) * side, 2 + i * 0.5, (i - 1) * 0.5], spin: [2 + i, 0, -4], floor: 0.075, rest: null, life: 99, keep: true, roll: true });
       });
+    } else if (u.thing === 'telescope') {
+      // the tube is knocked off its mount and falls to the left, tumbling; the lens pops off in glass
+      const tube = u.tube, wp = new THREE.Vector3(), q = new THREE.Quaternion(), lp = new THREE.Vector3();
+      tube.getWorldPosition(wp); tube.getWorldQuaternion(q); u.lens.getWorldPosition(lp);
+      g.remove(tube); tube.position.copy(wp); tube.quaternion.copy(q); scene.add(tube);
+      spawn(tube, { kind: 'fall', v: [-1.1, 1.8, 0.35], spin: [0.5, 0.2, 3.4], floor: 0.1, rest: [0, 0, Math.PI / 2], life: 99, keep: true });
+      for (let i = 0; i < 12; i++) {
+        const o = new THREE.Mesh(new THREE.BoxGeometry(0.05 + (i % 3) * 0.02, 0.04 + (i % 4) * 0.02, 0.01), shardMat.clone());
+        o.position.copy(lp); o.rotation.set(i, i * 0.7, i * 1.3);
+        spawn(o, { kind: 'fall', v: [((i * 0.53) % 1 - 0.3) * 2.4, 1.4 + (i % 4) * 0.5, 0.4 + (i % 3) * 0.4], spin: [4 + i % 3, 3, 5 - i % 4], floor: 0.02, rest: null, life: 99, keep: true, fade: false });
+      }
+      u.lens.visible = false;
     } else {
       // glass shatters in shards; the lantern's light goes out
       for (const m of u.glass) m.visible = false;

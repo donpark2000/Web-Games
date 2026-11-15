@@ -15,7 +15,7 @@ import {
   STEP, HAND, HEARTS, SCENES, MAX_LEVEL, MODES, createGame, sceneOver, newRound, useBall, update, hitKeep, endWords, launchVel, rng, sceneParts, layoutFor,
 } from '../src/core/topple.js';
 
-const BUILT = [1, 2, 3, 4];   // the levels whose Hardest is built so far
+const BUILT = [1, 2, 3, 4, 5];   // the levels whose Hardest is built so far (all of them)
 
 test('keepout: only Hardest, scenes 2 and 4, in the levels with a Hardest built; every thing named and worded', () => {
   assert.deepEqual(KEEP_MODES, ['hardest']);
@@ -24,7 +24,7 @@ test('keepout: only Hardest, scenes 2 and 4, in the levels with a Hardest built;
     const want = mode === 'hardest' && BUILT.includes(level) && (scene === 2 || scene === 4) ? KEEP[level] : null;
     assert.equal(keepFor(mode, level, scene), want, `${mode} level ${level} scene ${scene}`);
   }
-  assert.deepEqual(Object.values(KEEP), ['nest', 'pane', 'lantern', 'pot']);
+  assert.deepEqual(Object.values(KEEP), ['nest', 'pane', 'lantern', 'pot', 'telescope']);
   for (const k of Object.values(KEEP)) {
     const t = THINGS[k];
     assert.ok(t && t.w > 0 && t.h > 0 && t.d > 0 && t.the && t.name && KEEP_EMOJI[k], `${k} has a size, words and a picture`);
@@ -92,8 +92,8 @@ test('keepout: a scene made again is the same; the other scenes and the other ho
       assert.ok(!s.parts.bodies.some(b => b.kind === 'keepout') && !s.parts.props.some(p => p.part === 'keepout'));
     }
   }
-  // levels without a Hardest yet: nothing to stand
-  for (const level of [5]) assert.equal(createWorld().makeScene(4242, level, 2, null, 'hardest').layout.keepout, undefined, `level ${level}`);
+  // (every level's Hardest is built now: none without a thing to stand)
+  assert.equal(BUILT.length, MAX_LEVEL);
 });
 
 test('keepout: the places are the scene\'s own, the same every time, off the blocks, the structure and other things; none when there is no room', () => {
