@@ -20,49 +20,6 @@ time, each tried before publishing:
   to discuss: what a hit looks like (the developer's idea: the ball
   turns into a heart and explodes), and how a thing shows beforehand
   that it mustn't be hit.
-- **Q106. Topple! Hardest: moving things in the way: what moves, and
-  how** (2026-11-14, developer: "I like the idea of moving obstacles
-  better than just spreading things out. All spreading things out does
-  is test aiming. The moving obstacles introduces a timing element to
-  game play. It is probably worth a mock up before building hard
-  versions of 25 scenes. And we need to discuss what is moving and how
-  it is moving"). Claude's options and picks in "Hardest: moving things
-  first, a mockup first (Q106)"; to discuss, then a mockup.
-  2026-11-14, developer: (1) "Not wild about the chairlift for frosty
-  times. Maybe a moving snowman or a snowball machine?" (the other
-  levels' things as listed); (2) slide, swing and stream "all three";
-  (3) the dots ignoring it "yes". Mockup v1 built ("Moving things
-  mockup v1 (Q106)"): to try.
-  2026-11-14, developer, mockup v1: "pretty good from a game play
-  perspective"; the crane's skip in two levels, and level 3 in the
-  park's look with ice blocks ("Mockup v1 tried"): to fix in a new
-  session.
-  2026-11-14, developer: "Just building site"; the load "did not really
-  look like anything. Maybe make it look more like bricks or some other
-  building material"; its movement "rather slow and competely
-  predictable ... it just slows it down while you wait for it to get out
-  of the way" (faster, some variance). Mockup v2 built ("Mockup v2"):
-  to try. The build's plan proposed there (shared part with the
-  building site, then one level per session).
-  2026-11-14, developer, mockup v2: "Better"; more variance in the
-  speed; a different obstacle from scene to scene; moving things every
-  other scene, the others spread out or smaller balls; sometimes
-  something falling from the sky. The build plan: "agree" ("Mockup v2
-  tried"). What session 1 covers: to agree.
-  2026-11-14, developer: "1) building site 2) no smaller balls 3) OK, go
-  ahead". Built ("Hardest at the building site built"): scenes 1, 3, 5
-  the crane's load (slide, swing, stream or the new drop, each its own),
-  2 and 4 spread out; to publish (10.10) and try.
-  2026-11-14, developer, 10.10 on the phone: "I like it." Next the
-  park (level 1), then the levels in order ("10.10 tried: liked").
-  Built ("Hardest in the park built"): the tyre swing (a ball can go
-  through its hole), the bucket seat on a zip line, the kite; to publish
-  (10.11) and try.
-  2026-11-14, developer, 10.11: "Park plays well, cable is fine".
-  Frosty Times' three agreed (the snowman on skates, the snowball
-  machine, "a giant snowflake that falls from the sky" in place of the
-  swing). Built ("Hardest in Frosty Times built"): to publish (10.12)
-  and try.
 
 ## Proposed additions to the standards skill
 
@@ -193,6 +150,57 @@ on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
 
+- **Q106. Topple! Hardest: moving things in the way: what moves, and
+  how** (2026-11-14, developer: "I like the idea of moving obstacles
+  better than just spreading things out. All spreading things out does
+  is test aiming. The moving obstacles introduces a timing element to
+  game play. It is probably worth a mock up before building hard
+  versions of 25 scenes. And we need to discuss what is moving and how
+  it is moving"). Claude's options and picks in "Hardest: moving things
+  first, a mockup first (Q106)"; to discuss, then a mockup.
+  2026-11-14, developer: (1) "Not wild about the chairlift for frosty
+  times. Maybe a moving snowman or a snowball machine?" (the other
+  levels' things as listed); (2) slide, swing and stream "all three";
+  (3) the dots ignoring it "yes". Mockup v1 built ("Moving things
+  mockup v1 (Q106)"): to try.
+  2026-11-14, developer, mockup v1: "pretty good from a game play
+  perspective"; the crane's skip in two levels, and level 3 in the
+  park's look with ice blocks ("Mockup v1 tried"): to fix in a new
+  session.
+  2026-11-14, developer: "Just building site"; the load "did not really
+  look like anything. Maybe make it look more like bricks or some other
+  building material"; its movement "rather slow and competely
+  predictable ... it just slows it down while you wait for it to get out
+  of the way" (faster, some variance). Mockup v2 built ("Mockup v2"):
+  to try. The build's plan proposed there (shared part with the
+  building site, then one level per session).
+  2026-11-14, developer, mockup v2: "Better"; more variance in the
+  speed; a different obstacle from scene to scene; moving things every
+  other scene, the others spread out or smaller balls; sometimes
+  something falling from the sky. The build plan: "agree" ("Mockup v2
+  tried"). What session 1 covers: to agree.
+  2026-11-14, developer: "1) building site 2) no smaller balls 3) OK, go
+  ahead". Built ("Hardest at the building site built"): scenes 1, 3, 5
+  the crane's load (slide, swing, stream or the new drop, each its own),
+  2 and 4 spread out; to publish (10.10) and try.
+  2026-11-14, developer, 10.10 on the phone: "I like it." Next the
+  park (level 1), then the levels in order ("10.10 tried: liked").
+  Built ("Hardest in the park built"): the tyre swing (a ball can go
+  through its hole), the bucket seat on a zip line, the kite; to publish
+  (10.11) and try.
+  2026-11-14, developer, 10.11: "Park plays well, cable is fine".
+  Frosty Times' three agreed (the snowman on skates, the snowball
+  machine, "a giant snowflake that falls from the sky" in place of the
+  swing). Built ("Hardest in Frosty Times built"): to publish (10.12)
+  and try.
+  **Closed 2026-11-14** (developer: "Q106 - does not appear to be a
+  question, so I am not sure what you need from me", then "Yes, close
+  it"): what moves and how was settled by the developer's answers above
+  (moving things every other scene, a different thing each scene,
+  something falling from the sky; each level's things agreed), and the
+  building site, the park and Frosty Times are live in 10.12. What's
+  left, Cactus Canyon and Star Light, is build work, kept in the status
+  entries' "Then", their things to be agreed level by level as before.
 - **Q73. Topple! level 2, 3D frames: the targets, the hidden-blocks rule,
   the "Level N" screen** (2026-11-11; "Level 2 picked: 3D frames").
   Agreed so far: the setting, blocks, camera, Level screen, map, things
@@ -21797,10 +21805,9 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Live: 10.12.** `block-game` = `main` plus journal entries. Nothing
   waiting to publish.
 - **From the developer:** feedback on Hardest in Frosty Times (from the
-  devices); OK to close Q106?
+  devices). (Q106 closed: "Yes, close it"; moved to Resolved.)
 - **Then:** Q97 to discuss (what a hit on a thing not to hit looks
   like; how such a thing shows it); session 4 of the build, Cactus
   Canyon's moving things.
 - **Open questions:** Q97 (things not to hit: how they show it, and the
-  developer's idea of the ball turning into a heart that explodes), Q106
-  (Hardest's moving things: proposed for closing).
+  developer's idea of the ball turning into a heart that explodes).
