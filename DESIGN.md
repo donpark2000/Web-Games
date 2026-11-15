@@ -4,7 +4,12 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-14, latest): **Topple!: a block off the screen as it's
+*Status (2026-11-14, latest): **Topple! Hardest: a thing not to hit in scenes
+2 and 4 of the park, the building site and Frosty Times (a bird's nest, a
+window pane, a lantern): a red slashed ring over it, a line in the setup
+notice, and a hit turns the ball into a heart that pops, a ❤️ breaks and the
+scene is lost** (on `block-game`, for release 10.14; see "Topple!", Things
+not to hit). Earlier the same day: **Topple!: a block off the screen as it's
 held judged by its own corners, as it's turned** (not a box round it; on
 `block-game`, for release 10.13; see "Topple!", Q107). Earlier the same
 day: **Topple! Hardest in Frosty Times: a
@@ -2574,20 +2579,58 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     tree beside them, not in front; Frosty Times: three ice pillars with
     cubes, two small ice gates, an ice gate and two pillars), each its
     own throw.
-  **Things not to hit** (Q97; agreed 2026-11-14, not built yet; Harder and
-  Hardest only; a hit loses the scene and a ❤️): **a hit**: the ball turns
-  into a heart at the thing and the heart pops, one ❤️ in the counter
-  breaks, and the thing reacts in its own way (a glass pane shatters, a
-  nest tumbles) (developer's idea: "the ball turns into a heart and then
-  explodes"). **How it shows beforehand**: its own look in the level's
-  style, **one warning mark on every such thing in every level, a small
-  red ring with a slash bobbing over it**, and **a line in the notice
-  shown while the scene is set up** ("Don't hit the nest!", with its
-  picture) (developer, 2026-11-14: "Use the red slashed ring and the
-  notice line"). To agree: which things, and in which scenes. Not wanted: fewer balls (scenes must stay
-  winnable), wind, a smaller ball or another camera (developer,
-  2026-11-14: "hard to see on a small screen as it gets farther away";
-  smaller balls again "no", the same day).
+  **Things not to hit** (Q97; agreed and built 2026-11-14, release 10.14;
+  a hit loses the scene and a ❤️). **Built for Hardest only, in the levels
+  whose Hardest is built (1-3), in scenes 2 and 4** (the spread-out ones:
+  nothing moves there; Claude's suggestion, taken while the developer was
+  away: to confirm, journal Q108, with Harder, whose scenes are Normal's
+  and have no spread-out scene to stand one in), **one thing a scene**, each
+  level its own (a glass pane and a bird's nest were the first ideas):
+  the park's **bird's nest** on a stump (it tumbles off and its eggs
+  roll away), the building site's **window pane** in a wooden frame on
+  feet (it shatters), Frosty Times' **lantern** on a post, lit (its glass
+  shatters and the light goes out). Each a box to the physics (nest 0.7 x
+  0.62 m, pane 1.0 x 1.1 x 0.2, lantern 0.5 x 0.95; Far metres), standing
+  on the ground facing you, in `src/core/topple-keepout.js`.
+  **Where it stands**: on the line from the slingshot to one of the
+  blocks, 0.62-0.88 of the way (further out first: nearer the hand it
+  looms: the first try, 0.42-0.55, stood a pane by the slingshot, filling a corner), 0 to 0.8 m to a side of that line, never on a
+  block, the structure's ground or another thing, never off the sides of
+  the view, in a seeded order so a scene's place is its own and the same
+  every time. **The scene check judges it** (what makes it fair): of the
+  straight throws that hit a block with nothing in the way, at least 6
+  hit the thing first (it is in the way) and no more than 35% (the
+  structure is still the target), every block is still hit from the
+  front by enough throws and shows enough past it, as for the level's
+  other things. A cheap test from the scan's throws first (their paths
+  against the thing's box: no new throws traced) leaves one or two places
+  for the full check; ten full checks at most, then the layout is thrown
+  away like any other (measured 2026-11-14, 24 scenes of levels 1-3: the
+  first full check passed in 23, the 24th on its second). **A hit**
+  (developer, 2026-11-14: "the ball turns into a heart and then
+  explodes"): the ball stops and turns into a red heart at the thing,
+  growing with a pulse for 0.4 s, then pops (nine small hearts and
+  fourteen red sparks fly); the thing reacts in its own way; the ❤️ in the
+  counter shakes and breaks; the scene is lost at once, whatever balls are
+  left (a heart gone, as any lost scene; the last heart: back to scene 1),
+  and **the card comes 1.6 s after**: "Oh no, the bird's nest! 💔", "2
+  hearts left" / **Try again** (the same scene again). Sounds: a boing as
+  it turns, then a rustle (the nest) or shatter (the glass), the aww at
+  the card. A block knocked into it counts for nothing (only the ball
+  does). **How it shows beforehand** (developer, 2026-11-14: "Use the red
+  slashed ring and the notice line"): **one warning mark on every such
+  thing in every level, a red ring with a slash on a white disc (0.46 m)
+  bobbing over it**, shown over anything in front of it; and **a line in
+  the notice shown while the scene is set up**: the same ring, the
+  thing's picture (🐦, 🖼️, 🏮: Emoji 1.0-era pictures, as the 2019 tablet
+  may lack newer ones) and "Don't hit the bird's nest!", the notice
+  held at least 3 s when the scene has one (else a quick scene would have
+  it up for a blink). Logged: the place and how many places were
+  tried with the scene, the notice held, the hit (the thing, when, where,
+  how fast, the ball, the hearts), the card after it. Not wanted: fewer
+  balls (scenes must stay winnable), wind, a smaller ball or another
+  camera (developer, 2026-11-14: "hard to see on a small screen as it gets
+  farther away"; smaller balls again "no", the same day).
 - **The drag pad** (developer, 2026-11-10, Q67: a finger that starts on
   the ball covers the dots; "The drag pad idea helps a lot"; a concept
   to "anchor" play across levels, whatever they throw): a round pad with

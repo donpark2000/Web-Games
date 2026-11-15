@@ -20,9 +20,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'eef35ba785a2';
+const VERSION = '1382437496c2';
 const MADE = '2026-11-14';
-const RELEASE = '10.13';
+const RELEASE = '10.14';
 const FILES = [
   'bridges.html',
   'colour-sudoku.html',
@@ -149,6 +149,7 @@ const FILES = [
   'src/core/tin-can-alley-physics.js',
   'src/core/tin-can-alley.js',
   'src/core/topple-animals.js',
+  'src/core/topple-keepout.js',
   'src/core/topple-levels.js',
   'src/core/topple-movers.js',
   'src/core/topple-sky.js',
@@ -202,6 +203,7 @@ const FILES = [
   'src/ui/tic-tac-toe.js',
   'src/ui/tin-can-alley-stall.js',
   'src/ui/tin-can-alley.js',
+  'src/ui/topple-keepout.js',
   'src/ui/topple-scene.js',
   'src/ui/topple-sets.js',
   'src/ui/topple.js',

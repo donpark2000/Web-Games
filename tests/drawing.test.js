@@ -156,7 +156,7 @@ test('drawing: both games watch their frames, start again on a scene or round, l
     const js = await read(f);
     assert.match(js, new RegExp(`drawing = drawWatch\\('${game}', stage, L\\);`), f);
     assert.match(js, /stage\.render\(\);\r?\n  drawing\?\.frame\(performance\.now\(\)\);\r?\n\}/, `${f}: each frame drawn watched`);
-    const body = js.slice(js.indexOf(`function ${start}(`), js.indexOf(`function ${start}(`) + 3000);
+    const body = js.slice(js.indexOf(`function ${start}(`), js.indexOf(`function ${start}(`) + 4000);
     assert.match(body, /drawing\?\.restart\(\);/, `${f}: not restarted in ${start}`);
     assert.match(js, /drawing: drawing\?\.level/, `${f}: the level not in the end's log line`);
     assert.match(js, /const dt = Math\.min\(MAX_FRAME_S, /, `${f}: frame not capped at MAX_FRAME_S`);

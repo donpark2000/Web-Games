@@ -7,6 +7,25 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.14 (2026-11-14, version 1382437496c2)
+
+Topple!: Hardest has things you must not hit.
+
+- **A thing not to hit**, on Hardest, in scenes 2 and 4 of the park, the
+  building site and Frosty Times: a **bird's nest** (the park), a **window
+  pane** (the building site) and a **lantern** (Frosty Times). It stands in
+  the way of some of your throws, never all of them: every block can still
+  be hit.
+- **How you know**: a red ring with a slash bobs over it, and the notice
+  shown while the scene is set up says "Don't hit the bird's nest!" (the
+  notice now stays up for 3 seconds in those scenes, so there is time to
+  read it).
+- **If you hit it**: the ball turns into a heart and pops, the thing
+  reacts (the nest tumbles and its eggs roll away, the glass shatters, the
+  lantern goes out), a ❤️ breaks and the scene is lost, whatever balls are
+  left. The card says what you hit.
+- Normal and Harder, the other scenes and the other levels are as they were.
+
 ## 10.13 (2026-11-14, version eef35ba785a2)
 
 Topple!: a block knocked off the screen now counts as down.

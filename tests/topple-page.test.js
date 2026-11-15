@@ -131,7 +131,7 @@ test('topple page: a scene won shows "Cleared!" at once, the card once the block
   assert.match(css, /\.cleared\[hidden\] \{ display: none; \}/);
   assert.match(js, /const still = world\.still\(\), fx = stage\.fxLive, calm = world\.calm\(\);\s*const \{ downChanged, ended: result, card \} = update\(round, dt, \{ down, still: still && fx === 0, calm \}\)/);
   assert.match(js, /if \(result\) endScene\(result\);\s*if \(card && ended && \$\('over'\)\.hidden\) \{ L\('the card'[^\n]*showEnd\(\); \}/);
-  assert.match(js, /if \(result\.won\) showCleared\(\); else showEnd\(\);/);
+  assert.match(js, /if \(result\.won\) showCleared\(\); else if \(!result\.hit\) showEnd\(\);/);
   // hidden as the card shows and as each scene starts
   assert.match(js, /function showEnd\(\) \{[\s\S]*?\$\('cleared'\)\.hidden = true;/);
   assert.match(js, /async function startScene[\s\S]*?\$\('cleared'\)\.hidden = true;/);
@@ -152,7 +152,7 @@ test('topple page: a new level never shows the old one (the canvas hidden until 
 // Q104 (developer, 2026-11-13): "a bigger notice in the middle", "a little
 // progress bar or rotating icon".
 test('topple page: a scene being set up: a notice in the middle of the park over the old scene dimmed, a spinner, gone once drawn; logged', () => {
-  assert.match(playHtml, /<div class="settingup" id="settingUp" role="status" hidden><span class="spin" aria-hidden="true"><\/span><span class="waitwords">Setting up the scene…<\/span><\/div>/);
+  assert.match(playHtml, /<div class="settingup" id="settingUp" role="status" hidden><span class="spin" aria-hidden="true"><\/span><span class="waitwords">Setting up the scene…<\/span>[\s\S]*?<div class="keepline" id="keepLine" hidden>[\s\S]*?<\/div><\/div>/);
   // the whole park, washed, in the middle, over the pills
   const wait = css.match(/\n\.settingup \{([^}]*)\}/)?.[1] ?? '';
   assert.match(wait, /inset: 0;/);
@@ -167,7 +167,7 @@ test('topple page: a scene being set up: a notice in the middle of the park over
   assert.match(css, /\.settingup \.waitwords \{[^}]*font-size: 22px;/);
   // shown before the scene's made, with a frame drawn first; gone once the scene is drawn
   assert.match(js, /\$\('hint'\)\.hidden = true;\s*showWait\(true\);[\s\S]{0,700}requestAnimationFrame\(\(\) => setTimeout\(r, 0\)\); setTimeout\(r, 100\);[\s\S]*?world\.makeScene\(/);
-  assert.match(js, /stage\.render\(\);\s*hideCanvas\(false\);\s*showWait\(false\);/);
+  assert.match(js, /stage\.render\(\);\s*hideCanvas\(false\);[\s\S]{0,700}showWait\(false\);/);
   assert.ok(!/textContent = 'Setting up the scene…'/.test(js), 'the hint no longer says it');
   // logged, how long it was up
   assert.ok(js.includes("L('setting up: the notice shown'") && js.includes("L('setting up: the notice gone'"));
@@ -181,7 +181,7 @@ test('topple page: the game kept on the device for every visit, the scene under 
   // a level opened as the game is read (one finished in 10.0, which had four): in the log
   assert.match(js, /if \(game && game\.reached > was\) L\('level opened: the one after a level done'/);
   // kept as each scene ends, before its card shows
-  assert.match(js, /const outcome = sceneOver\(game, result\.won\)[,;][\s\S]*?saveGame\(\);[\s\S]*?showCleared\(\); else showEnd\(\);/);
+  assert.match(js, /const outcome = sceneOver\(game, result\.won\)[,;][\s\S]*?saveGame\(\);[\s\S]*?showCleared\(\); else if \(!result\.hit\) showEnd\(\);/);
 });
 
 test('topple page: logged: 3D start, the fit, each scene, throw, touch, block down (and a post up again), the end', () => {
@@ -404,4 +404,47 @@ test('topple page: Hardest\'s mover (Q106, the build) in the real game: the scen
   assert.match(js, /hardest: L0\.hardest\.spread \? \{ spread: L0\.hardest\.spread \}/, 'the scene log says what Hardest dealt');
   // every way into a level (the map's buttons, Start again) goes through startLevel
   assert.equal((js.match(/switchLevel\(game, /g) ?? []).length, 2, 'switchLevel only in startLevel and the checking hook');
+});
+
+const keepJs = await read('src/ui/topple-keepout.js');
+const worldJs = await read('src/core/topple-world.js');
+const keepCore = await read('src/core/topple-keepout.js');
+test('topple page: Hardest\'s thing not to hit (Q97): the red slashed ring and the line in the notice, a hit turns the ball into a heart and ends the scene, logged', () => {
+  // the notice: the ring, the thing's picture and the line, held long enough to read; its words and styles
+  assert.match(playHtml, /<div class="keepline" id="keepLine" hidden><svg class="keepring"[^>]*>[\s\S]*?stroke="#E02424"[\s\S]*?<\/svg><span class="keepemoji" id="keepEmoji" aria-hidden="true"><\/span><span id="keepWords"><\/span><\/div>/);
+  assert.match(css, /\.keepline \{[^}]*border: 3px solid #E02424;/);
+  assert.match(css, /\.keepline\[hidden\] \{ display: none; \}/);
+  assert.match(css, /\.hudpill\.broke \{ animation: tpbroke \.9s ease-out; \}/, 'the heart in the counter breaks');
+  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.hudpill\.broke \{ animation: none; \} \}/);
+  assert.match(js, /keepThing = kept \? kept\.layout\.keepout\?\.thing \?\? null : keepFor\(game\.mode, game\.level, game\.scene\);\s*keepNotice\(keepThing\);\s*\$\('hint'\)\.hidden = true;\s*showWait\(true\);/, 'said before the scene is made');
+  assert.match(js, /const KEEP_NOTICE_MS = 3000;/);
+  assert.match(js, /if \(keepThing && current\.layout\.keepout\) \{[\s\S]*?KEEP_NOTICE_MS - \(performance\.now\(\) - waitAt\)[\s\S]*?'setting up: the warning held'/);
+  // a hit: the ball -> a heart, the scene lost at once, the card after the pop; a second hit says nothing
+  assert.match(js, /if \(b === 'keepout'\) \{ keepStruck\(ball, thing, vs\); return; \}/);
+  assert.match(js, /function keepStruck\(ball, thing, vs\) \{\s*if \(!round \|\| round\.result \|\| !current\) return;[\s\S]*?const result = hitKeep\(round, thing\);\s*if \(!result\) return;/);
+  assert.match(js, /stage\.keepHit\(at\);/);
+  assert.match(js, /endScene\(result, true\);/);
+  assert.match(js, /classList\.add\('broke'\)/);
+  assert.match(js, /keepHitWait = HIT_CARD_S;/);
+  assert.match(js, /keepHitWait -= dt;\s*if \(keepHitWait <= 0 && ended && \$\('over'\)\.hidden\) \{ L\('the card', \{ hit: ended\.hit/);
+  assert.match(js, /endWords\(outcome, lvDone \? was : game, nameOf\(setup\.p1\), result\.hit \?\? null\)/);
+  for (const what of ["'hit the thing not to hit'", "'setting up: the warning held'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
+  assert.match(js, /\.\.\.\(L0\.keepout \? \{ keepout: \{ thing: L0\.keepout\.thing/, 'the scene log says where it stands');
+  // the drawing: its own module, the one mark, each thing, what a hit does; the scene hides the ball that turned into a heart
+  assert.match(sceneJs, /import \{ makeKeepout \} from '\.\/topple-keepout\.js';/);
+  assert.match(sceneJs, /else if \(p\.part === 'keepout'\) \{ m = keep\.build\(p\); scene\.add\(m\); \}/);
+  assert.match(sceneJs, /m\.visible = !b\.struck;/);
+  assert.match(sceneJs, /keepHit\(at\) \{ return keep\.hit\(at\); \}/);
+  assert.match(sceneJs, /keep\.reset\(\);/);
+  assert.match(keepJs, /RING_COLOUR = '#E02424'/);
+  assert.match(keepJs, /new THREE\.SpriteMaterial\(\{ map: ringTex, depthTest: false, transparent: true \}\)/, 'the mark shows over anything in front');
+  assert.match(keepJs, /const BUILD = \{ nest, pane, lantern \};/);
+  assert.match(keepJs, /ringSprite\.position\.y = ringSprite\.userData\.base \+ 0\.07 \* Math\.sin\(bobT \* 3\.2\)/, 'it bobs');
+  assert.match(keepJs, /heartTex/);
+  assert.match(keepJs, /function pop\(at\)/);
+  assert.match(keepJs, /if \(u\.thing === 'nest'\)/);
+  // the physics: its own material and kind; the core has no DOM
+  assert.match(worldJs, /CM\('ball', 'keepout', 0\.5, 0\);/);
+  assert.match(worldJs, /if \(kind === 'keepout' && !b\.struck\)/);
+  assert.doesNotMatch(keepCore, /\bdocument\.|\bwindow\.|THREE\.|^import /m,'src/core stays free of DOM and UI code');
 });

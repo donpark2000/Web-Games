@@ -10,21 +10,21 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q97. Things not to hit: how they show it** (2026-11-12, developer:
-  hitting one loses the scene, "the challenge is making it clear your
-  should not hit it. We should discuss presentation options before
-  building"). For Harder and Hardest; to discuss.
-  2026-11-14, developer: "Since we lose a heart, maybe the ball turns
-  into a heart and then explodes? I guess we also have to make it clear
-  what should not be hit. We can discuss in the next session." **Agreed
-  2026-11-14 (later):** a hit = the ball turns into a heart, it pops, a ❤️
-  breaks, the thing reacts in its own way; a thing shows it mustn't be
-  hit by its own look, **a red slashed ring bobbing over it (the same
-  everywhere)** and **a line in the scene's setup notice** ("Use the red
-  slashed ring and the notice line"). **Still to agree:** which things
-  (a glass pane, a bird's nest were the first ideas; one or two per
-  level) and in which scenes (Claude's suggestion: scenes 2 and 4, which
-  have no moving thing), then build.
+- **Q108. Things not to hit: what Claude chose while you were away,
+  and Harder** (2026-11-14; built in 10.14, to try on the tablet). You
+  said "Go for Q97 ... publish 10.14 when it is ready" and left, with
+  "which things, which scenes" still to agree, so Claude took
+  its own suggestion and built it. **To confirm or change:** (a) the
+  things: the park's **bird's nest** (tumbles, eggs roll off), the
+  building site's **window pane** (shatters), Frosty Times' **lantern**
+  (shatters, goes out); (b) **scenes 2 and 4**, one thing each (the
+  scenes with nothing moving); (c) **Hardest only**: Harder's scenes are
+  Normal's, with no spread-out scene to stand one in, so Harder has none
+  (the design notes said "Harder and Hardest"): add one to Harder's
+  scenes 2 and 4 too? (d) the setup notice **held 3 s** in those scenes
+  so the line can be read (it was a blink on a fast phone); (e) the card
+  **1.6 s** after a hit; (f) the ring's size and look. Cactus Canyon and
+  Star Light get theirs with their Hardest.
 
 ## Proposed additions to the standards skill
 
@@ -154,6 +154,19 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q97. Things not to hit: how they show it** (2026-11-12, developer:
+  hitting one loses the scene, "the challenge is making it clear your
+  should not hit it. We should discuss presentation options before
+  building"). 2026-11-14, developer: "Since we lose a heart, maybe the
+  ball turns into a heart and then explodes? I guess we also have to make
+  it clear what should not be hit." **Agreed 2026-11-14** (entry "Q97
+  discussed"): a hit = the ball turns into a heart, it pops, a ❤️
+  breaks, the thing reacts in its own way; a thing shows it mustn't be
+  hit by a red slashed ring bobbing over it (the same everywhere) and a
+  line in the setup notice. 2026-11-14 (later, developer: "Go for Q97
+  ... publish 10.14 when it is ready"): built with Claude's own picks for
+  the rest (entry "Q97 built"; now Q108 to confirm), published as 10.14.
 
 - **Q107. Topple!: a block off the screen not counted down** (2026-11-14,
   developer, 10.12 on the phone, Frosty Times: "two times where blocks
@@ -21980,3 +21993,87 @@ anything to show it (the dots are the developer's choice per How hard).
   moving things.
 - **Open questions:** Q97 (the hit and the warning agreed; which things
   and scenes to agree).
+
+## 2026-11-14: Q97 built: things not to hit (release 10.14)
+
+- **Developer, at the start of the session:** "Go for Q97. I'm getting
+  off the computer for today. I will try 10.13 on my tablet and give you
+  feedback tomorrow. Go ahead and publish 10.14 when it is ready. We can
+  start tomorrow with as much done as possible and ideas for moving on."
+  The open part of Q97 (which things, which scenes) was left to Claude's
+  suggestion; the choices are Q108 for the developer to confirm.
+- **Choices taken (Claude's):** Hardest only (Harder's scenes are
+  Normal's: no spread-out scene to stand one in), the levels whose
+  Hardest is built (1-3), scenes 2 and 4, one thing a scene, each level its
+  own: bird's nest (park), window pane (building site), lantern (Frosty
+  Times). All in DESIGN.md "Topple!", Things not to hit.
+- **Built:** `src/core/topple-keepout.js` (what, sizes, which scene,
+  where it may stand), the scene check (`topple-world.js`: the thing as
+  a static body of its own kind, `keepout`, so it hides a block
+  from the camera but is not in the scan's "nothing in the way" run;
+  `placeKeep` in `makeScene`), the rules (`hitKeep`, `endWords`),
+  the drawing (`src/ui/topple-keepout.js`: three looks, the ring, the
+  heart and its pop, each reaction), the page (the notice's line, a hit
+  ends the scene, the card 1.6 s later, the counter's ❤️ breaks).
+- **Where it stands, and how it was found (evidence):**
+  - First try: each candidate place (on the line from the hand to a
+    block, at 0.42-0.7 of the way, up to 0.8 m aside) set up and run
+    through the full scene check: all 72 probe scenes (levels 1-3, scenes
+    2 and 4, 12 games each) got a place, but a scene took **1.1-7 s on
+    this computer** against 0.25-0.5 s for the same scene without the
+    thing (Harder), a place often needing 2-10 full checks. On the old
+    tablet that would be a minute: not acceptable.
+  - Fix: the check's scan keeps each throw's path to its first hit; a
+    place is tried first against those paths (which throws would hit the
+    thing first, which blocks lose how many hits, what it hides from the
+    camera): no new throws traced. Only a place that passes goes to the
+    full check. Probe, 24 scenes: the **first full check passed in 23**,
+    the 24th on its second (mean 1.04); a scene **0.75-1.1 s** here, about
+    twice the same scene without the thing (the scan's one extra full
+    check). Not measured on the old tablet.
+  - The shares 0.42-0.55 of the way put the pane by the slingshot,
+    filling a corner of the building site (screenshot): now 0.62-0.88.
+  - The check's own refusals matter: of 24 scenes the cheap test refused
+    0-36 places each (too much in the way, a block hidden, too few throws
+    left); in the tests, game 404's Frosty Times scene 4 found no place for
+    the lantern in its first layout ("in the way of too many") and was
+    thrown away for the next (2 tries): the way it works, the frosty
+    test's "1 try" for a spread scene now allows 2.
+- **Checked in the Browser pane (not on a device):** the nest scene (park,
+  scene 2): the ring over the nest, a throw at it: the ball turns into a
+  heart at the nest, pops in little hearts, the nest tips off its stump and
+  the eggs roll away, the counter goes to 2 hearts, the card "Oh no, the
+  bird's nest! 💔 / 2 hearts left / Try again" 1.6 s on; Try again: the
+  notice with the ring, 🐦 and "Don't hit the bird's nest!" up while the
+  scene is made. The pane (building site) and the lantern (Frosty Times)
+  drawn; the lantern's glass shatters toward you and its light goes out.
+  No console errors. **Not seen:** the card on a phone or tablet, the sounds
+  (boing, then rustle or shatter, then the aww), the pop's timing on a slow
+  device, the notice's 3 s on the tablet.
+- **Surprises, classified:** (1) a `state()` read right after a throw said
+  "not ended" while the next screenshot showed a heart gone: the pane runs
+  the page's own loop too, so a read and a picture are different moments:
+  noise in my check, not the game. (2) The 🪺 nest emoji (Emoji 14) showed
+  as a small odd glyph even on this computer: the 2019 tablet may lack it
+  (and 🪟, Emoji 13): the notice's pictures are 🐦, 🖼️, 🏮 (older ones).
+  (3) A point light in the lantern was dropped before publishing: it would
+  add a light to every Frosty Times scene (a lit scene's shaders are
+  built again when the light count changes: not measured, but the
+  slow-device bar says don't); the glow is the glass's own colour.
+- **Tests:** `tests/topple-keepout.test.js` (9: which scenes, its parts,
+  every scene 2 and 4 of levels 1-3 across 4 games made with the thing
+  and the check's numbers, the same scene the same place, other scenes and
+  how hards have none, the places and "no room", a place the check
+  refuses, a ball at it stopped and told once and a throw at a block as
+  before, `hitKeep` once with the card's words, a kept scene), the page
+  test (notice, wiring, logging, no DOM in `src/core`), `drawing`'s
+  window for `startScene` (3000 to 4000 characters), the frosty test's 1
+  try to 2. `node tools/offline.js` run.
+- **Debug output:** the scene log has `keepout` (thing, place, full
+  checks tried, places offered, refused by the cheap test, throws at it);
+  `setting up: the warning held` (ms), `hit the thing not to hit` (thing,
+  time since the throw, where, speed, ball, down, pop's length, hearts),
+  `the card` with `hit`.
+- **Side effect to know:** the Browser pane's own saved Topple! game (the
+  pane's storage, not the phone's or tablet's) was changed while checking
+  (how hard: Hardest; level progress).

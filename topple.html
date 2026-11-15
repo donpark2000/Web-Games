@@ -99,7 +99,9 @@
       <p class="hint" id="hint" aria-live="polite">Drag from 👆, then let go</p>
       <!-- a scene being set up (Q104): over the park, the last scene dimmed
            (or the park's colour for a new level), a spinner and the words -->
-      <div class="settingup" id="settingUp" role="status" hidden><span class="spin" aria-hidden="true"></span><span class="waitwords">Setting up the scene…</span></div>
+      <div class="settingup" id="settingUp" role="status" hidden><span class="spin" aria-hidden="true"></span><span class="waitwords">Setting up the scene…</span>
+        <!-- Hardest's thing not to hit (Q97): the red slashed ring (the same on the thing in the park), its picture and the warning -->
+        <div class="keepline" id="keepLine" hidden><svg class="keepring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="#FFFFFF" stroke="#E02424" stroke-width="5"/><path d="M9 9 L31 31" stroke="#E02424" stroke-width="5" stroke-linecap="round"/></svg><span class="keepemoji" id="keepEmoji" aria-hidden="true"></span><span id="keepWords"></span></div></div>
       <!-- a scene won: shown at once, the card once the blocks have settled -->
       <p class="cleared" id="cleared" role="status" hidden>Cleared! 💎</p>
       <div class="over" id="over" hidden>

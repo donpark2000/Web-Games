@@ -17,6 +17,7 @@ import { CABLE_TOP, DROP_FROM, ZIP_Y, SNOWMAN, MACHINE, MUZZLE_Y, machineAt } fr
 const cableTop = m => (m.move === 'drop' ? DROP_FROM + 3 : CABLE_TOP);
 import { makeSetting, birds } from './topple-sets.js';
 import { applyCuts } from './drawcuts.js';
+import { makeKeepout } from './topple-keepout.js';
 
 // Whether this device can draw 3D: a WebGL canvas can be made.
 export function webglOk() {
@@ -196,6 +197,8 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   /* ---------- a scene's things and blocks ---------- */
 
   let built = [], blockMeshes = [];
+  // Hardest's thing not to hit (Q97): its look, its warning mark, what a hit does
+  const keep = makeKeepout({ THREE, scene, canvasTex });
   // The blocks left glowing after a pause (Q101): each block's own shape a
   // little bigger over it, a warm white added to what's under it, hidden
   // except while it glows (so it costs nothing the rest of the time).
@@ -224,6 +227,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   function setScene(parts) {
     // the animals cross once a scene
     if (set) set.newScene?.(viewEdges); else parkBirds.reset(viewEdges);
+    keep.reset();
     const t0 = performance.now();
     for (const m of built) {
       scene.remove(m);
@@ -238,6 +242,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
         m = leafy(p.balls, BUSH_GREENS, 0, Math.max(...ys), LEAF); scene.add(m);
       } else if (p.part === 'tree') { m = tree(p); scene.add(m); } else if (p.part === 'board') m = box(p, [boardMat, boardMat, frameMat, frameMat, frameMat, frameMat], false);
       else if (p.part === 'pole' || p.part === 'arm') m = box(p, postMat);   // the backboard's pole and arm
+      else if (p.part === 'keepout') { m = keep.build(p); scene.add(m); }   // Hardest's thing not to hit (Q97)
       else { m = set?.thing(p) ?? new THREE.Group(); scene.add(m); }   // levels 2-4's things
       leaves += m.userData.leaves || 0;
       built.push(m);
@@ -667,6 +672,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       for (const b of ballBodies) {
         let m = ballMeshes.get(b);
         if (!m) { m = makeBall(); scene.add(m); ballMeshes.set(b, m); }
+        m.visible = !b.struck;   // a ball that hit the thing not to hit has turned into a heart (keepHit)
         m.position.set(b.position.x, b.position.y, b.position.z);
         m.quaternion.set(b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w);
       }
@@ -751,7 +757,11 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     // A block broke (ice shattered, a barrel burst): its pieces fly.
     burst(b, at, q, v) { set?.burst(b, at, q, v); },
     // The setting's moving parts (the effects, the snake) dt s on.
-    tick(dt) { const t = performance.now() / 1000; if (set) set.tick(dt, t); else parkBirds.tick(dt, t); },
+    tick(dt) { const t = performance.now() / 1000; if (set) set.tick(dt, t); else parkBirds.tick(dt, t); keep.tick(dt); },
+    // The ball at `at` hit the thing not to hit (Q97): it turns into a heart, pops, the thing reacts; how long it takes (s).
+    keepHit(at) { return keep.hit(at); },
+    get keepActive() { return keep.active; },
+    get keepLive() { return keep.live; },
     // A block fell at x: the animals in view are startled and run off
     // (developer, 2026-11-12: "acted frightened ... and run off"); what each did.
     fright(x) { return set ? set.fright(x) : [parkBirds.fright(x)].filter(Boolean); },

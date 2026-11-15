@@ -408,7 +408,7 @@ test('frosty: Frosty Times\' Hardest scenes are made as dealt, open often enough
       n++;
       assert.ok(s.check.ok, `${at}: ${s.check.why}`);
       assert.deepEqual(s.layout.hardest, h, `${at}: the deal kept in the layout`);
-      if (h.spread) { assert.equal(s.layout.stack, h.spread); assert.equal(s.mover, null); assert.equal(s.tries, 1, `${at}: ${s.tries} tries`); continue; }
+      if (h.spread) { assert.equal(s.layout.stack, h.spread); assert.equal(s.mover, null); assert.ok(s.tries <= 2, `${at}: ${s.tries} tries`); continue; }   // (a second try only when the lantern found no place: Q97, game 404's scene 4)
       const m = s.mover;
       assert.equal(m.look, h.mover.look); assert.equal(m.move, h.mover.move);
       assert.ok(s.check.mover.open >= MOVER_OPEN && s.check.mover.shutS <= MOVER_SHUT, `${at}: ${JSON.stringify(s.check.mover)}`);

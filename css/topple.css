@@ -123,6 +123,21 @@ body.tp-playing .site-foot { display: none; }
   font-size: 22px; font-weight: 800; line-height: 1.25; text-align: center; max-width: calc(100% - 32px);
 }
 
+/* Hardest's thing not to hit (Q97; developer, 2026-11-14: "Use the red slashed
+   ring and the notice line"): in the notice, under the words, the same red
+   slashed ring the thing wears in the park, its picture and the warning;
+   after a hit the counter's hearts shake and flash (the heart that broke) */
+.keepline {
+  display: flex; align-items: center; gap: 10px; background: #FFFFFF; color: #1E3445; border: 3px solid #E02424; border-radius: 999px;
+  padding: 6px 18px 6px 8px; font-size: 20px; font-weight: 800; line-height: 1.2; max-width: calc(100% - 32px);
+}
+.keepline[hidden] { display: none; }
+.keepline .keepring { flex: none; width: 36px; height: 36px; }
+.keepline .keepemoji { font-size: 28px; }
+.hudpill.broke { animation: tpbroke .9s ease-out; }
+@keyframes tpbroke { 0% { transform: scale(1); } 15% { transform: scale(1.35) rotate(-6deg); background: #FFD9DD; } 35% { transform: scale(1.2) rotate(6deg); } 55% { transform: scale(1.1) rotate(-3deg); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .hudpill.broke { animation: none; } }
+
 /* a scene won, before its card: under the pills, clear of the blocks */
 .cleared {
   position: absolute; left: 50%; top: 52px; margin: 0; transform: translateX(-50%); z-index: 2; pointer-events: none;

@@ -11,9 +11,10 @@
 import * as CANNON from '../vendor/cannon-es/cannon-es.js';
 import {
   HAND, CAM, BALL, SCALE, DENSITY, GRAVITY, STEP, MAX_AIM, R2D, clamp, launchVel,
-  sceneParts, layoutFor, isDown, MATS, throwRange, shiftThing, SPREAD_STACKS,
+  sceneParts, layoutFor, isDown, MATS, throwRange, shiftThing, SPREAD_STACKS, rng,
 } from './topple.js';
-import { moverAt, moverFor, openShare, gaps, hardestScene, clashes } from './topple-movers.js';
+import { moverAt, moverFor, openShare, gaps, hardestScene, clashes, meetsThings } from './topple-movers.js';
+import { keepFor, keepCandidates, THINGS, KEEP_TRIES, KEEP_MIN, KEEP_MAX_SHARE } from './topple-keepout.js';
 import { fixedStepper } from './fixed-step.js';
 
 export const MAX_SUBSTEPS = 12;                      // MAX_FRAME_S (0.1 s) of steps a frame (8 until 10.6: Q99)
@@ -139,7 +140,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   // Each block material its own (MATS: weight, bounce, grip; mockup v3);
   // level 1's toy blocks as before (a block on a block 0.5, on the ground 0.5).
   const mats = Object.keys(MATS);
-  const M = Object.fromEntries(['ball', 'stand', 'glass', 'bush', 'tree', 'soft', 'mover', ...mats].map(k => [k, new CANNON.Material(k)]));
+  const M = Object.fromEntries(['ball', 'stand', 'glass', 'bush', 'tree', 'soft', 'mover', 'keepout', ...mats].map(k => [k, new CANNON.Material(k)]));
   world.defaultContactMaterial.friction = 0.4;
   world.defaultContactMaterial.restitution = 0.15;
   const CM = (a, b, friction, restitution) => world.addContactMaterial(new CANNON.ContactMaterial(M[a], M[b], { friction, restitution }));
@@ -156,10 +157,12 @@ export function createWorld({ onHit = () => {} } = {}) {
     for (const b of mats) if (a <= b) CM(a, b, grip(a, b, Math.min(MATS[a].friction, MATS[b].friction)), 0.05);
     CM(a, 'stand', grip(a, 'stand', MATS[a].friction), 0.05); CM(a, 'glass', 0.2, 0.05); CM(a, 'bush', 0.6, 0.02); CM(a, 'tree', 0.4, 0.05); CM(a, 'soft', 0.8, 0.02);
     CM('ball', a, 0.3, MATS[a].bounce);
+    CM(a, 'keepout', 0.5, 0.05);
   }
   CM('ball', 'stand', 0.4, BOUNCE.stand); CM('ball', 'glass', 0.05, BOUNCE.glass);
   CM('ball', 'bush', 0.8, BOUNCE.bush); CM('ball', 'tree', 0.5, BOUNCE.tree); CM('ball', 'soft', 0.9, BOUNCE.soft);
   CM('ball', 'mover', 0.5, 0);
+  CM('ball', 'keepout', 0.5, 0);
   const ground = new CANNON.Body({ mass: 0, material: M.stand, shape: new CANNON.Plane() });
   ground.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
   ground.kind = 'ground';
@@ -193,6 +196,8 @@ export function createWorld({ onHit = () => {} } = {}) {
     if (kind === 'soft' && !b.inBush) { b.inBush = true; b.velocity.scale(BUSH_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); b.linearDamping = b.angularDamping = SOFT_DAMPING; }
     // the thing that moves (Q106): the ball stops and drops, once
     if (kind === 'mover' && !b.stopped) { b.stopped = true; b.velocity.scale(MOVER_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); }
+    // a thing not to hit (Q97): the ball is done with, whatever it touches after (the page turns it into a heart)
+    if (kind === 'keepout' && !b.struck) { b.struck = true; b.velocity.set(0, 0, 0); b.angularVelocity.set(0, 0, 0); b.collisionFilterMask = 0; }
     onHit({ a: 'ball', b: kind, v, y: b.position.y, ball: b, other: e.body, mat: e.body.mat, thing: e.body.thing });
     if (kind === 'mover') moverStruck(e, b);
   }
@@ -523,8 +528,9 @@ export function createWorld({ onHit = () => {} } = {}) {
   //   bonus way, never the only one; without this, glass no throw can use
   //   was let through).
   const GLASS_ONLY = new Set(['glass']);
+  let lastScan = null;   // the last check's scan without a thing not to hit (keepScan)
   // What can hide a block from the camera: the bush and tree, and levels 2-4's things (the wheelbarrow and snow, the light)
-  const inTheWay = b => b.kind === 'bush' || b.kind === 'tree' || b.kind === 'soft' || b.thing === 'light';
+  const inTheWay = b => b.kind === 'bush' || b.kind === 'tree' || b.kind === 'soft' || b.kind === 'keepout' || b.thing === 'light';
   function check(L) {
     const all = obstacles(), clear = obstacles(b => b.kind === 'block' || (b.kind === 'stand' && b.thing !== 'light'));
     const later = (parts?.level ?? 1) > 1;
@@ -532,16 +538,20 @@ export function createWorld({ onHit = () => {} } = {}) {
     const a0 = clamp(Math.min(...az) - 0.15, -1, 1), a1 = clamp(Math.max(...az) + 0.15, -1, 1);
     const base = new Map(), direct = new Map();
     const tally = (m, k) => m.set(k, (m.get(k) || 0) + 1);
-    let nBase = 0, nDirect = 0, nBank = 0, n = 0;
+    let nBase = 0, nDirect = 0, nBank = 0, nKeep = 0, n = 0;
+    const recs = [];   // each throw's path to its first hit (keepScan: where a thing not to hit would stand)
     for (let up = 0; up <= 70; up += 3) for (let a = a0; a <= a1 + 1e-9; a += 0.04) {
       n++;
       const { vec } = launchVel(L.power, a, up);
       const h0 = trace(vec, 0, clear).hits[0];
       if (h0 && h0.kind === 'block') { nBase++; tally(base, h0.body); }
-      const h = trace(vec, 1, all, GLASS_ONLY).hits;
+      const tr = trace(vec, 1, all, GLASS_ONLY), h = tr.hits;
+      if (!L.keepout) recs.push({ pts: tr.pts, kind: h[0]?.kind, body: h[0]?.body, base: !!(h0 && h0.kind === 'block') });
       if (h[0] && h[0].kind === 'block') { nDirect++; tally(direct, h[0].body); } else if (h[0] && h[0].kind === 'glass' && h[1] && h[1].kind === 'block') nBank++;
+      else if (h[0] && h[0].kind === 'keepout') nKeep++;
     }
     // (from level 2, a back post glimpsed between the front ones by a throw or two is fine: only hits the things take away count)
+    if (!L.keepout) lastScan = { recs, base, direct, nBase, nDirect, later };
     const unhit = [...base].filter(([b, c]) => (direct.get(b) || 0) < (later ? Math.min(MIN_HITS, c) : MIN_HITS)).length;
     const fewest = Math.min(...[...base.keys()].map(b => direct.get(b) || 0));
     const hidden = [...base].filter(([b, c]) => (direct.get(b) || 0) < 0.5 * c).length;
@@ -562,9 +572,12 @@ export function createWorld({ onHit = () => {} } = {}) {
     if (later && fewestSeen < MIN_SEEN) why.push('a block mostly behind a thing');
     if (nDirect < 15) why.push('too few throws hit');
     if (hasBoard && nBank < 3) why.push('the backboard is no use');
+    // Hardest's thing not to hit (Q97): in the way of some straight throws, not most of them
+    if (L.keepout && nKeep < KEEP_MIN) why.push('the thing not to hit is hardly in the way');
+    if (L.keepout && nKeep > KEEP_MAX_SHARE * nBase) why.push('the thing not to hit is in the way of too many throws');
     return {
       ok: why.length === 0, why: why.join('; '), shots: n, clear: nBase, direct: nDirect, bank: nBank, share: +(nDirect / Math.max(1, nBase)).toFixed(2),
-      blocks: blocks.length, unhit, fewest, hidden, fewestSeen,
+      blocks: blocks.length, unhit, fewest, hidden, fewestSeen, keep: nKeep,
       seen: `${front.full} whole, ${front.part} part, ${blocks.length - front.full - front.part} hidden`,
     };
   }
@@ -579,8 +592,8 @@ export function createWorld({ onHit = () => {} } = {}) {
   // How many of those 5 points of each block (in the blocks' order) a
   // camera at cam sees past the things keep() lets through.
   const SEEN_POINTS = 5;
-  function pointsSeen(cam, keep) {
-    const occ = obstacles(keep);
+  function pointsSeen(cam, keep, extra = []) {
+    const occ = [...obstacles(keep), ...extra];
     const clearTo = p => { for (let i = 1; i < 40; i++) { const q = lerp(cam, p, i / 40); for (const o of occ) if (touch(q, o, 0.001)) return false; } return true; };
     return blocks.map(b => {
       if (b.broken) return 0;
@@ -630,6 +643,58 @@ export function createWorld({ onHit = () => {} } = {}) {
   // must open often enough: MOVER_OPEN, MOVER_SHUT; kept in the layout as
   // `hardest`, so a scene picked up again has it). Returns also `mover`
   // (moverFor()'s, or null), not yet set moving.
+  // Hardest's thing not to hit (Q97): the places keepCandidates offers, in
+  // order, each set up and checked (KEEP_TRIES at most); the first the check
+  // accepts is kept (L.keepout). None: the layout without it, not ok.
+  // The cheap test of a place, from the last scan (every straight throw's
+  // path to its first hit, kept by check()): which throws the thing would
+  // be first to stop, whether each block would still be hit by enough and
+  // show enough. No new throws traced: the scene check, run once on a place
+  // that passes this, has the last word.
+  function keepScan(c, thing) {
+    const sc = lastScan;
+    if (!sc) return { ok: true };
+    const t = THINGS[thing], o = { kind: 'keepout', type: CANNON.Shape.types.BOX, c: [c.x, t.h / 2, c.z], q: [0, 0, 0, 1], h: [t.w / 2, t.h / 2, t.d / 2] };
+    o.rad = Math.hypot(...o.h);
+    const direct = new Map(sc.direct);
+    let nKeep = 0, nDirect = sc.nDirect;
+    for (const r of sc.recs) {
+      if (!r.pts.some(p => touch(p, o, ball.r))) continue;
+      nKeep++;
+      if (r.kind === 'block') { direct.set(r.body, (direct.get(r.body) || 0) - 1); nDirect--; }
+    }
+    const why = [];
+    if (nKeep < KEEP_MIN) why.push('hardly in the way');
+    else if (nKeep > KEEP_MAX_SHARE * sc.nBase) why.push('in the way of too many');
+    if ([...sc.base].some(([b, n]) => (direct.get(b) || 0) < (sc.later ? Math.min(MIN_HITS, n) : MIN_HITS))) why.push('a block hard to hit');
+    if (nDirect < 15) why.push('too few throws hit');
+    if (!why.length) {
+      const pts = pointsSeen(CAM, inTheWay, [o]), live = blocks.filter(b => !b.broken).length, front = countSeen(pts);
+      if (!(front.full + front.part === live && front.full >= live / 3)) why.push('too little shows');
+      else if (sc.later && Math.min(SEEN_POINTS, ...pts.filter((k, j) => !blocks[j].broken)) < MIN_SEEN) why.push('a block mostly behind it');
+    }
+    return { ok: !why.length, why: why.join('; '), nKeep };
+  }
+  function placeKeep(L, p, chk, thing) {
+    const rand = rng((L.seed ^ 0x6B33F5) >>> 0), cands = keepCandidates(p, thing, HAND, rand, meetsThings(p));
+    let tried = 0, last = null, cheap = 0;
+    for (const c of cands) {
+      const k = keepScan(c, thing);
+      if (!k.ok) { cheap++; last ??= k.why; continue; }
+      if (tried >= KEEP_TRIES) break;
+      tried++;
+      L.keepout = { thing: c.thing, x: c.x, z: c.z };
+      const q = sceneParts(L);
+      setScene(q);
+      const c2 = check(L);
+      if (c2.ok) return { p: q, chk: { ...c2, keepTried: tried, keepOf: cands.length, keepCheap: cheap } };
+      last = c2.why;
+    }
+    delete L.keepout;
+    p = sceneParts(L);
+    setScene(p);
+    return { p, chk: { ...chk, ok: false, why: `no place for the ${thing}: ${last ?? (cands.length ? 'the check refused them' : 'no room')}`, keepTried: tried, keepOf: cands.length, keepCheap: cheap } };
+  }
   function makeScene(gameSeed, level, i, name = null, mode = 'normal') {
     const score = c => (c.ok ? 1000 : 0) - c.unhit * 50 - Math.max(0, c.share - 0.75) * 100 + Math.min(c.direct, 15);
     const h = mode === 'hardest' ? hardestScene(gameSeed, level, i) : null;
@@ -644,6 +709,9 @@ export function createWorld({ onHit = () => {} } = {}) {
       setScene(p);
       if (level > 1 && moveAside(L)) { p = sceneParts(L); setScene(p); }
       chk = check(L);
+      // Hardest's thing not to hit (Q97): stood in the first place the check accepts, or the layout thrown away
+      const keep = keepFor(mode, level, i);
+      if (keep && chk.ok) ({ p, chk } = placeKeep(L, p, chk, keep));
       m = h?.mover ? moverFor(p, h.mover, L.seed) : null;
       if (m) {
         const { why, ...fit } = moverFits(m, p);
