@@ -22266,3 +22266,27 @@ anything to show it (the dots are the developer's choice per How hard).
   with the ideas in the 10.14 status entry.
 - **Open questions:** Q109 (no blocks drawn on the tablet: waiting for the
   log), Q108.
+
+## 2026-11-15: Q109: it was intermittent; the snowflake was missing too
+
+- **Developer:** back on the tablet (10.13, offline: wifi off before the
+  game was launched, so no new version), starting the game again drew the
+  blocks as normal, and "both are visible now". New detail: the same
+  night, on Hardest, "besides seeing no blocks, I saw no giant snowflakes
+  falling either". Not reproduced since; not yet tried: the experiments
+  listed in "Q109: the developer's reply".
+- **What the new fact changes:** the missing things are the blocks (ice,
+  transparent) and the snowflake (a mover, icy, translucent); the ball and
+  the slingshot, the background and the ground were drawn. The snowflake's
+  physics was there (the ball was stopped by it 0.33 s in), so it is not
+  only a faint ice. Both are added to the scene after the level's setting
+  loaded (3.3 s, the first entry to level 3 in that page, with the drawing
+  already stepped down to "lightest"). **Still not known:** whether the
+  rock (opaque, a thing built the same way) and the pine were drawn: if
+  they were, the transparent things are the suspects; if not, everything
+  the scene adds. To ask.
+- **A condition to keep when trying again:** the drawing level kept for the
+  device is per release (\`keepLevel(..., RELEASE)\`), so loading 10.15
+  starts the tablet again at "as drawn" and measures again: the
+  conditions of that night (kept "lightest" from the start) are gone on
+  10.15 until it steps down again.
