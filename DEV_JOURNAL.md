@@ -21848,12 +21848,17 @@ anything to show it (the dots are the developer's choice per How hard).
   spread-out scenes (each ice piece its own throw, out to the sides), a
   thing to time round in the others, and the ice (a hit cube may slide
   rather than tip). Hardest's dots are 0.15 s, as since 10.6.
+- **The developer:** "if aiming did not change, it is a good testament to
+  the fact that the obstacles are making it harder. Not literally, but
+  the distraction is working." And for Q107: "I still have the log - I
+  will send in next session."
 
 **Status (start here next session)**
 - **Live: 10.12.** `block-game` = `main` plus journal entries. Nothing
   waiting to publish.
-- **From the developer:** the phone's log from a time a block goes off the
-  screen and isn't counted (Q107); the rest of the Frosty Times feedback.
+- **From the developer:** the phone's log (kept, to send) from the times
+  blocks went off the screen and weren't counted (Q107); the rest of the
+  Frosty Times feedback.
 - **Then:** Q107 from the log; Q97 to discuss; session 4 of the build,
   Cactus Canyon's moving things.
 - **Open questions:** Q97 (things not to hit: how they show it, and the
