@@ -5,6 +5,8 @@
 
 import { createLog, formatReport, LOG_KEY, LOG_MAX } from '../core/log.js';
 import { RUNS } from '../core/speedtest.js';
+import { LEVELS, KEY as DRAW_KEY, keptLevel, keepLevel } from '../core/drawing.js';
+import { RELEASE } from '../core/release.js';
 
 const $ = id => document.getElementById(id);
 let storage = null;
@@ -85,6 +87,37 @@ $('speedBtn').onclick = async () => {
   $('speedBtn').disabled = false;
   show();
 };
+
+// The drawing level the 3D games start at on this device (Q109): the level
+// the slow-device step-down keeps for this release (src/core/drawing.js),
+// set by hand here so a tablet can be tried at "lightest" on purpose, in the
+// installed app too. The games still step lighter if they are slow, never
+// lighter than they are; "as drawn" is where a new release starts.
+const GAMES = ['topple', 'tin-can-alley'];
+function drawLevels() {
+  let raw = null;
+  try { raw = JSON.parse(storage?.getItem(DRAW_KEY) ?? 'null'); } catch { /* unreadable: as drawn */ }
+  return { raw, levels: GAMES.map(g => keptLevel(raw, g, RELEASE)) };
+}
+function showDrawing() {
+  const { levels } = drawLevels();
+  $('drawSay').textContent = `3D games draw at: Topple! ${LEVELS[levels[0]].name}, Tin Can Alley ${LEVELS[levels[1]].name} (release ${RELEASE}). Start the game again after changing it.`;
+  $('drawBtns').replaceChildren(...LEVELS.map((l, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'pill'; b.textContent = l.name;
+    b.setAttribute('aria-pressed', String(levels.every(v => v === i)));
+    b.onclick = () => {
+      let out = drawLevels().raw;
+      for (const g of GAMES) out = keepLevel(out, g, i, RELEASE);
+      try { storage?.setItem(DRAW_KEY, JSON.stringify(out)); } catch (e) { said('Not kept on this device.'); return; }
+      log.add('draw', 'drawing level set by hand', { level: l.name, release: RELEASE, games: GAMES });
+      said(`The 3D games will draw ${l.name}. Open Topple! again to try it.`);
+      showDrawing(); show();
+    };
+    return b;
+  }));
+}
+showDrawing();
 
 $('clearBtn').onclick = () => {
   if (!confirm('Clear the log on this device?')) return;

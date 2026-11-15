@@ -7,6 +7,19 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.18 (2026-11-15, version 15f5b2c361fd)
+
+The log page can set the drawing level of the 3D games, for trying a
+device on purpose.
+
+- **For finding a bug**: on the Log page (the installed app has no
+  address bar, so 10.17's address option didn't reach it) three buttons,
+  **as drawn**, **light** and **lightest**, set the level Topple! and Tin
+  Can Alley start at on this device, as their slow-device step-down would.
+  Start the game again after choosing. A new release starts as drawn;
+  the games still step lighter if they are slow.
+- Nothing changes unless you press one.
+
 ## 10.17 (2026-11-15, version b54153c55a75)
 
 Topple!: the page's address can ask for a drawing level, to try a device

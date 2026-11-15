@@ -22453,3 +22453,26 @@ anything to show it (the dots are the developer's choice per How hard).
   log" (a simpler material at "lightest", keep basic shadows there, or
   split its cuts); session 4 of the Hardest build, Cactus Canyon.
 - **Open questions:** Q109, Q108.
+
+## 2026-11-15: 10.17 on the tablet: the installed app; 10.18
+
+- **Developer:** plays in the installed app (PWA), not a browser, so 10.17's
+  address option does not reach it; with 10.17 loaded, Frosty Times'
+  first scene "looks fine" when started first; before, they had played
+  through the building site to get there.
+- **Does that matter?** Yes, through the drawing level. The tablet steps down
+  to "light" and "lightest" by itself after slow frames (it did at +415 s
+  and +715 s of earlier visits, the building site's big scenes), and the
+  level kept is reset by each new release ("a new release starts as
+  drawn", `keptLevel`); in every bad case the tablet was at "lightest",
+  in the good ones at "as drawn" or "light". Loading 10.17 reset it: so
+  Frosty Times looks fine until the tablet steps down again.
+- **Built (10.18):** the Log page (in the app: the footer's log link, or
+  the log button) has three buttons, as drawn / light / lightest, that set
+  the level both 3D games start at for this release, written as the
+  step-down writes it (`keepLevel`), logged ("drawing level set by hand").
+  Checked here: pressing lightest writes level 2 for both games and the
+  button shows pressed; as drawn writes 0.
+- **To ask the developer:** open Log, press **lightest**, open Topple!,
+  Frosty Times' first scene (Harder or any): do the blocks show? Then
+  light. Save the log if not. Press **as drawn** afterwards to go back.

@@ -188,3 +188,22 @@ test('drawing: a level asked for in the address (?drawing=...): by name or numbe
   assert.match(watch, /if \(!s \|\| asked !== null\) return;/);
   assert.match(watch, /\.\.\.\(asked !== null \? \{ asked: true \} : \{\}\)/);
 });
+
+test('drawing: the log page sets the level the 3D games start at, in the installed app too: kept as the step-down keeps it, logged (Q109)', async () => {
+  const page = await readFile(path.join(root, 'log.html'), 'utf8');
+  const js = await readFile(path.join(root, 'src/ui/logpage.js'), 'utf8');
+  const css = await readFile(path.join(root, 'css/log.css'), 'utf8');
+  assert.match(page, /<p class="drawsay" id="drawSay"><\/p>\s*<div class="logbtns three" id="drawBtns"><\/div>/);
+  assert.match(js, /import \{ LEVELS, KEY as DRAW_KEY, keptLevel, keepLevel \} from '\.\.\/core\/drawing\.js';/);
+  assert.match(js, /const GAMES = \['topple', 'tin-can-alley'\];/);
+  assert.match(js, /for \(const g of GAMES\) out = keepLevel\(out, g, i, RELEASE\);/, 'kept for this release, as the step-down keeps it');
+  assert.match(js, /log\.add\('draw', 'drawing level set by hand'/);
+  assert.match(js, /setAttribute\('aria-pressed', String\(levels\.every\(v => v === i\)\)\)/);
+  assert.match(css, /\.logbtns\.three \{ grid-template-columns: repeat\(3, 1fr\); \}/);
+  // every level on offer is one the games know, in order
+  assert.deepEqual(LEVELS.map(l => l.name), ['as drawn', 'light', 'lightest']);
+  // what it writes, the games read back: a level for this release, none for another
+  const out = keepLevel(keepLevel(null, 'topple', 2, '10.18'), 'tin-can-alley', 2, '10.18');
+  assert.equal(keptLevel(out, 'topple', '10.18'), 2); assert.equal(keptLevel(out, 'tin-can-alley', '10.18'), 2);
+  assert.equal(keptLevel(out, 'topple', '10.19'), 0);
+});
