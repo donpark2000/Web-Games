@@ -21927,3 +21927,24 @@ anything to show it (the dots are the developer's choice per How hard).
   developer's idea of the ball turning into a heart that explodes).
 - **Test folder:** `Web-Games-testing\2026-11-14_q107-log\` (the log's
   excerpt) purged 2026-11-14 with the developer's OK (to the Recycle Bin).
+
+## 2026-11-14: Release 10.13 published and live
+
+- **Published** with the developer's OK ("publish 10.13"): Q107's fix, a
+  block off the screen judged by its own corners. `npm test` 664 of 664;
+  `node tools/release.js` said ready; `block-game` fast-forwarded into
+  `main` (91548c7); tag `v10.13` pushed; GitHub release made from
+  `node tools/release.js notes`. The live site serves release 10.13,
+  version eef35ba785a2 (checked at github.io). No localhost server was
+  running.
+- **To try on the phone** (the developer): a block knocked off an upright
+  screen counts down (Frosty Times, scene 3 was the case).
+
+**Status (start here next session)**
+- **Live: 10.13.** `block-game` = `main`. Nothing waiting to publish.
+- **From the developer:** try 10.13 on the phone (a block off an upright
+  screen counts down).
+- **Then:** Q97 (see its notes under Open questions; discussed at the end
+  of this session if recorded below); session 4 of the build, Cactus
+  Canyon's moving things.
+- **Open questions:** Q97.
