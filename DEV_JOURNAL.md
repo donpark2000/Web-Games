@@ -22811,3 +22811,20 @@ anything to show it (the dots are the developer's choice per How hard).
   save the log if it recurs).
 - **Then:** what the tablet says (Q108, Q111); Q109 if it recurs.
 - **Open questions:** Q111, Q109, Q108.
+
+## 2026-11-15: Release 10.19 published and live
+
+- **Published** with the developer's OK ("Publish 10.19"): Hardest in
+  Cactus Canyon and in Star Light together. `npm test` 699 of 699;
+  `node tools/release.js` said ready; `block-game` fast-forwarded into
+  `main`; tag `v10.19` pushed; GitHub release made. The live site serves
+  release 10.19, version c70caa5ef1c9, with the Star Light movers' code
+  (checked at github.io). No localhost server running.
+
+**Status (start here next session)**
+- **Live: 10.19.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish. Every level's Hardest is built.
+- **From the developer (the tablet, installed app):** load 10.19 (home page:
+  the version line says 10.19); Hardest on Cactus Canyon and Star Light:
+  Q108, Q111; Q109 (the blank scene: save the log if it recurs).
+- **Open questions:** Q111, Q109, Q108.
