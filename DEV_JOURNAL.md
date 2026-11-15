@@ -22077,3 +22077,60 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Side effect to know:** the Browser pane's own saved Topple! game (the
   pane's storage, not the phone's or tablet's) was changed while checking
   (how hard: Hardest; level progress).
+
+## 2026-11-14: Release 10.14 published and live
+
+- **Published** with the developer's OK ("Go ahead and publish 10.14 when
+  it is ready", at the start of the session, the developer then away):
+  Q97's things not to hit. `npm test` 674 of 674 (first full run: 3
+  failed, all mine and fixed: RELEASES.md's newest not yet 10.14, the
+  frosty test's "1 try" for a spread scene, my own page test's `await`
+  and patterns; then `drawing`'s 3000-character window and the page
+  tests' patterns, the page code reordered to keep their shape);
+  `node tools/release.js` said ready; `block-game` fast-forwarded into
+  `main` (96c5a14); tag `v10.14` pushed; GitHub release made from
+  `node tools/release.js notes`. The live site serves release 10.14,
+  version 1382437496c2 (checked at github.io). The localhost server of
+  this session (the Browser pane's) stopped. Not done: the clean-room copy
+  check (the suite's tests are hermetic and passed twice in a row on this
+  folder).
+- **Not seen by anyone yet:** 10.14 on a phone or tablet.
+
+**Status (start here next session)**
+- **Live: 10.14.** `block-game` = `main` plus journal entries. Nothing
+  waiting to publish.
+- **From the developer:** (1) 10.13 on the tablet (a block off an upright
+  screen counts down); (2) 10.14 on the tablet, Hardest, scenes 2 and 4 of
+  the park, the building site and Frosty Times: the notice's line and its
+  3 s, the ring, hitting the thing (the heart, the pop, the reaction, the
+  card 1.6 s after), how it plays and how big and clear it is on the small
+  screen; (3) **Q108**: confirm or change what Claude chose (the three
+  things, scenes 2 and 4, Hardest only, the 3 s and 1.6 s), and whether
+  Harder gets one in its scenes 2 and 4.
+- **Then (ideas for moving on, Claude's):**
+  1. **Session 4 of the Hardest build, Cactus Canyon's moving things**
+     (scenes 1, 3, 5; five levels' Hardest are done when this and Star
+     Light's are). Options to discuss, each its own way (the five ways:
+     slide, swing, stream, drop, fall): a **tumbleweed** rolling across
+     (slide or stream), a **vulture** swooping down (drop) or a
+     **sky-fall** thing, a **mine cart** on a track (slide), the **saloon's
+     swinging sign** (swing). The saloon's barrels, the iron ball and the
+     scrub are the level's own look; a thing a ball can pass through (as
+     the tyre's hole, the snowflake's arms) is a nice touch the developer
+     liked.
+  2. **Star Light's moving things** (level 5, night): a **shooting star**
+     (fall), an **owl** gliding across (slide; the owl already hoots and
+     takes fright), a **swinging lantern** (swing), a **comet** stream.
+  3. **Their things not to hit**, with their Hardest: Cactus Canyon's
+     (a sleeping armadillo or tortoise, tumbles; a cowboy's hat on a post?),
+     Star Light's (a jar of fireflies, glass, the glow goes out; a
+     telescope). Same ring, same notice line, same hit.
+  4. **Harder** (Q108), if wanted.
+  5. After the levels: a check of the whole Hardest on the old tablet (the
+     scene set-up time with the thing: 0.75-1.1 s here, not measured there;
+     the notice holds 3 s anyway), and Normal/Harder/Hardest side by
+     side once more with the developer's word on how hard each is.
+- **Open questions:** Q108 (the things not to hit: what Claude chose,
+  and Harder).
+- **Test folder:** none (nothing written outside the repo; the Browser
+  pane's saved game was changed while checking).
