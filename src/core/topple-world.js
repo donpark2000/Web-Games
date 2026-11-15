@@ -278,12 +278,14 @@ export function createWorld({ onHit = () => {} } = {}) {
   // the physics may find the touch only on the next step.)
   world.addEventListener('postStep', () => {
     if (!mover?.load.gaps) return;
-    const f = moverBodies[0], R = mover.load.w / 2;
-    for (const { body: b } of balls) {
+    const R = mover.load.w / 2;
+    for (const f of moverBodies) for (const { body: b } of balls) {
       if (b.through || b.stopped || f.gone) continue;
       const r = b.shapes[0]?.radius ?? BALL.r, past = f.position.z - b.position.z;
-      if (b.crossedFlake == null && past > 0 && past < 0.5 && Math.hypot(b.position.x - f.position.x, b.position.y - f.position.y) < R) b.crossedFlake = moverT;
-      if (b.crossedFlake != null && past > mover.load.d / 2 + r + 0.02) {
+      // (the time it crossed each, by the thing: a stream has several)
+      const crossed = (b.crossedFlake ??= new Map());
+      if (!crossed.has(f) && past > 0 && past < 0.5 && Math.hypot(b.position.x - f.position.x, b.position.y - f.position.y) < R) crossed.set(f, moverT);
+      if (crossed.has(f) && past > mover.load.d / 2 + r + 0.02) {
         b.through = true;
         const off = Math.hypot(b.position.x - f.position.x, b.position.y - f.position.y), v = b.velocity;
         onHit({ a: 'ball', b: 'through', v: Math.hypot(v.x, v.y, v.z), y: b.position.y, ball: b, other: f, thing: mover.look, offM: +off.toFixed(3) });

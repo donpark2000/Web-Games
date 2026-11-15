@@ -22,7 +22,7 @@ export const KEEP_MODES = ['hardest'];
 
 // By level: Park, Building site, Frosty Times (Cactus Canyon and Star Light
 // follow their Hardest). `the` is the words the notice and the card use.
-export const KEEP = { 1: 'nest', 2: 'pane', 3: 'lantern' };
+export const KEEP = { 1: 'nest', 2: 'pane', 3: 'lantern', 4: 'pot' };
 export const THINGS = {
   // a bird's nest with eggs on a tree stump: it tumbles
   nest: { name: 'bird\'s nest', the: 'the bird\'s nest', w: 0.7, h: 0.62, d: 0.7, reacts: 'tumbles' },
@@ -30,6 +30,8 @@ export const THINGS = {
   pane: { name: 'window pane', the: 'the window pane', w: 1.0, h: 1.1, d: 0.2, reacts: 'shatters' },
   // a glass lantern on a post, lit: it shatters and goes out
   lantern: { name: 'lantern', the: 'the lantern', w: 0.5, h: 0.95, d: 0.5, reacts: 'shatters' },
+  // a clay pot with a red flower (Cactus Canyon, session 4): it shatters in clay shards
+  pot: { name: 'clay pot', the: 'the clay pot', w: 0.6, h: 0.7, d: 0.6, reacts: 'shatters' },
 };
 export const KEEP_THINGS = Object.keys(THINGS);
 
@@ -40,7 +42,7 @@ export const keepFor = (mode, level, scene) => (KEEP_MODES.includes(mode) && KEE
 // with its picture, as the developer agreed: "Don't hit the nest!").
 export const keepLine = thing => (THINGS[thing] ? `Don't hit ${THINGS[thing].the}!` : null);
 // The picture beside it: the thing's emoji
-export const KEEP_EMOJI = { nest: '🐦', pane: '🖼️', lantern: '🏮' };
+export const KEEP_EMOJI = { nest: '🐦', pane: '🖼️', lantern: '🏮', pot: '🌺' };
 
 // A thing placed: { thing, x, z } (world m, its base's middle on the ground).
 // Its physics ({ kind, thing, shapes }), what's drawn ({ part, ... }) and the

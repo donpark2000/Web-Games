@@ -138,6 +138,24 @@ const flake = (R, d) => {
   }
   return out;
 };
+// Cactus Canyon's (session 4; developer, 2026-11-15: "Yes, build those
+// picks"). Sizes at Far (twice real), each from its box's middle:
+// - the tumbleweed: 1.3 m across (measured 2026-11-15: a straight throw that
+//   hits a block passes the mover's depth 0.9-1.7 m up, so a thing on the
+//   sand under 0.9 m, as the first try's 0.84 m, was never in a throw's way),
+//   a ring of twigs with four spokes (as
+//   the snowflake's arms: the gaps between are real, so a ball can pass
+//   through, `gaps`, told as 'through'), rolling along the sand (`ground`,
+//   `roll`: it turns as it goes, `hop`: a little hop twice a turn); three
+//   in a stream, so it crosses where it goes through neither the scrub nor the cactus (`clear`).
+// - the mine cart: 1.95 m long and 1.1 m tall on its rails (a real one's 1 m
+//   by 0.6, twice), slide, on the ground as the
+//   snowman is (the low and middle throws, not the lobs), its ends short of a thing.
+// - the vulture: 1.8 m across its wings, drop: dives in, hovers flapping
+//   (the physics has its body and two wings; the flap is drawn only), climbs
+//   away out of sight.
+export const TUMBLE_R = 0.65, TUMBLE_D = 0.35, TUMBLE_N = 16;
+const tumbleSpokes = (R, d) => [0, 1, 2, 3].map(k => ({ half: [R - 0.03, 0.03, d / 2], at: [0, 0, 0], rot: k * Math.PI / 4 }));
 export const LOADS = {
   girders: LOAD,
   bricks: LOAD,
@@ -147,6 +165,9 @@ export const LOADS = {
   snowman: { w: 2 * SNOWMAN.base, h: +SNOWMAN_H.toFixed(3), d: 2 * SNOWMAN.base, ground: true, clear: true, head: 2, shapes: snowmanBalls() },
   snowball: { w: 0.6, h: 0.6, d: 0.6, n: 4, arc: true, clear: true, shapes: [{ r: 0.3, at: [0, 0, 0] }] },
   flake: { w: 2 * FLAKE_R, h: 2 * FLAKE_R, d: FLAKE_D, gaps: true, clear: true, shapes: flake(FLAKE_R, FLAKE_D) },
+  tumbleweed: { w: 2 * TUMBLE_R, h: 2 * TUMBLE_R, d: TUMBLE_D, n: 3, ground: true, clear: true, roll: true, hop: 0.2, gaps: true, minShare: 0.5, shapes: [...ring(TUMBLE_N, TUMBLE_R, TUMBLE_R - 0.09, TUMBLE_D), ...tumbleSpokes(TUMBLE_R, TUMBLE_D)] },
+  cart: { w: 1.95, h: 1.125, d: 1.05, ground: true, clear: true, minShare: 0.5 },
+  vulture: { w: 1.8, h: 0.6, d: 0.4, shapes: [{ half: [0.17, 0.25, 0.15], at: [0, -0.05, 0], rot: 0 }, { half: [0.35, 0.05, 0.18], at: [-0.5, 0.12, 0], rot: -0.15 }, { half: [0.35, 0.05, 0.18], at: [0.5, 0.12, 0], rot: 0.15 }] },
 };
 export const ALL_LOOKS = Object.keys(LOADS);
 // The park's: each thing its own way (a tyre swings, a seat slides on its
@@ -154,6 +175,8 @@ export const ALL_LOOKS = Object.keys(LOADS);
 export const PARK = { swing: 'tyre', slide: 'zip', drop: 'kite' };
 // Frosty Times': the snowman skates, the machine's snowballs stream, the snowflake falls.
 export const FROSTY = { slide: 'snowman', stream: 'snowball', fall: 'flake' };
+// Cactus Canyon's: the mine cart slides on its rails, the tumbleweeds stream by, the vulture dives.
+export const CANYON = { slide: 'cart', stream: 'tumbleweed', drop: 'vulture' };
 // The zip line's cable (m up): in sight (the view's top over the line at
 // the mover's depth measured 2.81-4.42 m, park scenes, phone upright to
 // wide; at 6 m it was out of sight and the seat hung from nowhere). Drawn
@@ -251,7 +274,8 @@ export function moverFor(parts, choice = {}, seed = 1) {
     return m;
   };
   if (!load.clear) return make(AT);
-  for (const share of AT_TRY) { const m = make(share); if (!clashes(m, parts).length) return m; }
+  // (the big ones, the tumbleweeds and the cart, no nearer than `minShare`: at 0.4 of the way the cart filled the screen; none clear: the layout is thrown away)
+  for (const share of AT_TRY) { if (share < (load.minShare ?? 0)) continue; const m = make(share); if (!clashes(m, parts).length) return m; }
   return make(AT);
 }
 
@@ -452,7 +476,12 @@ export function moverAt(m, t) {
     const D = streamD(plan, t);
     return plan.offsets.map(o => {
       const x = m.x0 - plan.far + wrap(D + o, plan.loop);
-      if (!m.load.arc) return { p: [x, m.y, m.z], tilt: 0 };
+      if (!m.load.arc) {
+        if (!m.load.roll) return { p: [x, m.y, m.z], tilt: 0 };
+        // a tumbleweed: rolling along the sand (it turns as far as it goes), hopping twice a turn
+        const rad = m.load.w / 2, dx = x - m.x0;
+        return { p: [x, m.y + (m.load.hop ?? 0) * Math.abs(Math.sin(dx / rad)), m.z], tilt: -dx / rad };
+      }
       // the machine's snowballs: lobbed from its muzzle over the line (at m.y) down to the snow, rolling over as they
       // go; burst at plan.end (gone, up out of the way, till round again)
       if (x >= plan.end) return { p: [m.x0, m.from, m.z], tilt: 0, gone: true };
@@ -582,7 +611,7 @@ export function flakesOn(m, meets = () => null) {
 // others as it was until theirs is built). Each level's things: `looks`
 // dealt in turn over any of MOVES (the crane's loads), or `ways` (each
 // thing its own way: the park).
-export const LEVEL_MOVERS = { 1: { ways: PARK }, 2: { looks: LOOKS }, 3: { ways: FROSTY } };
+export const LEVEL_MOVERS = { 1: { ways: PARK }, 2: { looks: LOOKS }, 3: { ways: FROSTY }, 4: { ways: CANYON } };
 export const MOVER_LEVELS = Object.keys(LEVEL_MOVERS).map(Number);
 // Scenes with the mover; the others spread out (developer, 2026-11-14:
 // "moving things every other scene and then use space").

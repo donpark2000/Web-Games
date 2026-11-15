@@ -7,6 +7,24 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.19 (2026-11-15, version 5ceb8fa70d6f)
+
+Topple!: Hardest in Cactus Canyon has things that move in the way, and a
+clay pot not to hit.
+
+- **Scenes 1, 3 and 5**: one of three desert things moves between you and
+  the structure, each once, in a different order each game: **tumbleweeds**
+  rolling by one after another, hopping as they go (a ball can slip
+  between their spokes), a **mine cart** on its rails rattling across and
+  back, and a **vulture** diving in from the sky, hovering with its wings
+  flapping, then climbing away. A ball that hits one stops and drops: time
+  your throw.
+- **Scenes 2 and 4**: the wood pieces are spread out, left and right, near
+  and far, each needing its own aim, and a **clay pot with a red flower**
+  stands in the way of some throws: hit it and the ball turns into a heart
+  that pops, the pot shatters, a ❤️ breaks and the scene is lost.
+- The other levels, Normal and Harder are as they were.
+
 ## 10.18 (2026-11-15, version 26ac120bc852)
 
 The log page can set the drawing level of the 3D games, for trying a

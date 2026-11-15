@@ -4,7 +4,11 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-14, latest): **Topple! Hardest: a thing not to hit in scenes
+*Status (2026-11-15, latest): **Topple! Hardest in Cactus Canyon: tumbleweeds
+rolling across (a ball can pass between the spokes), a mine cart on its
+rails, a vulture diving in, each once in scenes 1, 3, 5; 2 and 4 spread
+out, with a clay pot not to hit** (on `block-game`, for release 10.19; see
+"Topple!", Hardest's scenes). Earlier: **Topple! Hardest: a thing not to hit in scenes
 2 and 4 of the park, the building site and Frosty Times (a bird's nest, a
 window pane, a lantern): a red slashed ring over it, a line in the setup
 notice, and a hit turns the ball into a heart that pops, a ❤️ breaks and the
@@ -2572,16 +2576,42 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     is the player's). A layout whose mover leaves the way open under 40%
     of the time, or shuts it over 3.5 s at once, is thrown away (the
     scene check).
+    **Cactus Canyon's** (the build's session 4; developer, 2026-11-15:
+    "Yes, build those picks"): three things, each once, each its own way,
+    in a dealt order: **tumbleweeds** (stream: three rolling one way along
+    the sand, each a scraggly ball of twigs 1.3 m across, turning as far as
+    it goes, hopping twice a turn; a ring of twigs with four spokes to the
+    physics, **a ball can pass between the spokes**, logged `ball through
+    the tumbleweed`; a ball at a spoke or the ring stops and drops), a
+    **mine cart** (slide: 1.95 m long and 1.1 m tall on rails drawn across
+    the sand, iron-bound planks, four spoked wheels that turn as it goes,
+    rocks heaped in it; across and back, stopping short of a thing at
+    either end, as the snowman does), a **vulture** (drop: dives in from
+    out of sight with its wings folded up, hovers at the throws' height
+    with them flapping, climbs away; a body and two wings to the physics,
+    the flap drawn only; it dives over the scrub and cactus). **Sized by
+    measurement** (2026-11-15): a straight throw that hits a block passes
+    the mover's depth 0.9-1.7 m up (804-2413 throws over four scenes: none
+    under 0.9 m), so the first try's tumbleweed (0.84 m) and cart (0.75 m)
+    were never in any throw's way: the tumbleweed is 1.3 m (hopping up to
+    1.5 m) and the cart 1.1 m. They cross where they go through neither the
+    scrub nor the cactus, **no nearer than 0.5 of the way** (at 0.4 the
+    cart filled the screen), the layout thrown away if none is clear
+    (measured, 18 scenes of 6 games: one needed 5 tries, the others 1).
+    Sounds: a tumbleweed a dry `rustle`, the cart's iron a `clonk`, the
+    vulture a soft `thud`.
   - **Scenes 2 and 4: spread out**: the level's small pieces set well
     apart, left and right, nearer and further (the building site: three
     posts with bricks; two small frames; a frame and two posts; the park:
     three posts with cubes, two small gates, a gate and two posts, the
     tree beside them, not in front; Frosty Times: three ice pillars with
-    cubes, two small ice gates, an ice gate and two pillars), each its
+    cubes, two small ice gates, an ice gate and two pillars; Cactus
+    Canyon: three wood posts with small barrels, two small trestles, a
+    trestle and two posts), each its
     own throw.
   **Things not to hit** (Q97; agreed and built 2026-11-14, release 10.14;
   a hit loses the scene and a ❤️). **Built for Hardest only, in the levels
-  whose Hardest is built (1-3), in scenes 2 and 4** (the spread-out ones:
+  whose Hardest is built (1-4: Cactus Canyon's pot added 2026-11-15), in scenes 2 and 4** (the spread-out ones:
   nothing moves there; Claude's suggestion, taken while the developer was
   away: to confirm, journal Q108, with Harder, whose scenes are Normal's
   and have no spread-out scene to stand one in), **one thing a scene**, each
@@ -2589,8 +2619,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   the park's **bird's nest** on a stump (it tumbles off and its eggs
   roll away), the building site's **window pane** in a wooden frame on
   feet (it shatters), Frosty Times' **lantern** on a post, lit (its glass
-  shatters and the light goes out). Each a box to the physics (nest 0.7 x
-  0.62 m, pane 1.0 x 1.1 x 0.2, lantern 0.5 x 0.95; Far metres), standing
+  shatters and the light goes out), Cactus Canyon's **clay pot with a red
+  flower** (it shatters in clay shards; notice picture 🌺). Each a box to the physics (nest 0.7 x
+  0.62 m, pane 1.0 x 1.1 x 0.2, lantern 0.5 x 0.95, pot 0.6 x 0.7; Far metres), standing
   on the ground facing you, in `src/core/topple-keepout.js`.
   **Where it stands**: on the line from the slingshot to one of the
   blocks, 0.62-0.88 of the way (further out first: nearer the hand it

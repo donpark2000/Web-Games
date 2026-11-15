@@ -308,6 +308,28 @@ export const STRUCTURES = {
     return [l, r, beam, barrel(0, topOf(beam), 0.35, 0.18, 0.46), ...a.bs, barrel(0.18, a.y, -0.5, 0.17, 0.48), ...b.bs, barrel(0, b.y, -0.5, 0.2, 0.55)];
   },
 
+  // Hardest's spread-out scenes (2 and 4; the build's session 4), as the
+  // other levels': the level's small pieces well apart, each its own throw.
+  // Three wood posts, a small barrel on each: left near, middle far, right between.
+  canyonSpreadPosts: k => {
+    const s = 1.25 * k('s'), out = [];
+    [[-1, 0.5, 0.85], [0, -0.6, 1.0], [1, 0, 0.75]].forEach(([i, z, h], n) => { const p = box('wood', 0.16, h * k('h' + n), 0.16, i * s, 0, z); out.push(p, barrel(p.x, topOf(p), z, 0.17, 0.4)); });
+    return out;
+  },
+  // Two small trestles (two barrels and a beam), a small barrel on each: left near and low, right far and taller.
+  canyonSpreadTrestles: k => {
+    const g = 1.2 * k('g');
+    const tr = (x, z, h) => { const a = barrel(x - 0.25, 0, z, 0.22, h), b = barrel(x + 0.25, 0, z, 0.22, h), beam = box('wood', 0.96, 0.1, 0.28, x, topOf(a), z); return [a, b, beam, barrel(x, topOf(beam), z, 0.17, 0.42)]; };
+    return [...tr(-g, 0.45, 0.5), ...tr(g, -0.5, 0.66 * k('h'))];
+  },
+  // A small trestle at the back in the middle, a post and small barrel near on each side.
+  canyonSpreadMix: k => {
+    const s = 1.3 * k('s'), h = 0.58 * k('h'), a = barrel(-0.25, 0, -0.6, 0.22, h), b = barrel(0.25, 0, -0.6, 0.22, h), beam = box('wood', 0.96, 0.1, 0.28, 0, topOf(a), -0.6);
+    const out = [a, b, beam, barrel(0, topOf(beam), -0.6, 0.17, 0.42)];
+    for (const i of [-1, 1]) { const p = box('wood', 0.16, 0.75 * k('p' + i), 0.16, i * s, 0, 0.4); out.push(p, barrel(p.x, topOf(p), 0.4, 0.17, 0.4)); }
+    return out;
+  },
+
   /* ---------- level 5, Star Light: glowing blocks at night (Claude's picks, to review) ---------- */
   // 1. A lantern arch: two glowing columns, a slab across, a cube at each end and one in the middle.
   lanternArch: k => {
@@ -397,7 +419,8 @@ export const LEVELS = [
     pool: ['iceGate', 'iceSteps', 'iceTower', 'icePyramid', 'icePillars', 'iceWall'], challenges: ['iceCastle', 'iceKeep'],
     spread: ['iceSpreadPillars', 'iceSpreadGates', 'iceSpreadMix'] },
   { n: 4, name: 'Cactus Canyon', line: 'Burst the water barrels and the beams come down.', soft: 'scrub', tall: 'cactus', ball: 'iron',
-    pool: ['waterTower', 'signboard', 'trestle', 'barrelStack', 'barrelRow', 'hitchingRail'], challenges: ['saloon', 'mineHead'] },
+    pool: ['waterTower', 'signboard', 'trestle', 'barrelStack', 'barrelRow', 'hitchingRail'], challenges: ['saloon', 'mineHead'],
+    spread: ['canyonSpreadPosts', 'canyonSpreadTrestles', 'canyonSpreadMix'] },
   // (developer, 2026-11-12, Q87: "Night time with a moon and stars in the
   // sky. Similar vista to the winter level but low light. Blocks and balls
   // glow"; the things in the way level 3's, at night: Claude's pick)

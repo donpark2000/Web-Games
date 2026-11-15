@@ -448,7 +448,7 @@ test('topple page: Hardest\'s thing not to hit (Q97): the red slashed ring and t
   assert.match(sceneJs, /keep\.reset\(\);/);
   assert.match(keepJs, /RING_COLOUR = '#E02424'/);
   assert.match(keepJs, /new THREE\.SpriteMaterial\(\{ map: ringTex, depthTest: false, transparent: true \}\)/, 'the mark shows over anything in front');
-  assert.match(keepJs, /const BUILD = \{ nest, pane, lantern \};/);
+  assert.match(keepJs, /const BUILD = \{ nest, pane, lantern, pot \};/);
   assert.match(keepJs, /ringSprite\.position\.y = ringSprite\.userData\.base \+ 0\.07 \* Math\.sin\(bobT \* 3\.2\)/, 'it bobs');
   assert.match(keepJs, /heartTex/);
   assert.match(keepJs, /function pop\(at\)/);

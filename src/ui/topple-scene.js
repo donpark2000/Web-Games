@@ -512,6 +512,74 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     return g;
   }
+  // Cactus Canyon's (Q106, session 4), drawn round the physics' shapes:
+  // - the tumbleweed: a ring of twigs with the four spokes the physics has
+  //   and a tangle of thinner rings and twigs a little out of the plane
+  //   (each of the three its own, seeded by its number); it rolls and hops
+  //   as the physics has it;
+  // - the mine cart: an iron-bound wooden box on four spoked wheels (they
+  //   turn as it goes), rocks heaped in it, on rails drawn across its way;
+  // - the vulture: seen from in front, a dark body and white ruff, a bald
+  //   red head and a hooked beak, two wings of three feathers from the
+  //   shoulders that flap (hover and climb) or fold up (the dive): drawn
+  //   only, the physics has its body and two wings.
+  const weedMat = new THREE.MeshStandardMaterial({ color: '#C9A25E', roughness: 0.95 });
+  const weedDark = new THREE.MeshStandardMaterial({ color: '#8E6B3A', roughness: 0.95 });
+  const cartIron = new THREE.MeshStandardMaterial({ color: '#4A4E54', roughness: 0.6, metalness: 0.5 });
+  const cartRust = new THREE.MeshStandardMaterial({ color: '#8A4B2A', roughness: 0.8, metalness: 0.2 });
+  const rockMat = new THREE.MeshStandardMaterial({ color: '#8C8579', roughness: 0.95, flatShading: true });
+  const railMat = new THREE.MeshStandardMaterial({ color: '#5B5750', roughness: 0.5, metalness: 0.6 });
+  const tieMat = new THREE.MeshStandardMaterial({ color: '#6E4E2E', roughness: 0.95 });
+  const vultureMat = new THREE.MeshStandardMaterial({ color: '#3A2F2B', roughness: 0.9 });
+  const vultureLight = new THREE.MeshStandardMaterial({ color: '#E9E2D4', roughness: 0.9 });
+  const skinMat = new THREE.MeshStandardMaterial({ color: '#D9786A', roughness: 0.8 });
+  const beakMat = new THREE.MeshStandardMaterial({ color: '#E8C76A', roughness: 0.6 });
+  function tumbleweed(g, m, i = 0) {
+    // a scraggly ball: thin rings at every which angle (one in the plane the
+    // physics has its ring in) and many twigs through the middle, none of the
+    // regular spokes the physics has showing (a wagon wheel it was, at first)
+    const R = m.load.w / 2, rand = rng(7 + 31 * i);
+    const tor = (r, t, rx, ry, rz) => { const o = new THREE.Mesh(new THREE.TorusGeometry(r, t, 4, 18), rand() < 0.5 ? weedMat : weedDark); o.rotation.set(rx, ry, rz); g.add(o); };
+    tor(R - 0.03, 0.016, 0, 0, rand() * 6);
+    for (let k = 0; k < 5; k++) tor(R * (0.8 + rand() * 0.15), 0.012 + rand() * 0.008, rand() * 3.1, rand() * 3.1, rand() * 6);
+    for (let k = 0; k < 48; k++) {
+      const L = R * (0.9 + rand() * 1.1), s = rod(0.007 + rand() * 0.007, L, k % 3 ? weedMat : weedDark);
+      s.rotation.set(rand() * 3.1, rand() * 3.1, rand() * 6.3); s.position.set((rand() - 0.5) * R * 0.5, (rand() - 0.5) * R * 0.5, (rand() - 0.5) * 0.12);
+      g.add(s);
+    }
+  }
+  function cart(g, m) {
+    // drawn at 1.3 x 0.75 x 0.7 and scaled up to the physics' box (1.5 times)
+    const k = m.load.w / 1.3, w = 1.3, h = 0.75, d = 0.7, y0 = -h / 2, bodyH = 0.3, by = y0 + 0.22 + bodyH / 2, rand = rng(23);
+    g.add(part(w * 0.9, 0.04, d * 0.85, cartRust, 0, y0 + 0.22, 0));
+    for (const sz of [-1, 1]) g.add(part(w * 0.92, bodyH, 0.04, cartRust, 0, by, sz * d * 0.42));
+    for (const sx of [-1, 1]) g.add(part(0.04, bodyH, d * 0.85, cartRust, sx * w * 0.46, by, 0));
+    for (const sx of [-1, 0, 1]) for (const sz of [-1, 1]) g.add(part(0.05, bodyH + 0.04, 0.05, cartIron, sx * w * 0.44, by, sz * d * 0.43));
+    for (let k = 0; k < 9; k++) { const r = 0.1 + rand() * 0.07, o = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), rockMat); o.position.set((rand() - 0.5) * w * 0.72, y0 + 0.22 + bodyH + r * 0.4 + rand() * 0.08, (rand() - 0.5) * d * 0.5); o.rotation.set(rand() * 3, rand() * 3, rand() * 3); g.add(o); }
+    const wheels = [];
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+      const wh = new THREE.Group(), rim = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.19, 0.06, 14), cartIron);
+      rim.rotation.x = Math.PI / 2; wh.add(rim);
+      for (const a of [0, Math.PI / 3, 2 * Math.PI / 3]) { const sp = part(0.36, 0.04, 0.08, railMat, 0, 0, 0); sp.rotation.z = a; wh.add(sp); }
+      wh.position.set(sx * w * 0.32, y0 + 0.23, sz * d * 0.42); g.add(wh); wheels.push(wh);
+    }
+    g.scale.setScalar(k);
+    Object.assign(g.userData, { cart: true, wheels, lastX: null, k });
+  }
+  function vulture(g, m) {
+    const body = ball(0.2, vultureMat, 0, -0.05, 0, 14); body.scale.set(0.85, 1.25, 0.8); g.add(body);
+    const ruff = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.045, 8, 14), vultureLight); ruff.rotation.x = Math.PI / 2; ruff.position.set(0, 0.17, 0.02); g.add(ruff);
+    g.add(ball(0.085, skinMat, 0, 0.26, 0.05, 12));
+    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.11, 8), beakMat); beak.rotation.x = Math.PI * 0.7; beak.position.set(0, 0.24, 0.15); g.add(beak);
+    for (const sx of [-1, 1]) g.add(ball(0.014, coalMat, sx * 0.035, 0.285, 0.12, 6));
+    for (const k of [-1, 0, 1]) { const t = part(0.07, 0.3, 0.02, vultureMat, k * 0.07, -0.34, -0.02); t.rotation.z = -k * 0.25; g.add(t); }
+    const wings = [-1, 1].map(s => {
+      const p = new THREE.Group(); p.position.set(s * 0.14, 0.1, 0);
+      for (let k = 0; k < 3; k++) p.add(part(0.32, 0.035, 0.38 - k * 0.08, k === 0 ? vultureMat : vultureMat, s * (0.17 + 0.3 * k), 0, -0.02 * k));
+      g.add(p); return p;
+    });
+    Object.assign(g.userData, { vulture: true, wings, lastY: null });
+  }
   // Puffs of snow (a snowball burst, or come down) and sparkles (the snowflake breaking up): little bits flying out and fading
   const puffGeo = new THREE.IcosahedronGeometry(1, 0);
   const puffMats = { snow: new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.9, depthWrite: false }), sparkle: new THREE.MeshBasicMaterial({ color: '#CDEFFF', transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }) };
@@ -559,12 +627,12 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   const KITE_HAND = new THREE.Vector3(7, 1.3, 2.5);
   let moverStatic = [];   // the zip line's cable, the kite's string, the snowball machine, a knocked-off hat: not on a body
   let lastT = null;       // syncMovers' last time (s): the puffs' and the hat's steps
-  const OWN = { tyre, zip: zipSeat, kite, snowman, snowball, flake: snowflake };
-  function loadMesh(m) {
+  const OWN = { tyre, zip: zipSeat, kite, snowman, snowball, flake: snowflake, tumbleweed, cart, vulture };
+  function loadMesh(m, i = 0) {
     if (OWN[m.look]) {
       const g = new THREE.Group();
       g.userData = { kite: m.look === 'kite' };
-      OWN[m.look](g, m);
+      OWN[m.look](g, m, i);
       g.traverse(o => { if (o.isMesh && o.material !== stringMat) { o.castShadow = true; o.receiveShadow = true; } });
       return g;
     }
@@ -594,7 +662,15 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     for (const p of puffs) { scene.remove(p.o); p.o.material.dispose(); }
     puffs = []; hatFly = null; lastT = null;
     if (!m) return;
-    for (let i = 0; i < m.n; i++) { const g = loadMesh(m); scene.add(g); moverMeshes.push(g); }
+    for (let i = 0; i < m.n; i++) { const g = loadMesh(m, i); scene.add(g); moverMeshes.push(g); }
+    if (m.look === 'cart') {
+      // the rails across its way (a little past both ends), on sleepers
+      const len = 2 * (m.span + 1.5), rails = new THREE.Group();
+      for (const sz of [-1, 1]) rails.add(part(len, 0.05, 0.05, railMat, 0, 0.025, sz * m.load.d * 0.42));
+      for (let x = -len / 2 + 0.2; x < len / 2; x += 0.45) rails.add(part(0.12, 0.03, m.load.d, tieMat, x, 0.015, 0));
+      rails.position.set(m.x0, 0, m.z); rails.traverse(o => { if (o.isMesh) o.receiveShadow = true; });
+      scene.add(rails); moverStatic.push(rails);
+    }
     if (m.look === 'zip') {
       // the cable across the park, well past both ends of the seat's way
       const c = rod(0.016, 2 * (m.span + 12), chainMat);
@@ -648,6 +724,18 @@ export function makePark3d(canvas, { antialias = true } = {}) {
           u0.lean += (Math.max(-0.2, Math.min(0.2, -0.06 * vx)) - u0.lean) * Math.min(1, dt * 6);
           g.rotation.z = u0.lean;
           if (b.hatOff && u0.hat?.parent === g) knockHat(g, vx < 0 ? -1 : 1);
+        }
+        // the cart's wheels turn as it goes; the vulture flaps (hover, climb) or folds its wings up (the dive)
+        if (u0.cart) {
+          const vx = dt > 0 && u0.lastX != null ? (b.position.x - u0.lastX) / dt : 0;
+          u0.lastX = b.position.x;
+          for (const wh of u0.wheels) wh.rotation.z -= vx * dt / (0.19 * u0.k);
+        }
+        if (u0.vulture) {
+          const vy = dt > 0 && u0.lastY != null ? (b.position.y - u0.lastY) / dt : 0;
+          u0.lastY = b.position.y;
+          const ang = vy < -2.5 ? 1.25 : 0.15 + 0.55 * Math.sin(t * 13);
+          u0.wings.forEach((wg, k) => { wg.rotation.z = (k ? 1 : -1) * ang; });
         }
         // the snowflake rocks a little as it falls (drawn only: the physics keeps its arms face on)
         if (u0.flake) g.rotateY(0.28 * Math.sin(1.9 * t));

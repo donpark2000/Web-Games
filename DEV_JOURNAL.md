@@ -22518,3 +22518,67 @@ anything to show it (the dots are the developer's choice per How hard).
   by itself if the tablet is slow, which is how the problem arose).
 - **Status:** live 10.18; nothing waiting to publish; open: Q109 (waiting
   for a recurrence and its log), Q108; next: Cactus Canyon's moving things.
+
+## 2026-11-15: Hardest in Cactus Canyon built (session 4 of the build)
+
+- **Developer:** "Let's start on Cactus Canyon's moving things", then, of
+  Claude's picks ("Yes, build those picks"): tumbleweeds (stream), a mine
+  cart (slide), a vulture (drop), spread-out scenes 2 and 4, a clay pot not
+  to hit.
+- **Built:** level 4's `spread` (`canyonSpreadPosts`, `canyonSpreadTrestles`,
+  `canyonSpreadMix`: wood posts, trestles and small barrels), `CANYON` and
+  `LEVEL_MOVERS[4]` in `topple-movers.js` (the loads `tumbleweed`, `cart`,
+  `vulture`; a stream that rolls and hops: `roll`, `hop`), the physics'
+  through-the-gaps check generalised from one body to a stream's several
+  (the snowflake's behaviour unchanged), `pot` in `topple-keepout.js`
+  (core and drawing), the drawings in `topple-scene.js` (the tumbleweed's
+  twigs, the cart with its wheels and rails, the vulture with flapping
+  wings), sounds and logs as the other levels'.
+- **Measured (2026-11-15), and what it changed:** over four scenes, 804-2413
+  straight throws that hit a block pass the mover's depth **0.9-1.7 m up,
+  none under 0.9 m**. The first sizes (tumbleweed 0.84 m, cart 0.75 m) sat
+  under every throw: they would never have been in the way. Now the
+  tumbleweed is 1.3 m (hopping to 1.5 m) and the cart 1.1 m. At the first
+  cart size and depth the cart crossed at 0.4 of the way and filled the
+  screen (screenshot): the big ones now cross no nearer than 0.5 (`minShare`),
+  the layout thrown away if no depth is clear (18 scenes of 6 games: one
+  needed 5 tries, the others 1; open 0.51-0.78 of the time, shut at most
+  3.2 s).
+- **A first drawing looked wrong, and was fixed:** the tumbleweed with its
+  ring and four straight spokes looked like a wagon wheel (screenshot): drawn
+  now as a scraggly ball (thin rings at every angle, 48 twigs), the physics'
+  spokes not showing.
+- **Checked in the Browser pane (not on a device):** the three things
+  drawn and moving (tumbleweeds rolling, hopping; the cart on its rails with
+  rocks; the vulture folded in the dive, flapping while it hovers), the
+  pot with its ring and a hit: the heart, then clay shards and the card "Oh
+  no, the clay pot! 💔". Not seen: any of it on the tablet, the sounds.
+- **Tests:** `tests/topple-canyon.test.js` (11: the deal and levels 1-3's
+  deals as before (a hash taken before this build), the spread structures,
+  the shapes and gaps, the rolling and hopping, the cart's and vulture's
+  paths, clear of the scrub and cactus, a ball through a gap told once and
+  one at a spoke stopped, the cart and vulture stop a ball and the same
+  throw reaches the structure with the way clear, the scenes made as dealt
+  with the pot in 2 and 4, the page's wiring); the keepout, movers and page
+  tests updated for level 4. 686 of 686 before the pot's last edits; the
+  full run is below.
+- **Debug output:** the log's `mover` line (move, look, spans, open share,
+  gaps) and `ball stopped by the mover` as the others; `ball through the
+  tumbleweed`; the scene line's `keepout` for the pot.
+- **To ask the developer (Cactus Canyon on the tablet, Hardest):** do the
+  three things read well and are fair (the way open often enough, the
+  tumbleweeds not too big, the cart's rocks); is the pot clear; sounds.
+  Release 10.19 is ready, not published.
+- **Suite:** `npm test` 687 of 687; `node tools/release.js` says ready for
+  10.19 (version 5ceb8fa70d6f).
+
+**Status (start here next session)**
+- **Live: 10.18.** On `block-game`, not yet published: **release 10.19**
+  (Hardest in Cactus Canyon). Waiting for the developer's OK to publish.
+- **From the developer:** OK to publish 10.19?; then to try Cactus Canyon
+  on Hardest on the tablet (the three things, the pot); Q109 (the blank
+  scene: save the log if it recurs); Q108.
+- **Then:** Star Light's (level 5) moving things and its thing not to hit
+  (ideas in the 10.14 status entry: a shooting star (fall), an owl gliding
+  (slide), a swinging lantern (swing)), the last level of the Hardest build.
+- **Open questions:** Q109, Q108.

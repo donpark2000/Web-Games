@@ -94,7 +94,22 @@ export function makeKeepout({ THREE, scene, canvasTex }) {
     const loop = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.01, 6, 14), iron); add(g, loop, 0, y0 + gh + 0.25, 0);
     g.userData = { glass: [gl], core, shatter: { w: 0.3, h: gh, y: y0 + gh / 2 + 0.05 } };
   }
-  const BUILD = { nest, pane, lantern };
+  // a clay pot with a red flower on a green stem (Cactus Canyon): a terracotta pot with a rim, a little earth, the flower; it shatters in clay shards
+  const clay = M('#C4693A', { roughness: 0.85 }), clayDark = M('#9C4A25', { roughness: 0.9 }), earth = M('#4A3426'), stem = M('#4E8A3C'), petal = M('#E0262E', { roughness: 0.6 }), centre = M('#F5C42A');
+  function pot(g, p) {
+    const h = p.h, pg = new THREE.Group(); g.add(pg);
+    add(pg, cyl(0.27, 0.19, h * 0.62, clay, 20), 0, h * 0.31, 0);
+    add(pg, cyl(0.3, 0.3, h * 0.12, clayDark, 20), 0, h * 0.62 + h * 0.06, 0);
+    add(pg, cyl(0.25, 0.25, 0.02, earth, 20), 0, h * 0.74 + 0.005, 0);
+    const top = h * 0.74;
+    add(g, cyl(0.025, 0.03, h * 0.3, stem, 8), 0, top + h * 0.15, 0);
+    for (const s of [-1, 1]) { const l = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), stem); l.scale.set(1.8, 0.4, 1); l.position.set(s * 0.1, top + h * 0.08, 0); l.rotation.z = s * 0.5; g.add(l); }
+    const fy = top + h * 0.3 + 0.02;
+    for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3, pe = new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 8), petal); pe.scale.set(1, 1, 0.45); pe.position.set(Math.cos(a) * 0.1, fy + Math.sin(a) * 0.1, 0); g.add(pe); }
+    add(g, new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), centre), 0, fy, 0.03);
+    g.userData = { glass: [pg], extra: g.children.filter(c => c !== pg), shard: clay, shatter: { w: 0.5, h: h * 0.7, y: h * 0.35 } };
+  }
+  const BUILD = { nest, pane, lantern, pot };
 
   /* ---------- a thing and its mark ---------- */
 
@@ -179,10 +194,11 @@ export function makeKeepout({ THREE, scene, canvasTex }) {
     } else {
       // glass shatters in shards; the lantern's light goes out
       for (const m of u.glass) m.visible = false;
+      for (const m of u.extra ?? []) m.visible = false;   // (the pot's flower and stem go with it)
       if (u.core) { u.core.material.color.set('#3A2F28'); }
       const s = u.shatter, wp = new THREE.Vector3(); g.getWorldPosition(wp);
       for (let i = 0; i < 22; i++) {
-        const o = new THREE.Mesh(new THREE.BoxGeometry(0.06 + (i % 3) * 0.03, 0.05 + (i % 4) * 0.03, 0.012), shardMat.clone());
+        const o = new THREE.Mesh(new THREE.BoxGeometry(0.06 + (i % 3) * 0.03, 0.05 + (i % 4) * 0.03, u.shard ? 0.03 : 0.012), (u.shard ?? shardMat).clone());
         o.position.set(wp.x + ((i * 0.37) % 1 - 0.5) * s.w, wp.y + s.y + (((i * 0.61) % 1) - 0.5) * s.h, wp.z + 0.02);
         o.rotation.set(i, i * 0.7, i * 1.3);
         spawn(o, { kind: 'fall', v: [((i * 0.53) % 1 - 0.5) * 2.2, 0.8 + (i % 4) * 0.5, 0.6 + (i % 3) * 0.4], spin: [4 + i % 3, 3, 5 - i % 4], floor: 0.02, rest: null, life: 99, keep: true, fade: false });
