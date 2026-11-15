@@ -21926,4 +21926,4 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q97 (things not to hit: how they show it, and the
   developer's idea of the ball turning into a heart that explodes).
 - **Test folder:** `Web-Games-testing\2026-11-14_q107-log\` (the log's
-  excerpt), recorded here; to purge with the developer's OK.
+  excerpt) purged 2026-11-14 with the developer's OK (to the Recycle Bin).
