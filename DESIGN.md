@@ -4,7 +4,10 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-14, latest): **Topple! Hardest in Frosty Times: a
+*Status (2026-11-14, latest): **Topple!: a block off the screen as it's
+held judged by its own corners, as it's turned** (not a box round it; on
+`block-game`, for release 10.13; see "Topple!", Q107). Earlier the same
+day: **Topple! Hardest in Frosty Times: a
 snowman on skates (a ball at his head knocks his hat off), the snowball
 machine (a snowball hit bursts), a giant snowflake falling (a fifth way;
 a ball can pass between its arms), each once in scenes 1, 3, 5, crossing
@@ -2192,8 +2195,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   as down (developer, 2026-11-12, Q85: a cube slid out of reach); so, once
   it has slowed (under 0.3 m/s), does one **further out than any throw
   reaches** (the scene's strength at the best lift, `throwRange`, and 0.2
-  m) or **off the screen as it's held** (every corner of the box round it
-  past one edge; upright, the view's right side is nearer than the aim's)
+  m) or **off the screen as it's held** (every corner of the block itself,
+  as it's turned, past one edge; upright, the view's right side is nearer
+  than the aim's; 2026-11-14, Q107: its own corners, not a box round it)
   (developer, 2026-11-13, Q103: "too far to reach = down"; out of sight,
   "Making things smaller to fit is only going to make a hard situation
   much harder"; pushing blocks further is play, as long as it can't make

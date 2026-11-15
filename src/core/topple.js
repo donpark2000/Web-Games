@@ -731,13 +731,25 @@ export function throwRange(power, h = 0) {
 
 // A block off the screen as it's held (developer, 2026-11-13, Q103: upright
 // on the tablet, a block knocked right "was no longer visible", while the
-// aim still reached it): every corner of the box round it (`at` its middle,
-// `r` its half-size, the most it reaches any way it's turned) shows past the
-// same edge of the canvas. `project(p)`: where p shows, [0-1 across, 0-1
-// down].
-export function offScreen(at, r, project) {
+// aim still reached it): every corner of the block itself (`at` its middle,
+// `he` its half-sizes [x, y, z], `q` how it's turned [x, y, z, w], none:
+// unturned) shows past the same edge of the canvas. Its own corners, not a
+// box round it any way it's turned (2026-11-14, Q107: a cube on the ice wholly
+// past the right edge of an upright phone wasn't counted; that box, its
+// half-diagonal each way, 1.7 times the cube, still reached onto the screen).
+// `project(p)`: where p shows, [0-1 across, 0-1 down].
+export function offScreen(at, he, q, project) {
+  const [x, y, z, w] = q ?? [0, 0, 0, 1];
+  // v turned by q (v + 2w(u×v) + 2u×(u×v), u the axis part)
+  const turn = v => {
+    const t = [2 * (y * v[2] - z * v[1]), 2 * (z * v[0] - x * v[2]), 2 * (x * v[1] - y * v[0])];
+    return [v[0] + w * t[0] + (y * t[2] - z * t[1]), v[1] + w * t[1] + (z * t[0] - x * t[2]), v[2] + w * t[2] + (x * t[1] - y * t[0])];
+  };
   const uv = [];
-  for (const dx of [-r, r]) for (const dy of [-r, r]) for (const dz of [-r, r]) uv.push(project([at[0] + dx, at[1] + dy, at[2] + dz]));
+  for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) {
+    const d = turn([sx * he[0], sy * he[1], sz * he[2]]);
+    uv.push(project([at[0] + d[0], at[1] + d[1], at[2] + d[2]]));
+  }
   if (uv.some(p => !p || !Number.isFinite(p[0]) || !Number.isFinite(p[1]))) return false;
   return uv.every(p => p[0] < 0) || uv.every(p => p[0] > 1) || uv.every(p => p[1] < 0) || uv.every(p => p[1] > 1);
 }

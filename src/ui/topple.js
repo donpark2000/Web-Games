@@ -389,8 +389,14 @@ function whereIs(b) {
   const p = b.body.position, at = [p.x, p.y, p.z];
   return {
     at: at.map(r2), deg: Math.round(Math.atan2(p.x - HAND.x, HAND.z - p.z) * 180 / Math.PI), m: r2(Math.hypot(p.x - HAND.x, p.z - HAND.z)), farM: r2(world.far),
-    offScreen: offScreen(at, Math.hypot(b.he.x, b.he.y, b.he.z), q => stage.project(q)),
+    offScreen: unseenNow(b),
   };
+}
+
+// A block off the screen as it's held (Q103): its own corners, as it's turned (Q107).
+function unseenNow(b) {
+  const p = b.body.position, q = b.body.quaternion;
+  return offScreen([p.x, p.y, p.z], [b.he.x, b.he.y, b.he.z], [q.x, q.y, q.z, q.w], v => stage.project(v));
 }
 
 function makeStage() {
@@ -400,7 +406,7 @@ function makeStage() {
   stage.onSound = name => { if (!SET_SOUND[name] || !playing) return; sound.play(SET_SOUND[name], 0, { quiet: true }); L('owl hoots', { t: r2(round?.t ?? 0) }); };
   world = physics.createWorld({ onHit });
   // a block knocked off the screen as it's held counts as down (Q103: the aim may reach past an upright view's side)
-  world.unseen = b => offScreen([b.body.position.x, b.body.position.y, b.body.position.z], Math.hypot(b.he.x, b.he.y, b.he.z), p => stage.project(p));
+  world.unseen = unseenNow;
   drawing = drawWatch('topple', stage, L);   // lighter on a slow device (Q99)
   L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2), farLeaves: stage.farLeaves, farTrunkInLeavesM: trunksIn().far });
   new ResizeObserver(fit).observe($('park'));

@@ -575,14 +575,26 @@ test('topple levels: a block knocked out of range or off the screen counts down 
 
 test('topple: offScreen: a block counts as off the screen only when all of it is past one edge', () => {
   const flat = q => [q[0], q[1]];   // a stand-in camera: x across, y down, 0-1 the screen
-  assert.equal(offScreen([1.2, 0.5, 0], 0.1, flat), true, 'all of it off the right');
-  assert.equal(offScreen([-0.3, 0.5, 0], 0.1, flat), true, 'off the left');
-  assert.equal(offScreen([0.5, 1.5, 0], 0.1, flat), true, 'off the bottom');
-  assert.equal(offScreen([0.5, -0.5, 0], 0.1, flat), true, 'off the top');
+  const he = [0.1, 0.1, 0.1], none = null;
+  assert.equal(offScreen([1.2, 0.5, 0], he, none, flat), true, 'all of it off the right');
+  assert.equal(offScreen([-0.3, 0.5, 0], he, none, flat), true, 'off the left');
+  assert.equal(offScreen([0.5, 1.5, 0], he, none, flat), true, 'off the bottom');
+  assert.equal(offScreen([0.5, -0.5, 0], he, none, flat), true, 'off the top');
   // half on the screen, at each edge
-  for (const at of [[1.05, 0.5, 0], [-0.05, 0.5, 0], [0.5, 1.05, 0], [0.5, -0.05, 0]]) assert.equal(offScreen(at, 0.1, flat), false, `half on the screen at ${at}`);
-  assert.equal(offScreen([0.5, 0.5, 0], 0.1, flat), false, 'in the middle');
-  assert.equal(offScreen([1.2, 1.2, 0], 0.1, flat), true, 'past a corner');
-  assert.equal(offScreen([1.2, 0.5, 0], 0.1, () => [NaN, 0]), false, 'no camera yet: not off the screen');
-  assert.equal(offScreen([1.2, 0.5, 0], 0.1, () => null), false);
+  for (const at of [[1.05, 0.5, 0], [-0.05, 0.5, 0], [0.5, 1.05, 0], [0.5, -0.05, 0]]) assert.equal(offScreen(at, he, none, flat), false, `half on the screen at ${at}`);
+  assert.equal(offScreen([0.5, 0.5, 0], he, none, flat), false, 'in the middle');
+  assert.equal(offScreen([1.2, 1.2, 0], he, none, flat), true, 'past a corner');
+  assert.equal(offScreen([1.2, 0.5, 0], he, none, () => [NaN, 0]), false, 'no camera yet: not off the screen');
+  assert.equal(offScreen([1.2, 0.5, 0], he, none, () => null), false);
+  // Q107 (2026-11-14): just past the edge, 2 cm clear. Its own corners, not a box its half-diagonal
+  // each way (that reached back to 0.947, on the screen, and the cube on the ice wasn't counted).
+  assert.equal(offScreen([1.12, 0.5, 0], he, none, flat), true, 'just past the edge: off the screen');
+  assert.equal(offScreen([1.12, 0.5, 0], he, [0, 0, 0, 1], flat), true, 'the same, unturned given');
+  // turned 45° on the screen's face, a corner reaches back on (to 0.979): not off
+  const s = Math.sin(Math.PI / 8), c = Math.cos(Math.PI / 8);
+  assert.equal(offScreen([1.12, 0.5, 0], he, [0, 0, s, c], flat), false, 'turned, a corner on the screen');
+  // turned about the line of sight's other axis (y, so x and z mix): it reaches 0.141 each side, still off at 1.25
+  assert.equal(offScreen([1.25, 0.5, 0], he, [0, s, 0, c], flat), true, 'turned, all of it still off');
+  // a long block (a post) lying across, half-sizes its own: one end on the screen
+  assert.equal(offScreen([1.2, 0.5, 0], [0.3, 0.05, 0.05], none, flat), false, 'a long one reaching back on');
 });

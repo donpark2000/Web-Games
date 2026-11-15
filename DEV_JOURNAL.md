@@ -20,13 +20,6 @@ time, each tried before publishing:
   to discuss: what a hit looks like (the developer's idea: the ball
   turns into a heart and explodes), and how a thing shows beforehand
   that it mustn't be hit.
-- **Q107. Topple!: a block off the screen not counted down** (2026-11-14,
-  developer, 10.12 on the phone, Frosty Times: "two times where blocks
-  moved beyond the screen in portrait orientation. I was able to see them
-  by switching to landscape and I was able to hit it. But I think we
-  agreed earlier that a block that moves out of view is considered to be
-  down"). The rule (Q103, since 10.7) is unchanged in 10.12. To find out
-  why it didn't count them: the phone's log (Claude's entry "Q107").
 
 ## Proposed additions to the standards skill
 
@@ -156,6 +149,18 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q107. Topple!: a block off the screen not counted down** (2026-11-14,
+  developer, 10.12 on the phone, Frosty Times: "two times where blocks
+  moved beyond the screen in portrait orientation. I was able to see them
+  by switching to landscape and I was able to hit it. But I think we
+  agreed earlier that a block that moves out of view is considered to be
+  down"). The rule (Q103, since 10.7) is unchanged in 10.12. To find out
+  why it didn't count them: the phone's log (Claude's entry "Q107").
+  2026-11-14, settled by the phone's log: the check's box round the block
+  (its half-diagonal each way, 1.7 times a cube) reached back onto the
+  screen while the cube itself was wholly past the right edge; now the
+  block's own corners, as it's turned (entry "Q107 from the phone's log").
 
 - **Q106. Topple! Hardest: moving things in the way: what moves, and
   how** (2026-11-14, developer: "I like the idea of moving obstacles
@@ -21864,3 +21869,61 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q97 (things not to hit: how they show it, and the
   developer's idea of the ball turning into a heart that explodes), Q107
   (a block off the screen not counted down, Frosty Times, upright).
+
+## 2026-11-14: Q107 from the phone's log: the box round a block reached onto the screen
+
+- **The log** (the developer's iPhone, pasted into the session; the lines
+  that matter kept in `Web-Games-testing\2026-11-14_q107-log\`). Release
+  10.12, Hardest, Frosty Times **scene 3** (`icePyramid`, 10 ice cubes),
+  upright: park 377x565, fov 54.18. After ball 3, 9 of 10 down (t 13.17).
+  4.9 s after that throw the phone turned sideways (`fit` ... `sideways`);
+  ball 4, aimed 17° right, hit the last cube at about [1.61, 0.13, -6.27]
+  (`block broke`), cleared. **No `block down: out of reach`** before the
+  turn: the rule never fired. It is the only turn to sideways in the log;
+  the developer's other time is older than its 3000 lines.
+- **Where that is on the upright screen**, measured in the real page
+  (the developer's game state put in this browser's storage gives the
+  same scene, `icePyramid`, and a 393x769 viewport the phone's park,
+  377x565, fov 54.18, both as logged): the cube's middle shows at 1.054
+  across (past the right edge, 0-1 the screen), its own corners at 1.006
+  to 1.016 however it's turned flat (0°, 15°, 30°, 45°): **all of it off
+  the screen.** But the check (`offScreen`, since 10.7) took a box round
+  the block, its half-diagonal (0.253 m) each way, for any way it might
+  be turned: 1.7 times the cube (half 0.146). That box's nearer corners
+  showed at 0.989 to 0.999, **on the screen**, so the block wasn't counted.
+  Of my four guesses before the log (past a corner, still creeping, the
+  canvas wider than shown, hidden behind something), none: it was the
+  check's box being too big.
+- **The fix**: the block's own eight corners, as it's turned (its
+  quaternion, its half-sizes), all past one edge (`offScreen(at, he, q,
+  project)` in `src/core/topple.js`; `unseenNow` in `src/ui/topple.js`
+  for the world and the log's `whereIs`). DESIGN.md "Topple!" says so.
+- **Checked**: in the page, the cube put at the logged spot, at rest,
+  counts down at once: `block down: out of reach` with `why: sight`,
+  `offScreen: true`. The same cube 15 cm further in (its corner at 0.990,
+  on the screen) does not count. Tests: `offScreen` cases with turned
+  blocks and a long one; the Q107 case (2 cm past the edge) fails under
+  the old box (it reached back to 0.947) and passes now; the page test
+  checks the world and the log use the block's own corners and that the
+  half-diagonal is gone.
+- **Also in the log, not a fault**: no `blocks left glow` after ball 3.
+  The first glow is due 4.9 s after a throw at the earliest (the next
+  ball at 0.9 s, then a 4 s wait), and the turn came at 4.9 s; then a
+  finger on the pad, aiming, restarts the wait.
+- **Q107 closed** (moved to Resolved); to try on the phone once published.
+- **Suite**: `npm test` 664 of 664 pass (first run: 663, the one failing
+  `offline`'s, the site's files changed; `node tools/offline.js` run, as
+  in the earlier fix commits).
+
+**Status (start here next session)**
+- **Live: 10.12.** On `block-game`, not yet published: Q107's fix (a
+  block off the screen judged by its own corners).
+- **From the developer:** OK to publish it as **release 10.13**; then to
+  try on the phone (a block knocked off an upright screen counts down).
+- **Then:** Q97 to discuss (what a hit on a thing not to hit looks like;
+  how such a thing shows it); session 4 of the build, Cactus Canyon's
+  moving things.
+- **Open questions:** Q97 (things not to hit: how they show it, and the
+  developer's idea of the ball turning into a heart that explodes).
+- **Test folder:** `Web-Games-testing\2026-11-14_q107-log\` (the log's
+  excerpt), recorded here; to purge with the developer's OK.

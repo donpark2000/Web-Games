@@ -96,10 +96,13 @@ test('topple page: the level\'s jewels and the hearts over the park; Start again
 // ("no longer visible in portrait orientation") counts as down; the log
 // says where blocks were.
 test('topple page: a block off the screen as held counts as down; the log says where out-of-reach and standing blocks are', () => {
-  assert.match(js, /world\.unseen = b => offScreen\(\[b\.body\.position\.x, b\.body\.position\.y, b\.body\.position\.z\], Math\.hypot\(b\.he\.x, b\.he\.y, b\.he\.z\), p => stage\.project\(p\)\);/);
+  assert.match(js, /world\.unseen = unseenNow;/);
+  // its own corners, as it's turned (Q107), not a box its half-diagonal each way
+  assert.match(js, /function unseenNow\(b\) \{[\s\S]*?offScreen\(\[p\.x, p\.y, p\.z\], \[b\.he\.x, b\.he\.y, b\.he\.z\], \[q\.x, q\.y, q\.z, q\.w\], v => stage\.project\(v\)\);/);
+  assert.ok(!js.includes('Math.hypot(b.he.x, b.he.y, b.he.z)'), 'the box round the block (its half-diagonal) gone');
   assert.match(js, /if \(b\.away\) L\('block down: out of reach', \{ c: b\.c, t: r2\(round\.t\), why: b\.away, \.\.\.whereIs\(b\) \}\);/);
   assert.match(js, /standing: result\.won \? undefined : world\.blocks\.filter\(b => !b\.down && !b\.broken\)\.map\(b => \(\{ c: b\.c, mat: b\.mat, \.\.\.whereIs\(b\) \}\)\)/);
-  assert.match(js, /function whereIs\(b\) \{[\s\S]*?deg:[\s\S]*?farM: r2\(world\.far\),[\s\S]*?offScreen: offScreen\(/);
+  assert.match(js, /function whereIs\(b\) \{[\s\S]*?deg:[\s\S]*?farM: r2\(world\.far\),[\s\S]*?offScreen: unseenNow\(b\),/);
 });
 
 // Developer, 2026-11-13 (Q102): "the ability to start a scene or level again
