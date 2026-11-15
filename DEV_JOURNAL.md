@@ -10,6 +10,15 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q109. Topple!: a scene drawn with no blocks** (2026-11-15, developer,
+  the tablet, the last scene played the night of 2026-11-14: "did not draw
+  any blocks/targets ... the scene itself had all the normal background. I
+  tossed one ball just to see if they were invisible but nothing happened.
+  The ball moved like it should but there was nothing to hit"). The log is
+  `web-games-log_2026-11-15T03-24-45.txt`. Cause not found; 10.14 isn't it
+  (see "Q109: the log"). A diagnostic is in (the log's `blocks drawn`);
+  to ask the developer: does it happen again, in Frosty Times only?
+
 - **Q108. Things not to hit: what Claude chose while you were away,
   and Harder** (2026-11-14; built in 10.14, to try on the tablet). You
   said "Go for Q97 ... publish 10.14 when it is ready" and left, with
@@ -22134,3 +22143,73 @@ anything to show it (the dots are the developer's choice per How hard).
   and Harder).
 - **Test folder:** none (nothing written outside the repo; the Browser
   pane's saved game was changed while checking).
+
+## 2026-11-15: Q109: a scene on the tablet with no blocks drawn (the log)
+
+- **Developer:** "I saw an interesting bug last night. The last scene I
+  played did not draw any blocks/targets. The scene itself had all the
+  normal background. I tossed one ball just to see if they were
+  'invisible' but nothing happened. The ball moved like it should but
+  there was nothing to hit. I saved the log. It was the last scene I
+  played before stopping for the night." (the log: 3015 lines, the last
+  3000 of the site's log, from the Android 10 tablet, Chrome, upright
+  601x889, a 585x690 park.)
+- **What the log shows (evidence):**
+  - The scene: level 3 (Frosty Times), scene 1, Hardest, the first scene
+    of the level after winning level 2: stack `iceSteps`, 6 ice cubes (0.3
+    m), the rock, the snowflake mover; check ok, 1 try, `seen` "6 whole",
+    `direct` 68; `drawing` "lightest" (the tablet's step-down, shadows off,
+    from +415 s); the setting took 3.3 s, the scene 1.4 s.
+  - The physics had the blocks: the pad's show found a block first (the 7th
+    angle), 6 "blocks left glow" lines from 4 s after the second throw
+    until the tablet was left on overnight (129 of them), nothing fell.
+    Throw 1 (aim 0, up 0) stopped at the snowflake (mover) 0.33 s in;
+    throw 2 (aim -2, up 15) landed on the ground at z -6.5, past the
+    cubes' left. Nothing errors anywhere in the log (the site's log
+    catches page errors and unhandled rejections: none).
+  - **Not 10.14**: the page was opened as 10.13 and 10.14 took over 4.7 s
+    later, but the page code that ran was 10.13's throughout ("drawing"
+    line: release 10.13); this scene has no thing not to hit anyway
+    (scene 1).
+  - Nothing else in the log is odd: 13 scenes in levels 1-2 on this
+    tablet in the same visit drew and played; this was its first Frosty
+    Times scene in a game (the earlier visit's level 3 scene 3, 10.13,
+    was left within 30 s: 4 🏠 presses, no throw).
+- **What I rebuilt (same seed, same code, the Browser pane, upright
+  601x889):** the scene is the same (`iceSteps`, layout seed 1110767687,
+  6 cubes); its 6 cubes are in view (projected, on the canvas at 0.35-0.69
+  across, 0.05-0.26 down); drawn "as drawn" and with every "lightest" cut
+  (and with the cuts made before level 3's setting loaded, as on the
+  tablet): the cubes show, paler without the shadows and reflections, the
+  rock hiding the lowest three. Not reproduced. The cubes are small (30
+  cm at 7 m) and pale on the snow: the three upper ones show above the rock.
+- **Not settled:** whether the cubes were drawn and too faint to see on the
+  tablet's screen (the glow after 4 s would have shown them: the developer
+  would have mentioned it?), or not drawn at all (a transparent ice
+  material on that graphics chip, which had not drawn Frosty Times'
+  ice before as far as the logs go, or a texture that failed to load, or
+  the memory of three levels' photos on it). The log can't say which.
+- **Added (diagnostic, no behaviour change):** the log's `blocks drawn`
+  (after each scene is drawn) and `blocks drawn: 3 s on`: each block's
+  mesh (shown, where it is on the canvas, its material and texture), the
+  last frame's draw calls and triangles, the chip's geometries and
+  textures, whether the canvas was lost, the chip's error code, the pixel
+  ratio. `window.topple.inside()` also gives the stage (for checking).
+  Next time it happens the log says whether the meshes are there.
+- **Ideas if it is the ice on the tablet** (not done: a guess without
+  the log): in the "light" and "lightest" steps draw ice opaque (cheaper
+  too: no blending), or a faint outline on ice; the blocks left already
+  glow after 4 s.
+- **Side effect:** the Browser pane's saved Topple! game was changed
+  again (the game's seed and rounds were set to this game's, to rebuild
+  the scene).
+
+**Status (start here next session)**
+- **Live: 10.14.** `block-game` = `main` plus the diagnostic, not
+  published (waiting for the developer's OK: a release 10.15 for it
+  alone, or with the next change).
+- **From the developer:** (1) did it happen again, and in which scene or
+  level? Did the tablet show the glow? (2) 10.13/10.14 on the tablet, Q108
+  (unchanged).
+- **Open questions:** Q109 (no blocks drawn on the tablet), Q108 (things
+  not to hit: what Claude chose, and Harder).

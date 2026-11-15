@@ -185,10 +185,13 @@ test('topple page: the game kept on the device for every visit, the scene under 
 });
 
 test('topple page: logged: 3D start, the fit, each scene, throw, touch, block down (and a post up again), the end', () => {
-  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'block up again: a post leaning, not lying'", "'blocks down'", "'scene over'", "'start again: this scene, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
+  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'block up again: a post leaning, not lying'", "'blocks down'", "'blocks drawn'", "'blocks drawn: 3 s on'", "'scene over'", "'start again: this scene, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   }
   assert.match(js, /startLog\('topple'\)/);
+  // what was drawn (Q109): the log's 'blocks drawn' comes from the stage's diagnose(), which reports each block's mesh, the frame and the chip
+  assert.match(js, /L\('blocks drawn', stage\.diagnose\(\)\);/);
+  assert.match(sceneJs, /diagnose\(\) \{[\s\S]*?getError\(\)[\s\S]*?isContextLost\(\)/);
 });
 
 // The drag pad (journal, "9.2 on the phone; home pictures and aiming", Q67).

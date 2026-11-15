@@ -533,6 +533,10 @@ async function startScene(kept = null) {
   stage.sync(world.blocks, world.balls);
   stage.render();
   hideCanvas(false);
+  // what was drawn (Q109: a scene on the tablet showed no blocks): now, and again once frames have run
+  const drawnId = JSON.stringify(current.id);
+  L('blocks drawn', stage.diagnose());
+  setTimeout(() => { if (current && JSON.stringify(current.id) === drawnId && stage) L('blocks drawn: 3 s on', stage.diagnose()); }, 3000);
   // the notice with the warning stays up long enough to read (never cut short by a quick scene)
   if (keepThing && current.layout.keepout) {
     const left = KEEP_NOTICE_MS - (performance.now() - waitAt);
@@ -1090,7 +1094,7 @@ window.topple = {
   edges: (y, z) => stage?.viewEdges(y, z),
   hand: HAND,
   // the physics and the scene, for a test player in the page (as the mockup's)
-  inside: () => ({ world, current, launchVel }),
+  inside: () => ({ world, current, launchVel, stage }),
   // Hardest's thing that moves (Q106): change this scene's ({ move, pace, height, timing, look } over the
   // deal's, null for none, 'deal' for the deal's again; until the next scene); where it is
   mover(choice) {

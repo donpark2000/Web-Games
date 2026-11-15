@@ -767,6 +767,23 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     fright(x) { return set ? set.fright(x) : [parkBirds.fright(x)].filter(Boolean); },
     // where the animals are (for checking in a browser)
     animals() { return set ? set.animals() : [parkBirds.state()]; },
+    // What the scene has drawn, for the log (Q109: a scene on the tablet drew no
+    // blocks): each block's mesh (shown, where it is on the canvas, its
+    // material), what the last frame drew, the graphics chip's memory and
+    // whether it has lost the canvas or reported an error.
+    diagnose() {
+      camera.updateMatrixWorld();
+      const at = p => { const v = new THREE.Vector3(...p).project(camera); return [Math.round(((v.x + 1) / 2) * 100) / 100, Math.round(((1 - v.y) / 2) * 100) / 100]; };
+      const gl = renderer.getContext(), info = renderer.info;
+      const mat = m => { const t = [m.material].flat()[0]; return t ? `${t.type}${t.transparent ? ' transparent' : ''} ${t.opacity}${t.map ? ` map ${t.map.image?.width ?? '?'}` : ''}${t.visible === false ? ' hidden' : ''}` : 'none'; };
+      let err = null; try { err = gl.getError(); } catch (e) { err = String(e); }
+      return {
+        meshes: blockMeshes.length, shown: blockMeshes.filter(m => m.visible && m.parent).length,
+        blocks: blockMeshes.slice(0, 6).map(m => ({ at: at([m.position.x, m.position.y, m.position.z]), vis: m.visible, mat: mat(m) })),
+        frame: { calls: info.render.calls, triangles: info.render.triangles }, memory: { geometries: info.memory.geometries, textures: info.memory.textures },
+        lost: gl.isContextLost(), glError: err, pixelRatio: renderer.getPixelRatio(), level,
+      };
+    },
     // Shards and drops still flying (a scene isn't cleared until they're down).
     get fxLive() { return set?.fxLive?.() ?? 0; },
     get level() { return level; },
