@@ -22476,3 +22476,26 @@ anything to show it (the dots are the developer's choice per How hard).
 - **To ask the developer:** open Log, press **lightest**, open Topple!,
   Frosty Times' first scene (Harder or any): do the blocks show? Then
   light. Save the log if not. Press **as drawn** afterwards to go back.
+
+## 2026-11-15: Release 10.18 published and live
+
+- **Published** with the developer's OK ("Publish 10.18"): the Log page's
+  drawing-level buttons (Q109). `npm test` 676 of 676 (an earlier run of
+  mine reported all passing while one css test failed: a `.three` class
+  that clashed with a shared sheet's; fixed before publishing);
+  `node tools/release.js` said ready; `block-game` fast-forwarded into
+  `main`; tag `v10.18` pushed; GitHub release made. The live site serves
+  release 10.18, version 26ac120bc852, and its log page has the buttons
+  (checked at github.io). No localhost server running.
+
+**Status (start here next session)**
+- **Live: 10.18.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish.
+- **From the developer (the tablet, installed app):** load 10.18 (home
+  page: the version line says 10.18); Log page: press **lightest**; open
+  Topple!, Frosty Times' first scene: do the blocks show? Then **light**.
+  Save the log (and keep a copy) if the blocks vanish; press **as drawn**
+  afterwards. Also Q108.
+- **Then:** if "lightest" hides the ice: the options in "Q109: the second
+  log"; session 4 of the Hardest build, Cactus Canyon.
+- **Open questions:** Q109, Q108.
