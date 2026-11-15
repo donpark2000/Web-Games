@@ -10,6 +10,11 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q110. Star Light's Hardest: which three moving things, which spread-out
+  scenes, which thing not to hit** (2026-11-15, Claude's proposals, to
+  pick or change: see "Star Light's Hardest: measured, and proposals"). Waiting for the
+  developer's picks before anything is built.
+
 - **Q109. Topple!: a scene drawn with no blocks** (2026-11-15, developer,
   the tablet, the last scene played the night of 2026-11-14: "did not draw
   any blocks/targets ... the scene itself had all the normal background. I
@@ -22628,3 +22633,39 @@ anything to show it (the dots are the developer's choice per How hard).
 - **From the developer:** try Cactus Canyon on Hardest when published;
   Q109 (save the log if the blank scene recurs); Q108.
 - **Open questions:** Q109, Q108.
+
+## 2026-11-15: Star Light's Hardest: measured, and proposals (session 5 of the build)
+
+- **Developer:** "Go ahead with Star Light's proposals."
+- **Level 5 as it is:** night; the moon and a drifting cloud (decor), an
+  owl on a bare tree at the side (decor, hoots, takes fright); `soft` rock,
+  `tall` pine; `iron` ball; glowing blocks (cyan, pink, lime, amber,
+  violet in turn) that shatter like ice with matching fragments. The pool
+  and challenges are as the status entry listed; no `spread`, no `KEEP`
+  yet, nothing in `LEVEL_MOVERS` for level 5.
+- **Measured (2026-11-15):** 4 games x scenes 1, 3, 5 (12 scenes, all
+  passed the scene check), 13,395 straight throws (up to 20 degrees) that hit a block, where each
+  passes the mover's depth: **0.90-1.65 m up** (10% under 1.03, median
+  1.30, 90% under 1.57). The same as Cactus Canyon's 0.9-1.7 m, so a thing
+  on the ground has to be 0.9 m tall or more to be in the way, and an
+  airborne one should be hung 1.0-1.6 m up. (Scratch script, not kept:
+  the scene made by `makeScene(seed, 5, i)`, throws as `throwsAtBlocks`
+  in tests/topple-canyon.test.js.)
+- **Claude's proposals (to the developer, in chat):** moving things, one
+  each in scenes 1, 3, 5, each its own way: a **paper lantern** swinging on
+  a chain (swing); an **owl** gliding across (slide); a **falling star** with a
+  glowing tail (fall: the way Frosty's snowflake uses, with a slant, not a
+  sway). Spread-out scenes 2 and 4: glowing columns and cubes set apart
+  (three layouts as the other levels'). The thing not to hit: a
+  **telescope** on a tripod (dark brass, so it can't be taken for a
+  glowing block; it tumbles, the lens pops off). Things to watch: glowing
+  blocks and a glowing ball, so nothing that moves should be a plain glowing
+  box or orb, and the existing owl decor.
+
+**Status (start here next session)**
+- **Live: 10.18.** On `block-game`, not published: Hardest in Cactus Canyon
+  (release 10.19 prepared). Star Light's Hardest is next, then publish both.
+- **Waiting for the developer:** Q110, the picks for Star Light.
+- **Then:** build what is picked (see the previous status entry's steps 2
+  and 3), test, check in the Browser pane, DESIGN, RELEASES, ask to publish.
+- **Open questions:** Q110, Q109, Q108.
