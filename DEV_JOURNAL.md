@@ -22213,3 +22213,35 @@ anything to show it (the dots are the developer's choice per How hard).
   (unchanged).
 - **Open questions:** Q109 (no blocks drawn on the tablet), Q108 (things
   not to hit: what Claude chose, and Harder).
+
+## 2026-11-15: Q109: the developer's reply; the glow; release 10.15
+
+- **Developer:** "I did not see any blocks glowing. But I have noticed
+  that never happens until you knock down at least one block - at the
+  beginning of a scene they never glow. I don't know if it happened in
+  other scenes. I stopped playing and saved the log at that point ... You
+  can publish 10.15. If I can reproduce the problem let me know if there
+  is anything else you want me to try before saving the log."
+- **The glow, checked (evidence):** by design nothing glows before the first
+  ball is thrown (a ball thrown, none in flight, the blocks still, no finger
+  aiming, then 4 s: Q101). Built in the Browser pane (level 1, scene 1,
+  one throw that missed, then waiting): the 6 glowing meshes showed after
+  the 4 s, pulsing to 0.5, with no block down. So a glow after a miss with
+  none down works on the computer. In the tablet's log the bug scene logged
+  6 glows (the waiting logic ran) with nothing down and the developer saw
+  none: the glow is a mesh on each block, so it fits the blocks themselves
+  not being drawn; it also fits "not before a block falls" if the earlier
+  scenes simply never waited 4 s after a miss (the log has only that one
+  scene's glows, and one earlier "counting though not still" line, 8 s
+  after blocks broke). Not settled which.
+- **Added to 10.15 (log only):** `glow at its brightest` once a pulse: how
+  many glowing meshes are shown, of how many, and how bright. With
+  `blocks drawn` it tells whether the cubes' meshes, and their glows,
+  exist and are shown when it happens again.
+- **What to ask the developer to try if it happens again, before saving the
+  log:** (1) wait 5 s after a throw that missed (the glow); (2) Start
+  again, then "This scene" (does a new draw show the blocks?); (3) go to
+  the map and back into the level; (4) turn the tablet sideways and back;
+  (5) say which level and scene, and whether it is only on Hardest. Then
+  save the log as soon as possible after.
+- **Published as 10.15.**

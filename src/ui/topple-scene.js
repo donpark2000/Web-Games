@@ -699,6 +699,8 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       if (dots.instanceColor) dots.instanceColor.needsUpdate = true;
     },
     dotCount: () => dots.count,
+    // what the glow is drawing now, for the log (Q109): the glowing meshes shown, and how bright
+    glowState: () => ({ shown: blockMeshes.filter(m => m.userData.glow.visible).length, of: blockMeshes.length, opacity: Math.round(glowMat.opacity * 100) / 100 }),
     // The blocks left glowing (Q101): a, 0-1 (glowAt()'s); standing[i]
     // whether block i is still standing (only those glow).
     setGlow(a, standing = null) {

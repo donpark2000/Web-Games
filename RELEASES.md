@@ -7,6 +7,18 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.15 (2026-11-15, version febfa98c6844)
+
+Topple!: the log now records what each scene drew.
+
+- **For finding a bug**: one scene on the tablet showed no blocks. After
+  each scene is drawn, and again 3 seconds later, the log says whether
+  each block is there, where it is on the screen and what it is made
+  of, what the last picture drew, the graphics chip's memory and whether
+  it reported an error; and each time the blocks glow, how many were drawn
+  glowing.
+- Nothing you see or play changes.
+
 ## 10.14 (2026-11-14, version 1382437496c2)
 
 Topple!: Hardest has things you must not hit.

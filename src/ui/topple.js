@@ -336,7 +336,7 @@ let pad = null;         // the drag pad: { x, y, r } px in the park
 let demo = null;        // the pad's show as a scene starts: { t } s, until a finger touches
 const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
 let drawing = null;        // the drawing's level, watched (src/ui/drawwatch.js)
-let glowIdle = 0, glowsSaid = 0;   // the wait for the next ball, and its glows logged (Q101)
+let glowIdle = 0, glowsSaid = 0, glowPeak = 0;   // the wait for the next ball, and its glows logged (Q101)
 let thrownAt = 0;          // performance.now() of the latest throw (the glow's log: real time since it)
 
 function showPlay() {
@@ -815,6 +815,9 @@ function tick(dt, draw = true) {
   const secs = dotSeconds(game.mode, round.used);
   stage.setDots(d && ok && d.show && secs > 0 ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0), secs) : null, 1);
   stage.setGlow(glow, glow > 0 ? world.blocks.map(b => !(b.down || b.broken || b.away)) : null);
+  // (Q109: what the glow drew at its brightest, once a pulse: are the glowing meshes there, how bright)
+  if (!glowIdle) glowPeak = 0;
+  if (glow > 0.6 && glowPeak !== glows) { glowPeak = glows; L('glow at its brightest', { ...stage.glowState(), a: r2(glow), n: glows }); }
   stage.render();
   drawing?.frame(performance.now());
 }
