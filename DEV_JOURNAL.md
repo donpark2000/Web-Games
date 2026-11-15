@@ -22582,3 +22582,49 @@ anything to show it (the dots are the developer's choice per How hard).
   (ideas in the 10.14 status entry: a shooting star (fall), an owl gliding
   (slide), a swinging lantern (swing)), the last level of the Hardest build.
 - **Open questions:** Q109, Q108.
+
+## 2026-11-15: Cactus Canyon not published yet: Star Light first, then everything together
+
+- **Developer:** "Maybe I should start a new session and we can finish
+  the last level before publishing. Then I can test the whole game. OK."
+  So 10.19 (Cactus Canyon) is **not** published; Star Light's Hardest is
+  built next, and the two are published together.
+- **What is already on `block-game`** (nothing needs redoing): release
+  10.19 is set in `src/core/release.js`, `tools/offline.js` run, its notes
+  in `RELEASES.md` (Cactus Canyon only: add Star Light's lines to the same
+  heading, and re-run `node tools/offline.js` and copy the new version into
+  its heading), `node tools/release.js` said ready for Cactus Canyon alone.
+  If Star Light changes the story (a release of its own, or the number),
+  Claude proposes the number when asking to publish.
+
+**Status (start here next session)**
+- **Live: 10.18.** On `block-game`, not published: Hardest in Cactus Canyon
+  (release 10.19 prepared). The developer chose to **finish Star Light
+  (level 5) before publishing**, then test the whole game.
+- **Next: Star Light's Hardest (session 5 of the build, the last):**
+  1. Look at level 5 as it is (night: the moon, a cloud, the owl, glowing
+     blocks that break like ice with matching fragments; pine and rock in
+     the way; ball `iron`; structures `crystalStack`, `lanternArch`,
+     `lighthouse`, `candles`, `starGate`, `twinLanterns`, challenges
+     `starPalace`, `moonTemple`) and **propose** its three moving things
+     for the developer to pick, as for the other levels (each its own way
+     of slide, swing, stream, drop, fall, in a dealt order in scenes 1, 3,
+     5): Claude's ideas: a **shooting star** streaking across (stream or
+     fall, glowing, a ball can pass through its tail), an **owl** gliding
+     across (slide; the level's owl already hoots), a **swinging lantern**
+     (swing) or a **drifting cloud / falling star**. Also **spread-out
+     structures** for scenes 2 and 4 (`spread` for level 5: glowing columns
+     and cubes apart), and **its thing not to hit** (idea: a jar of
+     fireflies: glass, the glow goes out; or a telescope).
+  2. Lessons from Cactus Canyon to apply at once: **measure where straight
+     throws pass the mover's depth (0.9-1.7 m up) and size a thing on the
+     ground to reach it**; keep big ground things off the near depths
+     (`minShare` 0.5); draw so it reads at a glance (the first tumbleweed
+     looked like a wagon wheel); mind the night look (glowing things; the
+     blocks glow, so a mover must not look like a block).
+  3. Build, test (a `topple-star.test.js` as `topple-canyon.test.js`),
+     check in the Browser pane, update DESIGN, RELEASES (add to 10.19's
+     notes), run everything, then ask to publish.
+- **From the developer:** try Cactus Canyon on Hardest when published;
+  Q109 (save the log if the blank scene recurs); Q108.
+- **Open questions:** Q109, Q108.
