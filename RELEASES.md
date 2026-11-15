@@ -7,6 +7,18 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.13 (2026-11-14, version eef35ba785a2)
+
+Topple!: a block knocked off the screen now counts as down.
+
+- **Off the screen, judged by the block itself**: a block that comes to
+  rest past the edge of the screen, as you hold the phone, counts as
+  down. Before, the check used a box about 1.7 times the block's size, so
+  a block just past the edge (seen on Frosty Times, held upright) was
+  not counted, and could only be reached by turning the phone. Now the
+  block's own corners, as it is turned, must all be off the same edge.
+- Nothing else changes.
+
 ## 10.12 (2026-11-14, version 1b0b7a7cccc1)
 
 Topple!: Hardest in Frosty Times has things that move in the way.
