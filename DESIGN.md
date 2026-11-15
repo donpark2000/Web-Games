@@ -2574,8 +2574,17 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     tree beside them, not in front; Frosty Times: three ice pillars with
     cubes, two small ice gates, an ice gate and two pillars), each its
     own throw.
-  Later, to discuss: things not to hit (a hit loses the scene, a ❤️; how
-  they show it, Q97). Not wanted: fewer balls (scenes must stay
+  **Things not to hit** (Q97; agreed 2026-11-14, not built yet; Harder and
+  Hardest only; a hit loses the scene and a ❤️): **a hit**: the ball turns
+  into a heart at the thing and the heart pops, one ❤️ in the counter
+  breaks, and the thing reacts in its own way (a glass pane shatters, a
+  nest tumbles) (developer's idea: "the ball turns into a heart and then
+  explodes"). **How it shows beforehand**: its own look in the level's
+  style, **one warning mark on every such thing in every level, a small
+  red ring with a slash bobbing over it**, and **a line in the notice
+  shown while the scene is set up** ("Don't hit the nest!", with its
+  picture) (developer, 2026-11-14: "Use the red slashed ring and the
+  notice line"). To agree: which things, and in which scenes. Not wanted: fewer balls (scenes must stay
   winnable), wind, a smaller ball or another camera (developer,
   2026-11-14: "hard to see on a small screen as it gets farther away";
   smaller balls again "no", the same day).

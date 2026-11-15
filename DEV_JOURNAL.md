@@ -16,10 +16,15 @@ time, each tried before publishing:
   building"). For Harder and Hardest; to discuss.
   2026-11-14, developer: "Since we lose a heart, maybe the ball turns
   into a heart and then explodes? I guess we also have to make it clear
-  what should not be hit. We can discuss in the next session." Two parts
-  to discuss: what a hit looks like (the developer's idea: the ball
-  turns into a heart and explodes), and how a thing shows beforehand
-  that it mustn't be hit.
+  what should not be hit. We can discuss in the next session." **Agreed
+  2026-11-14 (later):** a hit = the ball turns into a heart, it pops, a ❤️
+  breaks, the thing reacts in its own way; a thing shows it mustn't be
+  hit by its own look, **a red slashed ring bobbing over it (the same
+  everywhere)** and **a line in the scene's setup notice** ("Use the red
+  slashed ring and the notice line"). **Still to agree:** which things
+  (a glass pane, a bird's nest were the first ideas; one or two per
+  level) and in which scenes (Claude's suggestion: scenes 2 and 4, which
+  have no moving thing), then build.
 
 ## Proposed additions to the standards skill
 
@@ -21948,3 +21953,30 @@ anything to show it (the dots are the developer's choice per How hard).
   of this session if recorded below); session 4 of the build, Cactus
   Canyon's moving things.
 - **Open questions:** Q97.
+
+## 2026-11-14: Q97 discussed: the hit and the warning agreed
+
+- Claude proposed, the developer chose (in their words: "Use the red slashed
+  ring and the notice line"): **a hit**: the ball turns into a heart at
+  the thing (the developer's own idea), the heart pops, one ❤️ in the
+  counter breaks, the thing reacts in its own way (glass shatters, a nest
+  tumbles). **Beforehand**: the thing's own look in the level's style, one
+  red ring with a slash bobbing over it (the same in every level), and a
+  line in the notice shown while a scene is set up. The alternative
+  offered and not chosen: no mark, learning by hitting it once (unfair to
+  a child). In DESIGN.md "Topple!", Hardest's scenes.
+- **Not agreed yet**: which things per level and in which scenes. Claude's
+  suggestion: scenes 2 and 4 (no moving thing there), one or two things a
+  scene; the level's own (glass pane / bird's nest were the first
+  ideas). To ask the developer next session before building.
+
+**Status (start here next session)**
+- **Live: 10.13.** `block-game` = `main` plus journal entries. Nothing
+  waiting to publish.
+- **From the developer:** try 10.13 on the phone (a block knocked off an
+  upright screen counts down); the rest of the Frosty Times feedback.
+- **Then:** Q97: agree which things and which scenes (Claude's
+  suggestion above), then build; session 4 of the build, Cactus Canyon's
+  moving things.
+- **Open questions:** Q97 (the hit and the warning agreed; which things
+  and scenes to agree).
