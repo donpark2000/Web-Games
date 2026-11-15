@@ -20,6 +20,13 @@ time, each tried before publishing:
   to discuss: what a hit looks like (the developer's idea: the ball
   turns into a heart and explodes), and how a thing shows beforehand
   that it mustn't be hit.
+- **Q107. Topple!: a block off the screen not counted down** (2026-11-14,
+  developer, 10.12 on the phone, Frosty Times: "two times where blocks
+  moved beyond the screen in portrait orientation. I was able to see them
+  by switching to landscape and I was able to hit it. But I think we
+  agreed earlier that a block that moves out of view is considered to be
+  down"). The rule (Q103, since 10.7) is unchanged in 10.12. To find out
+  why it didn't count them: the phone's log (Claude's entry "Q107").
 
 ## Proposed additions to the standards skill
 
@@ -21811,3 +21818,44 @@ anything to show it (the dots are the developer's choice per How hard).
   Canyon's moving things.
 - **Open questions:** Q97 (things not to hit: how they show it, and the
   developer's idea of the ball turning into a heart that explodes).
+
+## 2026-11-14: 10.12 tried: blocks off the screen not counted (Q107); the aim harder?
+
+- **The developer, on Frosty Times (phone):** "two times where blocks
+  moved beyond the screen in portrait orientation. I was able to see them
+  by switching to landscape and I was able to hit it. But I think we
+  agreed earlier that a block that moves out of view is considered to be
+  down." Yes: Q103 (10.7), "off the screen as it's held". Raised as Q107.
+  - **The rule as built** (`offScreen` in `src/core/topple.js`, used by
+    the world's `unseen` from `src/ui/topple.js`): once the block has
+    slowed (under `CALM_SPEED`, 0.3 m/s, or asleep), every corner of a
+    cube round it (its half-diagonal each way) projects past the **same**
+    edge of the canvas. Not changed since 10.7 (`git log -S`: e01fde4).
+  - **Ways it could miss, before any evidence:** a block off past a corner
+    of the screen (some corners past the right edge, others past the
+    bottom: not "the same edge"); a block still creeping on the ice (over
+    0.3 m/s; ice slides); the canvas wider than what the phone shows; a
+    block hidden behind something drawn over the park rather than off it.
+  - **The log settles it:** a block counted this way logs `block down:
+    out of reach` with `why: sight`; none means the rule didn't fire.
+    Each throw's touches are logged; a lost scene logs where the blocks
+    left are (with `offScreen`). Asked the developer for the phone's log
+    (log.html, saved to a file) from a time it happens.
+- **"The aiming seemed hard. Did you change the angle or force?"** No:
+  `git diff v10.11 v10.12` changes nothing in how a throw is aimed or how
+  hard it goes (`src/core/topple.js`: only Hardest's setup line). What is
+  new on Hardest in Frosty Times, and could make it feel harder: the
+  spread-out scenes (each ice piece its own throw, out to the sides), a
+  thing to time round in the others, and the ice (a hit cube may slide
+  rather than tip). Hardest's dots are 0.15 s, as since 10.6.
+
+**Status (start here next session)**
+- **Live: 10.12.** `block-game` = `main` plus journal entries. Nothing
+  waiting to publish.
+- **From the developer:** the phone's log from a time a block goes off the
+  screen and isn't counted (Q107); the rest of the Frosty Times feedback.
+- **Then:** Q107 from the log; Q97 to discuss; session 4 of the build,
+  Cactus Canyon's moving things.
+- **Open questions:** Q97 (things not to hit: how they show it, and the
+  developer's idea of the ball turning into a heart that explodes), Q107
+  (a block off the screen not counted down, Frosty Times, upright).
