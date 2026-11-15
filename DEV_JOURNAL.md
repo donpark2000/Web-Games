@@ -22350,3 +22350,31 @@ anything to show it (the dots are the developer's choice per How hard).
   also the place to watch (the setting loads in 3-10 s there).
 - **Open questions:** Q109 (no blocks drawn on the tablet: waiting for a
   log from 10.16), Q108.
+
+## 2026-11-15: Q109: reproduced on Harder; the blocks glow into view
+
+- **Developer (10.13/10.14 on the tablet, wifi off, the new versions not
+  loaded):** it happens every time Frosty Times' first scene is entered on
+  **Harder** (rocks, trees and a snowman in the back drawn; no target),
+  also after going to another level and back; it did not happen on
+  Hardest this time (it did the night before). (1) Turning the tablet
+  sideways and back: no change. (2) After a throw, **the blocks are seen
+  while they glow, and not when they do not**. (3) All balls thrown and a
+  heart used for Try again: still no blocks. (4) The map and another
+  level and back: the same.
+- **What it shows:** the blocks are in the scene, in the right place, and
+  the glow (an additive white copy of each block, drawn last) shows them;
+  so the ice blocks' own drawing puts nothing visible on the screen. Not
+  the camera or the view (sideways and back changes nothing; the glow is
+  where the blocks are), not a rebuild (Try again). It is the ice
+  material or what is drawn over it. The first night's snowflake (an
+  opaque material) was missing too, with the glow's overlay not
+  mentioned. Harder's and Hardest's first scenes have the same layout for a
+  game (the deal differs only by the mover), so the mode is likely not the
+  cause itself.
+- **Next:** the developer saves this log (old version), tries Normal (a
+  data point), then loads 10.16 and repeats Harder, Frosty Times'
+  first scene: \`blocks drawn\` says each block's material and whether a
+  shader failed. If it does not happen on 10.16 the tablet's kept drawing
+  level (per release) is a condition. If the ice material is the cause: ice
+  drawn opaque on the lighter drawing steps (or everywhere) is the idea.
