@@ -7,6 +7,18 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.16 (2026-11-15, version 093912c3851c)
+
+Topple!: the log now also says when the graphics chip can't build part of
+the picture.
+
+- **For finding a bug**: if a part of the picture can't be built by the
+  device's graphics chip, the browser skips what is drawn with it and says
+  so only in its own console. The log now records it at once, with the
+  chip's message, counts the shaders built and any that failed, and notes
+  if the picture is lost and comes back.
+- Nothing you see or play changes.
+
 ## 10.15 (2026-11-15, version febfa98c6844)
 
 Topple!: the log now records what each scene drew.
