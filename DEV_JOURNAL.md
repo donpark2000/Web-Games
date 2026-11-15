@@ -22430,3 +22430,26 @@ anything to show it (the dots are the developer's choice per How hard).
   ice and the snowflake with a simpler material at "lightest"; keep the
   basic shadows at "lightest" (shadows were 60% of the frame on the 2019
   tablet, journal Q99); or split "lightest" into two cuts and find which.
+
+## 2026-11-15: Release 10.17 published and live
+
+- **Published** with the developer's OK ("Publish 10.17"): `?drawing=` in
+  the page's address (Q109). `npm test` 675 of 675; `node tools/release.js`
+  said ready; `block-game` fast-forwarded into `main`; tag `v10.17`
+  pushed; GitHub release made. The live site serves release 10.17,
+  version b54153c55a75 (checked at github.io). No localhost server
+  running.
+
+**Status (start here next session)**
+- **Live: 10.17.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish.
+- **From the developer (the tablet):** (1) wifi on, open the home page:
+  the version line says 10.17; (2) in the browser open
+  `https://donpark2000.github.io/Web-Games/topple.html?drawing=lightest`,
+  Frosty Times' first scene (Harder or any): do the blocks show? Then
+  `?drawing=light`; (3) save the log if they do not, and keep a copy (the
+  last one vanished from OneDrive); (4) Q108.
+- **Then:** if "lightest" hides the ice: the options in "Q109: the second
+  log" (a simpler material at "lightest", keep basic shadows there, or
+  split its cuts); session 4 of the Hardest build, Cactus Canyon.
+- **Open questions:** Q109, Q108.
