@@ -22245,3 +22245,24 @@ anything to show it (the dots are the developer's choice per How hard).
   (5) say which level and scene, and whether it is only on Hardest. Then
   save the log as soon as possible after.
 - **Published as 10.15.**
+
+## 2026-11-15: Release 10.15 published and live
+
+- **Published** with the developer's OK ("You can publish 10.15"): the
+  log's `blocks drawn`, `blocks drawn: 3 s on` and `glow at its brightest`
+  (Q109). `npm test` 674 of 674; `node tools/release.js` said ready;
+  `block-game` fast-forwarded into `main`; tag `v10.15` pushed; GitHub
+  release made. The live site serves release 10.15, version febfa98c6844
+  (checked at github.io). The Browser pane's server stopped.
+
+**Status (start here next session)**
+- **Live: 10.15.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish.
+- **From the developer:** (1) if the blank scene happens again, what to
+  try before saving the log is in "Q109: the developer's reply" above;
+  (2) 10.13-10.15 on the tablet; (3) **Q108** (things not to hit: what
+  Claude chose, and Harder).
+- **Then:** session 4 of the Hardest build, Cactus Canyon's moving things,
+  with the ideas in the 10.14 status entry.
+- **Open questions:** Q109 (no blocks drawn on the tablet: waiting for the
+  log), Q108.
