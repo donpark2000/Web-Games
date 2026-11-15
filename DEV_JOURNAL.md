@@ -22326,3 +22326,27 @@ anything to show it (the dots are the developer's choice per How hard).
   error, the chip's messages kept ("'nonsense' : no matching overloaded
   function found"), `programs` 13. Not published (waiting for the
   developer's OK for a 10.16): the live site is 10.15.
+
+## 2026-11-15: Release 10.16 published and live
+
+- **Published** with the developer's OK ("Publish 10.16"): the log's
+  `shader error: its objects are not drawn`, `programs` / `shaderErrors`
+  in `blocks drawn`, `webgl context lost` / `restored` (Q109).
+  `npm test` 674 of 674; `node tools/release.js` said ready; `block-game`
+  fast-forwarded into `main`; tag `v10.16` pushed; GitHub release made.
+  The live site serves release 10.16, version 093912c3851c (checked at
+  github.io). No localhost server running.
+
+**Status (start here next session)**
+- **Live: 10.16.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish.
+- **From the developer:** load 10.16 on the tablet (open the home page; the
+  version line says 10.16) and play Hardest as usual. If a scene shows
+  no blocks or snowflake again: the checks in "Q109: the developer's
+  reply", then save the log at once (the new lines name the cause if it is
+  a shader the chip can't build). Also Q108.
+- **Then:** session 4 of the Hardest build, Cactus Canyon's moving things
+  (ideas in the 10.14 status entry); the tablet's first level-3 scene is
+  also the place to watch (the setting loads in 3-10 s there).
+- **Open questions:** Q109 (no blocks drawn on the tablet: waiting for a
+  log from 10.16), Q108.
