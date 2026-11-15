@@ -415,6 +415,10 @@ function unseenNow(b) {
 function makeStage() {
   const canvas = $('c');
   stage = park3d.makePark3d(canvas);
+  // a material the chip can't build, or the canvas lost (Q109): logged at once
+  stage.onError = e => L('shader error: its objects are not drawn', e);
+  canvas.addEventListener('webglcontextlost', () => L('webgl context lost'));
+  canvas.addEventListener('webglcontextrestored', () => L('webgl context restored'));
   // a setting's own sounds: Star Light's owl hooting now and then
   stage.onSound = name => { if (!SET_SOUND[name] || !playing) return; sound.play(SET_SOUND[name], 0, { quiet: true }); L('owl hoots', { t: r2(round?.t ?? 0) }); };
   world = physics.createWorld({ onHit });

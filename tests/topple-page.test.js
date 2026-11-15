@@ -191,6 +191,11 @@ test('topple page: logged: 3D start, the fit, each scene, throw, touch, block do
   assert.match(js, /startLog\('topple'\)/);
   // what was drawn (Q109): the log's 'blocks drawn' comes from the stage's diagnose(), which reports each block's mesh, the frame and the chip
   assert.match(js, /L\('blocks drawn', stage\.diagnose\(\)\);/);
+  // a material the chip can't build (three.js says so only in the console): told to the log at once, counted in diagnose()
+  assert.match(sceneJs, /renderer\.debug\.onShaderError = \(gl, program, vs, fs\) => \{/);
+  assert.match(sceneJs, /shaderErrors: shaderErrors\.length/);
+  assert.match(js, /stage\.onError = e => L\('shader error: its objects are not drawn', e\);/);
+  assert.match(js, /addEventListener\('webglcontextlost', \(\) => L\('webgl context lost'\)\)/);
   assert.match(js, /glow > 0\.6 && glowPeak !== glows\) \{ glowPeak = glows; L\('glow at its brightest', \{ \.\.\.stage\.glowState\(\)/, 'the glow at its brightest, once a pulse');
   assert.match(sceneJs, /glowState: \(\) => \(\{ shown: blockMeshes\.filter\(m => m\.userData\.glow\.visible\)\.length/);
   assert.match(sceneJs, /diagnose\(\) \{[\s\S]*?getError\(\)[\s\S]*?isContextLost\(\)/);

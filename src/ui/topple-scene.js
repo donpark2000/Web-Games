@@ -35,6 +35,19 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const webgl = renderer.capabilities.isWebGL2 ? 'WebGL 2' : 'WebGL 1';
+  // A material's shader that the graphics chip can't build (Q109: blocks and
+  // the snowflake not drawn on the tablet, the rock and trees fine: their
+  // materials were new to that page, theirs not): three.js skips what it
+  // can't draw and says so only in the console, which the site's log
+  // doesn't read. Kept here, and told to the page (onError) at once.
+  const shaderErrors = [];
+  let onError = null;
+  renderer.debug.onShaderError = (gl, program, vs, fs) => {
+    const cut = f => { try { return String(f()).slice(0, 240); } catch { return '?'; } };
+    const e = { program: cut(() => gl.getProgramInfoLog(program)), vertex: cut(() => gl.getShaderInfoLog(vs)), fragment: cut(() => gl.getShaderInfoLog(fs)) };
+    shaderErrors.push(e);
+    onError?.(e);
+  };
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(50, 0.75, 0.05, 160);
@@ -606,6 +619,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
 
   return {
     set onSound(f) { onSound = f; },
+    set onError(f) { onError = f; for (const e of shaderErrors) f?.(e); },
     webgl,
     farLeaves,
     setScene,
@@ -784,6 +798,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
         blocks: blockMeshes.slice(0, 6).map(m => ({ at: at([m.position.x, m.position.y, m.position.z]), vis: m.visible, mat: mat(m) })),
         frame: { calls: info.render.calls, triangles: info.render.triangles }, memory: { geometries: info.memory.geometries, textures: info.memory.textures },
         lost: gl.isContextLost(), glError: err, pixelRatio: renderer.getPixelRatio(), level,
+        programs: info.programs?.length ?? null, shaderErrors: shaderErrors.length, ...(shaderErrors.length ? { firstShaderError: shaderErrors[0] } : {}),
       };
     },
     // Shards and drops still flying (a scene isn't cleared until they're down).

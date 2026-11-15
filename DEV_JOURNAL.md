@@ -22290,3 +22290,39 @@ anything to show it (the dots are the developer's choice per How hard).
   starts the tablet again at "as drawn" and measures again: the
   conditions of that night (kept "lightest" from the start) are gone on
   10.15 until it steps down again.
+
+## 2026-11-15: Q109: the rock and tree were drawn; a shader that would not build?
+
+- **Developer:** "I did see the rock and tree. Just no blocks and no
+  snowflakes. And now that it is working I also see a lantern ... that did
+  not show up last night either. I wonder if there is a layering/ordering
+  bug? Like maybe somehow the background scene was drawn on top of the
+  blocks, flakes, and lantern?"
+- **Layering, weighed (evidence from the code and log):** against it: the
+  snowflake crosses the line at 0.55 of the way (z about -3.2), in front
+  of the rock (z -3.87) and nearer than the cubes (z -5.7): a background
+  drawn over things would have covered the rock first, and the ball (also
+  moved by the physics each frame) was drawn. The ground disc (snow) is
+  transparent but drawn first (`renderOrder` -1) and depth-tested; the
+  night sky's land mask is level 5 only. The lantern: its code is 10.14's;
+  that night the page ran 10.13 throughout (the scene log has no `keepout`
+  field, no `keepTried`), and level 3 scene 1 has none (only scenes 2 and
+  4): so its absence then is not evidence.
+- **A better fit (a hypothesis, not shown):** the things missing, the
+  ice cubes (a transparent material with a texture) and the snowflake
+  (opaque, a colour and an emissive), were the ones whose materials
+  were **new to that page**: first used in the first level-3 scene,
+  after two levels of photos in the chip's memory; the rock, the pines,
+  the ball and the slingshot reused materials already built in levels 1
+  and 2. A graphics chip that can't build a shader makes three.js skip
+  everything drawn with it and say so **only in the browser's console**,
+  which the site's log never read. It would also be intermittent (memory
+  and timing) and gone after a restart. Nothing in the log can show it:
+  the page's own errors are caught (none), a console message isn't.
+- **Added (log only):** `shader error: its objects are not drawn` (the
+  program's and both shaders' messages, at once), `diagnose()` counting
+  `programs` and `shaderErrors`, `webgl context lost` / `restored`.
+  Checked in the Browser pane by drawing a mesh with a bad shader: one
+  error, the chip's messages kept ("'nonsense' : no matching overloaded
+  function found"), `programs` 13. Not published (waiting for the
+  developer's OK for a 10.16): the live site is 10.15.
