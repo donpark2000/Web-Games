@@ -22499,3 +22499,22 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Then:** if "lightest" hides the ice: the options in "Q109: the second
   log"; session 4 of the Hardest build, Cactus Canyon.
 - **Open questions:** Q109, Q108.
+
+## 2026-11-15: 10.18 on the tablet: forcing "lightest" and "light" did not reproduce Q109
+
+- **Developer:** with the Log page's buttons on 10.18, Frosty Times' first
+  scene showed its blocks at **lightest** and at **light**; "problem was not
+  seen in 10.18". Will try again later and send the log if it recurs.
+- **What it says:** setting the level by hand (a fresh start at that level)
+  does not by itself hide the ice on the tablet. The bad cases were all at
+  "lightest" but also came from the tablet's own step-down (a mid-session
+  change, with materials already made, and the level kept for the next
+  visit), and may need something else the buttons do not repeat (what had
+  been played, the chip's memory, time). Q109 stays open; the log's new
+  lines (`blocks drawn`, `glow at its brightest`, `shader error`) are in
+  10.16-10.18 for when it recurs.
+- **Left at:** "as drawn" (the developer asked which to leave it at;
+  Claude's answer: "as drawn", the game's normal state: it steps lighter
+  by itself if the tablet is slow, which is how the problem arose).
+- **Status:** live 10.18; nothing waiting to publish; open: Q109 (waiting
+  for a recurrence and its log), Q108; next: Cactus Canyon's moving things.
