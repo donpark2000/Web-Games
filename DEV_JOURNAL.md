@@ -10,32 +10,6 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q114. Topple!: the tumbleweed and the giant snowballs look like big
-  balls** (2026-11-15, developer, the tablet and phone, Hardest: "The
-  tumbleweed and giant snowballs just look too much like big balls.").
-  Sample art shown 2026-11-16; the developer chose **a cowboy hat** for the
-  tumbleweed and **a rolling snowman's head** for the snowball ("What I did
-  not like about the original was that it did not look like a snowball. The
-  snowman is unmistakably a snowman ... I like the idea of it rolling").
-  **Built 2026-11-16 on `block-game`, not published; to look at on the
-  tablet:** (a) does the hat read as a hat as it tumbles end over end, and
-  is it as hard to get past as the tumbleweed was (its brim and crown are
-  less of the circle than a ring and spokes; a ball passes round them);
-  (b) does the head read as a snowman's head as it rolls, the face turning
-  round, the hat on it turning too; (c) the hat's felts (brown, tan, grey).
-  The looks keep their names 'tumbleweed' and 'snowball' so the deals (and
-  their pins) stay as they were. **10.20 on the tablet, 2026-11-16: "The hat
-  is fine" (a, c closed).** The head: "rolling a foot off the ground ... might
-  look better rolling on the ground", then "I did not see a machine lobbing
-  snowman heads - just heads floating by. If I had seen the machine, it
-  would not have seemed so strange for them to be floating in the air." The
-  heads are lobbed (a 0.6 m head on the snow would be under every throw: they
-  pass the mover's depth 0.9-1.7 m up). **Built the same day, not yet
-  published: the machine stands in view at the left** (its muzzle 0.2 m
-  short of the structure's side; three heads, not four). To look at: that
-  the machine now explains the lob; if not, giant heads (1.3 m) rolling on
-  the snow are the other way.
-
 - **Q113. Frosty Times: ice blocks that "slid out of range"** (2026-11-15,
   developer, phone and tablet, Hardest: "two instances of ice blocks in
   frosty world that slid out of range"). Not found yet. **Parked (developer, 2026-11-16: "It was my tablet and landscape. Don't worry about it for now. If I see it happen again I'll save the log")**. The rule since 10.7
@@ -199,6 +173,53 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q115. Topple!: "no moving thing on the first play of a level, then
+  there is after running out of hearts"** (2026-11-16, developer, iPhone,
+  Hardest, Frosty Times and Cactus Canyon). **Frosty Times: explained by the
+  deal, not a bug** (log "Q115: the iPhone log", below): the 10.21 session
+  resumed Frosty Times at scene 2 (2 hearts, 1 jewel); scenes 2-5 were a
+  spread-out structure, the snowflake, a spread-out structure, the snowman;
+  the machine is scene 1's alone, so it showed only once the hearts ran out
+  and the level went back to scene 1. **Cactus Canyon: not explained.** In
+  the log, every Canyon scene 1 had its mover (tumbleweeds, vulture,
+  tumbleweeds, cart, cart); scenes 2 and 4 are spread-out by design. To ask:
+  which scene number the top line showed when there was no mover, and
+  whether that play was in the part of the log we don't have.
+  **Closed 2026-11-16 (developer):** "I don't remember ... I'll pay more
+  attention and get the log right away if I see it again." Nothing to fix
+  found; Hardest has a mover in scenes 1, 3, 5 of every level (so a level
+  resumed at scene 2 or 4 starts on a spread-out one). Reopen with the log
+  and the scene number if it happens again.
+
+- **Q114. Topple!: the tumbleweed and the giant snowballs look like big
+  balls** (2026-11-15, developer, the tablet and phone, Hardest: "The
+  tumbleweed and giant snowballs just look too much like big balls.").
+  Sample art shown 2026-11-16; the developer chose **a cowboy hat** for the
+  tumbleweed and **a rolling snowman's head** for the snowball ("What I did
+  not like about the original was that it did not look like a snowball. The
+  snowman is unmistakably a snowman ... I like the idea of it rolling").
+  **Built 2026-11-16 on `block-game`, not published; to look at on the
+  tablet:** (a) does the hat read as a hat as it tumbles end over end, and
+  is it as hard to get past as the tumbleweed was (its brim and crown are
+  less of the circle than a ring and spokes; a ball passes round them);
+  (b) does the head read as a snowman's head as it rolls, the face turning
+  round, the hat on it turning too; (c) the hat's felts (brown, tan, grey).
+  The looks keep their names 'tumbleweed' and 'snowball' so the deals (and
+  their pins) stay as they were. **10.20 on the tablet, 2026-11-16: "The hat
+  is fine" (a, c closed).** The head: "rolling a foot off the ground ... might
+  look better rolling on the ground", then "I did not see a machine lobbing
+  snowman heads - just heads floating by. If I had seen the machine, it
+  would not have seemed so strange for them to be floating in the air." The
+  heads are lobbed (a 0.6 m head on the snow would be under every throw: they
+  pass the mover's depth 0.9-1.7 m up). **Built the same day, not yet
+  published: the machine stands in view at the left** (its muzzle 0.2 m
+  short of the structure's side; three heads, not four). To look at: that
+  the machine now explains the lob; if not, giant heads (1.3 m) rolling on
+  the snow are the other way.
+  **Closed 2026-11-16 (developer, 10.21 on the iPhone):** with the machine
+  in view the heads "look fine in both portrait and landscape". The giant
+  heads rolling on the snow stay unbuilt.
 
 - **Q111. Star Light's Hardest on the tablet: the picks as built** (2026-11-15,
   built in 10.19; the sled's size when it crosses near, the lantern, sled and
@@ -23084,3 +23105,58 @@ anything to show it (the dots are the developer's choice per How hard).
   view make the lobbed heads make sense (Q114)? Q109 (blank scene) and Q113
   (ice out of range): save the log if either happens again.
 - **Open questions:** Q114, Q113 (parked), Q109.
+
+## 2026-11-16: Q115: the iPhone log (heads and movers "missing" at first)
+
+- **From the developer (iPhone, 10.21, Hardest):** Frosty Times, "no
+  rolling heads on level 1 the first time ... not until I ran out of hearts
+  and the level started over"; the machine "looks fine in both portrait and
+  landscape"; "a similar thing in Cactus Canyon: no moving obstacle on
+  playing first level first time, but they appear after running out of
+  hearts". The log (pasted, 3000 lines, from +1032 s of an earlier session
+  to the end; not saved in the testing folder, the findings are here).
+- **Frosty Times, evidence:** session 2026-11-16 10:42 (release 10.21):
+  `level: start` at level 3 scene 2 (hearts 2, jewels 1), `newScenes`
+  false. Scenes as logged: 2 spread `iceSpreadMix` (no mover), 3 mover
+  `fall` flake, 4 spread `iceSpreadGates`, 5 mover `slide` snowman. Out of
+  hearts at +118.3 s (`outcome: "out"`, scene 1, 3 hearts, same seed and
+  rounds), then scene 1 at +119.5 s: mover `stream` look `snowball`, 3 loads.
+  Again at +332 s and +472 s. So a game resumed at scene 2 never meets the
+  machine until the hearts run out; no heads were dropped. The earlier
+  session (10.20, 09:54) had scene 1's snowball stream at +320 s (a new
+  round), also present.
+- **Cactus Canyon, evidence (not explained):** every Canyon scene 1 in the
+  log had its mover: +109.9 s tumbleweeds (stream), +365 s vulture (drop, a
+  new round), +373 s tumbleweeds again, +552 s and +668 s cart (slide).
+  Scenes 2 and 4 are spread-out structures by design (developer,
+  2026-11-14: "moving things every other scene and then use space"), 3 and 5
+  have movers. Two of those scene 1 plays were won with one ball in about 8 s
+  (+109.9 s, +552 s), so the mover may simply not have been looked at. The
+  play the developer means may be before the log's start.
+- **Not changed:** no code. Both are about what the deal shows when a
+  level is resumed mid-way, not the game's logic.
+- **Possible, to offer the developer:** the setup notice (or the scene's
+  card) could say what is in the scene ("a snowball machine"), so a
+  scene without a mover doesn't read as a missing one. Not decided.
+
+**Status (start here next session)**
+- **Live: 10.21.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish.
+- **Open questions:** Q115 (Frosty explained; Canyon to ask), Q114 (the
+  machine in view: the developer says it looks fine in portrait and
+  landscape; close it unless the heads' height is still wanted lower), Q113
+  (parked), Q109.
+
+## 2026-11-16: Q115 and Q114 closed
+
+- **Developer:** "Lets close them for now ... I will pay more attention now
+  that I know I am waiting to see a bug, and as soon as I do, send you
+  details." Both moved to Resolved (above) with their evidence.
+- **Still open:** Q113 (ice out of range) and Q109 (a scene drawn with no
+  blocks): save the log at once if either happens again.
+
+**Status (start here next session)**
+- **Live: 10.21.** `block-game` = `main` plus journal entries. Nothing
+  waiting to publish; no code changed this session.
+- **Open questions:** Q113 (parked), Q109. Both wait for the developer to
+  see them again with a saved log.
