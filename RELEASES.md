@@ -7,6 +7,24 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.20 (2026-11-16, version 36abf7faa7b8)
+
+Topple!: the things not to hit are gone, and two moving things that
+looked like big balls look like what they are.
+
+- **Things not to hit, dropped**: the bird's nest, window pane, lantern,
+  clay pot and telescope (and the red ring and the "Don't hit" line that
+  went with them) are removed. A hit cost a heart, and the ring looked
+  like an obstacle and could hide the targets. Scenes 2 and 4 of Hardest
+  are the spread-out pieces alone.
+- **Cactus Canyon**: the tumbleweed is now a **cowboy hat**, tumbling end
+  over end across the sand and hopping as it goes (a ball can pass round
+  it).
+- **Frosty Times**: the machine's snowballs are now **snowmen's heads**,
+  with a face, a carrot nose and a top hat, rolling across the snow with
+  their faces turning round.
+- Normal and Harder are as they were.
+
 ## 10.19 (2026-11-15, version c70caa5ef1c9)
 
 Topple!: Hardest in Cactus Canyon and Star Light has things that move in
