@@ -171,6 +171,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   const advance = fixedStepper(world, STEP, MAX_SUBSTEPS);
   let statics = [], blocks = [], balls = [], time = 0, parts = null, ball = { r: BALL.r, kg: BALL.kg * SCALE ** 3 };
   let toBreak = new Set();   // blocks knocked hard enough to break this step (ice, a barrel)
+  let keepGone = new Set();  // things in the way a ball struck this step: taken out of the world after it (Q112)
   let far = Infinity;        // the farthest a throw reaches in this scene (throwRange)
   let unseen = null;         // the page's test for a block off the screen as it's held (Q103), or none
   const breakAt = (rec, v) => { if (rec && !rec.broken && rec.breaks && v >= rec.breaks) toBreak.add(rec); };
@@ -196,8 +197,9 @@ export function createWorld({ onHit = () => {} } = {}) {
     if (kind === 'soft' && !b.inBush) { b.inBush = true; b.velocity.scale(BUSH_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); b.linearDamping = b.angularDamping = SOFT_DAMPING; }
     // the thing that moves (Q106): the ball stops and drops, once
     if (kind === 'mover' && !b.stopped) { b.stopped = true; b.velocity.scale(MOVER_KEEP, b.velocity); b.angularVelocity.set(0, 0, 0); }
-    // a thing not to hit (Q97): the ball is done with, whatever it touches after (the page turns it into a heart)
-    if (kind === 'keepout' && !b.struck) { b.struck = true; b.velocity.set(0, 0, 0); b.angularVelocity.set(0, 0, 0); b.collisionFilterMask = 0; }
+    // a thing in the way (Q97; Q112: it wastes the ball, nothing more): the ball is done with, whatever it
+    // touches after, and the thing is out of the world once the step is over (it has fallen or shattered)
+    if (kind === 'keepout' && !b.struck) { b.struck = true; b.velocity.set(0, 0, 0); b.angularVelocity.set(0, 0, 0); b.collisionFilterMask = 0; keepGone.add(e.body); }
     onHit({ a: 'ball', b: kind, v, y: b.position.y, ball: b, other: e.body, mat: e.body.mat, thing: e.body.thing });
     if (kind === 'mover') moverStruck(e, b);
   }
@@ -344,7 +346,7 @@ export function createWorld({ onHit = () => {} } = {}) {
   // `poses` ([{ p, q, down }], one per block: where they had come to rest).
   function setScene(p, poses = null) {
     for (const s of [...statics, ...blocks, ...balls]) if (!s.broken) world.removeBody(s.body);
-    statics = []; blocks = []; balls = []; bushBalls = []; parts = p; toBreak = new Set(); recOf.clear();
+    statics = []; blocks = []; balls = []; bushBalls = []; parts = p; toBreak = new Set(); keepGone = new Set(); recOf.clear();
     if (p.ball) ball = { ...p.ball };
     // how far a throw reaches in this scene (Q103; a scene without a strength: no limit)
     far = p.power != null ? throwRange(p.power) : Infinity;
@@ -426,6 +428,9 @@ export function createWorld({ onHit = () => {} } = {}) {
       for (const r of blocks) if (!r.broken) r.body.wakeUp();
     }
     toBreak = new Set();
+    // a thing the ball struck is gone (its box too: it has fallen or shattered, and later balls pass)
+    for (const body of keepGone) { const s = statics.find(r => r.body === body); if (s && !s.broken) { s.broken = true; world.removeBody(body); } }
+    keepGone = new Set();
     for (let i = balls.length - 1; i >= 0; i--) {
       const b = balls[i].body;
       if (time - b.thrownAt > BALL_LIFE || b.position.y < -2) { world.removeBody(b); balls.splice(i, 1); }

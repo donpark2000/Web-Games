@@ -18,9 +18,9 @@ import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readGame, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, seedOf, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
   padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, restartLevel, placeOf, isOpen, offScreen, MAP_NODES, mapRoad, roadAt, roadTo,
-  MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy, hitKeep, HIT_CARD_S,
+  MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy,
 } from '../core/topple.js';
-import { keepFor, keepLine, KEEP_EMOJI, THINGS as KEEP_THINGS } from '../core/topple-keepout.js';
+import { THINGS as KEEP_THINGS } from '../core/topple-keepout.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
@@ -363,18 +363,6 @@ function hideCanvas(on) {
 // dimmed under it (or the park's colour, the canvas hidden, for a new
 // level). Logged with how long it was up.
 let waitAt = 0;
-let keepThing = null;        // the thing not to hit in the scene being set up (Q97)
-let keepHitWait = 0;         // after a hit: s till the card (the heart pops, the thing reacts)
-// (Hardest's thing not to hit, Q97: its warning line in the notice, with the red slashed ring and its picture;
-// the notice stays up at least KEEP_NOTICE_MS so there's time to read it)
-const KEEP_NOTICE_MS = 3000;
-function keepNotice(thing) {
-  const el = $('keepLine');
-  el.hidden = !thing;
-  if (!thing) return;
-  $('keepEmoji').textContent = KEEP_EMOJI[thing] ?? '';
-  $('keepWords').textContent = keepLine(thing);
-}
 function showWait(on) {
   const w = $('settingUp');
   if (w.hidden === !on) return;
@@ -494,9 +482,6 @@ async function startScene(kept = null) {
   $('cleared').hidden = true;
   // the notice over the park, the hint out of its way (Q104; until 10.7 the
   // hint at the park's foot said "Setting up the scene…")
-  // the thing not to hit this scene has (Hardest, scenes 2 and 4: the layout's if picked up again), said in the notice
-  keepThing = kept ? kept.layout.keepout?.thing ?? null : keepFor(game.mode, game.level, game.scene);
-  keepNotice(keepThing);
   $('hint').hidden = true;
   showWait(true);
   renderHud();
@@ -541,11 +526,6 @@ async function startScene(kept = null) {
   const drawnId = JSON.stringify(current.id);
   L('blocks drawn', stage.diagnose());
   setTimeout(() => { if (current && JSON.stringify(current.id) === drawnId && stage) L('blocks drawn: 3 s on', stage.diagnose()); }, 3000);
-  // the notice with the warning stays up long enough to read (never cut short by a quick scene)
-  if (keepThing && current.layout.keepout) {
-    const left = KEEP_NOTICE_MS - (performance.now() - waitAt);
-    if (left > 0) { L('setting up: the warning held', { thing: keepThing, ms: Math.round(left) }); await new Promise(r => setTimeout(r, left)); }
-  }
   showWait(false);
   $('hint').textContent = HINT;
   $('hint').hidden = round.used > 0;
@@ -704,7 +684,7 @@ const THROUGH = { tyre: 'ball through the tyre', flake: 'ball through the snowfl
 // (Star Light's: the sled a thud, the paper lantern a rustle, the star a crystal chime)
 function onHit({ a, b, v, y, ball, other, mat, thing, offM }) {
   const now = performance.now(), vs = v / Math.sqrt(SCALE);
-  // Hardest's thing not to hit (Q97): the scene is lost, the ball turns into a heart
+  // Hardest's thing in the way (Q97, Q112): the ball is wasted, the thing falls or shatters
   if (b === 'keepout') { keepStruck(ball, thing, vs); return; }
   // through the tyre's hole (Q106): told, no touch
   if (b === 'through') { L(THROUGH[thing] ?? 'ball through the mover', { t: r2(world.time - (shot?.at ?? 0)), moverT: r2(world.moverT), offM, at: [ball.position.x, ball.position.y, ball.position.z].map(r2), speed: r2(vs) }); return; }
@@ -737,26 +717,17 @@ function onHit({ a, b, v, y, ball, other, mat, thing, offM }) {
   }
 }
 
-// A ball hit the thing not to hit (Q97; developer, 2026-11-14: "the ball turns
-// into a heart and then explodes"): the scene is lost at once (a heart, as
-// any lost scene), the ball turns into a heart at the thing and pops, the
-// thing reacts in its own way, one ❤️ in the counter breaks, and the card
-// comes HIT_CARD_S after.
+// A ball hit the thing in the way (Q97, Q112; developer, 2026-11-15: "waste a
+// ball is fine but losing a heart seems too much"): the ball is wasted (the
+// physics took it out), the thing reacts in its own way (falls, shatters) and
+// is gone; the scene goes on, nothing else lost.
 function keepStruck(ball, thing, vs) {
   if (!round || round.result || !current) return;
   const at = [ball.position.x, ball.position.y, ball.position.z], t = r2(world.time - (shot?.at ?? 0));
-  const result = hitKeep(round, thing);
-  if (!result) return;
-  drag = null; stopDemo();
-  const secs = stage.keepHit(at);
+  if (!stage.keepHit(at)) return;
   sound.play('boing', 0, { level: 0.7, quiet: true });
-  setTimeout(() => sound.play(thing === 'nest' ? 'rustle' : 'shatter', 0, { level: 1, quiet: true }), 400);
-  L('hit the thing not to hit', { thing, ...(KEEP_THINGS[thing] ? { name: KEEP_THINGS[thing].name } : {}), t, at: at.map(r2), speed: r2(vs), ball: round.used, down: round.down, popS: r2(secs), hearts: game.hearts });
-  endScene(result, true);
-  // the heart in the counter breaks
-  const pill = $('hudHearts');
-  pill.classList.remove('broke'); void pill.offsetWidth; pill.classList.add('broke');
-  keepHitWait = HIT_CARD_S;
+  setTimeout(() => sound.play(thing === 'nest' ? 'rustle' : 'shatter', 0, { level: 1, quiet: true }), 150);
+  L('hit the thing in the way: the ball is wasted', { thing, ...(KEEP_THINGS[thing] ? { name: KEEP_THINGS[thing].name } : {}), t, at: at.map(r2), speed: r2(vs), ball: round.used, down: round.down, hearts: game.hearts });
 }
 
 /* ---------- the loop ---------- */
@@ -794,11 +765,6 @@ function tick(dt, draw = true) {
   if (downChanged && round.down >= round.total) L('all down: cleared unless one gets up', { t: r2(round.t), still, calm, fx });
   if (result) endScene(result);
   if (card && ended && $('over').hidden) { L('the card', { won: ended.won, afterWinS: r2(round.cardT), calm, still, fx }); showEnd(); }
-  // after a hit on the thing not to hit: the card once the heart has popped and the thing has reacted
-  if (keepHitWait > 0) {
-    keepHitWait -= dt;
-    if (keepHitWait <= 0 && ended && $('over').hidden) { L('the card', { hit: ended.hit, afterHitS: HIT_CARD_S }); sound.play('aww'); showEnd(); }
-  }
   // the blocks left glow once the scene has waited a while for the next ball (Q101)
   glowIdle = waitingOn(round, still && fx === 0) && !drag && !demo ? glowIdle + dt : 0;
   // the count started though something still moves (Q105): what, once a throw
@@ -888,27 +854,26 @@ function noteSettled() {
 // The scene's over: a jewel and on, or a heart lost (sceneOver()); kept on
 // the device at once, so coming back starts where the game is. The level
 // done: a new game (level 2 isn't made yet), new scenes.
-function endScene(result, quiet = false) {
+function endScene(result) {
   const was = { ...game };
   // a level done: the game is on to the next level (or every level done: 'all')
   const outcome = sceneOver(game, result.won), lvDone = outcome === 'level' || outcome === 'all';
   saveGame();
-  const words = endWords(outcome, lvDone ? was : game, nameOf(setup.p1), result.hit ?? null);
+  const words = endWords(outcome, lvDone ? was : game, nameOf(setup.p1));
   // the pills over the park show the scene's end until the next one starts
   // (no hearts left, or all 5 jewels), not the game already moved on
   const shown = outcome === 'out' ? { ...game, hearts: 0, jewels: was.jewels } : lvDone ? { ...was, jewels: SCENES } : null;
-  ended = { outcome, words, won: result.won, shown, unlocked: game.reached > was.reached, ...(result.hit ? { hit: result.hit } : {}) };
+  ended = { outcome, words, won: result.won, shown, unlocked: game.reached > was.reached };
   // the blocks as the scene ended (the last may still be falling): a reload shows it as it was
   settled = { round: JSON.parse(JSON.stringify(round)), poses: world.poses() };
   // won: the win shown at once ("Cleared!", the jewel, the sound), the card once the blocks are calm (tick);
   // lost: the card now (out of balls already waits for everything to be still)
-  if (result.won) showCleared(); else if (!result.hit) showEnd();   // (a hit: its card comes after the heart pops: tick)
+  if (result.won) showCleared(); else showEnd();
   const secs = (performance.now() - perf.at) / 1000;
   L('scene over', { ...result, outcome, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped, drawing: drawing?.level,
     // the blocks left standing, where they are (Q103: why a scene couldn't be cleared)
     standing: result.won ? undefined : world.blocks.filter(b => !b.down && !b.broken).map(b => ({ c: b.c, mat: b.mat, ...whereIs(b) })), moon: stage.animals?.().find(a => a.moon)?.moon });
-  if (!quiet) sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
-  if (result.hit) { $('hint').hidden = true; renderTally(); }   // (your face sad, the hearts, Start again off: as showEnd would)
+  sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
 }
 // A scene won, before its card (developer, 2026-11-12: a long pause before

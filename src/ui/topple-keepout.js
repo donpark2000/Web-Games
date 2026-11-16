@@ -1,40 +1,16 @@
-// Topple!'s things not to hit, drawn (src/core/topple-keepout.js has what and
-// where; journal Q97): each level's own look (a bird's nest on a stump, a
-// window pane in its frame, a glowing lantern), the one warning mark on
-// every one of them (a small red ring with a slash, bobbing over it), and
-// what a hit does: the ball turns into a heart, the heart pops in hearts
-// and sparks, and the thing reacts in its own way (the nest tumbles and its
-// eggs roll off; glass shatters, the lantern goes out). Made by
-// src/ui/topple-scene.js, which owns the three.js scene; every step of it
-// drawn only (the physics only stops the ball).
-
-export const RING_COLOUR = '#E02424';
+// Topple!'s things in the way, drawn (src/core/topple-keepout.js has what and
+// where; journal Q97, Q112): each level's own look (a bird's nest on a stump, a
+// window pane in its frame, a glowing lantern, a clay pot, a telescope), and
+// what a hit does: the ball is wasted and the thing reacts in its own way (the
+// nest tumbles and its eggs roll off; glass shatters, the lantern goes out;
+// the telescope's tube falls). No warning mark: it looked like an obstacle and
+// hid targets (developer, 2026-11-15). Made by src/ui/topple-scene.js, which
+// owns the three.js scene; every step of it drawn only (the physics only stops
+// the ball and takes the thing away).
 
 export function makeKeepout({ THREE, scene, canvasTex }) {
   /* ---------- the textures and materials, made once ---------- */
 
-  // the warning mark: a red ring with a slash on a white disc, so it reads on any sky or lawn
-  const ringTex = canvasTex(128, 128, (g, w, h) => {
-    const c = w / 2, r = 50;
-    g.fillStyle = 'rgba(255,255,255,0.88)'; g.beginPath(); g.arc(c, c, r, 0, 2 * Math.PI); g.fill();
-    g.strokeStyle = RING_COLOUR; g.lineWidth = 15; g.lineCap = 'round';
-    g.beginPath(); g.arc(c, c, r - 2, 0, 2 * Math.PI); g.stroke();
-    g.beginPath(); g.moveTo(c - 0.7 * (r - 2), c - 0.7 * (r - 2)); g.lineTo(c + 0.7 * (r - 2), c + 0.7 * (r - 2)); g.stroke();
-  });
-  // the heart the ball turns into
-  const heartTex = canvasTex(128, 128, (g, w) => {
-    const s = w / 2, x = w / 2, y = w * 0.52;
-    const path = () => {
-      g.beginPath();
-      g.moveTo(x, y + s * 0.62);
-      g.bezierCurveTo(x - s * 1.1, y + s * 0.05, x - s * 0.75, y - s * 0.78, x, y - s * 0.28);
-      g.bezierCurveTo(x + s * 0.75, y - s * 0.78, x + s * 1.1, y + s * 0.05, x, y + s * 0.62);
-      g.closePath();
-    };
-    path(); g.fillStyle = '#E8344B'; g.fill();
-    g.lineWidth = 5; g.strokeStyle = '#A8142C'; g.stroke();
-    g.fillStyle = 'rgba(255,255,255,0.55)'; g.beginPath(); g.ellipse(x - s * 0.42, y - s * 0.28, s * 0.14, s * 0.09, -0.6, 0, 2 * Math.PI); g.fill();
-  });
   const M = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.8, ...extra });
   const wood = M('#8A5A3B'), bark = M('#6E4A30'), twig = M('#9C7A4E'), twigDark = M('#5B432B'), egg = M('#A9DCEB', { roughness: 0.4 });
   const frameWood = M('#B07A45'), glass = M('#BFE6F2', { roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.38 });
@@ -134,11 +110,11 @@ export function makeKeepout({ THREE, scene, canvasTex }) {
   }
   const BUILD = { nest, pane, lantern, pot, telescope };
 
-  /* ---------- a thing and its mark ---------- */
+  /* ---------- a thing ---------- */
 
-  let ringSprite = null, fx = [], thingG = null, bobT = 0, reacted = false;
+  let fx = [], thingG = null, reacted = false;
   // The drawn thing (a group, not yet added to the scene) for a scene's prop
-  // ({ thing, at, w, h, d }), with its warning mark over it.
+  // ({ thing, at, w, h, d }).
   function build(p) {
     reset();
     const g = new THREE.Group();
@@ -146,57 +122,25 @@ export function makeKeepout({ THREE, scene, canvasTex }) {
     BUILD[p.thing](g, p);
     g.userData.thing = p.thing; g.userData.top = p.h;
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: ringTex, depthTest: false, transparent: true }));
-    sp.scale.set(0.46, 0.46, 1); sp.renderOrder = 20; sp.position.set(0, p.h + 0.4, 0);
-    sp.userData.base = p.h + 0.4;
-    g.add(sp);
-    ringSprite = sp; thingG = g; reacted = false;
+    thingG = g; reacted = false;
     return g;
   }
-  // A scene's fx taken away (a new scene is drawn): hearts, shards, sparks.
+  // A scene's fx taken away (a new scene is drawn): shards, eggs.
   function reset() {
     for (const f of fx) { scene.remove(f.o); f.o.material?.dispose?.(); }
-    fx = []; timers = []; ringSprite = null; thingG = null; reacted = false;
+    fx = []; thingG = null; reacted = false;
   }
 
   /* ---------- the hit ---------- */
 
   const GRAV = 9.82;
   const spawn = (o, f) => { scene.add(o); const rec = { o, age: 0, ...f }; fx.push(rec); return rec; };
-  const heartSprite = (size, at) => {
-    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: heartTex, depthTest: false, transparent: true }));
-    s.scale.set(size, size, 1); s.position.set(...at); s.renderOrder = 30; return s;
-  };
-  // The ball at `at` (world m) hit the thing: it turns into a heart (grows, with a pulse),
-  // pops into little hearts and sparks, and the thing reacts. Returns how long it takes (s).
-  function hit(at) {
-    if (!thingG || reacted) return 0;
+  // The ball hit the thing: it reacts at once, in its own way. False if it has (a thing is hit once).
+  function hit() {
+    if (!thingG || reacted) return false;
     reacted = true;
-    const heart = heartSprite(0.12, at);
-    spawn(heart, { kind: 'heart', life: 0.4, at });
-    // the pop, once the heart is whole
-    setTimeoutS(0.4, () => {
-      pop(at);
-      react();
-    });
-    return POP_END;
-  }
-  const POP_END = 1.5;
-  // (timers on the scene's own step, not the clock: a hidden tab or a slow device keeps the order)
-  let timers = [];
-  function setTimeoutS(s, fn) { timers.push({ s, fn }); }
-  function pop(at) {
-    for (let i = 0; i < 9; i++) {
-      const a = i * 2 * Math.PI / 9 + 0.3, sp = 1.3 + (i % 3) * 0.5;
-      const h = heartSprite(0.16, at);
-      spawn(h, { kind: 'bit', v: [Math.cos(a) * sp, 1.4 + (i % 2) * 0.8, Math.sin(a) * sp * 0.5], life: 0.9, g: 3.5, fade: true });
-    }
-    for (let i = 0; i < 14; i++) {
-      const a = i * 2 * Math.PI / 14, sp = 1 + (i % 4) * 0.45;
-      const o = new THREE.Mesh(new THREE.IcosahedronGeometry(0.035, 0), new THREE.MeshBasicMaterial({ color: i % 2 ? '#FFB3C1' : '#E8344B', transparent: true }));
-      o.position.set(...at);
-      spawn(o, { kind: 'bit', v: [Math.cos(a) * sp, 0.6 + (i % 3) * 0.7, Math.sin(a) * sp * 0.6], life: 0.7, g: 5, fade: true });
-    }
+    react();
+    return true;
   }
   // The thing's own reaction.
   function react() {
@@ -243,23 +187,11 @@ export function makeKeepout({ THREE, scene, canvasTex }) {
 
   /* ---------- each frame ---------- */
 
-  // dt s on (the scene's tick): the mark bobs, the hit's bits fly.
+  // dt s on (the scene's tick): the hit's bits fly.
   function tick(dt) {
-    bobT += dt;
-    if (ringSprite) ringSprite.position.y = ringSprite.userData.base + 0.07 * Math.sin(bobT * 3.2);
-    for (const t of timers) t.s -= dt;
-    const due = timers.filter(t => t.s <= 0); timers = timers.filter(t => t.s > 0);
-    for (const t of due) t.fn();
     fx = fx.filter(f => {
       f.age += dt;
       const o = f.o;
-      if (f.kind === 'heart') {
-        // growing with a pulse until it pops
-        const k = Math.min(1, f.age / f.life), s = 0.12 + 0.3 * k + 0.04 * Math.sin(f.age * 38);
-        o.scale.set(s, s, 1);
-        if (f.age >= f.life) { scene.remove(o); o.material.dispose(); return false; }
-        return true;
-      }
       if (f.kind === 'bit') {
         f.v[1] -= f.g * dt;
         o.position.x += f.v[0] * dt; o.position.y = Math.max(0.03, o.position.y + f.v[1] * dt); o.position.z += f.v[2] * dt;
@@ -289,5 +221,5 @@ export function makeKeepout({ THREE, scene, canvasTex }) {
     });
   }
 
-  return { build, reset, hit, tick, get live() { return fx.length; }, get active() { return !!thingG; }, POP_END };
+  return { build, reset, hit, tick, get live() { return fx.length; }, get active() { return !!thingG; } };
 }

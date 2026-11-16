@@ -1,7 +1,10 @@
-// Topple! things not to hit (journal Q97; developer, 2026-11-12: hitting one
-// "loses the scene ... the challenge is making it clear you should not hit
-// it"; 2026-11-14: "Since we lose a heart, maybe the ball turns into a heart
-// and then explodes?"; "Use the red slashed ring and the notice line").
+// Topple! things in the way (journal Q97, Q112). First built (2026-11-14) as things
+// not to hit: a hit lost the scene and a heart, with a red slashed ring over
+// each and a notice line. Developer, 2026-11-15, after the tablet: "Adding
+// objects to the scene that waste a ball is fine but losing a heart seems too
+// much. And the bobbing red circle ... looks like an obstacle ... it can hide
+// targets." So now a ball that hits one is wasted, nothing more: the thing
+// falls or shatters and is gone; no ring, no notice, no heart.
 // No DOM, three.js or physics here: what each level's thing is, its size and
 // physics, where a scene may stand it, and when a scene has one. The drawing
 // (src/ui/topple-keepout.js) and the page (src/ui/topple.js) take it from
@@ -41,12 +44,6 @@ export const KEEP_THINGS = Object.keys(THINGS);
 
 // The thing a scene has, or null: how hard (`mode`), the level and the scene.
 export const keepFor = (mode, level, scene) => (KEEP_MODES.includes(mode) && KEEP_SCENES.includes(scene) ? KEEP[level] ?? null : null);
-
-// The warning line for the notice shown while a scene is set up (the thing
-// with its picture, as the developer agreed: "Don't hit the nest!").
-export const keepLine = thing => (THINGS[thing] ? `Don't hit ${THINGS[thing].the}!` : null);
-// The picture beside it: the thing's emoji
-export const KEEP_EMOJI = { nest: '🐦', pane: '🖼️', lantern: '🏮', pot: '🌺', telescope: '🔭' };
 
 // A thing placed: { thing, x, z } (world m, its base's middle on the ground).
 // Its physics ({ kind, thing, shapes }), what's drawn ({ part, ... }) and the

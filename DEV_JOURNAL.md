@@ -10,6 +10,38 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q114. Topple!: the tumbleweed and the giant snowballs look like big
+  balls** (2026-11-15, developer, the tablet and phone, Hardest: "The
+  tumbleweed and giant snowballs just look too much like big balls."). Both
+  are round and roll, like the ball you throw. Not changed yet: to agree
+  what they become (Claude's proposals in the entry "Q112 to Q114"). The
+  snowflake, the cart, the vulture, the sled, the lantern and the star
+  were not mentioned.
+
+- **Q113. Frosty Times: ice blocks that "slid out of range"** (2026-11-15,
+  developer, phone and tablet, Hardest: "two instances of ice blocks in
+  frosty world that slid out of range"). Not found yet. The rule since 10.7
+  (Q103) and 10.13 (Q107): a block out of the aim's reach, further than a
+  throw reaches, or off the screen as held counts as down once it has
+  slowed. Checked 2026-11-15 in the physics alone (60 Hardest scenes of
+  Frosty Times, six hard throws each, 20 s to settle): no block was left
+  standing where no throw can reach; so if it happened it was the page's
+  own off-screen test or a block still sliding. To ask: which device and
+  orientation; did the scene end lost with the block out there, or was it
+  counted down; the log (Log page, saved at once) of that session.
+
+- **Q112. Things in the way: a hit costs a ball, not a heart; no ring**
+  (2026-11-15, developer, the tablet and phone: "Adding objects to the scene
+  that waste a ball is fine but losing a heart seems too much. And the
+  bobbing red circle alerting the 'do not hit' thing is confusing. It looks
+  like an obstacle ... But worst, it can hide targets."). Built the same
+  day on `block-game` (not published): a hit wastes the ball and nothing
+  more, the thing falls or shatters and is gone; no ring, no notice line,
+  no heart, no card. To confirm on a device: that a thing in the way is
+  still worth having at all (it only costs a ball now), and whether the
+  nest's stump, the pane's frame and the lantern's post (still drawn
+  after the glass has gone) should vanish too.
+
 - **Q111. Star Light's Hardest on the tablet: the picks as built** (2026-11-15,
   built in 10.19 with Cactus Canyon's, not yet on a device). To ask: (a) the
   **sled**: a rock on the throw line makes it cross as near as 0.4 of the way
@@ -45,6 +77,8 @@ time, each tried before publishing:
   **1.6 s** after a hit; (f) the ring's size and look. Cactus Canyon's pot and
   Star Light's telescope came with their Hardest (10.19, the same ring and
   notice line; Star Light on the tablet: Q111).
+  **The developer's answer, 2026-11-15 (the tablet): a hit should only waste a
+  ball, not cost a heart, and the ring is confusing: Q112, built.**
 
 ## Proposed additions to the standards skill
 
@@ -22828,3 +22862,67 @@ anything to show it (the dots are the developer's choice per How hard).
   the version line says 10.19); Hardest on Cactus Canyon and Star Light:
   Q108, Q111; Q109 (the blank scene: save the log if it recurs).
 - **Open questions:** Q111, Q109, Q108.
+
+## 2026-11-15: The tablet's first word on Hardest; Q112 built, Q113 and Q114 asked
+
+- **From the developer (the phone and the tablet, all levels):** no more
+  invisible blocks (Q109 not seen again; leave open one more round); "we
+  have definitely succeeded in making the hardest level hard"; the things
+  not to hit: "losing a heart seems too much", the bobbing red ring "looks
+  like an obstacle ... it can hide targets"; two ice blocks in Frosty
+  Times "slid out of range" (Q113); "the tumbleweed and giant snowballs
+  just look too much like big balls" (Q114).
+- **Built (Q112):** a hit on a thing in the way wastes the ball and nothing
+  more. In the physics (`topple-world.js`) the ball is stopped as before and
+  the thing's box is taken out of the world after the step (`keepGone`,
+  its record marked `broken` so the path ahead leaves it out too); the page
+  (`ui/topple.js`, `keepStruck`) plays the reaction and the sounds and logs
+  `hit the thing in the way: the ball is wasted`, and ends nothing. Gone:
+  the ring and its bobbing, the heart that popped, the notice line and its
+  3 s hold, the card "Oh no, the bird's nest!", `hitKeep`, `HIT_CARD_S`,
+  `keepLine`, `KEEP_EMOJI`, `endWords`' fourth argument, the counter's
+  broken-heart animation, the CSS and the HTML for the notice line.
+  Unchanged: where a thing stands, the scene check's judgement (6 throws at
+  least, 35% at most), the drawings and their reactions. A side effect, to
+  look at: what is left of a thing (the stump, the frame, the post) is
+  still drawn but the ball passes through it.
+- **Checked:** in the browser pane (Hardest, the park, scene 2) a throw at
+  the nest (found with a second world on the same seed): the log says the
+  ball is wasted, hearts still 3, no card, no console error, the notice
+  element is not in the page; its egg lies on the grass. The physics test:
+  the same throw again does not meet the thing, the second ball is not
+  wasted. **Shown to fail:** with the thing's removal taken out, that test
+  fails. The page's text tests now say the ring, the notice and the
+  heart's pop are *not* in the code.
+- **Q113 (ice out of range), looked at first:** 60 Hardest scenes of Frosty
+  Times, six hard throws each, 20 s to settle, in the physics alone: no
+  block left standing outside the aim's reach (22°) or the throw's range.
+  So the cause is not the range rule; it is the page-only test (a block off
+  the screen as held, Q107) or a block still sliding when the scene was
+  judged lost. Needs the developer's log. Script (not in the repo):
+  `ice-slide.mjs` in Claude's scratchpad.
+- **Q114 (the look-alike balls), proposals:** the tumbleweed (Cactus
+  Canyon) and the snowballs (Frosty Times, the machine's lobbed stream)
+  are the two round, rolling things. Claude's suggestions: (1) the
+  tumbleweed made ragged and wider than tall, a loose tangle of twigs with
+  ends sticking out, the colour of dry grass, not a ring; (2) the snowballs
+  replaced by lobbed icicles (long, pointed, glinting, turning end over end
+  as they fly, bursting into ice sparkles); the machine stays, and the
+  physics shapes become thin boxes as the snowflake's are. To agree with
+  the developer before building.
+- **Suite:** the keep-out, page and Star Light tests updated and passing
+  (48 of 48 in those three files); the whole suite and the release check
+  run before any publish.
+
+**Status (start here next session)**
+- **Live: 10.19.** On `block-game`, not published: **Q112** (a thing in the
+  way only wastes the ball; no ring, no notice). Not a release yet (the
+  number, probably 10.20, is set when the developer says to publish).
+- **From the developer:** (1) Q113: for the two ice blocks, which device
+  and orientation, and did the scene end lost or were they counted down;
+  the saved log if it is still on the device; (2) Q114: which look for the
+  tumbleweed and the snowballs (the suggestions above, or another);
+  (3) is a thing that only wastes a ball still worth having (Q112)?
+- **Then:** build Q114 as agreed; Q113 from the log; publish 10.20 with
+  the developer's OK.
+- **Open questions:** Q114, Q113, Q112, Q111, Q109, Q108.

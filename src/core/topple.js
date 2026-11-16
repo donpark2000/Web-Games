@@ -20,7 +20,7 @@
 import { FACE_NAMES, checkFaces as checkPicks } from './players.js';
 import { LEVELS, MAX_LEVEL, STRUCTURES, MATS, BALLS_BY, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo } from './topple-levels.js';
 
-import { keepoutParts, THINGS } from './topple-keepout.js';
+import { keepoutParts } from './topple-keepout.js';
 
 export { FACE_NAMES, LEVELS, MAX_LEVEL, MATS, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo };
 
@@ -681,7 +681,7 @@ export function sceneParts(L) {
       }
     }
   }
-  // Hardest's thing not to hit (Q97), placed by the scene check in world metres: a box to the physics, drawn by the page
+  // Hardest's thing in the way (Q97, Q112: a hit wastes the ball), placed by the scene check in world metres: a box to the physics, drawn by the page
   if (L.keepout) {
     const k = keepoutParts(L.keepout);
     bodies.push(k.body); props.push(k.prop); fitBox(...k.fit);
@@ -1030,10 +1030,6 @@ export const CARD_HOLD = 0.35;
 export const CARD_MAX = 4;
 export const END_WAIT = 2;        // out of balls: over this long after the last throw, once still
 export const END_MAX = 7 * Math.sqrt(SCALE);   // ... or this long, still or not
-// A ball that hits a thing not to hit (Q97; Hardest) ends the scene lost, at
-// once, whatever the balls left: the card comes this long after, for the
-// ball turned into a heart to pop and the thing to react.
-export const HIT_CARD_S = 1.6;
 
 export function newRound(total) {
   return { total, used: 0, down: 0, t: 0, since: null, allDown: 0, result: null, card: false, cardT: 0, calmFor: 0 };
@@ -1088,18 +1084,6 @@ export function update(r, dt, { down, still, calm = still }) {
   return { downChanged, ended: r.result, card: !won };
 }
 
-// The scene lost to a hit on `thing` (the thing's key): its result, once (null
-// if the scene is over already: a second ball, or a block falling later, is
-// told nothing). The page ends the scene with it as it does any lost one.
-export function hitKeep(r, thing) {
-  if (r.result) return null;
-  r.result = { won: false, down: r.down, total: r.total, balls: r.used, hit: thing };
-  r.card = true;
-  r.cardT = 0;
-  r.calmFor = 0;
-  return r.result;
-}
-
 // The blocks left glow after a pause (developer, 2026-11-13, Q101: on the
 // phone the building site "looked like all blocks were down ... but there
 // was clearly something left I was supposed to hit"; "make them glow or get
@@ -1137,14 +1121,7 @@ export const glowsBy = idle => (idle < GLOW_WAIT ? 0 : 1 + Math.floor((idle - GL
 
 // The card at a scene's end: { title, next (the button's words) }, from
 // sceneOver()'s outcome and the game after it.
-export function endWords(outcome, g, name, hit = null) {
-  // a hit on a thing not to hit (Q97): the card says which, then as any lost scene's
-  if (hit && (outcome === 'lost' || outcome === 'out')) {
-    const the = THINGS[hit]?.the ?? 'it';
-    return outcome === 'lost'
-      ? { title: `Oh no, ${the}! 💔`, sub: `${g.hearts} ${g.hearts === 1 ? 'heart' : 'hearts'} left`, next: 'Try again' }
-      : { title: `Oh no, ${the}! 💔`, sub: 'No hearts left. Back to scene 1', next: 'Start again' };
-  }
+export function endWords(outcome, g, name) {
   switch (outcome) {
     // the button says what it does, as Bridges' "Next ▸" (developer,
     // 2026-11-11: "Scene 2 of 5" alone wasn't clear as a button "and its

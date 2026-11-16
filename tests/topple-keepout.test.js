@@ -6,13 +6,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  KEEP, KEEP_SCENES, KEEP_MODES, THINGS, KEEP_EMOJI, KEEP_TRIES, KEEP_MIN, KEEP_MAX_SHARE, SHARES, OFFSETS, KEEP_NEAR, KEEP_ROOM,
-  keepFor, keepLine, keepoutParts, keepCandidates,
+  KEEP, KEEP_SCENES, KEEP_MODES, THINGS, KEEP_TRIES, KEEP_MIN, KEEP_MAX_SHARE, SHARES, OFFSETS, KEEP_NEAR, KEEP_ROOM,
+  keepFor, keepoutParts, keepCandidates,
 } from '../src/core/topple-keepout.js';
 import { createWorld } from '../src/core/topple-world.js';
 import { meetsThings } from '../src/core/topple-movers.js';
 import {
-  STEP, HAND, HEARTS, SCENES, MAX_LEVEL, MODES, createGame, sceneOver, newRound, useBall, update, hitKeep, endWords, launchVel, rng, sceneParts, layoutFor,
+  STEP, HAND, HEARTS, SCENES, MAX_LEVEL, MODES, createGame, sceneOver, newRound, useBall, update, endWords, launchVel, rng, sceneParts, layoutFor,
 } from '../src/core/topple.js';
 
 const BUILT = [1, 2, 3, 4, 5];   // the levels whose Hardest is built so far (all of them)
@@ -27,11 +27,8 @@ test('keepout: only Hardest, scenes 2 and 4, in the levels with a Hardest built;
   assert.deepEqual(Object.values(KEEP), ['nest', 'pane', 'lantern', 'pot', 'telescope']);
   for (const k of Object.values(KEEP)) {
     const t = THINGS[k];
-    assert.ok(t && t.w > 0 && t.h > 0 && t.d > 0 && t.the && t.name && KEEP_EMOJI[k], `${k} has a size, words and a picture`);
-    assert.match(keepLine(k), /^Don't hit the .+!$/, `the notice's line for ${k}: ${keepLine(k)}`);
+    assert.ok(t && t.w > 0 && t.h > 0 && t.d > 0 && t.the && t.name, `${k} has a size and words`);
   }
-  assert.equal(keepLine('nest'), "Don't hit the bird's nest!");
-  assert.equal(keepLine('nothing'), null, 'an unknown thing has no line');
 });
 
 test('keepout: its parts: a box on the ground to the physics, a prop for the drawing, a box for the view', () => {
@@ -153,7 +150,7 @@ test('keepout: a ball that hits the thing is stopped, never touches it twice, an
   for (const { s, level } of made.filter(m => m.scene === 2)) {
     const hits = [], w = createWorld({ onHit: h => { if (h.a === 'ball') hits.push({ b: h.b, thing: h.thing }); } });
     w.setScene(s.parts);
-    const vec = throwAtThing(w, s);
+    const vec = throwAtThing(w, s), bv = throwAtBlock(w, s);   // (both before the thing goes: the path ahead leaves it out after)
     assert.ok(vec, `level ${level}: a throw that hits the thing first`);
     const ball = w.throwBall(vec);
     for (let k = 0; k < 360; k++) w.step(STEP);
@@ -163,8 +160,12 @@ test('keepout: a ball that hits the thing is stopped, never touches it twice, an
     assert.ok(ball.struck, 'marked struck (the page draws a heart in its place)');
     assert.equal(ball.collisionFilterMask, 0, 'touches nothing after');
     assert.equal(w.downCount(), 0, 'the thing, not the blocks, took it');
+    // the thing is out of the world (it fell or shattered): the same throw again passes where it stood
+    const ball2 = w.throwBall(vec);
+    for (let k = 0; k < 360; k++) w.step(STEP);
+    assert.equal(hits.filter(h => h.b === 'keepout').length, 1, 'gone: a second ball does not meet it');
+    assert.ok(!ball2.struck, 'the second ball was not wasted');
     // the same throw with no thing there (the scene without it) goes on to a block, and a throw at a block never meets the thing first
-    const bv = throwAtBlock(w, s);
     assert.ok(bv, 'a throw at a block');
     const w2 = createWorld({ onHit: h => { if (h.a === 'ball') hits.push({ b: h.b }); } });
     w2.setScene(s.parts); hits.length = 0;
@@ -174,26 +175,17 @@ test('keepout: a ball that hits the thing is stopped, never touches it twice, an
   }
 });
 
-test('keepout: hitKeep ends the scene lost, once: the result says what was hit; a heart goes, and the card names it', () => {
+test('keepout: a hit wastes the ball and nothing more (Q112): the round goes on, no heart, the words as they were', () => {
   const r = newRound(5);
   useBall(r);
-  const res = hitKeep(r, 'nest');
-  assert.deepEqual(res, { won: false, down: 0, total: 5, balls: 1, hit: 'nest' });
-  assert.equal(r.result, res); assert.equal(r.card, true);
-  assert.equal(hitKeep(r, 'nest'), null, 'a second ball or a later knock says nothing');
-  // nothing more ends it, nor a win by the blocks that fall after
-  assert.deepEqual(update(r, 1, { down: 5, still: true }), { downChanged: false, ended: null, card: false });
-  // a heart lost, as any lost scene; the last heart: back to scene 1
+  // nothing in the round or the game knows of a hit: the scene is still open, nothing ends it, a win is still a win
+  assert.equal(r.result, null);
+  assert.deepEqual(update(r, 1, { down: 0, still: true }), { downChanged: false, ended: null, card: false });
+  assert.deepEqual(update(r, 1, { down: 2, still: true }), { downChanged: true, ended: null, card: false });
   const g = createGame(5);
-  assert.equal(sceneOver(g, false), 'lost'); assert.equal(g.hearts, HEARTS - 1);
-  assert.deepEqual(endWords('lost', g, 'Teddy', 'nest'), { title: 'Oh no, the bird\'s nest! 💔', sub: '2 hearts left', next: 'Try again' });
-  g.hearts = 2; assert.equal(sceneOver(g, false), 'lost');
-  assert.equal(endWords('lost', g, 'Teddy', 'pane').sub, '1 heart left');
-  assert.equal(sceneOver(g, false), 'out');
-  assert.deepEqual(endWords('out', g, 'Teddy', 'lantern'), { title: 'Oh no, the lantern! 💔', sub: 'No hearts left. Back to scene 1', next: 'Start again' });
-  // not a hit: the words as they were
-  assert.equal(endWords('lost', { hearts: 2 }, 'Teddy').title, 'Out of balls 💔');
-  assert.equal(endWords('won', { hearts: 2 }, 'Teddy', 'nest').title, 'Teddy cleared it! 💎', 'a win has no hit');
+  assert.equal(g.hearts, HEARTS);
+  assert.equal(endWords('lost', g, 'Teddy').title, 'Out of balls 💔');
+  assert.equal(endWords('won', { hearts: 2 }, 'Teddy').title, 'Teddy cleared it! 💎');
 });
 
 test('keepout: the scene kept as JSON (a scene picked up again) draws the same thing in the same place', () => {

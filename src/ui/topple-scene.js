@@ -210,7 +210,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   /* ---------- a scene's things and blocks ---------- */
 
   let built = [], blockMeshes = [];
-  // Hardest's thing not to hit (Q97): its look, its warning mark, what a hit does
+  // Hardest's thing in the way (Q97, Q112): its look, what a hit does (no warning mark: it hid targets)
   const keep = makeKeepout({ THREE, scene, canvasTex });
   // The blocks left glowing after a pause (Q101): each block's own shape a
   // little bigger over it, a warm white added to what's under it, hidden
@@ -860,7 +860,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       for (const b of ballBodies) {
         let m = ballMeshes.get(b);
         if (!m) { m = makeBall(); scene.add(m); ballMeshes.set(b, m); }
-        m.visible = !b.struck;   // a ball that hit the thing not to hit has turned into a heart (keepHit)
+        m.visible = !b.struck;   // a ball that hit the thing in the way is wasted: gone (keepHit)
         m.position.set(b.position.x, b.position.y, b.position.z);
         m.quaternion.set(b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w);
       }
@@ -948,7 +948,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     burst(b, at, q, v) { set?.burst(b, at, q, v); },
     // The setting's moving parts (the effects, the snake) dt s on.
     tick(dt) { const t = performance.now() / 1000; if (set) set.tick(dt, t); else parkBirds.tick(dt, t); keep.tick(dt); },
-    // The ball at `at` hit the thing not to hit (Q97): it turns into a heart, pops, the thing reacts; how long it takes (s).
+    // The ball at `at` hit the thing in the way (Q112): the thing reacts at once; false if it already has.
     keepHit(at) { return keep.hit(at); },
     get keepActive() { return keep.active; },
     get keepLive() { return keep.live; },

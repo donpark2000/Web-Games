@@ -4,7 +4,7 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-15, latest): **Topple! Hardest in Star Light: a paper lantern
+*Status (2026-11-15, latest): **Topple!: a thing in the way now only wastes the ball** (developer, on the tablet: "losing a heart seems too much", and the ring "looks like an obstacle ... can hide targets": no heart, no scene lost, no ring, no notice; the thing falls or shatters and is gone from the physics; on `block-game`, not yet published; see "Topple!", Things in the way). Earlier: **Topple! Hardest in Star Light: a paper lantern
 swinging on its chain, a sled sliding by on the snow, a star falling at a
 slant (a ball can pass between its points), each once in scenes 1, 3, 5; 2
 and 4 spread out, with a telescope not to hit** (on `block-game`, for
@@ -2648,8 +2648,14 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     trestle and two posts; Star Light: three glowing columns with cubes,
     two small glowing gates, a gate and two columns), each its
     own throw.
-  **Things not to hit** (Q97; agreed and built 2026-11-14, release 10.14;
-  a hit loses the scene and a ❤️). **Built for Hardest only, in the levels
+  **Things in the way** (Q97, Q112; first built 2026-11-14 as things *not
+  to hit*, release 10.14: a hit lost the scene and a ❤️, a red slashed ring
+  bobbed over each, a line in the setup notice. **Changed 2026-11-15**, the
+  developer after the tablet: "Adding objects to the scene that waste a ball
+  is fine but losing a heart seems too much. And the bobbing red circle ...
+  looks like an obstacle ... And it can hide targets": now **a hit wastes
+  the ball and nothing more, there is no ring and no notice**).
+  **Built for Hardest only, in the levels
   whose Hardest is built (1-5, all: Cactus Canyon's pot and Star Light's telescope added 2026-11-15), in scenes 2 and 4** (the spread-out ones:
   nothing moves there; Claude's suggestion, taken while the developer was
   away: to confirm, journal Q108, with Harder, whose scenes are Normal's
@@ -2682,28 +2688,22 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   against the thing's box: no new throws traced) leaves one or two places
   for the full check; ten full checks at most, then the layout is thrown
   away like any other (measured 2026-11-14, 24 scenes of levels 1-3: the
-  first full check passed in 23, the 24th on its second). **A hit**
-  (developer, 2026-11-14: "the ball turns into a heart and then
-  explodes"): the ball stops and turns into a red heart at the thing,
-  growing with a pulse for 0.4 s, then pops (nine small hearts and
-  fourteen red sparks fly); the thing reacts in its own way; the ❤️ in the
-  counter shakes and breaks; the scene is lost at once, whatever balls are
-  left (a heart gone, as any lost scene; the last heart: back to scene 1),
-  and **the card comes 1.6 s after**: "Oh no, the bird's nest! 💔", "2
-  hearts left" / **Try again** (the same scene again). Sounds: a boing as
-  it turns, then a rustle (the nest) or shatter (the glass), the aww at
-  the card. A block knocked into it counts for nothing (only the ball
-  does). **How it shows beforehand** (developer, 2026-11-14: "Use the red
-  slashed ring and the notice line"): **one warning mark on every such
-  thing in every level, a red ring with a slash on a white disc (0.46 m)
-  bobbing over it**, shown over anything in front of it; and **a line in
-  the notice shown while the scene is set up**: the same ring, the
-  thing's picture (🐦, 🖼️, 🏮: Emoji 1.0-era pictures, as the 2019 tablet
-  may lack newer ones) and "Don't hit the bird's nest!", the notice
-  held at least 3 s when the scene has one (else a quick scene would have
-  it up for a blink). Logged: the place and how many places were
-  tried with the scene, the notice held, the hit (the thing, when, where,
-  how fast, the ball, the hearts), the card after it. Not wanted: fewer
+  first full check passed in 23, the 24th on its second). **A hit** (Q112,
+  2026-11-15): the ball is wasted (it stops at the thing and is gone; the
+  ball is spent as any throw that misses), the thing reacts in its own way
+  (the nest tumbles and its eggs roll, glass shatters, the telescope's tube
+  falls) **and is gone from the physics** from then on (the box is taken
+  out: a later ball passes where it stood, as it has fallen or broken),
+  and **the scene goes on**: no heart, no card, no notice, no sound but a
+  boing and the thing's own (rustle or shatter, 0.15 s after). It is
+  hit once; a block knocked into it counts for nothing (only the ball
+  does). **No warning beforehand**: the ring and the notice line are gone
+  (developer, 2026-11-15; the ring and the picture looked like an
+  obstacle and hid targets). Logged: the place and how many places were
+  tried with the scene, the hit (the thing, when, where, how fast, the
+  ball, the hearts: unchanged). First built (2026-11-14) differently: the
+  ball turned into a heart that popped, a ❤️ broke, the scene was lost and
+  a card named the thing ("Oh no, the bird's nest!"). Not wanted: fewer
   balls (scenes must stay winnable), wind, a smaller ball or another
   camera (developer, 2026-11-14: "hard to see on a small screen as it gets
   farther away"; smaller balls again "no", the same day).

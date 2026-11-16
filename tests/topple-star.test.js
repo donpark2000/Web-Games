@@ -16,7 +16,7 @@ import {
 import { createWorld, MOVER_OPEN, MOVER_SHUT, moverFits } from '../src/core/topple-world.js';
 import { STEP, HAND, SCENES, LEVELS, launchVel } from '../src/core/topple.js';
 import { STRUCTURES as DATA } from '../src/core/topple-levels.js';
-import { KEEP, THINGS, keepFor, keepLine, KEEP_EMOJI } from '../src/core/topple-keepout.js';
+import { KEEP, THINGS, keepFor } from '../src/core/topple-keepout.js';
 
 // A Star Light scene's parts, and the same with no things in it (the rock and pine left out).
 function starScene(seed = 4242, i = 1) {
@@ -354,7 +354,7 @@ test('star: the telescope: not to hit in scenes 2 and 4 of Hardest only, with it
   assert.equal(keepFor('hardest', 5, 2), 'telescope'); assert.equal(keepFor('hardest', 5, 4), 'telescope');
   for (const scene of [1, 3, 5]) assert.equal(keepFor('hardest', 5, scene), null);
   for (const mode of ['normal', 'harder']) for (const scene of [1, 2, 3, 4, 5]) assert.equal(keepFor(mode, 5, scene), null);
-  assert.equal(keepLine('telescope'), 'Don\'t hit the telescope!'); assert.equal(KEEP_EMOJI.telescope, '🔭');
+  assert.equal(THINGS.telescope.the, 'the telescope');
   for (const k of [1, 2, 3, 4]) assert.notEqual(KEEP[k], 'telescope');
 });
 
