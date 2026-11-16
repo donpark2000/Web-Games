@@ -23289,3 +23289,19 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q113 (parked), Q109 (TOP-1 and TOP-3 from the review
   are leads).
 - **Left from the review:** TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 and the rest.
+
+## 2026-11-16: Q116 mockup v1 (stars and the map)
+
+- **Built:** a clickable mockup, [Topple Stars Map](https://claude.ai/artifact/RchovkAjKQPPvR8mojrSUP)
+  (file kept in Claude's scratchpad, not the repo). Three screens: the map
+  (difficulty picker with stars per difficulty, a total and bar, each level
+  opening in place into its 5 scenes with stars, a scrolling page), the play
+  screen's "what it's worth" line, and the scene-won card (stars pop in; "your
+  best was ... now ..."). A mockup bar (not part of the game) switches
+  screen and the example saved game (part way, just started, all won).
+- **Assumptions made in the mockup, to confirm with the developer:** (a)
+  levels open as today, shared across difficulties; only the stars are per
+  difficulty; (b) a scene can be started if it is won (to improve it) or is
+  the next one; later ones show "Win scene N first"; (c) 3 or fewer balls = 3
+  stars; (d) a stars total per difficulty on the mode buttons.
+- **Waiting for:** the developer's reaction to v1.
