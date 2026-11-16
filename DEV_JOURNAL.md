@@ -23160,3 +23160,33 @@ anything to show it (the dots are the developer's choice per How hard).
   waiting to publish; no code changed this session.
 - **Open questions:** Q113 (parked), Q109. Both wait for the developer to
   see them again with a saved log.
+
+## 2026-11-16: The hat's brim curved, not stuck-on bits
+
+- **From the developer (the iPhone, Cactus Canyon):** "the hats ... have some
+  shape on the top of the brim on both sides. This looks funny. If you could
+  make the brim curved like a real cowboy hat, that would be cool. If not, I
+  would leave out that detail."
+- **Cause:** the drawing (src/ui/topple-scene.js, `tumbleweed`) had a flat
+  brim disc and, on each side, a small box turned up 0.35 rad (the "lips")
+  stuck on its top.
+- **Changed:** the lips are gone; the brim disc is the same, with every
+  vertex lifted by `BRIM_CURL` (0.1 m) times x squared (x across the brim,
+  -1 to 1), so the sides curl up in one smooth curve. Drawn only: the
+  physics' brim box (HAT) is unchanged, so nothing in play moves.
+- **Checked:** in the browser pane (Cactus Canyon, the tumbleweed forced in,
+  the three felts): the brim curls up at both sides, no console error. The
+  Canyon page test now also checks the curl is in the drawing, no lip is,
+  the curl is at most 0.15 m, and the curled end stays inside the circle the
+  hat turns in (TUMBLE_R); shown to fail with a curl of 0.3 (the gentle-curl
+  check named it). `node tools/offline.js` run (sw.js, version.js);
+  `npm test` 689 of 689.
+- **Not published:** on `block-game`, uncommitted at this entry.
+
+**Status (start here next session)**
+- **Live: 10.21.** On `block-game`, not published: the hat's curved brim (a
+  release 10.22, with the developer's OK).
+- **From the developer (the tablet or phone, after the publish):** does the
+  brim read as a cowboy hat's now? Q113 and Q109: save the log if either
+  happens again.
+- **Open questions:** Q113 (parked), Q109.

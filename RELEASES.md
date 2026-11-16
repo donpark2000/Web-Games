@@ -7,6 +7,16 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.22 (2026-11-16, version 85760ff97a56)
+
+Topple!: the cowboy hat's brim is curved.
+
+- **Cactus Canyon**: the hat's brim now curls up smoothly at both sides,
+  like a real cowboy hat's. Before, it had two small bits stuck on top
+  that looked odd.
+- Only how the hat looks has changed; it plays as before.
+- Everything else is as in 10.21.
+
 ## 10.21 (2026-11-16, version 192640b00f3a)
 
 Topple!: Frosty Times' snowball machine can now be seen.

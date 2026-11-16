@@ -334,6 +334,11 @@ test('canyon: the page: each thing\'s sound, a ball through the tumbleweed logge
   // Q114: not a ball: the tumbleweed is drawn as a cowboy hat (a brim and a crown from the physics' HAT), the machine's snowball as a snowman's head with a face and a top hat
   const weed = scene.match(/function tumbleweed\(g, m, i = 0\) \{[\s\S]*?\n  \}/)?.[0] ?? '', head = scene.match(/function snowball\(g, m\) \{[\s\S]*?\n  \}/)?.[0] ?? '';
   assert.match(weed, /HAT_FELTS\[i % HAT_FELTS\.length\], \{ brim, crown \} = HAT;/); assert.match(weed, /hatBand/); assert.doesNotMatch(weed, /TorusGeometry/, 'no ring of twigs');
+  // the brim curls up at both sides in one smooth curve (not two tilted bits stuck on its top: developer, 2026-11-16, "looks funny"), and the curled ends stay inside the circle the hat turns in
+  assert.match(weed, /BRIM_CURL \* bp\.getX\(k\) \*\* 2/); assert.doesNotMatch(weed, /\blip\b/, 'no bits stuck on the brim');
+  const curl = +scene.match(/const BRIM_CURL = ([\d.]+);/)?.[1];
+  assert.ok(curl > 0 && curl <= 0.15, `the curl is a gentle one, got ${curl}`);
+  assert.ok(Math.hypot(HAT.brim.half[0], HAT.brim.at[1] + HAT.brim.half[1] + curl) <= TUMBLE_R + 1e-9, 'the curled end is inside the hat\'s circle');
   assert.match(head, /carrotMat/); assert.match(head, /coalMat/); assert.match(head, /hat\.rotation\.z = -0\.2/);
   assert.match(page, /tumbleweed: 'rustle', cart: 'clonk', vulture: 'thud'/);
   assert.match(page, /tumbleweed: 'ball through the tumbleweed'/);

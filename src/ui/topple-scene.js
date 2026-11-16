@@ -527,6 +527,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   //   only, the physics has its body and two wings.
   const HAT_FELTS = [['#A06B45', '#8A5A3B'], ['#D9B77A', '#C4A064'], ['#8E9096', '#777A80']].map(([c, b]) => ({ crown: new THREE.MeshStandardMaterial({ color: c, roughness: 0.9 }), brim: new THREE.MeshStandardMaterial({ color: b, roughness: 0.9 }) }));
   const hatBand = new THREE.MeshStandardMaterial({ color: '#3E2A1C', roughness: 0.8 });
+  const BRIM_CURL = 0.1;   // how far the hat's brim curls up at its two sides (m); it ends 0.1 m above the flat brim
   const cartIron = new THREE.MeshStandardMaterial({ color: '#4A4E54', roughness: 0.6, metalness: 0.5 });
   const cartRust = new THREE.MeshStandardMaterial({ color: '#8A4B2A', roughness: 0.8, metalness: 0.2 });
   const rockMat = new THREE.MeshStandardMaterial({ color: '#8C8579', roughness: 0.95, flatShading: true });
@@ -538,11 +539,14 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   const beakMat = new THREE.MeshStandardMaterial({ color: '#E8C76A', roughness: 0.6 });
   function tumbleweed(g, m, i = 0) {
     // a cowboy hat (the look is still called 'tumbleweed', Q114) turning end over end as it rolls: the brim and
-    // crown as the physics has them (HAT), the brim turned up a little at both ends, a dark band; each of the
+    // crown as the physics has them (HAT), the brim curled up at both sides, a dark band; each of the
     // three its own felt (brown, tan, grey), by its number
     const felt = HAT_FELTS[i % HAT_FELTS.length], { brim, crown } = HAT;
-    const bm = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 2 * brim.half[1], 28), felt.brim); bm.scale.set(brim.half[0], 1, brim.half[2]); bm.position.set(...brim.at); g.add(bm);
-    for (const sx of [-1, 1]) { const lip = part(0.2, 0.05, 0.5, felt.brim, sx * (brim.half[0] - 0.08), brim.at[1] + 0.06, 0); lip.rotation.z = -sx * 0.35; g.add(lip); }
+    // the brim curls up at both sides in one smooth curve (every point of the disc lifted by BRIM_CURL x^2, x across the
+    // brim from -1 to 1), as a real cowboy hat's does; the lifted ends stay inside the circle the hat turns in
+    const bg = new THREE.CylinderGeometry(1, 1, 2 * brim.half[1], 48), bp = bg.attributes.position;
+    for (let k = 0; k < bp.count; k++) bp.setY(k, bp.getY(k) + BRIM_CURL * bp.getX(k) ** 2);
+    const bm = new THREE.Mesh(bg, felt.brim); bm.scale.set(brim.half[0], 1, brim.half[2]); bm.position.set(...brim.at); g.add(bm);
     const cr = new THREE.Mesh(new THREE.CylinderGeometry(crown.half[0] * 0.8, crown.half[0], 2 * crown.half[1], 24), felt.crown); cr.scale.z = crown.half[2] / crown.half[0]; cr.position.set(...crown.at); g.add(cr);
     const band = new THREE.Mesh(new THREE.CylinderGeometry(crown.half[0] * 1.02, crown.half[0] * 1.02, 0.07, 24), hatBand); band.scale.z = crown.half[2] / crown.half[0]; band.position.set(crown.at[0], crown.at[1] - crown.half[1] + 0.07, 0); g.add(band);
     g.add(part(0.34, 0.03, 0.07, felt.crown, crown.at[0], crown.at[1] + crown.half[1] + 0.005, 0));   // the pinch in the top
