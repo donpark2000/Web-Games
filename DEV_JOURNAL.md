@@ -23305,3 +23305,27 @@ anything to show it (the dots are the developer's choice per How hard).
   the next one; later ones show "Win scene N first"; (c) 3 or fewer balls = 3
   stars; (d) a stars total per difficulty on the mode buttons.
 - **Waiting for:** the developer's reaction to v1.
+
+## 2026-11-16: Q116: the developer's answers to mockup v1; v2
+
+- **Developer:** yes to replaying a won scene to improve it (a later scene
+  stays shut until the one before is won), yes to 3 balls **or fewer** =
+  3 stars, yes to the stars total on each difficulty button. **Levels unlock
+  per difficulty** ("It does not make sense to unlock a higher level playing
+  at a lower difficulty and then try to play that higher level at a higher
+  difficulty"): so each difficulty is its own game (its own level reached,
+  levels done, place in each level, hearts, jewels, scene seed), as well as
+  its own stars. I agreed.
+- **What that changes in the build:** today one saved game holds one `mode`
+  and one `reached`/`done`/`places` (`createGame` in `src/core/topple.js`
+  keeps `reached` and `done` when the mode changes). It becomes three, one
+  per mode, with the stars in each. **Games kept from before:** the saved
+  game's progress goes to the difficulty it was set to; the other two start
+  at level 1 with no stars (to confirm with the developer when building).
+  "Start over" and "Start again" apply to the difficulty shown. A player
+  who wants Hardest climbs it from level 1: noted as the cost.
+- **Mockup v2** (same link) unlocks per difficulty: in the "Part way" save,
+  Normal has all levels open, Harder is on level 3, Hardest on level 1.
+- **Next:** the developer's reaction to v2; then build (the saved game's
+  new shape first, with its migration and tests, then the map, the stars on
+  the play and end screens).
