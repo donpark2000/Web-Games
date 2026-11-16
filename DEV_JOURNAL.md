@@ -23329,3 +23329,15 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Next:** the developer's reaction to v2; then build (the saved game's
   new shape first, with its migration and tests, then the map, the stars on
   the play and end screens).
+
+## 2026-11-16: Q116: the developer's feedback on mockup v2; v3
+
+- **Developer:** "Map is good." **Playing: no stars until the scene is won**,
+  then the card shows how many were won (the "worth" line dropped; the play
+  screen stays as it is). The mockup's "saved game" buttons weren't clear:
+  they are only a demo switch to see the map for a part-way, a brand-new and
+  an everything-won player, not a game option; relabelled in v3.
+- **Settled:** the map (stars per scene, a total per level and per difficulty,
+  levels opening in place, scrolling, levels unlock per difficulty); the play
+  screen unchanged; the scene-won card with the stars and the best.
+- **Still to look at:** the scene-won card (not commented on yet).
