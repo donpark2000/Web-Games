@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import {
-  MOVES, WAYS, FROSTY, PARK, LOADS, SNOWMAN, FLAKE_R, fallFrom, FALL_SPREAD, FALL_WAIT, MUZZLE_Y, MACHINE, THROW_TOP, AT, AT_TRY, ON_THINGS, ENDS_PAST,
+  MOVES, WAYS, FROSTY, PARK, LOADS, SNOWMAN, FLAKE_R, fallFrom, FALL_SPREAD, FALL_WAIT, MUZZLE_Y, MACHINE, MACHINE_IN, THROW_TOP, AT, AT_TRY, ON_THINGS, ENDS_PAST,
   MOVING_SCENES, moverFor, moverAt, inWay, openShare, gaps, hardestDeal, clashes, meetsThings, flakesOn, machineAt, arcY,
 } from '../src/core/topple-movers.js';
 import { createWorld, MOVER_OPEN, MOVER_SHUT, moverFits } from '../src/core/topple-world.js';
@@ -217,13 +217,16 @@ test('frosty: the snowflake up at the top is out of sight, upright and sideways'
 test('frosty: the machine\'s snowballs are lobbed from its muzzle over the line at the throws\' height, down to the snow, rolling; they burst on a thing in their way', () => {
   const { bare } = frostyScene();
   const m = moverFor(bare, { move: 'stream', look: 'snowball', timing: 'steady' }, 7), r = m.load.w / 2, P = m.plan;
-  assert.ok(Math.abs(arcY(m, P, m.x0 - P.far) - MUZZLE_Y) < 1e-9, 'from the muzzle');
+  assert.ok(Math.abs(arcY(m, P, m.x0 - P.farL) - MUZZLE_Y) < 1e-9, 'from the muzzle');
+  // the machine stands in view (Q114: "I did not see a machine"): its muzzle MACHINE_IN short of the structure's side, not STREAM_OUT out past it
+  assert.ok(Math.abs(P.farL - (m.span - MACHINE_IN)) < 1e-9 && P.farL < P.far, `the muzzle ${P.farL.toFixed(2)} m left of the line, the end ${P.far.toFixed(2)} m right`);
+  assert.equal(P.loop, P.farL + P.far); assert.equal(m.n, 3);
   assert.ok(Math.abs(arcY(m, P, m.x0) - m.y) < 1e-9, 'over the line at its height');
   assert.ok(Math.abs(arcY(m, P, m.x0 + P.far) - r) < 1e-9, 'down to the snow');
-  for (let x = m.x0 - P.far; x <= m.x0 + 0.5; x += 0.05) assert.ok(arcY(m, P, x) >= MUZZLE_Y - 1e-9, `rising or over the line at ${x.toFixed(2)}`);
+  for (let x = m.x0 - P.farL; x <= m.x0 + 0.5; x += 0.05) assert.ok(arcY(m, P, x) >= MUZZLE_Y - 1e-9, `rising or over the line at ${x.toFixed(2)}`);
   assert.equal(P.end, +(m.x0 + P.far).toFixed(3), 'nothing in the way: to the snow');
   const [mx, my] = machineAt(m);
-  assert.ok(Math.abs(mx + MACHINE.back - (m.x0 - P.far)) < 1e-9 && my === MACHINE.h / 2, 'the machine behind its muzzle, on the snow');
+  assert.ok(Math.abs(mx + MACHINE.back - (m.x0 - P.farL)) < 1e-9 && my === MACHINE.h / 2, 'the machine behind its muzzle, on the snow');
   // rolling: turned by its way along over its radius
   const a = moverAt(m, 0.5)[0], b = moverAt(m, 0.6)[0];
   assert.ok(Math.abs((b.tilt - a.tilt) + (b.p[0] - a.p[0]) / r) < 1e-9, 'rolls as it goes');

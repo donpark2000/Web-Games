@@ -220,7 +220,7 @@ export const LOADS = {
   zip: { w: 0.8, h: 0.6, d: 0.8 },
   kite: { w: 1.0, h: 1.3, d: 0.08, shapes: diamond(1.0, 1.3, 0.08) },
   snowman: { w: 2 * SNOWMAN.base, h: +SNOWMAN_H.toFixed(3), d: 2 * SNOWMAN.base, ground: true, clear: true, head: 2, shapes: snowmanBalls() },
-  snowball: { w: 0.6, h: 0.6, d: 0.6, n: 4, arc: true, clear: true, shapes: [{ r: 0.3, at: [0, 0, 0] }] },
+  snowball: { w: 0.6, h: 0.6, d: 0.6, n: 3, arc: true, clear: true, shapes: [{ r: 0.3, at: [0, 0, 0] }] },
   flake: { w: 2 * FLAKE_R, h: 2 * FLAKE_R, d: FLAKE_D, gaps: true, clear: true, shapes: flake(FLAKE_R, FLAKE_D) },
   tumbleweed: { w: 2 * TUMBLE_R, h: 2 * TUMBLE_R, d: TUMBLE_D, n: 3, ground: true, clear: true, roll: true, hop: 0.2, gaps: true, minShare: 0.5, shapes: hatShapes() },
   cart: { w: 1.95, h: 1.125, d: 1.05, ground: true, clear: true, minShare: 0.5 },
@@ -401,10 +401,11 @@ const PLANS = {
   // A machine's snowballs (`arc`): `end`, the x where they burst (the first thing in their path, or the snow past the right).
   stream(m, rand, meets = () => null) {
     const v = 2 * m.span / m.cross, sp = SPREAD[m.timing], r = (lo, hi) => lo + (hi - lo) * rand();
-    const far = m.span + STREAM_OUT, loop = 2 * far, gap = loop / m.n;
-    const end = m.load.arc ? arcEnd(m, far, meets) : null;
+    // (a machine's heads start at its muzzle, which stands in view at the left, MACHINE_IN short of the structure's side: farL; the rest start and end STREAM_OUT out)
+    const far = m.span + STREAM_OUT, farL = m.load.arc ? Math.max(1, m.span - MACHINE_IN) : far, loop = farL + far, gap = loop / m.n;
+    const end = m.load.arc ? arcEnd(m, farL, far, meets) : null;
     const offsets = Array.from({ length: m.n }, (_, i) => i * gap + (sp ? r(-0.2, 0.2) * gap : 0));
-    if (!sp) return { knots: [{ t0: 0, v, D: 0 }, { t0: loop / v, v, D: loop }], len: loop / v, far, loop, offsets, end };
+    if (!sp) return { knots: [{ t0: 0, v, D: 0 }, { t0: loop / v, v, D: loop }], len: loop / v, far, farL, loop, offsets, end };
     // each knot's speed the pace's times 1 / the move spread (a short move time, a fast speed); tricky: now and then a stop
     const knots = [{ t0: 0, v }];
     let t = 0;
@@ -416,7 +417,7 @@ const PLANS = {
     knots.at(-1).v = v;   // round again at the speed it started
     knots[0].D = 0;
     for (let k = 1; k < knots.length; k++) knots[k].D = knots[k - 1].D + (knots[k - 1].v + knots[k].v) / 2 * (knots[k].t0 - knots[k - 1].t0);
-    return { knots, len: t, far, loop, offsets, end };
+    return { knots, len: t, far, farL, loop, offsets, end };
   },
   // Drops: { t0, from (where the fall starts, m), fall (s), hold (s), up (s, back to DROP_FROM), wait (s) }.
   drop(m, rand) {
@@ -491,18 +492,18 @@ function dropY(m, d, s) {
   return d.to;
 }
 
-// A machine's snowball's height at x (m): through the muzzle (MUZZLE_Y) at
-// the left end of its loop, the line's height over the line, and the snow
-// (its radius up) at the right end: a curve of the share u of the way from
-// the line to either end (-1 to 1).
+// A machine's snowman's head's height at x (m): through the muzzle (MUZZLE_Y)
+// plan.farL left of the line, the line's height over the line, and the snow
+// (its radius up) plan.far right of it: the parabola through the three.
 export function arcY(m, plan, x) {
-  const u = (x - m.x0) / plan.far, r = m.load.h / 2;
-  return m.y + (r - MUZZLE_Y) / 2 * u + ((r + MUZZLE_Y) / 2 - m.y) * u * u;
+  const L = plan.farL, R = plan.far, r = m.load.h / 2, P = MUZZLE_Y - m.y, Q = r - m.y;
+  const b = (P * R + Q * L) / (L * R * (L + R)), a = (Q - b * R * R) / R, u = x - m.x0;
+  return m.y + a * u + b * u * u;
 }
 // Where a machine's snowballs burst (x, m): the first thing their path meets (in 2 cm steps from the muzzle), else the snow.
-function arcEnd(m, far, meets) {
+function arcEnd(m, farL, far, meets) {
   const r = m.load.w / 2, hs = [r, r, r];
-  for (let x = m.x0 - far; x < m.x0 + far; x += 0.02) if (meets([x, arcY(m, { far }, x), m.z], hs)) return +x.toFixed(3);
+  for (let x = m.x0 - farL; x < m.x0 + far; x += 0.02) if (meets([x, arcY(m, { farL, far }, x), m.z], hs)) return +x.toFixed(3);
   return +(m.x0 + far).toFixed(3);
 }
 
@@ -543,7 +544,7 @@ export function moverAt(m, t) {
     // one way, left to right; each load comes round again once out past the end
     const D = streamD(plan, t);
     return plan.offsets.map(o => {
-      const x = m.x0 - plan.far + wrap(D + o, plan.loop);
+      const x = m.x0 - plan.farL + wrap(D + o, plan.loop);
       if (!m.load.arc) {
         if (!m.load.roll) return { p: [x, m.y, m.z], tilt: 0 };
         // a tumbleweed: rolling along the sand (it turns as far as it goes), hopping twice a turn
@@ -601,8 +602,11 @@ export function gaps(m, r = 0.07, dt = 1 / 120) {
 // The snowball machine on the snow, its muzzle (MUZZLE_Y up) at the left end
 // of its snowballs' loop, its body behind it (m): drawn only, but it must
 // not stand in a thing.
+// (the machine in view, at the left: its muzzle this far short of the structure's side at the mover's depth, Q114 session:
+// developer, 2026-11-16: "I did not see a machine lobbing snowman heads - just heads floating by")
+export const MACHINE_IN = 0.2;
 export const MACHINE = { w: 0.9, h: 1.1, d: 0.8, back: 0.35 };
-export const machineAt = (m) => [m.x0 - m.plan.far - MACHINE.back, MACHINE.h / 2, m.z];
+export const machineAt = (m) => [m.x0 - m.plan.farL - MACHINE.back, MACHINE.h / 2, m.z];
 // The scene's things (sceneParts()'s bodies but the blocks: the rock, the
 // pine, ...) as a test: meets(c, hs), the name of the first thing a box
 // round c (half-sizes hs) goes into, else null. Each shape: a sphere, an

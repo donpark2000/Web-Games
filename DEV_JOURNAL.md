@@ -24,7 +24,17 @@ time, each tried before publishing:
   (b) does the head read as a snowman's head as it rolls, the face turning
   round, the hat on it turning too; (c) the hat's felts (brown, tan, grey).
   The looks keep their names 'tumbleweed' and 'snowball' so the deals (and
-  their pins) stay as they were.
+  their pins) stay as they were. **10.20 on the tablet, 2026-11-16: "The hat
+  is fine" (a, c closed).** The head: "rolling a foot off the ground ... might
+  look better rolling on the ground", then "I did not see a machine lobbing
+  snowman heads - just heads floating by. If I had seen the machine, it
+  would not have seemed so strange for them to be floating in the air." The
+  heads are lobbed (a 0.6 m head on the snow would be under every throw: they
+  pass the mover's depth 0.9-1.7 m up). **Built the same day, not yet
+  published: the machine stands in view at the left** (its muzzle 0.2 m
+  short of the structure's side; three heads, not four). To look at: that
+  the machine now explains the lob; if not, giant heads (1.3 m) rolling on
+  the snow are the other way.
 
 - **Q113. Frosty Times: ice blocks that "slid out of range"** (2026-11-15,
   developer, phone and tablet, Hardest: "two instances of ice blocks in
@@ -37,15 +47,6 @@ time, each tried before publishing:
   own off-screen test or a block still sliding. To ask: which device and
   orientation; did the scene end lost with the block out there, or was it
   counted down; the log (Log page, saved at once) of that session.
-
-- **Q111. Star Light's Hardest on the tablet: the picks as built** (2026-11-15,
-  built in 10.19 with Cactus Canyon's, not yet on a device). To ask: (a) the
-  **sled**: a rock on the throw line makes it cross as near as 0.4 of the way
-  in more than half the scenes, then 36% of the view's width: too big?;
-  (b) do the lantern, the sled and the star read well and play fair (a ball
-  between the star's points; the sled's tree is what a ball can meet over
-  its body); (c) ~~the telescope~~ (dropped 2026-11-16, Q112); the setup of a spread scene; (d) the sounds (thud, rustle,
-  chime).
 
 - **Q109. Topple!: a scene drawn with no blocks** (2026-11-15, developer,
   the tablet, the last scene played the night of 2026-11-14: "did not draw
@@ -198,6 +199,11 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q111. Star Light's Hardest on the tablet: the picks as built** (2026-11-15,
+  built in 10.19; the sled's size when it crosses near, the lantern, sled and
+  star reading well and playing fair, the sounds). The developer, 2026-11-16,
+  after playing it: "I'm happy with Q111." Closed.
 
 - **Q112, Q108 and Q97. Things not to hit: dropped** (2026-11-16). Built
   2026-11-14 (Q97; Q108 was Claude's choices while the developer was away):
@@ -23021,3 +23027,42 @@ anything to show it (the dots are the developer's choice per How hard).
   Q111 (Star Light's picks); Q109 (the blank scene) and Q113 (ice out of
   range: save the log if either happens again).
 - **Open questions:** Q114, Q113 (parked), Q111, Q109.
+
+## 2026-11-16: The snowman heads' machine brought into view
+
+- **From the developer (10.20 on the tablet and phone):** the hat is fine; the
+  snowman head "is rolling a foot off the ground. It might look better to
+  have it rolling on the ground"; Q111 closed ("happy"); then "I did not see
+  a machine lobbing snowman heads - just heads floating by. If I had seen
+  the machine, it would not have seemed so strange for them to be floating
+  in the air."
+- **Why it looked so:** the stream was symmetric about the throw line, 2.5 m
+  past the structure's span on both sides, so the machine (drawn at the
+  muzzle) stood 2 m outside the left edge of the view: measured in the page,
+  its projected x was -0.4 to -0.5 of the screen in three scenes; the view's
+  left edge sat about 0.8 m past the span. The lob (to 1.5 m at the line, as
+  the throws pass the mover's depth 0.9-1.7 m up) is needed: a 0.6 m head on
+  the snow would be under every throw.
+- **Built:** the stream plan has its own left end for the machine's loads
+  (`plan.farL`, the span less `MACHINE_IN` 0.2 m; the right end `plan.far`
+  unchanged, span plus 2.5 m); the loop is farL + far; the arc is the
+  parabola through the muzzle, the line's height and the snow
+  (`arcY`, two ends now); `machineAt` and the loads' start use farL; three
+  heads (the loop is shorter, four would nearly touch). The other streams
+  (the hats) have farL = far, as before.
+- **Checked:** 60 Hardest games, the scene with the heads: all 60 pass the
+  scene check on the first try, the way open 54% at least (59% at least
+  before), at most 2.2 s shut (2.0 s before), 0.56 s the slowest scene
+  (1.9 s before); in the browser pane the machine is in view at the left
+  with a head over it, no console error. The frosty arc test says the muzzle
+  and the machine are MACHINE_IN short of the structure and the loop adds up.
+- **Not done:** the heads rolling on the ground (giant, 1.3 m); offered as
+  the other way if the machine does not settle it (Q114).
+
+**Status (start here next session)**
+- **Live: 10.20.** On `block-game`, not published: the machine in view for
+  the snowman heads (a release 10.21, with the developer's OK).
+- **From the developer:** try Frosty Times' heads with the machine in view
+  (Q114); then OK to publish 10.21? Q109 (blank scene) and Q113 (ice out of
+  range): save the log if either happens again.
+- **Open questions:** Q114, Q113 (parked), Q109.

@@ -4,7 +4,7 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-16, latest): **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
+*Status (2026-11-16, latest): **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
 swinging on its chain, a sled sliding by on the snow, a star falling at a
 slant (a ball can pass between its points), each once in scenes 1, 3, 5; 2
 and 4 spread out, with a telescope not to hit** (on `block-game`, for
@@ -2560,12 +2560,18 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     snow: 2 m tall at Far, so he takes the low and middle throws, not the
     lobs; leaning as he skates; **a ball at his head knocks his top hat
     off**, once, it tumbles to the snow), the **snowball machine** (a
-    stream of four **snowmen's heads** (0.6 m, a face, a carrot nose and a
+    stream of three **snowmen's heads** (0.6 m, a face, a carrot nose and a
     little top hat: since 2026-11-16, Q114, developer: the snowball "did
     not look like a snowball ... the snowman is unmistakably a snowman";
     the physics is still a sphere), lobbed from its muzzle over the line
     at 1.5 m and down to the snow, **rolling** (the face turns round as they
-    go); **a snowball hit bursts** in a
+    go; **the machine stands in view** at the left, its muzzle 0.2 m short
+    of the structure's side at their depth, not 2.5 m out of sight as
+    first built: the developer, 2026-11-16, "I did not see a machine
+    lobbing snowman heads - just heads floating by. If I had seen the
+    machine, it would not have seemed so strange for them to be floating in
+    the air"; the arc runs from the muzzle over the line to the snow 2.5 m
+    past the structure's right side); **a snowball hit bursts** in a
     puff, gone till it comes round again), a **giant snowflake** (a fifth
     way, **fall**: no rope, so it drifts down from just out of sight at
     its own steady speed, swaying from side to side so it crosses the
