@@ -23394,3 +23394,26 @@ anything to show it (the dots are the developer's choice per How hard).
   a level opening into its scenes, a scene's stars after a win, a won scene played
   again; Start over keeps the stars.
 - **Open questions:** Q116 (built, waiting to be tried), Q113 (parked), Q109.
+
+## 2026-11-16: Release 10.24 published and live
+
+- **Published** with the developer's OK ("yes", to "publish this as release
+  10.24"): Topple!'s stars, a game for each difficulty, the new map (Q116).
+  `npm test` 704 of 704 on the release state; `node tools/release.js` said
+  ready; `block-game` fast-forwarded into `main`; tag `v10.24` pushed; GitHub
+  release made. The live site serves release 10.24, version 5820652bc133, and
+  its topple.js has `readProfile` (checked at github.io). My localhost server
+  is stopped.
+
+**Status (start here next session)**
+- **Live: 10.24.** `block-game` = `main` plus this entry. Nothing waiting to publish.
+- **From the developer (tablet and phone):** load 10.24 (version line says
+  10.24). Try the map: the difficulty buttons, a level opening into its scenes,
+  the stars after a win, a won scene played again; a game from before carries on
+  at its difficulty with 0 stars. Q109 and Q113: save the log at once if either
+  happens.
+- **Open questions:** Q116 (published, waiting to be tried), Q113 (parked), Q109.
+- **Next, when the developer wants:** other worlds (discussed, not designed);
+  the review's leftovers (TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 ...).
+- **Session length:** this session is long; a fresh one is a good idea for the
+  worlds discussion.
