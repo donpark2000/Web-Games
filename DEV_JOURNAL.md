@@ -23256,3 +23256,21 @@ anything to show it (the dots are the developer's choice per How hard).
   from the review are leads).
 - **Left from the review:** TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 and the rest
   (see the 2026-11-17 review entry).
+
+## 2026-11-16: Release 10.23 published and live
+
+- **Published** with the developer's OK ("Yes, publish it as 10.23"): the
+  review's three bugs fixed (TOP-2, 3D-1, PUZ-1). `npm test` 692 of 692 on
+  the release state; `node tools/release.js` said ready; `block-game`
+  fast-forwarded into `main`; tag `v10.23` pushed; GitHub release made. The
+  live site serves release 10.23, version dd3178570e68 (checked at
+  github.io). No localhost server running.
+
+**Status (start here next session)**
+- **Live: 10.23.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish.
+- **From the developer:** Q109 (blank scene) and Q113 (ice out of range):
+  save the log at once, with the scene number, if either happens.
+- **Open questions:** Q113 (parked), Q109 (TOP-1 and TOP-3 from the review
+  are leads).
+- **Left from the review:** TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 and the rest.
