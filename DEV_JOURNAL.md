@@ -23002,3 +23002,22 @@ anything to show it (the dots are the developer's choice per How hard).
 - **From the developer:** OK to publish 10.20?; or try it on the tablet
   first (Q114 a-c; Q111 Star Light's picks).
 - **Open questions:** Q114, Q113 (parked), Q111, Q109.
+
+## 2026-11-16: Release 10.20 published and live
+
+- **Published** with the developer's OK ("Publish 10.20"): the things not
+  to hit dropped, the tumbleweed a cowboy hat, the snowball a rolling
+  snowman's head. `npm test` 689 of 689; `node tools/release.js` said
+  ready; `block-game` fast-forwarded into `main`; tag `v10.20` pushed;
+  GitHub release made. The live site serves release 10.20, version
+  36abf7faa7b8 (checked at github.io). No localhost server running.
+
+**Status (start here next session)**
+- **Live: 10.20.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish.
+- **From the developer (the tablet and phone):** load 10.20 (home page:
+  the version line says 10.20); Q114 (does the hat read as a hat and still
+  block as well; does the head read as a snowman's head as it rolls);
+  Q111 (Star Light's picks); Q109 (the blank scene) and Q113 (ice out of
+  range: save the log if either happens again).
+- **Open questions:** Q114, Q113 (parked), Q111, Q109.
