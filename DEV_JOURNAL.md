@@ -23190,3 +23190,21 @@ anything to show it (the dots are the developer's choice per How hard).
   brim read as a cowboy hat's now? Q113 and Q109: save the log if either
   happens again.
 - **Open questions:** Q113 (parked), Q109.
+
+## 2026-11-16: Release 10.22 published and live
+
+- **Published** with the developer's OK ("Yes, publish it as 10.22"): the
+  cowboy hat's brim curved. `npm test` 689 of 689 (run again on the release
+  state); `node tools/release.js` said ready; `block-game` fast-forwarded
+  into `main`; tag `v10.22` pushed; GitHub release made. The live site
+  serves release 10.22, version 85760ff97a56, and its topple-scene.js has
+  the curl (checked at github.io). No localhost server running.
+
+**Status (start here next session)**
+- **Live: 10.22.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish.
+- **From the developer (the tablet and phone):** load 10.22 (home page: the
+  version line says 10.22); Cactus Canyon on Hardest: does the hat's brim
+  read as a cowboy hat's now? Q113 (ice out of range) and Q109 (blank
+  scene): save the log at once, with the scene number, if either happens.
+- **Open questions:** Q113 (parked), Q109.
