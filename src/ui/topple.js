@@ -825,6 +825,7 @@ function demoFrame() {
 let settledAt = 0;
 function noteSettled() {
   const r = round;
+  if (r.t < settledAt) settledAt = 0;   // a new round's clock restarts at 0 (review TOP-2)
   if (r.t - settledAt < 0.5) return;
   settledAt = r.t;
   if (r.since != null && r.since < END_WAIT && !r.result) return;

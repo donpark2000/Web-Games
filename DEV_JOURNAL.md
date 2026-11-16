@@ -23227,3 +23227,32 @@ anything to show it (the dots are the developer's choice per How hard).
   Faces: a second finger), PUZ-2 (Laser Lab: solved but not credited if the
   page is killed during the beam). TOP-1 and TOP-3 are leads for Q109.
 - **Not fixed yet:** waiting for the developer to choose what to fix.
+
+## 2026-11-16: The review's three bugs fixed (TOP-2, 3D-1, PUZ-1)
+
+- **Asked by the developer:** fix the three found bugs first; wait on Q109
+  until they see it again and can give logs (so TOP-1 and TOP-3, the Q109
+  leads, and the other possible bugs are not touched).
+- **Fixes:** `noteSettled` in `src/ui/topple.js` and `src/ui/tin-can-alley.js`
+  resets `settledAt` to 0 when the round clock `r.t` is below it (a new round
+  restarts the clock at 0). `pickPiece` in `src/ui/laser-lab.js` returns while
+  `ui.busy`, so `render()` can't cancel a growing beam's timers.
+- **Tests:** `tests/review-fixes.test.js`, three tests that cut each function
+  out of its file and run it with stand-ins: a round after a 40 s one is noted
+  at t=1; two notes within 0.5 s still wait; blocks moving notes nothing; a
+  piece tap while busy changes nothing, and works when not busy. Run against
+  the old code (fixes stashed) all three fail; with the fixes all pass.
+- **Suite:** `npm test` 692 of 692 after `node tools/offline.js` (new version
+  4e5be568aeeb). A first run with a 110 s cap on my side showed two Topple!
+  files "failed": that was the cap killing slow files, not the code.
+- **Not published.** Waiting for the developer's OK to publish as 10.23.
+
+**Status (start here next session)**
+- **Live: 10.22.** `block-game` has the three fixes, not yet published.
+  Propose 10.23 (fixes) when the developer says to publish: set
+  `src/core/release.js`, `node tools/offline.js`, notes in `RELEASES.md`,
+  `node tools/release.js` ready.
+- **Open questions:** Q113 (parked), Q109 (waiting for a log; TOP-1 and TOP-3
+  from the review are leads).
+- **Left from the review:** TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 and the rest
+  (see the 2026-11-17 review entry).

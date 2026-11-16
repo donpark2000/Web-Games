@@ -271,6 +271,7 @@ function tick(dt, draw = true) {
 let settledAt = 0;
 function noteSettled(cam) {
   const r = match.round;
+  if (r.t < settledAt) settledAt = 0;   // a new round's clock restarts at 0 (review 3D-1)
   if (r.t - settledAt < 0.5) return;
   settledAt = r.t;
   if (cam.view !== 'behind' && !r.result) return;

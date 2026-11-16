@@ -575,6 +575,7 @@ function burst(li) {
 function pickPiece(e) {
   const b = e.target.closest('.piecebtn');
   if (!b || b.disabled || !G || G.result) return;
+  if (ui.busy) return;   // render() would cancel the growing beam's timers and leave busy set (review PUZ-1)
   ui.sel = b.dataset.t;
   sound.play('tick');
   L('piece picked', { piece: ui.sel });
