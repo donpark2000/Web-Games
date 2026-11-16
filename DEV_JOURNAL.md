@@ -23341,3 +23341,8 @@ anything to show it (the dots are the developer's choice per How hard).
   levels opening in place, scrolling, levels unlock per difficulty); the play
   screen unchanged; the scene-won card with the stars and the best.
 - **Still to look at:** the scene-won card (not commented on yet).
+
+- **Mockup v4 (developer: "part way through" looked the same as "has won
+  everything"):** the example's Normal had every level reached. Now Normal is
+  on level 3 (levels 4-5 locked, level 3 half won), Harder on level 2, Hardest
+  on level 1; the level you're on opens by itself.
