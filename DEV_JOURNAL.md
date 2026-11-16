@@ -23208,3 +23208,22 @@ anything to show it (the dots are the developer's choice per How hard).
   read as a cowboy hat's now? Q113 (ice out of range) and Q109 (blank
   scene): save the log at once, with the scene number, if either happens.
 - **Open questions:** Q113 (parked), Q109.
+
+## 2026-11-17: Code review of release 10.22 (read-only)
+
+- **Asked by the developer:** a review for bugs (logic, start-up, performance),
+  not style; third-party code left out; minor items only if they could affect
+  play or the device. Done by reading the code (five area reviewers, then I
+  re-read the code for the main findings); nothing was run, no code changed.
+- **Where it is:** `C:\Users\dpark\Documents\Web-Games-testing\2026-11-17_review\findings.md`
+  (disposable; this entry is the record of what it found).
+- **Result:** no start-up or missing-file problem, no wrong score or false win.
+  Three bugs: **TOP-2** (Topple!: `settledAt` in `src/ui/topple.js` never reset, so the
+  resume snapshot is skipped early in every later scene), **3D-1** (the same in
+  Tin Can Alley), **PUZ-1** (Laser Lab: tapping a shop piece while a beam grows
+  cancels its timers and leaves `ui.busy` true, freezing the board). Possible
+  bugs include TOP-1 (a throw in Topple!'s `startScene` leaves it on "Setting up
+  the scene…"), TOP-3 (a failed photo load cached for the visit), 3D-2 (Hidden
+  Faces: a second finger), PUZ-2 (Laser Lab: solved but not credited if the
+  page is killed during the beam). TOP-1 and TOP-3 are leads for Q109.
+- **Not fixed yet:** waiting for the developer to choose what to fix.
