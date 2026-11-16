@@ -7,6 +7,25 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.24 (2026-11-16, version 5820652bc133)
+
+Topple!: stars, and a new map.
+
+- **Stars.** Win a scene in 3 balls or fewer for 3 stars, in 4 balls for 2,
+  in 5 balls for 1. Your best for each scene is kept, so you can play a
+  scene again to win more. The card after a win shows your stars.
+- **The map** is now a list of the five levels. Tap a level to open it and
+  see its 5 scenes and their stars; tap a scene you have won to play it
+  again. The map scrolls.
+- **How hard** (Normal, Harder, Hardest) is now picked on the map, and each
+  has its own levels and stars: a level opens on one difficulty only when
+  you have finished the one before it on that difficulty. A game you had
+  carries on at the difficulty it was set to; the other two start at level 1.
+  Scenes you won before this release have no stars yet.
+- The road with your face walking along it is gone. After a level, the next
+  level's lock shakes and pops open.
+- Everything else is as in 10.23.
+
 ## 10.23 (2026-11-16, version dd3178570e68)
 
 Fixes from a code review: three small bugs.
