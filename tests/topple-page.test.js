@@ -416,36 +416,21 @@ test('topple page: Hardest\'s mover (Q106, the build) in the real game: the scen
   assert.equal((js.match(/switchLevel\(game, /g) ?? []).length, 2, 'switchLevel only in startLevel and the checking hook');
 });
 
-const keepJs = await read('src/ui/topple-keepout.js');
 const worldJs = await read('src/core/topple-world.js');
-const keepCore = await read('src/core/topple-keepout.js');
-test('topple page: the thing in the way (Q97, Q112): no ring, no notice, a hit wastes the ball and nothing more, logged', () => {
-  // nothing warns beforehand (developer, 2026-11-15: the ring "looks like an obstacle ... can hide targets")
+// The things in the way (Q97; a nest, a pane, a lantern, a pot, a telescope) were dropped on 2026-11-16 (Q112; developer:
+// a hit costing a heart "seems too much", a ball only "maybe not", "I'm ok to drop them"): nothing of them is left
+test('topple page: the things in the way are dropped (Q112): no module, no ring, no notice, no hit, nothing in the layout', async () => {
+  const { access } = await import('node:fs/promises');
+  for (const f of ['src/core/topple-keepout.js', 'src/ui/topple-keepout.js']) await assert.rejects(access(new URL(`../${f}`, import.meta.url)), f);
+  for (const [name, src] of [['page', js], ['scene', sceneJs], ['world', worldJs]]) assert.doesNotMatch(src, /keepout|keepStruck|keepHit|keepNotice|hitKeep/i, `${name} says nothing of them`);
   assert.doesNotMatch(playHtml, /keepLine|keepring|keepemoji|keepWords/);
   assert.doesNotMatch(css, /keepline|keepring|keepemoji|\.broke|tpbroke/);
-  assert.doesNotMatch(js, /keepNotice|KEEP_NOTICE_MS|keepHitWait|hitKeep|HIT_CARD_S|keepThing|classList\.add\('broke'\)|setting up: the warning held/);
-  // a hit: told by the physics; the ball is wasted, the thing reacts; the scene is not ended and no heart goes
-  assert.match(js, /if \(b === 'keepout'\) \{ keepStruck\(ball, thing, vs\); return; \}/);
-  const struck = js.match(/function keepStruck\(ball, thing, vs\) \{[\s\S]*?\n\}/)?.[0] ?? '';
-  assert.match(struck, /if \(!round \|\| round\.result \|\| !current\) return;[\s\S]*?if \(!stage\.keepHit\(at\)\) return;/);
-  assert.doesNotMatch(struck, /endScene|hearts--|sceneOver/);
-  assert.ok(js.includes("L('hit the thing in the way: the ball is wasted'"), 'not logged');
-  assert.match(js, /\.\.\.\(L0\.keepout \? \{ keepout: \{ thing: L0\.keepout\.thing/, 'the scene log says where it stands');
-  // the drawing: its own module, each thing, what a hit does; the scene hides the wasted ball
-  assert.match(sceneJs, /import \{ makeKeepout \} from '\.\/topple-keepout\.js';/);
-  assert.match(sceneJs, /else if \(p\.part === 'keepout'\) \{ m = keep\.build\(p\); scene\.add\(m\); \}/);
-  assert.match(sceneJs, /m\.visible = !b\.struck;/);
-  assert.match(sceneJs, /keepHit\(at\) \{ return keep\.hit\(at\); \}/);
-  assert.match(sceneJs, /keep\.reset\(\);/);
-  assert.doesNotMatch(keepJs, /RING_COLOUR|ringTex|ringSprite|heartTex|function pop\(|SpriteMaterial/, 'no mark, no heart');
-  assert.match(keepJs, /const BUILD = \{ nest, pane, lantern, pot, telescope \};/);
-  assert.match(keepJs, /if \(u\.thing === 'nest'\)/);
-  // the physics: its own material and kind, the thing out of the world after a strike; the core has no DOM
-  assert.match(worldJs, /CM\('ball', 'keepout', 0\.5, 0\);/);
-  assert.match(worldJs, /if \(kind === 'keepout' && !b\.struck\)/);
-  assert.match(worldJs, /keepGone\.add\(e\.body\)/);
-  // the physics: its own material and kind; the core has no DOM
-  assert.match(worldJs, /CM\('ball', 'keepout', 0\.5, 0\);/);
-  assert.match(worldJs, /if \(kind === 'keepout' && !b\.struck\)/);
-  assert.doesNotMatch(keepCore, /\bdocument\.|\bwindow\.|THREE\.|^import /m,'src/core stays free of DOM and UI code');
+  // the scenes 2 and 4 of every level's Hardest: the spread-out structures, with nothing stood in the way
+  const { createWorld } = await import('../src/core/topple-world.js');
+  const w = createWorld();
+  for (let level = 1; level <= 5; level++) for (const i of [2, 4]) {
+    const s = w.makeScene(555, level, i, null, 'hardest');
+    assert.equal(s.layout.keepout, undefined, `level ${level} scene ${i}`);
+    assert.ok(!s.parts.bodies.some(b => b.kind === 'keepout') && !s.parts.props.some(p => p.part === 'keepout'), `level ${level} scene ${i}: no body or prop`);
+  }
 });

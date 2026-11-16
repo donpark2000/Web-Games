@@ -3,7 +3,7 @@
 // creature with the balls. Something inanimate but moving ... a sled going by"):
 // a paper lantern swinging on its chain, a sled sliding on the snow, a star
 // falling at a slant (a ball can pass between its points), each once in scenes
-// 1, 3, 5; scenes 2 and 4 spread out, with a telescope not to hit.
+// 1, 3, 5; scenes 2 and 4 spread out (a telescope not to hit was dropped, Q112).
 // Where each is at each moment, clear of the rock and the pine, and in the
 // physics. Seconds of physics, nothing written.
 import { test } from 'node:test';
@@ -16,7 +16,6 @@ import {
 import { createWorld, MOVER_OPEN, MOVER_SHUT, moverFits } from '../src/core/topple-world.js';
 import { STEP, HAND, SCENES, LEVELS, launchVel } from '../src/core/topple.js';
 import { STRUCTURES as DATA } from '../src/core/topple-levels.js';
-import { KEEP, THINGS, keepFor } from '../src/core/topple-keepout.js';
 
 // A Star Light scene's parts, and the same with no things in it (the rock and pine left out).
 function starScene(seed = 4242, i = 1) {
@@ -315,8 +314,8 @@ test('star: a ball at the sled or the paper lantern stops and drops; nothing the
 /* ---------- the scenes ---------- */
 
 // Star Light's Hardest scenes as dealt, two games: the check passes, each thing its own way, open often
-// enough, through none of the rock and pine; the telescope in scenes 2 and 4; Normal and Harder as before.
-test('star: Star Light\'s Hardest scenes are made as dealt, open often enough, clear of the rock and the pine; the telescope in 2 and 4; Normal and Harder as before', () => {
+// enough, through none of the rock and pine; scenes 2 and 4 with nothing in the way (the telescope was dropped, Q112); Normal and Harder as before.
+test('star: Star Light\'s Hardest scenes are made as dealt, open often enough, clear of the rock and the pine; nothing in the way in 2 and 4; Normal and Harder as before', () => {
   let n = 0;
   for (const seed of [12345, 404, 77]) {
     const w = createWorld(), d = hardestDeal(seed, 5);
@@ -327,12 +326,11 @@ test('star: Star Light\'s Hardest scenes are made as dealt, open often enough, c
       assert.deepEqual(s.layout.hardest, h, `${at}: the deal kept in the layout`);
       if (h.spread) {
         assert.equal(s.layout.stack, h.spread); assert.equal(s.mover, null);
-        assert.equal(s.layout.keepout?.thing, 'telescope', `${at}: the telescope`);
-        // (the telescope in the way of too many throws sends a layout away: 1.2 tries a spread scene, at most 3, over 60 scenes of 30 games)
+        assert.equal(s.layout.keepout, undefined, `${at}: nothing in the way (the things in the way were dropped, Q112)`);
         assert.ok(s.tries <= 5, `${at}: ${s.tries} tries`);
         continue;
       }
-      assert.equal(s.layout.keepout, undefined, `${at}: no telescope beside a mover`);
+      assert.equal(s.layout.keepout, undefined, `${at}: nothing in the way beside a mover`);
       const m = s.mover;
       assert.equal(m.look, h.mover.look); assert.equal(m.move, h.mover.move);
       assert.ok(s.check.mover.open >= MOVER_OPEN && s.check.mover.shutS <= MOVER_SHUT, `${at}: ${JSON.stringify(s.check.mover)}`);
@@ -347,32 +345,19 @@ test('star: Star Light\'s Hardest scenes are made as dealt, open often enough, c
   assert.equal(n, 3 * SCENES);
 });
 
-test('star: the telescope: not to hit in scenes 2 and 4 of Hardest only, with its own notice words, a dark thing that tumbles', () => {
-  assert.equal(KEEP[5], 'telescope');
-  const t = THINGS.telescope;
-  assert.deepEqual([t.w, t.h, t.d, t.reacts], [0.5, 0.8, 0.45, 'tumbles']);
-  assert.equal(keepFor('hardest', 5, 2), 'telescope'); assert.equal(keepFor('hardest', 5, 4), 'telescope');
-  for (const scene of [1, 3, 5]) assert.equal(keepFor('hardest', 5, scene), null);
-  for (const mode of ['normal', 'harder']) for (const scene of [1, 2, 3, 4, 5]) assert.equal(keepFor(mode, 5, scene), null);
-  assert.equal(THINGS.telescope.the, 'the telescope');
-  for (const k of [1, 2, 3, 4]) assert.notEqual(KEEP[k], 'telescope');
-});
-
 test('star: every structure the level can deal is still a structure (the pool, the challenges and the spread-out ones)', () => {
   const info = LEVELS[4];
   for (const name of [...info.pool, ...info.challenges, ...info.spread]) assert.equal(typeof DATA[name], 'function', name);
 });
 
-test('star: the page: each thing\'s sound, a ball through the star logged, the three and the telescope drawn, the Hardest line', async () => {
+test('star: the page: each thing\'s sound, a ball through the star logged, the three drawn, the Hardest line', async () => {
   const { readFile } = await import('node:fs/promises');
   const read = f => readFile(new URL(`../${f}`, import.meta.url), 'utf8');
-  const page = await read('src/ui/topple.js'), scene = await read('src/ui/topple-scene.js'), keep = await read('src/ui/topple-keepout.js'), core = await read('src/core/topple.js');
+  const page = await read('src/ui/topple.js'), scene = await read('src/ui/topple-scene.js'), core = await read('src/core/topple.js');
   assert.match(page, /sled: 'thud', paperLantern: 'rustle', star: 'chime' \};/);
   assert.match(page, /star: 'ball through the star' \};/);
   assert.match(scene, /vulture, sled, paperLantern, star: fallingStar \};/);
   assert.match(scene, /if \(u0\.star\) puff\('gold'/, 'the star breaks up in gold sparkles');
   assert.match(scene, /u0\.tail\.rotation\.z = u0\.ang;/, 'the tail points behind it');
-  assert.match(keep, /const BUILD = \{ nest, pane, lantern, pot, telescope \};/);
-  assert.match(keep, /u\.thing === 'telescope'/, 'the telescope\'s tube falls off its mount');
   assert.match(core, /moving things in levels 1 to 5/);
 });

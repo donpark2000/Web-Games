@@ -288,7 +288,7 @@ test('canyon: a ball at the cart or the vulture stops and drops; nothing the mov
 
 // Cactus Canyon's Hardest scenes as dealt, two games: the check passes, each thing its own way, open often
 // enough, through none of the scrub and cactus; the pot in scenes 2 and 4; Normal and Harder as before.
-test('canyon: Cactus Canyon\'s Hardest scenes are made as dealt, open often enough, clear of the scrub and the cactus; the clay pot in 2 and 4; Normal and Harder as before', () => {
+test('canyon: Cactus Canyon\'s Hardest scenes are made as dealt, open often enough, clear of the scrub and the cactus; nothing in the way in 2 and 4; Normal and Harder as before', () => {
   let n = 0;
   for (const seed of [12345, 404]) {
     const w = createWorld(), d = hardestDeal(seed, 4);
@@ -299,7 +299,7 @@ test('canyon: Cactus Canyon\'s Hardest scenes are made as dealt, open often enou
       assert.deepEqual(s.layout.hardest, h, `${at}: the deal kept in the layout`);
       if (h.spread) {
         assert.equal(s.layout.stack, h.spread); assert.equal(s.mover, null);
-        assert.equal(s.layout.keepout?.thing, 'pot', `${at}: the clay pot`);
+        assert.equal(s.layout.keepout, undefined, `${at}: nothing in the way (the things in the way were dropped, Q112)`);
         assert.ok(s.tries <= 2, `${at}: ${s.tries} tries`);
         continue;
       }
@@ -327,13 +327,12 @@ test('canyon: every structure the level can deal is still a structure (the pool,
 test('canyon: the page: each thing\'s sound, a ball through the tumbleweed logged, the three drawn (the rails for the cart), the pot\'s notice words', async () => {
   const { readFile } = await import('node:fs/promises');
   const read = f => readFile(new URL(`../${f}`, import.meta.url), 'utf8');
-  const page = await read('src/ui/topple.js'), scene = await read('src/ui/topple-scene.js'), keep = await read('src/ui/topple-keepout.js'), core = await read('src/core/topple.js');
+  const page = await read('src/ui/topple.js'), scene = await read('src/ui/topple-scene.js'), core = await read('src/core/topple.js');
   assert.match(page, /tumbleweed: 'rustle', cart: 'clonk', vulture: 'thud'/);
   assert.match(page, /tumbleweed: 'ball through the tumbleweed'/);
   assert.match(scene, /const OWN = \{ tyre, zip: zipSeat, kite, snowman, snowball, flake: snowflake, tumbleweed, cart, vulture/);
   assert.match(scene, /if \(m\.look === 'cart'\) \{\s*\/\/ the rails across its way/);
   assert.match(scene, /u0\.wings\.forEach\(\(wg, k\) => \{ wg\.rotation\.z = \(k \? 1 : -1\) \* ang; \}\);/, 'the vulture flaps, folds up in the dive');
   assert.match(scene, /for \(const wh of u0\.wheels\) wh\.rotation\.z -= vx \* dt \/ \(0\.19 \* u0\.k\);/, 'the cart\'s wheels turn as it goes');
-  assert.match(keep, /const BUILD = \{ nest, pane, lantern, pot, telescope \};/);
   assert.match(core, /moving things in levels 1 to 5/);
 });

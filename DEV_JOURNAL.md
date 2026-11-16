@@ -13,14 +13,15 @@ time, each tried before publishing:
 - **Q114. Topple!: the tumbleweed and the giant snowballs look like big
   balls** (2026-11-15, developer, the tablet and phone, Hardest: "The
   tumbleweed and giant snowballs just look too much like big balls."). Both
-  are round and roll, like the ball you throw. Not changed yet: to agree
-  what they become (Claude's proposals in the entry "Q112 to Q114"). The
+  are round and roll, like the ball you throw. Not changed yet: the developer (2026-11-16) wants **sample art
+  first**, before the game is changed (Claude's two suggestions, drawn: the
+  tumbleweed a ragged tangle, the snowballs lobbed icicles; the entry "Q112 to Q114"). The
   snowflake, the cart, the vulture, the sled, the lantern and the star
   were not mentioned.
 
 - **Q113. Frosty Times: ice blocks that "slid out of range"** (2026-11-15,
   developer, phone and tablet, Hardest: "two instances of ice blocks in
-  frosty world that slid out of range"). Not found yet. The rule since 10.7
+  frosty world that slid out of range"). Not found yet. **Parked (developer, 2026-11-16: "It was my tablet and landscape. Don't worry about it for now. If I see it happen again I'll save the log")**. The rule since 10.7
   (Q103) and 10.13 (Q107): a block out of the aim's reach, further than a
   throw reaches, or off the screen as held counts as down once it has
   slowed. Checked 2026-11-15 in the physics alone (60 Hardest scenes of
@@ -30,26 +31,13 @@ time, each tried before publishing:
   orientation; did the scene end lost with the block out there, or was it
   counted down; the log (Log page, saved at once) of that session.
 
-- **Q112. Things in the way: a hit costs a ball, not a heart; no ring**
-  (2026-11-15, developer, the tablet and phone: "Adding objects to the scene
-  that waste a ball is fine but losing a heart seems too much. And the
-  bobbing red circle alerting the 'do not hit' thing is confusing. It looks
-  like an obstacle ... But worst, it can hide targets."). Built the same
-  day on `block-game` (not published): a hit wastes the ball and nothing
-  more, the thing falls or shatters and is gone; no ring, no notice line,
-  no heart, no card. To confirm on a device: that a thing in the way is
-  still worth having at all (it only costs a ball now), and whether the
-  nest's stump, the pane's frame and the lantern's post (still drawn
-  after the glass has gone) should vanish too.
-
 - **Q111. Star Light's Hardest on the tablet: the picks as built** (2026-11-15,
   built in 10.19 with Cactus Canyon's, not yet on a device). To ask: (a) the
   **sled**: a rock on the throw line makes it cross as near as 0.4 of the way
   in more than half the scenes, then 36% of the view's width: too big?;
   (b) do the lantern, the sled and the star read well and play fair (a ball
   between the star's points; the sled's tree is what a ball can meet over
-  its body); (c) the telescope: dark brass, ringed: clear enough at night?;
-  the setup of a spread scene (1.5 s here); (d) the sounds (thud, rustle,
+  its body); (c) ~~the telescope~~ (dropped 2026-11-16, Q112); the setup of a spread scene; (d) the sounds (thud, rustle,
   chime).
 
 - **Q109. Topple!: a scene drawn with no blocks** (2026-11-15, developer,
@@ -60,25 +48,6 @@ time, each tried before publishing:
   `web-games-log_2026-11-15T03-24-45.txt`. Cause not found; 10.14 isn't it
   (see "Q109: the log"). A diagnostic is in (the log's `blocks drawn`);
   to ask the developer: does it happen again, in Frosty Times only?
-
-- **Q108. Things not to hit: what Claude chose while you were away,
-  and Harder** (2026-11-14; built in 10.14, to try on the tablet). You
-  said "Go for Q97 ... publish 10.14 when it is ready" and left, with
-  "which things, which scenes" still to agree, so Claude took
-  its own suggestion and built it. **To confirm or change:** (a) the
-  things: the park's **bird's nest** (tumbles, eggs roll off), the
-  building site's **window pane** (shatters), Frosty Times' **lantern**
-  (shatters, goes out); (b) **scenes 2 and 4**, one thing each (the
-  scenes with nothing moving); (c) **Hardest only**: Harder's scenes are
-  Normal's, with no spread-out scene to stand one in, so Harder has none
-  (the design notes said "Harder and Hardest"): add one to Harder's
-  scenes 2 and 4 too? (d) the setup notice **held 3 s** in those scenes
-  so the line can be read (it was a blink on a fast phone); (e) the card
-  **1.6 s** after a hit; (f) the ring's size and look. Cactus Canyon's pot and
-  Star Light's telescope came with their Hardest (10.19, the same ring and
-  notice line; Star Light on the tablet: Q111).
-  **The developer's answer, 2026-11-15 (the tablet): a hit should only waste a
-  ball, not cost a heart, and the ring is confusing: Q112, built.**
 
 ## Proposed additions to the standards skill
 
@@ -222,6 +191,21 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q112, Q108 and Q97. Things not to hit: dropped** (2026-11-16). Built
+  2026-11-14 (Q97; Q108 was Claude's choices while the developer was away):
+  one a level in scenes 2 and 4 of Hardest, a hit lost the scene and a ❤️,
+  a red slashed ring bobbed over each. The developer on the tablet and
+  phone, 2026-11-15: "Adding objects to the scene that waste a ball is fine
+  but losing a heart seems too much. And the bobbing red circle ... looks
+  like an obstacle ... But worst, it can hide targets." Changed the same
+  day so a hit only wasted the ball (no ring, no notice, the thing fell and
+  was gone from the physics; commit 76dc047); asked whether they were still
+  worth having: "maybe not. I'm ok to drop them". **Dropped entirely**
+  (entry "Q112 to Q114"): the two keepout modules and their test are
+  deleted; scenes 2 and 4 are the spread-out structures alone. Q108's
+  question (c), whether to add one to Harder, falls with it. Release 10.19's
+  code is the last with the heart-losing ones.
 
 - **Q110. Star Light's Hardest: which three moving things, which
   spread-out scenes, which thing not to hit** (2026-11-15, Claude's
@@ -22926,3 +22910,41 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Then:** build Q114 as agreed; Q113 from the log; publish 10.20 with
   the developer's OK.
 - **Open questions:** Q114, Q113, Q112, Q111, Q109, Q108.
+
+## 2026-11-16: The things not to hit dropped; sample art for Q114 first
+
+- **From the developer:** (1) Q113, ice slid out of range: "my tablet and
+  landscape. Don't worry about it for now"; they will save the log if it
+  happens again (parked). (2) Q114: "maybe show me some sample art before
+  actually updating the game". (3) Is a thing that only wastes a ball worth
+  having: "maybe not. I'm ok to drop them."
+- **Done (3):** the things in the way are removed, not just switched off:
+  `src/core/topple-keepout.js`, `src/ui/topple-keepout.js` and
+  `tests/topple-keepout.test.js` deleted (`git rm`); out of the physics world
+  (the 'keepout' material and kind, the placement and its cheap test, its
+  part of the scene check), of the layout (`sceneParts`), of the page
+  (the hit, its log line, the scene line's `keepout`) and of the scene
+  drawing. A scene 2 or 4 of Hardest is now just its spread-out structure.
+  The one test that says so: `topple page: the things in the way are
+  dropped` (the two files are gone, none of the code says
+  keepout / keepStruck / keepHit, no ring or notice in the HTML or CSS, the
+  Hardest scenes 2 and 4 of all five levels have no keepout body or prop).
+  Tests of Cactus Canyon and Star Light now say "nothing in the way" where
+  they said a pot or a telescope. The layouts of those scenes may differ
+  from 10.19's where a layout used to be thrown away for want of a place
+  for the thing (the deals, which are pinned by hash, do not).
+- **Suite:** `npm test` 689 of 689 (the keep-out test file's 10 or so gone,
+  one new). `node tools/offline.js` run (191 files, 2 fewer).
+- **(2) Q114:** sample art drawn for the developer to choose from (shown in
+  the chat, not in the game): the tumbleweed and the snowball's
+  replacements. Nothing in the game changed for it.
+
+**Status (start here next session)**
+- **Live: 10.19.** On `block-game`, not published: the things not to hit
+  dropped (so scenes 2 and 4 of Hardest are spread-out structures alone).
+  Release 10.20, when the developer says to publish.
+- **From the developer:** which sample art for Q114 (the tumbleweed, the
+  snowballs); then Claude builds it. Q113 (ice out of range) parked until
+  the log is saved; Q111 (Star Light's picks) and Q109 (blank scene) still
+  waiting on tablet play.
+- **Open questions:** Q114, Q113, Q111, Q109.

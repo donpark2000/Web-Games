@@ -20,7 +20,6 @@ import {
   padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, restartLevel, placeOf, isOpen, offScreen, MAP_NODES, mapRoad, roadAt, roadTo,
   MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy,
 } from '../core/topple.js';
-import { THINGS as KEEP_THINGS } from '../core/topple-keepout.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
@@ -542,7 +541,6 @@ async function startScene(kept = null) {
     ...(L0.unplaced.length ? { noRoomFor: L0.unplaced } : {}), blocks: world.blocks.length, ms: current.ms, tries: current.tries,
     leaves: drawn.leaves, drawMs: drawn.ms, trunkInLeavesM: trunksIn(current.parts.props).scene,
     ...(current.check ? { check: { ok: current.check.ok, why: current.check.why, direct: current.check.direct, fewest: current.check.fewest, bank: current.check.bank, share: current.check.share, seen: current.check.seen, fewestSeen: current.check.fewestSeen, ...(current.check.mover ? { mover: current.check.mover } : {}) } } : {}),
-    ...(L0.keepout ? { keepout: { thing: L0.keepout.thing, at: [L0.keepout.x, L0.keepout.z], tried: current.check?.keepTried, of: current.check?.keepOf, cheap: current.check?.keepCheap, throwsAtIt: current.check?.keep } } : {}),
     ...(L0.hardest ? { hardest: L0.hardest.spread ? { spread: L0.hardest.spread } : { mover: L0.hardest.mover.move, look: L0.hardest.mover.look, timing: L0.hardest.mover.timing } } : {}),
     ...(kept ? { used: round.used, down: round.down } : {}),
   });
@@ -684,8 +682,6 @@ const THROUGH = { tyre: 'ball through the tyre', flake: 'ball through the snowfl
 // (Star Light's: the sled a thud, the paper lantern a rustle, the star a crystal chime)
 function onHit({ a, b, v, y, ball, other, mat, thing, offM }) {
   const now = performance.now(), vs = v / Math.sqrt(SCALE);
-  // Hardest's thing in the way (Q97, Q112): the ball is wasted, the thing falls or shatters
-  if (b === 'keepout') { keepStruck(ball, thing, vs); return; }
   // through the tyre's hole (Q106): told, no touch
   if (b === 'through') { L(THROUGH[thing] ?? 'ball through the mover', { t: r2(world.time - (shot?.at ?? 0)), moverT: r2(world.moverT), offM, at: [ball.position.x, ball.position.y, ball.position.z].map(r2), speed: r2(vs) }); return; }
   // Frosty Times (Q106, session 3): the snowman's hat knocked off by a ball at his head; a snowball burst
@@ -715,19 +711,6 @@ function onHit({ a, b, v, y, ball, other, mat, thing, offM }) {
     else if (b === 'bush' || (b === 'tree' && thing !== 'cactus' && y > 1.0 * SCALE)) sound.play('rustle', 0, { quiet: true });
     else if (vs > 0.6 && now - lastThud > 60) { lastThud = now; sound.play(stage.level > 1 ? 'clonk' : 'thud', 0, { level: Math.min(1, vs / 6), quiet: true }); }
   }
-}
-
-// A ball hit the thing in the way (Q97, Q112; developer, 2026-11-15: "waste a
-// ball is fine but losing a heart seems too much"): the ball is wasted (the
-// physics took it out), the thing reacts in its own way (falls, shatters) and
-// is gone; the scene goes on, nothing else lost.
-function keepStruck(ball, thing, vs) {
-  if (!round || round.result || !current) return;
-  const at = [ball.position.x, ball.position.y, ball.position.z], t = r2(world.time - (shot?.at ?? 0));
-  if (!stage.keepHit(at)) return;
-  sound.play('boing', 0, { level: 0.7, quiet: true });
-  setTimeout(() => sound.play(thing === 'nest' ? 'rustle' : 'shatter', 0, { level: 1, quiet: true }), 150);
-  L('hit the thing in the way: the ball is wasted', { thing, ...(KEEP_THINGS[thing] ? { name: KEEP_THINGS[thing].name } : {}), t, at: at.map(r2), speed: r2(vs), ball: round.used, down: round.down, hearts: game.hearts });
 }
 
 /* ---------- the loop ---------- */

@@ -20,8 +20,6 @@
 import { FACE_NAMES, checkFaces as checkPicks } from './players.js';
 import { LEVELS, MAX_LEVEL, STRUCTURES, MATS, BALLS_BY, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo } from './topple-levels.js';
 
-import { keepoutParts } from './topple-keepout.js';
-
 export { FACE_NAMES, LEVELS, MAX_LEVEL, MATS, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo };
 
 /* ---------- sizes, in metres ---------- */
@@ -680,11 +678,6 @@ export function sceneParts(L) {
         props.push({ part: 'arm', ...a });
       }
     }
-  }
-  // Hardest's thing in the way (Q97, Q112: a hit wastes the ball), placed by the scene check in world metres: a box to the physics, drawn by the page
-  if (L.keepout) {
-    const k = keepoutParts(L.keepout);
-    bodies.push(k.body); props.push(k.prop); fitBox(...k.fit);
   }
   const blocks = L.blocks.map(b => ({ w: X(b.w), h: Y(b.h), d: X(b.d), x: X(b.x), y: Y(b.y), z: Z(b.z), c: b.c, mat: b.mat ?? 'toy', shape: b.shape ?? 'box', ...(b.r ? { r: X(b.r) } : {}) }));
   for (const b of blocks) fitBox(b.x, b.y, b.z, b.w / 2, b.h / 2, b.d / 2);

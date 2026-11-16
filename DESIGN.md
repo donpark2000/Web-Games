@@ -4,7 +4,7 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-15, latest): **Topple!: a thing in the way now only wastes the ball** (developer, on the tablet: "losing a heart seems too much", and the ring "looks like an obstacle ... can hide targets": no heart, no scene lost, no ring, no notice; the thing falls or shatters and is gone from the physics; on `block-game`, not yet published; see "Topple!", Things in the way). Earlier: **Topple! Hardest in Star Light: a paper lantern
+*Status (2026-11-16, latest): **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
 swinging on its chain, a sled sliding by on the snow, a star falling at a
 slant (a ball can pass between its points), each once in scenes 1, 3, 5; 2
 and 4 spread out, with a telescope not to hit** (on `block-game`, for
@@ -2648,62 +2648,20 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     trestle and two posts; Star Light: three glowing columns with cubes,
     two small glowing gates, a gate and two columns), each its
     own throw.
-  **Things in the way** (Q97, Q112; first built 2026-11-14 as things *not
-  to hit*, release 10.14: a hit lost the scene and a ❤️, a red slashed ring
-  bobbed over each, a line in the setup notice. **Changed 2026-11-15**, the
-  developer after the tablet: "Adding objects to the scene that waste a ball
-  is fine but losing a heart seems too much. And the bobbing red circle ...
-  looks like an obstacle ... And it can hide targets": now **a hit wastes
-  the ball and nothing more, there is no ring and no notice**).
-  **Built for Hardest only, in the levels
-  whose Hardest is built (1-5, all: Cactus Canyon's pot and Star Light's telescope added 2026-11-15), in scenes 2 and 4** (the spread-out ones:
-  nothing moves there; Claude's suggestion, taken while the developer was
-  away: to confirm, journal Q108, with Harder, whose scenes are Normal's
-  and have no spread-out scene to stand one in), **one thing a scene**, each
-  level its own (a glass pane and a bird's nest were the first ideas):
-  the park's **bird's nest** on a stump (it tumbles off and its eggs
-  roll away), the building site's **window pane** in a wooden frame on
-  feet (it shatters), Frosty Times' **lantern** on a post, lit (its glass
-  shatters and the light goes out), Cactus Canyon's **clay pot with a red
-  flower** (it shatters in clay shards; notice picture 🌺), Star Light's
-  **brass telescope on a tripod** (dark, so it is not taken for one of the
-  glowing blocks; the tube is knocked off its mount and falls, the lens
-  pops; notice picture 🔭). Each a box to the physics (nest 0.7 x
-  0.62 m, pane 1.0 x 1.1 x 0.2, lantern 0.5 x 0.95, pot 0.6 x 0.7,
-  telescope 0.5 x 0.8 x 0.45 (1.0 x 0.7 at first: in the way of too many
-  throws, 2.4 layouts a spread scene, up to 11, 2.4 s a scene; 1.2 layouts,
-  at most 3, 1.5 s); Far metres), standing
-  on the ground facing you, in `src/core/topple-keepout.js`.
-  **Where it stands**: on the line from the slingshot to one of the
-  blocks, 0.62-0.88 of the way (further out first: nearer the hand it
-  looms: the first try, 0.42-0.55, stood a pane by the slingshot, filling a corner), 0 to 0.8 m to a side of that line, never on a
-  block, the structure's ground or another thing, never off the sides of
-  the view, in a seeded order so a scene's place is its own and the same
-  every time. **The scene check judges it** (what makes it fair): of the
-  straight throws that hit a block with nothing in the way, at least 6
-  hit the thing first (it is in the way) and no more than 35% (the
-  structure is still the target), every block is still hit from the
-  front by enough throws and shows enough past it, as for the level's
-  other things. A cheap test from the scan's throws first (their paths
-  against the thing's box: no new throws traced) leaves one or two places
-  for the full check; ten full checks at most, then the layout is thrown
-  away like any other (measured 2026-11-14, 24 scenes of levels 1-3: the
-  first full check passed in 23, the 24th on its second). **A hit** (Q112,
-  2026-11-15): the ball is wasted (it stops at the thing and is gone; the
-  ball is spent as any throw that misses), the thing reacts in its own way
-  (the nest tumbles and its eggs roll, glass shatters, the telescope's tube
-  falls) **and is gone from the physics** from then on (the box is taken
-  out: a later ball passes where it stood, as it has fallen or broken),
-  and **the scene goes on**: no heart, no card, no notice, no sound but a
-  boing and the thing's own (rustle or shatter, 0.15 s after). It is
-  hit once; a block knocked into it counts for nothing (only the ball
-  does). **No warning beforehand**: the ring and the notice line are gone
-  (developer, 2026-11-15; the ring and the picture looked like an
-  obstacle and hid targets). Logged: the place and how many places were
-  tried with the scene, the hit (the thing, when, where, how fast, the
-  ball, the hearts: unchanged). First built (2026-11-14) differently: the
-  ball turned into a heart that popped, a ❤️ broke, the scene was lost and
-  a card named the thing ("Oh no, the bird's nest!"). Not wanted: fewer
+  **Things not to hit: dropped** (Q97, Q112; built 2026-11-14 for release
+  10.14 in scenes 2 and 4 of Hardest, one a level: a bird's nest, a window
+  pane, a lantern, a clay pot, a telescope; a hit lost the scene and a ❤️,
+  with a red slashed ring over each and a line in the setup notice). The
+  developer after the tablet, 2026-11-15: "Adding objects to the scene that
+  waste a ball is fine but losing a heart seems too much. And the bobbing
+  red circle ... looks like an obstacle ... it can hide targets." Changed
+  the same day so that a hit only wasted the ball (no ring, no notice, the
+  thing fell and was gone from the physics), then, asked whether they were
+  still worth having: "maybe not. I'm ok to drop them" (2026-11-16).
+  **Nothing of them is left**: scenes 2 and 4 of Hardest are the spread-out
+  structures alone (`src/core/topple-keepout.js`, `src/ui/topple-keepout.js`
+  and their test are gone; git has them, release 10.19's code is the last
+  to have the heart-losing ones). Not wanted either way: fewer
   balls (scenes must stay winnable), wind, a smaller ball or another
   camera (developer, 2026-11-14: "hard to see on a small screen as it gets
   farther away"; smaller balls again "no", the same day).
