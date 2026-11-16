@@ -7,6 +7,16 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.21 (2026-11-16, version 192640b00f3a)
+
+Topple!: Frosty Times' snowball machine can now be seen.
+
+- **The snowball machine** stands in view at the left of the scene in
+  Hardest, and the snowman heads are lobbed from it, over the line of
+  your throws and down to the snow (before, it stood out of sight and the
+  heads seemed to float by). There are three heads at a time, not four.
+- Everything else is as in 10.20.
+
 ## 10.20 (2026-11-16, version 36abf7faa7b8)
 
 Topple!: the things not to hit are gone, and two moving things that
