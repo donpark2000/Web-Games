@@ -31,6 +31,21 @@ time, each tried before publishing:
   (see "Q109: the log"). A diagnostic is in (the log's `blocks drawn`);
   to ask the developer: does it happen again, in Frosty Times only?
 
+- **Q116. Topple!: stars on a more detailed, scrollable map** (2026-11-16,
+  developer; new worlds come later, as a separate release). Agreed in
+  talk, before any mockup: **stars per scene by balls used** (3 balls: 3
+  stars; 4: 2; 5: 1; a lost scene: 0); **best ever for the slot** (a done
+  level started again has new scenes, so a star belongs to "level N, scene
+  M", and replaying can only raise it); **a separate set of stars per
+  difficulty** (the map shows the difficulty being played); **each level
+  expands in place on the map into its 5 scene slots with their stars**,
+  with totals per level, and the map scrolls; **games kept from before
+  start at 0 stars** (developer: only matters to people who played before,
+  "might only be me"). To do: a map mockup to click in the app, then
+  build. Still to settle in the mockup: where a scene's stars are shown on
+  the play and end screens, the totals' wording, and what the saved game
+  holds (best balls per slot per difficulty).
+
 ## Proposed additions to the standards skill
 
 - **Look at the worst case of a generator, not its mean, and check a
