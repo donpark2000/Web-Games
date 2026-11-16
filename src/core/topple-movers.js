@@ -140,22 +140,28 @@ const flake = (R, d) => {
 };
 // Cactus Canyon's (session 4; developer, 2026-11-15: "Yes, build those
 // picks"). Sizes at Far (twice real), each from its box's middle:
-// - the tumbleweed: 1.3 m across (measured 2026-11-15: a straight throw that
-//   hits a block passes the mover's depth 0.9-1.7 m up, so a thing on the
-//   sand under 0.9 m, as the first try's 0.84 m, was never in a throw's way),
-//   a ring of twigs with four spokes (as
-//   the snowflake's arms: the gaps between are real, so a ball can pass
-//   through, `gaps`, told as 'through'), rolling along the sand (`ground`,
-//   `roll`: it turns as it goes, `hop`: a little hop twice a turn); three
-//   in a stream, so it crosses where it goes through neither the scrub nor the cactus (`clear`).
+// - the tumbleweed (a rolling cowboy hat since 2026-11-16, Q114: developer,
+//   of the tumbleweed's ring, "just looks too much like big balls"; the
+//   look keeps its name 'tumbleweed' so the deals stay as they were): 1.3 m
+//   across (measured 2026-11-15: a straight throw that hits a block passes
+//   the mover's depth 0.9-1.7 m up, so a thing on the sand under 0.9 m, as
+//   the first try's 0.84 m, was never in a throw's way), a hat turning end
+//   over end as a wheel: a brim 1.24 m long and a crown above it, two
+//   boxes to the physics, the gaps round them real so a ball can pass
+//   (`gaps`, told as 'through'), rolling along the sand (`ground`, `roll`:
+//   it turns as it goes, `hop`: a little hop twice a turn); three in a
+//   stream, so it crosses where it goes through neither the scrub nor the
+//   cactus (`clear`). (A ring of twigs with four spokes until then.)
 // - the mine cart: 1.95 m long and 1.1 m tall on its rails (a real one's 1 m
 //   by 0.6, twice), slide, on the ground as the
 //   snowman is (the low and middle throws, not the lobs), its ends short of a thing.
 // - the vulture: 1.8 m across its wings, drop: dives in, hovers flapping
 //   (the physics has its body and two wings; the flap is drawn only), climbs
 //   away out of sight.
-export const TUMBLE_R = 0.65, TUMBLE_D = 0.35, TUMBLE_N = 16;
-const tumbleSpokes = (R, d) => [0, 1, 2, 3].map(k => ({ half: [R - 0.03, 0.03, d / 2], at: [0, 0, 0], rot: k * Math.PI / 4 }));
+export const TUMBLE_R = 0.65, TUMBLE_D = 0.56;
+// the hat, upright: the brim across the bottom, the crown above it (every corner inside the circle it turns in)
+export const HAT = { brim: { half: [0.62, 0.055, 0.28], at: [0, -0.14, 0] }, crown: { half: [0.27, 0.2, 0.25], at: [0, 0.12, 0] } };
+const hatShapes = () => [HAT.brim, HAT.crown].map(b => ({ half: [...b.half], at: [...b.at], rot: 0 }));
 // Star Light's (session 5; developer, 2026-11-15, of Claude's proposals:
 // "I like it all except for the owl. I don't want to be hitting a creature
 // with the balls. Something inanimate but moving. It could be a tumbleweed or
@@ -216,7 +222,7 @@ export const LOADS = {
   snowman: { w: 2 * SNOWMAN.base, h: +SNOWMAN_H.toFixed(3), d: 2 * SNOWMAN.base, ground: true, clear: true, head: 2, shapes: snowmanBalls() },
   snowball: { w: 0.6, h: 0.6, d: 0.6, n: 4, arc: true, clear: true, shapes: [{ r: 0.3, at: [0, 0, 0] }] },
   flake: { w: 2 * FLAKE_R, h: 2 * FLAKE_R, d: FLAKE_D, gaps: true, clear: true, shapes: flake(FLAKE_R, FLAKE_D) },
-  tumbleweed: { w: 2 * TUMBLE_R, h: 2 * TUMBLE_R, d: TUMBLE_D, n: 3, ground: true, clear: true, roll: true, hop: 0.2, gaps: true, minShare: 0.5, shapes: [...ring(TUMBLE_N, TUMBLE_R, TUMBLE_R - 0.09, TUMBLE_D), ...tumbleSpokes(TUMBLE_R, TUMBLE_D)] },
+  tumbleweed: { w: 2 * TUMBLE_R, h: 2 * TUMBLE_R, d: TUMBLE_D, n: 3, ground: true, clear: true, roll: true, hop: 0.2, gaps: true, minShare: 0.5, shapes: hatShapes() },
   cart: { w: 1.95, h: 1.125, d: 1.05, ground: true, clear: true, minShare: 0.5 },
   paperLantern: { w: 0.9, h: 1.2, d: 0.9 },
   sled: { w: SLED_W, h: SLED_H, d: 0.7, ground: true, clear: true, minShare: 0.4, shapes: sledShapes() },

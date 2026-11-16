@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import {
-  MOVES, WAYS, CANYON, FROSTY, PARK, LOADS, TUMBLE_R, TUMBLE_D, TUMBLE_N, HEIGHTS, THROW_TOP, DROP_FROM, AT, AT_TRY, ENDS_PAST, MOVER_LEVELS, MOVING_SCENES,
+  MOVES, WAYS, CANYON, FROSTY, PARK, LOADS, TUMBLE_R, TUMBLE_D, HAT, HEIGHTS, THROW_TOP, DROP_FROM, AT, AT_TRY, ENDS_PAST, MOVER_LEVELS, MOVING_SCENES,
   moverFor, moverAt, inWay, openShare, gaps, hardestDeal, clashes,
 } from '../src/core/topple-movers.js';
 import { createWorld, MOVER_OPEN, MOVER_SHUT, moverFits } from '../src/core/topple-world.js';
@@ -101,14 +101,17 @@ test('canyon: the spread-out structures: small pieces well apart, each on the sa
 
 /* ---------- the shapes ---------- */
 
-test('canyon: the tumbleweed\'s ring and four spokes within its circle, gaps between them a ball fits through; the cart a box on the sand; the vulture\'s body and two wings in its box', () => {
+test('canyon: the tumbleweed (a cowboy hat since Q114): a brim and a crown within the circle it turns in, room round them for a ball; the cart a box on the sand; the vulture\'s body and two wings in its box', () => {
   const tw = LOADS.tumbleweed, R = TUMBLE_R, r = 0.07;
   assert.equal(tw.w, 2 * R); assert.equal(tw.d, TUMBLE_D); assert.equal(tw.n, 3); assert.equal(tw.ground, true); assert.equal(tw.clear, true); assert.equal(tw.roll, true); assert.equal(tw.gaps, true);
-  assert.equal(tw.shapes.length, TUMBLE_N + 4, 'a ring of boxes and four spokes');
+  assert.equal(tw.shapes.length, 2, 'a brim and a crown');
+  assert.deepEqual(tw.shapes.map(sh => sh.at), [HAT.brim.at, HAT.crown.at]);
+  assert.ok(Math.abs(tw.shapes[0].half[0] * 2 - 1.24) < 1e-9 && Math.abs(tw.shapes[0].half[2] * 2 - TUMBLE_D) < 1e-9, 'the brim is 1.24 m long and as deep as the load');
+  assert.ok(tw.shapes[1].at[1] > tw.shapes[0].at[1] + tw.shapes[0].half[1], 'the crown sits above the brim');
   let n = 0;
   for (const sh of tw.shapes) for (const [x, y] of corners(sh)) { n++; assert.ok(Math.hypot(x, y) <= R + 0.03, `a corner ${Math.hypot(x, y).toFixed(3)} m out`); }
   assert.equal(n, 4 * tw.shapes.length);
-  // eight wedges between the spokes, a ball clear in some of every part of the rim; the spokes through the middle
+  // most of the circle is clear for a ball, a fair part of it covered (the brim and crown), the gap above the crown and below the brim real
   let inside = 0, clear = 0, covered = 0;
   for (let x = -R; x <= R; x += 0.01) for (let y = -R; y <= R; y += 0.01) {
     if (Math.hypot(x, y) > R - r) continue;
@@ -117,9 +120,9 @@ test('canyon: the tumbleweed\'s ring and four spokes within its circle, gaps bet
     if (d > r) clear++;
     if (d <= 0) covered++;
   }
-  assert.ok(clear / inside > 0.1 && clear / inside < 0.6, `a ball passes clear at ${(100 * clear / inside).toFixed(0)}% of it`);
-  assert.ok(covered / inside > 0.05, `the spokes ${(100 * covered / inside).toFixed(0)}% of it`);
-  for (let k = 0; k < 8; k++) { const a = (k + 0.5) * Math.PI / 4, p = [0.3 * Math.cos(a), 0.3 * Math.sin(a)]; assert.ok(Math.min(...tw.shapes.map(sh => fromBox(p, sh))) > r, `a gap at ${(a * 57.3).toFixed(0)}°`); }
+  assert.ok(clear / inside > 0.3 && clear / inside < 0.8, `a ball passes clear at ${(100 * clear / inside).toFixed(0)}% of it`);
+  assert.ok(covered / inside > 0.1, `the hat ${(100 * covered / inside).toFixed(0)}% of it`);
+  for (const p of [[0, 0.5], [0, -0.45], [-0.45, 0.2], [0.45, 0.2]]) assert.ok(Math.min(...tw.shapes.map(sh => fromBox(p, sh))) > r, `a gap at ${p}`);
   // the cart: one box, on the sand; the vulture: a body and a wing each side, none past its span
   assert.equal(LOADS.cart.shapes, undefined); assert.equal(LOADS.cart.ground, true); assert.equal(LOADS.cart.clear, true);
   const v = LOADS.vulture;
@@ -328,6 +331,10 @@ test('canyon: the page: each thing\'s sound, a ball through the tumbleweed logge
   const { readFile } = await import('node:fs/promises');
   const read = f => readFile(new URL(`../${f}`, import.meta.url), 'utf8');
   const page = await read('src/ui/topple.js'), scene = await read('src/ui/topple-scene.js'), core = await read('src/core/topple.js');
+  // Q114: not a ball: the tumbleweed is drawn as a cowboy hat (a brim and a crown from the physics' HAT), the machine's snowball as a snowman's head with a face and a top hat
+  const weed = scene.match(/function tumbleweed\(g, m, i = 0\) \{[\s\S]*?\n  \}/)?.[0] ?? '', head = scene.match(/function snowball\(g, m\) \{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(weed, /HAT_FELTS\[i % HAT_FELTS\.length\], \{ brim, crown \} = HAT;/); assert.match(weed, /hatBand/); assert.doesNotMatch(weed, /TorusGeometry/, 'no ring of twigs');
+  assert.match(head, /carrotMat/); assert.match(head, /coalMat/); assert.match(head, /hat\.rotation\.z = -0\.2/);
   assert.match(page, /tumbleweed: 'rustle', cart: 'clonk', vulture: 'thud'/);
   assert.match(page, /tumbleweed: 'ball through the tumbleweed'/);
   assert.match(scene, /const OWN = \{ tyre, zip: zipSeat, kite, snowman, snowball, flake: snowflake, tumbleweed, cart, vulture/);

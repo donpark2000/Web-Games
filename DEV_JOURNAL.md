@@ -12,12 +12,19 @@ time, each tried before publishing:
 
 - **Q114. Topple!: the tumbleweed and the giant snowballs look like big
   balls** (2026-11-15, developer, the tablet and phone, Hardest: "The
-  tumbleweed and giant snowballs just look too much like big balls."). Both
-  are round and roll, like the ball you throw. Not changed yet: the developer (2026-11-16) wants **sample art
-  first**, before the game is changed (Claude's two suggestions, drawn: the
-  tumbleweed a ragged tangle, the snowballs lobbed icicles; the entry "Q112 to Q114"). The
-  snowflake, the cart, the vulture, the sled, the lantern and the star
-  were not mentioned.
+  tumbleweed and giant snowballs just look too much like big balls.").
+  Sample art shown 2026-11-16; the developer chose **a cowboy hat** for the
+  tumbleweed and **a rolling snowman's head** for the snowball ("What I did
+  not like about the original was that it did not look like a snowball. The
+  snowman is unmistakably a snowman ... I like the idea of it rolling").
+  **Built 2026-11-16 on `block-game`, not published; to look at on the
+  tablet:** (a) does the hat read as a hat as it tumbles end over end, and
+  is it as hard to get past as the tumbleweed was (its brim and crown are
+  less of the circle than a ring and spokes; a ball passes round them);
+  (b) does the head read as a snowman's head as it rolls, the face turning
+  round, the hat on it turning too; (c) the hat's felts (brown, tan, grey).
+  The looks keep their names 'tumbleweed' and 'snowball' so the deals (and
+  their pins) stay as they were.
 
 - **Q113. Frosty Times: ice blocks that "slid out of range"** (2026-11-15,
   developer, phone and tablet, Hardest: "two instances of ice blocks in
@@ -22948,3 +22955,50 @@ anything to show it (the dots are the developer's choice per How hard).
   the log is saved; Q111 (Star Light's picks) and Q109 (blank scene) still
   waiting on tablet play.
 - **Open questions:** Q114, Q113, Q111, Q109.
+
+## 2026-11-16: The tumbleweed is a cowboy hat, the snowball a snowman's head (Q114 built)
+
+- **From the developer:** the cowboy hat and the icicle liked best; then
+  "another idea ... closer to the original: a rolling snowman head?"; after
+  the sketches (the first, in the chat, did not show: the file
+  `sample-art.svg` in Claude's scratchpad was sent instead): "I like the
+  snowman head ... unmistakably a snowman. Will it roll or just glide ... I
+  like the idea of it rolling." Answer given: it rolls, the face turning
+  round (the lobbed arc's roll was already there).
+- **Built:** the tumbleweed: its physics is now two boxes, a brim 1.24 m
+  long and a crown above it (`HAT` in `topple-movers.js`, TUMBLE_D 0.56,
+  every corner inside the 0.65 m circle it turns in as it rolls and
+  hops), the drawing a felt hat with the brim turned up at both ends, a
+  band and a pinch in the crown, one of three felts by its number. The
+  snowball: the sphere as before in the physics, the drawing a snowman's
+  head (coal eyes, a carrot nose, a coal smile, a small top hat with a red
+  band) that turns with the roll. The 'through' and 'stopped' logs, the
+  sounds, the machine, the burst puff are unchanged. TUMBLE_N and the
+  spokes are gone.
+- **Checked:** in the browser pane, level 4 and level 3 on Hardest with
+  `window.topple.mover(...)` forcing the look: the hat tumbles across the
+  sand, the heads roll across the snow with their hats on, no console
+  error. **A miss worth noting:** the first load threw "HAT is not defined"
+  (the scene file used HAT without importing it) and every text test
+  passed; only running the page found it. Fixed (imported).
+- **Tests:** the canyon shapes test says what the hat is (two shapes
+  inside the circle, the crown above the brim, most of the circle clear,
+  a share covered, gaps above and below); the physics test (a ball round
+  the hat goes through, told once, one at the hat stops) passed unchanged;
+  the page test says the tumbleweed's drawing uses HAT, a band and no
+  torus, and the snowball's has a nose, coal and a tilted hat.
+- **Proposed addition to the standards skill:** "Text tests do not
+  catch a name that is not defined: run the page once after a change to
+  its drawing code" (2026-11-16: 689 tests passed with `HAT` unimported; the
+  page's first load failed). A cousin of "Parse every module, including
+  the ones only a browser runs", for names rather than syntax. Fits
+  section 3.
+
+**Status (start here next session)**
+- **Live: 10.19.** On `block-game`, not published: the things not to hit
+  dropped (scenes 2 and 4 of Hardest are spread-out structures alone), the
+  tumbleweed as a cowboy hat and the snowball as a rolling snowman's head.
+  Release 10.20 when the developer says to publish.
+- **From the developer:** OK to publish 10.20?; or try it on the tablet
+  first (Q114 a-c; Q111 Star Light's picks).
+- **Open questions:** Q114, Q113 (parked), Q111, Q109.

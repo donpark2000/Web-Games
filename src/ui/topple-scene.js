@@ -10,7 +10,7 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 import { HAND, BALL, SCALE, TIPS, FORK_Z, FORK_CROTCH_Y, COLOURS, MAX_DOTS, rng, FAR_TREES, farBalls, treeBalls, CORE } from '../core/topple.js';
-import { CABLE_TOP, DROP_FROM, ZIP_Y, SNOWMAN, MACHINE, MUZZLE_Y, machineAt } from '../core/topple-movers.js';
+import { CABLE_TOP, DROP_FROM, ZIP_Y, SNOWMAN, MACHINE, MUZZLE_Y, HAT, machineAt } from '../core/topple-movers.js';
 
 // Where the crane's cable goes up to (out of sight): the jib; a drop's from
 // higher, over the load hauled up out of sight.
@@ -476,11 +476,20 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     hat.position.set(0, top, 0); hat.rotation.z = -0.12; g.add(hat);
     Object.assign(g.userData, { snowman: true, hat, lastX: null, lean: 0 });
   }
-  // a snowball: a smooth ball of snow (lumpy, its facets showed), a few clumps stuck on so its roll shows
+  // a snowball: since 2026-11-16 (Q114: "it did not look like a snowball ... the snowman is unmistakably a snowman") a
+  // snowman's head, rolled: a ball of snow with coal eyes, a carrot nose, a coal smile and a little top hat, all
+  // turning as it rolls (the look keeps its name 'snowball'; the physics has the head's sphere only)
   function snowball(g, m) {
     const r = m.load.w / 2;
     g.add(ball(r, snowMat, 0, 0, 0, 28));
-    for (const [a, b] of [[0.4, 0.3], [2.3, -0.5], [4.1, 0.9], [5.4, -1.1]]) g.add(ball(r * 0.22, snowMat, r * 0.9 * Math.cos(a) * Math.cos(b), r * 0.9 * Math.sin(a) * Math.cos(b), r * 0.9 * Math.sin(b), 10));
+    for (const sx of [-1, 1]) g.add(ball(r * 0.12, coalMat, sx * r * 0.34, r * 0.2, r * 0.93, 8));
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(r * 0.15, r * 0.8, 10), carrotMat); nose.rotation.x = Math.PI / 2; nose.position.set(0, -r * 0.02, r + r * 0.28); g.add(nose);
+    for (let k = -2; k <= 2; k++) { const a = k * 0.3; g.add(ball(r * 0.06, coalMat, Math.sin(a) * r * 0.5, -r * 0.3 - Math.cos(a) * r * 0.16 + r * 0.16, r * 0.86, 6)); }
+    const hat = new THREE.Group();
+    hat.add(new THREE.Mesh(new THREE.CylinderGeometry(r * 0.72, r * 0.72, r * 0.1, 20), coalMat));
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.46, r * 0.5, r * 0.7, 20), coalMat); crown.position.y = r * 0.4; hat.add(crown);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.51, r * 0.51, r * 0.14, 20), scarfMat); band.position.y = r * 0.15; hat.add(band);
+    hat.position.set(0, r * 0.86, 0); hat.rotation.z = -0.2; g.add(hat);
     g.userData.snowball = true;
   }
   function snowflake(g, m) {
@@ -508,18 +517,16 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     return g;
   }
   // Cactus Canyon's (Q106, session 4), drawn round the physics' shapes:
-  // - the tumbleweed: a ring of twigs with the four spokes the physics has
-  //   and a tangle of thinner rings and twigs a little out of the plane
-  //   (each of the three its own, seeded by its number); it rolls and hops
-  //   as the physics has it;
+  // - the tumbleweed: a cowboy hat (Q114), as the physics has it; it rolls and hops
+  //   (each of the three its own felt, by its number);
   // - the mine cart: an iron-bound wooden box on four spoked wheels (they
   //   turn as it goes), rocks heaped in it, on rails drawn across its way;
   // - the vulture: seen from in front, a dark body and white ruff, a bald
   //   red head and a hooked beak, two wings of three feathers from the
   //   shoulders that flap (hover and climb) or fold up (the dive): drawn
   //   only, the physics has its body and two wings.
-  const weedMat = new THREE.MeshStandardMaterial({ color: '#C9A25E', roughness: 0.95 });
-  const weedDark = new THREE.MeshStandardMaterial({ color: '#8E6B3A', roughness: 0.95 });
+  const HAT_FELTS = [['#A06B45', '#8A5A3B'], ['#D9B77A', '#C4A064'], ['#8E9096', '#777A80']].map(([c, b]) => ({ crown: new THREE.MeshStandardMaterial({ color: c, roughness: 0.9 }), brim: new THREE.MeshStandardMaterial({ color: b, roughness: 0.9 }) }));
+  const hatBand = new THREE.MeshStandardMaterial({ color: '#3E2A1C', roughness: 0.8 });
   const cartIron = new THREE.MeshStandardMaterial({ color: '#4A4E54', roughness: 0.6, metalness: 0.5 });
   const cartRust = new THREE.MeshStandardMaterial({ color: '#8A4B2A', roughness: 0.8, metalness: 0.2 });
   const rockMat = new THREE.MeshStandardMaterial({ color: '#8C8579', roughness: 0.95, flatShading: true });
@@ -530,18 +537,15 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   const skinMat = new THREE.MeshStandardMaterial({ color: '#D9786A', roughness: 0.8 });
   const beakMat = new THREE.MeshStandardMaterial({ color: '#E8C76A', roughness: 0.6 });
   function tumbleweed(g, m, i = 0) {
-    // a scraggly ball: thin rings at every which angle (one in the plane the
-    // physics has its ring in) and many twigs through the middle, none of the
-    // regular spokes the physics has showing (a wagon wheel it was, at first)
-    const R = m.load.w / 2, rand = rng(7 + 31 * i);
-    const tor = (r, t, rx, ry, rz) => { const o = new THREE.Mesh(new THREE.TorusGeometry(r, t, 4, 18), rand() < 0.5 ? weedMat : weedDark); o.rotation.set(rx, ry, rz); g.add(o); };
-    tor(R - 0.03, 0.016, 0, 0, rand() * 6);
-    for (let k = 0; k < 5; k++) tor(R * (0.8 + rand() * 0.15), 0.012 + rand() * 0.008, rand() * 3.1, rand() * 3.1, rand() * 6);
-    for (let k = 0; k < 48; k++) {
-      const L = R * (0.9 + rand() * 1.1), s = rod(0.007 + rand() * 0.007, L, k % 3 ? weedMat : weedDark);
-      s.rotation.set(rand() * 3.1, rand() * 3.1, rand() * 6.3); s.position.set((rand() - 0.5) * R * 0.5, (rand() - 0.5) * R * 0.5, (rand() - 0.5) * 0.12);
-      g.add(s);
-    }
+    // a cowboy hat (the look is still called 'tumbleweed', Q114) turning end over end as it rolls: the brim and
+    // crown as the physics has them (HAT), the brim turned up a little at both ends, a dark band; each of the
+    // three its own felt (brown, tan, grey), by its number
+    const felt = HAT_FELTS[i % HAT_FELTS.length], { brim, crown } = HAT;
+    const bm = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 2 * brim.half[1], 28), felt.brim); bm.scale.set(brim.half[0], 1, brim.half[2]); bm.position.set(...brim.at); g.add(bm);
+    for (const sx of [-1, 1]) { const lip = part(0.2, 0.05, 0.5, felt.brim, sx * (brim.half[0] - 0.08), brim.at[1] + 0.06, 0); lip.rotation.z = -sx * 0.35; g.add(lip); }
+    const cr = new THREE.Mesh(new THREE.CylinderGeometry(crown.half[0] * 0.8, crown.half[0], 2 * crown.half[1], 24), felt.crown); cr.scale.z = crown.half[2] / crown.half[0]; cr.position.set(...crown.at); g.add(cr);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(crown.half[0] * 1.02, crown.half[0] * 1.02, 0.07, 24), hatBand); band.scale.z = crown.half[2] / crown.half[0]; band.position.set(crown.at[0], crown.at[1] - crown.half[1] + 0.07, 0); g.add(band);
+    g.add(part(0.34, 0.03, 0.07, felt.crown, crown.at[0], crown.at[1] + crown.half[1] + 0.005, 0));   // the pinch in the top
   }
   function cart(g, m) {
     // drawn at 1.3 x 0.75 x 0.7 and scaled up to the physics' box (1.5 times)
