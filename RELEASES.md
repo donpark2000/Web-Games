@@ -7,6 +7,19 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.23 (2026-11-16, version dd3178570e68)
+
+Fixes from a code review: three small bugs.
+
+- **Topple! and Tin Can Alley**: coming back to the game (after switching
+  apps or locking the tablet) early in a later scene or round now picks up
+  where you were. Before, the game could forget the balls used and start the
+  scene over.
+- **Laser Lab**: tapping a Mirror or Splitter in the shop while a laser's
+  beam was still growing could freeze the board until the page was
+  reloaded. It no longer does.
+- Everything else is as in 10.22.
+
 ## 10.22 (2026-11-16, version 85760ff97a56)
 
 Topple!: the cowboy hat's brim is curved.
