@@ -23066,3 +23066,21 @@ anything to show it (the dots are the developer's choice per How hard).
   (Q114); then OK to publish 10.21? Q109 (blank scene) and Q113 (ice out of
   range): save the log if either happens again.
 - **Open questions:** Q114, Q113 (parked), Q109.
+
+## 2026-11-16: Release 10.21 published and live
+
+- **Published** with the developer's OK ("I can't test until it is
+  published. So publish it."): Frosty Times' snowball machine in view.
+  `npm test` 689 of 689; `node tools/release.js` said ready; `block-game`
+  fast-forwarded into `main`; tag `v10.21` pushed; GitHub release made.
+  The live site serves release 10.21, version 192640b00f3a (checked at
+  github.io). No localhost server running.
+
+**Status (start here next session)**
+- **Live: 10.21.** `block-game` = `main` plus this entry. Nothing waiting
+  to publish.
+- **From the developer (the tablet and phone):** load 10.21 (home page: the
+  version line says 10.21); Frosty Times on Hardest: does the machine in
+  view make the lobbed heads make sense (Q114)? Q109 (blank scene) and Q113
+  (ice out of range): save the log if either happens again.
+- **Open questions:** Q114, Q113 (parked), Q109.
