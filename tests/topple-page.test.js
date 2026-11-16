@@ -43,12 +43,13 @@ test('topple page: the setup screen: your face, Play! or Carry on where the game
   assert.match(setupHtml, /Knock <b>every block<\/b> down with <b>5 balls<\/b>/);
 });
 
-test('topple page: How hard? (Q96): three choices after the faces, kept with the game, the dots as it says, logged', () => {
-  assert.match(setupHtml, /id="p1Faces"><\/div>\s*<\/div>[\s\S]*?<h2>How hard\?<\/h2>\s*<div class="modes3" id="modes"><\/div>/, 'after Pick your face');
+test('topple page: How hard? (Q96, Q116): picked on the map, not after the faces; a game of its own each; the dots as it says, logged', () => {
+  assert.doesNotMatch(setupHtml, /How hard\?|id="modes"/, 'the picker is gone from the faces screen (Q116)');
+  assert.match(setupHtml, /<div class="mapmodes modes3" id="mapModes" role="group" aria-label="How hard"><\/div>/);
   assert.match(css, /\.modes3 \{ display: grid; grid-template-columns: repeat\(3, 1fr\);/);
   assert.match(js, /b\.setAttribute\('aria-pressed', String\(m === game\.mode\)\)/);
-  assert.match(js, /game\.mode = m;\s*saveGame\(\);\s*L\('how hard picked'/);
-  assert.match(js, /createGame\(newSeed\(\), null, game\.mode\)/, 'Start over keeps it');
+  assert.match(js, /game = profile\.games\[m\] \?\? createGame\(newSeed\(\), null, m\);[\s\S]*?saveGame\(\);\s*L\('how hard picked'/);
+  assert.match(js, /createGame\(newSeed\(\), \{ stars: game\.stars \}, game\.mode\)/, 'Start over keeps how hard and the stars');
   assert.match(js, /const secs = dotSeconds\(game\.mode, round\.used\);/);
   assert.match(js, /secs > 0 \? dotsFor\([^)]*\)[^)]*\), secs\) : null/);
   assert.match(js, /mode: game\.mode, dotsS: dotSeconds\(game\.mode, r\.ball - 1\)/, 'each throw logs it');
@@ -122,7 +123,7 @@ test('topple page: Start again asks one question from play and the map: this sce
   // each answer: a heart; the level's new scenes; a new game keeping only how hard; then straight into play
   assert.match(js, /\$\('againScene'\)\.onclick = \(\) => \{[\s\S]*?sceneOver\(game, false\);[\s\S]*?startScene\(\);/);
   assert.match(js, /\$\('againLevel'\)\.onclick = \(\) => \{[\s\S]*?restartLevel\(game\);\s*parked = null;[\s\S]*?startLevel\(game\.level\);/);
-  assert.match(js, /\$\('againGame'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), null, game\.mode\);[\s\S]*?parked = null;[\s\S]*?startLevel\(1\);/);
+  assert.match(js, /\$\('againGame'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), \{ stars: game\.stars \}, game\.mode\);[\s\S]*?parked = null;[\s\S]*?startLevel\(1\);/);
   for (const what of ["'start again?'", "'start again: no'", "'start again: this scene, a heart lost'", "'start again: the level from scene 1'", "'start again: the whole game from level 1'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
 });
 
@@ -177,7 +178,9 @@ test('topple page: a scene being set up: a notice in the middle of the park over
 test('topple page: the game kept on the device for every visit, the scene under way for this one', () => {
   assert.match(js, /export const GAME_KEY = 'web-games-topple-game';/);
   assert.doesNotMatch(js, /GAME_KEY = 'web-games-resume-/, 'a key the old-games cleanup removes');
-  assert.match(js, /readGame\(JSON\.parse\(storage\?\.getItem\(GAME_KEY\)/);
+  assert.match(js, /readProfile\(JSON\.parse\(storage\?\.getItem\(GAME_KEY\)/);
+  // one game for each difficulty (Q116), saved with the one being played
+  assert.match(js, /profile\.games\[game\.mode\] = game;\s*profile\.mode = game\.mode;\s*try \{ storage\?\.setItem\(GAME_KEY, JSON\.stringify\(profile\)\)/);
   // a level opened as the game is read (one finished in 10.0, which had four): in the log
   assert.match(js, /if \(game && game\.reached > was\) L\('level opened: the one after a level done'/);
   // kept as each scene ends, before its card shows
@@ -242,21 +245,20 @@ test('topple page: the score bar is your face and the balls left, drawn as the l
 
 // Developer, 2026-11-12 (Q81): after a level, the map: the next level
 // unlocking, your face walking there; started from the map.
-test('topple page: a level done shows the map, the next level unlocking and your face walking there; Play starts it', () => {
-  assert.match(setupHtml, /<button type="button" class="big" id="mapGo" hidden>Play ▸<\/button>/);
-  // the end card's button: the map and the walk (not the next level's screen)
-  assert.match(js, /if \(o === 'level'\) \{\s*const walk = \{ from: game\.level - 1, to: game\.level, unlock: !!ended\.unlocked \};[\s\S]*?showMap\(walk\);/);
+test('topple page: a level done shows the map, the next level unlocking; its card opens with Play (Q81, Q116)', () => {
+  // the end card's button: the map and the unlocking (not the next level's screen)
+  assert.match(js, /if \(o === 'level'\) \{\s*const unlock = ended\.unlocked \? game\.level : 0;[\s\S]*?showMap\(unlock\);/);
   assert.match(js, /unlocked: game\.reached > was\.reached/);
-  // the walk: shake, the lock pops, the face along the road (roadAt), the dots behind it (roadTo), then Play
-  for (const what of ["node.classList.add('shake')", "<span class=\"lock pop\">🔒</span>", 'placeFace(roadAt(P, e))', "fill.setAttribute('d', e > 0 ? roadPath(roadTo(P, e)) : '')", "$('mapGo').hidden = false"]) assert.ok(js.includes(what), `the walk lacks ${what}`);
-  assert.match(js, /\$\('mapGo'\)\.onclick = \(\) => \{ if \(arrived\) startLevel\(arrived\); \};/);
+  // the unlocking: the card shakes, the lock pops, the level's card opens (its own Play button)
+  for (const what of ["classList.add('shake')", "<span class=\"lock pop\">🔒</span>", "w.popped = true;", "sound.play('clink')", "sound.play('ding')"]) assert.ok(js.includes(what), `the unlocking lacks ${what}`);
+  assert.doesNotMatch(js, /placeFace|roadAt|mapGo|mapFace/, 'the road and the walking face went in Q116');
   // reduced motion: all at once
   assert.match(js, /const quick = matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches;/);
   // logged
-  for (const what of ["'map: the walk'", "'map: unlocked'", "'map: arrived'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
-  // your face on the map, not the "You" label
+  for (const what of ["'map: unlocking'", "'map: unlocked'", "'map: arrived'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
+  // your face on the card of the level you're on
   assert.doesNotMatch(js, /class="you"/);
-  assert.match(css, /\.mapface \{ position: absolute;/);
+  assert.match(js, /now && !locked \? `<span class="mface">\$\{svg\(setup\.p1\)\}<\/span>`/);
 });
 
 // Developer, 2026-11-12 (Q90): "I have to "start" 3 times before
@@ -279,7 +281,7 @@ test('topple page: Start over from level 1 asks first, then a new game with only
   assert.match(js, /\$\('overBtn'\)\.hidden = game\.reached <= 1 \|\| !\$\('overAsk'\)\.hidden;/);
   assert.match(js, /if \(v !== 'faces'\) \$\('overAsk'\)\.hidden = true;/);
   // Yes: a new game keeping nothing but how hard (Q96: a setting)
-  assert.match(js, /\$\('overYes'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), null, game\.mode\);[\s\S]*?saveGame\(\);/);
+  assert.match(js, /\$\('overYes'\)\.onclick = \(\) => \{[\s\S]*?game = createGame\(newSeed\(\), \{ stars: game\.stars \}, game\.mode\);[\s\S]*?saveGame\(\);/);
   for (const what of ["'start over: asked'", "'start over: no'", "'start over: a new game, level 1 only'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
 });
 
@@ -379,9 +381,9 @@ test('topple page: Star Light: the night sky, glowing blocks and ball, coloured 
   assert.match(sceneJs, /makeSetting\(n, \{ renderer, leafy, LEAF, camera, covers: hudCovers, sound: name => onSound\?\.\(name\) \}\)/);
   assert.match(js, /stage\.onSound = name => \{ if \(!SET_SOUND\[name\] \|\| !playing\) return; sound\.play\(SET_SOUND\[name\], 0, \{ quiet: true \}\); L\('owl hoots'/);
   assert.match(js, /glow: 'chime' \}/);
-  // its picture on the map; the map tall enough for five
+  // its picture on the map; the map a list of five cards that scrolls (Q116)
   assert.match(js, /5: \{ pic: \(\) => '🌙'/);
-  assert.match(await read('css/topple.css'), /\.mapbox \{[^}]*height: min\(86vh, 700px\)/);
+  assert.match(await read('css/topple.css'), /\.mapbox \{ display: grid; gap: 14px;/);
 });
 
 test('topple page: the blocks left glow (Q101): counted while waiting, the standing blocks lit, each glow logged', () => {

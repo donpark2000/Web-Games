@@ -2344,7 +2344,31 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   pictures are a sign of each setting for now (level 1's drawing, 🏗️,
   ❄️, 🌵, 🌙; the mockup's were drawn by the 3D; developer, 2026-11-14,
   Q78 dropped: the signs stay).
-  The map is 140 px a level (at most 700 px tall for five).
+  The map was 140 px a level (at most 700 px tall for five), until Q116.
+  **Q116 (stars; release 10.24, developer, 2026-11-16) changed the map:**
+  a list of five level cards, not a road, and it scrolls. At the top, **how
+  hard** (Normal, Harder, Hardest; picked here, no longer on the faces
+  screen), each with its stars, then the stars so far on the one picked with a
+  bar. **Each difficulty is a game of its own**: its own levels reached and
+  done, place in each level, hearts, jewels, scenes and stars (levels unlock
+  per difficulty: "It does not make sense to unlock a higher level playing at
+  a lower difficulty and then try ... at a higher difficulty"); picking one
+  is playing at it; one made the first time it is picked. A game kept before
+  became the one for the difficulty it was set to (the other two start at
+  level 1 with no stars). A tap on a card opens it in place into its 5 scenes
+  (3 stars each, grey until won), with Play ▸ / Carry on ▸ / Play again ▸.
+  **A scene tapped starts it** if it is won (played again with new scenes, to
+  win more stars; the level's place goes back to it), the level's place, or in
+  a done level any; a later one says "Win scene N first". A level done: the
+  map, the next card's lock shaking and popping (Q81's walk along the road
+  and your face on it went; your face sits on the level you're on).
+  **Stars:** a scene won in 3 balls or fewer earns 3, 4 balls 2, 5 balls 1; a
+  scene lost none. The **best ever** for each scene of each level on each
+  difficulty is kept; it only goes up. **Nothing on the play screen**; the
+  card of a scene won shows its stars (popping in one at a time) and "New!
+  Your first stars here", "Your best was N", or "The best there is!". Start
+  over and Start again keep the stars. Mockup:
+  https://claude.ai/artifact/RchovkAjKQPPvR8mojrSUP (v4).
 - **Levels 2-5: eight structures each, dealt** (10.3; until then five in
   a fixed order; developer, 2026-11-12: "every time I play the game from
   the beginning I am presented with exactly the same set up"): scenes 1-4

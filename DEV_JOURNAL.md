@@ -42,9 +42,7 @@ time, each tried before publishing:
   with totals per level, and the map scrolls; **games kept from before
   start at 0 stars** (developer: only matters to people who played before,
   "might only be me"). To do: a map mockup to click in the app, then
-  build. Still to settle in the mockup: where a scene's stars are shown on
-  the play and end screens, the totals' wording, and what the saved game
-  holds (best balls per slot per difficulty).
+  build. Mockup v4 agreed (2026-11-16); built, not yet published (see "Q116 built"); levels unlock per difficulty, the faces screen's picker is removed.
 
 ## Proposed additions to the standards skill
 
@@ -23346,3 +23344,53 @@ anything to show it (the dots are the developer's choice per How hard).
   everything"):** the example's Normal had every level reached. Now Normal is
   on level 3 (levels 4-5 locked, level 3 half won), Harder on level 2, Hardest
   on level 1; the level you're on opens by itself.
+
+## 2026-11-16: Q116 built: stars, a game for each difficulty, the new map (not published)
+
+- **Developer, before the build:** the mockup (v4) is right; the picker on the
+  faces screen goes ("Exactly what I was thinking. Remove it"); ready to
+  publish stars before talking about other worlds.
+- **Core** (`src/core/topple.js`): `starsForBalls` (3 or fewer: 3; 4: 2; 5: 1),
+  `recordStars` (best only goes up), `starsOf`, `starTotal`, `STARS_ALL`;
+  `playableScene` and `startAtScene` (a scene tapped on the map: a won one, the
+  level's place, or any in a done level; a won one again gets 3 hearts, the
+  jewels before it and new scenes); `readProfile` / `createProfile` (one game
+  per difficulty: `{ v: 2, mode, games }`, kept under the same key; a game kept
+  before becomes the one for its difficulty). A game's `stars` is omitted until a
+  star is earned, so every older game and test is unchanged. `createGame` keeps
+  `stars` through a new game (Start over, Start again, every level done).
+- **Page** (`src/ui/topple.js`, `topple.html`, `css/topple.css`): the "How hard?"
+  panel is gone from the faces screen (its line now says the difficulty); the map
+  is the list of level cards of the mockup (difficulty buttons with stars, the total
+  and bar, a card per level opening in place into its 5 scenes, scrolling);
+  the road, the walking face and the `climb` sound went (the unlocking is now the
+  card's lock shaking and popping, `clink`, `ding`); the scene-won card shows
+  the stars and the best. Logged: `how hard picked`, `map: a scene, straight
+  into play`, `map: a scene shut`, `map: unlocking`, `scene over` with `stars`.
+- **Tests:** `tests/topple-stars.test.js` (core: 7), `tests/topple-stars-page.test.js`
+  (page as files: 5); older page tests rewritten for the new map and the profile;
+  the sound test count 62 → 61 (no `climb` for Topple!). Mutation check on the
+  core: a wrong star rule and an always-improved best both fail. `npm test`
+  704 of 704 after `node tools/offline.js`.
+- **Run in the real game** (phone width, a game kept in the old shape as Hardest,
+  level 3 scene 2): it read as Hardest with levels 1-2 done; the map showed the
+  cards, 0 stars (as expected); a scene tapped started; 4 balls then a won scene
+  gave 2 stars and "New! Your first stars here"; picking Normal made a fresh game
+  (levels 2-5 locked), and Hardest came back with its 2 stars; no console errors.
+  Caught there: the hint line took a dark-pill style from a shared sheet
+  (renamed); the css test caught 3 class clashes (`.star`, `.face`, `.won`)
+  before it ran. A `window.topple.finish(won)` hook ends a scene as won/lost for
+  checking.
+- **Not done / not checked:** the tablet and the real phone; a reload on the
+  scene-won card (the card comes from the kept `ended`, which now carries the
+  stars); Harder never opened in the check. **Not published**: waiting for the
+  developer to try it. Proposed release **10.24** (changes).
+
+**Status (start here next session)**
+- **Live: 10.23.** `block-game` has the stars build, not published; the offline
+  list is current. To publish as 10.24: set `src/core/release.js`,
+  `node tools/offline.js`, notes in `RELEASES.md`, `node tools/release.js` ready.
+- **From the developer:** try the map (phone and tablet): the difficulty buttons,
+  a level opening into its scenes, a scene's stars after a win, a won scene played
+  again; Start over keeps the stars.
+- **Open questions:** Q116 (built, waiting to be tried), Q113 (parked), Q109.

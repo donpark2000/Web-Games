@@ -908,7 +908,105 @@ export const checkSetup = ({ p1 }) => checkPicks({ onePlayer: true, p1 });
 export function createGame(seed, keep = null, mode = keep?.mode ?? 'normal') {
   if (!Number.isInteger(seed) || seed <= 0) throw new Error(`createGame: bad seed: ${seed}`);
   if (!okMode(mode)) throw new Error(`createGame: unknown mode: ${mode}`);
-  return { seed, level: 1, scene: 1, hearts: HEARTS, jewels: 0, reached: keep?.reached ?? 1, done: keep?.done ? [...keep.done] : [], places: {}, rounds: {}, mode };
+  const g = { seed, level: 1, scene: 1, hearts: HEARTS, jewels: 0, reached: keep?.reached ?? 1, done: keep?.done ? [...keep.done] : [], places: {}, rounds: {}, mode };
+  const stars = readStars(keep?.stars);   // best stars are kept through a new game, Start over and Start again
+  if (stars) g.stars = stars;
+  return g;
+}
+
+/* ---------- stars (Q116) ---------- */
+
+// A scene won earns stars by the balls it took (developer, 2026-11-16,
+// Q116: "3 balls is worth 3 stars, 4 balls 2 stars, 5 balls 1 star"; 1 or 2
+// balls: 3 as well); a scene lost earns none. The game keeps the best ever
+// for each scene of each level, `stars: { level: [one per scene] }`
+// (omitted until a star is earned; each difficulty has its own game, so its
+// own stars).
+export const STARS_MAX = 3;
+export function starsForBalls(balls) {
+  if (!Number.isInteger(balls) || balls < 1 || balls > BALLS) return 0;
+  return balls <= 3 ? 3 : balls === 4 ? 2 : 1;
+}
+// { level: [5 numbers 0-3] } as kept, or null when no star has been earned.
+function readStars(s) {
+  if (!s || typeof s !== 'object') return null;
+  const out = {};
+  for (const [k, a] of Object.entries(s)) {
+    const n = Number(k);
+    if (!okLevel(n) || !Array.isArray(a)) continue;
+    const row = Array.from({ length: SCENES }, (_, i) => (Number.isInteger(a[i]) && a[i] > 0 ? Math.min(a[i], STARS_MAX) : 0));
+    if (row.some(x => x > 0)) out[n] = row;
+  }
+  return Object.keys(out).length ? out : null;
+}
+// Level n's best stars: one number per scene, 0 for a scene not won (yet).
+export const starsOf = (g, n) => g.stars?.[n] ? [...g.stars[n]] : Array(SCENES).fill(0);
+export function starTotal(g, n = null) {
+  let t = 0;
+  for (const [k, row] of Object.entries(g.stars ?? {})) if (n == null || Number(k) === n) t += row.reduce((a, b) => a + b, 0);
+  return t;
+}
+export const STARS_ALL = MAX_LEVEL * SCENES * STARS_MAX;
+// A scene's result: the best only ever goes up. Returns { stars: this time's,
+// best: the best before, improved }.
+export function recordStars(g, level, scene, stars) {
+  if (!okLevel(level) || !Number.isInteger(scene) || scene < 1 || scene > SCENES) throw new Error(`recordStars: bad scene ${level}.${scene}`);
+  const best = starsOf(g, level)[scene - 1];
+  const improved = stars > best;
+  if (improved) {
+    g.stars = g.stars ?? {};
+    g.stars[level] = starsOf(g, level);
+    g.stars[level][scene - 1] = Math.min(stars, STARS_MAX);
+  }
+  return { stars, best, improved };
+}
+// The scenes of level n that can be started: a won one (to win more
+// stars), the one the level's place is at, and, in a level done, every one
+// (a scene won before stars were kept has none yet).
+export function playableScene(g, n, scene) {
+  if (!isOpen(g, n) || !Number.isInteger(scene) || scene < 1 || scene > SCENES) return false;
+  return g.done.includes(n) || starsOf(g, n)[scene - 1] > 0 || scene <= placeOf(g, n).scene;
+}
+// Start level n at `scene` from the map (a tap on a scene): the level at
+// its place if that's the scene (carried on), else the scene with 3 hearts
+// and its jewels, new scenes (a scene played again isn't the same one).
+// False, nothing changed, for a scene that can't be started.
+export function startAtScene(g, n, scene) {
+  if (!playableScene(g, n, scene)) return false;
+  switchLevel(g, n);
+  if (g.scene === scene) return true;
+  Object.assign(g, { scene, hearts: HEARTS, jewels: scene - 1 });
+  g.rounds = { ...g.rounds, [n]: (g.rounds?.[n] ?? 0) + 1 };
+  return true;
+}
+
+/* ---------- one game for each difficulty (Q116) ---------- */
+
+// Levels unlock per difficulty, as the stars are kept (developer,
+// 2026-11-16: "It does not make sense to unlock a higher level playing at
+// a lower difficulty and then try to play that higher level at a higher
+// difficulty"): each difficulty is a game of its own, and the profile on
+// the device holds the three and the one being played. A game kept before
+// (one game, with its `mode`) becomes the profile's game for that mode;
+// the other two are made when first picked.
+export function readProfile(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  if (raw.v === 2 && raw.games && typeof raw.games === 'object') {
+    const games = {};
+    for (const m of MODES) {
+      const g = readGame(raw.games[m]);
+      games[m] = g ? { ...g, mode: m } : null;
+    }
+    const mode = okMode(raw.mode) && games[raw.mode] ? raw.mode : MODES.find(m => games[m]);
+    return mode ? { v: 2, mode, games } : null;
+  }
+  const g = readGame(raw);
+  if (!g) return null;
+  const games = Object.fromEntries(MODES.map(m => [m, m === g.mode ? g : null]));
+  return { v: 2, mode: g.mode, games };
+}
+export function createProfile(game) {
+  return { v: 2, mode: game.mode, games: Object.fromEntries(MODES.map(m => [m, m === game.mode ? game : null])) };
 }
 // The seed level n's scenes are made from (developer, 2026-11-12: "when
 // starting fresh or even using the map to go back to a level I completed
@@ -950,7 +1048,10 @@ export function readGame(g) {
   }
   // how hard (a game kept before Q96 has none: Normal, the game it was)
   const mode = okMode(g.mode) ? g.mode : 'normal';
-  return { seed: g.seed, level: g.level, scene: g.scene, hearts: g.hearts, jewels: g.jewels, reached, done, places, rounds, mode };
+  const out = { seed: g.seed, level: g.level, scene: g.scene, hearts: g.hearts, jewels: g.jewels, reached, done, places, rounds, mode };
+  const stars = readStars(g.stars);
+  if (stars) out.stars = stars;
+  return out;
 }
 // Level n's place: { scene, hearts, jewels }.
 export const placeOf = (g, n) => (n === g.level ? { scene: g.scene, hearts: g.hearts, jewels: g.jewels } : { ...(g.places[n] ?? freshPlace()) });

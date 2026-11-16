@@ -217,45 +217,77 @@ body.tp-playing .site-foot { display: none; }
   .restart .pill .ic { font-size: 16px; line-height: 18px; }
 }
 
-/* ---------- the map and a level's screen (level 2 mockup v1) ---------- */
+/* ---------- the map: levels as cards, their scenes and stars (Q116, mockup v4) ---------- */
 
-/* On the setup screen, in place of the faces: the map of levels, a path of
-   dots (orange as far as you've got) up from level 1; a level's screen. */
+/* On the setup screen, in place of the faces: how hard, the stars so far, and
+   each level as a card that opens in place into its 5 scenes. The page scrolls. */
 #setup.tp-map > :not(:first-child):not(#mapView) { display: none; }
-.tpmap { display: grid; gap: 6px; justify-items: center; }
+.tpmap { display: grid; gap: 10px; justify-items: stretch; }
 .maptitle { margin: 0; font-size: 22px; text-align: center; }
-.mapbox { position: relative; width: 100%; max-width: 380px; height: min(86vh, 700px); min-height: 520px; }   /* 5 levels (Star Light): 140 px a level, as 4 had */
-.mapbox svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.node { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 3px; border: 0; background: none; padding: 0; width: 150px; cursor: pointer; }
-.node .disc { position: relative; width: 84px; height: 84px; }
-.node .pic { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; font-size: 42px; border: 5px solid var(--card); box-shadow: 0 4px 0 var(--line); overflow: hidden; }
-.node .pic svg { width: 100%; height: 100%; display: block; }
-.node.done .pic { border-color: #4DB37A; }
-.node.now .pic { border-color: var(--sun); animation: tpglow 1.6s ease-in-out infinite; }
-@keyframes tpglow { 0%, 100% { box-shadow: 0 4px 0 var(--line), 0 0 0 0 #F7B92888; } 50% { box-shadow: 0 4px 0 var(--line), 0 0 0 12px #F7B92800; } }
-.node.locked .pic { background: #D5DEE0 !important; border-color: #A9B6BA; font-size: 34px; }
-.node .badge { position: absolute; right: -4px; top: -4px; width: 30px; height: 30px; border-radius: 50%; background: #4DB37A; color: #FFFFFF; display: grid; place-items: center; font-size: 17px; font-weight: 800; border: 3px solid #FFFFFF; }
-/* your face on the map: perched on the level you're on; after a level it walks the road to the next (Q81) */
-.mapface { position: absolute; z-index: 2; width: 46px; height: 46px; transform: translate(-50%, -50%) translateY(-50px); pointer-events: none; filter: drop-shadow(0 3px 0 #1E344533); }
-.mapface svg { display: block; width: 100%; height: 100%; }
-.mapface.walking { animation: tphop .32s ease-in-out infinite; }
-.mapface.landed { animation: tpland .45s ease; }
-@keyframes tphop { 50% { transform: translate(-50%, -50%) translateY(-58px); } }
-@keyframes tpland { 0% { transform: translate(-50%, -50%) translateY(-50px) scale(1); } 40% { transform: translate(-50%, -50%) translateY(-56px) scale(1.25); } 100% { transform: translate(-50%, -50%) translateY(-50px) scale(1); } }
-/* the lock: shakes, then pops off the level it opened */
-.node .pic { position: relative; }
-.node .lock { display: grid; place-items: center; }
-.node .lock.pop { position: absolute; inset: 0; animation: tppop .5s ease-out forwards; pointer-events: none; }
+.mapmodes .level small { display: flex; justify-content: center; align-items: center; gap: 3px; }
+.tstar { display: inline-block; width: 1em; height: 1em; vertical-align: -0.12em; flex: none; }
+.tstar path { fill: var(--sun); stroke: #C98F0A; stroke-width: 1.5; stroke-linejoin: round; }
+.tstar.unlit path { fill: #D3DDE0; stroke: #B4C2C6; }
+.mapmodes .tstar { width: 13px; height: 13px; }
+.startotal { display: flex; justify-content: center; align-items: baseline; gap: 6px; font-size: 20px; font-weight: 800; }
+.startotal .tstar { width: 22px; height: 22px; align-self: center; }
+.startotal span { color: var(--muted); font-size: 15px; font-weight: 700; }
+.starbar { height: 12px; border-radius: 999px; background: #D3DDE0; overflow: hidden; }
+.starbar i { display: block; height: 100%; width: 0; background: var(--sun); border-radius: 999px; transition: width .4s; }
+.mapbox { display: grid; gap: 14px; width: 100%; max-width: 400px; justify-self: center; }
+.mcard { position: relative; background: var(--card); border-radius: 20px; box-shadow: 0 4px 0 var(--line); overflow: hidden; }
+.mcard.now { box-shadow: 0 4px 0 var(--line), 0 0 0 4px var(--sun); }
+.lvhead { width: 100%; border: 0; background: none; padding: 10px 12px; display: grid; grid-template-columns: 72px 1fr auto; gap: 12px; align-items: center; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.lvhead > span:nth-child(2) { display: grid; gap: 2px; min-width: 0; }
+.mcard .disc { position: relative; width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; font-size: 36px; border: 5px solid var(--card); box-shadow: 0 0 0 3px var(--line); overflow: visible; }
+.mcard .disc svg { width: 100%; height: 100%; display: block; border-radius: 50%; }
+.mcard.done .disc { box-shadow: 0 0 0 3px #4DB37A; }
+.mcard.now .disc { box-shadow: 0 0 0 3px var(--sun); }
+.mcard .disc .mface { position: absolute; right: -12px; bottom: -10px; width: 38px; height: 38px; filter: drop-shadow(0 2px 0 #1E344533); pointer-events: none; }
+.mcard .disc .mface svg { border-radius: 0; }
+.lname { font-weight: 800; font-size: 18px; line-height: 1.15; }
+.lsub { color: var(--muted); font-weight: 700; font-size: 14px; }
+.lstars { display: flex; align-items: center; gap: 3px; font-weight: 800; font-size: 15px; margin-top: 2px; }
+.lstars small { color: var(--muted); font-weight: 700; font-size: 14px; }
+.chev { font-size: 20px; color: var(--muted); transition: transform .2s; }
+.mcard.open .chev { transform: rotate(90deg); }
+.mcard.locked .lvhead { cursor: default; }
+.mcard.locked .disc { background: #D5DEE0 !important; box-shadow: 0 0 0 3px #A9B6BA; font-size: 30px; }
+.mcard.locked .lname { color: var(--muted); }
+.mcard .lock { display: grid; place-items: center; }
+.mcard .lock.pop { position: absolute; inset: 0; animation: tppop .5s ease-out forwards; pointer-events: none; }
 @keyframes tppop { 30% { transform: scale(1.35); opacity: 1; } 100% { transform: scale(1.8) translateY(-24px); opacity: 0; } }
-.node.unlocked .pic { animation: tpopen .6s ease; }
+.mcard.unlocked { animation: tpopen .6s ease; }
 @keyframes tpopen { 0% { box-shadow: 0 4px 0 var(--line), 0 0 0 0 #F7B928CC; } 100% { box-shadow: 0 4px 0 var(--line), 0 0 0 22px #F7B92800; } }
-#mapGo { animation: bounce .45s ease; }
-.node .nname { font-size: 15px; font-weight: 800; line-height: 1.15; background: var(--card); border-radius: 12px; padding: 2px 10px; box-shadow: 0 3px 0 var(--line); text-align: center; max-width: 150px; }
-.node .nsub { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
-.node.locked .nname { color: var(--muted); }
-.node.shake { animation: tpshake .4s ease; }
-@keyframes tpshake { 20% { transform: translate(-54%, -50%); } 40% { transform: translate(-46%, -50%); } 60% { transform: translate(-53%, -50%); } 80% { transform: translate(-48%, -50%); } }
+.mcard.shake { animation: tpshake .4s ease; }
+@keyframes tpshake { 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+
+.scenes { display: none; padding: 4px 12px 14px; gap: 10px; }
+.mcard.open .scenes { display: grid; }
+.srow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.scn { border: 3px solid var(--line); background: var(--card); border-radius: 14px; padding: 6px 0 7px; display: grid; justify-items: center; gap: 2px; cursor: pointer; min-width: 0; font: inherit; color: inherit; }
+.scn .n { font-weight: 800; font-size: 17px; line-height: 1; }
+.scn .st { display: flex; }
+.scn .tstar { width: 13px; height: 13px; }
+.scn.sdone { border-color: #4DB37A; background: #DDF3E6; }
+.scn.open { border-color: var(--sun); }
+.scn.next { border-color: var(--sun); background: var(--sun-soft); animation: tpscn 1.6s ease-in-out infinite; }
+.scn.later { background: #EEF3F4; color: var(--muted); cursor: default; }
+.scn.later .st { opacity: .6; }
+@keyframes tpscn { 50% { box-shadow: 0 0 0 4px #F7B92855; } }
+.scenes .scnhint { margin: 0; font-size: 13px; color: var(--muted); font-weight: 700; text-align: center; }
+.scenes .big { padding: 10px; font-size: 20px; }
 .maptoast { margin: 0; min-height: 22px; font-size: 16px; font-weight: 800; color: var(--muted); text-align: center; }
 .mapbtns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 #mapBack, #mapAgain { padding: 8px 18px; font-size: 16px; }
-@media (prefers-reduced-motion: reduce) { .node.now .pic, .node.shake, .mapface.walking, .mapface.landed, .node.unlocked .pic, #mapGo { animation: none; } .node .lock.pop { display: none; } }
+
+/* a scene won: its stars pop in one at a time, and the best (Q116) */
+.bigstars { display: flex; justify-content: center; gap: 4px; }
+.bigstars .tstar { width: 52px; height: 52px; filter: drop-shadow(0 3px 0 #1E344522); }
+.bigstars .bs.on { animation: tpstar .5s ease-out both; }
+.bigstars .bs.on:nth-child(2) { animation-delay: .25s; }
+.bigstars .bs.on:nth-child(3) { animation-delay: .5s; }
+@keyframes tpstar { 0% { transform: scale(0) rotate(-40deg); } 70% { transform: scale(1.3) rotate(8deg); } 100% { transform: scale(1); } }
+.overbest { margin: 0; text-align: center; font-size: 16px; font-weight: 700; color: var(--muted); }
+.overbest.new { color: var(--p1); font-weight: 800; }
+@media (prefers-reduced-motion: reduce) { .scn.next, .mcard.shake, .mcard.unlocked, .bigstars .bs.on { animation: none; } .mcard .lock.pop { display: none; } .starbar i { transition: none; } }
