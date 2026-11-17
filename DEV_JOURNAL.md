@@ -81,7 +81,8 @@ time, each tried before publishing:
   "Q119 mockup v2"). The toy house rejected; v3 steers the lander nearer or
   farther (see "Q119 mockup v3"). v3's steering liked, fine for Normal; a
   second control to move or turn the lander raised (see "Q119: v3 liked; a
-  second control").
+  second control"); v4 has both forms (A turn button, B fly it yourself)
+  and keys to try them with a mouse (see "Q119 mockup v4").
 
 ## Proposed additions to the standards skill
 
@@ -23728,7 +23729,21 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Claude's view (not yet agreed):** a **turn-around button** is cheap and fits every level: it cuts the wait for the lander to come back (a round trip is about 13 s in v3) and gives the player a say without a new skill to learn; the lander still turns by itself at the ends. A tap, not a hold, so it doesn't need two thumbs at once (tap to turn, then hold the pad to steer and drop). **Full left/right flying** changes the game: with time to park over a target, the drop needs no timing, so it stays easy unless something else costs (fuel, a time limit, moving targets); better kept for a later level with such a cost. Harder/Hardest levers already noted: faster lander, flying higher, no ring or lit block (as Harder halves the dots), moving targets (the rover).
 - **Asked:** add a turn-around button to the mockup (v4) to try.
 
+## 2026-11-17: Q119 mockup v4 (a second control, and keys)
+
+- **Developer:** a two-control mockup can't be tried with one mouse ("On a touchscreen device I could use two fingers on two controls. On my desktop I could not. Unless we also did keyboard mappings. Like using the arrow keys for aiming and changing direction and the space bar for dropping. If we can do that, we can try a mockup.")
+- **v4 (same link, page version 5):** two forms of the second control to compare, picked by tabs in the bar, each on the left for the other thumb (the pad stays on the right):
+  - **A, turn button ⇄:** turns the lander round at 3 m/s² (0.67 s from 1 m/s one way to the other, measured); the turn at the ends stays as in v3 (1 m/s²).
+  - **B, fly it yourself ◀ ▶:** moves only while held (2 m/s² up to 1 m/s, the same to stop), hovers otherwise, kept over the structures' span (0.8 m past each end).
+  - **Keys:** ↑ ↓ farther / nearer (a tap 0.25 m, held 2.5 m/s); A: ← → fly that way (turns round if heading the other way, nothing if already); B: hold ← or → to fly; hold Space to aim (ring and lit block), let go to drop. A line under the text lists them; the scene needs one click first so the keys reach it.
+  - **Two fingers:** the aim now follows only the finger that started it, so a finger on ⇄ or ◀ ▶ lifting doesn't drop and moving doesn't steer. "Start again" moved to the bottom middle (at the top it covered the balls count at 375 px).
+  - Logged: `turn (button|key) at x … now heading …`, `fly right|left` / `hover at x …`, `steer (keys) to z …`, `key down …`, `second control turn|fly`.
+- **Checked locally (scratch server, test hook and real key presses):** ⇄ pressed by a pointer event turned it in 0.67 s; → turned it back, → again did nothing; ↑ held 1 s moved the aim 2.5 m (-5.00 to -7.50); Space held showed the ring, let go dropped (5 → 4 balls). Two fingers: pad held (pointer 1), ⇄ pressed and lifted and a move (pointer 2): no drop, aim unmoved, the lander turned; lifting pointer 1 dropped. B: ◀ held 1.5 s flew to x -1.26 at 1 m/s and stopped in 1 s; → held 12 s stopped at the edge (x 4.50). Real keys in the browser pane: a click, ← turned it, 4 taps of ↑ moved it 1.0 m. At 375 × 812 no sideways scroll, and the three bottom controls don't overlap. No console errors from the page (one from the test's own synthetic press before setPointerCapture was guarded).
+- **Hovering is easier (measured):** one drop per fresh scene over each structure at its distance, four positions each: from a hover 37 of 40 blocks came down (arch 12/12, panels 16/16, tower 9/12); dropped while flying at full speed with the ring at the same points, 24 of 40 (arch 11/12, panels 8/16, tower 5/12). So B makes drops easier, not just the timing: supports keeping it for levels with a cost (fuel, time) or not at all.
+- **Not checked:** a real touch screen (the developer can't try two fingers on the desktop); the app's viewer. The page is private on claude.ai; on a tablet it would need signing in to claude.ai there.
+- **Local server:** "mockup-scratch" in `.claude/launch.json` again for the check, taken out after (the file is as committed).
+
 **Status (start here next session)**
 - **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
-- **Q119:** moon base, v3's steering liked for Normal. Talking about a second control (turn-around button, or full left/right flying); a mockup v4 with a turn-around button offered. Then: the moon world's 5 levels, and which park rules carry over.
-- **Open questions:** Q119 (second control), Q118 (live, liked), Q113 (parked).
+- **Q119:** mockup v4 (page version 5) waiting for the developer's try with the keys: A turn button vs. B fly it yourself. Then: the moon world's 5 levels, and which park rules carry over; a touch-screen try would need the moon scene in the game (a build and publish) or the artifact opened on a tablet.
+- **Open questions:** Q119 (mockup v4), Q118 (live, liked), Q113 (parked).
