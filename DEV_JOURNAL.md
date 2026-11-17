@@ -82,7 +82,8 @@ time, each tried before publishing:
   farther (see "Q119 mockup v3"). v3's steering liked, fine for Normal; a
   second control to move or turn the lander raised (see "Q119: v3 liked; a
   second control"); v4 has both forms (A turn button, B fly it yourself)
-  and keys to try them with a mouse (see "Q119 mockup v4").
+  and keys to try them with a mouse (see "Q119 mockup v4"). A chosen, B
+  rejected; v5 shows the aim always (see "Q119 mockup v5").
 
 ## Proposed additions to the standards skill
 
@@ -23743,7 +23744,15 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Not checked:** a real touch screen (the developer can't try two fingers on the desktop); the app's viewer. The page is private on claude.ai; on a tablet it would need signing in to claude.ai there.
 - **Local server:** "mockup-scratch" in `.claude/launch.json` again for the check, taken out after (the file is as committed).
 
+## 2026-11-17: Q119 mockup v5 (A chosen; the aim always shown)
+
+- **Developer on v4:** "For both, the actual target light only comes on when the ball is dropped which makes it useless. I think option A is better. Option B allows precise placement with no room for missing so it does not feel like game play is as good." **Recorded: A (turn button) chosen; B (fly it yourself) rejected** (agrees with the measurement: hover drops 37 of 40 blocks, moving 24 of 40).
+- **The light: not a code fault, a mismatch with how the keys were used.** Stepped with Space held, the ring showed throughout and each block lit as the ring crossed it, before any drop (lander x -2.9: ring -0.8, panel 3 lit; x -1.9: ring 0.0, panel 4; x -1.4: ring 0.5, panel 6). v4 showed the aim only while Space (or the pad) was held and dropped on letting go; a tap of Space, as the developer had first proposed ("the space bar for dropping"), shows it for a split second at the drop. (Claude's reading; the developer wasn't asked how they pressed it.)
+- **v5 (same link, page version 6):** on the moon **the ring and the lit block show whenever a ball is ready** (hidden for the 1.2 s until the next one); **Space drops as it is pressed**; the pad still steers by dragging and drops on letting go; the track line brightens only while steering. B's tab hidden (its code stays). Text, keys line and hint updated.
+- **Checked locally (test hook):** with nothing held, the ring showed and blocks lit as it crossed them (the same positions as above); Space down dropped at once (5 → 4 balls); the ring hid after the drop, was still hidden at 0.6 s and back at 1.3 s. No new console errors.
+- **Not checked:** the app's viewer, a touch screen. (The browser pane was hidden this time, which pauses a page's frame loop, so the checks stepped the game from the test hook.)
+
 **Status (start here next session)**
 - **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
-- **Q119:** mockup v4 (page version 5) waiting for the developer's try with the keys: A turn button vs. B fly it yourself. Then: the moon world's 5 levels, and which park rules carry over; a touch-screen try would need the moon scene in the game (a build and publish) or the artifact opened on a tablet.
-- **Open questions:** Q119 (mockup v4), Q118 (live, liked), Q113 (parked).
+- **Q119:** A (turn button) chosen, B rejected. Mockup v5 (page version 6) waiting for the developer's try: the aim always shown, Space drops. Then: the moon world's 5 levels, which park rules carry over, and the Harder/Hardest levers (faster, higher, no ring or light, moving targets); a touch-screen try needs the moon scene in the game (a build and publish) or the artifact opened on a tablet.
+- **Open questions:** Q119 (mockup v5), Q118 (live, liked), Q113 (parked).
