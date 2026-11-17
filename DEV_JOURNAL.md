@@ -78,7 +78,8 @@ time, each tried before publishing:
   bedroom with bounce shots, B a moon base with drops from a passing lander
   (see "Q119 mockup v1"). **The developer chose the moon base** (v1: "I like
   the moon base best"); v2 fixes its aim and its background buildings (see
-  "Q119 mockup v2"). Waiting for the developer's reaction to v2.
+  "Q119 mockup v2"). The toy house rejected; v3 steers the lander nearer or
+  farther (see "Q119 mockup v3"). Waiting for the developer's try of v3.
 
 ## Proposed additions to the standards skill
 
