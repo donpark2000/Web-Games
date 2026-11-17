@@ -44,6 +44,32 @@ time, each tried before publishing:
   "might only be me"). To do: a map mockup to click in the app, then
   build. Mockup v4 agreed (2026-11-16); built, not yet published (see "Q116 built"); levels unlock per difficulty, the faces screen's picker is removed.
 
+- **Q117. Topple!: the map as a scrolling road (not cards)** (2026-11-16,
+  developer, after trying 10.24: the stars work as planned, but "the map no
+  longer looks like a map ... mixing scorecard, navigation, and game settings,
+  and during game play the button still says map"). Agreed in talk, no mockup
+  yet (two static pictures were looked at: A, a row per level, and B, one long
+  winding path; the developer chose **B**): **difficulty back on the setup
+  page** (the faces screen), each difficulty "a different game"; **the map is
+  navigation with the stars on the scenes**: one winding road of 25 scenes
+  (5 levels of 5), each a circle (number, ✔ won, 🔒 locked) with its 3 stars
+  under it, grey until won; **no totals, no "out of"**, no level or difficulty
+  bar; level banners on the road give only the level's name and sign; a small
+  **read-only label** says which difficulty the map shows (no changing or
+  comparing difficulties there); **the map scrolls smoothly** (no jump aid) and
+  shows everything at once only if it fits (nodes at least 44 px to touch);
+  it **opens scrolled to the scene last played**, marked with your face; the
+  button during play says Map. **Winning a scene moves you to the next scene on
+  the road** (the face walks there), also when it is an old scene replayed (the
+  next one may be already won). **Lock depends on the furthest scene reached**;
+  a replay never relocks anything. **Default navigation follows the last scene
+  played** (Carry on and where the map opens); the player can go anywhere
+  unlocked by hand, which doesn't change the default. A lost last heart still
+  goes back to scene 1 of the level; the stars stay. Each region may get its
+  own colours (park green, sand, snow, night). To do: a mockup to click in the
+  app (upright phone, tablet, sideways phone), then build. Replaces the
+  10.24 cards that open in place.
+
 ## Proposed additions to the standards skill
 
 - **Look at the worst case of a generator, not its mean, and check a
@@ -23417,3 +23443,31 @@ anything to show it (the dots are the developer's choice per How hard).
   the review's leftovers (TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 ...).
 - **Session length:** this session is long; a fresh one is a good idea for the
   worlds discussion.
+
+## 2026-11-16: Q117: the map as a road (talk before a mockup)
+
+- **From the developer, trying 10.24:** the stars work as planned; the UX "feels
+  off": the map mixes scorecard, navigation and settings, and the play-screen
+  button still says map. First ideas (mine): separate score from navigation,
+  difficulty back on the setup page; a Stars page. The developer's own idea
+  (long scrolling maps in other games, scenes and stars on one map) was better:
+  the stars become part of the nodes, so no separate scorecard.
+- **Two static pictures** (a row per level, snaking, fits upright; one winding
+  path, scrolls): the developer chose the path (B) for the map metaphor, and
+  dismissed my cons: scrolling "makes the game feel bigger"; different
+  difficulties are "different games" so only the current one is shown; no
+  totals needed; no jump aid, smooth scrolling is more intuitive.
+- **Rules agreed:** see Q117 in Open questions. The last two came from the
+  developer: the map always shows what can be reached and the scene being
+  played; winning moves to the next scene on the map; **Carry on and the map's
+  opening follow the last scene played**, not the furthest unlocked one (my
+  suggestion was the furthest; the developer: "default navigation should not
+  change" by going somewhere by hand).
+- **Not decided / for the mockup:** region colours; the sizes on a sideways
+  phone; how a replay's win card reads ("Next scene" when it is already won).
+
+**Status (start here next session)**
+- **Live: 10.24.** `block-game` has only this journal entry beyond `main`.
+- **Next:** the Q117 mockup (the road, upright phone, tablet, sideways phone),
+  to click in the app; then build.
+- **Open questions:** Q117 (agreed in talk, mockup next), Q113 (parked), Q109.
