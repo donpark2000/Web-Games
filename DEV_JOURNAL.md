@@ -10,6 +10,20 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q121. Topple!: sci-fi sounds on the moon** (2026-11-17, developer, after 11.0
+  went live): "I know there are no normal transmissions of sound through air on the
+  moon, but every sci fi space movie has ignored that forever. You hear rockets,
+  explosions, torpedo launches, crashes .... its a bit of dramatic license that
+  everyone uses. So I think we should have sounds. Don't add them yet. Wait for my
+  feedback on 11.0 in a new session." **Not started; take it up with the
+  developer's 11.0 feedback.** What 11.0 already plays on the moon (the park's
+  sounds, not heard by ear yet): a quiet whoosh as a ball is dropped, a clonk for a
+  block knocked (a ring for a solar panel), a thud for the ball into the dust;
+  nothing for the lander. Ideas to talk through then: the lander's engine hum (louder
+  as it turns), a thruster puff on ⇄ and on steering, a release clunk on the drop,
+  bigger crashes as structures come down. The developer may want to supply recorded
+  sounds (memory: they find them; note source and licence, CC0).
+
 - **Q120. Topple!: the moon on the old tablet** (2026-11-17, Claude, building 11.0). The moon
   base draws at full quality (shadows, pixel ratio up to 2); the park's step-down on a
   slow device (drawWatch, Q99) isn't hooked to it. To check on the 2019 tablet; hook it
@@ -23809,4 +23823,4 @@ anything to show it (the dots are the developer's choice per How hard).
 **Status (start here next session)**
 - **Live: 11.0** (published 2026-11-17 at the developer's word: `main` moved on to the branch, tag `v11.0`, GitHub release; github.io served version 0b7ef9b1be20 within a few minutes; in the browser pane the page took the new code on the second reload, as the offline app does, and level 6 loaded with no errors). `block-game` = `main` plus journal entries. Local servers stopped (none left listening).
 - **Q119 built** (the moon base); the developer to play it on a phone and tablet. To review: the levels' names (Claude's), Harder/Hardest's speeds, how the scenes feel.
-- **Open questions:** Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
+- **Open questions:** Q121 (sci-fi sounds on the moon: wait for the developer's 11.0 feedback, then talk), Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
