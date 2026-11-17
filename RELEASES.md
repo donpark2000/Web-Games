@@ -7,6 +7,17 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.28 (2026-11-17, version f20e68ad6f18)
+
+Topple!: two fixes for a scene that fails to start.
+
+- **A scene that fails to set up no longer sticks.** The game used to stay on
+  "Setting up the scene…"; now it says the scene did not load and you can tap
+  Map to try again.
+- **A photo that fails to load is tried again** at the next scene, instead of
+  the level staying plain for the rest of the visit.
+- Everything else is as in 10.27.
+
 ## 10.27 (2026-11-17, version e9abedf5c2e5)
 
 Topple!: clearer win card, a Retry button, and a badge for a one-ball win.
