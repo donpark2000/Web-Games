@@ -7,13 +7,13 @@ import { SCENES, MAX_LEVEL } from '../src/core/topple.js';
 
 const WIDTHS = [280, 320, 360, 400, 460];
 
-test('road: 25 scenes, level 1 at the bottom, each above the one before', () => {
+test('road: every scene (5 levels of 5 in each world), level 1 at the bottom, each above the one before', () => {
   for (const w of WIDTHS) {
     const g = roadGeom(w);
     assert.equal(g.nodes.length, MAX_LEVEL * SCENES, `${w}: scenes`);
     for (let i = 1; i < g.nodes.length; i++) assert.ok(g.nodes[i].y < g.nodes[i - 1].y, `${w}: scene ${i + 1} is above scene ${i}`);
-    assert.deepEqual([nodeAt(g, 1, 1).lv, nodeAt(g, 1, 1).sc, nodeAt(g, 5, 5).lv, nodeAt(g, 5, 5).sc], [1, 1, 5, 5]);
-    assert.ok(nodeAt(g, 1, 1).y > g.H / 2 && nodeAt(g, 5, 5).y < g.H / 2, `${w}: the journey runs up`);
+    assert.deepEqual([nodeAt(g, 1, 1).lv, nodeAt(g, 1, 1).sc, nodeAt(g, MAX_LEVEL, 5).lv, nodeAt(g, MAX_LEVEL, 5).sc], [1, 1, MAX_LEVEL, 5]);
+    assert.ok(nodeAt(g, 1, 1).y > g.H / 2 && nodeAt(g, MAX_LEVEL, 5).y < g.H / 2, `${w}: the journey runs up`);
   }
 });
 

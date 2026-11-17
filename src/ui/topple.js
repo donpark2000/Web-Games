@@ -19,8 +19,12 @@ import {
   update, ballsLeft, endWords, seedOf, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
   padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, restartLevel, placeOf, isOpen, offScreen,
   starsForBalls, starsOf, starTotal, STARS_ALL, recordStars, playableScene, furthestScene, startAtScene,
-  MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy,
+  MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy, isMoonLevel, PARK_LEVELS,
 } from '../core/topple.js';
+import {
+  moonScene, newLander, flyStep, steerTo, turnNow, flyTo, dropPath, moonMode, showsRing, ringX,
+  LANDER_Y, DROP_BELOW, MOON_BALL, STEER_PX, STEER_M, STEER_KEY, STEER_TAP,
+} from '../core/topple-moon.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
@@ -95,9 +99,9 @@ const resume = resumable('topple', 1, () => ({
 
 /* ---------- loading the 3D ---------- */
 
-let park3d = null, physics = null, why = '';
+let park3d = null, physics = null, moonDraw = null, moonPhysics = null, why = '';
 try {
-  [park3d, physics] = await Promise.all([import('./topple-scene.js'), import('../core/topple-world.js')]);
+  [park3d, physics, moonDraw, moonPhysics] = await Promise.all([import('./topple-scene.js'), import('../core/topple-world.js'), import('./topple-moon.js'), import('../core/topple-moon-world.js')]);
   if (!park3d.webglOk()) why = 'no WebGL';
 } catch (e) {
   why = `three.js or cannon-es not loaded: ${e.message ?? e}`;
@@ -181,6 +185,12 @@ const LOOKS = {
   3: { pic: () => '❄️', tint: '#E0EDF7', ink: 'rgba(30,52,69,.38)' },
   4: { pic: () => '🌵', tint: '#F0D9BC', ink: 'rgba(30,52,69,.38)' },
   5: { pic: () => '🌙', tint: '#2A3A6A', ink: 'rgba(255,255,255,.55)' },
+  // the moon base (Q119): space-dark bands, a sign of each place
+  6: { pic: () => '🛬', tint: '#1B2236', ink: 'rgba(255,255,255,.5)' },
+  7: { pic: () => '🔆', tint: '#202941', ink: 'rgba(255,255,255,.5)' },
+  8: { pic: () => '🌑', tint: '#1B2236', ink: 'rgba(255,255,255,.5)' },
+  9: { pic: () => '⛏️', tint: '#202941', ink: 'rgba(255,255,255,.5)' },
+  10: { pic: () => '🚀', tint: '#1B2236', ink: 'rgba(255,255,255,.5)' },
 };
 // The setup screen's view: 'faces' (the picks) or 'map'.
 function setupView(v) {
@@ -258,7 +268,7 @@ function tapScene(lv, sc, el) {
   const shake = () => { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); };
   if (!isOpen(game, lv)) {
     shake();
-    $('mapToast').textContent = `Finish level ${lv - 1} first`;
+    $('mapToast').textContent = lv === PARK_LEVELS + 1 ? `Finish level ${lv - 1} to fly to the moon` : `Finish level ${lv - 1} first`;
     L('map: a locked level', { level: lv, scene: sc, reached: game.reached });
     return;
   }
@@ -360,6 +370,12 @@ const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
 let drawing = null;        // the drawing's level, watched (src/ui/drawwatch.js)
 let glowIdle = 0, glowsSaid = 0, glowPeak = 0;   // the wait for the next ball, and its glows logged (Q101)
 let thrownAt = 0;          // performance.now() of the latest throw (the glow's log: real time since it)
+// The moon base (levels 6-10, Q119): its drawing and physics (made the first
+// time a moon scene starts), and the scene under way: { scene, f: the lander,
+// aiming (the pad or Space held), z0 (where it was steered from), lit, keys }.
+let moon3d = null, moonWorld = null;
+const mo = { on: false, scene: null, f: null, aiming: false, z0: 0, lit: -1, keys: { up: false, down: false, space: false } };
+const onMoon = () => mo.on && !!mo.scene;
 
 function showPlay() {
   $('setup').hidden = true;
@@ -396,6 +412,7 @@ function showSetup() {
   running = false;
   playing = false;
   drag = null;
+  mo.aiming = false; mo.keys.up = mo.keys.down = mo.keys.space = false;
   stopDemo();
   $('play').hidden = true;
   $('setup').hidden = false;
@@ -437,12 +454,28 @@ function makeStage() {
   drawing = drawWatch('topple', stage, L);   // lighter on a slow device (Q99)
   L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2), farLeaves: stage.farLeaves, farTrunkInLeavesM: trunksIn().far });
   new ResizeObserver(fit).observe($('park'));
-  canvas.addEventListener('pointerdown', onDown);
-  canvas.addEventListener('pointermove', onMove);
-  canvas.addEventListener('pointerup', onUp);
-  canvas.addEventListener('pointercancel', () => { if (drag) L('drag cancelled'); drag = null; });
-  // no double-tap zoom on the park (as Tin Can Alley's stall); the drag is pointer events
-  canvas.addEventListener('touchend', e => e.preventDefault(), { passive: false });
+  for (const cv of [canvas, $('cm')]) {
+    cv.addEventListener('pointerdown', onDown);
+    cv.addEventListener('pointermove', onMove);
+    cv.addEventListener('pointerup', onUp);
+    cv.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) { L('drag cancelled'); drag = null; mo.aiming = false; } });
+    // no double-tap zoom on the park (as Tin Can Alley's stall); the drag is pointer events
+    cv.addEventListener('touchend', e => e.preventDefault(), { passive: false });
+  }
+}
+// The moon's drawing and physics, the first time a moon scene starts.
+function makeMoonStage() {
+  if (moon3d) return;
+  moon3d = moonDraw.makeMoon3d($('cm'));
+  moonWorld = moonPhysics.createMoonWorld({ onHit: moonHit });
+  L('moon: 3D started', { pixelRatio: Math.min(devicePixelRatio || 1, 2) });
+}
+// Which canvas shows: the moon's for a moon scene, else the park's; the turn button with the moon's.
+function showWorld(moonOn) {
+  mo.on = moonOn;
+  $('cm').hidden = !moonOn;
+  $('c').hidden = moonOn;
+  $('turnBtn').hidden = !moonOn;
 }
 
 // The canvas takes the park's box (upright: between the top row and the
@@ -453,6 +486,13 @@ function fit() {
   if (!stage || $('play').hidden) return;
   const box = $('park').getBoundingClientRect(), w = Math.round(box.width), h = Math.round(box.height);
   if (!w || !h) return;
+  if (onMoon()) {
+    aspect = moon3d.resize(w, h);
+    placePad();
+    const key = `${w}x${h} moon ${current?.layout.seed}`;
+    if (key !== lastFit) { lastFit = key; L('fit', { park: `${w}x${h}`, moon: true, pad, screen: `${innerWidth}x${innerHeight}`, way: innerWidth > innerHeight ? 'sideways' : 'upright' }); }
+    return;
+  }
   aspect = stage.resize(w, h);
   if (!current) return;
   camView = behindView(aspect, current.parts);
@@ -475,6 +515,9 @@ function placePad() {
   el.hidden = !pad;
   if (!pad) return;
   Object.assign(el.style, { left: `${pad.x - pad.r}px`, top: `${pad.y - pad.r}px`, width: `${2 * pad.r}px`, height: `${2 * pad.r}px`, fontSize: `${Math.round(pad.r * 0.95)}px` });
+  // the moon's ⇄ level with the pad, as far in from the left as the pad is from the right (for the other thumb)
+  const tb = $('turnBtn'), tr = Math.round(pad.r * 0.9);
+  Object.assign(tb.style, { left: `${Math.round(box.width - pad.x - tr)}px`, top: `${pad.y - tr}px`, bottom: 'auto', width: `${2 * tr}px`, height: `${2 * tr}px`, fontSize: `${Math.round(tr * 0.75)}px` });
   $('ghost').style.fontSize = `${Math.round(pad.r * 1.25)}px`;
 }
 // The slingshot's ball on the screen, px in the park (for the log's "from").
@@ -529,6 +572,9 @@ async function makeTheScene(kept) {
   // with the game already on the next level (a reload on its card drew it in
   // the next level's setting and failed: "reading 'col'", 10.0-10.2)
   const lv = kept ? (kept.layout.level ?? 1) : game.level;
+  if (isMoonLevel(lv)) return makeMoonScene(lv, kept);
+  showWorld(false);
+  mo.scene = null;
   if (stage.level !== lv || !stage.hasSetting(lv)) {
     hideCanvas(true);
     const r = await stage.setLevel(lv);
@@ -585,6 +631,110 @@ async function makeTheScene(kept) {
   return current;
 }
 
+/* ---------- the moon base (levels 6-10, Q119) ---------- */
+
+const MOON_HINT = 'Hold 👆 to aim, let go to drop';
+// A moon scene: made from the level's seed (moonScene), or `kept` (its scene and the blocks as they stood).
+async function makeMoonScene(lv, kept) {
+  makeMoonStage();
+  showWorld(true);
+  if (moon3d.level !== lv) { const t0 = performance.now(); moon3d.setLevel(lv); L('setting', { level: lv, name: levelInfo(lv).name, moon: true, ms: Math.round(performance.now() - t0) }); }
+  const t0 = performance.now();
+  const scene = kept?.layout.moon ?? moonScene(seedOf(game), game.level, game.scene);
+  moonWorld.setScene(scene, kept?.settled?.poses ?? null);
+  moon3d.setScene(scene);
+  current = { id: sceneId(), layout: { level: lv, seed: scene.seed, moon: scene, stack: scene.structures.map(s => s.name).join('+'), things: [] }, parts: null, check: null, tries: 0, ms: 0 };
+  current.ms = Math.round(performance.now() - t0);
+  mo.scene = scene;
+  mo.f = newLander(scene.span, moonMode(game.mode).speed);
+  mo.aiming = false; mo.lit = -1;
+  round = kept?.settled?.round ?? newRound(moonWorld.blocks.length);
+  if (round.since != null) round.since = 99;
+  settled = kept?.settled ?? null;
+  lastFit = '';
+  fit();
+  moon3d.sync(moonWorld);
+  moon3d.setLander(mo.f, ready(), false);
+  moon3d.render();
+  showWait(false);
+  $('hint').textContent = MOON_HINT;
+  $('hint').hidden = round.used > 0;
+  perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
+  renderTally();
+  L(kept ? 'moon scene picked up again' : 'moon scene', {
+    ...game, structures: scene.structures.map(s => ({ name: s.name, x: s.x, z: s.z, ...(s.ledge ? { ledge: true } : {}) })), blocks: scene.blocks.length,
+    span: scene.span, earth: scene.earth, speed: mo.f.speed, light: moonMode(game.mode).light, ring: moonMode(game.mode).ring, ms: current.ms,
+    ...(kept ? { used: round.used, down: round.down } : {}),
+  });
+  busy = false;
+  resume.keep();
+  return current;
+}
+
+// Where a drop now would land, and the block it would hit (dropPath): { p, hit }.
+function moonAim() {
+  const f = mo.f;
+  return dropPath([f.x, LANDER_Y - DROP_BELOW, f.z], f.vx, moonWorld.boxes(), mo.scene.ledges);
+}
+// Let go: the ball falls from under the lander with its speed.
+function moonDrop(how) {
+  if (!ready()) { L('drop refused', { why: canThrow(round).why ?? 'busy', how }); return false; }
+  const f = mo.f, aimNow = moonAim();
+  const r = useBall(round);
+  moonWorld.dropBall([f.x, LANDER_Y - DROP_BELOW, f.z], [f.vx, 0, 0]);
+  thrownAt = performance.now();
+  $('hint').hidden = true;
+  sound.play('whoosh', 0, { level: 0.35, quiet: true });
+  L('drop', { ball: r.ball, how, mode: game.mode, at: [f.x, f.z].map(r2), vx: r2(f.vx), ringX: r2(aimNow.x), toward: aimNow.hit == null ? 'ground' : aimNow.hit < 0 ? 'ledge' : `block ${aimNow.hit}`, ringShown: showsRing(game.mode, r.ball - 1) });
+  renderTally();
+  resume.keep();
+  return true;
+}
+// Turn the lander round (⇄, or ← → towards the other way).
+function moonTurn(how, dir = 0) {
+  if (!onMoon() || !round || round.result) return false;
+  const f = mo.f, turned = dir ? flyTo(f, dir) : (turnNow(f), true);
+  if (turned) L('lander: turn', { how, at: r2(f.x), heading: f.dir > 0 ? 'right' : 'left' });
+  return turned;
+}
+// The moon's sounds: a block knocked (a metal clonk), the ball into the dust (a soft thud).
+let moonKnock = 0;
+function moonHit({ a, b, v, mat }) {
+  const now = performance.now();
+  if ((a === 'block' || b === 'block') && v > 0.4 && now - moonKnock > 40) { moonKnock = now; sound.play(mat === 'panel' ? 'ring' : 'clonk', 0, { level: Math.min(1, v / 4), quiet: true }); }
+  else if (a === 'ball' && b === 'ground' && v > 1) sound.play('thud', 0, { level: Math.min(1, v / 5), quiet: true });
+}
+// A moon frame: the lander on, the physics, the round's rules (as the park's), the drawing.
+function moonTick(dt, draw) {
+  const f = mo.f, t0 = performance.now();
+  if (flyStep(f, dt, mo.scene.span)) L('lander turns at the end', { at: r2(f.x), ringX: r2(ringX(f)) });
+  const kz = (mo.keys.down ? 1 : 0) - (mo.keys.up ? 1 : 0);
+  if (kz) steerTo(f, f.zT + kz * STEER_KEY * dt);
+  const { down, fell, dropped } = moonWorld.step(dt, () => performance.now());
+  perf.physMs += performance.now() - t0; perf.dropped += dropped; perf.frames++;
+  for (const b of fell) L(b.away ? 'block down: out of reach' : 'block down', { mat: b.mat, i: b.i, t: r2(round.t), at: [b.body.position.x, b.body.position.y, b.body.position.z].map(r2) });
+  const still = moonWorld.still(), calm = moonWorld.calm();
+  const { downChanged, ended: result, card } = update(round, dt, { down, still, calm });
+  if (downChanged) { L('blocks down', { down: round.down, of: round.total, t: r2(round.t) }); renderTally(); }
+  if (result) endScene(result);
+  if (card && ended && $('over').hidden) { L('the card', { won: ended.won, afterWinS: r2(round.cardT), calm, still }); showEnd(); }
+  noteSettled();
+  if (!draw) return;
+  moon3d.tick(dt);
+  moon3d.sync(moonWorld);
+  const ok = ready(), aiming = (mo.aiming || mo.keys.space) && ok;
+  moon3d.setLander(f, ok, aiming);
+  let lit = -1, p = null;
+  if (aiming && showsRing(game.mode, round.used)) {
+    const a = moonAim();
+    p = [a.x, a.hit == null ? 0 : a.y - MOON_BALL.r, a.z];
+    if (moonMode(game.mode).light && a.hit != null && a.hit >= 0) lit = a.hit;   // (null >= 0 is true)
+  }
+  if (lit !== mo.lit) { mo.lit = lit; if (lit >= 0) L('drop would hit block', { i: lit, mat: moonWorld.blocks[lit]?.mat }); }
+  moon3d.setAim(p, lit);
+  moon3d.render();
+}
+
 // The thing that moves in the way, for the scene drawn (Q106): the one its
 // layout was dealt on Hardest (a scene picked up again too; none on
 // Normal or Harder, nor in a level without one yet), or the checking
@@ -608,7 +758,8 @@ function renderTally() {
   $('s1Chip').innerHTML = svg(setup.p1, ended ? (ended.won ? 'winner' : 'sad') : 'normal');
   // the balls left, drawn as the level's ball (developer, 2026-11-12, Q80: no blocks-down count)
   const left = ballsLeft(r);
-  $('balls').classList.toggle('iron', levelInfo(current?.id.level ?? game.level).ball === 'iron');
+  // (the moon's ball drawn as the iron one: grey metal)
+  $('balls').classList.toggle('iron', ['iron', 'moon'].includes(levelInfo(current?.id.level ?? game.level).ball));
   $('balls').innerHTML = Array.from({ length: BALLS }, (_, i) => `<i class="${i < left ? '' : 'used'}"></i>`).join('');
   $('balls').setAttribute('aria-label', `${left} ball${left === 1 ? '' : 's'} left`);
   renderHud();
@@ -646,7 +797,8 @@ function onDown(e) {
   sound.unlock();
   if (!ready() || drag) return;
   const box = $('park').getBoundingClientRect();
-  const p = padPress(e.clientX - box.left, e.clientY - box.top, pad, ballPx());
+  // (on the moon there's no slingshot's ball to press by: the pad only)
+  const p = padPress(e.clientX - box.left, e.clientY - box.top, pad, onMoon() ? { x: -9999, y: -9999 } : ballPx());
   if (!p.on) {
     L('press off the pad', { from: p.from, offPx: p.offPx, r: pad?.r ?? null, at: [Math.round(e.clientX - box.left), Math.round(e.clientY - box.top)] });
     pulsePad();
@@ -654,15 +806,22 @@ function onDown(e) {
   }
   stopDemo('a finger');
   drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY };
+  // the moon: holding shows the aim; dragging steers from where the lander is going
+  if (onMoon()) { mo.aiming = true; mo.z0 = mo.f.zT; }
   $('hint').hidden = true;   // out of the dots' way
-  try { $('c').setPointerCapture(e.pointerId); } catch { /* an old browser: the drag still works over the canvas */ }
+  try { e.target.setPointerCapture(e.pointerId); } catch { /* an old browser: the drag still works over the canvas */ }
 }
 function onMove(e) {
-  if (drag && e.pointerId === drag.id) { drag.x = e.clientX; drag.y = e.clientY; }
+  if (drag && e.pointerId === drag.id) {
+    drag.x = e.clientX; drag.y = e.clientY;
+    // drag up = farther away, down = nearer (110 px = 2.2 m: mockup v3)
+    if (onMoon()) { const z = steerTo(mo.f, mo.z0 + (drag.y - drag.y0) / STEER_PX * STEER_M); if (Math.abs(z - (mo.zLogged ?? z)) >= 0.5 || mo.zLogged == null) { mo.zLogged = z; L('lander: steer', { z: r2(z), how: 'pad' }); } }
+  }
 }
 function onUp(e) {
   if (!drag || e.pointerId !== drag.id) return;
   drag.x = e.clientX; drag.y = e.clientY;
+  if (onMoon()) { drag = null; mo.aiming = false; moonDrop('pad'); return; }
   const d = dragNow();
   drag = null;
   if (!d) return;
@@ -673,6 +832,39 @@ function onUp(e) {
   }
   doThrow(d);
 }
+// The moon's ⇄: turns the lander round (a tap, so it works with the other thumb while the pad is held).
+$('turnBtn').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  sound.unlock();
+  if (!moonTurn('button')) return;
+  const b = $('turnBtn');
+  b.classList.add('on');
+  setTimeout(() => b.classList.remove('on'), 180);
+});
+// The moon's keys (for a computer: mockup v4): ↑ ↓ farther / nearer (a tap a
+// step, held on), ← → fly that way, hold Space to aim and let go to drop.
+const MOON_KEYS = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', Space: 'space' };
+const keysOn = () => playing && onMoon() && $('over').hidden && $('ask').hidden;
+addEventListener('keydown', e => {
+  const k = MOON_KEYS[e.code];
+  if (!k || !keysOn()) return;
+  e.preventDefault();
+  if (e.repeat) return;
+  sound.unlock();
+  L('key', { key: k });
+  if (k === 'left' || k === 'right') { moonTurn('key', k === 'left' ? -1 : 1); return; }
+  if (k === 'up' || k === 'down') { mo.keys[k] = true; steerTo(mo.f, mo.f.zT + (k === 'up' ? -STEER_TAP : STEER_TAP)); return; }
+  if (k === 'space' && ready()) { mo.keys.space = true; $('hint').hidden = true; }
+});
+addEventListener('keyup', e => {
+  const k = MOON_KEYS[e.code];
+  if (!k || !(k in mo.keys) || !mo.keys[k]) return;
+  e.preventDefault();
+  mo.keys[k] = false;
+  if (k === 'space' && keysOn()) moonDrop('key');
+});
+addEventListener('blur', () => { mo.keys.up = mo.keys.down = mo.keys.space = false; });
+
 // The pad grows and glows for a moment (started again on every miss).
 function pulsePad() {
   const el = $('pad');
@@ -761,6 +953,7 @@ function frame(now) {
 
 function tick(dt, draw = true) {
   if (!round || busy) return;
+  if (onMoon()) { moonTick(dt, draw); return; }
   const t0 = performance.now();
   const { down, fell, rose, broke, dropped } = world.step(dt, () => performance.now());   // a slow phone drops steps (Q65)
   for (const k of broke) brokeUp(k);
@@ -865,9 +1058,10 @@ function noteSettled() {
   if (r.t - settledAt < 0.5) return;
   settledAt = r.t;
   if (r.since != null && r.since < END_WAIT && !r.result) return;
-  if (!world.still()) return;
+  const w = onMoon() ? moonWorld : world;
+  if (!w.still()) return;
   const was = settled && JSON.stringify(settled.round);
-  settled = { round: JSON.parse(JSON.stringify(r)), poses: world.poses() };
+  settled = { round: JSON.parse(JSON.stringify(r)), poses: w.poses() };
   if (JSON.stringify(settled.round) !== was) resume.keep();
 }
 
@@ -887,14 +1081,17 @@ function endScene(result) {
   const shown = outcome === 'out' ? { ...game, hearts: 0, jewels: was.jewels } : lvDone ? { ...was, jewels: SCENES } : null;
   ended = { outcome, words, won: result.won, level: was.level, scene: was.scene, shown, unlocked: game.reached > was.reached, stars, balls: round.used };
   // the blocks as the scene ended (the last may still be falling): a reload shows it as it was
-  settled = { round: JSON.parse(JSON.stringify(round)), poses: world.poses() };
+  settled = { round: JSON.parse(JSON.stringify(round)), poses: (onMoon() ? moonWorld : world).poses() };
   // won: the win shown at once ("Cleared!", the jewel, the sound), the card once the blocks are calm (tick);
   // lost: the card now (out of balls already waits for everything to be still)
   if (result.won) showCleared(); else showEnd();
   const secs = (performance.now() - perf.at) / 1000;
   L('scene over', { ...result, outcome, stars, was, now: { ...game }, allDownS: r2(round.allDown ?? 0), fps: Math.round(perf.frames / Math.max(secs, 0.001)), physicsMs: r2(perf.physMs / Math.max(1, perf.frames)), stepsDropped: perf.dropped, drawing: drawing?.level,
     // the blocks left standing, where they are (Q103: why a scene couldn't be cleared)
-    standing: result.won ? undefined : world.blocks.filter(b => !b.down && !b.broken).map(b => ({ c: b.c, mat: b.mat, ...whereIs(b) })), moon: stage.animals?.().find(a => a.moon)?.moon });
+    standing: result.won ? undefined : onMoon()
+      ? moonWorld.blocks.filter(b => !b.down).map(b => ({ mat: b.mat, i: b.i, at: [b.body.position.x, b.body.position.y, b.body.position.z].map(r2) }))
+      : world.blocks.filter(b => !b.down && !b.broken).map(b => ({ c: b.c, mat: b.mat, ...whereIs(b) })),
+    moon: onMoon() ? undefined : stage.animals?.().find(a => a.moon)?.moon });
   sound.play(result.won ? endSound(1, { solo: true }) : 'aww');
   resume.keep();
 }
@@ -1129,6 +1326,17 @@ window.topple = {
     }
     return world.mover && { ...world.mover, t: r2(world.moverT), loads: world.movers.map(b => [b.position.x, b.position.y, b.position.z].map(r2)) };
   },
+  // the moon base (Q119): its state; drop, turn, steer, hold the aim as the pad or keys would
+  moon: () => (onMoon() ? {
+    f: { ...mo.f }, span: mo.scene.span, structures: mo.scene.structures.map(s => s.name), blocks: moonWorld.blocks.length, down: moonWorld.blocks.filter(b => !b.down).length,
+    lit: mo.lit, aiming: mo.aiming || mo.keys.space, aim: moonAim(), earth: moon3d.earthAt(), shootingStars: moon3d.shootingStars(), turnShown: !$('turnBtn').hidden,
+  } : null),
+  moonDrop: () => moonDrop('hook'),
+  moonTurn: (dir = 0) => moonTurn('hook', dir),
+  moonSteer: z => steerTo(mo.f, z),
+  moonHold(on = true) { mo.aiming = on; tick(1 / 60); return mo.lit; },
+  moonWorld: () => moonWorld,
+  moonProject: p => moon3d?.project(p),
   // the next scene of the level (1-5, round again), with 3 hearts
   async nextScene() { if (busy) return null; return this.scene(game.scene % SCENES + 1); },
   // the scene ended as won (or lost) now, whatever the blocks are doing, for checking the end's card and the stars

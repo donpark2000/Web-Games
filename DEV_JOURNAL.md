@@ -10,6 +10,11 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q120. Topple!: the moon on the old tablet** (2026-11-17, Claude, building 11.0). The moon
+  base draws at full quality (shadows, pixel ratio up to 2); the park's step-down on a
+  slow device (drawWatch, Q99) isn't hooked to it. To check on the 2019 tablet; hook it
+  up if it's slow.
+
 - **Q113. Frosty Times: ice blocks that "slid out of range"** (2026-11-15,
   developer, phone and tablet, Hardest: "two instances of ice blocks in
   frosty world that slid out of range"). Not found yet. **Parked (developer, 2026-11-16: "It was my tablet and landscape. Don't worry about it for now. If I see it happen again I'll save the log")**. The rule since 10.7
@@ -84,9 +89,15 @@ time, each tried before publishing:
   second control"); v4 has both forms (A turn button, B fly it yourself)
   and keys to try them with a mouse (see "Q119 mockup v4"). A chosen, B
   rejected; v5 showed the aim always; v6 back to hold to aim, the ring and
-  lit block only, no dots (see "Q119 mockup v6").
+  lit block only, no dots (see "Q119 mockup v6"). **Built: the moon base,
+  levels 6-10, release 11.0** (see "Q119 built"); for the developer to play.
 
 ## Proposed additions to the standards skill
+
+- **Sort numbers as numbers** (2026-11-17, "Q119 built"): JavaScript's plain
+  `.sort()` sorts as text, so level 10 came between 1 and 2; it never showed
+  while every number was one digit. Generic: give a compare function whenever
+  sorting numbers, and test with a count past 9.
 
 - **Look at the worst case of a generator, not its mean, and check a
   script's inputs agree** (2026-11-15, "Star Light's Hardest built"): a
@@ -23778,3 +23789,24 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Next: build the moon world** from "Q119: build the moon world (the plan)" above, then publish (the developer asked for it), once the two questions there are answered.
 - **Q119 so far (moon world, Normal):** a lander flies to and fro; hold the pad (or Space) to see the ring and the lit block; drag up / down (↑ ↓) to fly farther / nearer; let go to drop; ⇄ (← →) turns it round; it turns by itself at the ends. Mockup v6 (page version 7) waiting for the developer's try. Next: the moon world's 5 levels, which park rules carry over, and the Harder/Hardest levers (faster, higher, no ring or light, moving targets); a touch-screen try needs the moon scene in the game (a build and publish) or the artifact opened on a tablet.
 - **Open questions:** Q119 (mockup v6), Q118 (live, liked), Q113 (parked).
+
+## 2026-11-17: Q119 built: the moon base, levels 6-10 (release 11.0)
+
+- **Built** as the plan above, with the developer's answers (the rule kept: level 6 opens once level 5 is done; 11.0) and sky ideas. DESIGN.md "Topple!", The moon, has what it does. Files: `src/core/topple-moon.js` (rules, levels, the lander, the drop's path, reach), `src/core/topple-moon-world.js` (cannon-es at 1.62 m/s²), `src/ui/topple-moon.js` (three.js on its own canvas `#cm`), `src/ui/topple.js` (a moon scene goes through `makeMoonScene` and `moonTick`; the park's flow, cards, map, stars and resume shared), `topple.html` (`#cm`, `#turnBtn`), `css/topple.css`, `src/core/topple-levels.js` (LEVELS 6-10 with `world: 'moon'`, `PARK_LEVELS`, `isMoonLevel`).
+- **Found while building:**
+  - **The game sorted its done levels as text** (`[...].sort()`): level 10 came between 1 and 2. Never seen with five levels; the test of levels 1-10 caught it. Now sorted as numbers (both places).
+  - **A block knocked where no drop reaches** (past the ring's turning point, or nearer or farther than the lander flies) stood for ever: 10 of 25 scenes stopped the test player after one ball. Now it counts as down once slowed (`reachOf`, `outOfReach`), as the park's Q103.
+  - **A one-structure scene had the lander turning nearly all the time** (a 3 m run: x within 0.5 m; a turn takes 2 s): the run is at least 5 m (`MIN_RUN`).
+  - **Crates of 0.36 × 0.55 m** let a ball sit on top of a lone one: 0.32 × 0.6 m now (clears went 73 to 72-75 of 75 at each difficulty; the misses moved to the big 5th scenes).
+  - `null >= 0` is true in JavaScript: with no block in the way, "block null" lit up. Fixed (`a.hit != null &&`).
+  - The view: the mockups' fixed 6.6 m each side made the blocks small on a phone held upright; now fitted to each scene's run (the ring's whole reach between 9% and 91% across in three scenes, 375 × 812).
+- **The test player** (`tests/topple-moon-player.js`): steers to a block's distance, lets go as the ring crosses it (also mid-turn), aims at a block's edge after a miss there. **Every scene, 3 deals (measured, the final crates):** Normal 72/75, Harder 75/75, Hardest 74/75; Normal with drops 15 cm off 74/75, 30 cm off 61/75 (so the regression test's 93% would fail for a sloppy player: it can fail). The misses are mostly the 4-structure 5th scenes (9.5, 10.5). `tests/topple-moon.test.js` plays 200 (4 ways × 25 × 2 deals): at least 93% won, level 6's scenes 1-2 always.
+- **Checked in the browser pane (local server, test hooks):** level 6 scene 2 won in 2 drops (the block lit 2.3 s into holding, 4/6 then 6/6 down), the card with stars, the game on to scene 3; a reload picked the moon scene up again with its ball used; real keys (a click, ↑ ↑ steered 0.5 m, ← a quick turn, Space dropped); the map's 50 scenes and 10 banners; at 375 × 812 no sideways scroll, the pad, ⇄ and hint apart. No console errors.
+- **Tests:** 720 pass (8 new moon tests; park tests' loops now to `PARK_LEVELS`; page tests' source matches updated for the changed lines; tests that used level 6 or 9 as "no such level" now use 11; a game kept with the park's five done now opens 6).
+- **Not checked:** a real touch screen (two thumbs), the old tablet's speed (the moon has no lighter drawing step yet: shadows and full pixel ratio; the park's `drawWatch` isn't hooked to it), the app's sounds on the moon by ear, every scene by eye.
+- **Open (new):** Q120, in "Open questions" at the top.
+
+**Status (start here next session)**
+- **11.0 being published** (the developer asked: "give me five levels ... and publish").
+- **Q119 built** (the moon base); the developer to play it on a phone and tablet. To review: the levels' names (Claude's), Harder/Hardest's speeds, how the scenes feel.
+- **Open questions:** Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).

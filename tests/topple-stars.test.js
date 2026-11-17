@@ -30,7 +30,7 @@ test('stars: the best only goes up; a game with none carries no stars field', ()
   assert.equal(starTotal(g), 4);
   assert.equal(starTotal(g, 3), 1);
   assert.equal(starTotal(g, 2), 0);
-  for (const bad of [[0, 1], [6, 1], [1, 0], [1, 6], [1, 1.5]]) assert.throws(() => recordStars(g, ...bad, 1), /bad scene/, String(bad));
+  for (const bad of [[0, 1], [11, 1], [1, 0], [1, 6], [1, 1.5]]) assert.throws(() => recordStars(g, ...bad, 1), /bad scene/, String(bad));
   const o = starsOf(g, 1); o[0] = 3;
   assert.deepEqual(starsOf(g, 1)[0], 0, 'starsOf hands out a copy');
 });
@@ -39,7 +39,7 @@ test('stars: kept on the device, read back; odd ones dropped, not the game; a ne
   const g = createGame(12);
   recordStars(g, 1, 1, 3); recordStars(g, 2, 4, 1);
   assert.deepEqual(readGame(copy(g)), g);
-  const odd = readGame({ ...copy(g), stars: { 1: [3, 9, -1, 'x', 2.5, 1, 1], 9: [3], 2: 'no', x: [1], 3: [0, 0, 0, 0, 0] } });
+  const odd = readGame({ ...copy(g), stars: { 1: [3, 9, -1, 'x', 2.5, 1, 1], 11: [3], 2: 'no', x: [1], 3: [0, 0, 0, 0, 0] } });
   assert.deepEqual(odd.stars, { 1: [3, 3, 0, 0, 0] }, 'capped at 3, junk 0, a level out of range, a row of none, a non-row: dropped');
   assert.equal(readGame({ ...copy(g), stars: 'x' }).stars, undefined);
   assert.deepEqual(createGame(13, g).stars, g.stars, 'Start over and the whole game again keep the best');

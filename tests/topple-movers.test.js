@@ -11,7 +11,7 @@ import {
   PARK, LOADS, ALL_LOOKS, TYRE_OUT, TYRE_HOLE, ZIP_Y,
 } from '../src/core/topple-movers.js';
 import { createWorld, MOVER_KEEP, MOVER_OPEN, MOVER_SHUT, moverFits } from '../src/core/topple-world.js';
-import { STEP, HAND, SCENES, MAX_LEVEL, LEVELS, launchVel, behindView } from '../src/core/topple.js';
+import { STEP, HAND, SCENES, MAX_LEVEL, PARK_LEVELS, LEVELS, launchVel, behindView } from '../src/core/topple.js';
 
 const near = (a, b, eps = 1e-6) => Math.abs(a - b) < eps;
 const xs = (m, t) => moverAt(m, t).map(l => l.p[0]);

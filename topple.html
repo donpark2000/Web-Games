@@ -85,6 +85,10 @@
     </div>
     <div class="park" id="park">
       <canvas id="c" aria-label="A structure to knock down with a slingshot"></canvas>
+      <!-- the moon base (levels 6-10, Q119): its own drawing, shown in place of the park's -->
+      <canvas id="cm" aria-label="A moon base: drop balls from the lander to knock the blocks down" hidden></canvas>
+      <!-- the moon's second control, for the other thumb: turn the lander round (mockup v4) -->
+      <button type="button" class="turnbtn" id="turnBtn" aria-label="Turn the lander round" hidden>⇄</button>
       <!-- the drag pad, beside the dots (the drag works from anywhere), and
            the finger that shows it as a scene starts -->
       <div class="pad" id="pad" aria-hidden="true" hidden><span>👆</span></div>

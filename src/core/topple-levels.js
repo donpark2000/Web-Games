@@ -448,8 +448,20 @@ export const LEVELS = [
   { n: 5, name: 'Star Light', line: 'Glowing blocks at night: hit them and they shatter.', soft: 'rock', tall: 'pine', ball: 'iron',
     pool: ['crystalStack', 'lanternArch', 'lighthouse', 'candles', 'starGate', 'twinLanterns'], challenges: ['starPalace', 'moonTemple'],
     spread: ['starSpreadColumns', 'starSpreadGates', 'starSpreadMix'] },
+  // The moon base (Q119, developer, 2026-11-17: "give me five levels (each
+  // with 5 scenes)"): the second world, its own way to aim (a lander drops
+  // the ball); its scenes and rules are src/core/topple-moon.js. `world`:
+  // 'moon' (the park's levels have none). Names and lines: Claude's pick.
+  { n: 6, world: 'moon', name: 'Landing Zone', line: 'Hold 👆 to aim, let go to drop. Time it as you fly over.', ball: 'moon' },
+  { n: 7, world: 'moon', name: 'Solar Farm', line: 'Rows of panels: knock one into the next.', ball: 'moon' },
+  { n: 8, world: 'moon', name: 'Crater Rim', line: 'Up on the rocks and down in the dust, near and far.', ball: 'moon' },
+  { n: 9, world: 'moon', name: 'Mining Site', line: 'Ore carts on trestles: knock the legs out.', ball: 'moon' },
+  { n: 10, world: 'moon', name: 'Launch Pad', line: 'Tall gantries by the rocket: bring them down.', ball: 'moon' },
 ];
 export const MAX_LEVEL = LEVELS.length;
+// The park's levels (the slingshot; the scene maker in src/core/topple.js): 1-5.
+export const PARK_LEVELS = LEVELS.filter(l => !l.world).length;
+export const isMoonLevel = n => LEVELS[n - 1]?.world === 'moon';
 export const levelInfo = n => LEVELS[n - 1] ?? null;
 // The balls (world metres and kg): level 1's painted one; the iron ball
 // with its lifting ring (mockup v3: 0.07 m, 3 kg).

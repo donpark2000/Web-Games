@@ -7,6 +7,25 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 11.0 (2026-11-17, version 0b7ef9b1be20)
+
+Topple!: a second world, the moon base: five new levels (6-10), 25 new scenes.
+
+- **Fly to the moon.** Once all 25 park scenes are won (on that difficulty), level 6
+  opens on the map, in a new dark part of the road.
+- **A new way to aim.** A lander flies to and fro over the base. Hold 👆 to see where
+  the ball will land (an orange ring; on Normal the block it would hit glows), drag up
+  to fly farther away or down to come nearer, and let go to drop. ⇄ on the left turns
+  the lander round. On a computer: ↑ ↓ to steer, ← → to turn, hold Space to aim and
+  let go to drop.
+- **Five places:** Landing Zone, Solar Farm, Crater Rim, Mining Site and Launch Pad,
+  each with 5 scenes and a harder 5th. Stars, hearts, 💎 and the map work as in the park.
+- **Harder and Hardest** fly faster; Harder shows the ring but no glowing block, Hardest
+  the ring for each scene's first ball only.
+- **The sky:** the Earth in a slightly different place each scene, turning slowly, and
+  the odd shooting star.
+- Everything in levels 1-5 is as in 10.28.
+
 ## 10.28 (2026-11-17, version f20e68ad6f18)
 
 Topple!: two fixes for a scene that fails to start.

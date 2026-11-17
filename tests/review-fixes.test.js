@@ -26,7 +26,7 @@ async function settledRuns(file, fnStart, mk) {
   const src = await read(file);
   const body = src.slice(src.indexOf('let settledAt = 0;'), src.indexOf(fnStart)) + cut(src, fnStart);
   const makeFn = new Function('ctx', `
-    const { JSON, END_WAIT, world, resume, cam } = ctx;
+    const { JSON, END_WAIT, world, resume, cam, onMoon = () => false, moonWorld = null } = ctx;
     let round = ctx.round, match = ctx.match, settled = null;
     ${body}
     return { run: (c) => { ${fnStart.includes('(cam)') ? 'noteSettled(c)' : 'noteSettled()'}; return settled; },
@@ -43,8 +43,9 @@ for (const [name, file, fnStart] of [
     const make = await settledRuns(file, fnStart);
     const kept = [];
     const round1 = { t: 40, since: null, result: null };
+    // (onMoon, moonWorld: Topple!'s moon base, 11.0; a park scene here)
     const ctx = { JSON, END_WAIT: 2, world: { still: () => true, poses: () => [] }, resume: { keep: () => kept.push(1) },
-      round: round1, match: { round: round1 }, cam: null };
+      round: round1, match: { round: round1 }, cam: null, onMoon: () => false, moonWorld: null };
     const g = make(ctx);
     const cam = { view: 'behind' };
     assert.ok(g.run(cam), 'round 1 at t=40 should be noted');

@@ -4,7 +4,7 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-17, latest): **Topple!: a scene won with fewer than 3 stars has Try again for more stars on its card** (developer, trying 10.25; for release 10.26; see "Topple!", The map, Stars). Earlier (2026-11-16): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
+*Status (2026-11-17, latest): **Topple!: a second world, the moon base, levels 6-10** (a lander drops the ball: hold to aim, drag to steer, let go to drop, ⇄ to turn; release 11.0; see "Topple!", The moon). Earlier the same day: **Topple!: a scene won with fewer than 3 stars has Try again for more stars on its card** (developer, trying 10.25; for release 10.26; see "Topple!", The map, Stars). Earlier (2026-11-16): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
 swinging on its chain, a sled sliding by on the snow, a star falling at a
 slant (a ball can pass between its points), each once in scenes 1, 3, 5; 2
 and 4 spread out, with a telescope not to hit** (on `block-game`, for
@@ -2825,6 +2825,67 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   fps and the physics' ms), Start again, resumed; how deep the trunks
   reach into their leaves (the far-off trees' at 3D started, the scene's
   with each scene).
+
+#### The moon (levels 6-10)
+
+Topple!'s second world (journal Q119; developer, 2026-11-17: "a new world
+opens only once the previous ones are completed"; mockups v1-v6 in
+[Topple New Worlds](https://claude.ai/artifact/WunSJ1qzQBdVKNWEbgPw1j),
+private; the toy house with bounce shots rejected). Release 11.0.
+`src/core/topple-moon.js` (rules, scenes), `src/core/topple-moon-world.js`
+(physics), `src/ui/topple-moon.js` (drawing).
+
+- **The same game, a new way to aim:** levels 6-10 on the same map, with the
+  same hearts, 💎, stars, difficulties (each its own game) and Start again.
+  **Level 6 opens once level 5 is done** on that difficulty (all 25 park
+  scenes won), as any level opens after the one before; a game kept with the
+  park's five done opens it at once.
+- **A lander flies to and fro over the base** at 4.3 m, the moon's gravity
+  (1.62 m/s²), turning by itself once the ring is 0.8 m past the last
+  structure (developer, v2: not "flying off the screen"). **Hold the pad to
+  aim:** the orange ring shows where the ball would land and, on Normal, the
+  block it would hit glows (developer, v6: "the target light on the ground is
+  enough", no dots). **Drag up to fly farther away, down to come nearer**
+  (110 px = 2.2 m, 3.0 to 7.6 m out; developer, v3: move the craft, not the
+  aim). **Let go to drop:** the ball falls straight down from under it, with
+  its speed. **⇄ on the left** (for the other thumb, level with the pad) turns
+  it round in about ⅔ s (developer, v4: "option A is better"; flying it
+  yourself, B, "allows precise placement with no room for missing"). Keys on
+  a computer: ↑ ↓ steer (a tap 0.25 m, held 2.5 m/s), ← → fly that way, hold
+  Space to aim, let go to drop (developer, v6: "I actually like V4 better. It
+  feels like more game control").
+- **How hard:** Normal 1.0 m/s, the ring and the glowing block; Harder 1.35
+  m/s, the ring only; Hardest 1.7 m/s, the ring for a scene's first ball only
+  (Claude's pick, as the park's Hardest first had the dots for the first ball;
+  developer, v2: "keep speed as a tool for making levels harder").
+- **Five places** (names Claude's pick, to review): 6 Landing Zone (every
+  structure on one line: timing only, the way in), 7 Solar Farm (rows of
+  panels that fall into each other; two distances), 8 Crater Rim (three
+  distances, some on rock ledges), 9 Mining Site (ore carts on trestles,
+  tanks), 10 Launch Pad (two-storey gantries, beacons). Scenes 1-4 dealt 4 of
+  6 in order (the first always), scene 5 one of 2 challenges, the biggest;
+  each deal's x's shift a little and half are mirrored; a done level played
+  again deals again (`seedOf`, as the park's).
+- **A block is down** as in the park (`isDown`), or knocked 2.5 m away and
+  slowed, or slowed where no drop reaches (past the ring's turning points, or
+  nearer or farther than the lander flies: as the park's Q103).
+- **Every scene can be won:** the test player (tests/topple-moon-player.js)
+  steers to a block's distance and lets go as the ring crosses it, aiming at a
+  block's edge after a miss; at least 93% of 200 scenes won (each difficulty,
+  and with drops 15 cm off), level 6's first scenes always.
+- **The look:** the mockups' base (domes, greenhouse, habitat, mast, landing
+  pad and rocket, solar arrays, a rover), each level's own extras (more
+  arrays; the crater's rim on the skyline; ore heaps and a drill; the big
+  rocket on its tower). **The Earth** in a slightly different place and turn
+  each scene, turning slowly; **the odd shooting star**, one every 8-22 s
+  (developer, 2026-11-17). The view from in front and above, fitted to each
+  scene's run.
+- **The map:** levels 6-10 continue the road in dark bands (🛬 🔆 🌑 ⛏️ 🚀);
+  level 6 shut says "Finish level 5 to fly to the moon".
+- Logged: `moon scene` (structures, span, the Earth, speed), `lander: steer`,
+  `lander: turn`, `lander turns at the end`, `drop would hit block`, `drop`
+  (where, the ring, what it's heading for), `drop refused`, `block down`,
+  `key`.
 
 ## Later
 

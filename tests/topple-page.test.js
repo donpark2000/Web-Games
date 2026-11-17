@@ -63,15 +63,15 @@ test('topple page: no mockup choices left; no side view (developer, 2026-11-10, 
 
 test('topple page: a device that can\'t show 3D is told so; three.js and cannon-es loaded with import()', () => {
   assert.match(setupHtml, /<div class="panel no3d" id="no3d" hidden>\s*<p>This phone or tablet can’t show the 3D park\.<\/p>/);
-  assert.match(js, /await Promise\.all\(\[import\('\.\/topple-scene\.js'\), import\('\.\.\/core\/topple-world\.js'\)\]\)/);
-  assert.doesNotMatch(js, /^import .*(topple-scene|topple-world|vendor)/m, 'loaded at the top: a failure would blank the page');
+  assert.match(js, /await Promise\.all\(\[import\('\.\/topple-scene\.js'\), import\('\.\.\/core\/topple-world\.js'\), import\('\.\/topple-moon\.js'\), import\('\.\.\/core\/topple-moon-world\.js'\)\]\)/);
+  assert.doesNotMatch(js, /^import .*(topple-scene|topple-world|topple-moon-world|ui\/topple-moon|vendor)/m, 'loaded at the top: a failure would blank the page');
   assert.match(js, /el\.hidden = el\.id !== 'no3d'/);
   assert.match(sceneJs, /from '\.\.\/vendor\/three\/three\.module\.min\.js'/);
   assert.doesNotMatch(page + js + sceneJs, /https?:\/\/(?!github\.com|donpark2000\.goatcounter\.com)/, 'something loaded from another site');
 });
 
 test('topple page: the park: no double-tap zoom, the drag is pointer events, no page scroll; it fills the screen either way up', () => {
-  assert.match(js, /canvas\.addEventListener\('touchend', e => e\.preventDefault\(\), \{ passive: false \}\)/);
+  assert.match(js, /for \(const cv of \[canvas, \$\('cm'\)\]\) \{[\s\S]*?cv\.addEventListener\('touchend', e => e\.preventDefault\(\), \{ passive: false \}\)/);
   for (const ev of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel']) assert.match(js, new RegExp(`addEventListener\\('${ev}'`), ev);
   assert.match(css, /\.park \{[^}]*touch-action: none/);
   const rule = sel => css.match(new RegExp(`(?:^|\\n)${sel.replace(/[.#]/g, m => `\\${m}`)} \\{([^}]*)\\}`))?.[1] ?? '';
@@ -102,7 +102,7 @@ test('topple page: a block off the screen as held counts as down; the log says w
   assert.match(js, /function unseenNow\(b\) \{[\s\S]*?offScreen\(\[p\.x, p\.y, p\.z\], \[b\.he\.x, b\.he\.y, b\.he\.z\], \[q\.x, q\.y, q\.z, q\.w\], v => stage\.project\(v\)\);/);
   assert.ok(!js.includes('Math.hypot(b.he.x, b.he.y, b.he.z)'), 'the box round the block (its half-diagonal) gone');
   assert.match(js, /if \(b\.away\) L\('block down: out of reach', \{ c: b\.c, t: r2\(round\.t\), why: b\.away, \.\.\.whereIs\(b\) \}\);/);
-  assert.match(js, /standing: result\.won \? undefined : world\.blocks\.filter\(b => !b\.down && !b\.broken\)\.map\(b => \(\{ c: b\.c, mat: b\.mat, \.\.\.whereIs\(b\) \}\)\)/);
+  assert.match(js, /standing: result\.won \? undefined : onMoon\(\)[\s\S]*?: world\.blocks\.filter\(b => !b\.down && !b\.broken\)\.map\(b => \(\{ c: b\.c, mat: b\.mat, \.\.\.whereIs\(b\) \}\)\)/);
   assert.match(js, /function whereIs\(b\) \{[\s\S]*?deg:[\s\S]*?farM: r2\(world\.far\),[\s\S]*?offScreen: unseenNow\(b\),/);
 });
 
@@ -142,7 +142,7 @@ test('topple page: a new level never shows the old one (the canvas hidden until 
   // hidden as the play screen opens on a level not drawn yet, and as the setting changes
   assert.match(js, /function showPlay\(\) \{[\s\S]*?if \(!current \|\| stage\.level !== game\.level\) hideCanvas\(true\);[\s\S]*?\n\}/);
   // a kept scene in its own level's setting (a level's last scene kept with the game on the next level: 10.0-10.2 failed)
-  assert.match(js, /const lv = kept \? \(kept\.layout\.level \?\? 1\) : game\.level;\s*if \(stage\.level !== lv \|\| !stage\.hasSetting\(lv\)\) \{\s*hideCanvas\(true\);\s*const r = await stage\.setLevel\(lv\)/);
+  assert.match(js, /const lv = kept \? \(kept\.layout\.level \?\? 1\) : game\.level;\s*if \(isMoonLevel\(lv\)\) return makeMoonScene\(lv, kept\);[^\n]*\n[^\n]*\n[^\n]*\n\s*if \(stage\.level !== lv \|\| !stage\.hasSetting\(lv\)\) \{\s*hideCanvas\(true\);\s*const r = await stage\.setLevel\(lv\)/);
   // shown only after the new scene is drawn
   assert.match(js, /stage\.setScene\(current\.parts\);[\s\S]*?stage\.render\(\);\s*hideCanvas\(false\);/);
   // still: the blocks and the effects; the effects move on every step, drawn or not
@@ -216,12 +216,13 @@ test('topple page: the drag pad and its show: over the park, the touch going thr
   }
   assert.match(js, /pad = padSpot\(box\.width, box\.height\)/);
   // a throw starts only on the pad: a press elsewhere makes it pulse, and is logged
-  assert.match(js, /const p = padPress\(e\.clientX - box\.left, e\.clientY - box\.top, pad, ballPx\(\)\);\s*if \(!p\.on\) \{\s*L\('press off the pad', \{ from: p\.from, offPx: p\.offPx,[^\n]*\n\s*pulsePad\(\);\s*return;/);
+  assert.match(js, /const p = padPress\(e\.clientX - box\.left, e\.clientY - box\.top, pad, onMoon\(\) \? \{ x: -9999, y: -9999 \} : ballPx\(\)\);\s*if \(!p\.on\) \{\s*L\('press off the pad', \{ from: p\.from, offPx: p\.offPx,[^\n]*\n\s*pulsePad\(\);\s*return;/);
   assert.match(css, /\n\.pad\.pulse \{ animation: tp-pad-pulse [^}]*\}/);
   assert.match(css, /@keyframes tp-pad-pulse/);
   assert.doesNotMatch(js + css, /\.wait\b|'wait'/, 'the pad never goes faint (it\'s the one control)');
   // no press, no dots: a mouse moving over the park only follows a drag
-  assert.match(js, /function onMove\(e\) \{\s*if \(drag && e\.pointerId === drag\.id\) \{ drag\.x = e\.clientX; drag\.y = e\.clientY; \}\s*\}/);
+  // (the moon's drag steers the lander too: Q119)
+  assert.match(js, /function onMove\(e\) \{\s*if \(drag && e\.pointerId === drag\.id\) \{\s*drag\.x = e\.clientX; drag\.y = e\.clientY;\s*\/\/[^\n]*\n\s*if \(onMoon\(\)\) \{ const z = steerTo\(mo\.f, mo\.z0 \+ \(drag\.y - drag\.y0\) \/ STEER_PX \* STEER_M\);/);
   assert.match(js, /const dragNow = \(\) => \(drag \? /);
   assert.match(js, /const d = dragNow\(\) \?\? \(ok \? demoFrame\(\) : null\);/, 'the dots come from a drag or the show, nothing else');
   // the show runs on the clock, stops at a press on the pad, and aims at a block
@@ -238,7 +239,7 @@ test('topple page: the drag pad and its show: over the park, the touch going thr
 test('topple page: the score bar is your face and the balls left, drawn as the level\'s ball', () => {
   assert.doesNotMatch(playHtml, /downN|downWho|of \d+ down/);
   assert.match(playHtml, /<span class="balls" id="balls" role="img" aria-label="5 balls left"><\/span>\s*<span class="who">balls left<\/span>/);
-  assert.match(js, /\$\('balls'\)\.classList\.toggle\('iron', levelInfo\(current\?\.id\.level \?\? game\.level\)\.ball === 'iron'\)/);
+  assert.match(js, /\$\('balls'\)\.classList\.toggle\('iron', \['iron', 'moon'\]\.includes\(levelInfo\(current\?\.id\.level \?\? game\.level\)\.ball\)\)/);
   assert.match(css, /\.balls\.iron i \{[^}]*radial-gradient/);
   assert.match(css, /\.balls i\.used, \.balls\.iron i\.used \{[^}]*outline: 2px dashed/);
 });
@@ -269,7 +270,7 @@ test('topple page: a level on the map goes straight into play; no Level screen',
   assert.doesNotMatch(css, /\.lvcard|tp-level/);
   // a scene open: logged and started (locked ones still shake)
   assert.match(js, /L\('map: a scene, straight into play', \{[^}]*\}\);\s*startLevel\(lv, sc\);\s*\}/);
-  assert.match(js, /if \(!isOpen\(game, lv\)\) \{[\s\S]*?\$\('mapToast'\)\.textContent = `Finish level \$\{lv - 1\} first`;/);
+  assert.match(js, /if \(!isOpen\(game, lv\)\) \{[\s\S]*?\$\('mapToast'\)\.textContent = lv === PARK_LEVELS \+ 1 \? `Finish level \$\{lv - 1\} to fly to the moon` : `Finish level \$\{lv - 1\} first`;/);
 });
 
 // Developer, 2026-11-12 (Q92): "no way to start the whole game over with
@@ -372,7 +373,7 @@ test('topple page: Star Light: the night sky, glowing blocks and ball, coloured 
   assert.match(skyFn, /const c = cloudAt\(t\);/);
   assert.doesNotMatch(setsJs, /for \(let i = 0; i < 26; i\+\+\)/, 'the puffs are back');
   // the moon's place in the log at each scene's end
-  assert.match(js, /moon: stage\.animals\?\.\(\)\.find\(a => a\.moon\)\?\.moon \}\);/);
+  assert.match(js, /moon: onMoon\(\) \? undefined : stage\.animals\?\.\(\)\.find\(a => a\.moon\)\?\.moon \}\);/);
   const owlFn = setsJs.match(/function owl\(group, bark, sound\) \{[\s\S]*?\n\}/)?.[0] ?? '';
   assert.match(owlFn, /const go = perched\(\d+\);/);
   assert.match(owlFn, /fright: x => go\.fright\(x\)/);

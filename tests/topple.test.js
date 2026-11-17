@@ -304,8 +304,10 @@ test('topple: a game: a jewel and the next scene; a heart and the same scene; th
 // to it; each level keeps its own place; the map plays any level open, not
 // higher; the last level done: 'all'.
 test('topple: levels: a level done opens the next; each keeps its place; only open levels can be played', () => {
-  assert.equal(MAX_LEVEL, 5);
-  assert.deepEqual(LEVELS.map(l => l.name), ['The park', 'The building site', 'Frosty Times', 'Cactus Canyon', 'Star Light']);
+  assert.equal(MAX_LEVEL, 10);
+  assert.deepEqual(LEVELS.map(l => l.name), ['The park', 'The building site', 'Frosty Times', 'Cactus Canyon', 'Star Light', 'Landing Zone', 'Solar Farm', 'Crater Rim', 'Mining Site', 'Launch Pad']);
+  // levels 6-10 the moon base (Q119), the park's 1-5
+  assert.deepEqual(LEVELS.map(l => l.world ?? 'park'), [...Array(5).fill('park'), ...Array(5).fill('moon')]);
   const g = createGame(9);
   assert.equal(isOpen(g, 2), false);
   assert.equal(switchLevel(g, 2), false, 'level 2 before level 1 is done');
@@ -326,14 +328,15 @@ test('topple: levels: a level done opens the next; each keeps its place; only op
   assert.deepEqual(placeOf(g, 1), { scene: 2, hearts: 3, jewels: 1 });
   assert.equal(switchLevel(g, 3), false);
   // through to the last level: 'all', every level done
-  for (const n of [2, 3, 4]) { switchLevel(g, n); Object.assign(g, FRESH); for (let i = 1; i < SCENES; i++) sceneOver(g, true); assert.equal(sceneOver(g, true), 'level'); }
-  assert.equal(g.level, 5);
+  // (level 5 done opens level 6, the moon base: Q119)
+  for (const n of [2, 3, 4, 5, 6, 7, 8, 9]) { switchLevel(g, n); Object.assign(g, FRESH); for (let i = 1; i < SCENES; i++) sceneOver(g, true); assert.equal(sceneOver(g, true), 'level', `level ${n}`); }
+  assert.equal(g.level, 10);
   for (let i = 1; i < SCENES; i++) sceneOver(g, true);
   assert.equal(sceneOver(g, true), 'all');
-  assert.deepEqual({ level: g.level, reached: g.reached, done: g.done, ...placeOf(g, 5) }, { level: 5, reached: 5, done: [1, 2, 3, 4, 5], ...FRESH });
+  assert.deepEqual({ level: g.level, reached: g.reached, done: g.done, ...placeOf(g, 10) }, { level: 10, reached: 10, done: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], ...FRESH });
   // new scenes keep the levels reached
   const h = createGame(10, g);
-  assert.deepEqual({ level: h.level, reached: h.reached, done: h.done, places: h.places }, { level: 1, reached: 5, done: [1, 2, 3, 4, 5], places: {} });
+  assert.deepEqual({ level: h.level, reached: h.reached, done: h.done, places: h.places }, { level: 1, reached: 10, done: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], places: {} });
 });
 
 // Developer, 2026-11-13 (Q102): "once you are in a scene you can only start
@@ -400,7 +403,7 @@ test('topple: a done level started again from the map has new scenes; carried on
   assert.notDeepEqual(layoutFor(first, 2, 1).table, layoutFor(again, 2, 1).table);
   // kept on the device; nonsense dropped; a game from before 10.3 has none
   assert.deepEqual(readGame(JSON.parse(JSON.stringify(g))).rounds, g.rounds);
-  assert.deepEqual(readGame({ ...g, rounds: { 1: 2, 9: 1, 2: -1, 3: 1.5, x: 4 } }).rounds, { 1: 2 });
+  assert.deepEqual(readGame({ ...g, rounds: { 1: 2, 11: 1, 2: -1, 3: 1.5, x: 4 } }).rounds, { 1: 2 });
   const old = { ...g }; delete old.rounds;
   assert.deepEqual(readGame(old).rounds, {});
   assert.equal(seedOf(readGame(old), 1), 4321);
@@ -410,7 +413,7 @@ test('topple: a game kept on the device is used only if it makes sense', () => {
   const g = createGame(5);
   assert.deepEqual(readGame(JSON.parse(JSON.stringify(g))), g);
   assert.deepEqual(readGame({ ...g, extra: 1 }), g);
-  for (const bad of [null, 'x', {}, { ...g, seed: 0 }, { ...g, scene: 6 }, { ...g, scene: 0 }, { ...g, hearts: 0 }, { ...g, hearts: 4 }, { ...g, jewels: 5 }, { ...g, level: 0 }, { ...g, level: 6 }, { ...g, scene: '2' }]) {
+  for (const bad of [null, 'x', {}, { ...g, seed: 0 }, { ...g, scene: 6 }, { ...g, scene: 0 }, { ...g, hearts: 0 }, { ...g, hearts: 4 }, { ...g, jewels: 5 }, { ...g, level: 0 }, { ...g, level: 11 }, { ...g, scene: '2' }]) {
     assert.equal(readGame(bad), null, JSON.stringify(bad));
   }
   // one kept by 9.4 (level 1 only) carries on
@@ -425,9 +428,11 @@ test('topple: a game kept on the device is used only if it makes sense', () => {
   assert.deepEqual({ reached: ten.reached, done: ten.done, level: ten.level, scene: ten.scene, places: ten.places },
     { reached: 5, done: [1, 2, 3, 4], level: 2, scene: 3, places: { 4: { scene: 2, hearts: 3, jewels: 1 } } });
   assert.ok(isOpen(ten, 5) && switchLevel(ten, 5) && ten.scene === 1, 'level 5 from its first scene');
-  // a level not done opens nothing more; the last level done opens nothing past it
+  // a level not done opens nothing more; the park's five done opens the moon's first (Q119: a game kept
+  // from before 11.0 with every level done); the last level done opens nothing past it
   assert.equal(readGame({ seed: 5, level: 3, scene: 2, hearts: 3, jewels: 1, reached: 3, done: [1, 2] }).reached, 3);
-  assert.equal(readGame({ seed: 5, level: 1, scene: 1, hearts: 3, jewels: 0, reached: 5, done: [1, 2, 3, 4, 5] }).reached, 5);
+  assert.equal(readGame({ seed: 5, level: 1, scene: 1, hearts: 3, jewels: 0, reached: 5, done: [1, 2, 3, 4, 5] }).reached, 6);
+  assert.equal(readGame({ seed: 5, level: 1, scene: 1, hearts: 3, jewels: 0, reached: 10, done: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }).reached, 10);
 });
 
 test('topple: a scene: 5 balls, the next 0.9 s after a throw; cleared once all are down 0.35 s, the card once calm; out of balls once still', () => {
@@ -574,8 +579,8 @@ test('topple: the view takes in the whole scene and the slingshot, upright and s
 // dots filling in behind it.
 const nearPt = (p, q, why) => assert.ok(Math.hypot(p[0] - q[0], p[1] - q[1]) < 1e-9, `${why}: ${p} vs ${q}`);
 test('topple: the map\'s road runs level to level; a point along it, and the part travelled, are on it', () => {
-  assert.equal(MAP_NODES.length, MAX_LEVEL);
-  for (let i = 1; i < MAX_LEVEL; i++) {
+  assert.equal(MAP_NODES.length, 5);
+  for (let i = 1; i < MAP_NODES.length; i++) {
     const a = MAP_NODES[i - 1], b = MAP_NODES[i], P = mapRoad(a, b);
     nearPt(roadAt(P, 0), [a.x, a.y], `${i}: the start`);
     nearPt(roadAt(P, 1), [b.x, b.y], `${i}: the end`);

@@ -11,19 +11,20 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, touch, outOfReach, outOfRange, RANGE_MARGIN, CALM_SPEED, MIN_SEEN } from '../src/core/topple-world.js';
 import {
-  SCALE, SCENES, LEVELS, MAX_LEVEL, MATS, frameLayout, layoutFor, shiftThing, levelDeal, sceneParts, launchVel, HAND, MAX_AIM, MAX_UP, R2D, makeLayout, sceneOpts, FRAME_REACH,
+  SCALE, SCENES, LEVELS, MAX_LEVEL, PARK_LEVELS, MATS, frameLayout, layoutFor, shiftThing, levelDeal, sceneParts, launchVel, HAND, MAX_AIM, MAX_UP, R2D, makeLayout, sceneOpts, FRAME_REACH,
   throwRange, offScreen, rng,
 } from '../src/core/topple.js';
 import { canBeWon, personPlays, personThrows } from './topple-players.js';
 import { GLOWS, STRUCTURES } from '../src/core/topple-levels.js';
 
 const DT = 1 / 60;
-const LATER = LEVELS.filter(l => l.n > 1);
+const LATER = LEVELS.filter(l => l.n > 1 && !l.world);   // the park's (the moon's, 6-10: tests/topple-moon.test.js)
 
 // (developer, 2026-11-12: "preserve the theme of the scene but be presented
 // with different target arrangements")
 test('topple levels: five levels, each later one dealing 4 of 6 structures in order and 1 of 2 challenges, its own things, the iron ball', () => {
-  assert.equal(MAX_LEVEL, 5);
+  assert.equal(PARK_LEVELS, 5);
+  assert.equal(MAX_LEVEL, 10);
   for (const l of LATER) {
     assert.equal(l.pool.length, 6, l.name);
     assert.equal(l.challenges.length, 2, l.name);
@@ -492,7 +493,7 @@ test('topple levels: level 1 is as it was: its layouts don\'t change (the toy bl
 // Developer, 2026-11-12 (Q85): an ice cube slid so far left no throw could
 // aim at it. A block out of the aim's reach counts as down.
 test('topple levels: every block starts within the aim\'s reach; one knocked out of it counts down', () => {
-  for (let lv = 1; lv <= MAX_LEVEL; lv++) for (let seed = 1; seed <= 4; seed++) for (let sc = 1; sc <= SCENES; sc++) {
+  for (let lv = 1; lv <= PARK_LEVELS; lv++) for (let seed = 1; seed <= 4; seed++) for (let sc = 1; sc <= SCENES; sc++) {
     for (const b of sceneParts(layoutFor(seed, lv, sc)).blocks) assert.equal(outOfReach([b.x, b.y, b.z]), false, `${lv}/${seed}/${sc}: a block out of reach at the start`);
   }
   const p = sceneParts(frameLayout(5, 3, 3, 'icePyramid')), w = createWorld();
@@ -529,7 +530,7 @@ test('topple levels: how far a throw reaches matches the path; no block starts o
   assert.ok(throwRange(0.5) > throwRange(0.4), 'harder throws go further');
   assert.equal(w.far, Infinity, 'a scene without a strength: no limit');
   let n = 0;
-  for (let lv = 1; lv <= MAX_LEVEL; lv++) for (let seed = 1; seed <= 4; seed++) for (let sc = 1; sc <= SCENES; sc++) {
+  for (let lv = 1; lv <= PARK_LEVELS; lv++) for (let seed = 1; seed <= 4; seed++) for (let sc = 1; sc <= SCENES; sc++) {
     const p = sceneParts(layoutFor(seed, lv, sc)), far = throwRange(p.power);
     assert.ok(Number.isFinite(far), `${lv}/${seed}/${sc}: no strength in the scene's parts`);
     for (const b of p.blocks) { n++; assert.equal(outOfRange([b.x, b.y, b.z], far, Math.hypot(b.w, b.d) / 2), false, `${lv}/${seed}/${sc}: a block out of range at the start`); }

@@ -18,9 +18,9 @@
 // as far).
 
 import { FACE_NAMES, checkFaces as checkPicks } from './players.js';
-import { LEVELS, MAX_LEVEL, STRUCTURES, MATS, BALLS_BY, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo } from './topple-levels.js';
+import { LEVELS, MAX_LEVEL, PARK_LEVELS, isMoonLevel, STRUCTURES, MATS, BALLS_BY, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo } from './topple-levels.js';
 
-export { FACE_NAMES, LEVELS, MAX_LEVEL, MATS, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo };
+export { FACE_NAMES, LEVELS, MAX_LEVEL, PARK_LEVELS, isMoonLevel, MATS, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo };
 
 /* ---------- sizes, in metres ---------- */
 
@@ -1043,7 +1043,8 @@ export function readGame(g) {
   if (!g || typeof g !== 'object') return null;
   if (!(Number.isInteger(g.seed) && g.seed > 0 && okLevel(g.level) && okPlace(g))) return null;
   let reached = okLevel(g.reached) && g.reached >= g.level ? g.reached : g.level;
-  const done = Array.isArray(g.done) ? [...new Set(g.done.filter(n => okLevel(n) && n <= reached))].sort() : [];
+  // (sorted as numbers: as text, level 10 came between 1 and 2)
+  const done = Array.isArray(g.done) ? [...new Set(g.done.filter(n => okLevel(n) && n <= reached))].sort((a, b) => a - b) : [];
   if (done.length) reached = Math.max(reached, Math.min(MAX_LEVEL, Math.max(...done) + 1));
   const places = {};
   for (const [k, p] of Object.entries(g.places && typeof g.places === 'object' ? g.places : {})) {
@@ -1100,7 +1101,7 @@ export function sceneOver(g, won) {
   if (won) {
     g.jewels++;
     if (g.scene < SCENES) { g.scene++; return 'won'; }
-    if (!g.done.includes(g.level)) g.done = [...g.done, g.level].sort();
+    if (!g.done.includes(g.level)) g.done = [...g.done, g.level].sort((a, b) => a - b);
     Object.assign(g, freshPlace());
     if (g.level >= MAX_LEVEL) return 'all';
     g.reached = Math.max(g.reached, g.level + 1);

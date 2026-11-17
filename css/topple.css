@@ -76,6 +76,17 @@ body.tp-playing .site-foot { display: none; }
   background: rgba(255, 255, 255, .5); box-shadow: 0 0 0 3px rgba(30, 52, 69, .55), inset 0 0 0 3px #FFFFFF;
 }
 .pad[hidden] { display: none; }
+.park canvas[hidden] { display: none; }
+/* the moon's turn button (Q119, mockup v4): on the left, for the other thumb (the pad is on the right) */
+.turnbtn {
+  position: absolute; z-index: 1; left: calc(20px + env(safe-area-inset-left, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  width: 76px; height: 76px; border-radius: 50%; border: 0; font: 600 30px/1 system-ui, sans-serif; color: #1E3445; cursor: pointer;
+  background: rgba(255, 255, 255, .55); box-shadow: 0 0 0 3px rgba(30, 52, 69, .55), inset 0 0 0 3px #FFFFFF;
+  touch-action: none; -webkit-tap-highlight-color: transparent; transition: transform .12s, background .12s;
+}
+.turnbtn[hidden] { display: none; }
+.turnbtn.on { transform: scale(1.12); background: rgba(255, 214, 64, .9); }
+@media (prefers-reduced-motion: reduce) { .turnbtn { transition: none; } }
 .pad span { line-height: 1; }
 .pad.pulse { animation: tp-pad-pulse .55s ease-out; }
 @keyframes tp-pad-pulse {
