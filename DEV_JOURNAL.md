@@ -76,7 +76,9 @@ time, each tried before publishing:
   [Topple New Worlds](https://claude.ai/artifact/WunSJ1qzQBdVKNWEbgPw1j)
   mockup v1 (private) has two playable samples to compare, A a toy-sized
   bedroom with bounce shots, B a moon base with drops from a passing lander
-  (see "Q119 mockup v1"). Waiting for the developer's reaction.
+  (see "Q119 mockup v1"). **The developer chose the moon base** (v1: "I like
+  the moon base best"); v2 fixes its aim and its background buildings (see
+  "Q119 mockup v2"). Waiting for the developer's reaction to v2.
 
 ## Proposed additions to the standards skill
 
@@ -23678,3 +23680,21 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
 - **Q119:** mockup v1 waiting for the developer's reaction: which direction (A, B, both as two worlds, or neither), and what they think of each aim.
 - **Open questions:** Q119 (mockup v1), Q118 (live, liked), Q113 (parked).
+
+## 2026-11-17: Q119 mockup v2 (the moon base chosen; its aim along one line)
+
+- **Developer on v1:** "I like the moon base best." "The buildings in the background (top half of a grey sphere) could be more interesting." "I found the aiming mechanism confusing. While the arc of dots with the circle at the end seems to be right on target I was always missing." The toy house: "Even though I was able to do it, I think the way that aiming arc twists and turns is likely to be confusing." Then: "For the moon aiming, when to release the ball was clear. The moving it closer to the foreground or farther away was confusing."
+- **Why the drops missed (Claude's reading, not measured on the developer's runs):** v1's drag pushed the ball away from you (drag up) or towards you (down), ±1.2 m/s. From the view in front of the base and above, a ring 0.5 m behind a block looks right on it, and a drift of 15 px while holding moved the landing about 0.35 m deeper (0.16 m/s over a 2.1 s fall). The steps in v1's own check had no drag, so they hit.
+- **v2 (same link, version 2):**
+  - **The aim:** hold 👆 and let go, as before (the developer: release timing "was clear"); dragging sideways still pushes the ball ahead or back (±1.5 m/s) along the lander's line; **no push away or towards you**, so the ball always falls on the line where the blocks stand. The pad's 👆 moves only sideways on the moon.
+  - **The block the drop would hit lights up** (a warm, gently pulsing glow) while you hold, so you know it will hit before you let go. Each block has its own material now, so one can light alone. Logged: `drop would hit block N`.
+  - **The crate tower is slimmer** (0.36 × 0.55 × 0.36 m crates, were 0.5 m cubes): v1's cubes often stood when the ball landed on top (0 of 3 down in 3 of 14 tower drops).
+  - **The background base** (scenery, no physics): ribbed domes with two bands of lit windows, a lit door and a blinking light on top; a glass greenhouse with plants; a habitat module with an orange band and windows; tubes joining them; a radio mast with a turning dish and a blinking light; a landing pad with blinking lights and a rocket; two rows of solar arrays; a rover driving to and fro behind the blocks.
+  - Tab A (toy house) is unchanged and stays for comparison.
+- **Checked locally (same scratch server; test hook stepping the game):** a drop released at every 0.25 s over a lander's run there and back (12 s), with five sideways pushes, whenever a block lit up: 80 drops; the lit structure lost blocks in 79 (the arch once lost none); every block of it fell in 57. The tower: 21 drops, never none, all 3 in 15. A real hold, drag (21 px sideways, 60 px up) and let go on the pad dropped one ball with no push away (z stayed -5.00) and a little less speed ahead (2.05 m/s, the lander's 2.4 less the push). No errors in the console.
+- **Not checked:** the published page itself, and the app's viewer.
+
+**Status (start here next session)**
+- **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
+- **Q119:** the moon base chosen; mockup v2 waiting for the developer's try (the aim along one line, the lit block, the new buildings). Next after that: what the moon world's 5 levels would be (settings and structures), and whether the park's other rules (glow after a pause, hearts, scene check) carry over.
+- **Open questions:** Q119 (mockup v2), Q118 (live, liked), Q113 (parked).
