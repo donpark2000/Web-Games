@@ -69,6 +69,15 @@ time, each tried before publishing:
   is complete"). Label chosen by the developer: "Try again for more stars".
   Built, not yet published (see "Q118 built").
 
+- **Q119. Topple!: a second world** (2026-11-17, developer). Agreed in talk:
+  the 25 scenes stay; the map extends so travel between worlds is simple; a
+  world opens once the previous ones are done; same shape (5 levels of 5,
+  difficulties, stars); scene 5 of each level harder. Direction not chosen:
+  [Topple New Worlds](https://claude.ai/artifact/WunSJ1qzQBdVKNWEbgPw1j)
+  mockup v1 (private) has two playable samples to compare, A a toy-sized
+  bedroom with bounce shots, B a moon base with drops from a passing lander
+  (see "Q119 mockup v1"). Waiting for the developer's reaction.
+
 ## Proposed additions to the standards skill
 
 - **Look at the worst case of a generator, not its mean, and check a
@@ -23650,3 +23659,22 @@ anything to show it (the dots are the developer's choice per How hard).
 - **First, before anything else:** confirm the skill loaded through the junction: the skills list shows `software-project-standards` (no `software-project-standards:` prefix) and its section 7 says "Match the model and effort to the work". Tell the developer either way (the developer asked to have it confirmed before the mockups).
 - **Then:** Q119's two mockups to compare: a toy-sized house with bounce shots, and space with a bombing run (one artifact, a tab each, a short playable sample of the aiming). Add Q119 to "Open questions".
 - **Open questions:** Q119 (talked through, mockups next), Q118 (live, liked), Q113 (parked).
+
+## 2026-11-17: Q119 mockup v1 (two new-world samples)
+
+- **Skill check (asked for first):** the session's skills list shows `software-project-standards` without the `software-project-standards:` prefix, loaded from `C:\Users\dpark\.claude\skills\software-project-standards` (the junction), and its section 7 says "Match the model and effort to the work". So Claude Code follows the junction; a saved edit in ai-dev-practices is what loads. The old claude.ai upload still shows as a second copy (`software-project-standards:software-project-standards`); the developer may delete it.
+- **Built:** [Topple New Worlds](https://claude.ai/artifact/WunSJ1qzQBdVKNWEbgPw1j) (private; file in Claude's scratchpad, not the repo). One page, two tabs, each a short playable 3D scene on Topple!'s own three.js and cannon-es (published beside the page), with the drag pad, 5 balls, "Blocks left", the 45° / dropped / out-of-reach down rule, the cleared card with stars (Q116's rule) and Out of balls. A line under the tabs says what the sample is; "What would be new" lists what it would change in the game.
+  - **A, toy house, bounce shots:** toy-sized on a bedroom floor (floorboards, rug, wallpaper, a window). A fish tank (glass you see through, can't throw through) hides a tower of 3 and an arch of 3; an arch of 3 stands in the open. The wardrobe's side on the right is the bounce wall; the ball is a bouncy rubber ball. Drag as in Topple! (sideways up to 34° here, to reach the bank); the dots run 0.9 s and follow the bounce. Same view as the game.
+  - **B, moon base, drop run:** a lander flies across at 4.3 m and turns at each end (2.4 m/s); moon gravity 1.62. Hold 👆: the dots and an orange ring show where the ball lands, moving with the lander; drag pushes it (sideways ±1.5 m/s, up = away, down = towards you ±1.2); let go drops. A crate tower (3), a row of 4 solar panels (dominoes), an arch of 3. A view from in front of the base and above, fitted to the lander's run.
+- **Checked in a local server (the browser pane), by stepping the game from a test hook:**
+  - Bounces: cannon-es kept 0.75 of the speed into the wardrobe for its setting of 0.88 (3.80 m/s in, 2.86 out), and a floor bounce cut the forward speed 8.46 → 5.52 m/s (the ball grips and rolls). The dots' sums now use those (0.75; 0.66 forward on a bounce); after that the dots stayed within about 0.25 m of the real ball over 0.9 s for most bank throws (were 0.5 to 1.2 m off).
+  - A pyramid behind the tank only slid into itself when the bank shot hit it from the side (0 of 6 down in most hits); a tower and an arch there fall: 23 of 88 bank aims (sideways 60-100 px of drag) knock some down, several all 6. Straight throws (135 aims) never reach them; only a high lob (4 aims) knocks the tower's top. The open arch falls to most straight throws.
+  - Drops: released when the dots first touch each structure (3 pushes each): the arch fell every time (3/3); the panels 2 or all 4; the crate tower 0 when hit on top (the ball lands on it and sits), 2 of 3 when pushed back so it hits the side.
+  - The cards: two throws (one straight, one bank) cleared A with 3 stars; five throws at the tank gave "Out of balls, 9 blocks left". Out of balls waits for the blocks only (a rubber ball rolling on the floor barely slows in cannon-es). A press off the pad pulses it; a real drag on the pad throws. At 375 px wide the page fits with no sideways scroll.
+- **Not checked:** the published page itself (the browser pane isn't signed in to claude.ai; the published files list shows the page and both libraries); the desktop app's viewer.
+- **Local server:** a temporary "mockup-scratch" entry in `.claude/launch.json` ran a scratch server for the check; taken out again (the file is as committed).
+
+**Status (start here next session)**
+- **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
+- **Q119:** mockup v1 waiting for the developer's reaction: which direction (A, B, both as two worlds, or neither), and what they think of each aim.
+- **Open questions:** Q119 (mockup v1), Q118 (live, liked), Q113 (parked).
