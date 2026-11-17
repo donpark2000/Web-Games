@@ -83,7 +83,8 @@ time, each tried before publishing:
   second control to move or turn the lander raised (see "Q119: v3 liked; a
   second control"); v4 has both forms (A turn button, B fly it yourself)
   and keys to try them with a mouse (see "Q119 mockup v4"). A chosen, B
-  rejected; v5 shows the aim always (see "Q119 mockup v5").
+  rejected; v5 showed the aim always; v6 back to hold to aim, the ring and
+  lit block only, no dots (see "Q119 mockup v6").
 
 ## Proposed additions to the standards skill
 
@@ -23753,7 +23754,13 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Not checked:** the app's viewer, a touch screen. (The browser pane was hidden this time, which pauses a page's frame loop, so the checks stepped the game from the test hook.)
 - **Developer confirmed the reading:** "I did not realize the space bar down and space bar up controls two different things ... So it works." So v4's hold-to-aim worked as built; v5's always-shown aim is a choice, not a fix. Asked: keep v5, or go back to hold to see the aim.
 
+## 2026-11-17: Q119 mockup v6 (hold to aim; no dots)
+
+- **Developer:** "I actually like V4 better. It feels like more game control. And I think the target light on the ground is enough - we don't need to see the aiming arc." **Recorded: hold to aim (pad held or Space down shows the aim; let go drops); the aim is the ring on the ground and the lit block, no dots.** (The lit block kept: not mentioned; it can go as a Harder lever.)
+- **v6 (same link, page version 7):** v4's hold to aim back; the dots from the lander to the ring are hidden on the moon (`G.noDots`); the ring still comes from the same worked-out path. Text, keys line, hint updated.
+- **Checked locally (test hook):** nothing held: no ring; Space held 3 s: ring shown and moving with the lander, blocks lit as it crossed them (panels 5, 6), 0 dots shown, no drop (5 balls); Space up: dropped (4), ring hidden. No new console errors.
+
 **Status (start here next session)**
 - **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
-- **Q119:** A (turn button) chosen, B rejected. Mockup v5 (page version 6) waiting for the developer's try: the aim always shown, Space drops. Then: the moon world's 5 levels, which park rules carry over, and the Harder/Hardest levers (faster, higher, no ring or light, moving targets); a touch-screen try needs the moon scene in the game (a build and publish) or the artifact opened on a tablet.
-- **Open questions:** Q119 (mockup v5), Q118 (live, liked), Q113 (parked).
+- **Q119 so far (moon world, Normal):** a lander flies to and fro; hold the pad (or Space) to see the ring and the lit block; drag up / down (↑ ↓) to fly farther / nearer; let go to drop; ⇄ (← →) turns it round; it turns by itself at the ends. Mockup v6 (page version 7) waiting for the developer's try. Next: the moon world's 5 levels, which park rules carry over, and the Harder/Hardest levers (faster, higher, no ring or light, moving targets); a touch-screen try needs the moon scene in the game (a build and publish) or the artifact opened on a tablet.
+- **Open questions:** Q119 (mockup v6), Q118 (live, liked), Q113 (parked).
