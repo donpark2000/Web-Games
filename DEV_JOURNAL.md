@@ -23644,3 +23644,9 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Done (developer: "Creating the link is better"):** `C:\Users\dpark\.claude\skills\software-project-standards` is a junction to `C:\Users\dpark\Documents\ai-dev-practices\skills\software-project-standards`. Through it the file reads as the repo's (15,375 bytes, "model and effort" present). Claude Code should load it as the personal skill `software-project-standards` from the next session; a saved edit in the repo is what loads, no zip or upload.
 - **Not checked yet:** that Claude Code follows the junction (seen only at a new session's start: the skills list should show `software-project-standards` without the `software-project-standards:` prefix). If it doesn't, a plain copy and a sync step instead.
 - **Left:** the claude.ai upload still exists (two skills of one name); it only matters for claude.ai chats or other machines. The developer may delete it once the local one is seen working.
+
+**Status (start here next session)**
+- **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
+- **First, before anything else:** confirm the skill loaded through the junction: the skills list shows `software-project-standards` (no `software-project-standards:` prefix) and its section 7 says "Match the model and effort to the work". Tell the developer either way (the developer asked to have it confirmed before the mockups).
+- **Then:** Q119's two mockups to compare: a toy-sized house with bounce shots, and space with a bombing run (one artifact, a tab each, a short playable sample of the aiming). Add Q119 to "Open questions".
+- **Open questions:** Q119 (talked through, mockups next), Q118 (live, liked), Q113 (parked).
