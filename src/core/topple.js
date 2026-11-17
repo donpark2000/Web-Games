@@ -961,11 +961,21 @@ export function recordStars(g, level, scene, stars) {
   return { stars, best, improved };
 }
 // The scenes of level n that can be started: a won one (to win more
-// stars), the one the level's place is at, and, in a level done, every one
-// (a scene won before stars were kept has none yet).
+// stars), any up to the furthest reached (furthestScene), and, in a level
+// done, every one (a scene won before stars were kept has none yet).
 export function playableScene(g, n, scene) {
   if (!isOpen(g, n) || !Number.isInteger(scene) || scene < 1 || scene > SCENES) return false;
-  return g.done.includes(n) || starsOf(g, n)[scene - 1] > 0 || scene <= placeOf(g, n).scene;
+  return g.done.includes(n) || starsOf(g, n)[scene - 1] > 0 || scene <= furthestScene(g, n);
+}
+// The furthest scene of level n you can start (Q117, developer, 2026-11-16:
+// the map shows what can be reached, and playing an old scene again doesn't
+// shut the later ones): the scene after the last one won, or the place if
+// that is further. A scene won is never shut again.
+export function furthestScene(g, n) {
+  const row = starsOf(g, n);
+  let won = 0;
+  row.forEach((s, i) => { if (s > 0) won = i + 1; });
+  return Math.min(SCENES, Math.max(placeOf(g, n).scene, won + 1));
 }
 // Start level n at `scene` from the map (a tap on a scene): the level at
 // its place if that's the scene (carried on), else the scene with 3 hearts

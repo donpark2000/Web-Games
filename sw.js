@@ -20,9 +20,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '5820652bc133';
+const VERSION = 'a23bbac3fa94';
 const MADE = '2026-11-16';
-const RELEASE = '10.24';
+const RELEASE = '10.25';
 const FILES = [
   'bridges.html',
   'colour-sudoku.html',
@@ -151,6 +151,7 @@ const FILES = [
   'src/core/topple-animals.js',
   'src/core/topple-levels.js',
   'src/core/topple-movers.js',
+  'src/core/topple-road.js',
   'src/core/topple-sky.js',
   'src/core/topple-world.js',
   'src/core/topple.js',

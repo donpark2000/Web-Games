@@ -66,9 +66,10 @@ time, each tried before publishing:
   played** (Carry on and where the map opens); the player can go anywhere
   unlocked by hand, which doesn't change the default. A lost last heart still
   goes back to scene 1 of the level; the stars stay. Each region may get its
-  own colours (park green, sand, snow, night). To do: a mockup to click in the
-  app (upright phone, tablet, sideways phone), then build. Replaces the
-  10.24 cards that open in place.
+  own colours (park green, sand, snow, night). Built the same evening, **no mockup**
+  (the developer, who was leaving the desktop for the night: "I want to see
+  these ideas on my tablet and phone"), see "Q117 built". Replaces the 10.24
+  cards that open in place.
 
 ## Proposed additions to the standards skill
 
@@ -23471,3 +23472,53 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Next:** the Q117 mockup (the road, upright phone, tablet, sideways phone),
   to click in the app; then build.
 - **Open questions:** Q117 (agreed in talk, mockup next), Q113 (parked), Q109.
+
+## 2026-11-16: Q117 built: the map as a road (release 10.25)
+
+- **Built straight from the agreed talk** (no clickable mockup: the developer
+  wanted to see it on the tablet and phone that night). `src/core/topple-road.js`
+  (the road's shape for a width: circles 46-60 px, 25 scenes winding, a banner
+  per level), the map in `src/ui/topple.js` (a road of buttons over level
+  bands, stars under each, the face on the scene last played, walking from where
+  it was last drawn), `css/topple.css`, `topple.html` (map: a sticky bar with
+  ◀ Faces, the difficulty label, ↺ Start again; setup: "How hard?" back).
+- **One rule changed in the core:** `playableScene` now opens every scene up to
+  `furthestScene` (the one after the last won, or the place if further), not
+  only up to the place. Without it, replaying scene 1 would have shut scenes 2-4
+  again (the place goes back to 1). Winning a replayed scene moves to the next
+  scene as before (`sceneOver`), so "Carry on" follows the last scene played.
+- **Evidence:** new tests `tests/topple-road.test.js` (every width 200-460:
+  circles at least 46 px, inside the width, room for the stars, a banner clear
+  of scene 1's stars, the road runs up) and a core test for `furthestScene`
+  (replay shuts nothing; the last heart lost shuts nothing); the page tests for
+  the old cards were rewritten for the road. In the built-in browser at
+  375 x 812 with a kept Hardest game (level 1 won, level 2 at scene 4):
+  25 circles, 16 locked, the face on 2.4, the toasts "Finish level 2 first" and
+  "Win scene 4 first"; tapping won scene 1.2 started it, back on the map the face
+  was on 1.2 (it walked: class `walk`) with the same 16 locked (nothing shut
+  again); How hard on the setup screen switches the game kept per difficulty.
+  800 x 360 (a sideways phone): the road scrolls, the face in view.
+- **A test caught a clash:** `.won` in game.css and my `.won` circle class
+  (the css test); renamed `got`.
+- **Not checked:** the real tablet and phone (touch scrolling, a drag against a
+  tap on a circle, the face's walk seen in motion); the level-done unlock
+  (shake, pop) on the new road, run only as code; "All levels done" still
+  starts a new game at level 1 (unchanged, the face would then walk back to
+  1.1); a tablet in landscape where the road might fit with no scroll (it is
+  at most 460 px wide, about 1,800 px tall, so it scrolls everywhere).
+- **Published as 10.25** on the strength of the developer's words (the saved
+  preference: "try it on my phone" means build and publish) and his wish to
+  see it that night.
+
+**Status (start here next session)**
+- **Live: 10.25** (if the merge below is not recorded, check `git log main`).
+  The map is a scrolling road; how hard is on the setup screen.
+- **From the developer (tablet and phone):** try the road: it opens at the scene
+  you last played with your face on it; stars under each scene; tapping a won
+  scene plays it again, the face walking on after; locked scenes shake; the
+  difficulty label (top) only reads; Carry on opens the map at the last scene;
+  the face covering the number is fine? Region colours (park blue, building site
+  sand, Frosty Times pale blue, canyon orange, Star Light night): judge them.
+- **Open questions:** Q117 (built, waiting to be tried), Q113 (parked), Q109.
+- **Likely next:** adjustments to the road after the tablet; other worlds;
+  the review's leftovers (TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 ...).

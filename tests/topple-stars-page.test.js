@@ -13,24 +13,32 @@ const page = await read('topple.html');
 const css = await read('css/topple.css');
 const js = await read('src/ui/topple.js');
 
-test('topple stars page: the map has how hard, the stars so far and a card for each level', () => {
+test('topple stars page: the map is a road of scenes with the difficulty to read only (Q117)', () => {
   const map = page.match(/<div class="panel tpmap" id="mapView" hidden>[\s\S]*?<\/div>\s*<\/section>/)?.[0] ?? '';
-  for (const id of ['mapModes', 'starTotal', 'starFill', 'mapBox', 'mapToast', 'mapBack', 'mapAgain']) assert.ok(map.includes(`id="${id}"`), `the map lacks ${id}`);
-  assert.match(js, /Array\.from\(\{ length: MAX_LEVEL \}, \(_, i\) => levelCard\(i \+ 1, unlock\)\)/);
-  // each card: a head that opens it, five scenes with stars, a Play button
-  assert.match(js, /class="scn \$\{cls\}" data-s="\$\{sc\}"/);
-  assert.match(js, /class="big playlv"/);
-  // a scene: won (stars), open, the level's place (glowing), or shut
-  for (const c of ["'sdone'", "'next'", "'open'", "'later'"]) assert.ok(js.includes(c), `no scene state ${c}`);
-  assert.match(js, /Win scene \$\{sc - 1\} first/);
+  for (const id of ['mapMode', 'road', 'mapToast', 'mapBack', 'mapAgain']) assert.ok(map.includes(`id="${id}"`), `the map lacks ${id}`);
+  for (const gone of ['mapModes', 'starTotal', 'starFill', 'mapBox']) assert.ok(!page.includes(`id="${gone}"`) && !js.includes(`$('${gone}')`), `${gone} is gone`);
+  assert.doesNotMatch(map, /<button[^>]*data-mode|class="level"/, 'no way to change the difficulty on the map');
+  assert.match(js, /\$\('mapMode'\)\.textContent = MODE_INFO\[game\.mode\]\.name;/);
+  // the difficulty is picked on the setup screen
+  assert.match(js, /\$\('setupModes'\)\.replaceChildren\(\.\.\.MODES\.map/);
+  assert.match(js, /b\.onclick = \(\) => pickMode\(m\);/);
+  // each scene a circle with its stars under it: won, open, the one you are on (with your face), or shut
+  assert.match(js, /roadGeom\(Math\.max\(280, Math\.min\(460, road\.clientWidth \|\| 360\)\)\)/);
+  assert.match(js, /const cls = locked \? 'locked' : won \? 'got' : 'open';/);
+  assert.match(js, /\$\{cur \? ' cur' : ''\}/);
+  assert.match(js, /id="rface"/);
+  assert.match(js, /Win scene \$\{furthestScene\(game, lv\)\} first/);
   assert.match(js, /Finish level \$\{lv - 1\} first/);
+  // it opens at the scene last played; the face walks from where it was last drawn
+  assert.match(js, /scrollIntoView\?\.\(\{ block: 'center' \}\)/);
+  assert.match(js, /L\('map: the face walks'/);
 });
 
-test('topple stars page: a scene tapped starts it (a won one again); the level button carries on', () => {
+test('topple stars page: a scene tapped starts it (a won one again); the road is the way in', () => {
   assert.match(js, /startLevel\(lv, sc\);/);
   assert.match(js, /function startLevel\(n, scene = null\) \{[\s\S]*?scene \? startAtScene\(game, n, scene\) : switchLevel\(game, n\)/);
-  assert.match(js, /\.playlv'\)\.onclick = \(\) => \{[\s\S]*?startLevel\(lv\);/);
-  // how hard picked on the map: its own game, made on first pick, saved, the parked scene dropped
+  assert.match(js, /\$\('road'\)\.onclick = e => \{[\s\S]*?tapScene\(Number\(b\.dataset\.l\), Number\(b\.dataset\.s\), b\);/);
+  // how hard picked: its own game, made on first pick, saved, the parked scene dropped
   assert.match(js, /function pickMode\(m\) \{[\s\S]*?profile\.games\[was\] = game;[\s\S]*?parked = null;[\s\S]*?saveGame\(\);/);
 });
 
@@ -57,7 +65,7 @@ test('topple stars page: a game for each difficulty; Start over and Start again 
   assert.match(js, /if \(!game\) \{ game = createGame\(newSeed\(\)\); profile = createProfile\(game\); saveGame\(\); \}/);
   assert.equal((js.match(/createGame\(newSeed\(\), \{ stars: game\.stars \}, game\.mode\)/g) ?? []).length, 2, 'Start over and the whole game again');
   assert.match(js, /game = createGame\(newSeed\(\), game\); saveGame\(\)/, 'every level done: a new game keeps the stars (and the levels)');
-  for (const what of ["'how hard picked'", "'map: a scene, straight into play'", "'map: a scene shut'", "'map: unlocking'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
+  for (const what of ["'how hard picked'", "'map: a scene, straight into play'", "'map: a scene shut'", "'map: unlocking'", "'map: shown'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   // the faces screen says which difficulty carries on
   assert.match(js, /\$\{MODE_INFO\[game\.mode\]\.name\}: level \$\{game\.level\}/);
 });

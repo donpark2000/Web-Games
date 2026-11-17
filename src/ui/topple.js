@@ -18,13 +18,14 @@ import {
   FACE_NAMES, SCENES, HEARTS, BALLS, SCALE, HAND, checkSetup, createGame, readProfile, createProfile, sceneOver, newRound, useBall, canThrow,
   update, ballsLeft, endWords, seedOf, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
   padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, restartLevel, placeOf, isOpen, offScreen,
-  starsForBalls, starsOf, starTotal, STARS_ALL, recordStars, playableScene, startAtScene,
+  starsForBalls, starsOf, starTotal, STARS_ALL, recordStars, playableScene, furthestScene, startAtScene,
   MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy,
 } from '../core/topple.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { toppleMini } from './topplepics.js';
+import { roadGeom, nodeAt } from '../core/topple-road.js';
 import { log, startLog } from './debuglog.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
@@ -120,6 +121,17 @@ function renderSetup() {
     return b;
   }));
   $('p1Chip').innerHTML = setup.p1 ? svg(setup.p1) : '';
+  $('setupModes').replaceChildren(...MODES.map(m => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'level';
+    b.dataset.mode = m;
+    b.textContent = MODE_INFO[m].name;
+    b.setAttribute('aria-pressed', String(m === game.mode));
+    b.onclick = () => pickMode(m);
+    return b;
+  }));
+  $('hardLine').textContent = MODE_INFO[game.mode].line;
   const fresh = isFresh(game);
   $('where').textContent = fresh ? '' : `${MODE_INFO[game.mode].name}: level ${game.level} · scene ${game.scene} of ${SCENES} · ${hearts(game)} · ${'💎'.repeat(game.jewels)}`;
   if (fresh && game.reached > 1) $('where').textContent = `${MODE_INFO[game.mode].name}: level ${game.reached} reached`;
@@ -158,17 +170,17 @@ $('overYes').onclick = () => {
   renderSetup();
 };
 
-/* ---------- the map and a level's screen ---------- */
+/* ---------- the map: a road of scenes (Q117) ---------- */
 
-// Each level's picture on the map and its screen: level 1's drawing (the
-// home tile's), the others a sign of their setting (Claude's pick, to
-// review: the mockup's were pictures the 3D drew).
+// Each level's sign on its banner: level 1's drawing (the home tile's), the
+// others a sign of their setting (Claude's pick, to review). `tint` is the
+// level's band behind its scenes on the road, `ink` the dots of the road over it.
 const LOOKS = {
-  1: { pic: () => toppleMini('lvsvg'), bg: '#7DBCE6' },
-  2: { pic: () => '🏗️', bg: 'linear-gradient(#8FB8D8, #C9BFAE)' },
-  3: { pic: () => '❄️', bg: 'linear-gradient(#8DB7DC, #F2F7FB)' },
-  4: { pic: () => '🌵', bg: 'linear-gradient(#7FB3E0, #E2B48A)' },
-  5: { pic: () => '🌙', bg: 'linear-gradient(#0B1430, #2A3A6A)' },
+  1: { pic: () => toppleMini('lvsvg'), tint: '#CFE6F4', ink: 'rgba(30,52,69,.38)' },
+  2: { pic: () => '🏗️', tint: '#DDD6C8', ink: 'rgba(30,52,69,.38)' },
+  3: { pic: () => '❄️', tint: '#E0EDF7', ink: 'rgba(30,52,69,.38)' },
+  4: { pic: () => '🌵', tint: '#F0D9BC', ink: 'rgba(30,52,69,.38)' },
+  5: { pic: () => '🌙', tint: '#2A3A6A', ink: 'rgba(255,255,255,.55)' },
 };
 // The setup screen's view: 'faces' (the picks) or 'map'.
 function setupView(v) {
@@ -177,135 +189,141 @@ function setupView(v) {
   if (v !== 'faces') $('overAsk').hidden = true;   // Start over's question doesn't wait behind the map
   scrollTo(0, 0);
 }
-// The map (Q116, mockup v4): how hard at the top (a game of its own for
-// each, with its own stars: picking one is playing at it), the stars so far,
-// then each level as a card; a tap opens it in place into its 5 scenes with
-// their stars. A scene won, or the one the level is at, starts when tapped
-// (a won one with new scenes, to win more stars); a later one is shut.
-// After a level (developer, 2026-11-12, Q81: "an animation of the next level
-// unlocking") the next level's lock shakes and pops and its card opens.
+// The map (Q117, developer, 2026-11-16: "the map no longer looks like a map",
+// "scrolling just makes the game feel bigger"): one winding road up the
+// screen, the 25 scenes (5 levels of 5) as circles with their stars under
+// them, level 1 at the bottom. It shows the difficulty being played (a game
+// of its own each), never a way to change it: that is on the setup screen. It
+// opens scrolled to the scene last played, with your face on it; winning moves
+// on to the next scene. A tap on a scene you can reach starts it (a won one
+// with new scenes, to win more stars); a later one is shut. After a level
+// (developer, 2026-11-12, Q81: "an animation of the next level unlocking")
+// the next level's first scene shakes and its lock pops.
 let walking = null;    // the unlocking under way: { to, timers, popped }
-let mapOpen = 0;       // the level whose scenes show
+let shownAt = null;    // where the face was last drawn on the road: { level, scene }
 const STAR_D = 'M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5 6 20.9l1.3-6.7-5-4.7 6.8-.8z';
 const starSvg = on => `<svg class="tstar${on ? '' : ' unlit'}" viewBox="0 0 24 24" aria-hidden="true"><path d="${STAR_D}"/></svg>`;
 const starsRow = (n, max = 3) => Array.from({ length: max }, (_, i) => starSvg(i < n)).join('');
-const modeStars = m => (profile.games[m] ? starTotal(profile.games[m]) : 0);
 function renderMap(unlock = 0) {
-  $('mapModes').replaceChildren(...MODES.map(m => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'level';
-    b.dataset.mode = m;
-    b.innerHTML = `${MODE_INFO[m].name}<small>${starSvg(true)} ${modeStars(m)}</small>`;
-    b.setAttribute('aria-pressed', String(m === game.mode));
-    b.onclick = () => { if (!walking) pickMode(m); };
-    return b;
-  }));
-  const total = starTotal(game);
-  $('starTotal').innerHTML = `${starSvg(true)} <b>${total}</b> <span>of ${STARS_ALL} on ${MODE_INFO[game.mode].name}</span>`;
-  $('starFill').style.width = `${(total / STARS_ALL) * 100}%`;
-  $('mapBox').replaceChildren(...Array.from({ length: MAX_LEVEL }, (_, i) => levelCard(i + 1, unlock)));
-}
-function levelCard(lv, unlock) {
-  const info = levelInfo(lv), pl = placeOf(game, lv), stars = starsOf(game, lv);
-  const done = game.done.includes(lv), now = game.level === lv;
-  // the level being unlocked shows locked until its lock pops
-  const locked = !isOpen(game, lv) || (unlock === lv && !!walking && !walking.popped);
-  const open = !locked && mapOpen === lv;
-  const won = stars.filter(x => x > 0).length, mid = pl.scene > 1 || pl.jewels > 0 || pl.hearts < HEARTS;
-  const sub = locked ? 'Locked' : done ? 'All scenes won' : mid ? `Scene ${pl.scene} of ${SCENES}` : 'Start here';
-  const el = document.createElement('div');
-  el.id = `lvl${lv}`;
-  el.className = `mcard ${locked ? 'locked' : done ? 'done' : now ? 'now' : ''}${open ? ' open' : ''}${unlock === lv && !locked ? ' unlocked' : ''}`;
-  const scenes = stars.map((s, k) => {
-    const sc = k + 1, can = !locked && playableScene(game, lv, sc);
-    const cls = s > 0 ? 'sdone' : can ? (sc === pl.scene && !done ? 'next' : 'open') : 'later';
-    return `<button type="button" class="scn ${cls}" data-s="${sc}" aria-label="Scene ${sc}, ${s} of 3 stars${can ? '' : ', shut'}"><span class="n">${sc}</span><span class="st">${starsRow(s)}</span></button>`;
-  }).join('');
-  el.innerHTML = `<button type="button" class="lvhead" aria-expanded="${open}" aria-label="Level ${lv}, ${info.name}${locked ? ', locked' : ''}">`
-    + `<span class="disc" style="background:${LOOKS[lv].bg}">${locked ? '<span class="lock">🔒</span>' : LOOKS[lv].pic()}${now && !locked ? `<span class="mface">${svg(setup.p1)}</span>` : ''}</span>`
-    + `<span><span class="lname">${lv} · ${info.name}</span><span class="lsub">${sub}</span>`
-    + (locked ? '' : `<span class="lstars">${starSvg(true)} ${stars.reduce((a, b) => a + b, 0)} <small>of ${SCENES * 3}</small></span>`)
-    + `</span><span class="chev" aria-hidden="true">${locked ? '' : '▸'}</span></button>`
-    + `<div class="scenes"><div class="srow">${scenes}</div>`
-    + `<button type="button" class="big playlv">${done ? 'Play again ▸' : mid || won ? 'Carry on ▸' : 'Play ▸'}</button>`
-    + `<p class="scnhint">Tap a scene you have won to play it again for more stars.</p></div>`;
-  el.querySelector('.lvhead').onclick = () => {
-    if (walking) return;   // let the unlocking finish
-    if (!isOpen(game, lv)) {
-      el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
-      $('mapToast').textContent = `Finish level ${lv - 1} first`;
-      L('map: a locked level', { level: lv, reached: game.reached });
-      return;
+  const prev = shownAt;
+  $('mapMode').textContent = MODE_INFO[game.mode].name;
+  const road = $('road');
+  const geo = roadGeom(Math.max(280, Math.min(460, road.clientWidth || 360)));
+  const { size, H, w } = geo;
+  const hold = unlock > 0 && !!walking && !walking.popped;   // the lock still on
+  const pl = placeOf(game, game.level), here = { level: game.level, scene: pl.scene };
+  let h = `<div class="rd" style="width:${w}px;height:${H}px">`;
+  for (const b of geo.bands) h += `<div class="rband" style="top:${b.top}px;height:${b.bottom - b.top}px;background:${LOOKS[b.lv].tint}"></div>`;
+  h += `<svg class="rpath" width="${w}" height="${H}" viewBox="0 0 ${w} ${H}" aria-hidden="true">`;
+  for (let i = 1; i < geo.nodes.length; i++) {
+    const a = geo.nodes[i - 1], b = geo.nodes[i];
+    h += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${LOOKS[b.lv].ink}"/>`;
+  }
+  h += '</svg>';
+  for (const b of geo.bands) {
+    const shut = !isOpen(game, b.lv);
+    h += `<div class="rbanner${shut ? ' shut' : ''}" style="top:${b.y}px"><span class="rpic" aria-hidden="true">${LOOKS[b.lv].pic()}</span><b>${b.lv} · ${levelInfo(b.lv).name}</b></div>`;
+  }
+  for (const n of geo.nodes) {
+    const { lv, sc } = n, stars = starsOf(game, lv)[sc - 1], done = game.done.includes(lv);
+    const locked = !playableScene(game, lv, sc) || (hold && unlock === lv && sc === 1);
+    const won = !locked && (stars > 0 || done), cur = !locked && lv === here.level && sc === here.scene;
+    const cls = locked ? 'locked' : won ? 'got' : 'open';
+    const label = `Level ${lv}, scene ${sc}, ${locked ? 'shut' : `${stars} of 3 stars`}${cur ? ', you are here' : ''}`;
+    h += `<button type="button" class="rn ${cls}${cur ? ' cur' : ''}" id="n${lv}_${sc}" data-l="${lv}" data-s="${sc}" aria-label="${label}" style="left:${n.x - size / 2 - 6}px;top:${n.y - size / 2}px;width:${size + 12}px">`
+      + `<span class="rc" style="width:${size}px;height:${size}px">${locked ? '🔒' : sc}</span>`
+      + `<span class="rs">${locked ? '' : starsRow(stars)}</span></button>`;
+  }
+  // your face on the scene you are on (in place of its number); it walks there from where it was last drawn
+  const at = hold ? (shownAt ?? here) : here;
+  const faceXY = p => { const n = nodeAt(geo, p.level, p.scene); return { x: n.x, y: n.y - 1 }; };
+  const f0 = faceXY(prev && !hold ? prev : at), fs = Math.round(size * 0.82);
+  h += `<span class="rface" id="rface" style="width:${fs}px;height:${fs}px;left:${f0.x - fs / 2}px;top:${f0.y - fs / 2}px">${svg(setup.p1)}</span></div>`;
+  road.innerHTML = h;
+  const move = !hold && !!prev && (prev.level !== here.level || prev.scene !== here.scene);
+  if (move) {
+    const f1 = faceXY(here), el = $('rface'), quick = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (quick) { el.style.left = `${f1.x - fs / 2}px`; el.style.top = `${f1.y - fs / 2}px`; } else {
+      void el.offsetWidth;
+      el.classList.add('walk');
+      el.style.left = `${f1.x - fs / 2}px`; el.style.top = `${f1.y - fs / 2}px`;
     }
-    mapOpen = mapOpen === lv ? 0 : lv;
-    $('mapToast').textContent = '';
-    renderMap();
-    $(`lvl${lv}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
-  };
-  el.querySelectorAll('.scn').forEach(b => {
-    b.onclick = () => {
-      if (walking) return;
-      const sc = Number(b.dataset.s);
-      if (b.classList.contains('later')) { $('mapToast').textContent = `Win scene ${sc - 1} first`; L('map: a scene shut', { level: lv, scene: sc }); return; }
-      L('map: a scene, straight into play', { level: lv, scene: sc, stars: stars[sc - 1], mode: game.mode });
-      startLevel(lv, sc);
-    };
-  });
-  el.querySelector('.playlv').onclick = () => {
-    if (walking) return;
-    L('map: a level, straight into play', { level: lv, done, place: pl, mode: game.mode });
-    startLevel(lv);
-  };
-  return el;
+    L('map: the face walks', { from: prev, to: here, quick });
+  }
+  if (!hold) shownAt = here;
+  return { geo, here, prev, move };
 }
-// How hard, picked on the map: each is a game of its own.
+function tapScene(lv, sc, el) {
+  if (walking) return;
+  const shake = () => { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); };
+  if (!isOpen(game, lv)) {
+    shake();
+    $('mapToast').textContent = `Finish level ${lv - 1} first`;
+    L('map: a locked level', { level: lv, scene: sc, reached: game.reached });
+    return;
+  }
+  if (!playableScene(game, lv, sc)) {
+    shake();
+    $('mapToast').textContent = `Win scene ${furthestScene(game, lv)} first`;
+    L('map: a scene shut', { level: lv, scene: sc, furthest: furthestScene(game, lv) });
+    return;
+  }
+  L('map: a scene, straight into play', { level: lv, scene: sc, stars: starsOf(game, lv)[sc - 1], mode: game.mode });
+  startLevel(lv, sc);
+}
+$('road').onclick = e => {
+  const b = e.target.closest?.('.rn');
+  if (b) tapScene(Number(b.dataset.l), Number(b.dataset.s), b);
+};
+// How hard, picked on the setup screen: each is a game of its own (the map shows the one being played).
 function pickMode(m) {
   if (game.mode === m) return;
   const was = game.mode, fresh = !profile.games[m];
   profile.games[was] = game;
   game = profile.games[m] ?? createGame(newSeed(), null, m);
   parked = null;
-  mapOpen = game.level;
+  shownAt = null;
   saveGame();
   L('how hard picked', { mode: m, was, dots: MODE_INFO[m].dots, firstOnly: MODE_INFO[m].firstOnly, reached: game.reached, stars: starTotal(game), fresh });
-  $('mapToast').textContent = '';
-  renderMap();
+  renderSetup();
 }
 function showMap(unlock = 0) {
   if (playing) showSetup();
   stopWalk();
   setupView('map');
-  mapOpen = unlock || mapOpen || game.level;
-  if (!isOpen(game, mapOpen)) mapOpen = game.level;
   if (unlock) walking = { to: unlock, timers: [], popped: false };
-  renderMap(unlock);
+  const { geo, here, prev, move } = renderMap(unlock);
   $('mapToast').textContent = '';
+  // scrolled to the scene last played (to where the face was, when it is about to walk)
+  const from = move ? prev : here, sceneEl = $(`n${from.level}_${from.scene}`);
+  sceneEl?.scrollIntoView?.({ block: 'center' });
+  L('map: shown', { mode: game.mode, level: here.level, scene: here.scene, road: geo.H, size: geo.size, move, unlock });
   if (unlock) playUnlock(unlock);
+  if (move) setTimeout(() => $('rface')?.scrollIntoView?.({ block: 'center', behavior: 'smooth' }), 50);
   resume.keep();
 }
 // The unlocking, step by step (on timers; all at once with reduced motion).
 function playUnlock(lv) {
   const quick = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const w = walking, later = (ms, fn) => w.timers.push(setTimeout(fn, quick ? 0 : ms));
+  const w = walking, after = (ms, fn) => w.timers.push(setTimeout(fn, quick ? 0 : ms));
   L('map: unlocking', { level: lv, quick });
-  later(500, () => { $(`lvl${lv}`)?.classList.add('shake'); });
-  later(1000, () => {
+  after(500, () => { const n = $(`n${lv}_1`); n?.classList.remove('shake'); void n?.offsetWidth; n?.classList.add('shake'); });
+  after(1000, () => {
     w.popped = true;
-    renderMap(lv);   // open now, its picture shown; the lock pops off it
-    $(`lvl${lv}`)?.querySelector('.disc')?.insertAdjacentHTML('beforeend', '<span class="lock pop">🔒</span>');
+    renderMap(lv);   // open now; the lock pops off its first scene
+    $(`n${lv}_1`)?.querySelector('.rc')?.insertAdjacentHTML('beforeend', '<span class="lock pop">🔒</span>');
     sound.play('clink');
     L('map: unlocked', { level: lv });
   });
-  later(1600, () => { sound.play('ding'); walking = null; L('map: arrived', { level: lv }); });
+  after(1600, () => { sound.play('ding'); walking = null; L('map: arrived', { level: lv }); });
 }
 function stopWalk() {
   if (!walking) return;
   for (const t of walking.timers) clearTimeout(t);
   walking = null;
 }
-// Play level n from the map: at its place (carried on, or from its start when
-// done), or at a scene (a won one: new scenes, the best stars kept).
+// Play level n from the map: at its place (carried on), or at a scene (a won
+// one: new scenes, the best stars kept).
 function startLevel(n, scene = null) {
   const was = game.rounds?.[n] ?? 0;
   if (!(scene ? startAtScene(game, n, scene) : switchLevel(game, n))) { L('level not open', { level: n, scene, reached: game.reached }); showMap(); return; }
@@ -316,6 +334,16 @@ function startLevel(n, scene = null) {
   startScene();
 }
 $('mapBack').onclick = () => { setupView('faces'); renderSetup(); };
+// the road is drawn for the screen's width: again when it turns or changes
+let roadW = 0;
+addEventListener('resize', () => {
+  if ($('mapView').hidden || walking) return;
+  const w = $('road').clientWidth;
+  if (Math.abs(w - roadW) < 2) return;
+  roadW = w;
+  renderMap();
+  L('map: drawn again', { width: w });
+});
 
 /* ---------- the play screen ---------- */
 
@@ -1027,7 +1055,7 @@ window.topple = {
   map: () => showMap(),
   // the unlocking after a level (Q81), without clearing one: level `to`'s lock popping
   walk: (from, to, unlock = true) => showMap(unlock ? to : 0),
-  walkState: () => ({ walking: !!walking, open: mapOpen, locked: [...document.querySelectorAll('.mcard.locked')].map(e => e.id) }),
+  walkState: () => ({ walking: !!walking, shownAt, locked: [...document.querySelectorAll('.rn.locked')].map(e => e.id) }),
   // Q116: the difficulty and its stars, for checking
   stars: () => ({ mode: game.mode, stars: game.stars ?? {}, total: starTotal(game), games: Object.fromEntries(MODES.map(m => [m, !!profile.games[m]])) }),
   // Each sound's loudness, rendered offline as the game plays it (hard,

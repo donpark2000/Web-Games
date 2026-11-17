@@ -7,6 +7,23 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.25 (2026-11-16, version a23bbac3fa94)
+
+Topple!: the map is a road again, and how hard moves back.
+
+- **The map is one winding road** of all 25 scenes, level 1 at the bottom,
+  with each scene's stars under it. It opens at the scene you last played,
+  with your face on it, and scrolls so you can go to any scene you have
+  reached. After you win a scene your face walks on to the next one.
+- **Playing an old scene again** (to win more stars) never locks the later
+  scenes, and **Carry on** goes back to the scene you last played.
+- **How hard** (Normal, Harder, Hardest) is picked on the first screen again,
+  and the map just says which one you are playing. Each difficulty is still a
+  game of its own, with its own levels and stars.
+- The level cards and the star totals are gone; the stars under each scene are
+  how you see how you are doing.
+- Everything else is as in 10.24.
+
 ## 10.24 (2026-11-16, version 5820652bc133)
 
 Topple!: stars, and a new map.

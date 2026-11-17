@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   createGame, readGame, sceneOver, switchLevel, placeOf, isOpen, seedOf, SCENES, HEARTS, MAX_LEVEL, MODES,
-  starsForBalls, starsOf, starTotal, STARS_ALL, recordStars, playableScene, startAtScene, readProfile, createProfile,
+  starsForBalls, starsOf, starTotal, STARS_ALL, recordStars, playableScene, furthestScene, startAtScene, readProfile, createProfile,
 } from '../src/core/topple.js';
 
 const copy = o => JSON.parse(JSON.stringify(o));
@@ -80,6 +80,28 @@ test('stars from the map: a won scene or the place can be started; a later one c
   assert.equal(startAtScene(g, 1, 5), true);
   assert.deepEqual([g.level, g.scene, g.hearts, g.jewels], [1, 5, HEARTS, 4]);
   assert.deepEqual(placeOf(g, 2), { scene: 1, hearts: HEARTS, jewels: 0 }, 'level 2 keeps its place');
+});
+
+test('the map shows what can be reached (Q117): an old scene played again shuts nothing, the next scene follows, Carry on is where you last played', () => {
+  const g = createGame(31);
+  for (const s of [1, 2, 3]) { recordStars(g, 1, s, 3); sceneOver(g, true); }
+  assert.equal(furthestScene(g, 1), 4, 'the scene after the last won');
+  assert.equal(startAtScene(g, 1, 1), true, 'an old scene again');
+  assert.deepEqual([g.scene, g.jewels], [1, 0], 'the place is where you last played: Carry on resumes there');
+  assert.equal(furthestScene(g, 1), 4, 'the furthest is not lost');
+  for (const s of [1, 2, 3, 4]) assert.equal(playableScene(g, 1, s), true, `scene ${s} still open`);
+  assert.equal(playableScene(g, 1, 5), false, 'and no further');
+  recordStars(g, 1, 1, 2);
+  assert.equal(sceneOver(g, true), 'won');
+  assert.equal(g.scene, 2, 'winning moves to the next scene on the map, even a won one');
+  // the last heart lost: back to scene 1, nothing shut again
+  const h = createGame(32);
+  for (const s of [1, 2, 3]) { recordStars(h, 1, s, 1); sceneOver(h, true); }
+  for (let i = 0; i < HEARTS; i++) sceneOver(h, false);
+  assert.equal(h.scene, 1, 'the last heart lost: back to scene 1');
+  assert.equal(playableScene(h, 1, 4), true, 'the scenes won and the next stay open');
+  assert.equal(furthestScene(createGame(33), 1), 1, 'a new game: scene 1');
+  assert.equal(playableScene(createGame(35), 3, 1), false, 'a level not open is shut whole');
 });
 
 test('profile: a game kept before becomes the one for its difficulty; the others start empty', () => {
