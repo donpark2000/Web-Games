@@ -79,7 +79,9 @@ time, each tried before publishing:
   (see "Q119 mockup v1"). **The developer chose the moon base** (v1: "I like
   the moon base best"); v2 fixes its aim and its background buildings (see
   "Q119 mockup v2"). The toy house rejected; v3 steers the lander nearer or
-  farther (see "Q119 mockup v3"). Waiting for the developer's try of v3.
+  farther (see "Q119 mockup v3"). v3's steering liked, fine for Normal; a
+  second control to move or turn the lander raised (see "Q119: v3 liked; a
+  second control").
 
 ## Proposed additions to the standards skill
 
@@ -23718,3 +23720,15 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
 - **Q119:** the moon base chosen, the toy house rejected; mockup v3 (page version 4) waiting for the developer's try: steering nearer or farther, the track line, turning sooner. Then: what the moon world's 5 levels would be, and which park rules carry over.
 - **Open questions:** Q119 (mockup v3), Q118 (live, liked), Q113 (parked).
+
+## 2026-11-17: Q119: v3 liked; a second control for the lander (talk)
+
+- **Developer on v3:** "V3 mockup steering is much better. As it is, it is fine for 'normal' level. When we move on to harder and hardest levels, we may need to change it a bit." **Recorded: v3's steering (drag up = farther, down = nearer, let go = drop) is the Normal aim.**
+- **Developer's idea:** "instead of having the ship just scroll back and forth we could have 2 controls. One for aiming and dropping and one for moving the ship (if not explicitly controlling speed, it could at least be a 'change direction' toggle)", maybe on some levels or all.
+- **Claude's view (not yet agreed):** a **turn-around button** is cheap and fits every level: it cuts the wait for the lander to come back (a round trip is about 13 s in v3) and gives the player a say without a new skill to learn; the lander still turns by itself at the ends. A tap, not a hold, so it doesn't need two thumbs at once (tap to turn, then hold the pad to steer and drop). **Full left/right flying** changes the game: with time to park over a target, the drop needs no timing, so it stays easy unless something else costs (fuel, a time limit, moving targets); better kept for a later level with such a cost. Harder/Hardest levers already noted: faster lander, flying higher, no ring or lit block (as Harder halves the dots), moving targets (the rover).
+- **Asked:** add a turn-around button to the mockup (v4) to try.
+
+**Status (start here next session)**
+- **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
+- **Q119:** moon base, v3's steering liked for Normal. Talking about a second control (turn-around button, or full left/right flying); a mockup v4 with a turn-around button offered. Then: the moon world's 5 levels, and which park rules carry over.
+- **Open questions:** Q119 (second control), Q118 (live, liked), Q113 (parked).
