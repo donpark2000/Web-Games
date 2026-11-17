@@ -23637,3 +23637,10 @@ anything to show it (the dots are the developer's choice per How hard).
   and how many new mechanics (needs the direction first).
 
 - **Skill edit (2026-11-17, developer asked for it):** "Match the model to the work" is now "Match the model and effort to the work", and says that a fresh-session suggestion names the model and effort in the same message. ai-dev-practices commit 84240f1, pushed; zip rebuilt at `C:\Users\dpark\Documents\ai-dev-practices\software-project-standards.zip` for the developer to upload. (Also a memory, `model-effort-with-new-session`.)
+
+## 2026-11-17: The skill loaded straight from ai-dev-practices
+
+- **Why:** the developer could no longer find the app's Customize section to upload the skill's zip. The skill the app loaded (`software-project-standards:software-project-standards`, a copy synced from the claude.ai upload, in `AppData\Local\Claude-Data\...\rpm\...`) was one edit behind the repo: it lacked the "model and effort" change (ai-dev-practices 84240f1); a diff showed that section the only difference.
+- **Done (developer: "Creating the link is better"):** `C:\Users\dpark\.claude\skills\software-project-standards` is a junction to `C:\Users\dpark\Documents\ai-dev-practices\skills\software-project-standards`. Through it the file reads as the repo's (15,375 bytes, "model and effort" present). Claude Code should load it as the personal skill `software-project-standards` from the next session; a saved edit in the repo is what loads, no zip or upload.
+- **Not checked yet:** that Claude Code follows the junction (seen only at a new session's start: the skills list should show `software-project-standards` without the `software-project-standards:` prefix). If it doesn't, a plain copy and a sync step instead.
+- **Left:** the claude.ai upload still exists (two skills of one name); it only matters for claude.ai chats or other machines. The developer may delete it once the local one is seen working.
