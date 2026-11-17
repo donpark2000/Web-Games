@@ -23613,3 +23613,25 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q118 (live, liked), Q113 (parked); Q109 closed. If a scene fails to start, the log has `scene set-up failed`.
 - **Left from the review:** 3D-2, PUZ-2, TOP-4 (cheap); TOP-5 (memory) after a long-session tablet log; BRD-1, PUZ-3 measure first.
 - **Open:** keep "Aced it!" per scene as a map mark? Other worlds (not designed).
+
+## 2026-11-17: Q119: a new world for Topple! (talk, before any mockup)
+
+- **Q119. Topple!: a second world** (2026-11-17, developer). Agreed in talk:
+  the existing 25 scenes stay; the map is extended so travel between worlds is
+  simple; a new world opens only once the previous ones are completed; same
+  shape (5 levels of 5 scenes, difficulties, stars, map); **scene 5 of each
+  level harder than scenes 1-4** (scene 5 of level 1 already has a bigger
+  structure; to check what levels 2-5 do). Audience: the developer and a
+  10-year-old grandson who plays a lot (the 5-year-olds may find it too hard).
+- **Corrected:** the five worlds-so-far levels are different places, not steps
+  up in difficulty (developer: building site hardest, Star Light fairly easy).
+  The link between levels is "different places, the same aiming".
+- **Direction not yet chosen.** The developer is open to a different setting
+  (moon or Mars, rooms of a house, underwater, on water) and possibly a
+  different aiming experience (dropping things from a moving plane). Options
+  I gave: settings (space, toy-sized house, water, other times, inside a
+  machine) and aims (bombing run, cannon, bounce shots, pendulum, throwing
+  from a moving boat). **Asked for two mockups to compare: a toy-sized house
+  with bounce shots, and space with a bombing run.** Not started.
+- **Open:** the thread of continuity for the new world; how much new physics
+  and how many new mechanics (needs the direction first).
