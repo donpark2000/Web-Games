@@ -491,7 +491,20 @@ function stopDemo(why) {
 
 // The scene the game is at: made from its seed and checked (the same every
 // time), or `kept` (a scene picked up again: its layout and the blocks at rest).
+// A throw while it's made is caught: the notice goes, the game can be played on
+// from the map (review TOP-1: it stayed on "Setting up the scene…" for good).
 async function startScene(kept = null) {
+  try { return await makeTheScene(kept); } catch (e) {
+    L('scene set-up failed', { error: String(e?.message ?? e), stack: String(e?.stack ?? '').split('\n').slice(0, 4).join(' | '), ...game });
+    busy = false;
+    showWait(false);
+    try { hideCanvas(false); } catch { /* the canvas isn't there */ }
+    $('hint').textContent = 'The scene did not load. Tap Map to try again.';
+    $('hint').hidden = false;
+    return null;
+  }
+}
+async function makeTheScene(kept) {
   if (busy) return;
   // the scene left for the map, if it's the one the game is at: carried on as it was
   if (!kept && parked && JSON.stringify(parked.id) === JSON.stringify(sceneId())) { kept = parked; L('scene carried on after the map', { used: parked.settled?.round.used ?? 0 }); }
@@ -516,7 +529,7 @@ async function startScene(kept = null) {
   // with the game already on the next level (a reload on its card drew it in
   // the next level's setting and failed: "reading 'col'", 10.0-10.2)
   const lv = kept ? (kept.layout.level ?? 1) : game.level;
-  if (stage.level !== lv) {
+  if (stage.level !== lv || !stage.hasSetting(lv)) {
     hideCanvas(true);
     const r = await stage.setLevel(lv);
     L('setting', { ...r, name: levelInfo(lv).name });

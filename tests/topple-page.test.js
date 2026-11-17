@@ -142,7 +142,7 @@ test('topple page: a new level never shows the old one (the canvas hidden until 
   // hidden as the play screen opens on a level not drawn yet, and as the setting changes
   assert.match(js, /function showPlay\(\) \{[\s\S]*?if \(!current \|\| stage\.level !== game\.level\) hideCanvas\(true\);[\s\S]*?\n\}/);
   // a kept scene in its own level's setting (a level's last scene kept with the game on the next level: 10.0-10.2 failed)
-  assert.match(js, /const lv = kept \? \(kept\.layout\.level \?\? 1\) : game\.level;\s*if \(stage\.level !== lv\) \{\s*hideCanvas\(true\);\s*const r = await stage\.setLevel\(lv\)/);
+  assert.match(js, /const lv = kept \? \(kept\.layout\.level \?\? 1\) : game\.level;\s*if \(stage\.level !== lv \|\| !stage\.hasSetting\(lv\)\) \{\s*hideCanvas\(true\);\s*const r = await stage\.setLevel\(lv\)/);
   // shown only after the new scene is drawn
   assert.match(js, /stage\.setScene\(current\.parts\);[\s\S]*?stage\.render\(\);\s*hideCanvas\(false\);/);
   // still: the blocks and the effects; the effects move on every step, drawn or not

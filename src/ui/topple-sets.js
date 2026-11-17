@@ -59,7 +59,8 @@ export const SETTINGS = {
 const loader = new THREE.TextureLoader();
 const images = new Map();   // file -> Promise<Texture> (the one image each)
 function loadTex(file) {
-  if (!images.has(file)) images.set(file, new Promise((ok, fail) => loader.load(PHOTO_DIR + file, ok, undefined, () => fail(new Error(`${file} not loaded`)))));
+  // a load that failed is forgotten, so the next scene tries again (review TOP-3)
+  if (!images.has(file)) images.set(file, new Promise((ok, fail) => loader.load(PHOTO_DIR + file, ok, undefined, () => { images.delete(file); fail(new Error(`${file} not loaded`)); })));
   return images.get(file);
 }
 // A copy of a loaded texture: colour (sRGB) or data, on uv `channel`, repeated.

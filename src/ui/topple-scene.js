@@ -920,7 +920,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       const t0 = performance.now();
       let error = null;
       if (n > 1 && !sets.has(n)) {
-        try { sets.set(n, await makeSetting(n, { renderer, leafy, LEAF, camera, covers: hudCovers, sound: name => onSound?.(name) })); } catch (e) { error = String(e.message ?? e); sets.set(n, null); }
+        try { sets.set(n, await makeSetting(n, { renderer, leafy, LEAF, camera, covers: hudCovers, sound: name => onSound?.(name) })); } catch (e) { error = String(e.message ?? e); /* not kept: the next scene tries the photos again (review TOP-3) */ }
       }
       if (set) scene.remove(set.group);
       set = n > 1 ? sets.get(n) ?? null : null;
@@ -976,6 +976,8 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     // Shards and drops still flying (a scene isn't cleared until they're down).
     get fxLive() { return set?.fxLive?.() ?? 0; },
     get level() { return level; },
+    // level n is drawn in its own photos, or needs none (false: they failed to load; review TOP-3)
+    hasSetting(n) { return n <= 1 || sets.get(n) != null; },
     // ms to draw a frame, averaged over n (the log).
     timeDraw(n = 10) {
       const t0 = performance.now();

@@ -89,3 +89,53 @@ test('Laser Lab: tapping a shop piece while a beam is growing does nothing (revi
   pick({ target: { closest: () => null } });
   assert.deepEqual(calls, []);
 });
+
+// TOP-1: a throw while a Topple! scene is made must not leave the game on
+// "Setting up the scene…" (busy stuck, notice up).
+test('Topple!: a scene that throws while made clears the notice and busy (review TOP-1)', async () => {
+  const src = await read('src/ui/topple.js');
+  const fn = cut(src, 'async function startScene(kept = null) {');
+  const make = new Function('ctx', `
+    const { L, showWait, hideCanvas, $, game, makeTheScene } = ctx; let busy = ctx.busy;
+    ${fn}
+    return { startScene, busy: () => busy, setBusy: b => { busy = b; } };`);
+  const logs = [], waits = [], hint = { textContent: '', hidden: true };
+  const ctx = { L: (w, d) => logs.push([w, d]), showWait: on => waits.push(on), hideCanvas: () => {}, $: () => hint,
+    game: { level: 2, scene: 1 }, busy: true, makeTheScene: async () => { throw new Error('boom'); } };
+  const g = make(ctx);
+  const r = await g.startScene();
+  assert.equal(r, null);
+  assert.equal(g.busy(), false, 'busy cleared');
+  assert.deepEqual(waits, [false], 'notice taken down');
+  assert.equal(hint.hidden, false);
+  assert.match(hint.textContent, /Map/);
+  assert.equal(logs[0][0], 'scene set-up failed');
+  assert.match(logs[0][1].error, /boom/);
+  // normal case: what the scene returns comes back, nothing logged
+  const logs2 = [];
+  const ok = new Function('ctx', `const { L, showWait, hideCanvas, $, game, makeTheScene } = ctx; let busy = false; ${fn}; return startScene;`)(
+    { ...ctx, L: (w) => logs2.push(w), makeTheScene: async () => 'scene' });
+  assert.equal(await ok(), 'scene');
+  assert.deepEqual(logs2, []);
+});
+
+// TOP-3: a photo that failed to load is tried again next time, not kept.
+test('Topple!: a failed photo load is forgotten so the next scene retries (review TOP-3)', async () => {
+  const src = await read('src/ui/topple-sets.js');
+  const fn = cut(src, 'function loadTex(file) {');
+  let fail = true; const asked = [];
+  const loader = { load: (url, ok, _p, err) => { asked.push(url); setTimeout(() => (fail ? err() : ok({ url })), 0); } };
+  const loadTex = new Function('ctx', `const { loader, images, PHOTO_DIR } = ctx; ${fn}; return loadTex;`)(
+    { loader, images: new Map(), PHOTO_DIR: 'p/' });
+  await assert.rejects(loadTex('a.jpg'), /a.jpg not loaded/);
+  fail = false;
+  const t = await loadTex('a.jpg');
+  assert.equal(t.url, 'p/a.jpg');
+  assert.equal(asked.length, 2, 'asked again after the failure');
+  await loadTex('a.jpg');
+  assert.equal(asked.length, 2, 'a success is kept');
+  // the scene's setting is not kept as missing
+  const scene = await read('src/ui/topple-scene.js');
+  assert.ok(!/sets\.set\(n, null\)/.test(scene), 'a failed setting is not cached as null');
+  assert.match(scene, /hasSetting\(n\)/);
+});

@@ -22,15 +22,6 @@ time, each tried before publishing:
   orientation; did the scene end lost with the block out there, or was it
   counted down; the log (Log page, saved at once) of that session.
 
-- **Q109. Topple!: a scene drawn with no blocks** (2026-11-15, developer,
-  the tablet, the last scene played the night of 2026-11-14: "did not draw
-  any blocks/targets ... the scene itself had all the normal background. I
-  tossed one ball just to see if they were invisible but nothing happened.
-  The ball moved like it should but there was nothing to hit"). The log is
-  `web-games-log_2026-11-15T03-24-45.txt`. Cause not found; 10.14 isn't it
-  (see "Q109: the log"). A diagnostic is in (the log's `blocks drawn`);
-  to ask the developer: does it happen again, in Frosty Times only?
-
 - **Q116. Topple!: stars on a more detailed, scrollable map** (2026-11-16,
   developer; new worlds come later, as a separate release). Agreed in
   talk, before any mockup: **stars per scene by balls used** (3 balls: 3
@@ -23597,3 +23588,18 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Not checked:** the card in a browser or on a device (a real 1-ball win
   can't be thrown by the page's hook); the badge's look on the phone.
 - **Open:** whether Aced it! should be kept per scene (a mark on the map).
+
+## 2026-11-17: Release 10.27 published; TOP-1 and TOP-3 fixed (not published)
+
+- **10.27 (found on checking at session start):** `main` = `block-game` at 61053be, tag `v10.27` pushed: Topple!'s win card says "New best - N stars!", Retry button, Aced it! badge (the Q118 follow-ups). Not recorded in the journal when it went out; the developer: "Changes look good".
+- **Q109 closed** by the developer (above). Fixing TOP-1 and TOP-3 anyway, as good in themselves.
+- **TOP-1:** `startScene` in `src/ui/topple.js` is now a wrapper over `makeTheScene`; a throw logs `scene set-up failed` (error and top of the stack), clears `busy` and the notice, and the hint says "The scene did not load. Tap Map to try again." (before: stuck on "Setting up the scene…").
+- **TOP-3:** `loadTex` forgets a failed load; `setLevel` no longer caches a failed setting as null; new `stage.hasSetting(n)`, and the page re-asks `setLevel` when the level's photos aren't there. So a scene after a failed load retries the photos (each later scene start retries until it works).
+- **Tests:** two in `tests/review-fixes.test.js` (a throw clears busy and the notice and logs; a normal start returns the scene and logs nothing; a failed load is asked again, a success is kept). Run on the old source (src stashed) both fail, with the fixes both pass. One page test's pattern updated for the new condition. `node tools/offline.js` run (version 3896919cda6b). `npm test` 712 tests: the one failure was that page pattern, fixed; `npm test` 712 of 712 after.
+- **Not checked:** a real failed photo load or throw in a browser (the log would show `scene set-up failed`).
+
+**Status (start here next session)**
+- **Live: 10.27.** `block-game` has TOP-1 and TOP-3 fixed, **not published**: propose 10.28 (fixes) when the developer says to publish.
+- **Open questions:** Q118 (live, liked), Q113 (parked), Q109 closed.
+- **Left from the review:** 3D-2, PUZ-2, TOP-4 (cheap); TOP-5 (memory) after a long-session tablet log; BRD-1, PUZ-3 measure first.
+- **Open:** keep "Aced it!" per scene as a map mark? Other worlds (not designed).
