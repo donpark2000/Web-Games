@@ -23751,6 +23751,7 @@ anything to show it (the dots are the developer's choice per How hard).
 - **v5 (same link, page version 6):** on the moon **the ring and the lit block show whenever a ball is ready** (hidden for the 1.2 s until the next one); **Space drops as it is pressed**; the pad still steers by dragging and drops on letting go; the track line brightens only while steering. B's tab hidden (its code stays). Text, keys line and hint updated.
 - **Checked locally (test hook):** with nothing held, the ring showed and blocks lit as it crossed them (the same positions as above); Space down dropped at once (5 → 4 balls); the ring hid after the drop, was still hidden at 0.6 s and back at 1.3 s. No new console errors.
 - **Not checked:** the app's viewer, a touch screen. (The browser pane was hidden this time, which pauses a page's frame loop, so the checks stepped the game from the test hook.)
+- **Developer confirmed the reading:** "I did not realize the space bar down and space bar up controls two different things ... So it works." So v4's hold-to-aim worked as built; v5's always-shown aim is a choice, not a fix. Asked: keep v5, or go back to hold to see the aim.
 
 **Status (start here next session)**
 - **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
