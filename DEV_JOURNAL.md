@@ -23807,6 +23807,6 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open (new):** Q120, in "Open questions" at the top.
 
 **Status (start here next session)**
-- **11.0 being published** (the developer asked: "give me five levels ... and publish").
+- **Live: 11.0** (published 2026-11-17 at the developer's word: `main` moved on to the branch, tag `v11.0`, GitHub release; github.io served version 0b7ef9b1be20 within a few minutes; in the browser pane the page took the new code on the second reload, as the offline app does, and level 6 loaded with no errors). `block-game` = `main` plus journal entries. Local servers stopped (none left listening).
 - **Q119 built** (the moon base); the developer to play it on a phone and tablet. To review: the levels' names (Claude's), Harder/Hardest's speeds, how the scenes feel.
 - **Open questions:** Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
