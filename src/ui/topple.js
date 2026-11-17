@@ -872,7 +872,7 @@ function endScene(result) {
   // the pills over the park show the scene's end until the next one starts
   // (no hearts left, or all 5 jewels), not the game already moved on
   const shown = outcome === 'out' ? { ...game, hearts: 0, jewels: was.jewels } : lvDone ? { ...was, jewels: SCENES } : null;
-  ended = { outcome, words, won: result.won, shown, unlocked: game.reached > was.reached, stars, balls: round.used };
+  ended = { outcome, words, won: result.won, level: was.level, scene: was.scene, shown, unlocked: game.reached > was.reached, stars, balls: round.used };
   // the blocks as the scene ended (the last may still be falling): a reload shows it as it was
   settled = { round: JSON.parse(JSON.stringify(round)), poses: world.poses() };
   // won: the win shown at once ("Cleared!", the jewel, the sound), the card once the blocks are calm (tick);
@@ -908,6 +908,9 @@ function showEnd() {
   // a scene won: its stars, and the best (Q116)
   const st = ended.won ? ended.stars : null;
   $('overStars').hidden = $('overBest').hidden = !st;
+  // fewer than 3 stars in the best so far: the scene can be played again at once (Q118; a card kept
+  // from before has no scene to go back to)
+  $('againStars').hidden = !(st && ended.level && ended.scene && Math.max(st.best, st.stars) < 3);
   if (st) {
     $('overStars').innerHTML = Array.from({ length: 3 }, (_, i) => `<span class="bs${i < st.stars ? ' on' : ''}">${starSvg(i < st.stars)}</span>`).join('');
     $('overStars').setAttribute('aria-label', `${st.stars} of 3 stars`);
@@ -929,6 +932,19 @@ $('nextBtn').onclick = () => {
     return;
   }
   if (o === 'all') { game = createGame(newSeed(), game); saveGame(); current = null; round = null; ended = null; settled = null; showMap(); return; }
+  startScene();
+};
+// Try again for more stars (Q118, developer, 2026-11-17): the scene just won, as a scene tapped on the
+// map: new scenes, 3 hearts and the balls again; the best stars only go up. The game was on to the next
+// scene (or level) as the scene ended; this puts it back on this one.
+$('againStars').onclick = () => {
+  const lv = ended?.level, sc = ended?.scene;
+  if (!lv || !sc || busy) return;
+  const was = { ...game };
+  if (!startAtScene(game, lv, sc)) { L('try again for more stars: not playable', { level: lv, scene: sc, reached: game.reached }); return; }
+  saveGame();
+  L('try again for more stars', { level: lv, scene: sc, stars: ended.stars?.stars, best: ended.stars?.best, was, now: { ...game }, levelSeed: seedOf(game) });
+  current = null; round = null; ended = null; settled = null;
   startScene();
 };
 $('newBtn').onclick = () => { L('new game: the setup screen'); current = null; round = null; ended = null; settled = null; showSetup(); };

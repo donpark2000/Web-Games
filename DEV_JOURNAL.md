@@ -71,6 +71,13 @@ time, each tried before publishing:
   these ideas on my tablet and phone"), see "Q117 built". Replaces the 10.24
   cards that open in place.
 
+- **Q118. Topple!: Try again for more stars on the win card** (2026-11-17,
+  developer, after liking the 10.25 map: "when you complete a scene and you get
+  less than 3 stars, it is natural to want to try that scene again ... it would
+  also be nice to have an option right from the screen that tells you the scene
+  is complete"). Label chosen by the developer: "Try again for more stars".
+  Built, not yet published (see "Q118 built").
+
 ## Proposed additions to the standards skill
 
 - **Look at the worst case of a generator, not its mean, and check a
@@ -23522,3 +23529,35 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q117 (built, waiting to be tried), Q113 (parked), Q109.
 - **Likely next:** adjustments to the road after the tablet; other worlds;
   the review's leftovers (TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 ...).
+
+## 2026-11-17: Q118 built: Try again for more stars (release 10.26, not published)
+
+- **The developer's feedback on 10.25:** likes the new map. Asked for a way to
+  play a scene again from the win card when it gave under 3 stars; chose the
+  label "Try again for more stars" (mine: "Play it again" was the alternative).
+- **Built:** a pill under Next on the card (`topple.html`, `#againStars`);
+  `endScene` keeps the scene and level it ended (`ended.level`, `ended.scene`:
+  the game has already moved on); `showEnd` shows it only while
+  `max(best before, stars now) < 3` (and not on a card kept from 10.25 or
+  earlier, which has no scene); the click is `startAtScene` as the map's tap
+  (new scenes, 3 hearts), saved, logged, then the scene starts. No change to the
+  core: `startAtScene` already opens any scene won, and any in a done level (a
+  level's last scene, once the game is on to the next level).
+- **Evidence:** a core test (the scene just won, back to it as the game moves on;
+  the best only goes up; a level's last scene with the game on level 2; a scene
+  not reached refused) and a page test of the button, what the card keeps, when
+  it shows, what the click does and its logs. In the built-in browser at
+  375 x 812: a scene won showed the button under Next; pressing it put the game
+  back on the scene (3 hearts, jewels before it, the level's round counted on:
+  new scenes), the card gone.
+- **Not checked:** the button hidden at 3 stars in the browser (the page's hook
+  can't throw a counted ball, so a real 3-star card wasn't made: covered by
+  the page test only); the real tablet and phone.
+
+**Status (start here next session)**
+- **Live: 10.25.** `block-game` has Q118 and release 10.26 prepared, **not
+  published**: waiting for the developer's OK.
+- **From the developer:** try Try again for more stars on a win card with fewer
+  than 3 stars (and see it absent at 3).
+- **Open questions:** Q118 (built, not published), Q117 (published, liked),
+  Q113 (parked), Q109.

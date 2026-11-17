@@ -104,6 +104,34 @@ test('the map shows what can be reached (Q117): an old scene played again shuts 
   assert.equal(playableScene(createGame(35), 3, 1), false, 'a level not open is shut whole');
 });
 
+test('try again for more stars (Q118): the scene just won can be started again as the game moves on, also the last scene of a level', () => {
+  const g = createGame(41);
+  for (const s of [1, 2]) { recordStars(g, 1, s, 3); sceneOver(g, true); }
+  recordStars(g, 1, 3, 2);
+  assert.equal(sceneOver(g, true), 'won');
+  assert.deepEqual([g.level, g.scene], [1, 4], 'the game is on to scene 4');
+  const s0 = seedOf(g);
+  assert.equal(startAtScene(g, 1, 3), true, 'back to the scene just won');
+  assert.deepEqual([g.level, g.scene, g.hearts, g.jewels], [1, 3, HEARTS, 2], '3 hearts, the jewels before it');
+  assert.notEqual(seedOf(g), s0, 'new scenes');
+  assert.deepEqual(starsOf(g, 1), [3, 3, 2, 0, 0], 'the stars kept');
+  assert.equal(playableScene(g, 1, 4), true, 'scene 4 stays open');
+  // the best only goes up
+  assert.equal(recordStars(g, 1, 3, 1).improved, false);
+  assert.equal(recordStars(g, 1, 3, 3).improved, true);
+  assert.deepEqual(starsOf(g, 1), [3, 3, 3, 0, 0]);
+  // a level's last scene won: the game is on to level 2, and level 1's last scene can still be played again
+  const h = createGame(42);
+  for (const s of [1, 2, 3, 4]) { recordStars(h, 1, s, 3); sceneOver(h, true); }
+  recordStars(h, 1, 5, 1);
+  assert.equal(sceneOver(h, true), 'level');
+  assert.equal(h.level, 2);
+  assert.equal(startAtScene(h, 1, 5), true, 'level 1 is done: every scene can be started');
+  assert.deepEqual([h.level, h.scene, h.hearts, h.jewels], [1, 5, HEARTS, 4]);
+  assert.deepEqual(placeOf(h, 2), { scene: 1, hearts: HEARTS, jewels: 0 }, 'level 2 keeps its place');
+  assert.equal(startAtScene(createGame(43), 1, 3), false, 'a scene not reached cannot be played again');
+});
+
 test('profile: a game kept before becomes the one for its difficulty; the others start empty', () => {
   const old = createGame(31, null, 'harder');
   sceneOver(old, true);

@@ -7,6 +7,15 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.26 (2026-11-17, version 0912e5f3324b)
+
+Topple!: play a scene again for more stars, right from its card.
+
+- **Try again for more stars.** When you win a scene and your best for it is
+  under 3 stars, its card has a button to play it again straight away, with a
+  new arrangement of blocks. Your best stars are kept and can only go up.
+- Everything else is as in 10.25.
+
 ## 10.25 (2026-11-16, version a23bbac3fa94)
 
 Topple!: the map is a road again, and how hard moves back.

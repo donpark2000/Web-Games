@@ -60,6 +60,18 @@ test('topple stars page: a scene won records its stars before the game moves on,
   assert.match(js, /L\('scene over', \{ \.\.\.result, outcome, stars,/, 'the log names the stars');
 });
 
+test('topple stars page: a scene won with fewer than 3 stars has Try again for more stars on its card (Q118)', () => {
+  assert.match(page, /<button type="button" class="big" id="nextBtn"><\/button>\s*<!--[^>]*-->\s*<button type="button" class="pill" id="againStars" hidden>Try again for more stars<\/button>/);
+  const end = js.match(/function endScene\(result\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(end, /ended = \{[^}]*level: was\.level, scene: was\.scene,/, 'the card remembers which scene it was');
+  const show = js.match(/function showEnd\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.match(show, /\$\('againStars'\)\.hidden = !\(st && ended\.level && ended\.scene && Math\.max\(st\.best, st\.stars\) < 3\);/, 'shown only below 3 stars, on a scene won, not once 3 are already kept');
+  const click = js.match(/\$\('againStars'\)\.onclick = \(\) => \{[\s\S]*?\n\};/)?.[0] ?? '';
+  assert.match(click, /startAtScene\(game, lv, sc\)/, 'the same as a scene tapped on the map');
+  assert.match(click, /saveGame\(\);[\s\S]*?L\('try again for more stars'[\s\S]*?startScene\(\);/);
+  assert.ok(js.includes("L('try again for more stars: not playable'"), 'a refusal is logged');
+});
+
 test('topple stars page: a game for each difficulty; Start over and Start again keep the stars; the logs say which', () => {
   assert.match(js, /game = profile \? profile\.games\[profile\.mode\] : null;|let game = profile \? profile\.games\[profile\.mode\] : null;/);
   assert.match(js, /if \(!game\) \{ game = createGame\(newSeed\(\)\); profile = createProfile\(game\); saveGame\(\); \}/);

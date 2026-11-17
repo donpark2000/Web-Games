@@ -4,7 +4,7 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-16, latest): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
+*Status (2026-11-17, latest): **Topple!: a scene won with fewer than 3 stars has Try again for more stars on its card** (developer, trying 10.25; for release 10.26; see "Topple!", The map, Stars). Earlier (2026-11-16): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
 swinging on its chain, a sled sliding by on the snow, a star falling at a
 slant (a ball can pass between its points), each once in scenes 1, 3, 5; 2
 and 4 spread out, with a telescope not to hit** (on `block-game`, for
@@ -2388,6 +2388,13 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     card of a scene won shows its stars (popping in one at a time) and "New!
     Your first stars here", "Your best was N", or "The best there is!". Start
     over and Start again keep the stars. The button in play says Map.
+    **Try again for more stars** (Q118, release 10.26, developer, 2026-11-17: "it
+    is natural to want to try that scene again ... right from the screen that
+    tells you the scene is complete"): a button under Next on that card, **only
+    while the best kept for the scene is under 3 stars**. It plays the scene
+    just won as a scene tapped on the map does (new scenes, 3 hearts and the
+    balls again; the game had gone on to the next scene or level, and this puts
+    it back); also on a level's last scene. Logged: `try again for more stars`.
   - Logged: `map: shown` (difficulty, level, scene, road height, circle),
     `map: the face walks`, `map: a scene, straight into play`, `map: a scene shut`,
     `map: a locked level`, `map: drawn again` (the width changed).
