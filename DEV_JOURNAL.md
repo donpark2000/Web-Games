@@ -23770,6 +23770,8 @@ anything to show it (the dots are the developer's choice per How hard).
   - **Map:** the road goes on past scene 25 into a moon part with its own colours.
   - Every scene checked clearable by a test player, as the park's are.
 - **Asked before starting:** (1) when the moon opens (the agreed rule: once all 25 park scenes are done on that difficulty); (2) the release number (11.0 proposed, a new world; by the rule a change would be 10.29). Recommended a fresh session for the build (this one long): Opus 5.5, high effort.
+- **Developer's answers:** "1) keep the rule 2) 11.0 is fine." **The moon opens once all 25 park scenes are won on that difficulty** (no private link). **Release 11.0.** No answer on the fresh session; the build goes on in this session.
+- **Developer's sky ideas:** "show the odd shooting star (not too much) and maybe the earth very slowly rotates and/or moves across the sky. If realistic movement would be too slow, we could just show the earth in slightly different positions and orientations when scenes change."
 
 **Status (start here next session)**
 - **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
