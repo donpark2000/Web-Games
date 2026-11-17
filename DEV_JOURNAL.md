@@ -23511,7 +23511,7 @@ anything to show it (the dots are the developer's choice per How hard).
   see it that night.
 
 **Status (start here next session)**
-- **Live: 10.25** (if the merge below is not recorded, check `git log main`).
+- **Live: 10.25**, checked at github.io (release.js and topple-road.js served); `main` = `block-game`, tag `v10.25` and the GitHub release made; my localhost server is stopped. 708 of 708 tests on the release state.
   The map is a scrolling road; how hard is on the setup screen.
 - **From the developer (tablet and phone):** try the road: it opens at the scene
   you last played with your face on it; stars under each scene; tapping a won
