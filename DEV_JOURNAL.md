@@ -23760,7 +23760,19 @@ anything to show it (the dots are the developer's choice per How hard).
 - **v6 (same link, page version 7):** v4's hold to aim back; the dots from the lander to the ring are hidden on the moon (`G.noDots`); the ring still comes from the same worked-out path. Text, keys line, hint updated.
 - **Checked locally (test hook):** nothing held: no ring; Space held 3 s: ring shown and moving with the lander, blocks lit as it crossed them (panels 5, 6), 0 dots shown, no drop (5 balls); Space up: dropped (4), ring hidden. No new console errors.
 
+## 2026-11-17: Q119: build the moon world (the plan, before building)
+
+- **Developer:** "I think we are ready to move on to 5 levels. We have the world 'feel' with the new aiming idea and the flight controls. Can I leave you with a job that big - give me five levels (each with 5 scenes) and publish?"
+- **Plan proposed by Claude (the developer away; to be checked by playing it):**
+  - **World 2, the moon base**, after the park's 25 scenes on the map: the same shape (5 levels of 5 scenes, scene 5 harder, 3 hearts, 💎, stars by balls used, per difficulty). The controls and view of mockup v6: the lander to and fro, hold the pad to aim (ring and lit block), drag up / down farther / nearer, let go to drop, ⇄ on the left to turn, keys as in the mockup.
+  - **Five places on the moon (levels), the same aiming:** 1 the landing zone (everything on one line: timing only; the way in, easy); 2 the solar farm (rows of panels that fall into each other; two distances); 3 the crater rim (three distances, structures on low ledges); 4 the mining site (crates, ore carts, beams); 5 the launch pad (tall gantries; scene 5 the biggest).
+  - **Difficulties** (as the park's halve the dots): Normal: ring and lit block, 1.0 m/s; Harder: ring only (no lit block), a faster lander; Hardest: the ring for a scene's first ball only, faster still. Moving things or things not to hit: later, not in this release.
+  - **Map:** the road goes on past scene 25 into a moon part with its own colours.
+  - Every scene checked clearable by a test player, as the park's are.
+- **Asked before starting:** (1) when the moon opens (the agreed rule: once all 25 park scenes are done on that difficulty); (2) the release number (11.0 proposed, a new world; by the rule a change would be 10.29). Recommended a fresh session for the build (this one long): Opus 5.5, high effort.
+
 **Status (start here next session)**
 - **Live: 10.28.** `block-game` = `main` plus journal entries. Nothing waiting to publish.
+- **Next: build the moon world** from "Q119: build the moon world (the plan)" above, then publish (the developer asked for it), once the two questions there are answered.
 - **Q119 so far (moon world, Normal):** a lander flies to and fro; hold the pad (or Space) to see the ring and the lit block; drag up / down (↑ ↓) to fly farther / nearer; let go to drop; ⇄ (← →) turns it round; it turns by itself at the ends. Mockup v6 (page version 7) waiting for the developer's try. Next: the moon world's 5 levels, which park rules carry over, and the Harder/Hardest levers (faster, higher, no ring or light, moving targets); a touch-screen try needs the moon scene in the game (a build and publish) or the artifact opened on a tablet.
 - **Open questions:** Q119 (mockup v6), Q118 (live, liked), Q113 (parked).
