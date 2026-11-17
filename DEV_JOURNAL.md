@@ -23561,3 +23561,21 @@ anything to show it (the dots are the developer's choice per How hard).
   than 3 stars (and see it absent at 3).
 - **Open questions:** Q118 (built, not published), Q117 (published, liked),
   Q113 (parked), Q109.
+
+## 2026-11-17: Release 10.26 published and live
+
+- **Published** with the developer's OK ("yes, publish it as 10.26"): Try again
+  for more stars (Q118). `npm test` 710 of 710 on the release state;
+  `node tools/release.js` said ready; `block-game` fast-forwarded into
+  `main`; tag `v10.26` pushed; GitHub release made. The live site serves
+  release 10.26, version 0912e5f3324b, and its topple.html has the button
+  (checked at github.io). My localhost server is stopped.
+
+**Status (start here next session)**
+- **Live: 10.26.** `block-game` = `main` plus this entry. Nothing waiting to publish.
+- **From the developer (tablet and phone):** try Try again for more stars on a
+  card with under 3 stars, and see it absent at 3.
+- **Open questions:** Q118 (published, waiting to be tried), Q117 (published,
+  liked), Q113 (parked), Q109.
+- **Next, when the developer wants:** other worlds (discussed, not designed);
+  the review's leftovers (TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 ...).
