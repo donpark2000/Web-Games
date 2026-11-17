@@ -23635,3 +23635,5 @@ anything to show it (the dots are the developer's choice per How hard).
   with bounce shots, and space with a bombing run.** Not started.
 - **Open:** the thread of continuity for the new world; how much new physics
   and how many new mechanics (needs the direction first).
+
+- **Skill edit (2026-11-17, developer asked for it):** "Match the model to the work" is now "Match the model and effort to the work", and says that a fresh-session suggestion names the model and effort in the same message. ai-dev-practices commit 84240f1, pushed; zip rebuilt at `C:\Users\dpark\Documents\ai-dev-practices\software-project-standards.zip` for the developer to upload. (Also a memory, `model-effort-with-new-session`.)
