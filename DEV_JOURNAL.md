@@ -23603,3 +23603,13 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Open questions:** Q118 (live, liked), Q113 (parked), Q109 closed.
 - **Left from the review:** 3D-2, PUZ-2, TOP-4 (cheap); TOP-5 (memory) after a long-session tablet log; BRD-1, PUZ-3 measure first.
 - **Open:** keep "Aced it!" per scene as a map mark? Other worlds (not designed).
+
+## 2026-11-17: Release 10.28 published and live
+
+- **Published** with the developer's OK ("yes, publish it as 10.28"): TOP-1 and TOP-3 fixed. `npm test` 712 of 712; `node tools/release.js` said ready; `block-game` fast-forwarded into `main`; tag `v10.28` pushed; GitHub release made. The live site serves release 10.28, version f20e68ad6f18, and its topple.js has the fix (checked at github.io). No localhost server found on the usual ports.
+
+**Status (start here next session)**
+- **Live: 10.28.** `block-game` = `main` plus this entry. Nothing waiting to publish.
+- **Open questions:** Q118 (live, liked), Q113 (parked); Q109 closed. If a scene fails to start, the log has `scene set-up failed`.
+- **Left from the review:** 3D-2, PUZ-2, TOP-4 (cheap); TOP-5 (memory) after a long-session tablet log; BRD-1, PUZ-3 measure first.
+- **Open:** keep "Aced it!" per scene as a map mark? Other worlds (not designed).
