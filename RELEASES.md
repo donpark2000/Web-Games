@@ -7,6 +7,17 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 10.27 (2026-11-17, version e9abedf5c2e5)
+
+Topple!: clearer win card, a Retry button, and a badge for a one-ball win.
+
+- **New best - 3 stars!** When you beat your best, the card now says so, instead
+  of "Your best was 2 stars" beside your new 3.
+- **Retry.** The play-again button has a refresh icon and just says Retry.
+- **Aced it!** Clear a scene with your first ball and a gold badge pops in over
+  your stars.
+- Everything else is as in 10.26.
+
 ## 10.26 (2026-11-17, version 0912e5f3324b)
 
 Topple!: play a scene again for more stars, right from its card.
