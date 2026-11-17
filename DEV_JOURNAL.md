@@ -23579,3 +23579,21 @@ anything to show it (the dots are the developer's choice per How hard).
   liked), Q113 (parked), Q109.
 - **Next, when the developer wants:** other worlds (discussed, not designed);
   the review's leftovers (TOP-1, TOP-3, 3D-2, PUZ-2, TOP-4 ...).
+
+## 2026-11-17: Q118 follow-ups from playing it (not published)
+
+- **Found (developer):** 2 stars, replayed, 3 stars: the card showed 3 stars
+  but said "Your best was 2 stars". Not a counting bug: `st.best` is the best
+  *before* this play, and the line said so truthfully, but beside the new
+  stars it read as a contradiction.
+- **Changed:** the line is now "New best - 3 stars!" (the stars just won;
+  "1 star" singular). The button is a refresh icon (inline SVG, nothing
+  loaded) and "Retry". New: a gold "Aced it!" badge over the stars when a
+  scene is won with the first ball (`ended.balls === 1`; shown on the card
+  only, not kept; stars unchanged, 1 to 3 balls is still 3 stars).
+- **Tests:** `tests/topple-stars-page.test.js` covers the new wording (and that
+  "Your best was" is gone), the badge's condition, its markup, `[hidden]`
+  and the less-motion rule, and the Retry button. `npm test` 710 of 710.
+- **Not checked:** the card in a browser or on a device (a real 1-ball win
+  can't be thrown by the page's hook); the badge's look on the phone.
+- **Open:** whether Aced it! should be kept per scene (a mark on the map).

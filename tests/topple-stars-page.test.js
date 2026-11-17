@@ -53,7 +53,12 @@ test('topple stars page: a scene won records its stars before the game moves on,
   const show = js.match(/function showEnd\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
   assert.match(show, /ended\.won \? ended\.stars : null/);
   assert.match(show, /New! Your first stars here/);
-  assert.match(show, /Your best was/);
+  assert.match(show, /New best - \$\{st\.stars\} \$\{st\.stars === 1 \? 'star' : 'stars'\}!/, 'a better score says the new stars, not the old best');
+  assert.doesNotMatch(show, /Your best was/, 'the old best beside the new stars read as a contradiction');
+  assert.match(show, /\$\('overAced'\)\.hidden = !\(st && ended\.balls === 1\);/, 'Aced it! only on a scene won with the first ball');
+  assert.match(page, /<p class="aced" id="overAced" hidden>⚡ Aced it!<\/p>/);
+  assert.match(css, /\.aced\[hidden\] \{ display: none; \}/, 'hidden really hides the badge');
+  assert.match(css, /prefers-reduced-motion: reduce\) \{[^\n]*\.aced \{ animation: none; \}/, 'less motion: the badge is still');
   assert.match(show, /The best there is!/);
   assert.match(css, /\.bigstars \.bs\.on \{ animation: tpstar/);
   assert.match(css, /prefers-reduced-motion: reduce\) \{[^}]*\.bigstars \.bs\.on \{ animation: none/);
@@ -61,7 +66,7 @@ test('topple stars page: a scene won records its stars before the game moves on,
 });
 
 test('topple stars page: a scene won with fewer than 3 stars has Try again for more stars on its card (Q118)', () => {
-  assert.match(page, /<button type="button" class="big" id="nextBtn"><\/button>\s*<!--[^>]*-->\s*<button type="button" class="pill" id="againStars" hidden>Try again for more stars<\/button>/);
+  assert.match(page, /<button type="button" class="big" id="nextBtn"><\/button>\s*<!--[^>]*-->\s*<button type="button" class="pill" id="againStars" hidden><svg class="ic"[^>]*aria-hidden="true"[^>]*>[\s\S]*?<\/svg> Retry<\/button>/, 'a refresh icon and Retry');
   const end = js.match(/function endScene\(result\) \{[\s\S]*?\n\}/)?.[0] ?? '';
   assert.match(end, /ended = \{[^}]*level: was\.level, scene: was\.scene,/, 'the card remembers which scene it was');
   const show = js.match(/function showEnd\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';

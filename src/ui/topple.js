@@ -908,6 +908,8 @@ function showEnd() {
   // a scene won: its stars, and the best (Q116)
   const st = ended.won ? ended.stars : null;
   $('overStars').hidden = $('overBest').hidden = !st;
+  // the first ball cleared it all: a badge (developer, 2026-11-17)
+  $('overAced').hidden = !(st && ended.balls === 1);
   // fewer than 3 stars in the best so far: the scene can be played again at once (Q118; a card kept
   // from before has no scene to go back to)
   $('againStars').hidden = !(st && ended.level && ended.scene && Math.max(st.best, st.stars) < 3);
@@ -915,7 +917,7 @@ function showEnd() {
     $('overStars').innerHTML = Array.from({ length: 3 }, (_, i) => `<span class="bs${i < st.stars ? ' on' : ''}">${starSvg(i < st.stars)}</span>`).join('');
     $('overStars').setAttribute('aria-label', `${st.stars} of 3 stars`);
     $('overBest').className = `overbest${st.improved ? ' new' : ''}`;
-    $('overBest').textContent = st.best === 0 ? 'New! Your first stars here' : st.improved ? `Your best was ${st.best} ${st.best === 1 ? 'star' : 'stars'}` : st.stars === 3 ? 'The best there is!' : `Your best here: ${st.best} ${st.best === 1 ? 'star' : 'stars'}`;
+    $('overBest').textContent = st.best === 0 ? 'New! Your first stars here' : st.improved ? `New best - ${st.stars} ${st.stars === 1 ? 'star' : 'stars'}!` : st.stars === 3 ? 'The best there is!' : `Your best here: ${st.best} ${st.best === 1 ? 'star' : 'stars'}`;
   }
   $('over').hidden = false;
 }
