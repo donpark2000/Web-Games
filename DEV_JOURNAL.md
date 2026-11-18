@@ -10,6 +10,25 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q126. Topple!: ⇄ sends the ring racing** (2026-11-17, developer, 11.0 on the
+  tablet): "The control to make the ship change direction 'worked' on my tablet but
+  was unusable. Any time I hit it, the target aiming light did not just change
+  direction - it changed speed and became really fast. So I ended up not using it
+  and just waiting for the ship to go back and forth on its own."
+  **Why (measured, core sums):** the ball keeps the lander's speed, so the ring is
+  speed × the 2.09 s fall ahead of the lander (2.1 m at 1 m/s). Turning flips that
+  lead to the other side: the ring travels 4.2 m during ⇄'s 0.67 s turn, **peaking
+  at 7.3 m/s** (7.6 on Harder, 8.0 on Hardest), against 1.0 m/s in straight flight.
+  The turn at the ends does the same more slowly (5.2 m in 3 s, peak 3.1 m/s), which
+  is why waiting felt better. Not a bug in the code: what the sums give.
+  **Options (to choose):** (a) **the ball falls straight down under the lander**
+  (no forward speed): the ring right under the lander, turns calm (the ring moves
+  only as the lander does), the timing simply being over the block; the lead could
+  come back as a Harder lever. (b) Keep the lead, make every turn slow enough that
+  the ring never races (about 3 s a turn at 1.5 m/s): ⇄ slower to act. (c) Keep the
+  lead, ⇄ stops the lander, then it sets off the other way (the ring still sweeps
+  back 2.1 m as it stops). Claude's lean: (a).
+
 - **Q122. Topple!: the map shows worlds** (2026-11-17, developer, first try of
   11.0): "The map makes no distinction between the 'worlds' concept. In fact it just
   keeps naming the scenes sequentially. I think there should be a more dramatic
@@ -23866,4 +23885,4 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Live: 11.0** (published 2026-11-17 at the developer's word: `main` moved on to the branch, tag `v11.0`, GitHub release; github.io served version 0b7ef9b1be20 within a few minutes; in the browser pane the page took the new code on the second reload, as the offline app does, and level 6 loaded with no errors). `block-game` = `main` plus journal entries. Local servers stopped (none left listening).
 - **Q119 built** (the moon base); the developer to play it on a phone and tablet. To review: the levels' names (Claude's), Harder/Hardest's speeds, how the scenes feel.
 - **First 11.0 feedback (2026-11-17, not every level played):** Q122 the map should show worlds (levels numbered 1-5 within a world?), Q123 the pad's show at each scene annoying, Q124 a world's launch screen with a mini tutorial, Q125 the moon's levels need materials of their own. Answered: levels 1-5 within each world; a tutorial for each world, the park too; all five moon materials. To confirm: one road with a dramatic break or a map per world (Q122); the tutorial the first time plus a map button, or every time (Q124). Then mockups (Q122, Q124, Q125), and Q121 sounds.
-- **Open questions:** Q125, Q124, Q123, Q122 (11.0 feedback), Q121 (sci-fi sounds on the moon), Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
+- **Open questions:** Q126 (⇄ sends the ring racing: choose a, b or c), Q125, Q124, Q123, Q122 (11.0 feedback), Q121 (sci-fi sounds on the moon), Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
