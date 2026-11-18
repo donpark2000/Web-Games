@@ -10,6 +10,17 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q132. Topple!: can every scene of both worlds be won with 3 stars?** (2026-11-18,
+  developer: "After I play the blast ball on a real device I might [want] to review all
+  previous scenes of all levels in both worlds to see if any others are impossible to
+  score 3 stars with."). Claude's proposal: a tool first, the developer's play after.
+  Scenes are dealt from a seed, so "every scene" is many deals of 50 slots on 3
+  difficulties, too many to play by hand. The moon test player plays like a good
+  player already. The park's throws at random, so it would need a good-player mode
+  (aim at each structure, as the moon's steers to one). The tool lists the slots that
+  can't be won in 3 balls (the "par" agreed in Q130, kept out of sight), and the
+  developer plays only those. **To ask:** OK to build that tool before the review?
+
 - **Q131. Topple!: the moon's target light always on; Space drops at once** (2026-11-18,
   developer: "I'm wondering if the target light should always just be on. On a desktop
   where we are using keyboard mappings it feels more natural for me to use the space bar
@@ -101,6 +112,20 @@ time, each tried before publishing:
   tutorials (Q129). **Developer: "Blast ball, mockup first, then go ahead with 11.2."**
   **Mockup v1 published** (2026-11-18, https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h;
   see "Q130 mockup v1"). To try: the look, the rule for winning it, the blast's size.
+  **Developer (2026-11-18), on mockup v1:** "The blast ball in the demo worked well, but
+  I have a feeling it is a bit too powerful. And what do you think of this - earning
+  the blast ball time out. If you don't get it after it appears (say within 3 passes of
+  the craft) it disappears." To try on a real device first.
+  Claude's thoughts: (1) **Size:** the blast is there so that 3 of your own balls can
+  clear 4 structures, so it needs to take **one** structure reliably and two only
+  sometimes. The sizes measured (r 3.2 kick 6: 1.60 a blast, 2 or more in 20 of 40)
+  were aimed higher than that. Measure for "at least 1 whole structure in about 9
+  blasts of 10, 2 in about 1 of 5" (r about 2.6-2.8). (2) **Time-out:** good. It adds
+  a "go for it now" choice. Fairness still holds, because a perfect player can still
+  get it. Needs a warning a child can see: the 💥 blinks on its last pass and fades.
+  A ball already falling when it goes still counts. **To ask:** is a pass one way
+  across, or there and back? Moon only (the park has no craft; there it could be "by
+  your 2nd ball")?
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -206,6 +231,19 @@ time, each tried before publishing:
   pop and fly (Launch Pad). Probably a mockup first. **Developer: "all sound good. It
   creates interesting changes between scenes while still preserving the aiming and
   landscapes of the 'world'"** (2026-11-17): **all five, one per moon level.**
+  **Developer (2026-11-18):** "As far as moon levels go, they are all pretty similar and
+  not a whole lot seems to suggest the name of the level. Unlike world one where the
+  name of every level clearly fits with the scenery and the objects that are targets,
+  the moon world seems much less so." True: every level has the same base behind it
+  with a few extras, and the same crates, panels, posts and beams. Claude's proposal:
+  widen Q125 from "a material each" to **"each level looks like its name"**: what's
+  behind, the ground and light, and targets that belong there. Landing Zone: landing
+  pads with lights, a parked lander, cargo crates and fuel drums. Solar Farm: fields of
+  panels to the skyline, glass panel stands that shatter. Crater Rim: the crater's bowl
+  falling away in front, long shadows, boulders on ledges. Mining Site: a drill rig,
+  conveyor, ore heaps under work lights, ore crystals that glow and shatter. Launch Pad:
+  the big rocket on its gantry, the flame trench, oxygen tanks that pop and fly. One
+  mockup page with all five side by side. **To ask:** go ahead with that mockup after 11.2?
 
 - **Q121. Topple!: sci-fi sounds on the moon** (2026-11-17, developer, after 11.0
   went live): "I know there are no normal transmissions of sound through air on the
