@@ -10,6 +10,42 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q122. Topple!: the map shows worlds** (2026-11-17, developer, first try of
+  11.0): "The map makes no distinction between the 'worlds' concept. In fact it just
+  keeps naming the scenes sequentially. I think there should be a more dramatic
+  separation, and within a 'world' scenes should always be numbered from 1 to 5."
+  (11.0: one road, levels 1-10, the moon's in dark bands; the HUD says "6 · Landing
+  Zone"; each level's circles are 1-5.) Asked: does "numbered 1 to 5" mean the
+  levels within a world (Moon 1-5); one road with a big break between worlds, or a
+  map of its own per world?
+
+- **Q123. Topple!: the pad's show at every scene's start is annoying** (2026-11-17,
+  developer: "the 'helpful hint' at the beginning of each scene showing how to use
+  the launch pad"). Claude's proposal: drop it once Q124 teaches each world's
+  controls.
+
+- **Q124. Topple!: a world's launch screen, a mini interactive tutorial** (2026-11-17,
+  developer: "aiming and shooting is an important distinguishing feature between
+  worlds and for consistency within a world. So I am thinking about a 'world
+  launching' screen that is not part of game play or scoring but explains the aiming
+  and firing controls for the world you are about to enter. A mini interactive
+  tutorial."). Claude's proposal: a practice scene (one easy structure, no balls
+  counted, nothing kept), steps that wait for you to do each thing ("Hold 👆", "Drag
+  up", "Let go", "Tap ⇄"), Skip; shown on entering a world the first time, and
+  again from a button on the map. Asked: first time only (plus the button) or every
+  time; one for the park's slingshot too.
+
+- **Q125. Topple!: the moon's levels all look alike** (2026-11-17, developer: "I don't
+  see the same sort of variation we had in the first world. Some scenes had boxes,
+  some had barrels, some had building supplies, some had ice blocks, some had glowing
+  blocks ... every level had something different."). True: levels 6-10 share crates,
+  panels, posts and beams, none with a behaviour of its own (the park's: ice slides
+  and shatters, barrels burst, glow blocks shatter in colour). Claude's ideas, to
+  choose from: fuel drums that burst in a puff of vapour (Landing Zone); glass solar
+  panels that shatter (Solar Farm); boulders that roll slowly in the low gravity
+  (Crater Rim); ore crystals that glow and shatter (Mining Site); oxygen tanks that
+  pop and fly (Launch Pad). Probably a mockup first.
+
 - **Q121. Topple!: sci-fi sounds on the moon** (2026-11-17, developer, after 11.0
   went live): "I know there are no normal transmissions of sound through air on the
   moon, but every sci fi space movie has ignored that forever. You hear rockets,
@@ -23823,4 +23859,5 @@ anything to show it (the dots are the developer's choice per How hard).
 **Status (start here next session)**
 - **Live: 11.0** (published 2026-11-17 at the developer's word: `main` moved on to the branch, tag `v11.0`, GitHub release; github.io served version 0b7ef9b1be20 within a few minutes; in the browser pane the page took the new code on the second reload, as the offline app does, and level 6 loaded with no errors). `block-game` = `main` plus journal entries. Local servers stopped (none left listening).
 - **Q119 built** (the moon base); the developer to play it on a phone and tablet. To review: the levels' names (Claude's), Harder/Hardest's speeds, how the scenes feel.
-- **Open questions:** Q121 (sci-fi sounds on the moon: wait for the developer's 11.0 feedback, then talk), Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
+- **First 11.0 feedback (2026-11-17, not every level played):** Q122 the map should show worlds (levels numbered 1-5 within a world?), Q123 the pad's show at each scene annoying, Q124 a world's launch screen with a mini tutorial, Q125 the moon's levels need materials of their own. Talk these through (with Q121) before building; a mockup for Q122, Q124, Q125.
+- **Open questions:** Q125, Q124, Q123, Q122 (11.0 feedback), Q121 (sci-fi sounds on the moon), Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
