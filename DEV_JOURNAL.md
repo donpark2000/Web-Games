@@ -200,6 +200,16 @@ time, each tried before publishing:
   normal ball." Read as the look (to confirm): v2 drew it red only while held; once
   thrown or dropped it was drawn as the level's own ball. **v2.1:** red and glowing, with
   a trail of sparks, all the way until it goes off; see "Q130 mockup v2.1".
+  **Developer (2026-11-18), on v2.1, Star Light's candles:** "The blast was too small. If
+  I earn the blast ball in scene 3 ... I have to hit one of the middle ones. If I then
+  place the blast ball between what is rest, it only seems to get one of stacks. Maybe I
+  am missing something in how I am supposed to use it?" Not missed: it went off where it
+  first touched, on the ground behind the gap. And: "The whole point of the blast ball is
+  to make '3 stars' possible. One thing to consider .... the target that earns the blast
+  ball does not have to show up at the beginning of the scene - it could show up part
+  way through game play." **v2.2:** the park's blast goes off near a block and reaches
+  whole stacks; the 💥 shows after your 2nd ball (a choice in the mockup); see "Q130
+  mockup v2.2".
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -24871,3 +24881,70 @@ Q125 (the moon's materials) and Q121 (sounds).
   (size, 10 s / 3 passes, where the 💥 floats, the teaching card).
 - **Then:** build it in the game, Q125 (the five moon levels' mockup), Q121 (sounds).
 - **Open questions:** as in the last status entry; Q130 (v2.1 to try).
+
+## 2026-11-18: Q130 mockup v2.2 (the 💥 part way through; the blast between stacks)
+
+- **Developer, on v2.1** (Star Light's candles, scene 3: four stacks side by side,
+  spaced): "The blast was too small ... If I then place the blast ball between what is
+  rest, it only seems to get one of stacks. Maybe I am missing something in how I am
+  supposed to use it?" **Why (found):** the blast went off where the ball first touched
+  anything; aimed between two stacks it flew through the gap (about 0.29 m between the
+  candles' faces) and went off on the ground behind them, and its reach was a ball of
+  0.6 m round that point, short of the stacks' upper blocks. The orange circle on the
+  ground suggested more. The mockup's fault, not the player's.
+- **Developer, while it was being fixed:** "The whole point of the blast ball is to make
+  '3 stars' possible. One thing to consider .... the target that earns the blast ball
+  does not have to show up at the beginning of the scene - it could show up part way
+  through game play."
+- **Changed, the park's blast** (`topple-blast.js`, `BLAST.park`): it goes off as the
+  ball's surface comes within 0.15 m of a standing block's (`fuse`; `gapTo`: boxes by
+  their half sizes, barrels by their radius; checked after every physics step), or as it
+  first touches anything; it reaches every block within 0.6 m across, up to 1.6 m above
+  or below (`column`), so whole stacks. The reach circle sits where it will go off (the
+  first point of the path within the fuse of a block). The moon's is as it was (dropped
+  from above onto a structure; not raised).
+- **Measured** (`blast-sim2.mjs`, 3 deals, exact aim; the 💥 at the start, won by the
+  first ball): r 0.6 kick 4: 27 of 27 park deals won in 3 own balls (Ice Castle in 2 now
+  in 4 of 6); r 0.8: 25 of 27 (two Ice Castle deals 4: the greedy player's order), so 0.6
+  kept.
+- **Changed, when the 💥 shows** (the developer's idea): once a set number of your balls
+  are thrown (the mockup's first screen: at the start, after your 1st, after your 2nd, or
+  **the park after the 2nd and the moon after the 1st**, the default since version 5)
+  and the scene is still, over the part with the most blocks still standing
+  (the moon: the structure with most standing; the park: the group across with most
+  standing, the blocks within 0.45 m across of its middle under it), with a sparkle, a
+  chime and "A 💥 appeared! Knock it down before its ring runs out" (or the teaching
+  card, the first time). Its clock starts then.
+- **Measured** (`--after K`: your balls until the 💥 has shown and the next has won it,
+  then the blast ball, then your own; 3 deals of every listed scene, both worlds, exact):
+  - after your 1st ball: 43 of 45 won in 3 own balls (two Ice Castle deals 4); candles and
+    Star Palace in 2.
+  - **after your 2nd ball: 45 of 45 won in exactly 3** (every scene, both worlds: the 3rd
+    ball wins it, the blast ball finishes it). 3 stars possible, and no scene easier
+    than 3: the point as the developer put it.
+  - judged a little off, 6 deals: 85 of 90 won in 3; every park deal (54) in 3, the 5 short all on the moon, each needing 4 (Mining Site's tank+trestle+crates2x2+beacon seeds 1003, 1004; Solar Farm's panels6+panels4+crates3 on Hardest, seeds 1006, 1009; Launch Pad seed 1015): after the 3rd ball the blocks left stood in two structures about 4 m apart, beyond one blast. The moon with the 💥 after your 1st ball, judged a little off, 6 deals: 34 of 36 (12 in 2, 22 in 3; the same two Mining Site deals 4). At the start (version 2's measure): 90 of 90. So the moon wants it earlier than the park: the mockup's default now **the park after your 2nd ball, the moon after your 1st** (version 5).
+- **Checked in the browser pane** (scratch server, the test hook; new: `aimNear`, the
+  throw whose path passes nearest a point): candles with the 💥 after the 2nd ball: not
+  shown after the 1st (left stack down), shown after the 2nd once still (right stack
+  down), over the middle two stacks (blocks 2-5), its ring full (screenshot). Candles
+  with the 💥 at the start, won by knocking a middle stack, then the blast ball aimed at
+  the gap between the two right-hand stacks (x 0.345; the path passed 3 cm from it): it
+  went off at x 0.33 just in front of them, reached 4 blocks, both stacks down (6 of 8).
+  Version 5's default checked the same way: Mining Site's challenge, no 💥 at the start
+  nor while the first ball fell, shown once still after it, over the trestle (blocks
+  2-5, the structure with most standing); candles: not at the start nor after the 1st
+  ball, shown after the 2nd over blocks 2-5. No resource failed to load.
+- **Published:** versions 4 (the 💥 after your 2nd ball by default) and 5 (the park
+  after the 2nd, the moon after the 1st) of
+  [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h). Local server
+  "mockup-scratch" in `.claude/launch.json` for the checks, taken out after.
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Q130 mockup v2.2** (version 5 of the Topple Blast Ball page): the 💥 part way through
+  (the park after your 2nd ball, the moon after your 1st; the other choices on the first
+  screen), the park's blast going off near a block and taking whole stacks. **To try**,
+  and **to ask:** the timing per world (measured: the moon after the 2nd left 5 of 36
+  deals needing 4; after the 1st, 2 Mining Site deals); the blast's size now.
+- **Then:** build it in the game, Q125 (the five moon levels' mockup), Q121 (sounds).
+- **Open questions:** as in the status entry before last; Q130 (v2.2 to try).
