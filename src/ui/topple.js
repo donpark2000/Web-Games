@@ -736,9 +736,9 @@ async function makeTheScene(kept) {
   L('blocks drawn', stage.diagnose());
   setTimeout(() => { if (current && JSON.stringify(current.id) === drawnId && stage) L('blocks drawn: 3 s on', stage.diagnose()); }, 3000);
   showWait(false);
-  // no hint's line as a scene starts (Q123, developer, 2026-11-18: "drop it"; 11.1 showed "Drag from 👆,
-  // then let go" before each scene's first ball); it still comes up after a drag too short to throw
-  $('hint').textContent = HINT;
+  // no hint's line (Q123, developer, 2026-11-18: "drop it", then for a drag too short to throw too: "Drop
+  // it"; 11.1 showed "Drag from 👆, then let go" before each scene's first ball and after a short drag).
+  // The line is only for a scene that did not load.
   $('hint').hidden = true;
   // the pad's show: in the park tutorial's first part only (Q123, developer, 2026-11-17: "remove the existing
   // 'aiming tip' that starts at the beginning of each scene"; until 11.1 before every scene's first ball)
@@ -930,7 +930,6 @@ function renderHud() {
 
 /* ---------- the drag and the throw ---------- */
 
-const HINT = 'Drag from 👆, then let go';
 const parkSize = () => { const b = $('park').getBoundingClientRect(); return Math.min(b.width, b.height); };
 const aimFor = (dx, dy) => (current ? frontDrag(dx, dy, parkSize(), current.layout.power) : null);
 const dragNow = () => (drag ? aimFor(drag.x - drag.x0, drag.y - drag.y0) : null);
@@ -975,7 +974,6 @@ function onUp(e) {
   if (!d) return;
   if (!d.ok) {
     L('drag too short: no throw', { up: Math.round(d.up), aim: r2(d.aim) });
-    if (!round.used && !tut) $('hint').hidden = false;
     return;
   }
   doThrow(d);

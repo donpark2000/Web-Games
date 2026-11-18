@@ -210,8 +210,9 @@ test('topple page: logged: 3D start, the fit, each scene, throw, touch, block do
 test('topple page: the drag pad and its show (the park\'s tutorial only, Q123): over the park, the touch going through to it, placed by padSpot; where a drag starts logged', () => {
   assert.match(playHtml, /<div class="pad" id="pad" aria-hidden="true" hidden><span>👆<\/span><\/div>/);
   assert.match(playHtml, /<div class="ghost" id="ghost" aria-hidden="true" hidden>👆<\/div>/);
-  assert.match(playHtml, /id="hint"[^>]*>Drag from 👆, then let go<\/p>/);
-  assert.match(js, /const HINT = 'Drag from 👆, then let go'/);
+  // Q123 (developer, 2026-11-18: "Drop it"): no hint's line at all (only a scene that did not load says so there)
+  assert.match(playHtml, /<p class="hint" id="hint" aria-live="polite" hidden><\/p>/);
+  assert.doesNotMatch(js + playHtml, /'Drag from 👆, then let go'|>Drag from 👆|const HINT\b/);
   for (const sel of ['.pad', '.ghost']) {
     const rule = css.match(new RegExp('\\n\\' + sel + ' \\{[^}]*\\}'))?.[0] ?? '';
     assert.match(rule, /pointer-events: none/, `${sel} would take the touch from the park`);
@@ -238,7 +239,7 @@ test('topple page: the drag pad and its show (the park\'s tutorial only, Q123): 
   assert.equal((js.match(/\n  \$\('hint'\)\.hidden = true;\n/g) ?? []).length >= 3, true, 'hidden as a scene is made, and as the park\'s and the moon\'s start');
   assert.doesNotMatch(js, /\$\('hint'\)\.hidden = round\.used > 0/, 'no hint before a scene\'s first ball');
   assert.doesNotMatch(js, /MOON_HINT/, 'nor on the moon');
-  assert.match(js, /if \(!round\.used && !tut\) \$\('hint'\)\.hidden = false;/, 'still after a drag too short to throw');
+  assert.equal((js.match(/\$\('hint'\)\.hidden = false;/g) ?? []).length, 1, 'shown only for a scene that did not load (not after a drag too short)');
   assert.doesNotMatch(js, /if \(!round\.used && !round\.result\) demo = /, 'no show before every scene');
   for (const what of ["'pad show'", "'pad show done'", "'pad show stopped'", "'drag too short: no throw'", "'press off the pad'"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);

@@ -10,6 +10,34 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q135. Topple!: stars earned on levels played before don't show** (2026-11-18,
+  developer: "I notice that the stars I earned on previous levels I have played do not
+  seem to be showing up. Does something reset the stars even though the scenes remain
+  unlocked?"). **Looked at (the code only):** nothing resets them. `readStars` keeps
+  every row of levels 1-10, `recordStars` only raises a scene's best, and a new game,
+  Start over and Start again keep them (`createGame(seed, keep)`). Two things that look
+  like it: (a) **a level finished before stars were kept** (10.24, 2026-11-16) shows
+  every scene open (a level done opens all its scenes) with grey stars: agreed then
+  that games kept from before start at 0 ("might only be me"); (b) **each difficulty
+  has its own stars** (Q116): the map shows only the difficulty being played. **To
+  ask:** which levels and difficulty; were they finished before 2026-11-16? If neither
+  fits, the Log page saved on that device.
+
+- **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
+  developer: "when I open the map it would be nice to position it so my current scene
+  is in view"). `showMap` already scrolls the scene last played (`n<level>_<scene>`)
+  to the middle (to where the face was when it is about to walk), so some way of
+  opening it misses: to find which (Play! / Carry on on the setup screen, Map in play,
+  after a card, a reload, a phone or tablet) and why, then fix with a test. **To ask:**
+  which way it was opened and on which device, if it isn't found by trying them.
+
+- **Q133. Topple!: the blocks left glow after a pause on the moon too** (2026-11-18,
+  developer: "parts of targets still to be knocked over are not glowing in Moon world
+  after a pause like they do in Earth. I would like that same feature."). True: the
+  park's glow (Q101: `waitingOn`, `glowAt`, `GLOW_WAIT` 4 s, 2 pulses, the stage's
+  glow meshes) was never hooked to the moon's drawing. To do: the same rule and timing
+  on the moon, the standing blocks lit in the moon's own way, logged as the park's.
+
 - **Q132. Topple!: can every scene of both worlds be won with 3 stars?** (2026-11-18,
   developer: "After I play the blast ball on a real device I might [want] to review all
   previous scenes of all levels in both worlds to see if any others are impossible to
@@ -20,6 +48,7 @@ time, each tried before publishing:
   (aim at each structure, as the moon's steers to one). The tool lists the slots that
   can't be won in 3 balls (the "par" agreed in Q130, kept out of sight), and the
   developer plays only those. **To ask:** OK to build that tool before the review?
+  **Developer (2026-11-18): "sure - build a tool".**
 
 - **Q131. Topple!: the moon's target light always on; Space drops at once** (2026-11-18,
   developer: "I'm wondering if the target light should always just be on. On a desktop
@@ -128,6 +157,12 @@ time, each tried before publishing:
   A ball already falling when it goes still counts. **To ask:** is a pass one way
   across, or there and back? Moon only (the park has no craft; there it could be "by
   your 2nd ball")?
+  **Developer (2026-11-18):** "For Moon, time measured in passes of the craft is best. I
+  suggest 3. If we need blasts in Earth after we assess the scenes, a countdown timer is
+  better. Maybe 10 seconds?" **Agreed:** the moon: the 💥 goes after 3 passes of the
+  lander (a pass: one way across, the reading Claude will use unless told otherwise:
+  to confirm in the mockup); Earth, only if Q132 shows scenes that need it: a 10 s
+  countdown.
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -205,6 +240,8 @@ time, each tried before publishing:
   **Built, not published:** the show plays only in the park's tutorial now; the hint's
   one line ("Drag from 👆, then let go") stays. To ask: should that line go too?
   **Developer (2026-11-18): "yes - drop it."** **Built, not published (11.2):** see "11.2 built".
+  Asked then whether its line after a drag too short to throw should go too:
+  **"Drop it"** (2026-11-18): gone, the line only says a scene did not load.
 
 - **Q124. Topple!: a world's launch screen, a mini interactive tutorial** (2026-11-17,
   developer: "aiming and shooting is an important distinguishing feature between
@@ -247,6 +284,7 @@ time, each tried before publishing:
   conveyor, ore heaps under work lights, ore crystals that glow and shatter. Launch Pad:
   the big rocket on its gantry, the flame trench, oxygen tanks that pop and fly. One
   mockup page with all five side by side. **To ask:** go ahead with that mockup after 11.2?
+  **Developer (2026-11-18): "OK".**
 
 - **Q121. Topple!: sci-fi sounds on the moon** (2026-11-17, developer, after 11.0
   went live): "I know there are no normal transmissions of sound through air on the
@@ -24332,3 +24370,32 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Open questions:** Q132, Q131 (built), Q130, Q129 (built), Q128 (built), Q127 (parked),
   Q126 (built), Q125, Q124 and Q122 (replaced by Q129, Q128), Q123 (built), Q121, Q120,
   Q119, Q118, Q113 (parked).
+
+## 2026-11-18: Answers; the hint's line gone altogether; three new questions
+
+- **Developer:** "1) Drop it" (the park's line after a drag too short: gone, Q123);
+  "2) For Moon, time measured in passes of the craft is best. I suggest 3. If we need
+  blasts in Earth after we assess the scenes, a countdown timer is better. Maybe 10
+  seconds?" (Q130); "3) sure - build a tool" (Q132); "4) OK" (Q125's mockup of each
+  moon level looking like its name). Recorded under each.
+- **The hint's line:** the `HINT` text and its showing after a short drag removed; the
+  page's `#hint` starts hidden and empty (it only says "The scene did not load. Tap Map
+  to try again."). Test: no "Drag from 👆" string in the page, `hint` shown in one
+  place only. Suite run before the commit.
+- **New (developer, 2026-11-18):** the moon's blocks to glow after a pause as the park's
+  do (**Q133**); the map to open with the current scene in view (**Q134**); stars earned
+  on levels played before not showing (**Q135**: nothing in the code resets them; two
+  likely reasons and what to ask, under Q135).
+
+**Status (start here next session)**
+- **Live: 11.1.** `block-game` = 11.2 built (Q123, Q126, Q128, Q129, Q131: see "11.2
+  built"), not published.
+- **Next:** the developer's word to publish **11.2**; then Q133 (the moon's glow), Q134
+  (the map's scroll), Q135 (the stars: the developer's answers first), Q132 (the tool:
+  scenes that can't be won in 3 balls, both worlds), Q130 (the blast ball mockup v2:
+  smaller, the 3-pass time-out), Q125 (a mockup of the five moon levels), Q121 (sounds).
+- **To ask:** Q135 (which levels and difficulty; finished before 2026-11-16?); Q134 (which
+  way the map was opened, if trying them doesn't find it).
+- **Open questions:** Q135, Q134, Q133, Q132, Q131 (built), Q130, Q129 (built), Q128
+  (built), Q127 (parked), Q126 (built), Q125, Q124 and Q122 (replaced by Q129, Q128),
+  Q123 (built), Q121, Q120, Q119, Q118, Q113 (parked).
