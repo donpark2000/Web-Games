@@ -28,7 +28,7 @@ test('topple stars page: the map is a road of scenes with the difficulty to read
   assert.match(js, /\$\{cur \? ' cur' : ''\}/);
   assert.match(js, /id="rface"/);
   assert.match(js, /Win scene \$\{furthestScene\(game, lv\)\} first/);
-  assert.match(js, /Finish level \$\{lv - 1\} first/);
+  assert.match(js, /Finish level \$\{levelInWorld\(lv - 1\)\} first/);
   // it opens at the scene last played; the face walks from where it was last drawn
   assert.match(js, /scrollIntoView\?\.\(\{ block: 'center' \}\)/);
   assert.match(js, /L\('map: the face walks'/);
@@ -84,7 +84,7 @@ test('topple stars page: a game for each difficulty; Start over and Start again 
   assert.match(js, /game = createGame\(newSeed\(\), game\); saveGame\(\)/, 'every level done: a new game keeps the stars (and the levels)');
   for (const what of ["'how hard picked'", "'map: a scene, straight into play'", "'map: a scene shut'", "'map: unlocking'", "'map: shown'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   // the faces screen says which difficulty carries on
-  assert.match(js, /\$\{MODE_INFO\[game\.mode\]\.name\}: level \$\{game\.level\}/);
+  assert.match(js, /\$\{MODE_INFO\[game\.mode\]\.name\}: \$\{worldOf\(game\.level\)\.name\} level \$\{levelInWorld\(game\.level\)\}/);
 });
 
 test('topple stars page: the star classes are the page’s own (no clash with the shared sheets)', () => {

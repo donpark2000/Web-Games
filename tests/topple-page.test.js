@@ -50,9 +50,10 @@ test('topple page: How hard? (Q96, Q117): picked on the setup screen, read-only 
   assert.match(js, /b\.setAttribute\('aria-pressed', String\(m === game\.mode\)\)/);
   assert.match(js, /game = profile\.games\[m\] \?\? createGame\(newSeed\(\), null, m\);[\s\S]*?saveGame\(\);\s*L\('how hard picked'/);
   assert.match(js, /createGame\(newSeed\(\), \{ stars: game\.stars \}, game\.mode\)/, 'Start over keeps how hard and the stars');
-  assert.match(js, /const secs = dotSeconds\(game\.mode, round\.used\);/);
+  assert.match(js, /const secs = dotSeconds\(playMode\(\), round\.used\);/);
+  assert.match(js, /const playMode = \(\) => \(tut \? 'normal' : game\.mode\);/, 'the game\'s difficulty, the practice on Normal (Q124)');
   assert.match(js, /secs > 0 \? dotsFor\([^)]*\)[^)]*\), secs\) : null/);
-  assert.match(js, /mode: game\.mode, dotsS: dotSeconds\(game\.mode, r\.ball - 1\)/, 'each throw logs it');
+  assert.match(js, /mode: playMode\(\), dotsS: dotSeconds\(playMode\(\), r\.ball - 1\)/, 'each throw logs it');
 });
 
 test('topple page: no mockup choices left; no side view (developer, 2026-11-10, Q70: one view, from behind)', () => {
@@ -89,7 +90,8 @@ test('topple page: the level\'s jewels and the hearts over the park; Start again
   assert.match(playHtml, /id="hudHearts"/);
   // the level's name with its number (developer, 2026-11-12), the jewels under it when there's no room
   assert.match(playHtml, /id="hudLevel"[^>]*><span class="hudname" id="hudLevelName"><\/span><span class="jewels" id="hudJewels"><\/span>/);
-  assert.match(js, /\$\('hudLevelName'\)\.textContent = `\$\{g\.level\} · \$\{name\}`/);
+  assert.match(js, /\$\('hudLevelName'\)\.textContent = levelTag\(g\.level\);/);
+  assert.match(js, /const levelTag = lv => `\$\{levelInWorld\(lv\)\} · \$\{levelInfo\(lv\)\.name\}`/, 'numbered within its world (Q122)');
   assert.match(css, /\.hudlevel \{[^}]*flex-wrap: wrap/);
 });
 
@@ -142,7 +144,7 @@ test('topple page: a new level never shows the old one (the canvas hidden until 
   // hidden as the play screen opens on a level not drawn yet, and as the setting changes
   assert.match(js, /function showPlay\(\) \{[\s\S]*?if \(!current \|\| stage\.level !== game\.level\) hideCanvas\(true\);[\s\S]*?\n\}/);
   // a kept scene in its own level's setting (a level's last scene kept with the game on the next level: 10.0-10.2 failed)
-  assert.match(js, /const lv = kept \? \(kept\.layout\.level \?\? 1\) : game\.level;\s*if \(isMoonLevel\(lv\)\) return makeMoonScene\(lv, kept\);[^\n]*\n[^\n]*\n[^\n]*\n\s*if \(stage\.level !== lv \|\| !stage\.hasSetting\(lv\)\) \{\s*hideCanvas\(true\);\s*const r = await stage\.setLevel\(lv\)/);
+  assert.match(js, /const lv = kept \? \(kept\.layout\.level \?\? 1\) : spec\.level;\s*if \(isMoonLevel\(lv\)\) return makeMoonScene\(lv, kept, spec\);[^\n]*\n[^\n]*\n[^\n]*\n\s*if \(stage\.level !== lv \|\| !stage\.hasSetting\(lv\)\) \{\s*hideCanvas\(true\);\s*const r = await stage\.setLevel\(lv\)/);
   // shown only after the new scene is drawn
   assert.match(js, /stage\.setScene\(current\.parts\);[\s\S]*?stage\.render\(\);\s*hideCanvas\(false\);/);
   // still: the blocks and the effects; the effects move on every step, drawn or not
@@ -188,7 +190,7 @@ test('topple page: the game kept on the device for every visit, the scene under 
 });
 
 test('topple page: logged: 3D start, the fit, each scene, throw, touch, block down (and a post up again), the end', () => {
-  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'block up again: a post leaning, not lying'", "'blocks down'", "'blocks drawn'", "'blocks drawn: 3 s on'", "'scene over'", "'start again: this scene, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
+  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : tut ? 'tutorial: the practice scene' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'block up again: a post leaning, not lying'", "'blocks down'", "'blocks drawn'", "'blocks drawn: 3 s on'", "'scene over'", "'start again: this scene, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   }
   assert.match(js, /startLog\('topple'\)/);
@@ -205,7 +207,7 @@ test('topple page: logged: 3D start, the fit, each scene, throw, touch, block do
 });
 
 // The drag pad (journal, "9.2 on the phone; home pictures and aiming", Q67).
-test('topple page: the drag pad and its show: over the park, the touch going through to it, placed by padSpot; where a drag starts logged', () => {
+test('topple page: the drag pad and its show (the park\'s tutorial only, Q123): over the park, the touch going through to it, placed by padSpot; where a drag starts logged', () => {
   assert.match(playHtml, /<div class="pad" id="pad" aria-hidden="true" hidden><span>👆<\/span><\/div>/);
   assert.match(playHtml, /<div class="ghost" id="ghost" aria-hidden="true" hidden>👆<\/div>/);
   assert.match(playHtml, /id="hint"[^>]*>Drag from 👆, then let go<\/p>/);
@@ -229,6 +231,9 @@ test('topple page: the drag pad and its show: over the park, the touch going thr
   assert.match(js, /demo\.t = \(performance\.now\(\) - demo\.t0\) \/ 1000/);
   assert.match(js, /pulsePad\(\);\s*return;\s*\}\s*stopDemo\('a finger'\);/);
   assert.match(js, /if \(first === 'block'\)/);
+  // Q123 (developer, 2026-11-17: "remove the existing 'aiming tip' that starts at the beginning of each scene"): the show only in the tutorial
+  assert.match(js, /if \(tut\?\.world === 'park'\) demo = \{ t: 0, t0: performance\.now\(\), to: null \};/);
+  assert.doesNotMatch(js, /if \(!round\.used && !round\.result\) demo = /, 'no show before every scene');
   for (const what of ["'pad show'", "'pad show done'", "'pad show stopped'", "'drag too short: no throw'", "'press off the pad'"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   }
@@ -270,7 +275,8 @@ test('topple page: a level on the map goes straight into play; no Level screen',
   assert.doesNotMatch(css, /\.lvcard|tp-level/);
   // a scene open: logged and started (locked ones still shake)
   assert.match(js, /L\('map: a scene, straight into play', \{[^}]*\}\);\s*startLevel\(lv, sc\);\s*\}/);
-  assert.match(js, /if \(!isOpen\(game, lv\)\) \{[\s\S]*?\$\('mapToast'\)\.textContent = lv === PARK_LEVELS \+ 1 \? `Finish level \$\{lv - 1\} to fly to the moon` : `Finish level \$\{lv - 1\} first`;/);
+  assert.match(js, /if \(!isOpen\(game, lv\)\) \{[\s\S]*?\$\('mapToast'\)\.textContent = shutWords\(lv\);/);
+  assert.match(js, /const shutWords = lv => \(firstOfWorld\(lv\) \? \(isMoonLevel\(lv\) \? `Finish \$\{worldOf\(lv - 1\)\.name\} to fly to the moon`/, 'a world shut: the world before it to finish (Q122)');
 });
 
 // Developer, 2026-11-12 (Q92): "no way to start the whole game over with
@@ -291,11 +297,11 @@ test('topple page: Start over from level 1 asks first, then a new game with only
 test('topple page: a Map button on the play screen keeps the scene; Start again shown until the scene is over', () => {
   assert.match(playHtml, /<div class="restart">\s*<button type="button" class="pill" id="restartBtn"><span class="ic" aria-hidden="true">↺<\/span> <span>Start again<\/span><\/button>\s*<button type="button" class="pill" id="mapBtn"><span class="ic" aria-hidden="true">🗺️<\/span> <span>Map<\/span><\/button>/);
   // before the first ball too (Q102: the level or the whole game), not once the scene is over
-  assert.match(js, /\$\('restartBtn'\)\.disabled = !!r\.result;\s*\$\('restartBtn'\)\.classList\.toggle\('notyet', \$\('restartBtn'\)\.disabled\);/);
+  assert.match(js, /\$\('restartBtn'\)\.disabled = !!r\.result \|\| !!tut;\s*\$\('restartBtn'\)\.classList\.toggle\('notyet', \$\('restartBtn'\)\.disabled\);/);
   assert.match(css, /\.restart \.pill\.notyet \{ visibility: hidden; \}/);
   // the map from a scene: parked, and carried on when it's played again
   assert.match(js, /\$\('mapBtn'\)\.onclick = \(\) => \{[\s\S]*?parked = current && !ended \? \{ id: current\.id, layout: current\.layout, settled \} : null;[\s\S]*?showMap\(\);/);
-  assert.match(js, /if \(!kept && parked && JSON\.stringify\(parked\.id\) === JSON\.stringify\(sceneId\(\)\)\) \{ kept = parked;/);
+  assert.match(js, /if \(!kept && !tut && parked && JSON\.stringify\(parked\.id\) === JSON\.stringify\(sceneId\(\)\)\) \{ kept = parked;/);
   assert.ok(js.includes("L('map from the scene'"), 'not logged');
 });
 
@@ -410,7 +416,8 @@ test('topple page: the scene log tells the barrow moved aside and the fewest poi
 
 test('topple page: Hardest\'s mover (Q106, the build) in the real game: the scene made on how hard the game is, the mover from its layout\'s deal and seed; no mockup flag', () => {
   assert.doesNotMatch(js, /TOPPLE_MOCKUP \?\?|\bMOCK\b/, 'the mockup\'s flag gone');
-  assert.match(js, /world\.makeScene\(seedOf\(game\), game\.level, game\.scene, null, game\.mode\)/, 'the scene made on how hard the game is');
+  assert.match(js, /world\.makeScene\(spec\.seed, spec\.level, spec\.scene, null, playMode\(\)\)/, 'the scene made on how hard the game is');
+  assert.match(js, /: \{ seed: seedOf\(game\), level: game\.level, scene: game\.scene, id: sceneId\(\) \};/, 'the game\'s scene (not the practice\'s)');
   assert.match(js, /const dealt = current\?\.layout\.hardest\?\.mover \?\? null;/, 'the mover the layout was dealt (a scene picked up again too)');
   assert.match(js, /moverFor\(current\.parts, choice, current\.layout\.seed\)/, 'the plan from the scene\'s seed');
   assert.match(js, /moverOverride = undefined;\s+placeMover\(\);/, 'each scene starts with its own deal, not the checking hook\'s change');

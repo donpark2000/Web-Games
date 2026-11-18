@@ -463,6 +463,21 @@ export const MAX_LEVEL = LEVELS.length;
 export const PARK_LEVELS = LEVELS.filter(l => !l.world).length;
 export const isMoonLevel = n => LEVELS[n - 1]?.world === 'moon';
 export const levelInfo = n => LEVELS[n - 1] ?? null;
+// The worlds (Q122, developer, 2026-11-17: "a more dramatic separation, and
+// within a 'world' scenes should always be numbered from 1 to 5"): each its
+// own way to aim, its levels numbered 1-5 within it. `id` is the levels'
+// `world` ('park' for the levels with none). Names and signs: Claude's pick.
+export const WORLDS = [
+  { id: 'park', n: 1, name: 'Earth', sign: '🌍' },
+  { id: 'moon', n: 2, name: 'The Moon', sign: '🌕' },
+];
+const worldId = n => LEVELS[n - 1]?.world ?? 'park';
+export const worldOf = n => (levelInfo(n) ? WORLDS.find(w => w.id === worldId(n)) : null);
+// level numbers of a world, in order
+export const worldLevels = w => LEVELS.filter(l => (l.world ?? 'park') === (w?.id ?? w)).map(l => l.n);
+// level n's number within its world (1-5): the moon's Landing Zone is 1, not 6
+export const levelInWorld = n => (levelInfo(n) ? worldLevels(worldId(n)).indexOf(n) + 1 : 0);
+export const firstOfWorld = n => levelInfo(n) && levelInWorld(n) === 1;
 // The balls (world metres and kg): level 1's painted one; the iron ball
 // with its lifting ring (mockup v3: 0.07 m, 3 kg).
 export const BALLS_BY = { toy: { r: 0.06, kg: 2 }, iron: { r: 0.07, kg: 3 } };

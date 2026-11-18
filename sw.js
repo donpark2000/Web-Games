@@ -20,7 +20,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '0b7ef9b1be20';
+const VERSION = 'a4c05e801631';
 const MADE = '2026-11-17';
 const RELEASE = '11.0';
 const FILES = [
@@ -155,6 +155,7 @@ const FILES = [
   'src/core/topple-movers.js',
   'src/core/topple-road.js',
   'src/core/topple-sky.js',
+  'src/core/topple-tutorial.js',
   'src/core/topple-world.js',
   'src/core/topple.js',
   'src/core/version.js',

@@ -18,9 +18,9 @@
 // as far).
 
 import { FACE_NAMES, checkFaces as checkPicks } from './players.js';
-import { LEVELS, MAX_LEVEL, PARK_LEVELS, isMoonLevel, STRUCTURES, MATS, BALLS_BY, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo } from './topple-levels.js';
+import { LEVELS, MAX_LEVEL, PARK_LEVELS, isMoonLevel, STRUCTURES, MATS, BALLS_BY, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo, WORLDS, worldOf, worldLevels, levelInWorld, firstOfWorld } from './topple-levels.js';
 
-export { FACE_NAMES, LEVELS, MAX_LEVEL, PARK_LEVELS, isMoonLevel, MATS, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo };
+export { FACE_NAMES, LEVELS, MAX_LEVEL, PARK_LEVELS, isMoonLevel, MATS, levelInfo, MAP_NODES, mapRoad, roadAt, roadTo, WORLDS, worldOf, worldLevels, levelInWorld, firstOfWorld };
 
 /* ---------- sizes, in metres ---------- */
 
@@ -1234,7 +1234,11 @@ export function endWords(outcome, g, name) {
     // you are, so maybe the popup could just say 'next'")
     case 'won': return { title: `${name} cleared it! 💎`, next: 'Next ▸' };
     // `g` the game before the scene ended (the level just done)
-    case 'level': return { title: `Level ${g.level} done! ${'💎'.repeat(SCENES)}`, sub: `On to ${levelInfo(g.level + 1).name}`, next: `Level ${g.level + 1} ▸` };
+    // levels numbered within their world (Q122); the last of a world: on to the next world
+    case 'level': {
+      const to = g.level + 1, w = worldOf(to), newWorld = firstOfWorld(to);
+      return { title: `Level ${levelInWorld(g.level)} done! ${'💎'.repeat(SCENES)}`, sub: `On to ${newWorld ? w.name : levelInfo(to).name}`, next: newWorld ? `${w.name} ▸` : `Level ${levelInWorld(to)} ▸` };
+    }
     case 'all': return { title: `All levels done! 💎`, sub: 'More levels coming', next: 'Play again' };
     case 'lost': return { title: `Out of balls 💔`, sub: `${g.hearts} ${g.hearts === 1 ? 'heart' : 'hearts'} left`, next: 'Try again' };
     case 'out': return { title: 'No hearts left', sub: 'Back to scene 1', next: 'Start again' };

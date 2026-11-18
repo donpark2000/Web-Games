@@ -59,12 +59,17 @@ time, each tried before publishing:
   levels within a world (Moon 1-5); one road with a big break between worlds, or a
   map of its own per world? **Developer: "yes"** (2026-11-17): **levels numbered 1-5
   within each world.** The road question was either/or (Claude leaned to one road
-  with a dramatic break): **to confirm** which.
+  with a dramatic break): **to confirm** which. **Developer (2026-11-17): "1) yes"**:
+  **one road with a dramatic break between worlds.** Asked to build it ("Distinguish
+  'worlds' on the map"). **Built, not published** (see "Q122-Q124 built").
 
 - **Q123. Topple!: the pad's show at every scene's start is annoying** (2026-11-17,
   developer: "the 'helpful hint' at the beginning of each scene showing how to use
   the launch pad"). Claude's proposal: drop it once Q124 teaches each world's
-  controls.
+  controls. **Developer (2026-11-17): "remove the existing 'aiming tip' that starts at
+  the beginning of each scene in our first 'world'"**, with the world tutorial (Q124).
+  **Built, not published:** the show plays only in the park's tutorial now; the hint's
+  one line ("Drag from 👆, then let go") stays. To ask: should that line go too?
 
 - **Q124. Topple!: a world's launch screen, a mini interactive tutorial** (2026-11-17,
   developer: "aiming and shooting is an important distinguishing feature between
@@ -77,7 +82,10 @@ time, each tried before publishing:
   again from a button on the map. Asked: first time only (plus the button) or every
   time; one for the park's slingshot too. **Developer: "yes"** (2026-11-17): **the
   park gets one too.** Read as agreeing to the proposal (the first time, then from a
-  button on the map); **to confirm**, as the question was either/or.
+  button on the map); **to confirm**, as the question was either/or. **Developer
+  (2026-11-17): "2) first time plus button"**, and: "Add the notion of the 'world start
+  aiming tutorial' before beginning the first scene of any world (including the first 5
+  levels we built)." **Built, not published** (see "Q122-Q124 built").
 
 - **Q125. Topple!: the moon's levels all look alike** (2026-11-17, developer: "I don't
   see the same sort of variation we had in the first world. Some scenes had boxes,
@@ -23907,3 +23915,22 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Q119 built** (the moon base); the developer to play it on a phone and tablet. To review: the levels' names (Claude's), Harder/Hardest's speeds, how the scenes feel.
 - **First 11.0 feedback (2026-11-17, not every level played):** Q122 the map should show worlds (levels numbered 1-5 within a world?), Q123 the pad's show at each scene annoying, Q124 a world's launch screen with a mini tutorial, Q125 the moon's levels need materials of their own. Answered: levels 1-5 within each world; a tutorial for each world, the park too; all five moon materials. To confirm: one road with a dramatic break or a map per world (Q122); the tutorial the first time plus a map button, or every time (Q124). Then mockups (Q122, Q124, Q125), and Q121 sounds.
 - **Open questions:** Q127 (the lander up and down: parked), Q126 (⇄ sends the ring racing: a rejected; mock up b, c, d), Q125, Q124, Q123, Q122 (11.0 feedback), Q121 (sci-fi sounds on the moon), Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
+
+## 2026-11-17: Q122-Q124 built: worlds on the map, a tutorial for each world, the pad's show gone (not published)
+
+- **Developer:** "Add the notion of the 'world start aiming tutorial' before beginning the first scene of any world (including the first 5 levels we built). Distinguish 'worlds' on the map. And remove the existing 'aiming tip' that starts at the beginning of each scene in our first world." Answers: Q122 "1) yes" (one road, a dramatic break between worlds), Q124 "2) first time plus button". Built without a mockup (the developer asked for the build), on `block-game`; DESIGN.md "Topple!", The map, Worlds, and A world's tutorial, have what it does.
+- **Files:** `src/core/topple-levels.js` (`WORLDS`: Earth 🌍, The Moon 🌕, names Claude's pick; `worldOf`, `worldLevels`, `levelInWorld`, `firstOfWorld`), `src/core/topple.js` (a level's end card in world numbers; the last of a world: "On to The Moon", **The Moon ▸**), `src/core/topple-road.js` (a 150 px gate under each world's first level, `roadJoins`), `src/core/topple-tutorial.js` (new: the steps, the practice scenes, `tutorialDid`, `needsTutorial`, the taught list), `src/ui/topple.js` (the gates, the tutorial, `playMode()`: the practice on Normal), `topple.html` (`#tut`), `css/topple.css` (`.tut`, `.rgate`).
+- **Choices made (Claude's, to review):**
+  - **Taught once a device, for every difficulty** (`web-games-topple-taught`), not once a difficulty: the controls are the same on each. Done or Skip marks it taught; **Map leaves it untaught** (it shows again before that world's next first scene). Players who have played 11.0 (the developer) see each world's tutorial once, the next time they start a scene from the map.
+  - **The steps wait in order** (a drop before the steer step is a free ball, not a step done); every block down ends the practice whatever the step. The park's "let go too soon" (a drag too short to throw) goes back to step 1.
+  - **The pad's show moved into the park's tutorial** (it repeats while its first steps wait) instead of being deleted; the one-line hint ("Drag from 👆, then let go") still shows before each scene's first ball. *To ask:* is that line part of the "aiming tip" to remove too?
+  - The practice's scene: the park's **level 1 scene 1 with seed 40**. The first seed tried (424242) put a tree trunk right across the structure (seen in the browser pane); seeds 1-60 measured with the scene check (scratch): 40 deals the arch (it comes down whole from one post) with only a bush in the way, 164 direct throws in the check's fan (the most of the arches). The moon's: Landing Zone scene 1 (a single column of 3 blocks).
+- **Tests:** `tests/topple-tutorial.test.js` (new, 8: the worlds' numbering, the end card's words, the steps' order, going back, the taught list, the moon's practice scene, the page's wiring and logs); `tests/topple-road.test.js` (the gates: one a world, the strips meeting with no gap or overlap, the road broken only between level 5 and 6). Page tests' source matches updated for the changed lines (`playMode()`, `levelTag`, `shutWords`, `spec`). **Shown to fail:** with the step order broken (`t.step++` for any event) the steps test fails, and passes again once restored. `tests/drawing.test.js` read a fixed 4000 characters of `startScene` to find `drawing?.restart()`; the new lines pushed it past (startScene only wraps makeTheScene): it now reads the whole of `makeTheScene`. **Full suite: 730 pass, 0 fail** (`npm test`).
+- **Checked in the browser pane (local server, 1024 × 768, then 375 × 812):** the map's two gates ("World 1 · Earth | 🎯 How to throw"; "World 2 · The Moon | 🔒 Finish Earth to fly to the moon"), 48 road lines (49 joins less the break), banners 1-5 then 1-5. Tapping scene 1 of level 1 with nothing taught opened the park's tutorial ("🌍 Practice", no hearts, no hint, the finger showing); a **real mouse drag** from the pad went press → aim → throw → the last step (the ball free, `used` 0); three hooked throws cleared it, "You've got it! 🎯" with **Back to the map** (from the gate) and no New game; taught `["park"]` kept; the game untouched (no stars, no place). With the park taught, its scene 1 went straight into play (no show, the hint shown). The moon from scene 6.1: its tutorial first; a real drag on the pad did press and steer (and dropped a free ball, the step staying at ⇄); a real click on ⇄ did the turn; a hooked drop as the ring crossed the column cleared it; the bar went with its card; **Let's go ▸** went into Moon level 1 scene 1 ("1 · Landing Zone"). Map from the practice: back to the map, not taught; Skip: taught, into the scene. A reload in the practice came back to the setup screen. 375 × 812: the bar between the pills and the structure, no sideways scroll; the gate's button was dark on the Moon's dark gate (hardly seen): given the card's colours, checked. No console errors.
+- **Not checked:** a real touch screen (the steps with a finger and two thumbs), the old tablet, sideways on a phone, the tutorial with the keys on a computer beyond Space (↑ ↓ steer is checked by the same per-frame test as the pad).
+- **To review with the developer:** the world names and signs, the gates' look (is the break "dramatic" enough?), the step words, whether the hint's line should go too.
+
+**Status (start here next session)**
+- **Live: 11.0.** `block-game` = `main` plus journal entries and Q122-Q124 built (not published): worlds on the map, a tutorial for each world, the pad's show only in the park's tutorial.
+- **Next:** the developer to try it (it needs a publish to try on a phone or tablet: release **11.1** would be the number, fixes and changes); then Q125 (the moon's five materials, mockup first), Q126 (mock up turn options b, c, d), Q121 (sounds).
+- **Open questions:** Q127 (parked), Q126, Q125, Q124 and Q122 (built, to try), Q123 (built; the hint's line too?), Q121, Q120, Q119, Q118, Q113 (parked).

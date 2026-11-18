@@ -152,11 +152,15 @@ test('drawing: as drawn changes nothing', () => {
 });
 
 test('drawing: both games watch their frames, start again on a scene or round, log the level; the drawings keep the cuts', async () => {
-  for (const [f, game, start] of [['src/ui/topple.js', 'topple', 'startScene'], ['src/ui/tin-can-alley.js', 'tin-can-alley', 'startRound']]) {
+  // (Topple's startScene only wraps makeTheScene, which makes the scene: its whole body is read, not
+  // a fixed 4000 characters, which the world tutorial's lines outgrew, 2026-11-17)
+  for (const [f, game, start] of [['src/ui/topple.js', 'topple', 'makeTheScene'], ['src/ui/tin-can-alley.js', 'tin-can-alley', 'startRound']]) {
     const js = await read(f);
     assert.match(js, new RegExp(`drawing = drawWatch\\('${game}', stage, L\\);`), f);
     assert.match(js, /stage\.render\(\);\r?\n  drawing\?\.frame\(performance\.now\(\)\);\r?\n\}/, `${f}: each frame drawn watched`);
-    const body = js.slice(js.indexOf(`function ${start}(`), js.indexOf(`function ${start}(`) + 4000);
+    const at = js.indexOf(`function ${start}(`), end = js.slice(at).search(/\r?\n\}\r?\n/);
+    assert.ok(at >= 0 && end > 0, `${f}: function ${start} found`);
+    const body = js.slice(at, at + end);
     assert.match(body, /drawing\?\.restart\(\);/, `${f}: not restarted in ${start}`);
     assert.match(js, /drawing: drawing\?\.level/, `${f}: the level not in the end's log line`);
     assert.match(js, /const dt = Math\.min\(MAX_FRAME_S, /, `${f}: frame not capped at MAX_FRAME_S`);

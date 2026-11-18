@@ -90,12 +90,18 @@
       <!-- the moon's second control, for the other thumb: turn the lander round (mockup v4) -->
       <button type="button" class="turnbtn" id="turnBtn" aria-label="Turn the lander round" hidden>⇄</button>
       <!-- the drag pad, beside the dots (the drag works from anywhere), and
-           the finger that shows it as a scene starts -->
+           the finger that shows it in the park's tutorial -->
       <div class="pad" id="pad" aria-hidden="true" hidden><span>👆</span></div>
       <div class="ghost" id="ghost" aria-hidden="true" hidden>👆</div>
       <div class="hud">
         <span class="hudpill hudlevel" id="hudLevel" role="img" aria-label="Level 1, no jewels yet"><span class="hudname" id="hudLevelName"></span><span class="jewels" id="hudJewels"></span></span>
         <span class="hudpill" id="hudHearts" role="img" aria-label="3 hearts"></span>
+      </div>
+      <!-- a world's tutorial (Q124): the step to do, its number, Skip -->
+      <div class="tut" id="tut" role="status" aria-live="polite" hidden>
+        <p class="tuthead"><b id="tutTitle"></b> <span id="tutNum"></span></p>
+        <p class="tutsay" id="tutSay"></p>
+        <button type="button" class="pill" id="tutSkip">Skip</button>
       </div>
       <p class="hint" id="hint" aria-live="polite">Drag from 👆, then let go</p>
       <!-- a scene being set up (Q104): over the park, the last scene dimmed

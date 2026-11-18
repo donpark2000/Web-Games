@@ -4,7 +4,7 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-17, latest): **Topple!: a second world, the moon base, levels 6-10** (a lander drops the ball: hold to aim, drag to steer, let go to drop, ⇄ to turn; release 11.0; see "Topple!", The moon). Earlier the same day: **Topple!: a scene won with fewer than 3 stars has Try again for more stars on its card** (developer, trying 10.25; for release 10.26; see "Topple!", The map, Stars). Earlier (2026-11-16): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
+*Status (2026-11-17, latest): **Topple!: worlds on the map and a tutorial for each world** (developer, after 11.0: a gate for each world on the road, the road broken between them, levels numbered 1-5 within a world; each world's aiming taught in a practice scene before its first scene, and again from its gate; the pad's show at every park scene removed; on `block-game`, not yet published; see "Topple!", The map, Worlds, and A world's tutorial). Earlier: **Topple!: a second world, the moon base, levels 6-10** (a lander drops the ball: hold to aim, drag to steer, let go to drop, ⇄ to turn; release 11.0; see "Topple!", The moon). Earlier the same day: **Topple!: a scene won with fewer than 3 stars has Try again for more stars on its card** (developer, trying 10.25; for release 10.26; see "Topple!", The map, Stars). Earlier (2026-11-16): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
 swinging on its chain, a sled sliding by on the snow, a star falling at a
 slant (a ball can pass between its points), each once in scenes 1, 3, 5; 2
 and 4 spread out, with a telescope not to hit** (on `block-game`, for
@@ -2395,9 +2395,47 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     just won as a scene tapped on the map does (new scenes, 3 hearts and the
     balls again; the game had gone on to the next scene or level, and this puts
     it back); also on a level's last scene. Logged: `try again for more stars`.
+  - **Worlds** (Q122, developer, 2026-11-17: "a more dramatic separation, and within a
+    'world' scenes should always be numbered from 1 to 5"; one road, not a map per
+    world): **World 1 · Earth 🌍** (levels 1-5, the slingshot) and **World 2 · The
+    Moon 🌕** (the lander) (names Claude's pick, to review). Each world has a **gate**
+    under its first level: its sign, "World N · its name" and, once it is open, its
+    tutorial's button (🎯 How to throw / How to drop); shut, "🔒 Finish Earth to fly to
+    the moon". Earth's gate is green at the road's foot; the Moon's goes from Star
+    Light's night to black space with stars and a rocket. **The road is broken across
+    a gate.** **Levels are numbered within their world** everywhere: the banners ("1 ·
+    Landing Zone"), the play screen's pill, the setup screen's line ("Normal: The Moon
+    level 1 · scene 2 of 5"), Start again ("Level 1 from scene 1"), a level shut
+    ("Finish level 2 first") and a level's end ("Level 5 done!", "On to The Moon",
+    **The Moon ▸**). `WORLDS`, `worldOf`, `levelInWorld` in
+    `src/core/topple-levels.js`; the gates in `src/core/topple-road.js` (`GATE_H` 150
+    px, `roadJoins`).
   - Logged: `map: shown` (difficulty, level, scene, road height, circle),
     `map: the face walks`, `map: a scene, straight into play`, `map: a scene shut`,
-    `map: a locked level`, `map: drawn again` (the width changed).
+    `map: a locked level`, `map: drawn again` (the width changed), `map: a world's
+    tutorial`.
+- **A world's tutorial** (Q124, developer, 2026-11-17: "a 'world launching' screen
+  that is not part of game play or scoring but explains the aiming and firing
+  controls for the world you are about to enter. A mini interactive tutorial";
+  "first time plus button"; the park too): **before the first scene played in a
+  world** (once on a device, whatever the difficulty: the controls are the same) and
+  **from the world's gate on the map** any time. A **practice scene** on Normal,
+  always the same (the park: level 1 scene 1's arch, seed 40, only a bush in the way;
+  the moon: Landing Zone scene 1), its **balls free**, no hearts, jewels or stars, and
+  nothing kept (a reload in it comes back to the setup screen). A bar under the pills
+  says the step to do ("How to throw · 1 of 4") with **Skip**; **each step waits for
+  you to do it, in order**: the park: put your finger on 👆; drag up (the dots show);
+  let go; knock every block down. The moon: hold 👆 (the ring); drag up or down to
+  fly farther or nearer (0.5 m); tap ⇄; let go when the ring is on a block; knock
+  every block down. Letting go too soon in the park starts again from the first step.
+  The park's see-through finger shows the drag while its first steps wait. Every
+  block down ends it whatever the step: "You've got it! 🎯", **Let's go ▸** (into the
+  scene that was waiting) or **Back to the map**. Done or skipped, the world is taught
+  (`web-games-topple-taught` on the device); **Map** leaves it untaught, so it shows
+  again. `src/core/topple-tutorial.js`. Logged: `tutorial first: the world not taught
+  yet`, `tutorial: start`, `tutorial: the practice scene`, `tutorial: step` (what was
+  done, the step now, seconds in), `tutorial: cleared`, `tutorial: done`, `tutorial:
+  skipped`, `tutorial: left`.
 - **Levels 2-5: eight structures each, dealt** (10.3; until then five in
   a fixed order; developer, 2026-11-12: "every time I play the game from
   the beginning I am presented with exactly the same set up"): scenes 1-4
@@ -2742,10 +2780,13 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   radius counts; a press anywhere else aims nothing and **the pad
   pulses** (grows and turns yellow for ½ s) to show where to start. No
   press, no dots (a mouse moving over the park shows nothing). The pad
-  is never faint (it's the one control). **Its show, every scene** (developer: "Every
-  scene"): before the first ball a see-through 👆 drags from the pad as a
-  throw would, the dots and slingshot following, twice; it stops at a
-  press on the pad. Its throw reaches a block first (the first of 30, 25, 35...°
+  is never faint (it's the one control). **Its show, in the park's tutorial
+  only** (Q123, developer, 2026-11-17: "remove the existing 'aiming tip' that starts
+  at the beginning of each scene"; from 9.x until then "Every scene"): a see-through
+  👆 drags from the pad as a throw would, the dots and slingshot following, again
+  and again while the tutorial's first steps wait; it stops at a press on the pad.
+  The hint's line ("Drag from 👆, then let go") still shows before a scene's first
+  ball. Its throw reaches a block first (the first of 30, 25, 35...°
   that does). [Topple Drag Pad](https://claude.ai/artifact/C3PbCEsxig4pZ1y15eSDxe)
   mockup (private), v1-v2.
 - **One view, from behind** (developer, 2026-11-10, Q70: "Maybe side view
@@ -2880,8 +2921,9 @@ private; the toy house with bounce shots rejected). Release 11.0.
   each scene, turning slowly; **the odd shooting star**, one every 8-22 s
   (developer, 2026-11-17). The view from in front and above, fitted to each
   scene's run.
-- **The map:** levels 6-10 continue the road in dark bands (🛬 🔆 🌑 ⛏️ 🚀);
-  level 6 shut says "Finish level 5 to fly to the moon".
+- **The map:** levels 6-10 continue the road in dark bands (🛬 🔆 🌑 ⛏️ 🚀), past
+  the Moon's gate, numbered 1-5 (see The map, Worlds); shut, "Finish Earth to fly to
+  the moon". Its tutorial: How to drop (see A world's tutorial).
 - Logged: `moon scene` (structures, span, the Earth, speed), `lander: steer`,
   `lander: turn`, `lander turns at the end`, `drop would hit block`, `drop`
   (where, the ring, what it's heading for), `drop refused`, `block down`,

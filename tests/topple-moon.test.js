@@ -166,12 +166,12 @@ test('moon page: its own canvas, the turn button by the pad, the keys, the lit b
   assert.match(page, /<canvas id="cm"[^>]*hidden><\/canvas>/);
   assert.match(page, /<button type="button" class="turnbtn" id="turnBtn" aria-label="Turn the lander round" hidden>⇄<\/button>/);
   assert.match(css, /\.turnbtn \{[^}]*position: absolute/);
-  assert.match(js, /if \(isMoonLevel\(lv\)\) return makeMoonScene\(lv, kept\);/);
+  assert.match(js, /if \(isMoonLevel\(lv\)\) return makeMoonScene\(lv, kept, spec\);/);
   assert.match(js, /\$\('cm'\)\.hidden = !moonOn;\s*\$\('c'\)\.hidden = moonOn;\s*\$\('turnBtn'\)\.hidden = !moonOn;/);
   assert.match(js, /const MOON_KEYS = \{ ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', Space: 'space' \};/);
   assert.match(js, /if \(k === 'space' && keysOn\(\)\) moonDrop\('key'\);/, 'Space up drops (down shows the aim)');
   assert.match(js, /if \(onMoon\(\)\) \{ drag = null; mo\.aiming = false; moonDrop\('pad'\); return; \}/, 'letting go of the pad drops');
-  assert.match(js, /if \(moonMode\(game\.mode\)\.light && a\.hit != null && a\.hit >= 0\) lit = a\.hit;/, 'no block lit for "none" (null >= 0 is true)');
+  assert.match(js, /if \(moonMode\(playMode\(\)\)\.light && a\.hit != null && a\.hit >= 0\) lit = a\.hit;/, 'no block lit for "none" (null >= 0 is true)');
   assert.match(js, /const ok = ready\(\), aiming = \(mo\.aiming \|\| mo\.keys\.space\) && ok;/, 'the aim only while held');
   for (const n of [6, 7, 8, 9, 10]) assert.match(js, new RegExp(`\\n  ${n}: \\{ pic: \\(\\) => '[^']+', tint: '#[0-9A-F]{6}'`), `level ${n} on the map`);
   for (const s of ['L(\'drop\'', 'L(\'lander: turn\'', 'L(\'lander: steer\'', 'L(\'drop would hit block\'', '\'moon scene\'', 'L(\'lander turns at the end\'', 'L(\'drop refused\'']) assert.ok(js.includes(s), `logged: ${s}`);
