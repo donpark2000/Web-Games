@@ -51,6 +51,12 @@ time, each tried before publishing:
   spread-out mixes (levels 3-5); the moon's Mining Site and Launch Pad challenges, and
   Solar Farm's on Hardest. **To do:** the developer plays a few to confirm, then the fix
   for each (the blast ball, Q130, or easing the scene).
+  **Developer (2026-11-18):** "I have already done this and had the feeling before that 3
+  ball clearing was impossible, but I never recorded the exact scenes ... we can proceed
+  with a fix. I prefer blast ball over easier scenes. One of our struggles was to make
+  scenes harder. But they also have to be winnable. The blast balls lend a new dimension
+  to game play that should help with both objectives." **Agreed: the blast ball, in
+  both worlds; no scene eased.** Carried on in Q130.
 
 - **Q131. Topple!: the moon's target light always on; Space drops at once** (2026-11-18,
   developer: "I'm wondering if the target light should always just be on. On a desktop
@@ -165,6 +171,13 @@ time, each tried before publishing:
   lander (a pass: one way across, the reading Claude will use unless told otherwise:
   to confirm in the mockup); Earth, only if Q132 shows scenes that need it: a 10 s
   countdown.
+  **Q132 (2026-11-18):** the park needs it too (Ice Castle, Star Light's candles and Star
+  Palace, Hardest's spread-out mixes: see "Q132 built"); the developer: the blast ball
+  over easier scenes, as it helps make scenes harder as well as winnable. **Next: mockup
+  v2**, with both worlds (the moon's 3 passes, the park's 10 s countdown) and the blast's
+  size measured with `tools/topple-stars.js`. **To ask:** the blast ball only in the
+  scenes the tool lists, or in more (every challenge, say), now that it's also a way to
+  make scenes harder?
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -24661,18 +24674,23 @@ Q125 (the moon's materials) and Q121 (sounds).
   suite: 744 pass, 0 fail before the Tower Wall test.
 - **Test output:** `C:\Users\dpark\Documents\Web-Games-testing\2026-11-18_star-check\`
   (exact.txt/json, miss.txt/json: both worlds before the fix; park-exact, park-miss:
-  the park after it).
+  the park after it). **Purged** (developer: "yes", 2026-11-18): sent to the Recycle
+  Bin; this entry is the record (the tool makes them again).
+- **Developer, on the list (2026-11-18):** they had felt 3 balls impossible in some
+  scenes before, without noting which; **the fix: the blast ball, in both worlds** (Q130),
+  not easier scenes.
 
 **Status (start here next session)**
 - **Live: 11.3.** `block-game` = `main` plus the star tool (`tools/topple-stars.js`, its
   tests) and this journal; not published (nothing in the game changed).
-- **Q132 answered by the tool:** the scenes not won in 3 by a good player are above. **To
-  ask the developer:** play a few of them (Star Light's candles and Star Palace, Ice
-  Castle, a Mining Site or Launch Pad challenge) to confirm, then decide the fix for
-  each: the blast ball (Q130; the moon: gone after 3 passes; the park: a 10 s
-  countdown), or easing the scene.
-- **Next:** Q130 (the blast ball mockup v2: its size measured with this tool, "1 whole
-  structure in about 9 blasts of 10"), Q125 (the five moon levels' mockup), Q121 (sounds).
+- **Q132 answered by the tool:** the scenes not won in 3 by a good player are above; the
+  developer had felt it too. **The fix: the blast ball in both worlds** (Q130), no
+  scene eased.
+- **Next: Q130, the blast ball mockup v2**: both worlds (the moon: gone after 3 passes
+  of the lander; the park: a 10 s countdown), its size measured with this tool ("1
+  whole structure in about 9 blasts of 10, 2 in about 1 of 5"). **To ask first:** only
+  in the scenes the tool lists, or in more (every challenge), now that it's also a way
+  to make scenes harder? Then Q125 (the five moon levels' mockup), Q121 (sounds).
 - **Open questions:** Q134 and Q133 (published in 11.3: to try on a device), Q132 (the
   list, to play), Q131 (built), Q130, Q129 (built), Q128 (built), Q127 (parked), Q126
   (built), Q125, Q124 and Q122 (replaced by Q129, Q128), Q123 (built), Q121, Q120, Q119,
