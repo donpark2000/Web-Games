@@ -10,6 +10,14 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
+  developer: "one more idea for possible use in future changes (harder levels or new
+  worlds) - the ship can go up and down as well as back and forth. We will park that
+  for now."). **Parked.** Notes for then: higher means a longer fall (the ring further
+  ahead at speed, more time to judge), lower a shorter one; it fits the earlier list of
+  Harder levers ("faster, higher"). Up and down is the pad's near/far drag now, so it
+  would need its own control (the throttle idea from v3, or a second drag).
+
 - **Q126. Topple!: ⇄ sends the ring racing** (2026-11-17, developer, 11.0 on the
   tablet): "The control to make the ship change direction 'worked' on my tablet but
   was unusable. Any time I hit it, the target aiming light did not just change
@@ -23898,4 +23906,4 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Live: 11.0** (published 2026-11-17 at the developer's word: `main` moved on to the branch, tag `v11.0`, GitHub release; github.io served version 0b7ef9b1be20 within a few minutes; in the browser pane the page took the new code on the second reload, as the offline app does, and level 6 loaded with no errors). `block-game` = `main` plus journal entries. Local servers stopped (none left listening).
 - **Q119 built** (the moon base); the developer to play it on a phone and tablet. To review: the levels' names (Claude's), Harder/Hardest's speeds, how the scenes feel.
 - **First 11.0 feedback (2026-11-17, not every level played):** Q122 the map should show worlds (levels numbered 1-5 within a world?), Q123 the pad's show at each scene annoying, Q124 a world's launch screen with a mini tutorial, Q125 the moon's levels need materials of their own. Answered: levels 1-5 within each world; a tutorial for each world, the park too; all five moon materials. To confirm: one road with a dramatic break or a map per world (Q122); the tutorial the first time plus a map button, or every time (Q124). Then mockups (Q122, Q124, Q125), and Q121 sounds.
-- **Open questions:** Q126 (⇄ sends the ring racing: a rejected; mock up b, c, d), Q125, Q124, Q123, Q122 (11.0 feedback), Q121 (sci-fi sounds on the moon), Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
+- **Open questions:** Q127 (the lander up and down: parked), Q126 (⇄ sends the ring racing: a rejected; mock up b, c, d), Q125, Q124, Q123, Q122 (11.0 feedback), Q121 (sci-fi sounds on the moon), Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
