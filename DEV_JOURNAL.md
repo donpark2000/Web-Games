@@ -21,6 +21,8 @@ time, each tried before publishing:
   **Developer (2026-11-18):** "I see no problem with touch screen devices. You still use
   the finger to aim (fore and aft)." Read as: **touch as now** (hold 👆, drag to steer,
   let go to drop), only the ring always shown; **keys:** Space down drops.
+  **Confirmed (developer, 2026-11-18):** "Target light is always on but the finger still
+  moves the aiming forward or backward and release of the finger releases the ball."
 
 - **Q128. Topple!: the next world closed off on the map** (2026-11-18, developer,
   trying 11.1: "I don't think the map conveys the opening up of access to new worlds
