@@ -377,6 +377,20 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
+- **Tests that read files as text must not depend on line endings** (2026-11-18, "Q134
+  found and fixed"): two page tests matched `topple.js` with a `\n` inside the pattern;
+  they passed while the file happened to have LF ends, and failed once an edit saved it
+  as CRLF, which is what a fresh checkout on Windows (`core.autocrlf`) gives every file.
+  Generic: normalise line ends where a test reads a file, and run the clean-room check
+  on the OS the developer uses.
+
+- **Aim a follow-up at where a move ends, not where the thing is now** (2026-11-18,
+  "Q134 found and fixed"): the map scrolled to the walking face 50 ms into its 0.9 s
+  walk, so it aimed at the walk's start, and the face walked off the screen whenever
+  the walk was long. Short walks hid it. Generic: when a view, sound or check follows
+  an animation, use the animation's end position or wait for its end (see "Tie an
+  effect to the event it follows").
+
 - **A page that isn't drawn may not be running** (2026-11-18, "11.2 built"): with the
   browser pane hidden, a game page got no animation frames, so its clock and physics
   stood still while a check waited on real time; a ball hung in mid-air and "nothing
@@ -24404,5 +24418,86 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **To ask:** Q135 (which levels and difficulty; finished before 2026-11-16?); Q134 (which
   way the map was opened, if trying them doesn't find it).
 - **Open questions:** Q135, Q134, Q133, Q132, Q131 (built), Q130, Q129 (built), Q128
+  (built), Q127 (parked), Q126 (built), Q125, Q124 and Q122 (replaced by Q129, Q128),
+  Q123 (built), Q121, Q120, Q119, Q118, Q113 (parked).
+
+## 2026-11-18: Release 11.2 published and live
+
+- **Developer:** "1) yes" (publish 11.2); "2) Not sure what date. Could be before. I am OK
+  to close it and if I see it again, I'll report as a new issue." (Q135: closed, moved to
+  Resolved); "3) I was using the PWA on my desktop ..." (Q134: below).
+- **Published:** release 11.2 (`src/core/release.js`, `node tools/offline.js`: version
+  e016c48de740, 196 files; RELEASES.md notes; `node tools/release.js`: ready); full suite
+  733 pass, 0 fail; `main` fast-forwarded to `block-game` (a1de94c), tag `v11.2` pushed,
+  GitHub release made from `node tools/release.js notes`. github.io served e016c48de740
+  within about 15 s of the push; the live home page in the browser pane: "Version 11.2 ·
+  Nov 18, 2026 · e016c4", no console errors. No local `serve.js` was running.
+
+## 2026-11-18: Q134 found and fixed: the map's view after the face's walk (not published)
+
+- **Tried each way in** (browser pane, local server, 1000 × 700, the game moved with the
+  page's `topple.level` hook, the map opened by real `.click()`s on its buttons):
+  - Play! / Carry on from the setup screen, after scrolling the map to the top or the
+    bottom first: the scene centred each time (n3_2 at 312 px of 700). So no "last
+    position" is kept: a reload on the map comes back to the setup screen, and
+    `showMap` always scrolls.
+  - **The Map button after playing a scene far from the last one drawn: off screen.**
+    From the moon (7-4) to Earth 4-3: the face started at 341 px and, once its walk was
+    over, stood at **1944 px in a 700 px window**. The cause: when the scene has
+    changed since the map was last drawn, `showMap` scrolled to where the face *was*,
+    the face walked 0.9 s to the scene, and a smooth scroll to the face 50 ms into the
+    walk aimed at where the face was then (about its start). After a win the next scene
+    is close, so it never showed; a scene of another level picked on the map (a replay
+    for more stars, or the moon and back) walks the face off the screen. This fits the
+    developer's "once when I opened the map".
+  - **Also:** a window made shorter (1000 × 350) with the map open left the scene's face
+    at 341 px, under the edge. Not changed: a height change alone doesn't redraw the
+    road, and on phones the height changes as the address bar slides while scrolling,
+    so re-centring then would fight the finger.
+- **Fixed** (`mapView(from, to, viewH)` in `src/core/topple-road.js`, no DOM): a walk
+  only when both ends fit, at most 0.6 of the window's height apart (`WALK_FIT`), the
+  view centred between them; a longer way isn't walked, the face put on its scene and
+  the view centred there; not moved, centred on the scene. The page scrolls with
+  `centreRoad(y)` (no later scroll after the walk starts), and the redraw for a new
+  width centres on the scene again. **Changed:** the long walk across levels is gone
+  (it ran off the screen anyway); the walk after a win stays. Logged: `map: too far to
+  walk, the face put on its scene` (from, to, apart, the window's height); `map: shown`
+  and `map: drawn again` give the scroll.
+- **Tests:** `tests/topple-road.test.js` (on the real road, every width 280-460 and
+  windows 350, 600, 812, 1000 px tall, every pair of the 50 scenes: 49,000 moves, 8,160
+  walked, 40,840 put; the scene you are on always in view, and the walk's start too;
+  each next scene after a win within a world walked on windows 600 px or taller; the
+  moon 7-4 to Earth 4-3 on 700 px put, not walked); `tests/topple-stars-page.test.js`
+  (the page's wiring: `mapView` decides the walk, `centreRoad(centre)` as the map opens
+  and on a redraw, no scroll to the face). **Shown to fail:** `WALK_FIT` 100 (always
+  walk, the old way): "w 280 h 350: 1-1 to 2-1 (centre 3545): the scene you are on out
+  of view".
+- **Found on the way: two page tests depended on line endings.** The first full run
+  had 3 failures: the offline list (stale, as expected: `node tools/offline.js`, version
+  9a20ed3ff832) and two page tests whose patterns have a `\n` inside
+  (`tests/topple-moon.test.js` "Space down drops", `tests/topple-page.test.js` the
+  hint). They had passed at the start of this session, so `topple.js` had LF ends in
+  the working copy until this session's edits saved it as CRLF, as every other file in
+  the working copy already is (219 CRLF, 15 LF) and as a fresh Windows checkout makes
+  it (`core.autocrlf` true). Fixed in the tests: both `read` helpers give LF ends.
+  **Clean-room check:** the branch cloned to a temp folder (`topple.js` 1546 CRLF
+  lines), the suite run twice: **734 pass, 0 fail** both times; the file listing before
+  and after the same (290 files); the folder removed. Lessons proposed for the skill.
+- **Checked in the browser pane** (reloaded, 1000 × 700; the pane hidden, so CSS
+  animations don't run: where the walk ends read from the face's set position): the
+  moon 7-4, then Earth 4-3: no walk, 4-3 centred (359 px); 4-3 to 4-4: walked, 389 → 310
+  px, both in view; 4-4 to 5-1 (the next level): walked, 459 → 241 px; to 1-2: no walk,
+  centred. No console errors.
+- **Not checked:** the redraw for a new width in the pane (its size emulation didn't
+  take while hidden: the road stayed 460 px), the installed app on the desktop, a phone
+  turned sideways with the map open.
+
+**Status (start here next session)**
+- **Live: 11.2.** `block-game` = 11.2 plus Q134's fix (the map's view), not published.
+- **Next:** Q133 (the moon's glow after a pause), Q132 (the tool: scenes that can't be
+  won in 3 balls, both worlds), Q130 (the blast ball mockup v2: smaller, the 3-pass
+  time-out), Q125 (a mockup of the five moon levels), Q121 (sounds); publish 11.3 with
+  Q134 (and Q133) on the developer's word.
+- **Open questions:** Q134 (built), Q133, Q132, Q131 (built), Q130, Q129 (built), Q128
   (built), Q127 (parked), Q126 (built), Q125, Q124 and Q122 (replaced by Q129, Q128),
   Q123 (built), Q121, Q120, Q119, Q118, Q113 (parked).
