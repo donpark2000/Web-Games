@@ -7,6 +7,23 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 11.1 (2026-11-17, version ec7621772c7b)
+
+Topple!: worlds on the map, and a tutorial for each world.
+
+- **Two worlds on the map.** The road now has a gate for each world: World 1 · Earth
+  (levels 1-5) and World 2 · The Moon. The road breaks at the gate between them.
+- **Levels numbered within their world.** The moon's levels are 1-5 (Landing Zone is
+  "1", not "6"), on the map, over the game and on the cards. Finishing Earth's last
+  level says "On to The Moon".
+- **How to throw, how to drop.** The first time you start a scene in a world, a short
+  practice shows how to aim there, one step at a time: each step waits for you to do
+  it, and the balls are free. Skip it any time. It is also on each world's gate on the
+  map, to try again whenever you like.
+- **No more finger show before every scene.** The see-through finger that showed how to
+  drag now plays only in the park's practice.
+- Everything else is as in 11.0.
+
 ## 11.0 (2026-11-17, version 0b7ef9b1be20)
 
 Topple!: a second world, the moon base: five new levels (6-10), 25 new scenes.
