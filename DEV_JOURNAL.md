@@ -24698,9 +24698,9 @@ Q125 (the moon's materials) and Q121 (sounds).
   scene eased.
 - **Next: Q130, the blast ball mockup v2**: both worlds (the moon: gone after 3 passes
   of the lander; the park: a 10 s countdown), its size measured with this tool ("1
-  whole structure in about 9 blasts of 10, 2 in about 1 of 5"). **To ask first:** only
-  in the scenes the tool lists, or in more (every challenge), now that it's also a way
-  to make scenes harder? Then Q125 (the five moon levels' mockup), Q121 (sounds).
+  whole structure in about 9 blasts of 10, 2 in about 1 of 5"). **Where (leaning, the
+  developer):** only the structures the tool lists, always offered there (a list written
+  by the tool, tested); its first meeting taught (Frosty Times' challenge). Then Q125 (the five moon levels' mockup), Q121 (sounds).
 - **Open questions:** Q134 and Q133 (published in 11.3: to try on a device), Q132 (the
   list, to play), Q131 (built), Q130, Q129 (built), Q128 (built), Q127 (parked), Q126
   (built), Q125, Q124 and Q122 (replaced by Q129, Q128), Q123 (built), Q121, Q120, Q119,
