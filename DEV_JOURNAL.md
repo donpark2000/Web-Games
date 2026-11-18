@@ -195,6 +195,11 @@ time, each tried before publishing:
   r 0.6 m: every listed deal won in 3 own balls judged a little off, 90 of 90). **To
   try.** **To ask:** Star Light's candles and Star Palace are won with 1 own ball plus
   the blast ball in every deal measured: too easy?
+  **Developer (2026-11-18), on v2:** "I like the idea of the time out to earn the blast
+  ball. But I don't like the idea that the blast ball itself, once earned, turns into a
+  normal ball." Read as the look (to confirm): v2 drew it red only while held; once
+  thrown or dropped it was drawn as the level's own ball. **v2.1:** red and glowing, with
+  a trail of sparks, all the way until it goes off; see "Q130 mockup v2.1".
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -24831,3 +24836,38 @@ Q125 (the moon's materials) and Q121 (sounds).
   list, to play), Q131 (built), Q130 (mockup v2 to try), Q129 (built), Q128 (built), Q127
   (parked), Q126 (built), Q125, Q124 and Q122 (replaced by Q129, Q128), Q123 (built),
   Q121, Q120, Q119, Q118, Q113 (parked).
+
+## 2026-11-18: Q130 mockup v2.1 (the blast ball stays a blast ball in flight)
+
+- **Developer, on v2:** "I like the idea of the time out to earn the blast ball. But I
+  don't like the idea that the blast ball itself, once earned, turns into a normal
+  ball." **Claude's reading** (to confirm): the look. v2 drew the blast ball red and
+  glowing only while it was held (in the slingshot, under the lander); once thrown or
+  dropped, the page drew it as the level's own ball (the stages draw every ball in
+  flight the same way), so it looked like a normal ball until it went off. The toast,
+  "Your next ball is free", said the same thing in words.
+- **Changed** (`src/ui/topple-blast-fx.js`, scratch `patch-v2.py`): the blast ball is
+  drawn red and glowing over the physics' ball (1.15 times its size), with its own light
+  and a trail of small sparks (every 0.05 s), from the throw or drop until it goes off;
+  cleared as a scene starts. The toast: "💥 You won a blast ball! It goes BOOM".
+- **Checked in the browser pane** (the scratch server, the test hook): Star Light's Star
+  Palace: the toast's new words; the trail of sparks along the throw's path to the blast
+  (screenshot; first drawn at 0.07 m, blocky near the camera, now 0.035). Mining Site's
+  challenge: 1.1 s into the blast ball's fall, it hangs red with the trail behind it,
+  while the ball under the lander is a normal grey one again (screenshot). No resource
+  failed on that load (53 loaded); the console's 404s were from the first load before
+  the textures were copied.
+- **Published:** version 3 of
+  [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h) (the two changed
+  files). Local server "mockup-scratch" in `.claude/launch.json` for the check, taken out
+  after.
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Q130 mockup v2.1** (version 3 of the Topple Blast Ball page): the clock to earn it is
+  liked; the blast ball now looks like one all the way. **To ask:** (1) is that what
+  "turns into a normal ball" meant; (2) Star Light's candles and Star Palace, won with 1
+  own ball + the blast in every deal measured: too easy? (3) the rest of how it plays
+  (size, 10 s / 3 passes, where the 💥 floats, the teaching card).
+- **Then:** build it in the game, Q125 (the five moon levels' mockup), Q121 (sounds).
+- **Open questions:** as in the last status entry; Q130 (v2.1 to try).
