@@ -24556,9 +24556,20 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Release 11.3** (Q133, Q134): `src/core/release.js` 11.3, `node tools/offline.js`
   (version 07596d6e2e54, 196 files), RELEASES.md notes, `node tools/release.js`: ready.
 
+## 2026-11-18: Release 11.3 published and live
+
+- **Published** on the developer's word ("Q133 and Q134 and publish"): full suite 735
+  pass, 0 fail; `main` fast-forwarded to `block-game` (a8421b4), tag `v11.3` pushed,
+  GitHub release made from `node tools/release.js notes`. github.io served
+  07596d6e2e54 within about 10 s of the push. The live home page in the browser pane
+  first showed 11.2 (its saved copy); after a reload its log said `opened in the browser
+  {"release":"11.3","version":"07596d6e2e54"}` and the footer "Version 11.3 · Nov 18,
+  2026 · 07596d"; no console errors. Claude's local server stopped; no other `serve.js`
+  running.
+
 **Status (start here next session)**
-- **11.3** (Q133, Q134) ready on `block-game`; publishing follows in this session (see
-  the next entry).
+- **Live: 11.3** (Q133 the moon's glow, Q134 the map's view). `block-game` = `main`
+  plus this journal entry.
 - **Next session: Q132, the star-checking tool** (the developer, 2026-11-18): list the
   scenes of both worlds that a good player can't win in 3 balls. Then Q130 (the blast
   ball mockup v2), Q125 (the five moon levels' mockup), Q121 (sounds).
