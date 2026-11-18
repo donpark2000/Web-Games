@@ -2,7 +2,7 @@
 // for any screen width. Pure sums; no browser.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { roadGeom, nodeAt, roadJoins, ROAD_MIN_CIRCLE, GATE_H } from '../src/core/topple-road.js';
+import { roadGeom, nodeAt, roadJoins, openWorlds, ROAD_MIN_CIRCLE, GATE_H, BARRIER_H } from '../src/core/topple-road.js';
 import { SCENES, MAX_LEVEL, WORLDS, worldLevels } from '../src/core/topple.js';
 
 const WIDTHS = [280, 320, 360, 400, 460];
@@ -60,6 +60,33 @@ test('road: each world has a gate under its first level, the bands and gates fil
     assert.equal(strips.length, WORLDS.length + MAX_LEVEL);
     for (let i = 1; i < strips.length; i++) assert.equal(strips[i].bottom, strips[i - 1].top, `${w}: ${strips[i].what} meets ${strips[i - 1].what}`);
   }
+});
+
+// Q128 (developer, 2026-11-18: "a teaser is OK but don't show the levels"): a world not open yet is closed off.
+test('road: the next world closed off: its barrier at the top, none of its levels; the strips still meet (Q128)', () => {
+  const firstMoon = worldLevels('moon')[0], parkLevels = worldLevels('park').length;
+  for (const w of WIDTHS) {
+    const g = roadGeom(w, 1), full = roadGeom(w);
+    assert.equal(g.open, 1);
+    assert.equal(g.nodes.length, parkLevels * SCENES, `${w}: Earth's scenes only`);
+    assert.ok(g.nodes.every(n => n.lv < firstMoon) && g.bands.every(b => b.lv < firstMoon), `${w}: no moon level`);
+    assert.deepEqual(g.gates.map(x => x.world), ['park']);
+    assert.deepEqual([g.barrier.world, g.barrier.top], ['moon', 0]);
+    assert.equal(g.barrier.bottom - g.barrier.top, BARRIER_H);
+    assert.ok(g.barrier.y > g.barrier.top && g.barrier.y < g.barrier.bottom, `${w}: its sign inside it`);
+    // from the foot up: Earth's gate, its levels, the barrier, meeting with no gap
+    const strips = [g.gates[0], ...g.bands, g.barrier];
+    for (let i = 1; i < strips.length; i++) assert.equal(strips[i].bottom, strips[i - 1].top, `${w}: strip ${i} meets the one under it`);
+    // the levels shown sit as far up from the foot as on the whole road (the road only grows above)
+    for (let i = 0; i < g.nodes.length; i++) assert.equal(g.H - g.nodes[i].y, full.H - full.nodes[i].y, `${w}: scene ${i + 1} the same from the foot`);
+    assert.equal(full.barrier, null, `${w}: every world open: no barrier`);
+  }
+  // how many worlds are open: in order, at least the first; one shown shut while its barrier is about to open
+  assert.equal(openWorlds(() => false), 1);
+  assert.equal(openWorlds(lv => lv <= 5), 1);
+  assert.equal(openWorlds(lv => lv <= firstMoon), 2);
+  assert.equal(openWorlds(lv => lv <= firstMoon, 'moon'), 1);
+  assert.equal(openWorlds(lv => lv === firstMoon), 1, 'worlds open in order (Earth first)');
 });
 
 test('road: the road joins scenes within a world and breaks between worlds', () => {

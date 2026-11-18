@@ -34,6 +34,7 @@ time, each tried before publishing:
   let go to drop), only the ring always shown; **keys:** Space down drops.
   **Confirmed (developer, 2026-11-18):** "Target light is always on but the finger still
   moves the aiming forward or backward and release of the finger releases the ball."
+  **Built, not published (11.2):** see "11.2 built".
 
 - **Q128. Topple!: the next world closed off on the map** (2026-11-18, developer,
   trying 11.1: "I don't think the map conveys the opening up of access to new worlds
@@ -52,7 +53,7 @@ time, each tried before publishing:
   first level of a world that you have never played before." **Agreed:** past the
   barrier a teaser only, no levels; on winning a world, the map with the barrier
   opening and the new road showing; the tutorial on entering that world's first level
-  (Q129).
+  (Q129). **Built, not published (11.2):** see "11.2 built".
 
 - **Q129. Topple!: tutorials bare, in parts, launched on entering a world** (2026-11-18,
   developer, trying 11.1): "The How To Drop tutorial does not address changing the
@@ -78,6 +79,7 @@ time, each tried before publishing:
   of a world you have never played before. Skip means end the tutorial and proceed to
   game play on scene 1 of level 1." **Agreed:** once a device; Skip ends it and starts
   the world's level 1 scene 1; no tutorial on the map.
+  **Built, not published (11.2):** see "11.2 built".
 
 - **Q130. Topple!: 3 stars out of reach in some moon scenes** (2026-11-18, developer:
   "some of the higher levels of the moon world presented targets that could not
@@ -180,6 +182,7 @@ time, each tried before publishing:
   lose visibility of old questions." (The question's few words, "The moon's turn", were
   not enough: restate what each Q is about in a full sentence.) No mockup asked for;
   Claude to build the instant turn, the ring keeping its speed, with Q131.
+  **Built, not published (11.2):** see "11.2 built".
 
 - **Q122. Topple!: the map shows worlds** (2026-11-17, developer, first try of
   11.0): "The map makes no distinction between the 'worlds' concept. In fact it just
@@ -201,7 +204,7 @@ time, each tried before publishing:
   the beginning of each scene in our first 'world'"**, with the world tutorial (Q124).
   **Built, not published:** the show plays only in the park's tutorial now; the hint's
   one line ("Drag from 👆, then let go") stays. To ask: should that line go too?
-  **Developer (2026-11-18): "yes - drop it."**
+  **Developer (2026-11-18): "yes - drop it."** **Built, not published (11.2):** see "11.2 built".
 
 - **Q124. Topple!: a world's launch screen, a mini interactive tutorial** (2026-11-17,
   developer: "aiming and shooting is an important distinguishing feature between
@@ -342,6 +345,13 @@ time, each tried before publishing:
   levels 6-10, release 11.0** (see "Q119 built"); for the developer to play.
 
 ## Proposed additions to the standards skill
+
+- **A page that isn't drawn may not be running** (2026-11-18, "11.2 built"): with the
+  browser pane hidden, a game page got no animation frames, so its clock and physics
+  stood still while a check waited on real time; a ball hung in mid-air and "nothing
+  fell" was first read as a physics result (a ball resting on a tower's top). Generic:
+  before trusting a result that needs time to pass in a page, check that time passed
+  there (its own clock, or a frame count), or step it from a hook.
 
 - **Sort numbers as numbers** (2026-11-17, "Q119 built"): JavaScript's plain
   `.sort()` sorts as text, so level 10 came between 1 and 2; it never showed
@@ -24215,3 +24225,110 @@ Q125 (the moon's materials) and Q121 (sounds).
   (the hint: goes in 11.2), Q121 (sounds on the moon), Q120 (the moon on the old tablet),
   Q119 (the moon world, to try), Q118 (Try again for more stars, liked), Q113 (ice sliding
   out of range: parked).
+
+## 2026-11-18: 11.2 built (the moon's controls, tutorials in parts, the barrier, no hint's line)
+
+- **Developer:** "OK" to building 11.2 as planned. Also, for later: review every scene
+  for 3 stars after trying the blast ball (Q132), the blast ball a bit too strong and a
+  time-out to win it (Q130), the moon's levels not looking like their names (Q125).
+  Thoughts recorded under those questions. Touch confirmed: the ring always on, the
+  finger steers, letting go drops (Q131).
+- **The moon's turn (Q126):** the lander keeps `ringV` (± its speed); each step its
+  speed eases towards it by (ringV − vx) × dt / the fall, and x is set so the ring moves
+  exactly ringV × dt. ⇄, ← → and the turns at the ends flip ringV. TURN_NOW and TURN_ENDS
+  gone. **Measured** (scratch `ring-check.mjs`, 60 s with a ⇄ at 13 s): the ring at
+  1.000, 1.350, 1.700 m/s on the three difficulties the whole time, through ⇄ and the
+  ends; the lander's pull at most 0.96 / 1.29 / 1.62 m/s², never faster than its speed,
+  always over the run (x -1.94 to 2.02 on a 5 m run at 1 m/s). The old code in the new
+  test: the ring peaked at **7.26 m/s** (the developer's "really fast").
+- **The ring always on; Space drops at once (Q131).** The track's brighter line still
+  shows while the pad is held (steering). Space's key-up only kept from clicking a
+  focused button.
+- **The test player re-measured** (scratch `moon-measure.mjs`, every scene, 4 deals,
+  one run on the old code and one on the new): won 391 of 400 before, 388 after; in 3
+  balls, Normal 79 → 72, Harder 79 → 82, Hardest 80 → 84, Normal with 15 cm misses
+  75 → 73 (of 100). No clear change; the suite's 93% holds.
+- **Tutorials (Q129)** as planned, with what the checks changed:
+  - The park's parts: a stack of 3 upright blocks, straight ahead (2.7 m Near), 0.8 m
+    left, then 4.0 m away; the throw's strength the farthest one's (0.637) in all three,
+    the view fitted to all three (the same each part). **Scanned** (as the scene check:
+    up 0-70° by 1°, the aim by 0.02): ahead 196 throws hit, all within 0.1 of a
+    straight aim and 0-17° up; the side one 226, all aimed -0.72 to -0.96; the far one
+    126, 13-68° up (none 8° or under). So each needs the control it teaches.
+  - The moon's: first a tower of 3 crates. **The turn part's first start** (the ring
+    0.6 m past it) let a ball dropped at once clip the tower's top (the lander being
+    behind it): the test failed; started 1.5 m past. **Then the arch instead of the
+    tower** (scratch `moon-stack.mjs`: one drop at ring offsets ±0.45 m by 0.05, both
+    ways, 8 s): at 1 m/s the tower came down from 31 of 34 drops over it, the arch 37
+    of 38; but **just after a turn the lander is slow** (the new turn: back to 95% of
+    its speed after 7.7 s), and at 0.1 m/s the tower fell from 20 of 32 (a ball
+    dropped nearly straight can rest on its top), at 0.3 m/s 21 of 34; the arch 38 of
+    38 and 37 of 38. A tutorial can't have a drop that looks right and does nothing.
+  - **Said openly:** in the browser pane I first read a drop on the tower that left it
+    standing as "the ball rests on top". It was the hidden pane: no animation frames,
+    the ball hung in mid-air (the physics clock had stopped). The arch was chosen on
+    the measurement above, not on that. Lesson proposed for the skill.
+  - **For play, to watch:** the same slow lander after a turn makes a drop on a crate
+    tower less sure in the game too (the measurement above). The test player's totals
+    didn't move; the developer may feel it.
+  - Part 3 (⇄): a lander with `ends: 'wait'` stops the ring at the end of the run
+    (ringV 0) instead of turning, until ⇄ or ← → (`waits` once).
+- **The hint's line (Q123):** hidden as every scene starts, park and moon (the moon's
+  "Hold 👆 to aim, let go to drop" gone too: it no longer described the controls).
+  The park's still comes up after a drag too short to throw, as a reminder of what
+  went wrong. *To ask:* keep that, or drop it too?
+- **The barrier (Q128):** `roadGeom(w, open)` draws the first `open` worlds and the
+  next as a 230 px barrier at the top (it takes the top's 18 px padding: the first
+  test found that gap under it); `openWorlds` counts them, one shown shut while its
+  barrier is about to open. The opening is played on the unlock from the level card
+  (The Moon ▸), so once a game per difficulty; a reload on that card skips it (the
+  world is then just open).
+- **Tests:** `tests/topple-moon.test.js` (the ring at one speed through ⇄ and the ends
+  on all three speeds; ⇄ turns the ring at once; Space down drops; the ring always on);
+  `tests/topple-tutorial.test.js` (rewritten, 10: the parts and words, Next and the
+  last part, only a world's first level, the park's parts scanned in the physics, the
+  moon's flown: on the line reached, far only once steered, the turn only after ⇄, the
+  lander waiting at the end; one drop over the arch brings all 3 down at 1, 0.3 and 0.1
+  m/s either way; the page's wiring; the barrier's); `tests/topple-road.test.js` (the
+  barrier: no moon level, the strips meeting, the levels shown as far from the foot as
+  on the whole road, `openWorlds`). **Shown to fail:** the old lander in the new test
+  (ring 7.26 m/s); no wait at the end (the turn part reached without ⇄); the side
+  stack moved to the middle ("the side one needs the aim"); the crate tower for the
+  arch ("2 of 3 down" at 0.3 m/s). **Full suite: 733 pass, 0 fail.**
+- **Checked in the browser pane** (local server, 800 × 600, then 375 × 812; the pane
+  hidden for the moon, so the game stepped from its hook; keys sent as events): a fresh
+  game's map: Earth's 25 scenes, the barrier (the moon in the sky, striped gates, "World
+  2 · The Moon 🌕", "Finish Earth to fly to the moon"), no moon scene, no 🎯 button. A
+  real click on scene 1: the park tutorial, bare (lawn and sky), the bar "How to throw
+  1 of 3", the finger's show; **real mouse drags**: a small drag up cleared part 1 with
+  one ball; the card "Well done! 🎯 / Next: one off to the side", Next ▸ and Skip; a drag
+  up and left cleared part 2; on part 3 the same small drag fell short (the ball free:
+  5 left), a higher drag cleared it; "You've got it! 🎯 / Now for Earth / Let's go ▸"
+  (no Skip) went into level 1 scene 1 (the trees back, no hint, `park` taught under the
+  new key, no stars). Level 5's last scene won: "The Moon ▸" (a real click), sampled:
+  the barrier shook (0.9 s), opened (1.7 s), the road redrawn at 2.4 s with 25 new
+  scenes rolling, the moon's gate's foot at 421 px where the barrier's had been (the
+  view held), the face walked to Moon 1-1 and the map went up to it; walking over at
+  4.7 s. Moon 1-1 tapped: its tutorial, bare (ground, stars, the Earth), the ring on
+  with nothing held, "(or press Space)" on a computer; a real Space press dropped at
+  once; parts 1-3 cleared (part 2 by four ↓ taps to 6.61 m out; part 3: the ring
+  started 0.3 m past the arch going away, stopped at the end (3.32 m) and waited, never
+  over the arch, ← sent it back at 1 m/s); "Now for The Moon", Let's go ▸ into Landing
+  Zone (the base, the ring on, its block lit, no hint). Map from a tutorial: untaught;
+  Skip: taught. 375 × 812: the barrier fits (no sideways scroll); the moon's longest
+  part's bar 3 lines, no keys on a touch device. No console errors.
+- **Not checked:** a real touch screen (the pad's steer and let-go with a finger, ⇄
+  with the other thumb), the old tablet, sideways on a phone, the opening's look with
+  frames running at full speed in the app's viewer (sampled by its classes and
+  positions), sound.
+
+**Status (start here next session)**
+- **Live: 11.1.** `block-game` = 11.2 built (Q123, Q126, Q128, Q129, Q131), not published.
+- **Next:** the developer's OK to publish **11.2** (changes: x.y), then the release steps.
+- **To ask:** keep the park's hint after a drag too short to throw (Q123)?
+- **Waiting on the developer:** the blast ball (Q130: try mockup v1 on a device; size and
+  time-out thoughts recorded), Q132 (a tool to find scenes that can't get 3 stars, then
+  play those), Q125 (each moon level to look like its name: a mockup of all five).
+- **Open questions:** Q132, Q131 (built), Q130, Q129 (built), Q128 (built), Q127 (parked),
+  Q126 (built), Q125, Q124 and Q122 (replaced by Q129, Q128), Q123 (built), Q121, Q120,
+  Q119, Q118, Q113 (parked).

@@ -34,7 +34,7 @@ import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { toppleMini } from './topplepics.js';
-import { roadGeom, nodeAt, roadJoins } from '../core/topple-road.js';
+import { roadGeom, nodeAt, roadJoins, openWorlds } from '../core/topple-road.js';
 import { log, startLog } from './debuglog.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
@@ -231,40 +231,55 @@ function setupView(v) {
 // on to the next scene. A tap on a scene you can reach starts it (a won one
 // with new scenes, to win more stars); a later one is shut. After a level
 // (developer, 2026-11-12, Q81: "an animation of the next level unlocking")
-// the next level's first scene shakes and its lock pops.
+// the next level's first scene shakes and its lock pops. A world not open yet
+// is closed off (Q128, developer, 2026-11-18: "a teaser is OK but don't show
+// the levels"): the road ends at its barrier; once the world before is done,
+// the map after its last card plays the barrier opening and the new road
+// rolling out (the unlock: once a game, as the world opens).
 let walking = null;    // the unlocking under way: { to, timers, popped }
 let shownAt = null;    // where the face was last drawn on the road: { level, scene }
 const STAR_D = 'M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5 6 20.9l1.3-6.7-5-4.7 6.8-.8z';
 const starSvg = on => `<svg class="tstar${on ? '' : ' unlit'}" viewBox="0 0 24 24" aria-hidden="true"><path d="${STAR_D}"/></svg>`;
 const starsRow = (n, max = 3) => Array.from({ length: max }, (_, i) => starSvg(i < n)).join('');
-function renderMap(unlock = 0) {
+// `opt.roll`: a world just opened, its road rolling out (Q128).
+function renderMap(unlock = 0, opt = {}) {
   const prev = shownAt;
   $('mapMode').textContent = MODE_INFO[game.mode].name;
   const road = $('road');
-  const geo = roadGeom(Math.max(280, Math.min(460, road.clientWidth || 360)));
-  const { size, H, w } = geo;
   const hold = unlock > 0 && !!walking && !walking.popped;   // the lock still on
+  // a world about to open: drawn shut, behind its barrier, until it does (Q128)
+  const opening = hold && unlock > 1 && firstOfWorld(unlock) ? worldOf(unlock).id : null;
+  const geo = roadGeom(Math.max(280, Math.min(460, road.clientWidth || 360)), openWorlds(lv => isOpen(game, lv), opening));
+  const { size, H, w } = geo;
+  // what rolls out (a world just opened): its scenes one after another from its first, the rest fading in
+  const rolls = lv => !!opt.roll && worldOf(lv)?.id === opt.roll;
+  const fade = lv => (rolls(lv) ? ' fadein' : '');
   const pl = placeOf(game, game.level), here = { level: game.level, scene: pl.scene };
   let h = `<div class="rd" style="width:${w}px;height:${H}px">`;
-  for (const b of geo.bands) h += `<div class="rband" style="top:${b.top}px;height:${b.bottom - b.top}px;background:${LOOKS[b.lv].tint}"></div>`;
+  for (const b of geo.bands) h += `<div class="rband${fade(b.lv)}" style="top:${b.top}px;height:${b.bottom - b.top}px;background:${LOOKS[b.lv].tint}"></div>`;
   h += `<svg class="rpath" width="${w}" height="${H}" viewBox="0 0 ${w} ${H}" aria-hidden="true">`;
   // (the road broken between worlds: the gate between them, Q122)
   for (let i = 1; i < geo.nodes.length; i++) {
     const a = geo.nodes[i - 1], b = geo.nodes[i];
-    if (roadJoins(a, b)) h += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${LOOKS[b.lv].ink}"/>`;
+    if (roadJoins(a, b)) h += `<line${rolls(b.lv) ? ' class="fadein"' : ''} x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${LOOKS[b.lv].ink}"/>`;
   }
   h += '</svg>';
-  // each world's gate (Q122): its sign, "World N · its name", and its tutorial (Q124) once it is open
+  // each open world's gate (Q122): its sign and "World N · its name" (11.1: its tutorial's button too, Q124)
   for (const g of geo.gates) {
-    const w = WORLDS.find(x => x.id === g.world), first = levelForWorld(w), open = isOpen(game, first);
-    h += `<div class="rgate ${w.id}${open ? '' : ' shut'}" style="top:${g.top}px;height:${g.bottom - g.top}px">`
-      + `<div class="rgsign" style="top:${g.y - g.top}px"><span class="rgpic" aria-hidden="true">${w.sign}</span><b>World ${w.n} · ${w.name}</b>`
-      + (open ? '' : `<small>🔒 ${shutWords(first)}</small>`)
-      + '</div></div>';
+    const w = WORLDS.find(x => x.id === g.world);
+    h += `<div class="rgate ${w.id}${rolls(levelForWorld(w)) ? ' fadein' : ''}" style="top:${g.top}px;height:${g.bottom - g.top}px">`
+      + `<div class="rgsign" style="top:${g.y - g.top}px"><span class="rgpic" aria-hidden="true">${w.sign}</span><b>World ${w.n} · ${w.name}</b></div></div>`;
+  }
+  // the next world, closed off (Q128): its barrier across the road's top, the world in the sky behind it, no levels
+  if (geo.barrier) {
+    const w = WORLDS.find(x => x.id === geo.barrier.world), first = levelForWorld(w);
+    h += `<div class="rbar ${w.id}" id="rbar" role="img" aria-label="World ${w.n}, ${w.name}: shut. ${shutWords(first)}" style="top:${geo.barrier.top}px;height:${geo.barrier.bottom - geo.barrier.top}px">`
+      + '<span class="rbsky" aria-hidden="true"></span><span class="rbgate l" aria-hidden="true"></span><span class="rbgate r" aria-hidden="true"></span>'
+      + `<div class="rgsign" style="top:${geo.barrier.y}px" aria-hidden="true"><span class="rgpic">🔒</span><b>World ${w.n} · ${w.name} ${w.sign}</b><small>${shutWords(first)}</small></div></div>`;
   }
   for (const b of geo.bands) {
     const shut = !isOpen(game, b.lv);
-    h += `<div class="rbanner${shut ? ' shut' : ''}" style="top:${b.y}px"><span class="rpic" aria-hidden="true">${LOOKS[b.lv].pic()}</span><b>${levelTag(b.lv)}</b></div>`;
+    h += `<div class="rbanner${shut ? ' shut' : ''}${fade(b.lv)}" style="top:${b.y}px"><span class="rpic" aria-hidden="true">${LOOKS[b.lv].pic()}</span><b>${levelTag(b.lv)}</b></div>`;
   }
   for (const n of geo.nodes) {
     const { lv, sc } = n, stars = starsOf(game, lv)[sc - 1], done = game.done.includes(lv);
@@ -272,13 +287,16 @@ function renderMap(unlock = 0) {
     const won = !locked && (stars > 0 || done), cur = !locked && lv === here.level && sc === here.scene;
     const cls = locked ? 'locked' : won ? 'got' : 'open';
     const label = `${worldOf(lv).name}, level ${levelInWorld(lv)}, scene ${sc}, ${locked ? 'shut' : `${stars} of 3 stars`}${cur ? ', you are here' : ''}`;
-    h += `<button type="button" class="rn ${cls}${cur ? ' cur' : ''}" id="n${lv}_${sc}" data-l="${lv}" data-s="${sc}" aria-label="${label}" style="left:${n.x - size / 2 - 6}px;top:${n.y - size / 2}px;width:${size + 12}px">`
+    // (rolling out: one after another up the new road, 45 ms apart)
+    const roll = rolls(lv) ? ' roll' : '', k = (lv - levelForWorld(worldOf(lv))) * SCENES + sc - 1;
+    h += `<button type="button" class="rn ${cls}${cur ? ' cur' : ''}${roll}" id="n${lv}_${sc}" data-l="${lv}" data-s="${sc}" aria-label="${label}" style="left:${n.x - size / 2 - 6}px;top:${n.y - size / 2}px;width:${size + 12}px${roll ? `;animation-delay:${k * 45}ms` : ''}">`
       + `<span class="rc" style="width:${size}px;height:${size}px">${locked ? '🔒' : sc}</span>`
       + `<span class="rs">${locked ? '' : starsRow(stars)}</span></button>`;
   }
   // your face on the scene you are on (in place of its number); it walks there from where it was last drawn
   const at = hold ? (shownAt ?? here) : here;
-  const faceXY = p => { const n = nodeAt(geo, p.level, p.scene); return { x: n.x, y: n.y - 1 }; };
+  // (a scene past a barrier isn't drawn: the face waits on the road's last scene)
+  const faceXY = p => { const n = nodeAt(geo, p.level, p.scene) ?? geo.nodes.at(-1); return { x: n.x, y: n.y - 1 }; };
   const f0 = faceXY(prev && !hold ? prev : at), fs = Math.round(size * 0.82);
   h += `<span class="rface" id="rface" style="width:${fs}px;height:${fs}px;left:${f0.x - fs / 2}px;top:${f0.y - fs / 2}px">${svg(setup.p1)}</span></div>`;
   road.innerHTML = h;
@@ -340,16 +358,17 @@ function showMap(unlock = 0) {
   if (unlock) walking = { to: unlock, timers: [], popped: false };
   const { geo, here, prev, move } = renderMap(unlock);
   $('mapToast').textContent = '';
-  // scrolled to the scene last played (to where the face was, when it is about to walk)
+  // scrolled to the scene last played (to where the face was, when it is about to walk; to the barrier, when it is about to open)
   const from = move ? prev : here, sceneEl = $(`n${from.level}_${from.scene}`);
-  sceneEl?.scrollIntoView?.({ block: 'center' });
-  L('map: shown', { mode: game.mode, level: here.level, scene: here.scene, road: geo.H, size: geo.size, move, unlock });
+  if (walking && firstOfWorld(unlock) && unlock > 1) $('rbar')?.scrollIntoView?.({ block: 'center' }); else sceneEl?.scrollIntoView?.({ block: 'center' });
+  L('map: shown', { mode: game.mode, level: here.level, scene: here.scene, road: geo.H, size: geo.size, move, unlock, worldsOpen: geo.open, barrier: geo.barrier?.world ?? null });
   if (unlock) playUnlock(unlock);
   if (move) setTimeout(() => $('rface')?.scrollIntoView?.({ block: 'center', behavior: 'smooth' }), 50);
   resume.keep();
 }
 // The unlocking, step by step (on timers; all at once with reduced motion).
 function playUnlock(lv) {
+  if (lv > 1 && firstOfWorld(lv)) { playWorldOpen(lv); return; }
   const quick = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const w = walking, after = (ms, fn) => w.timers.push(setTimeout(fn, quick ? 0 : ms));
   L('map: unlocking', { level: lv, quick });
@@ -362,6 +381,27 @@ function playUnlock(lv) {
     L('map: unlocked', { level: lv });
   });
   after(1600, () => { sound.play('ding'); walking = null; L('map: arrived', { level: lv }); });
+}
+// A world opening (Q128): the barrier shakes and opens, the new world's road
+// rolls out above it (the page kept where it was as the road grows), the
+// face walks on to its first scene and the map goes up to it.
+function playWorldOpen(lv) {
+  const quick = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const w = walking, id = worldOf(lv).id, after = (ms, fn) => w.timers.push(setTimeout(fn, quick ? 0 : ms));
+  L('map: a world opening', { level: lv, world: id, quick });
+  after(600, () => { const b = $('rbar'); b?.classList.remove('shake'); void b?.offsetWidth; b?.classList.add('shake'); });
+  after(1300, () => { $('rbar')?.classList.add('opening'); sound.play('clink'); L('map: the barrier opens', { world: id }); });
+  after(2400, () => {
+    const y0 = $('rbar')?.getBoundingClientRect().bottom ?? null;
+    w.popped = true;
+    renderMap(lv, { roll: id });
+    // the road grew above: scrolled by as much, so the gate is where the barrier was
+    const gate = document.querySelector(`.rgate.${id}`);
+    if (gate && y0 != null) scrollBy(0, gate.getBoundingClientRect().bottom - y0);
+    L('map: the new road rolls out', { world: id, scenes: document.querySelectorAll('.rn.roll').length });
+  });
+  after(3400, () => $(`n${lv}_1`)?.scrollIntoView?.({ block: 'center', behavior: quick ? 'auto' : 'smooth' }));
+  after(4400, () => { sound.play('ding'); walking = null; L('map: arrived', { level: lv, world: id }); });
 }
 function stopWalk() {
   if (!walking) return;

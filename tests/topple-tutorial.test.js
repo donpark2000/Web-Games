@@ -13,7 +13,8 @@ import {
 } from '../src/core/topple-tutorial.js';
 import { WORLDS, worldOf, worldLevels, levelInWorld, firstOfWorld, MAX_LEVEL, isMoonLevel, levelInfo, endWords, SCENES, launchVel, HAND } from '../src/core/topple.js';
 import { createWorld } from '../src/core/topple-world.js';
-import { flyStep, steerTo, turnNow, flyTo, ringX, dropPath, moonMode, LANDER_Y, DROP_BELOW, Z_START, TURN_PAST } from '../src/core/topple-moon.js';
+import { flyStep, steerTo, turnNow, flyTo, ringX, dropPath, moonMode, fallTime, LANDER_Y, DROP_BELOW, Z_START, TURN_PAST, MOON_STRUCTURES } from '../src/core/topple-moon.js';
+import { createMoonWorld } from '../src/core/topple-moon-world.js';
 
 const read = p => readFileSync(fileURLToPath(new URL(p, import.meta.url)), 'utf8');
 const js = read('../src/ui/topple.js'), html = read('../topple.html'), css = read('../css/topple.css');
@@ -152,9 +153,19 @@ function moonRun(id, { steer = null, turnAt = null, s = 40 } = {}) {
 test('tutorial, the moon: bare, a stack of 3 a part; on the line a drop reaches it, far only once steered, the turn only after ⇄', () => {
   for (const id of Object.keys(MOON_AT)) {
     const sc = moonPracticeScene(id);
-    assert.equal(sc.blocks.length, 3, `${id}: 3 crates`);
+    assert.equal(sc.blocks.length, 3, `${id}: 3 blocks (the arch)`);
     assert.deepEqual(sc.span, MOON_SPAN, `${id}: the same run (the same view)`);
     assert.equal(sc.ledges.length, 0);
+  }
+  // one drop with the ring over its middle brings all 3 down, the lander fast or slow (just after a turn), either way
+  // (a tower of 3 crates let the ball rest on its top: 20 of 32 drops at 0.1 m/s brought it down)
+  const T = fallTime(), y = LANDER_Y - DROP_BELOW;
+  for (const v of [1, 0.3, 0.1, -1, -0.3, -0.1]) for (const dx of [-0.2, 0, 0.2]) {
+    const sc = moonPracticeScene('line'), W = createMoonWorld();
+    W.setScene(sc);
+    W.dropBall([dx - v * T, y, Z_START], [v, 0, 0]);
+    let down = 0; for (let k = 0; k < 8 * 60; k++) ({ down } = W.step(1 / 60));
+    assert.equal(down, 3, `a drop at ${dx} m, the lander at ${v} m/s: ${down} of 3 down`);
   }
   // the line: the ring comes over it within 10 s, as the lander flies in
   const line = moonRun('line');
@@ -226,10 +237,28 @@ test('topple page: the tutorial as a world\'s first level is entered, in parts w
 });
 
 test('topple page: the map\'s worlds: a gate each, the road broken between, levels numbered within (Q122)', () => {
-  assert.match(js, /if \(roadJoins\(a, b\)\) h \+= `<line /);
+  assert.match(js, /if \(roadJoins\(a, b\)\) h \+= `<line\$\{rolls\(b\.lv\) \? ' class="fadein"' : ''\} /);
   assert.match(js, /for \(const g of geo\.gates\) \{/);
   assert.match(js, /<b>World \$\{w\.n\} · \$\{w\.name\}<\/b>/);
   assert.match(js, /<b>\$\{levelTag\(b\.lv\)\}<\/b>/);
   assert.match(css, /\n\.rgate\.moon \{/);
   assert.match(css, /\n\.rgate\.park \{/);
+});
+
+test('topple page: the next world closed off on the map; its barrier opens and the road rolls out as the world opens (Q128)', () => {
+  // the road drawn for the worlds open (one shut while its barrier is about to open)
+  assert.match(js, /const opening = hold && unlock > 1 && firstOfWorld\(unlock\) \? worldOf\(unlock\)\.id : null;/);
+  assert.match(js, /roadGeom\(Math\.max\(280, Math\.min\(460, road\.clientWidth \|\| 360\)\), openWorlds\(lv => isOpen\(game, lv\), opening\)\)/);
+  // the barrier: the world in the sky behind it, two gates, its sign and why it's shut
+  assert.match(js, /if \(geo\.barrier\) \{[\s\S]*?<div class="rbar \$\{w\.id\}" id="rbar" role="img"[\s\S]*?class="rbsky"[\s\S]*?class="rbgate l"[\s\S]*?class="rbgate r"[\s\S]*?\$\{shutWords\(first\)\}/);
+  for (const sel of ['.rbar', '.rbar.moon', '.rbar.moon .rbsky', '.rbar.opening .rbgate.l', '.rbar.opening .rbgate.r', '.rbar.shake', '.rn.roll', '.fadein']) assert.ok(css.includes(`\n${sel} {`), `css: ${sel}`);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{ \.rbgate \{ transition: none; \}/);
+  // a world opened from a level's card: its own unlocking (the in-world one for other levels)
+  assert.match(js, /function playUnlock\(lv\) \{\s*if \(lv > 1 && firstOfWorld\(lv\)\) \{ playWorldOpen\(lv\); return; \}/);
+  // shake, open, the road redrawn rolling out with the page kept in place, then up to the new world's first scene
+  assert.match(js, /function playWorldOpen\(lv\) \{[\s\S]*?classList\.add\('shake'\)[\s\S]*?classList\.add\('opening'\)[\s\S]*?w\.popped = true;\s*renderMap\(lv, \{ roll: id \}\);[\s\S]*?scrollBy\(0, gate\.getBoundingClientRect\(\)\.bottom - y0\);[\s\S]*?scrollIntoView/);
+  // a scene past the barrier isn't drawn: the face waits on the road's last
+  assert.match(js, /const n = nodeAt\(geo, p\.level, p\.scene\) \?\? geo\.nodes\.at\(-1\);/);
+  for (const what of ["'map: a world opening'", "'map: the barrier opens'", "'map: the new road rolls out'"]) assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
+  assert.match(js, /worldsOpen: geo\.open, barrier: geo\.barrier\?\.world \?\? null/);
 });

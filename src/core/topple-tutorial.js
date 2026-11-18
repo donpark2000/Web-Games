@@ -95,15 +95,17 @@ export const PARK_SCALE = SCALE;   // (the tests: Near to world)
 
 // One run for every part (so the view doesn't move), the moon's narrowest.
 export const MOON_SPAN = [-2.5, 2.5];
-// Each part's stack (a tower of 3 crates): on the lander's line, ahead;
+// Each part's arch (two posts and a beam across: 3 blocks; a tower of 3 crates
+// let a ball rest on its top, the lander slow after a turn: 20 of 32 drops over
+// it at 0.1 m/s brought all 3 down, the arch's 38 of 38): on the lander's line, ahead;
 // farther away; and the one the ring is going away from at the start.
 export const MOON_AT = { line: { x: 0, z: Z_START }, far: { x: 0, z: ZS.f }, turn: { x: -1.2, z: Z_START } };
 // Part `id`'s scene (as moonScene's), the Earth always in the same place.
 export function moonPracticeScene(id) {
   const at = MOON_AT[id];
   if (!at) throw new Error(`moonPracticeScene: no part ${id}`);
-  const blocks = MOON_STRUCTURES.crates3().map(b => ({ ...b, x: at.x + b.x, z: at.z + b.z }));
-  return { level: 6, scene: 1, seed: 0, practice: id, structures: [{ name: 'crates3', x: at.x, z: at.z, ledge: false, blocks }], ledges: [], span: [...MOON_SPAN], earth: { az: 0.62, el: 0.7, spin: 1 }, blocks };
+  const blocks = MOON_STRUCTURES.arch().map(b => ({ ...b, x: at.x + b.x, z: at.z + b.z }));
+  return { level: 6, scene: 1, seed: 0, practice: id, structures: [{ name: 'arch', x: at.x, z: at.z, ledge: false, blocks }], ledges: [], span: [...MOON_SPAN], earth: { az: 0.62, el: 0.7, spin: 1 }, blocks };
 }
 // Part `id`'s lander: from the left as in play; for ⇄'s part, starting with
 // the ring just past the stack and going away from it, and waiting at the

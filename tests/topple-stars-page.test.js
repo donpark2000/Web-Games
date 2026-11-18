@@ -23,7 +23,7 @@ test('topple stars page: the map is a road of scenes with the difficulty to read
   assert.match(js, /\$\('setupModes'\)\.replaceChildren\(\.\.\.MODES\.map/);
   assert.match(js, /b\.onclick = \(\) => pickMode\(m\);/);
   // each scene a circle with its stars under it: won, open, the one you are on (with your face), or shut
-  assert.match(js, /roadGeom\(Math\.max\(280, Math\.min\(460, road\.clientWidth \|\| 360\)\)\)/);
+  assert.match(js, /roadGeom\(Math\.max\(280, Math\.min\(460, road\.clientWidth \|\| 360\)\), openWorlds\(/);
   assert.match(js, /const cls = locked \? 'locked' : won \? 'got' : 'open';/);
   assert.match(js, /\$\{cur \? ' cur' : ''\}/);
   assert.match(js, /id="rface"/);

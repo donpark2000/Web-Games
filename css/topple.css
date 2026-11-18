@@ -286,10 +286,38 @@ body.tp-playing .site-foot { display: none; }
 .rgsign b { font-size: 21px; font-weight: 800; background: var(--card); border-radius: 999px; padding: 6px 16px; box-shadow: 0 3px 0 var(--line); }
 .rgpic { font-size: 40px; line-height: 1; filter: drop-shadow(0 2px 0 #1E344533); }
 .rgsign small { font-size: 14px; font-weight: 800; color: #FFFFFF; background: rgba(18, 30, 42, .7); border-radius: 999px; padding: 3px 10px; }
-/* (its own card colours: the plain pill's text was lost on the moon's dark gate) */
-.rhow { padding: 6px 14px; font-size: 16px; background: var(--sun-soft); color: #1E3445; box-shadow: inset 0 0 0 2px var(--sun), 0 3px 0 #1E344555; }
-.rgate.shut .rgsign b { opacity: .8; }
 @media (prefers-reduced-motion: reduce) { .rgate.moon::after { animation: none; } }
+/* the next world closed off (Q128: "a teaser is OK but don't show the levels"): a barrier across the
+   road's top, the world in the sky behind it; it shakes and opens once the world before is done */
+.rbar { position: absolute; left: 0; right: 0; overflow: hidden; background: linear-gradient(#05070F, #1B2340); }
+.rbar.moon {
+  background:
+    radial-gradient(1.5px 1.5px at 10% 18%, #FFFFFF 99%, transparent), radial-gradient(1px 1px at 24% 40%, #FFFFFF 99%, transparent),
+    radial-gradient(1px 1px at 78% 12%, #FFFFFF 99%, transparent), radial-gradient(2px 2px at 88% 34%, #FFFFFF 99%, transparent),
+    radial-gradient(1px 1px at 62% 8%, #FFFFFF 99%, transparent), radial-gradient(1.5px 1.5px at 40% 30%, #FFFFFF 99%, transparent),
+    linear-gradient(#05070F, #0E1430 60%, #2A3A6A);
+}
+.rbsky { position: absolute; left: 50%; top: 14px; width: 112px; height: 112px; margin-left: -56px; border-radius: 50%; }
+.rbar.moon .rbsky {
+  background:
+    radial-gradient(circle at 34% 40%, #B9BEC8 0 9px, transparent 10px), radial-gradient(circle at 64% 30%, #C4C8D0 0 6px, transparent 7px),
+    radial-gradient(circle at 58% 66%, #B3B8C2 0 12px, transparent 13px), radial-gradient(circle at 30% 30%, #FFFFFF, #DDE0E6 45%, #A3A9B5);
+  box-shadow: 0 0 36px 6px #C9D4FF44;
+}
+.rbgate { position: absolute; bottom: 0; width: 50%; height: 48%; background: repeating-linear-gradient(135deg, #F7B928 0 16px, #1E3445 16px 32px); box-shadow: inset 0 0 0 4px #1E3445, inset 0 6px 0 4px #1E344588; transition: transform .9s ease-in; }
+.rbgate.l { left: 0; border-radius: 0 6px 0 0; }
+.rbgate.r { right: 0; border-radius: 6px 0 0 0; }
+.rbar .rgsign { z-index: 2; }
+.rbar.opening .rbgate.l { transform: translateX(-102%); }
+.rbar.opening .rbgate.r { transform: translateX(102%); }
+.rbar.opening .rgpic { animation: tppop .5s ease-out forwards; }
+.rbar.shake { animation: tpshake .4s ease; }
+/* the new world's road rolling out: its scenes one after another (animation-delay set on each), the rest fading in */
+.rn.roll { animation: tproll .5s ease-out both; }
+.fadein { animation: tpfadein .8s ease-out both; }
+@keyframes tproll { 0% { opacity: 0; transform: translateY(18px) scale(.5); } 100% { opacity: 1; transform: none; } }
+@keyframes tpfadein { 0% { opacity: 0; } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .rbgate { transition: none; } .rbar.shake, .rbar.opening .rgpic, .rn.roll, .fadein { animation: none; } }
 .rpic { width: 30px; height: 30px; display: grid; place-items: center; font-size: 22px; }
 .rpic svg { width: 100%; height: 100%; display: block; border-radius: 50%; }
 .rn { position: absolute; border: 0; background: none; padding: 0; display: grid; justify-items: center; gap: 1px; cursor: pointer; font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
