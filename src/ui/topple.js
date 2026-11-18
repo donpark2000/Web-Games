@@ -22,10 +22,13 @@ import {
   MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy, isMoonLevel, PARK_LEVELS,
   WORLDS, worldOf, worldLevels, levelInWorld, firstOfWorld,
 } from '../core/topple.js';
-import { TUTORIALS, PRACTICE, STEER_TAUGHT_M, startTutorial, tutorialStep, tutorialSteps, tutorialDid, readTaught, needsTutorial, markTaught } from '../core/topple-tutorial.js';
+import {
+  TUTORIALS, startTutorial, tutorialPart, tutorialParts, tutorialSay, partCleared, nextPart, lastPart,
+  parkPracticeLayout, parkPracticeParts, moonPracticeScene, moonPracticeLander, readTaught, needsTutorial, markTaught,
+} from '../core/topple-tutorial.js';
 import {
   moonScene, newLander, flyStep, steerTo, turnNow, flyTo, dropPath, moonMode, showsRing, ringX,
-  LANDER_Y, DROP_BELOW, MOON_BALL, STEER_PX, STEER_M, STEER_KEY, STEER_TAP,
+  LANDER_Y, DROP_BELOW, MOON_BALL, STEER_PX, STEER_M, STEER_KEY, STEER_TAP, MOON_FIRST,
 } from '../core/topple-moon.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -79,12 +82,15 @@ function saveGame() {
 // a new seed and the scene under way was lost).
 if (!game) { game = createGame(newSeed()); profile = createProfile(game); saveGame(); }
 const isFresh = g => g.scene === 1 && g.hearts === HEARTS && g.jewels === 0;
-// The worlds taught on this device (Q124): each world's tutorial shows before
-// its first scene is played, once; again from its gate on the map. One list
-// for every difficulty (the controls are the same in each).
-export const TAUGHT_KEY = 'web-games-topple-taught';
+// The worlds taught on this device (Q129): each world's tutorial shows as its
+// first level is entered, once. One list for every difficulty (the controls
+// are the same in each). A new key in 11.2, so everyone sees the new
+// tutorials once (11.1's list, 'web-games-topple-taught', let go of).
+export const TAUGHT_KEY = 'web-games-topple-taught-2';
+const TAUGHT_KEY_11_1 = 'web-games-topple-taught';
 let taught = [];
 try { taught = readTaught(JSON.parse(storage?.getItem(TAUGHT_KEY) ?? 'null')); } catch { /* unreadable: none taught */ }
+try { if (storage?.getItem(TAUGHT_KEY_11_1) != null) { storage.removeItem(TAUGHT_KEY_11_1); L('taught: 11.1\'s list let go of (the new tutorials show once)'); } } catch { /* blocked */ }
 function saveTaught() {
   try { storage?.setItem(TAUGHT_KEY, JSON.stringify(taught)); } catch (e) { L('taught worlds not kept on the device', { error: String(e) }); }
 }
@@ -253,7 +259,7 @@ function renderMap(unlock = 0) {
     const w = WORLDS.find(x => x.id === g.world), first = levelForWorld(w), open = isOpen(game, first);
     h += `<div class="rgate ${w.id}${open ? '' : ' shut'}" style="top:${g.top}px;height:${g.bottom - g.top}px">`
       + `<div class="rgsign" style="top:${g.y - g.top}px"><span class="rgpic" aria-hidden="true">${w.sign}</span><b>World ${w.n} · ${w.name}</b>`
-      + (open ? `<button type="button" class="pill rhow" data-w="${w.id}">🎯 ${TUTORIALS[w.id].title}</button>` : `<small>🔒 ${shutWords(first)}</small>`)
+      + (open ? '' : `<small>🔒 ${shutWords(first)}</small>`)
       + '</div></div>';
   }
   for (const b of geo.bands) {
@@ -312,8 +318,6 @@ function tapScene(lv, sc, el) {
   startLevel(lv, sc);
 }
 $('road').onclick = e => {
-  const how = e.target.closest?.('.rhow');
-  if (how) { if (!walking) { L('map: a world\'s tutorial', { world: how.dataset.w }); openTutorial(how.dataset.w, 'map'); } return; }
   const b = e.target.closest?.('.rn');
   if (b) tapScene(Number(b.dataset.l), Number(b.dataset.s), b);
 };
@@ -367,8 +371,8 @@ function stopWalk() {
 // Play level n from the map: at its place (carried on), or at a scene (a won
 // one: new scenes, the best stars kept).
 function startLevel(n, scene = null) {
-  // a world not taught yet: its tutorial first, then this (Q124)
-  if (needsTutorial(taught, n) && isOpen(game, n)) { L('tutorial first: the world not taught yet', { level: n, scene, world: worldOf(n).id, taught }); openTutorial(worldOf(n).id, 'play', () => startLevel(n, scene)); return; }
+  // a world's first level, the world not taught yet on this device: its tutorial first, then this (Q129)
+  if (needsTutorial(taught, n) && isOpen(game, n)) { L('tutorial first: the world not taught yet', { level: n, scene, world: worldOf(n).id, taught }); openTutorial(worldOf(n).id, () => startLevel(n, scene)); return; }
   const was = game.rounds?.[n] ?? 0;
   if (!(scene ? startAtScene(game, n, scene) : switchLevel(game, n))) { L('level not open', { level: n, scene, reached: game.reached }); showMap(); return; }
   saveGame();
@@ -379,48 +383,39 @@ function startLevel(n, scene = null) {
 }
 $('mapBack').onclick = () => { setupView('faces'); renderSetup(); };
 
-/* ---------- a world's tutorial (Q124) ---------- */
+/* ---------- a world's tutorial (Q129) ---------- */
 
-// The practice scene of world `id` (src/core/topple-tutorial.js): from the
-// map's gate (`from` 'map': back to the map after it) or before a world's
-// first scene ('play': `then` starts it). Nothing of the game changes.
-function openTutorial(id, from, then = null) {
+// World `id`'s tutorial (src/core/topple-tutorial.js), before its first
+// level's scene: its parts one bare scene each, then `then` (the scene that
+// was asked for). Nothing of the game changes.
+function openTutorial(id, then = () => showMap()) {
   if (busy) return;
   stopWalk();
   parked = null;
-  tut = { ...startTutorial(id, from), then: then ?? (() => showMap()), t0: performance.now() };
+  tut = { ...startTutorial(id), then, t0: performance.now(), thrown: false };
   current = null; round = null; ended = null; settled = null;
-  L('tutorial: start', { world: id, from, steps: tutorialSteps(tut), taught, practice: PRACTICE[id] });
+  L('tutorial: start', { world: id, parts: TUTORIALS[id].parts.map(p => p.id), taught });
   showPlay();
   startScene();
 }
-// The bar over the park: the step's words, its number, Skip.
+// A mouse or trackpad (a computer): the bar says the keys too (the moon's).
+const keysToo = () => { try { return matchMedia('(pointer: fine)').matches; } catch { return false; } };
+// The bar over the park: the part's words, its number, Skip.
 function renderTut() {
   const bar = $('tut');
-  bar.hidden = !tut || tut.done;   // (done: its card says so)
+  bar.hidden = !tut || tut.cleared;   // (cleared: its card says so)
   if (bar.hidden) return;
-  $('tutSay').textContent = tutorialStep(tut).say;
-  $('tutNum').textContent = `${Math.min(tut.step + 1, tutorialSteps(tut))} of ${tutorialSteps(tut)}`;
+  $('tutSay').textContent = tutorialSay(tut, keysToo());
+  $('tutNum').textContent = `${tut.part + 1} of ${tutorialParts(tut.world)}`;
   $('tutTitle').textContent = TUTORIALS[tut.world].title;
 }
-// Something done in the practice: the step on (logged), the bar again.
-function tutEvent(event, data = {}) {
-  if (!tut || tut.done) return;
-  const r = tutorialDid(tut, event);
-  if (!r.moved) return;
-  L('tutorial: step', { world: tut.world, event, step: r.step + 1, of: tutorialSteps(tut), until: tutorialStep(tut).until, s: r2((performance.now() - tut.t0) / 1000), ...data });
-  if (tutorialStep(tut).until === 'steer') tut.z0 = mo.f?.zT ?? 0;   // steered from here
-  // the pad's show while the park's first steps wait (the finger dragging up from 👆)
-  if (tut.world === 'park' && r.step === 0 && !demo && ready()) demo = { t: 0, t0: performance.now(), to: null };
-  renderTut();
-}
-// Done (every block down) or skipped: the world is taught, then what was waiting.
-// Left by the map: not taught (it shows again before the world's first scene).
+// Done (every part cleared) or skipped: the world is taught, then what was waiting.
+// Left by the map: not taught (it shows again as the world's first level is entered).
 function endTutorial(how, toMap = false) {
   if (!tut) return;
   const t = tut;
   if (how !== 'left') { taught = markTaught(taught, t.world); saveTaught(); }
-  L(`tutorial: ${how}`, { world: t.world, from: t.from, step: t.step + 1, of: tutorialSteps(t), s: r2((performance.now() - t.t0) / 1000), taught, toMap });
+  L(`tutorial: ${how}`, { world: t.world, part: t.part + 1, of: tutorialParts(t.world), cleared: t.cleared, s: r2((performance.now() - t.t0) / 1000), taught, toMap });
   tut = null;
   stopDemo();
   renderTut();
@@ -456,9 +451,9 @@ let glowIdle = 0, glowsSaid = 0, glowPeak = 0;   // the wait for the next ball, 
 let thrownAt = 0;          // performance.now() of the latest throw (the glow's log: real time since it)
 // The moon base (levels 6-10, Q119): its drawing and physics (made the first
 // time a moon scene starts), and the scene under way: { scene, f: the lander,
-// aiming (the pad or Space held), z0 (where it was steered from), lit, keys }.
+// held (the pad: steering), z0 (where it was steered from), lit, keys }.
 let moon3d = null, moonWorld = null;
-const mo = { on: false, scene: null, f: null, aiming: false, z0: 0, lit: -1, keys: { up: false, down: false, space: false } };
+const mo = { on: false, scene: null, f: null, held: false, z0: 0, lit: -1, keys: { up: false, down: false } };
 const onMoon = () => mo.on && !!mo.scene;
 
 function showPlay() {
@@ -496,7 +491,7 @@ function showSetup() {
   running = false;
   playing = false;
   drag = null;
-  mo.aiming = false; mo.keys.up = mo.keys.down = mo.keys.space = false;
+  mo.held = false; mo.keys.up = mo.keys.down = false;
   stopDemo();
   $('play').hidden = true;
   $('setup').hidden = false;
@@ -542,7 +537,7 @@ function makeStage() {
     cv.addEventListener('pointerdown', onDown);
     cv.addEventListener('pointermove', onMove);
     cv.addEventListener('pointerup', onUp);
-    cv.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) { L('drag cancelled'); drag = null; mo.aiming = false; } });
+    cv.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) { L('drag cancelled'); drag = null; mo.held = false; } });
     // no double-tap zoom on the park (as Tin Can Alley's stall); the drag is pointer events
     cv.addEventListener('touchend', e => e.preventDefault(), { passive: false });
   }
@@ -636,9 +631,9 @@ async function makeTheScene(kept) {
   // the scene left for the map, if it's the one the game is at: carried on as it was
   if (!kept && !tut && parked && JSON.stringify(parked.id) === JSON.stringify(sceneId())) { kept = parked; L('scene carried on after the map', { used: parked.settled?.round.used ?? 0 }); }
   parked = null;
-  // the scene to make: the game's, or a tutorial's practice (Q124: its own, always the same, on Normal)
-  const P = tut ? PRACTICE[tut.world] : null;
-  const spec = P ? { seed: P.seed, level: P.level, scene: P.scene, id: { tutorial: tut.world, level: P.level } } : { seed: seedOf(game), level: game.level, scene: game.scene, id: sceneId() };
+  // the scene to make: the game's, or the tutorial's part (Q129: a bare scene, always the same, on Normal)
+  const part = tut ? tutorialPart(tut).id : null, tutLv = tut?.world === 'moon' ? MOON_FIRST : 1;
+  const spec = tut ? { level: tutLv, part, id: { tutorial: tut.world, part, level: tutLv } } : { seed: seedOf(game), level: game.level, scene: game.scene, id: sceneId() };
   busy = true;
   drag = null; shot = null; ended = null;
   stopDemo();
@@ -667,11 +662,17 @@ async function makeTheScene(kept) {
     const r = await stage.setLevel(lv);
     L('setting', { ...r, name: levelInfo(lv).name });
   }
+  // the tutorial's park: the lawn and the sky only (no trees far off, no birds: Q129)
+  stage.setBare(!!tut);
   const t0 = performance.now();
   if (kept) {
     const parts = sceneParts(kept.layout);
     world.setScene(parts, kept.settled?.poses ?? null);
     current = { id: spec.id, layout: kept.layout, parts, check: null, tries: 0 };
+  } else if (tut) {
+    const parts = parkPracticeParts(part);
+    world.setScene(parts);
+    current = { id: spec.id, layout: parkPracticeLayout(part), parts, check: null, tries: 0 };
   } else {
     const s = world.makeScene(spec.seed, spec.level, spec.scene, null, playMode());
     current = { id: spec.id, layout: s.layout, parts: s.parts, check: s.check, tries: s.tries };
@@ -695,19 +696,21 @@ async function makeTheScene(kept) {
   L('blocks drawn', stage.diagnose());
   setTimeout(() => { if (current && JSON.stringify(current.id) === drawnId && stage) L('blocks drawn: 3 s on', stage.diagnose()); }, 3000);
   showWait(false);
+  // no hint's line as a scene starts (Q123, developer, 2026-11-18: "drop it"; 11.1 showed "Drag from 👆,
+  // then let go" before each scene's first ball); it still comes up after a drag too short to throw
   $('hint').textContent = HINT;
-  $('hint').hidden = round.used > 0 || !!tut;
-  // the pad's show: in the park's tutorial only (Q123, developer, 2026-11-17: "remove the existing
-  // 'aiming tip' that starts at the beginning of each scene"; until then before every scene's first ball)
-  if (tut?.world === 'park') demo = { t: 0, t0: performance.now(), to: null };
+  $('hint').hidden = true;
+  // the pad's show: in the park tutorial's first part only (Q123, developer, 2026-11-17: "remove the existing
+  // 'aiming tip' that starts at the beginning of each scene"; until 11.1 before every scene's first ball)
+  if (tut?.world === 'park' && part === 'ahead') demo = { t: 0, t0: performance.now(), to: null };
   renderTut();
   perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
   drawing?.restart();
   glowIdle = 0; glowsSaid = 0;
   renderTally();
   const L0 = current.layout;
-  L(kept ? 'scene picked up again' : tut ? 'tutorial: the practice scene' : 'scene', {
-    ...(tut ? { tutorial: tut.world, level: spec.level, scene: spec.scene, mode: playMode() } : game), stack: L0.stack, layoutSeed: L0.seed, power: L0.power, reachCm: Math.round(L0.reach * 100),
+  L(kept ? 'scene picked up again' : tut ? 'tutorial: a part' : 'scene', {
+    ...(tut ? { tutorial: tut.world, part, of: tutorialParts(tut.world), mode: playMode() } : game), stack: L0.stack, layoutSeed: L0.seed, power: L0.power, reachCm: Math.round(L0.reach * 100),
     things: L0.things.map(t => ({ kind: t.kind, ...(t.where ? { where: t.where } : {}), gapCm: Math.round(t.gap * 100), ...(t.arm ? { armCm: Math.round(t.arm * 100) } : {}), ...(t.aside ? { asideCm: Math.round(t.aside * 100) } : {}) })),
     ...(L0.unplaced.length ? { noRoomFor: L0.unplaced } : {}), blocks: world.blocks.length, ms: current.ms, tries: current.tries,
     leaves: drawn.leaves, drawMs: drawn.ms, trunkInLeavesM: trunksIn(current.parts.props).scene,
@@ -722,21 +725,22 @@ async function makeTheScene(kept) {
 
 /* ---------- the moon base (levels 6-10, Q119) ---------- */
 
-const MOON_HINT = 'Hold 👆 to aim, let go to drop';
-// A moon scene: made from the level's seed (moonScene), or `kept` (its scene and the blocks as they stood).
+// A moon scene: made from the level's seed (moonScene), or `kept` (its scene
+// and the blocks as they stood), or the tutorial's part (spec.part: bare ground, no base).
 async function makeMoonScene(lv, kept, spec) {
   makeMoonStage();
   showWorld(true);
-  if (moon3d.level !== lv) { const t0 = performance.now(); moon3d.setLevel(lv); L('setting', { level: lv, name: levelInfo(lv).name, moon: true, ms: Math.round(performance.now() - t0) }); }
+  const look = spec.part ? 'bare' : lv;
+  if (moon3d.level !== look) { const t0 = performance.now(); moon3d.setLevel(look); L('setting', { level: look, name: spec.part ? 'the tutorial: no base' : levelInfo(lv).name, moon: true, ms: Math.round(performance.now() - t0) }); }
   const t0 = performance.now();
-  const scene = kept?.layout.moon ?? moonScene(spec.seed, spec.level, spec.scene);
+  const scene = kept?.layout.moon ?? (spec.part ? moonPracticeScene(spec.part) : moonScene(spec.seed, spec.level, spec.scene));
   moonWorld.setScene(scene, kept?.settled?.poses ?? null);
   moon3d.setScene(scene);
   current = { id: spec.id, layout: { level: lv, seed: scene.seed, moon: scene, stack: scene.structures.map(s => s.name).join('+'), things: [] }, parts: null, check: null, tries: 0, ms: 0 };
   current.ms = Math.round(performance.now() - t0);
   mo.scene = scene;
-  mo.f = newLander(scene.span, moonMode(playMode()).speed);
-  mo.aiming = false; mo.lit = -1;
+  mo.f = spec.part ? moonPracticeLander(spec.part, moonMode(playMode()).speed) : newLander(scene.span, moonMode(playMode()).speed);
+  mo.held = false; mo.lit = -1;
   round = kept?.settled?.round ?? newRound(moonWorld.blocks.length);
   if (round.since != null) round.since = 99;
   settled = kept?.settled ?? null;
@@ -746,13 +750,13 @@ async function makeMoonScene(lv, kept, spec) {
   moon3d.setLander(mo.f, ready(), false);
   moon3d.render();
   showWait(false);
-  $('hint').textContent = MOON_HINT;
-  $('hint').hidden = round.used > 0 || !!tut;
+  // no hint's line (Q123; 11.1: "Hold 👆 to aim, let go to drop" before each scene's first ball)
+  $('hint').hidden = true;
   renderTut();
   perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
   renderTally();
-  L(kept ? 'moon scene picked up again' : tut ? 'tutorial: the practice scene' : 'moon scene', {
-    ...(tut ? { tutorial: tut.world, level: spec.level, scene: spec.scene, mode: playMode() } : game), structures: scene.structures.map(s => ({ name: s.name, x: s.x, z: s.z, ...(s.ledge ? { ledge: true } : {}) })), blocks: scene.blocks.length,
+  L(kept ? 'moon scene picked up again' : tut ? 'tutorial: a part' : 'moon scene', {
+    ...(tut ? { tutorial: tut.world, part: spec.part, of: tutorialParts(tut.world), mode: playMode(), waitsAtEnds: !!mo.f.ends } : game), structures: scene.structures.map(s => ({ name: s.name, x: s.x, z: s.z, ...(s.ledge ? { ledge: true } : {}) })), blocks: scene.blocks.length,
     span: scene.span, earth: scene.earth, speed: mo.f.speed, light: moonMode(playMode()).light, ring: moonMode(playMode()).ring, ms: current.ms,
     ...(kept ? { used: round.used, down: round.down } : {}),
   });
@@ -771,13 +775,12 @@ function moonDrop(how) {
   if (!ready()) { L('drop refused', { why: canThrow(round).why ?? 'busy', how }); return false; }
   const f = mo.f, aimNow = moonAim();
   const r = useBall(round);
-  if (tut) round.used = 0;   // the practice's balls are free (Q124)
+  if (tut) { round.used = 0; tut.balls = (tut.balls ?? 0) + 1; }   // the tutorial's balls are free (Q124), counted for the log
   moonWorld.dropBall([f.x, LANDER_Y - DROP_BELOW, f.z], [f.vx, 0, 0]);
   thrownAt = performance.now();
   $('hint').hidden = true;
   sound.play('whoosh', 0, { level: 0.35, quiet: true });
   L('drop', { ball: r.ball, how, mode: playMode(), at: [f.x, f.z].map(r2), vx: r2(f.vx), ringX: r2(aimNow.x), toward: aimNow.hit == null ? 'ground' : aimNow.hit < 0 ? 'ledge' : `block ${aimNow.hit}`, ringShown: showsRing(playMode(), r.ball - 1), ...(tut ? { tutorial: tut.world } : {}) });
-  tutEvent('throw', { how });
   renderTally();
   resume.keep();
   return true;
@@ -787,7 +790,6 @@ function moonTurn(how, dir = 0) {
   if (!onMoon() || !round || round.result) return false;
   const f = mo.f, turned = dir ? flyTo(f, dir) : (turnNow(f), true);
   if (turned) L('lander: turn', { how, at: r2(f.x), heading: f.dir > 0 ? 'right' : 'left' });
-  if (turned) tutEvent('turn', { how });
   return turned;
 }
 // The moon's sounds: a block knocked (a metal clonk), the ball into the dust (a soft thud).
@@ -800,11 +802,11 @@ function moonHit({ a, b, v, mat }) {
 // A moon frame: the lander on, the physics, the round's rules (as the park's), the drawing.
 function moonTick(dt, draw) {
   const f = mo.f, t0 = performance.now();
-  if (flyStep(f, dt, mo.scene.span)) L('lander turns at the end', { at: r2(f.x), ringX: r2(ringX(f)) });
+  const ends = flyStep(f, dt, mo.scene.span);
+  if (ends === 'turned') L('lander turns at the end', { at: r2(f.x), ringX: r2(ringX(f)) });
+  else if (ends === 'waits') L('lander waits at the end for ⇄ (the tutorial)', { at: r2(f.x), ringX: r2(ringX(f)) });
   const kz = (mo.keys.down ? 1 : 0) - (mo.keys.up ? 1 : 0);
   if (kz) steerTo(f, f.zT + kz * STEER_KEY * dt);
-  // the tutorial's steer step: done once steered far enough, by the pad or the keys
-  if (tut && tutorialStep(tut).until === 'steer' && Math.abs(f.zT - (tut.z0 ?? f.zT)) >= STEER_TAUGHT_M) tutEvent('steer', { z: r2(f.zT) });
   const { down, fell, dropped } = moonWorld.step(dt, () => performance.now());
   perf.physMs += performance.now() - t0; perf.dropped += dropped; perf.frames++;
   for (const b of fell) L(b.away ? 'block down: out of reach' : 'block down', { mat: b.mat, i: b.i, t: r2(round.t), at: [b.body.position.x, b.body.position.y, b.body.position.z].map(r2) });
@@ -817,10 +819,11 @@ function moonTick(dt, draw) {
   if (!draw) return;
   moon3d.tick(dt);
   moon3d.sync(moonWorld);
-  const ok = ready(), aiming = (mo.aiming || mo.keys.space) && ok;
-  moon3d.setLander(f, ok, aiming);
+  // the ring whenever a ball is ready (Q131, 11.2: until then only while the pad or Space was held)
+  const ok = ready();
+  moon3d.setLander(f, ok, mo.held && ok);
   let lit = -1, p = null;
-  if (aiming && showsRing(playMode(), round.used)) {
+  if (ok && showsRing(playMode(), round.used)) {
     const a = moonAim();
     p = [a.x, a.hit == null ? 0 : a.y - MOON_BALL.r, a.z];
     if (moonMode(playMode()).light && a.hit != null && a.hit >= 0) lit = a.hit;   // (null >= 0 is true)
@@ -912,9 +915,8 @@ function onDown(e) {
   stopDemo('a finger');
   drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY };
   // the moon: holding shows the aim; dragging steers from where the lander is going
-  if (onMoon()) { mo.aiming = true; mo.z0 = mo.f.zT; }
+  if (onMoon()) { mo.held = true; mo.z0 = mo.f.zT; }
   $('hint').hidden = true;   // out of the dots' way
-  tutEvent('press', { how: 'pad' });
   try { e.target.setPointerCapture(e.pointerId); } catch { /* an old browser: the drag still works over the canvas */ }
 }
 function onMove(e) {
@@ -922,21 +924,18 @@ function onMove(e) {
     drag.x = e.clientX; drag.y = e.clientY;
     // drag up = farther away, down = nearer (110 px = 2.2 m: mockup v3)
     if (onMoon()) { const z = steerTo(mo.f, mo.z0 + (drag.y - drag.y0) / STEER_PX * STEER_M); if (Math.abs(z - (mo.zLogged ?? z)) >= 0.5 || mo.zLogged == null) { mo.zLogged = z; L('lander: steer', { z: r2(z), how: 'pad' }); } }
-    // the park's tutorial: a drag far enough to show the dots
-    else if (tut) { const d = dragNow(); if (d?.ok && d.show) tutEvent('aim', { up: Math.round(d.up), aim: r2(d.aim) }); }
   }
 }
 function onUp(e) {
   if (!drag || e.pointerId !== drag.id) return;
   drag.x = e.clientX; drag.y = e.clientY;
-  if (onMoon()) { drag = null; mo.aiming = false; moonDrop('pad'); return; }
+  if (onMoon()) { drag = null; mo.held = false; moonDrop('pad'); return; }
   const d = dragNow();
   drag = null;
   if (!d) return;
   if (!d.ok) {
     L('drag too short: no throw', { up: Math.round(d.up), aim: r2(d.aim) });
     if (!round.used && !tut) $('hint').hidden = false;
-    tutEvent('short');
     return;
   }
   doThrow(d);
@@ -951,7 +950,9 @@ $('turnBtn').addEventListener('pointerdown', e => {
   setTimeout(() => b.classList.remove('on'), 180);
 });
 // The moon's keys (for a computer: mockup v4): ↑ ↓ farther / nearer (a tap a
-// step, held on), ← → fly that way, hold Space to aim and let go to drop.
+// step, held on), ← → fly that way, Space drops at once (Q131, developer,
+// 2026-11-18: "more natural for me to use the space bar down event to drop the
+// ball"; until 11.2 hold Space to aim, let go to drop).
 const MOON_KEYS = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', Space: 'space' };
 const keysOn = () => playing && onMoon() && $('over').hidden && $('ask').hidden;
 addEventListener('keydown', e => {
@@ -963,16 +964,17 @@ addEventListener('keydown', e => {
   L('key', { key: k });
   if (k === 'left' || k === 'right') { moonTurn('key', k === 'left' ? -1 : 1); return; }
   if (k === 'up' || k === 'down') { mo.keys[k] = true; steerTo(mo.f, mo.f.zT + (k === 'up' ? -STEER_TAP : STEER_TAP)); return; }
-  if (k === 'space' && ready()) { mo.keys.space = true; $('hint').hidden = true; tutEvent('press', { how: 'key' }); }
+  if (k === 'space') moonDrop('key');
 });
 addEventListener('keyup', e => {
   const k = MOON_KEYS[e.code];
+  // (Space let go: not a click on a button that has the focus)
+  if (k === 'space' && keysOn()) { e.preventDefault(); return; }
   if (!k || !(k in mo.keys) || !mo.keys[k]) return;
   e.preventDefault();
   mo.keys[k] = false;
-  if (k === 'space' && keysOn()) moonDrop('key');
 });
-addEventListener('blur', () => { mo.keys.up = mo.keys.down = mo.keys.space = false; });
+addEventListener('blur', () => { mo.keys.up = mo.keys.down = false; });
 
 // The pad grows and glows for a moment (started again on every miss).
 function pulsePad() {
@@ -985,7 +987,7 @@ function pulsePad() {
 function doThrow(d) {
   if (!ready()) { L('throw refused', { why: canThrow(round).why ?? 'busy' }); return false; }
   const r = useBall(round);
-  if (tut) round.used = 0;   // the practice's balls are free (Q124)
+  if (tut) { round.used = 0; tut.balls = (tut.balls ?? 0) + 1; }   // the tutorial's balls are free (Q124), counted for the log
   const { v, yaw, el, vec } = launchVel(d.power, d.aim, d.up);
   const aimed = world.trace(vec, 1);
   const body = world.throwBall(vec);
@@ -998,7 +1000,7 @@ function doThrow(d) {
     mode: playMode(), dotsS: dotSeconds(playMode(), r.ball - 1),
     toward: aimed.hits.map(h => ({ kind: h.kind, at: h.at.map(r2), t: r2(h.t) })), ...(tut ? { tutorial: tut.world } : {}),
   });
-  tutEvent('throw');
+  if (tut) tut.thrown = true;   // (the pad's show stops for good)
   renderTally();
   resume.keep();
   return true;
@@ -1152,8 +1154,8 @@ function demoFrame() {
   if (!demo.to) demo.to = demoTarget();
   const s = demoAt(demo.t, demo.to);
   if (!s) {
-    // in the tutorial it starts again while its first steps wait (until the throw)
-    if (tut && tutorialStep(tut).until !== 'clear') { demo.t0 = performance.now(); return null; }
+    // in the tutorial's first part it starts again until a ball is thrown
+    if (tut && !tut.thrown) { demo.t0 = performance.now(); return null; }
     L('pad show done'); stopDemo(); return null;
   }
   const g = $('ghost');
@@ -1184,15 +1186,15 @@ function noteSettled() {
 // the device at once, so coming back starts where the game is. The level
 // done: a new game (level 2 isn't made yet), new scenes.
 function endScene(result) {
-  // the practice cleared (Q124): its own card, nothing of the game kept
+  // a tutorial's part cleared (Q129): its own card (Next ▸ and Skip; the last, Let's go ▸), nothing of the game kept
   if (tut) {
-    const w = WORLDS.find(x => x.id === tut.world);
-    tutEvent('clear');
+    const w = WORLDS.find(x => x.id === tut.world), { last } = partCleared(tut);
     renderTut();
-    ended = { tut: true, won: true, outcome: 'practice', words: { title: 'You’ve got it! 🎯', sub: tut.from === 'play' ? `Now for ${w.name}` : 'Ready when you are', next: tut.from === 'play' ? 'Let’s go ▸' : 'Back to the map' } };
+    const after = last ? null : TUTORIALS[tut.world].parts[tut.part + 1];
+    ended = { tut: true, last, won: true, outcome: 'practice', words: last ? { title: 'You’ve got it! 🎯', sub: `Now for ${w.name}`, next: 'Let’s go ▸' } : { title: 'Well done! 🎯', sub: `Next: ${after.name}`, next: 'Next ▸' } };
     settled = null;
     showCleared();
-    L('tutorial: cleared', { world: tut.world, t: r2(round.t), s: r2((performance.now() - tut.t0) / 1000) });
+    L('tutorial: a part cleared', { world: tut.world, part: tutorialPart(tut).id, n: tut.part + 1, of: tutorialParts(tut.world), last, ballsSoFar: tut.balls ?? 0, t: r2(round.t), s: r2((performance.now() - tut.t0) / 1000) });
     sound.play(endSound(1, { solo: true }));
     return;
   }
@@ -1245,7 +1247,9 @@ function showEnd() {
   $('nextBtn').textContent = ended.words.next;
   // a scene won: its stars, and the best (Q116)
   const st = ended.won ? ended.stars : null;
-  $('newBtn').hidden = !!ended.tut;   // (the practice: one way on)
+  // (a tutorial's part: Skip in its place, none after the last; else New game)
+  $('newBtn').textContent = ended.tut ? 'Skip' : 'New game';
+  $('newBtn').hidden = !!ended.tut && !!ended.last;
   $('overStars').hidden = $('overBest').hidden = !st;
   // the first ball cleared it all: a badge (developer, 2026-11-17)
   $('overAced').hidden = !(st && ended.balls === 1);
@@ -1264,7 +1268,15 @@ function showEnd() {
 // After a level: the next level's screen; after the last: a new game's scenes, the map.
 $('nextBtn').onclick = () => {
   const o = ended?.outcome;
-  if (ended?.tut) { endTutorial('done'); return; }
+  // a tutorial's part: on to the next (a new stack where the last one stood), or done after the last
+  if (ended?.tut) {
+    if (ended.last) { endTutorial('done'); return; }
+    nextPart(tut);
+    L('tutorial: next part', { world: tut.world, part: tutorialPart(tut).id, n: tut.part + 1, of: tutorialParts(tut.world) });
+    current = null; round = null; ended = null; settled = null;
+    startScene();
+    return;
+  }
   L('next', { outcome: o, ...game });
   // a level done: the map, the next level unlocking, your face walking there (Q81)
   if (o === 'level') {
@@ -1289,14 +1301,16 @@ $('againStars').onclick = () => {
   current = null; round = null; ended = null; settled = null;
   startScene();
 };
-$('newBtn').onclick = () => { L('new game: the setup screen'); current = null; round = null; ended = null; settled = null; showSetup(); };
+$('newBtn').onclick = () => {
+  if (ended?.tut) { endTutorial('skipped'); return; }   // (a tutorial part's card: Skip)
+  L('new game: the setup screen'); current = null; round = null; ended = null; settled = null; showSetup(); };
 
 // The map from a scene (developer, 2026-11-12: "there seems to be no way to get to the map"):
 // the scene under way is kept (parked), so coming back to it carries on, not a free start again.
 $('mapBtn').onclick = () => {
   if (busy) return;
   // out of the practice: back to the map, the world not taught (it shows again before the world's first scene)
-  if (tut) { endTutorial(ended?.tut ? 'done' : 'left', true); return; }
+  if (tut) { endTutorial(ended?.tut && ended.last ? 'done' : 'left', true); return; }
   parked = current && !ended ? { id: current.id, layout: current.layout, settled } : null;
   L('map from the scene', { ...game, used: round?.used ?? 0, kept: !!parked });
   current = null; round = null; ended = null; settled = null;
@@ -1414,8 +1428,8 @@ window.topple = {
   async level(n, i = 1) { game.reached = Math.max(game.reached, n); switchLevel(game, n); saveGame(); showPlay(); return this.scene(i); },
   map: () => showMap(),
   // a world's tutorial (Q124): its state; start one as the map's gate does; the worlds taught (set them, for checking)
-  tutorial: () => (tut ? { world: tut.world, step: tut.step + 1, of: tutorialSteps(tut), until: tutorialStep(tut).until, say: $('tutSay').textContent, from: tut.from, done: tut.done, shown: !$('tut').hidden } : null),
-  tutorialStart: (id = 'park') => openTutorial(id, 'map'),
+  tutorial: () => (tut ? { world: tut.world, part: tut.part + 1, of: tutorialParts(tut.world), id: tutorialPart(tut).id, say: $('tutSay').textContent, cleared: tut.cleared, balls: tut.balls ?? 0, shown: !$('tut').hidden, waiting: !!mo.f?.waiting } : null),
+  tutorialStart: (id = 'park') => openTutorial(id),
   taught(list) { if (list !== undefined) { taught = readTaught(list); saveTaught(); L('taught set (checking)', { taught }); } return [...taught]; },
   // the unlocking after a level (Q81), without clearing one: level `to`'s lock popping
   walk: (from, to, unlock = true) => showMap(unlock ? to : 0),
@@ -1465,12 +1479,12 @@ window.topple = {
   // the moon base (Q119): its state; drop, turn, steer, hold the aim as the pad or keys would
   moon: () => (onMoon() ? {
     f: { ...mo.f }, span: mo.scene.span, structures: mo.scene.structures.map(s => s.name), blocks: moonWorld.blocks.length, down: moonWorld.blocks.filter(b => !b.down).length,
-    lit: mo.lit, aiming: mo.aiming || mo.keys.space, aim: moonAim(), earth: moon3d.earthAt(), shootingStars: moon3d.shootingStars(), turnShown: !$('turnBtn').hidden,
+    lit: mo.lit, held: mo.held, aim: moonAim(), earth: moon3d.earthAt(), shootingStars: moon3d.shootingStars(), turnShown: !$('turnBtn').hidden,
   } : null),
   moonDrop: () => moonDrop('hook'),
   moonTurn: (dir = 0) => moonTurn('hook', dir),
   moonSteer: z => steerTo(mo.f, z),
-  moonHold(on = true) { mo.aiming = on; tick(1 / 60); return mo.lit; },
+  moonHold(on = true) { mo.held = on; tick(1 / 60); return mo.lit; },
   moonWorld: () => moonWorld,
   moonProject: p => moon3d?.project(p),
   // the next scene of the level (1-5, round again), with 3 hearts

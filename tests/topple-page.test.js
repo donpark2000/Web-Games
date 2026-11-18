@@ -190,7 +190,7 @@ test('topple page: the game kept on the device for every visit, the scene under 
 });
 
 test('topple page: logged: 3D start, the fit, each scene, throw, touch, block down (and a post up again), the end', () => {
-  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : tut ? 'tutorial: the practice scene' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'block up again: a post leaning, not lying'", "'blocks down'", "'blocks drawn'", "'blocks drawn: 3 s on'", "'scene over'", "'start again: this scene, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
+  for (const what of ["'3D started'", "'fit'", "kept ? 'scene picked up again' : tut ? 'tutorial: a part' : 'scene'", "'layout thrown away'", "'throw'", "'ball touched'", "'block down'", "'block up again: a post leaning, not lying'", "'blocks down'", "'blocks drawn'", "'blocks drawn: 3 s on'", "'scene over'", "'start again: this scene, a heart lost'", "'no 3D: told this device can’t show it'", "'resumed'", "'the game on this device'"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
   }
   assert.match(js, /startLog\('topple'\)/);
@@ -231,8 +231,14 @@ test('topple page: the drag pad and its show (the park\'s tutorial only, Q123): 
   assert.match(js, /demo\.t = \(performance\.now\(\) - demo\.t0\) \/ 1000/);
   assert.match(js, /pulsePad\(\);\s*return;\s*\}\s*stopDemo\('a finger'\);/);
   assert.match(js, /if \(first === 'block'\)/);
-  // Q123 (developer, 2026-11-17: "remove the existing 'aiming tip' that starts at the beginning of each scene"): the show only in the tutorial
-  assert.match(js, /if \(tut\?\.world === 'park'\) demo = \{ t: 0, t0: performance\.now\(\), to: null \};/);
+  // Q123 (developer, 2026-11-17: "remove the existing 'aiming tip' that starts at the beginning of each scene"): the show only in the
+  // tutorial's first part (Q129), again until a ball is thrown; and no hint's line as a scene starts (developer, 2026-11-18: "drop it")
+  assert.match(js, /if \(tut\?\.world === 'park' && part === 'ahead'\) demo = \{ t: 0, t0: performance\.now\(\), to: null \};/);
+  assert.match(js, /if \(tut && !tut\.thrown\) \{ demo\.t0 = performance\.now\(\); return null; \}/);
+  assert.equal((js.match(/\n  \$\('hint'\)\.hidden = true;\n/g) ?? []).length >= 3, true, 'hidden as a scene is made, and as the park\'s and the moon\'s start');
+  assert.doesNotMatch(js, /\$\('hint'\)\.hidden = round\.used > 0/, 'no hint before a scene\'s first ball');
+  assert.doesNotMatch(js, /MOON_HINT/, 'nor on the moon');
+  assert.match(js, /if \(!round\.used && !tut\) \$\('hint'\)\.hidden = false;/, 'still after a drag too short to throw');
   assert.doesNotMatch(js, /if \(!round\.used && !round\.result\) demo = /, 'no show before every scene');
   for (const what of ["'pad show'", "'pad show done'", "'pad show stopped'", "'drag too short: no throw'", "'press off the pad'"]) {
     assert.ok(js.includes(`L(${what}`), `not logged: ${what}`);
@@ -331,7 +337,8 @@ test('topple page: every animal takes fright when a block falls; logged', () => 
     assert.match(body, /go\.advance\([^;]*go\.pace|hop \+= dt \* go\.pace/, `${a}: not faster running off`);
   }
   assert.match(setsJs, /out\.fright = x => decor\.map\(d => d\.fright\?\.\(x\)\)\.filter\(Boolean\);/);
-  assert.match(sceneJs, /fright\(x\) \{ return set \? set\.fright\(x\) : \[parkBirds\.fright\(x\)\]\.filter\(Boolean\); \}/);
+  // (a bare park, the tutorial's: no birds to take fright, Q129)
+  assert.match(sceneJs, /fright\(x\) \{ return set \? set\.fright\(x\) : bare \? \[\] : \[parkBirds\.fright\(x\)\]\.filter\(Boolean\); \}/);
   // a block falling, or shattering / bursting (ice down first by shattering: seen in the browser)
   assert.match(js, /const fx0 = fell\[0\]\?\.body\.position\.x \?\? broke\[0\]\?\.at\[0\];/);
   assert.match(js, /if \(fx0 !== undefined\) \{ const scared = stage\.fright\(fx0\); if \(scared\.length\) L\('animal frightened'/);

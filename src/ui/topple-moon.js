@@ -218,7 +218,8 @@ export function makeMoon3d(canvas) {
     camera.updateProjectionMatrix();
   }
 
-  // The moon, the sky and the base for level n (made again only when the level changes).
+  // The moon, the sky and the base for level n (made again only when the level changes);
+  // 'bare' (a tutorial, Q129: "bare bones scenes"): the ground and the sky, no base or rocks.
   function setLevel(n) {
     if (S && level === n) return;
     if (S) S.traverse(o => { o.geometry?.dispose(); for (const m of [].concat(o.material || [])) if (!Object.values(mats).includes(m) && m !== ballMat) { m.map?.dispose(); m.dispose(); } });
@@ -232,8 +233,8 @@ export function makeMoon3d(canvas) {
     S.add(sun, sun.target);
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshStandardMaterial({ map: moonTex(), roughness: 1 }));
     ground.rotation.x = -Math.PI / 2; ground.position.z = -20; ground.receiveShadow = true; S.add(ground);
-    const r = rand(21 + n), rockMat = new THREE.MeshStandardMaterial({ color: '#7d7d80', roughness: 1, flatShading: true });
-    for (let i = 0; i < 22; i++) {
+    const r = rand(21 + (n === 'bare' ? 0 : n)), rockMat = new THREE.MeshStandardMaterial({ color: '#7d7d80', roughness: 1, flatShading: true });
+    for (let i = 0; i < (n === 'bare' ? 0 : 22); i++) {
       const x = (r() - 0.5) * 26, z = -2 - r() * 18; if (z > -8.5 && Math.abs(x) < 5.5) continue;
       const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(0.15 + r() * 0.45, 0), rockMat);
       rk.position.set(x, 0.05, z); rk.rotation.set(r() * 3, r() * 3, 0); rk.scale.y = 0.6; rk.castShadow = rk.receiveShadow = true; S.add(rk);
@@ -245,7 +246,7 @@ export function makeMoon3d(canvas) {
     earth = new THREE.Mesh(new THREE.SphereGeometry(2.4, 32, 16), new THREE.MeshBasicMaterial({ map: earthTex() }));
     earth.rotation.z = 0.41;   // its tilt
     S.add(earth);
-    base = moonBase(S, n);
+    base = n === 'bare' ? null : moonBase(S, n);
     // the lander (mockup v1-v6)
     lander = new THREE.Group();
     const foil = new THREE.MeshStandardMaterial({ color: '#d4a63a', metalness: 0.6, roughness: 0.35 });

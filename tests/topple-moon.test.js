@@ -67,7 +67,7 @@ test('moon: a scene is the same for its seed; every block stands upright on the 
   }
 });
 
-test('moon: the lander flies to and fro, turning once the ring is past the structures; ⇄ turns it quicker; steering is clamped', () => {
+test('moon: the lander flies to and fro, turning once the ring is past the structures; ⇄ turns it at once; steering is clamped', () => {
   const span = [-2, 2], f = newLander(span, 1);
   assert.ok(ringX(f) < span[0], 'it comes in from the left, the ring short of the structures');
   let turns = 0, maxRing = -99, minRing = 99, t = 0;
@@ -75,12 +75,33 @@ test('moon: the lander flies to and fro, turning once the ring is past the struc
   assert.ok(turns >= 4, `turns: ${turns}`);
   assert.ok(maxRing <= span[1] + TURN_PAST + 0.05 && maxRing >= span[1] + TURN_PAST - 0.05, `the ring turns just past the right end: ${maxRing}`);
   assert.ok(minRing >= span[0] - TURN_PAST - 0.05 && minRing <= span[0] - TURN_PAST + 0.05, `... and the left: ${minRing}`);
-  // ⇄: from full speed one way to the other in about 2/3 s (the ends' turn: 2 s)
+  // Q126 (developer, 2026-11-18: "the speed of the target light should not change"): the ring
+  // moves at the lander's speed the whole time, through ⇄ and through the turns at the ends;
+  // the lander swings round behind it, never faster than its speed, and stays over the run
+  for (const speed of [1, 1.35, 1.7]) {
+    const g = newLander([-2.5, 2.5], speed);
+    let r0 = ringX(g), ringV = [99, 0], vMax = 0, xs = [99, -99], ends = 0;
+    for (let k = 0; k < 60 * 40; k++) {
+      if (k === 60 * 13 || k === 60 * 13 + 30) turnNow(g);   // ⇄, and again half a second on
+      if (flyStep(g, 1 / 60, [-2.5, 2.5])) ends++;
+      const r = ringX(g), v = Math.abs(r - r0) * 60;
+      ringV = [Math.min(ringV[0], v), Math.max(ringV[1], v)]; vMax = Math.max(vMax, Math.abs(g.vx));
+      if (k > 60 * 10) xs = [Math.min(xs[0], g.x), Math.max(xs[1], g.x)];
+      r0 = r;
+    }
+    assert.ok(ringV[0] > speed - 0.001 && ringV[1] < speed + 0.001, `${speed}: the ring at one speed: ${ringV}`);
+    assert.ok(vMax <= speed + 1e-9, `${speed}: the lander no faster than its speed: ${vMax}`);
+    assert.ok(xs[0] > -2.5 && xs[1] < 2.5, `${speed}: the lander over the run: ${xs}`);
+    assert.ok(ends >= 4, `${speed}: turns at the ends: ${ends}`);
+  }
+  // ⇄: the ring heads the other way at once
   const g = newLander(span, 1); g.x = 0;
+  for (let i = 0; i < 60; i++) flyStep(g, 1 / 60, [-50, 50]);
+  const before = ringX(g);
   turnNow(g);
-  let k = 0; while (g.turning && k < 600) { flyStep(g, 1 / 60, [-50, 50]); k++; }
-  assert.ok(Math.abs(k / 60 - 2 / 3) < 0.05, `⇄ took ${k / 60} s`);
-  assert.equal(g.vx, -1);
+  flyStep(g, 1 / 60, [-50, 50]);
+  assert.ok(Math.abs(ringX(g) - (before - 1 / 60)) < 1e-9, 'the ring back a step at once');
+  assert.equal(g.ringV, -1);
   assert.equal(flyTo(g, -1), false, 'already heading left');
   assert.equal(flyTo(g, 1), true);
   assert.equal(steerTo(g, -20), Z_FAR); assert.equal(steerTo(g, 0), Z_NEAR); assert.equal(steerTo(g, -4.2), -4.2);
@@ -169,10 +190,14 @@ test('moon page: its own canvas, the turn button by the pad, the keys, the lit b
   assert.match(js, /if \(isMoonLevel\(lv\)\) return makeMoonScene\(lv, kept, spec\);/);
   assert.match(js, /\$\('cm'\)\.hidden = !moonOn;\s*\$\('c'\)\.hidden = moonOn;\s*\$\('turnBtn'\)\.hidden = !moonOn;/);
   assert.match(js, /const MOON_KEYS = \{ ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', Space: 'space' \};/);
-  assert.match(js, /if \(k === 'space' && keysOn\(\)\) moonDrop\('key'\);/, 'Space up drops (down shows the aim)');
-  assert.match(js, /if \(onMoon\(\)\) \{ drag = null; mo\.aiming = false; moonDrop\('pad'\); return; \}/, 'letting go of the pad drops');
+  // Q131 (11.2): Space down drops at once; its let-go only kept from clicking a button
+  assert.match(js, /\n  if \(k === 'space'\) moonDrop\('key'\);\n\}\);/, 'Space down drops');
+  assert.match(js, /if \(k === 'space' && keysOn\(\)\) \{ e\.preventDefault\(\); return; \}/, 'Space let go drops nothing');
+  assert.doesNotMatch(js, /keys\.space/, 'no Space held to aim');
+  assert.match(js, /if \(onMoon\(\)\) \{ drag = null; mo\.held = false; moonDrop\('pad'\); return; \}/, 'letting go of the pad drops');
   assert.match(js, /if \(moonMode\(playMode\(\)\)\.light && a\.hit != null && a\.hit >= 0\) lit = a\.hit;/, 'no block lit for "none" (null >= 0 is true)');
-  assert.match(js, /const ok = ready\(\), aiming = \(mo\.aiming \|\| mo\.keys\.space\) && ok;/, 'the aim only while held');
+  // Q131 (11.2): the ring whenever a ball is ready, not only while held
+  assert.match(js, /const ok = ready\(\);\n  moon3d\.setLander\(f, ok, mo\.held && ok\);\n  let lit = -1, p = null;\n  if \(ok && showsRing\(playMode\(\), round\.used\)\) \{/, 'the ring always on');
   for (const n of [6, 7, 8, 9, 10]) assert.match(js, new RegExp(`\\n  ${n}: \\{ pic: \\(\\) => '[^']+', tint: '#[0-9A-F]{6}'`), `level ${n} on the map`);
   for (const s of ['L(\'drop\'', 'L(\'lander: turn\'', 'L(\'lander: steer\'', 'L(\'drop would hit block\'', '\'moon scene\'', 'L(\'lander turns at the end\'', 'L(\'drop refused\'']) assert.ok(js.includes(s), `logged: ${s}`);
   assert.match(draw, /nextStar = 8 \+ Math\.random\(\) \* 14;/, 'the odd shooting star');

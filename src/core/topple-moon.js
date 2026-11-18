@@ -4,13 +4,14 @@
 // DOM, three.js or physics here: the physics is src/core/topple-moon-world.js,
 // the drawing src/ui/topple-moon.js.
 //
-// A lander flies to and fro over the base; hold the pad (or Space) to see
-// where the ball would land (the orange ring; on Normal the block it would
-// hit lights up), drag up to fly farther away, down to come nearer (or ↑ ↓),
-// let go to drop: the ball falls straight down from under the lander, with
-// its speed. ⇄ (or ← →) turns it round; it turns by itself once the ring is
-// past the last structure (developer, mockup v3: "change direction once it
-// was past its ability to reach a target").
+// A lander flies to and fro over the base; the orange ring shows where the
+// ball would land whenever one is ready (on Normal the block it would hit
+// lights up: Q131, 11.2; until then only while the pad or Space was held).
+// Hold the pad and drag up to fly farther away, down to come nearer (or
+// ↑ ↓), let go to drop (or press Space): the ball falls straight down from
+// under the lander, with its speed. ⇄ (or ← →) turns it round; it turns by
+// itself once the ring is past the last structure (developer, mockup v3:
+// "change direction once it was past its ability to reach a target").
 //
 // World metres, y up, z away from you (negative): the mockups' sizes. The
 // levels' names and lines are src/core/topple-levels.js's LEVELS (6-10).
@@ -26,8 +27,6 @@ export const DROP_BELOW = 0.55;             // the ball hangs this far under it
 export const Z_NEAR = -3.0, Z_FAR = -7.6;   // how near and far it can fly (m)
 export const Z_START = -5.0;
 export const TURN_PAST = 0.8;               // it turns once the ring is this far past the last structure (m)
-export const TURN_ENDS = 1.0;               // its turn at the ends: m/s² (v3)
-export const TURN_NOW = 3.0;                // ⇄'s turn: m/s² (v4: about ⅔ s)
 export const STEER_PX = 110, STEER_M = 2.2; // a drag of 110 px up flies 2.2 m farther (v3)
 export const STEER_KEY = 2.5, STEER_TAP = 0.25;   // ↑ ↓ held: m/s; a tap: m
 export const STEER_EASE = 2.5;              // how fast it glides to where it's steered (1/s)
@@ -52,32 +51,40 @@ export const fallTime = (h = 0) => Math.sqrt(2 * Math.max(0, LANDER_Y - DROP_BEL
 /* ---------- the lander ---------- */
 
 // A lander for a scene whose structures span x0..x1, flying at `speed`:
-// it comes in from the left. { x, vx, dir, turning, accel, z, zT }
+// it comes in from the left. { x, vx, dir, ringV, speed, z, zT }
+//
+// The turn is led by the ring (Q126, developer, 2026-11-18: "If I use the
+// change direction, the speed of the target light should not change"): the
+// ring always moves at `ringV` (± speed), and a turn just flips it. The
+// lander swings round behind it: its pull each step is (ringV − vx) / the
+// fall, so the ring (x + vx × the fall) moves on at ringV. Until 11.2 the
+// lander turned and the ring followed, racing at up to 7.3 m/s (⇄) or 3.1
+// m/s (the turn at the ends) as its lead flipped from one side to the other.
 export function newLander(span, speed) {
-  return { x: span[0] - TURN_PAST - speed * fallTime() - 1.0, vx: speed, speed, dir: 1, turning: false, accel: TURN_ENDS, z: Z_START, zT: Z_START };
+  return { x: span[0] - TURN_PAST - speed * fallTime() - 1.0, vx: speed, speed, dir: 1, ringV: speed, z: Z_START, zT: Z_START };
 }
 // Where the ball let go now would come down (the ring's x): ahead by its speed × the fall.
 export const ringX = (f, h = 0) => f.x + f.vx * fallTime(h);
-// Turn round now (⇄): quicker than the turn at the ends.
-export function turnNow(f) { f.dir = -f.dir; f.turning = true; f.accel = TURN_NOW; return f; }
+// Turn round now (⇄): the ring goes the other way at once, at the same speed.
+export function turnNow(f) { f.dir = -f.dir; f.ringV = f.dir * f.speed; f.waiting = false; return f; }
 // Fly that way (← →): turns round if it's heading the other way; false if it was already.
 export function flyTo(f, dir) { if (f.dir === dir) return false; turnNow(f); return true; }
 // Steer to z (clamped to how near and far it can fly).
 export const steerTo = (f, z) => { f.zT = Math.min(Z_NEAR, Math.max(Z_FAR, z)); return f.zT; };
 // `dt` s on: it turns itself once the ring is past the structures (span),
-// eases its speed round at its turn's rate, glides towards zT.
-// Returns 'turned' when it turned itself this step.
+// the ring moving on at ringV and the lander pulled round behind it; glides
+// towards zT. Returns 'turned' when it turned itself this step. A lander
+// with `ends: 'wait'` (the tutorial's ⇄ part) stops the ring there instead
+// and waits for ⇄: 'waits' the step it starts to.
 export function flyStep(f, dt, span) {
   let turned = null;
-  const rx = ringX(f);
-  if (!f.turning && ((f.dir > 0 && rx > span[1] + TURN_PAST) || (f.dir < 0 && rx < span[0] - TURN_PAST))) {
-    f.dir = -f.dir; f.turning = true; f.accel = TURN_ENDS; turned = 'turned';
+  const T = fallTime(), rx = f.x + f.vx * T;
+  if (!f.waiting && ((f.dir > 0 && rx > span[1] + TURN_PAST) || (f.dir < 0 && rx < span[0] - TURN_PAST))) {
+    if (f.ends === 'wait') { f.waiting = true; f.ringV = 0; turned = 'waits'; } else { turnNow(f); turned = 'turned'; }
   }
-  if (f.turning) {
-    const want = f.dir * f.speed, step = f.accel * dt;
-    if (Math.abs(want - f.vx) <= step) { f.vx = want; f.turning = false; } else f.vx += Math.sign(want - f.vx) * step;
-  }
-  f.x += f.vx * dt;
+  // the lander's speed eased towards the ring's; x set so the ring is exactly ringV × dt on
+  f.vx += (f.ringV - f.vx) * dt / T;
+  f.x = rx + f.ringV * dt - f.vx * T;
   f.z += (f.zT - f.z) * Math.min(1, dt * STEER_EASE);
   return turned;
 }

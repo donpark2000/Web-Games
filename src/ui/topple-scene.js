@@ -136,6 +136,10 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   let farLeaves = 0;
   const parkGroup = new THREE.Group();   // the lawn and the trees far off: level 1's setting
   scene.add(parkGroup);
+  // the trees far off and the birds, in groups of their own: hidden in a tutorial (Q129: "bare bones scenes")
+  const farGroup = new THREE.Group(), birdGroup = new THREE.Group();
+  parkGroup.add(farGroup, birdGroup);
+  let bare = false;
   {
     const lawn = canvasTex(64, 256, (g, w, h) => {
       g.fillStyle = '#8DBE72'; g.fillRect(0, 0, w, h / 2);
@@ -150,14 +154,14 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     // anyway); the trunk up into the clump's middle
     for (const f of FAR_TREES) {
       const t = limb(new THREE.Vector3(f.x, 0, f.z), new THREE.Vector3(f.x, f.trunk.top, f.z), f.trunk.r0, f.trunk.r1);
-      t.castShadow = false; parkGroup.add(t);
+      t.castShadow = false; farGroup.add(t);
       const c = leafy(farBalls(f), ['#4F9A55', '#5DAA5E', '#478C4E'], f.y - f.r, f.y + f.r, 0.3, false);
-      parkGroup.add(c); farLeaves += c.userData.leaves;
+      farGroup.add(c); farLeaves += c.userData.leaves;
       t.userData.far = c.userData.far = true;   // (the speed test hides them)
     }
   }
   // two birds circling over the trees beyond (developer, 2026-11-12: "maybe a bird or two for the first level")
-  const parkBirds = birds(parkGroup);
+  const parkBirds = birds(birdGroup);
   // What the page draws over the view's top (the level's name, the hearts:
   // .hudpill), in NDC: [{ x0, x1, y0: its bottom }] (Star Light's moon
   // keeps below them).
@@ -952,7 +956,10 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     tick(dt) { const t = performance.now() / 1000; if (set) set.tick(dt, t); else parkBirds.tick(dt, t); },
     // A block fell at x: the animals in view are startled and run off
     // (developer, 2026-11-12: "acted frightened ... and run off"); what each did.
-    fright(x) { return set ? set.fright(x) : [parkBirds.fright(x)].filter(Boolean); },
+    fright(x) { return set ? set.fright(x) : bare ? [] : [parkBirds.fright(x)].filter(Boolean); },
+    // The park bare (a tutorial, Q129): the lawn and the sky only, no trees far off or birds.
+    setBare(on) { bare = !!on; farGroup.visible = birdGroup.visible = !bare; return bare; },
+    get bare() { return bare; },
     // where the animals are (for checking in a browser)
     animals() { return set ? set.animals() : [parkBirds.state()]; },
     // What the scene has drawn, for the log (Q109: a scene on the tablet drew no
