@@ -178,6 +178,16 @@ time, each tried before publishing:
   size measured with `tools/topple-stars.js`. **To ask:** the blast ball only in the
   scenes the tool lists, or in more (every challenge, say), now that it's also a way to
   make scenes harder?
+  **Developer (2026-11-18):** "I am leaning to only offering it the scenes that are
+  impossible to win otherwise. Having it appear too often detracts a bit from it being
+  'special' and another skill to learn." Claude agreed (easier to widen later than to
+  take back), with three points: (1) **by structure, not by deal**: the same structure
+  is won in 3 in some deals and not others (the spread-out mixes 2/3, 2/4), so the
+  rule is "these structures always offer it", kept as a list written by the tool with
+  a test that fails when it's stale; (2) it first shows in Frosty Times' challenge
+  (level 3), so its first meeting needs teaching (a line or a tutorial part, as the
+  worlds' tutorials); (3) its showing up tells the player "this one needs it", a fair
+  clue for children. **Agreed, leaning:** only those scenes, to confirm in the mockup.
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
