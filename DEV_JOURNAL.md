@@ -24114,3 +24114,64 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Not checked:** the app's viewer, a real touch screen, the old tablet.
 - Local server: "mockup-scratch" in `.claude/launch.json` for the check, taken out after
   (the file is as committed).
+
+## 2026-11-18: The plan for release 11.2 (agreed, not started)
+
+The developer: "go ahead with 11.2" (after the mockup). Release **11.2** (changes, not a
+new game). Each piece with its debug log lines and tests, as usual; DESIGN.md "Topple!"
+updated (The moon, A world's tutorial, The map).
+1. **The moon's controls (Q126, Q131).**
+   - **⇄ keeps the ring's speed** (Q126, (d) made instant): the lander keeps a ring speed
+     `ringV` (± its speed); each step its pull is `(ringV − vx) / fallTime()`, so the
+     ring (x + vx × fallTime) always moves at `ringV`. ⇄ and ← → flip `ringV`; the turn
+     at the ends (the ring past the span by TURN_PAST) flips it too. TURN_NOW and
+     TURN_ENDS go. Simulated (scratch `flip.mjs`) and tried in mockup v1 (ring sampled
+     through a turn: one speed). Check the camera still shows the lander (it drifts on
+     0.64 m past a turn at 1 m/s, 0.96 at 1.5).
+   - **The ring always on** whenever a ball is ready (Q131), not only while 👆 or Space is
+     held; Hardest's "the ring for the first ball only" kept. **Space down drops at
+     once.** Touch as now: hold 👆, drag up/down to steer, let go drops.
+   - *Said openly:* this is mockup v5's way, which the developer moved away from in v6
+     ("I actually like V4 better. It feels like more game control"); now asked for again
+     (Q131), so it's the developer's call, made knowingly.
+   - Re-measure the moon test player (its timing assumed the old turns) and the
+     regression test's 93%.
+2. **Tutorials (Q129), replacing 11.1's.** Bare scenes: flat ground and sky only (the
+   park: no trees, bushes, fence or movers; the moon: no base buildings), one plain
+   block (a short stack of 3 crates) per part, a new block once the last is down (not
+   all at once). Parts:
+   - Earth: (1) straight ahead: drag from 👆 and let go; (2) off to one side: aim left
+     or right; (3) farther away: pull harder.
+   - Moon: (1) on the lander's line: drop as the ring crosses it; (2) nearer or farther:
+     steer; (3) one the ring is heading away from: ⇄.
+   - After each part a card: **Next ▸** and **Skip**. Skip (any time) ends the tutorial
+     and starts the world's level 1 scene 1. Balls free, no hearts or stars.
+   - Shown **once a device, the first time the world's first level is entered**; **no
+     tutorial button on the map** (the gate's 🎯 goes). The taught list starts again once
+     (a new key) so everyone sees the new tutorials.
+3. **The hint's line goes (Q123):** "Drag from 👆, then let go" no longer shows.
+4. **The next world closed off on the map (Q128):** until the world before is done
+   (level 5 of it), the road ends at a closed barrier with the next world's name and
+   sign and a teaser (the moon in the sky behind it), **no levels shown**. Once it's
+   done, the map shown after the world's last card (**The Moon ▸**) plays the barrier
+   opening and the new road rolling out, once a game per difficulty (kept with the
+   game); then the player taps the new world's level 1 (the tutorial first, the first
+   time on the device).
+
+Not in 11.2: the blast ball (Q130), waiting on the developer's word on mockup v1; then
+Q125 (the moon's materials) and Q121 (sounds).
+
+**Status (start here next session)**
+- **Live: 11.1.** `block-game` = `main` plus journal entries. Nothing built for 11.2 yet.
+- **Next: build 11.2** as in "The plan for release 11.2" above (the developer said go),
+  then ask to publish.
+- **Waiting on the developer:** mockup v1 of the blast ball (Q130,
+  https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h): the look, winning it by knocking the
+  structure under the 💥, the blast's size. It also lets them try 11.2's moon controls.
+- **Open questions:** Q131 (ring always on: in 11.2), Q130 (blast ball: mockup v1 to try),
+  Q129 (tutorials: in 11.2), Q128 (the barrier: in 11.2), Q127 (lander up and down:
+  parked), Q126 (⇄ keeps the ring's speed: in 11.2), Q125 (the moon's five materials:
+  mockup next), Q124 and Q122 (11.1's tutorial and gates: replaced by Q129, Q128), Q123
+  (the hint: goes in 11.2), Q121 (sounds on the moon), Q120 (the moon on the old tablet),
+  Q119 (the moon world, to try), Q118 (Try again for more stars, liked), Q113 (ice sliding
+  out of range: parked).
