@@ -10,19 +10,6 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q135. Topple!: stars earned on levels played before don't show** (2026-11-18,
-  developer: "I notice that the stars I earned on previous levels I have played do not
-  seem to be showing up. Does something reset the stars even though the scenes remain
-  unlocked?"). **Looked at (the code only):** nothing resets them. `readStars` keeps
-  every row of levels 1-10, `recordStars` only raises a scene's best, and a new game,
-  Start over and Start again keep them (`createGame(seed, keep)`). Two things that look
-  like it: (a) **a level finished before stars were kept** (10.24, 2026-11-16) shows
-  every scene open (a level done opens all its scenes) with grey stars: agreed then
-  that games kept from before start at 0 ("might only be me"); (b) **each difficulty
-  has its own stars** (Q116): the map shows only the difficulty being played. **To
-  ask:** which levels and difficulty; were they finished before 2026-11-16? If neither
-  fits, the Log page saved on that device.
-
 - **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
   developer: "when I open the map it would be nice to position it so my current scene
   is in view"). `showMap` already scrolls the scene last played (`n<level>_<scene>`)
@@ -30,6 +17,10 @@ time, each tried before publishing:
   opening it misses: to find which (Play! / Carry on on the setup screen, Map in play,
   after a card, a reload, a phone or tablet) and why, then fix with a test. **To ask:**
   which way it was opened and on which device, if it isn't found by trying them.
+  **Developer (2026-11-18):** the installed web app on the desktop; "I don't remember
+  exact circumstances but once when I opened the map, I noticed my current level was
+  off screen. Maybe I had scrolled it earlier and it remember 'last position'? I think
+  your current scene should always be visible when you open map."
 
 - **Q133. Topple!: the blocks left glow after a pause on the moon too** (2026-11-18,
   developer: "parts of targets still to be knocked over are not glowing in Moon world
@@ -536,6 +527,20 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q135. Topple!: stars earned on levels played before don't show** (2026-11-18,
+  developer: "I notice that the stars I earned on previous levels I have played do not
+  seem to be showing up. Does something reset the stars even though the scenes remain
+  unlocked?"). **Looked at (the code only):** nothing resets them. `readStars` keeps
+  every row of levels 1-10, `recordStars` only raises a scene's best, and a new game,
+  Start over and Start again keep them (`createGame(seed, keep)`). Two things that look
+  like it: (a) **a level finished before stars were kept** (10.24, 2026-11-16) shows
+  every scene open (a level done opens all its scenes) with grey stars: agreed then
+  that games kept from before start at 0 ("might only be me"); (b) **each difficulty
+  has its own stars** (Q116): the map shows only the difficulty being played.
+  **Closed 2026-11-18 (developer):** "Not sure what date. Could be before. I am OK to
+  close it and if I see it again, I'll report as a new issue." It was the installed web
+  app on the desktop, not used for a long time, so (a) fits. Nothing to fix found.
 
 - **Q115. Topple!: "no moving thing on the first play of a level, then
   there is after running out of hearts"** (2026-11-16, developer, iPhone,

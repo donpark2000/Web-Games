@@ -7,6 +7,26 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 11.2 (2026-11-18, version e016c48de740)
+
+Topple!: the moon's controls made simpler, practices in bare scenes, the next world
+behind a barrier.
+
+- **The moon's ring always on.** The orange ring showing where the ball will land is
+  always there now; you no longer hold to see it. Hold 👆 and drag to fly farther or
+  nearer, and let go to drop. On a computer, Space drops at once.
+- **The lander keeps one speed.** It no longer speeds up after a turn; ⇄ (or ← →) and
+  the ends of its run turn it round at the same speed.
+- **Practices in bare scenes, in parts.** Each world's practice is now a short series:
+  the park's teaches a throw straight ahead, one off to the side and a far one; the
+  moon's teaches a drop, flying farther, and turning round with ⇄. Each part waits for
+  you to do it.
+- **The next world behind a barrier.** Until Earth is finished, the moon shows on the
+  map behind a barrier ("Finish Earth to fly to the moon"); it opens when you get there.
+- **No hint's line.** The "Drag from 👆, then let go" line is gone; the practices teach
+  it instead.
+- Everything else is as in 11.1.
+
 ## 11.1 (2026-11-17, version ec7621772c7b)
 
 Topple!: worlds on the map, and a tutorial for each world.
