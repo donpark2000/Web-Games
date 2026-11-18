@@ -22,7 +22,8 @@ time, each tried before publishing:
   off screen. Maybe I had scrolled it earlier and it remember 'last position'? I think
   your current scene should always be visible when you open map."
   **Found and built (2026-11-18, not published):** the face's walk from a far place
-  scrolled to where it started; see "Q134 found and fixed".
+  scrolled to where it started; see "Q134 found and fixed". **Published: release 11.3**
+  (2026-11-18); to try on the installed app.
 
 - **Q133. Topple!: the blocks left glow after a pause on the moon too** (2026-11-18,
   developer: "parts of targets still to be knocked over are not glowing in Moon world
@@ -30,6 +31,9 @@ time, each tried before publishing:
   park's glow (Q101: `waitingOn`, `glowAt`, `GLOW_WAIT` 4 s, 2 pulses, the stage's
   glow meshes) was never hooked to the moon's drawing. To do: the same rule and timing
   on the moon, the standing blocks lit in the moon's own way, logged as the park's.
+  **Developer (2026-11-18): "Q133 and Q134 and publish."** **Built and published: release
+  11.3** (the park's look, not a moon look of its own: the developer asked for "that
+  same feature"); see "Q133 built". To try on a device.
 
 - **Q132. Topple!: can every scene of both worlds be won with 3 stars?** (2026-11-18,
   developer: "After I play the blast ball on a real device I might [want] to review all
@@ -24501,3 +24505,63 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Open questions:** Q134 (built), Q133, Q132, Q131 (built), Q130, Q129 (built), Q128
   (built), Q127 (parked), Q126 (built), Q125, Q124 and Q122 (replaced by Q129, Q128),
   Q123 (built), Q121, Q120, Q119, Q118, Q113 (parked).
+
+## 2026-11-18: Q133 built: the moon's blocks left glow (release 11.3)
+
+- **Developer:** "Q133 and Q134 and publish. You can build your 'star checking tool' in
+  the next session." (Q132's tool: next session.)
+- **Why the moon never glowed:** the park's frame (`tick`) counted the wait
+  (`waitingOn`), drew it (`stage.setGlow`) and logged it; `moonTick` did none of it, and
+  `makeMoonScene` didn't start the count. The rule itself (`waitingOn`, `glowAt`,
+  `glowsBy`) was already in `src/core/topple.js`, used by nothing on the moon.
+- **Built:** `glowWait(idle, r, still, aiming, dt)` in `src/core/topple.js` (no DOM): the
+  wait `dt` on, or 0. The page's `glowStep` (the count and the `blocks left glow` log,
+  `moon: true` on the moon) and `glowDrawn` (`glow at its brightest`) are shared by both
+  frames. The moon: aiming is the pad held or ↑ ↓ steering; a new moon scene starts the
+  count. `src/ui/topple-moon.js` has the park's look: each block's own shape 3% bigger
+  over it, warm white `#FFF1C4` added, opacity 0.5 × the pulse, shown only on blocks
+  still standing (`setGlow`, `glowState`); a new level keeps the glow's material.
+  **Not** a moon look of its own (the open question had "in the moon's own way"; the
+  developer asked for "that same feature").
+- **Measured: the moon is rarely still** (scratch `probe-still.mjs`, `probe-what.mjs`:
+  75 drops on each level's scenes, seeds 1-3, the ball let go over the highest block).
+  `still()` came true at 12.00 s after the drop in most, 5.1-11.7 s in the rest, **never
+  by 3.9 s**. What moves is **the ball**: it rolls on in the dust at 0.85 → 0.30 m/s from
+  4 to 11 s (6-3, 8-5, 10-4), the blocks all still by 6-8 s, until it is taken away at
+  12 s (`MOON_BALL_LIFE`). **Classified:** the check, not the glow: the wait's cap
+  (`GLOW_STILL_MAX`, Q105) starts the count 3 s after the next ball is ready anyway, so
+  the moon's glow comes 7.9 s after a drop, inside the park's "by about 8 s". Not
+  changed. (A ball rolling that long may matter elsewhere: `still` also ends a lost
+  scene, `END_MAX`. Not looked at.)
+- **Tests:** `tests/topple-moon.test.js` (the real moon physics: Landing Zone scene 4,
+  seed 1, three structures; a drop on the highest block knocks 4 of 10; the round's
+  rules and `glowWait` stepped as `moonTick` does: the first glow at 7.92 s, between 4.9
+  and 7.9 s plus a frame; only the 6 standing blocks; the pad held all along: no glow;
+  let go at 6 s: the glow 4 s after; a won scene, or no ball counted (the tutorial):
+  none; and the page's wiring), `tests/topple.test.js` (`glowWait`: counts on; aiming,
+  moving, the scene over: 0), `tests/topple-page.test.js` (the park's wiring through the
+  shared step). **Shown to fail:** `glowWait` ignoring aiming: "no glow while aiming"
+  and "aiming starts it again". (First try with Landing Zone scene 1: one 3-block tower,
+  all knocked by the drop, so nothing to glow: scene 4 picked with `probe-glow.mjs`.)
+  Full suite: **735 pass, 0 fail**.
+- **Checked in the browser pane** (local server, the game moved by `topple.level(6, 4)`,
+  stepped with `topple.step`, Harder): a drop knocked 3 of 7; the log: `blocks left glow
+  {"moon":true,"left":4,"waitS":4.02,"n":1,"gameS":7.92}`, then `glow at its brightest
+  {"shown":4,"of":7,"opacity":0.45}`. A screenshot at the peak and one 0.5 s later: the
+  four standing panels pale, then blue. The park after it (level 1 scene 2, a throw into
+  a tree): `blocks left glow {"left":6,"waitS":4.02,"gameS":4.9}`, no `moon`. No console
+  errors.
+- **Not checked:** a phone or tablet; how the glow looks on the moon's other blocks
+  (crates, posts, beams) to the eye (only on the panels).
+- **Release 11.3** (Q133, Q134): `src/core/release.js` 11.3, `node tools/offline.js`
+  (version 07596d6e2e54, 196 files), RELEASES.md notes, `node tools/release.js`: ready.
+
+**Status (start here next session)**
+- **11.3** (Q133, Q134) ready on `block-game`; publishing follows in this session (see
+  the next entry).
+- **Next session: Q132, the star-checking tool** (the developer, 2026-11-18): list the
+  scenes of both worlds that a good player can't win in 3 balls. Then Q130 (the blast
+  ball mockup v2), Q125 (the five moon levels' mockup), Q121 (sounds).
+- **Open questions:** Q134 and Q133 (published in 11.3: to try on a device), Q132, Q131
+  (built), Q130, Q129 (built), Q128 (built), Q127 (parked), Q126 (built), Q125, Q124 and
+  Q122 (replaced by Q129, Q128), Q123 (built), Q121, Q120, Q119, Q118, Q113 (parked).

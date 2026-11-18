@@ -7,6 +7,18 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 11.3 (2026-11-18, version 07596d6e2e54)
+
+Topple!: the moon's blocks glow when you pause, and the map shows where you are.
+
+- **Blocks left glow on the moon too.** As on Earth, when you wait a few seconds before
+  the next ball, the blocks still standing glow twice, so you can see what's left to
+  knock down.
+- **The map opens with your scene in view.** Opening the map after playing a scene far
+  from the last one (another level, or the moon and back) could leave your face off
+  the screen. Now the scene you are on is always in view.
+- Everything else is as in 11.2.
+
 ## 11.2 (2026-11-18, version e016c48de740)
 
 Topple!: the moon's controls made simpler, practices in bare scenes, the next world

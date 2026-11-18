@@ -19,7 +19,7 @@ import {
   update, ballsLeft, endWords, seedOf, frontDrag, launchVel, dotsFor, behindView, sceneParts, END_WAIT,
   padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, restartLevel, placeOf, isOpen, offScreen,
   starsForBalls, starsOf, starTotal, STARS_ALL, recordStars, playableScene, furthestScene, startAtScene,
-  MODES, MODE_INFO, dotSeconds, waitingOn, glowAt, glowsBy, isMoonLevel, PARK_LEVELS,
+  MODES, MODE_INFO, dotSeconds, glowWait, glowAt, glowsBy, isMoonLevel, PARK_LEVELS,
   WORLDS, worldOf, worldLevels, levelInWorld, firstOfWorld,
 } from '../core/topple.js';
 import {
@@ -802,6 +802,7 @@ async function makeMoonScene(lv, kept, spec) {
   $('hint').hidden = true;
   renderTut();
   perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
+  glowIdle = 0; glowsSaid = 0;
   renderTally();
   L(kept ? 'moon scene picked up again' : tut ? 'tutorial: a part' : 'moon scene', {
     ...(tut ? { tutorial: tut.world, part: spec.part, of: tutorialParts(tut.world), mode: playMode(), waitsAtEnds: !!mo.f.ends } : game), structures: scene.structures.map(s => ({ name: s.name, x: s.x, z: s.z, ...(s.ledge ? { ledge: true } : {}) })), blocks: scene.blocks.length,
@@ -863,10 +864,16 @@ function moonTick(dt, draw) {
   if (downChanged) { L('blocks down', { down: round.down, of: round.total, t: r2(round.t) }); renderTally(); }
   if (result) endScene(result);
   if (card && ended && $('over').hidden) { L('the card', { won: ended.won, afterWinS: r2(round.cardT), calm, still }); showEnd(); }
+  // the blocks left glow after a pause, as in the park (Q133, developer, 2026-11-18: "parts of
+  // targets still to be knocked over are not glowing in Moon world after a pause like they do in
+  // Earth"); aiming: the pad held, or the lander steered by ↑ ↓
+  const { glow, glows } = glowStep(dt, still, mo.held || !!kz);
   noteSettled();
   if (!draw) return;
   moon3d.tick(dt);
   moon3d.sync(moonWorld);
+  moon3d.setGlow(glow, glow > 0 ? moonWorld.blocks.map(b => !b.down) : null);
+  glowDrawn(glow, glows, moon3d);
   // the ring whenever a ball is ready (Q131, 11.2: until then only while the pad or Space was held)
   const ok = ready();
   moon3d.setLander(f, ok, mo.held && ok);
@@ -1137,16 +1144,11 @@ function tick(dt, draw = true) {
   if (result) endScene(result);
   if (card && ended && $('over').hidden) { L('the card', { won: ended.won, afterWinS: r2(round.cardT), calm, still, fx }); showEnd(); }
   // the blocks left glow once the scene has waited a while for the next ball (Q101)
-  glowIdle = waitingOn(round, still && fx === 0) && !drag && !demo ? glowIdle + dt : 0;
+  const { glow, glows } = glowStep(dt, still && fx === 0, !!drag || !!demo);
   // the count started though something still moves (Q105): what, once a throw
   if (glowIdle > 0 && glowIdle <= dt && !(still && fx === 0)) {
     L('glow: counting though not still', { gameS: r2(round.since), fx, moving: world.moving().slice(0, 6).map(b => ({ mat: b.mat, tall: b.tall, down: b.down, v: r2(b.body.velocity.length()), spin: r2(b.body.angularVelocity.length()), at: [b.body.position.x, b.body.position.y, b.body.position.z].map(r2) })) });
   }
-  const glow = glowAt(glowIdle), glows = glowsBy(glowIdle);
-  // the glow's wait, the game's time since the throw and the real time since it: a slow
-  // frame rate shows as realS over gameS, things still moving as gameS over waitS + 0.9
-  if (glows > glowsSaid) L('blocks left glow', { left: round.total - round.down, waitS: r2(glowIdle), n: glows, t: r2(round.t), gameS: r2(round.since), realS: r2((performance.now() - thrownAt) / 1000) });
-  glowsSaid = glowIdle ? glows : 0;
   noteSettled();
   if (!draw) return;
   stage.sync(world.blocks, world.balls);
@@ -1158,11 +1160,27 @@ function tick(dt, draw = true) {
   const secs = dotSeconds(playMode(), round.used);
   stage.setDots(d && ok && d.show && secs > 0 ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0), secs) : null, 1);
   stage.setGlow(glow, glow > 0 ? world.blocks.map(b => !(b.down || b.broken || b.away)) : null);
-  // (Q109: what the glow drew at its brightest, once a pulse: are the glowing meshes there, how bright)
-  if (!glowIdle) glowPeak = 0;
-  if (glow > 0.6 && glowPeak !== glows) { glowPeak = glows; L('glow at its brightest', { ...stage.glowState(), a: r2(glow), n: glows }); }
+  glowDrawn(glow, glows, stage);
   stage.render();
   drawing?.frame(performance.now());
+}
+
+// The blocks left glow (Q101; on the moon too from 11.3, Q133): the wait `dt` s on (glowWait),
+// each glow logged as it starts; returns glowAt()'s brightness and glowsBy()'s count. The
+// glow's wait, the game's time since the throw and the real time since it: a slow frame rate
+// shows as realS over gameS, things still moving as gameS over waitS + 0.9.
+function glowStep(dt, still, aiming) {
+  glowIdle = glowWait(glowIdle, round, still, aiming, dt);
+  const glow = glowAt(glowIdle), glows = glowsBy(glowIdle);
+  if (glows > glowsSaid) L('blocks left glow', { ...(onMoon() ? { moon: true } : {}), left: round.total - round.down, waitS: r2(glowIdle), n: glows, t: r2(round.t), gameS: r2(round.since), realS: r2((performance.now() - thrownAt) / 1000) });
+  glowsSaid = glowIdle ? glows : 0;
+  return { glow, glows };
+}
+// (Q109: what the glow drew at its brightest, once a pulse: are the glowing meshes there, how
+// bright; `drawn`: the park's stage or the moon's)
+function glowDrawn(glow, glows, drawn) {
+  if (!glowIdle) glowPeak = 0;
+  if (glow > 0.6 && glowPeak !== glows) { glowPeak = glows; L('glow at its brightest', { ...drawn.glowState(), a: r2(glow), n: glows }); }
 }
 
 // A block broke (ice shattered, a barrel burst): its pieces fly, a sound, the log.

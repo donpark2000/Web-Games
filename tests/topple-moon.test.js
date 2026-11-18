@@ -12,7 +12,10 @@ import {
   dropPath, reachOf, outOfReach, showsRing, Z_NEAR, Z_FAR, TURN_PAST, MIN_RUN, LANDER_Y, DROP_BELOW, MOON_BALL,
 } from '../src/core/topple-moon.js';
 import { createMoonWorld } from '../src/core/topple-moon-world.js';
-import { LEVELS, MAX_LEVEL, PARK_LEVELS, SCENES, isMoonLevel, createGame, sceneOver, switchLevel, isOpen } from '../src/core/topple.js';
+import {
+  LEVELS, MAX_LEVEL, PARK_LEVELS, SCENES, isMoonLevel, createGame, sceneOver, switchLevel, isOpen,
+  newRound, useBall, update, glowWait, glowsBy, READY_AFTER, GLOW_WAIT, GLOW_STILL_MAX,
+} from '../src/core/topple.js';
 import { playMoonScene } from './topple-moon-player.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -153,6 +156,49 @@ test('moon physics: every scene stands still and asleep for 5 s; a ball dropped 
   assert.equal(MOON_BALL.r, 0.2);
 });
 
+// Q133 (11.3): the blocks left glow on the moon as in the park. A real drop in the moon's
+// physics, the round's rules and the wait counted as the page's moonTick counts it.
+test('moon: the blocks left glow after a pause (Q133): 4 s after the next ball is ready and all is still; not while aiming, nor once won', () => {
+  // (Landing Zone scene 4, seed 1: three structures; a drop on the highest block knocks 4 of 10)
+  const s = moonScene(1, 6, 4);
+  const top = s.blocks.reduce((a, b) => (b.y > a.y ? b : a));
+  // the moon's frame for `secs` s after a drop on the tower's top; aiming(t): the pad held then
+  function play(aiming = () => false, secs = 12) {
+    const W = createMoonWorld(); W.setScene(s);
+    const r = newRound(W.blocks.length);
+    for (let k = 0; k < 120; k++) W.step(1 / 60);   // settled, as a scene is before the first ball
+    useBall(r);
+    W.dropBall([top.x + 0.12 - dropPath([0, LANDER_Y - DROP_BELOW, top.z], 1, []).x, LANDER_Y - DROP_BELOW, top.z], [1, 0, 0]);
+    let idle = 0, first = null, standing = null, t = 0;
+    for (let k = 0; k < secs * 60; k++) {
+      const dt = 1 / 60, { down } = W.step(dt);
+      t += dt;
+      update(r, dt, { down, still: W.still(), calm: W.calm() });
+      idle = glowWait(idle, r, W.still(), aiming(t), dt);
+      if (first === null && glowsBy(idle) > 0) { first = t; standing = W.blocks.map(b => !b.down); }
+    }
+    return { first, standing, r, W };
+  }
+  const a = play();
+  assert.ok(a.r.down >= 1 && a.r.down < a.r.total, `the drop knocks some, not all: ${a.r.down} of ${a.r.total}`);
+  assert.ok(a.first !== null, 'it glows');
+  // (measured 2026-11-18, 75 drops: the moon's ball rolls on in the dust at 0.3-0.8 m/s until it is
+  // taken away at 12 s, so the scene is rarely still and the glow comes at the most it waits,
+  // READY_AFTER + GLOW_STILL_MAX + GLOW_WAIT = 7.9 s, as the park's "by about 8 s"; a frame's rounding allowed)
+  const soonest = READY_AFTER + GLOW_WAIT, latest = READY_AFTER + GLOW_STILL_MAX + GLOW_WAIT;
+  assert.ok(a.first >= soonest - 1e-9 && a.first <= latest + 2 / 60, `first glow at ${a.first.toFixed(2)} s after the drop: between ${soonest} and ${latest}`);
+  assert.equal(a.standing.filter(Boolean).length, a.r.total - a.r.down, 'only the blocks still standing glow');
+  // holding the pad (aiming) the whole time: no glow; let go at 6 s: a glow GLOW_WAIT later, not at once
+  assert.equal(play(() => true).first, null, 'no glow while aiming');
+  const late = play(t => t < 6);
+  assert.ok(late.first !== null && late.first >= 6 + GLOW_WAIT - 1e-9, `after letting go: ${late.first?.toFixed(2)} s`);
+  // a scene won, or a ball not yet dropped (the tutorial's balls are free: used stays 0): never
+  const won = newRound(3); useBall(won); won.since = 5; won.result = { won: true };
+  assert.equal(glowWait(4.5, won, true, false, 1 / 60), 0, 'won: no glow');
+  const free = newRound(3); free.since = 5;
+  assert.equal(glowWait(4.5, free, true, false, 1 / 60), 0, 'no ball counted yet: no glow');
+});
+
 test('moon game: level 5 done opens level 6 (the moon); a level done there opens the next; level 10 done is every level', () => {
   const g = createGame(5);
   for (let n = 1; n <= 5; n++) { switchLevel(g, n); for (let i = 1; i <= SCENES; i++) sceneOver(g, true); }
@@ -201,6 +247,14 @@ test('moon page: its own canvas, the turn button by the pad, the keys, the lit b
   assert.match(js, /const ok = ready\(\);\n  moon3d\.setLander\(f, ok, mo\.held && ok\);\n  let lit = -1, p = null;\n  if \(ok && showsRing\(playMode\(\), round\.used\)\) \{/, 'the ring always on');
   for (const n of [6, 7, 8, 9, 10]) assert.match(js, new RegExp(`\\n  ${n}: \\{ pic: \\(\\) => '[^']+', tint: '#[0-9A-F]{6}'`), `level ${n} on the map`);
   for (const s of ['L(\'drop\'', 'L(\'lander: turn\'', 'L(\'lander: steer\'', 'L(\'drop would hit block\'', '\'moon scene\'', 'L(\'lander turns at the end\'', 'L(\'drop refused\'']) assert.ok(js.includes(s), `logged: ${s}`);
+  // Q133 (11.3): the blocks left glow, as the park's: counted in moonTick (the pad held or ↑ ↓ is aiming), drawn on each standing block, logged
+  assert.match(js, /const \{ glow, glows \} = glowStep\(dt, still, mo\.held \|\| !!kz\);/);
+  assert.match(js, /moon3d\.setGlow\(glow, glow > 0 \? moonWorld\.blocks\.map\(b => !b\.down\) : null\);\n  glowDrawn\(glow, glows, moon3d\);/);
+  assert.match(js, /perf\.at = performance\.now\(\);\n  glowIdle = 0; glowsSaid = 0;\n  renderTally\(\);\n  L\(kept \? 'moon scene picked up again'/, 'a new moon scene starts the count');
+  assert.match(draw, /const glowMat = new THREE\.MeshBasicMaterial\(\{ color: '#FFF1C4', transparent: true, opacity: 0, blending: THREE\.AdditiveBlending, depthWrite: false \}\);/);
+  assert.match(draw, /m\.add\(over\); m\.userData\.glow = over;/, 'every moon block its glow');
+  assert.match(draw, /m\.userData\.glow\.visible = glowing && !!standing\?\.\[i\];/);
+  assert.match(draw, /m !== ballMat && m !== glowMat\)/, 'a new level keeps the glow\'s material');
   assert.match(draw, /nextStar = 8 \+ Math\.random\(\) \* 14;/, 'the odd shooting star');
   assert.match(draw, /earth\.rotation\.y \+= dt \* 0\.02;/, 'the Earth turning slowly');
   assert.match(draw, /earth\.position\.set\(-30 \+ e\.az \* 60, 10 \+ e\.el \* 12, -48\);/, 'the Earth where the scene puts it');

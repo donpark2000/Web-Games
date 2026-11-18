@@ -204,6 +204,10 @@ export function makeMoon3d(canvas) {
   const mats = blockMats();
   const ballMat = new THREE.MeshStandardMaterial({ color: '#9aa3ad', metalness: 0.75, roughness: 0.3 });
   const ballGeo = new THREE.SphereGeometry(MOON_BALL.r, 24, 16);
+  // The blocks left glowing after a pause (Q133, as the park's Q101 in topple-scene.js): each
+  // block's own shape a little bigger over it, added light, shown only while it glows.
+  const glowMat = new THREE.MeshBasicMaterial({ color: '#FFF1C4', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+  let glowing = false;
 
   // The view from in front of the base and above, fitted to the scene: across, where the ring
   // can go (the span and TURN_PAST each side) and a margin, at the nearest line (it's widest
@@ -222,7 +226,7 @@ export function makeMoon3d(canvas) {
   // 'bare' (a tutorial, Q129: "bare bones scenes"): the ground and the sky, no base or rocks.
   function setLevel(n) {
     if (S && level === n) return;
-    if (S) S.traverse(o => { o.geometry?.dispose(); for (const m of [].concat(o.material || [])) if (!Object.values(mats).includes(m) && m !== ballMat) { m.map?.dispose(); m.dispose(); } });
+    if (S) S.traverse(o => { o.geometry?.dispose(); for (const m of [].concat(o.material || [])) if (!Object.values(mats).includes(m) && m !== ballMat && m !== glowMat) { m.map?.dispose(); m.dispose(); } });
     level = n;
     S = new THREE.Scene();
     S.background = new THREE.Color('#04050a');
@@ -283,8 +287,11 @@ export function makeMoon3d(canvas) {
       const mat = (mats[b.mat] ?? mats.crate).clone();   // its own, so it can light up alone
       const m = new THREE.Mesh(new THREE.BoxGeometry(b.w, b.h, b.d), mat);
       m.castShadow = m.receiveShadow = true; m.position.set(b.x, b.y, b.z); S.add(m);
+      const over = new THREE.Mesh(m.geometry, glowMat);
+      over.scale.setScalar(1.03); over.visible = false; over.renderOrder = 2; m.add(over); m.userData.glow = over;
       return m;
     });
+    glowing = false;
     const rockM = new THREE.MeshStandardMaterial({ color: '#86868a', roughness: 1, flatShading: true });
     ledges = (scene.ledges ?? []).map(l => { const m = new THREE.Mesh(new THREE.BoxGeometry(l.w, l.h, l.d, 3, 2, 3), rockM); m.position.set(l.x, l.h / 2, l.z); m.castShadow = m.receiveShadow = true; S.add(m); return m; });
     span = scene.span ?? span;
@@ -328,6 +335,15 @@ export function makeMoon3d(canvas) {
     });
   }
 
+  // The blocks left glowing (Q133): a, 0-1 (glowAt()'s); standing[i] whether block i is
+  // still standing (only those glow).
+  function setGlow(a, standing = null) {
+    if (!a && !glowing) return;
+    glowing = a > 0;
+    glowMat.opacity = 0.5 * a;
+    blocks.forEach((m, i) => { m.userData.glow.visible = glowing && !!standing?.[i]; });
+  }
+
   // Time on: the base's movements, the Earth turning slowly, the odd shooting star.
   function tick(dt) {
     t += dt;
@@ -353,7 +369,9 @@ export function makeMoon3d(canvas) {
 
   return {
     get level() { return level; },
-    setLevel, setScene, sync, setLander, setAim, tick,
+    setLevel, setScene, sync, setLander, setAim, setGlow, tick,
+    // what the glow is drawing now, for the log (Q109, Q133): the glowing meshes shown, and how bright
+    glowState: () => ({ shown: blocks.filter(m => m.userData.glow.visible).length, of: blocks.length, opacity: Math.round(glowMat.opacity * 100) / 100 }),
     render() { if (S) renderer.render(S, camera); },
     resize(w, h) { renderer.setSize(w, h, false); aspect = w / h; fitCamera(); return aspect; },
     // a point in the world to where it is on the canvas: [0-1 across, 0-1 down]

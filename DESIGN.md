@@ -4,7 +4,7 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-18, latest): **Topple! 11.2: the moon's ring keeps its speed through a turn and is always on, Space drops; each world's tutorial in three bare parts as its first level is entered; the next world closed off on the map behind a barrier that opens when the world before is won; no hint's line** (developer, trying 11.1; on `block-game`, not yet published; see "Topple!", The moon, A world's tutorial, The map, Worlds). Earlier (2026-11-17): **Topple!: worlds on the map and a tutorial for each world** (developer, after 11.0: a gate for each world on the road, the road broken between them, levels numbered 1-5 within a world; each world's aiming taught in a practice scene before its first scene, and again from its gate; the pad's show at every park scene removed; on `block-game`, not yet published; see "Topple!", The map, Worlds, and A world's tutorial). Earlier: **Topple!: a second world, the moon base, levels 6-10** (a lander drops the ball: hold to aim, drag to steer, let go to drop, ⇄ to turn; release 11.0; see "Topple!", The moon). Earlier the same day: **Topple!: a scene won with fewer than 3 stars has Try again for more stars on its card** (developer, trying 10.25; for release 10.26; see "Topple!", The map, Stars). Earlier (2026-11-16): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
+*Status (2026-11-18, latest): **Topple! 11.3: the moon's blocks left glow after a pause, as the park's; the map always opens with your scene in view** (Q133, Q134; see "Topple!", The blocks left glow, The map). Earlier the same day: **Topple! 11.2: the moon's ring keeps its speed through a turn and is always on, Space drops; each world's tutorial in three bare parts as its first level is entered; the next world closed off on the map behind a barrier that opens when the world before is won; no hint's line** (developer, trying 11.1; release 11.2; see "Topple!", The moon, A world's tutorial, The map, Worlds). Earlier (2026-11-17): **Topple!: worlds on the map and a tutorial for each world** (developer, after 11.0: a gate for each world on the road, the road broken between them, levels numbered 1-5 within a world; each world's aiming taught in a practice scene before its first scene, and again from its gate; the pad's show at every park scene removed; on `block-game`, not yet published; see "Topple!", The map, Worlds, and A world's tutorial). Earlier: **Topple!: a second world, the moon base, levels 6-10** (a lander drops the ball: hold to aim, drag to steer, let go to drop, ⇄ to turn; release 11.0; see "Topple!", The moon). Earlier the same day: **Topple!: a scene won with fewer than 3 stars has Try again for more stars on its card** (developer, trying 10.25; for release 10.26; see "Topple!", The map, Stars). Earlier (2026-11-16): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
 swinging on its chain, a sled sliding by on the snow, a star falling at a
 slant (a ball can pass between its points), each once in scenes 1, 3, 5; 2
 and 4 spread out, with a telescope not to hit** (on `block-game`, for
@@ -2240,10 +2240,15 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   ball is ready, moving or not (Q105: on the old tablet a pile kept moving
   and the glow came 26.6 s after the throw), so the glow comes by about 8 s
   after a throw. A throw or a drag starts the wait again. Star Light's
-  glowing blocks pulse the same way. (`glowAt`, `waitingOn`,
-  `GLOW_STILL_MAX` in `src/core/topple.js`.) Logged: `blocks left glow`
-  (how many left, the wait, the game's and the real time since the throw);
-  `glow: counting though not still` (what was moving).
+  glowing blocks pulse the same way. **The moon's blocks glow the same way**
+  (Q133, 11.3, developer, 2026-11-18: "I would like that same feature"): the
+  same rule, timing and look; aiming there is the pad held or ↑ ↓ steering. The
+  moon's ball rolls on in the dust until it is taken away at 12 s, so the moon's
+  glow comes at the most it waits, about 8 s after a drop. (`glowAt`,
+  `waitingOn`, `glowWait`, `GLOW_STILL_MAX` in `src/core/topple.js`.) Logged:
+  `blocks left glow` (how many left, the wait, the game's and the real time
+  since the throw; `moon: true` on the moon); `glow: counting though not
+  still` (what was moving, the park).
 - **A scene being set up** (developer, 2026-11-13, Q104: "a bigger notice
   in the middle", "a little progress bar or rotating icon"): the park is
   washed with the sky's colour, over the last scene, or over the park's
@@ -2956,6 +2961,8 @@ private; the toy house with bounce shots rejected). Release 11.0.
 - **A block is down** as in the park (`isDown`), or knocked 2.5 m away and
   slowed, or slowed where no drop reaches (past the ring's turning points, or
   nearer or farther than the lander flies: as the park's Q103).
+- **The blocks left glow after a pause**, as the park's (Q133, 11.3; see "Topple!",
+  The blocks left glow).
 - **Every scene can be won:** the test player (tests/topple-moon-player.js)
   steers to a block's distance and lets go as the ring crosses it, aiming at a
   block's edge after a miss; at least 93% of 200 scenes won (each difficulty,

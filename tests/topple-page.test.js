@@ -202,7 +202,7 @@ test('topple page: logged: 3D start, the fit, each scene, throw, touch, block do
   assert.match(sceneJs, /shaderErrors: shaderErrors\.length/);
   assert.match(js, /stage\.onError = e => L\('shader error: its objects are not drawn', e\);/);
   assert.match(js, /addEventListener\('webglcontextlost', \(\) => L\('webgl context lost'\)\)/);
-  assert.match(js, /glow > 0\.6 && glowPeak !== glows\) \{ glowPeak = glows; L\('glow at its brightest', \{ \.\.\.stage\.glowState\(\)/, 'the glow at its brightest, once a pulse');
+  assert.match(js, /glow > 0\.6 && glowPeak !== glows\) \{ glowPeak = glows; L\('glow at its brightest', \{ \.\.\.drawn\.glowState\(\)/, 'the glow at its brightest, once a pulse');
   assert.match(sceneJs, /glowState: \(\) => \(\{ shown: blockMeshes\.filter\(m => m\.userData\.glow\.visible\)\.length/);
   assert.match(sceneJs, /diagnose\(\) \{[\s\S]*?getError\(\)[\s\S]*?isContextLost\(\)/);
 });
@@ -403,9 +403,11 @@ test('topple page: Star Light: the night sky, glowing blocks and ball, coloured 
 });
 
 test('topple page: the blocks left glow (Q101): counted while waiting, the standing blocks lit, each glow logged', () => {
-  assert.match(js, /glowIdle = waitingOn\(round, still && fx === 0\) && !drag && !demo \? glowIdle \+ dt : 0;/);
-  assert.match(js, /stage\.setGlow\(glow, glow > 0 \? world\.blocks\.map\(b => !\(b\.down \|\| b\.broken \|\| b\.away\)\) : null\);/);
-  assert.match(js, /L\('blocks left glow', \{ left: round\.total - round\.down,/);
+  // one step for both worlds (Q133): the park's still counts its shards and spray; a drag or the pad's show is aiming
+  assert.match(js, /glowIdle = glowWait\(glowIdle, round, still, aiming, dt\);/);
+  assert.match(js, /const \{ glow, glows \} = glowStep\(dt, still && fx === 0, !!drag \|\| !!demo\);/);
+  assert.match(js, /stage\.setGlow\(glow, glow > 0 \? world\.blocks\.map\(b => !\(b\.down \|\| b\.broken \|\| b\.away\)\) : null\);\n  glowDrawn\(glow, glows, stage\);/);
+  assert.match(js, /L\('blocks left glow', \{ \.\.\.\(onMoon\(\) \? \{ moon: true \} : \{\}\), left: round\.total - round\.down,/);
   assert.match(js, /gameS: r2\(round\.since\), realS: r2\(\(performance\.now\(\) - thrownAt\) \/ 1000\) \}\);/, 'the log tells a slow frame rate from things still moving');
   assert.match(js, /\n  thrownAt = performance\.now\(\);/, 'the throw starts the real time');
   assert.match(js, /glowIdle = 0; glowsSaid = 0;/, 'a new scene starts the count');

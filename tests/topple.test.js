@@ -12,7 +12,7 @@ import {
   PAD, DEMO, DEMO_UPS, padSpot, dragFrom, padPress, demoDrag, demoAt,
   FAR_TREES, farBalls, treeBalls, inLeaves, trunksIn, SOME_STACKS, SOME_MIN,
   MAX_LEVEL, LEVELS, switchLevel, restartLevel, seedOf, layoutFor, placeOf, isOpen, MAP_NODES, mapRoad, roadAt, roadTo,
-  MODES, MODE_INFO, dotSeconds, GLOW_WAIT, GLOW_PULSES, GLOW_PULSE_S, GLOW_STILL_MAX, waitingOn, glowAt, glowsBy,
+  MODES, MODE_INFO, dotSeconds, GLOW_WAIT, GLOW_PULSES, GLOW_PULSE_S, GLOW_STILL_MAX, waitingOn, glowWait, glowAt, glowsBy,
 } from '../src/core/topple.js';
 
 const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} not within ${tol} of ${b}`);
@@ -627,4 +627,11 @@ test('topple: the blocks left glow after a pause (Q101): twice over 2 s, after 4
   assert.equal(waitingOn(r, true), false, 'scene over');
   r.result = null; r.used = BALLS;
   assert.equal(waitingOn(r, true), false, 'no balls left: the scene ends anyway');
+  // the wait, as both worlds' frames count it (Q133): on while waiting and no one aims, else back to 0
+  const w = newRound(5); useBall(w); w.since = READY_AFTER;
+  near(glowWait(1.5, w, true, false, 0.25), 1.75, 1e-12, 'counts on');
+  assert.equal(glowWait(1.5, w, true, true, 0.25), 0, 'aiming starts it again');
+  assert.equal(glowWait(1.5, w, false, false, 0.25), 0, 'something moving starts it again');
+  w.result = { won: false };
+  assert.equal(glowWait(4.5, w, true, false, 0.25), 0, 'scene over');
 });

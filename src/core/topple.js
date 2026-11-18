@@ -1215,6 +1215,11 @@ const GLOW_CYCLE = GLOW_WAIT + GLOW_PULSES * GLOW_PULSE_S;
 // throw, 3.9 s after the ball was ready).
 export const GLOW_STILL_MAX = 3;
 export const waitingOn = (r, still) => !r.result && r.used > 0 && ballsLeft(r) > 0 && r.since != null && r.since >= READY_AFTER && (still || r.since >= READY_AFTER + GLOW_STILL_MAX);
+// The wait `dt` s on: `idle` + dt while the scene waits on the player and no
+// one is aiming (a drag or the pad's show in the park; the pad held or the
+// lander steered by keys on the moon), else 0. Both worlds' frames use it
+// (the moon's from 11.3, Q133: until then the moon's blocks never glowed).
+export const glowWait = (idle, r, still, aiming, dt) => (waitingOn(r, still) && !aiming ? idle + dt : 0);
 // How bright the glow is `idle` s into a wait: 0 to 1 (0 before GLOW_WAIT).
 export function glowAt(idle) {
   const k = idle % GLOW_CYCLE;
