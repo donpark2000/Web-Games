@@ -10,6 +10,15 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q131. Topple!: the moon's target light always on; Space drops at once** (2026-11-18,
+  developer: "I'm wondering if the target light should always just be on. On a desktop
+  where we are using keyboard mappings it feels more natural for me to use the space bar
+  down event to drop the ball rather than separating space bar down and up events to
+  mean different things."). 11.0-11.1 (mockup v6, "hold to aim"): the ring shows only
+  while 👆 or Space is held; letting go drops. Proposed: the ring always shown; Space
+  pressed drops at once; ↑ ↓ steer and ← → turn as now. **To ask:** how a finger drops
+  on a touch screen once holding isn't aiming.
+
 - **Q128. Topple!: the next world closed off on the map** (2026-11-18, developer,
   trying 11.1: "I don't think the map conveys the opening up of access to new worlds
   enough. Maybe at the end of a world there is just a gate or barrier on the map that
@@ -20,6 +29,14 @@ time, each tried before publishing:
   next time the map shows, the barrier opens (a short animation the first time) and the
   road beyond rolls out. **To ask:** anything visible past the barrier (nothing, or a
   hint such as the moon in the sky)? Mockup first?
+  **Developer (2026-11-18):** "a teaser is OK but don't show the levels. When a
+  previous world is won and you move to the next world, a view of the map with an
+  animation of the gate opening or barrier coming down, showing the new levels would be
+  cool, and the aiming tutorial should just launch automatically when you enter the
+  first level of a world that you have never played before." **Agreed:** past the
+  barrier a teaser only, no levels; on winning a world, the map with the barrier
+  opening and the new road showing; the tutorial on entering that world's first level
+  (Q129).
 
 - **Q129. Topple!: tutorials bare, in parts, launched on entering a world** (2026-11-18,
   developer, trying 11.1): "The How To Drop tutorial does not address changing the
@@ -41,6 +58,10 @@ time, each tried before publishing:
   the tutorial button. **To ask:** shown once a device (as now), or every time a game
   enters the world (so a second child on the same device gets it after Start again)?
   Does Skip end the whole tutorial or just the part?
+  **Developer (2026-11-18):** "once per device the first time you enter the first level
+  of a world you have never played before. Skip means end the tutorial and proceed to
+  game play on scene 1 of level 1." **Agreed:** once a device; Skip ends it and starts
+  the world's level 1 scene 1; no tutorial on the map.
 
 - **Q130. Topple!: 3 stars out of reach in some moon scenes** (2026-11-18, developer:
   "some of the higher levels of the moon world presented targets that could not
@@ -59,6 +80,13 @@ time, each tried before publishing:
   suggestion, besides the developer's two: **a "par" for each scene** (the balls a good
   player needs, measured by the test player and written by a tool, as the offline list
   is): 3 stars at par, 2 at par + 1, 1 above that; nothing new on screen. **To choose.**
+  **Developer (2026-11-18):** "the par idea is too sophisticated for kids. Power ups and
+  extra balls are something I expect they understand much better. You could still use
+  the concept in your calculation of stars so that, for example, if you get an extra
+  ball (or balls) and clear the scene with more than 3 balls, it could still count as 3
+  stars." **Agreed:** extra balls won in play (power-ups); stars count only your own
+  balls (balls used less extra balls won: 3 or fewer is 3 stars); par stays behind the
+  scenes, to check every scene can be won in 3 of your own balls.
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -109,6 +137,10 @@ time, each tried before publishing:
   drifts on 0.64 m past the turn and is back to 95% of its speed after 7.7 s (at 1.5
   m/s: 1.44 m/s², 0.96 m, 7.7 s). The turn at the ends could do the same, so the ring
   only ever sweeps at one speed. **To ask:** build it straight away, or a mockup first?
+  **Developer (2026-11-18):** "not sure what that was. As I keep opening new sessions, I
+  lose visibility of old questions." (The question's few words, "The moon's turn", were
+  not enough: restate what each Q is about in a full sentence.) No mockup asked for;
+  Claude to build the instant turn, the ring keeping its speed, with Q131.
 
 - **Q122. Topple!: the map shows worlds** (2026-11-17, developer, first try of
   11.0): "The map makes no distinction between the 'worlds' concept. In fact it just
@@ -130,6 +162,7 @@ time, each tried before publishing:
   the beginning of each scene in our first 'world'"**, with the world tutorial (Q124).
   **Built, not published:** the show plays only in the park's tutorial now; the hint's
   one line ("Drag from 👆, then let go") stays. To ask: should that line go too?
+  **Developer (2026-11-18): "yes - drop it."**
 
 - **Q124. Topple!: a world's launch screen, a mini interactive tutorial** (2026-11-17,
   developer: "aiming and shooting is an important distinguishing feature between
@@ -24018,6 +24051,13 @@ anything to show it (the dots are the developer's choice per How hard).
   scenes can't be won in 3 balls (**Q130**, measured with the moon test player: the
   4-structure scenes 0 of 28 deals, Solar Farm's challenges 0 of 20).
 - Q123 (the hint's line) not answered yet.
+- **Developer's answers (2026-11-18):** Q128 a teaser past the barrier, no levels, the
+  barrier opening on the map when a world is won; Q129 once a device, Skip into level 1
+  scene 1; Q126 build it; Q130 power-ups and extra balls, stars by your own balls; Q123
+  drop the hint's line. New: **Q131** (the target light always on, Space drops).
+- **Lesson (project):** the developer opens a new session often and can't see old
+  questions; a Q number with a few words ("The moon's turn") wasn't enough. Restate
+  each Q in a full sentence with what was asked.
 
 **Status (start here next session)**
 - **Live: 11.1.** `block-game` = `main` plus journal entries.
