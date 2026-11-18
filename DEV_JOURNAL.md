@@ -10,6 +10,56 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q128. Topple!: the next world closed off on the map** (2026-11-18, developer,
+  trying 11.1: "I don't think the map conveys the opening up of access to new worlds
+  enough. Maybe at the end of a world there is just a gate or barrier on the map that
+  only opens up and exposes new levels once you complete another world."). 11.1 shows
+  the moon's gate ("🔒 Finish Earth to fly to the moon") with all its levels on the
+  road below, locked. Claude's proposal: the road ends at a closed barrier with the
+  next world's name and sign only, nothing past it; once the world before is done, the
+  next time the map shows, the barrier opens (a short animation the first time) and the
+  road beyond rolls out. **To ask:** anything visible past the barrier (nothing, or a
+  hint such as the moon in the sky)? Mockup first?
+
+- **Q129. Topple!: tutorials bare, in parts, launched on entering a world** (2026-11-18,
+  developer, trying 11.1): "The How To Drop tutorial does not address changing the
+  direction of the craft. In general the tutorials should be bare bones scenes with no
+  distractions like complex targets and landscapes - it should just focus on the
+  mechanics of aiming. ... test learning of a couple of differently placed objects (but
+  not on one scene - clear one and a second appears) so that initially you just learn
+  how to release a ball, and then you have to be able to change the angle or depth. Each
+  part of the tutorial and end with a 'next' or 'skip'. I don't think tutorials should
+  appear on the map. They should just launch automatically when to enter a world."
+  (11.1's moon tutorial has a step "Tap ⇄ to turn the lander round", one line among
+  five, with no target that needs it; its scene is Landing Zone scene 1 with the moon's
+  landscape; the park's is level 1 scene 1, trees and all.) Claude's proposal: flat
+  ground and sky only, one plain block (or a short stack) per part; the park: (1) a block
+  straight ahead: just drag and let go, (2) a block off to one side: aim left/right,
+  (3) a block farther away: more power; the moon: (1) a block on the lander's line:
+  hold and let go, (2) a block nearer or farther: steer, (3) a block behind the ring:
+  ⇄. Each part ends with **Next** (and Skip, which ends the tutorial); the map loses
+  the tutorial button. **To ask:** shown once a device (as now), or every time a game
+  enters the world (so a second child on the same device gets it after Start again)?
+  Does Skip end the whole tutorial or just the part?
+
+- **Q130. Topple!: 3 stars out of reach in some moon scenes** (2026-11-18, developer:
+  "some of the higher levels of the moon world presented targets that could not
+  possibly be all hit with 3 balls ... if there are 4 target structures far enough
+  apart that one falling can not hit another, there is no way to clear them all with 3
+  balls. That seems unfair."; ideas: a free ball after 3 structures down with 3 balls,
+  or a power-up target that gives extra balls). 3 stars = a scene won in 3 balls or
+  fewer (5 balls a scene). **Measured** (scratch `moon-s5.mjs`, the moon test player on
+  Normal, 20 deals of scenes 4 and 5 of each level, seeds 5000 + d × 104729): the
+  4-structure scenes (Mining Site's two challenges, Launch Pad's second) were won in 3
+  balls **0 times in 28**; Solar Farm's challenges (3 structures, one a 6-panel stand)
+  **0 in 20**; Crater Rim scene 4 with 3 structures 0 in 3; the other scenes 4-5 mostly
+  in 3 (Landing Zone's challenges 13/20, Crater Rim's 15/20, Mining Site scene 4
+  15/19). So it isn't only 4 structures: a big one can take 2 balls too. The park not
+  measured (its test player throws at random, not like a good player). Claude's
+  suggestion, besides the developer's two: **a "par" for each scene** (the balls a good
+  player needs, measured by the test player and written by a tool, as the offline list
+  is): 3 stars at par, 2 at par + 1, 1 above that; nothing new on screen. **To choose.**
+
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
   worlds) - the ship can go up and down as well as back and forth. We will park that
@@ -49,6 +99,16 @@ time, each tried before publishing:
   be back to 95% of its speed the other way (the ring at full speed the whole time).
   The same could replace the turn at the ends. **Next: a mockup of (b), (c) and (d)**
   side by side, for the developer to try (keys and, if possible, the tablet).
+  **Developer (2026-11-18, trying 11.1):** "When the ship goes back and forth on its
+  own, the target light moves at a constant speed. When I change direction the target
+  light moves too fast to be usable ... If I use the change direction, the speed of
+  the target light should not change." That is (d) with the reversal made instant:
+  **the ring just goes the other way at the same speed**, the lander swinging round
+  behind it. **Simulated** (scratch `flip.mjs`, ring = x + vx × 2.09 s, the ring's
+  speed flipped at once): ring always 1.0 m/s; the lander's pull at most 0.96 m/s², it
+  drifts on 0.64 m past the turn and is back to 95% of its speed after 7.7 s (at 1.5
+  m/s: 1.44 m/s², 0.96 m, 7.7 s). The turn at the ends could do the same, so the ring
+  only ever sweeps at one speed. **To ask:** build it straight away, or a mockup first?
 
 - **Q122. Topple!: the map shows worlds** (2026-11-17, developer, first try of
   11.0): "The map makes no distinction between the 'worlds' concept. In fact it just
@@ -23945,3 +24005,24 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Developer to try 11.1** on the phone and tablet, and judge: are the gates dramatic enough (Q122); should the hint's line "Drag from 👆, then let go" go too (Q123); the tutorials by touch (Q124).
 - **Next:** Q125 (the moon's five materials: mockup first), Q126 (mock up the turn options b, c, d), Q121 (sounds).
 - **Open questions:** Q127 (parked), Q126, Q125, Q124, Q123 and Q122 (live in 11.1, to try), Q121, Q120, Q119, Q118, Q113 (parked).
+
+## 2026-11-18: 11.1 feedback: the map's gate, the tutorials, the moon's turn, 3 stars
+
+- **Developer, trying 11.1:** four points, each in "Open questions": the next world
+  should be closed off on the map until the one before is done (**Q128**, follows
+  Q122); the tutorials bare scenes in parts, each part with a new target that needs
+  one more control (release, then angle or depth, then ⇄ on the moon), Next or Skip
+  after each, launched on entering a world and not from the map (**Q129**, replaces
+  Q124's design; the moon's had a ⇄ step but nothing needing it); ⇄ must not change
+  the ring's speed (**Q126**: (d) with the reversal instant, simulated); some moon
+  scenes can't be won in 3 balls (**Q130**, measured with the moon test player: the
+  4-structure scenes 0 of 28 deals, Solar Farm's challenges 0 of 20).
+- Q123 (the hint's line) not answered yet.
+
+**Status (start here next session)**
+- **Live: 11.1.** `block-game` = `main` plus journal entries.
+- **Waiting on the developer:** Q128 (what shows past the barrier; mockup?), Q129 (the
+  tutorial once a device or once a game; what Skip skips), Q126 (build the instant
+  turn or mock it up), Q130 (free ball, power-up or par), Q123 (the hint's line).
+- **Then:** build what is agreed; Q125 (the moon's five materials, mockup first), Q121 (sounds).
+- **Open questions:** Q130, Q129, Q128, Q127 (parked), Q126, Q125, Q124, Q123, Q122, Q121, Q120, Q119, Q118, Q113 (parked).
