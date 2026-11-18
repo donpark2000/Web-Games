@@ -17,7 +17,9 @@ time, each tried before publishing:
   (11.0: one road, levels 1-10, the moon's in dark bands; the HUD says "6 · Landing
   Zone"; each level's circles are 1-5.) Asked: does "numbered 1 to 5" mean the
   levels within a world (Moon 1-5); one road with a big break between worlds, or a
-  map of its own per world?
+  map of its own per world? **Developer: "yes"** (2026-11-17): **levels numbered 1-5
+  within each world.** The road question was either/or (Claude leaned to one road
+  with a dramatic break): **to confirm** which.
 
 - **Q123. Topple!: the pad's show at every scene's start is annoying** (2026-11-17,
   developer: "the 'helpful hint' at the beginning of each scene showing how to use
@@ -33,7 +35,9 @@ time, each tried before publishing:
   counted, nothing kept), steps that wait for you to do each thing ("Hold 👆", "Drag
   up", "Let go", "Tap ⇄"), Skip; shown on entering a world the first time, and
   again from a button on the map. Asked: first time only (plus the button) or every
-  time; one for the park's slingshot too.
+  time; one for the park's slingshot too. **Developer: "yes"** (2026-11-17): **the
+  park gets one too.** Read as agreeing to the proposal (the first time, then from a
+  button on the map); **to confirm**, as the question was either/or.
 
 - **Q125. Topple!: the moon's levels all look alike** (2026-11-17, developer: "I don't
   see the same sort of variation we had in the first world. Some scenes had boxes,
@@ -44,7 +48,9 @@ time, each tried before publishing:
   choose from: fuel drums that burst in a puff of vapour (Landing Zone); glass solar
   panels that shatter (Solar Farm); boulders that roll slowly in the low gravity
   (Crater Rim); ore crystals that glow and shatter (Mining Site); oxygen tanks that
-  pop and fly (Launch Pad). Probably a mockup first.
+  pop and fly (Launch Pad). Probably a mockup first. **Developer: "all sound good. It
+  creates interesting changes between scenes while still preserving the aiming and
+  landscapes of the 'world'"** (2026-11-17): **all five, one per moon level.**
 
 - **Q121. Topple!: sci-fi sounds on the moon** (2026-11-17, developer, after 11.0
   went live): "I know there are no normal transmissions of sound through air on the
@@ -23859,5 +23865,5 @@ anything to show it (the dots are the developer's choice per How hard).
 **Status (start here next session)**
 - **Live: 11.0** (published 2026-11-17 at the developer's word: `main` moved on to the branch, tag `v11.0`, GitHub release; github.io served version 0b7ef9b1be20 within a few minutes; in the browser pane the page took the new code on the second reload, as the offline app does, and level 6 loaded with no errors). `block-game` = `main` plus journal entries. Local servers stopped (none left listening).
 - **Q119 built** (the moon base); the developer to play it on a phone and tablet. To review: the levels' names (Claude's), Harder/Hardest's speeds, how the scenes feel.
-- **First 11.0 feedback (2026-11-17, not every level played):** Q122 the map should show worlds (levels numbered 1-5 within a world?), Q123 the pad's show at each scene annoying, Q124 a world's launch screen with a mini tutorial, Q125 the moon's levels need materials of their own. Talk these through (with Q121) before building; a mockup for Q122, Q124, Q125.
+- **First 11.0 feedback (2026-11-17, not every level played):** Q122 the map should show worlds (levels numbered 1-5 within a world?), Q123 the pad's show at each scene annoying, Q124 a world's launch screen with a mini tutorial, Q125 the moon's levels need materials of their own. Answered: levels 1-5 within each world; a tutorial for each world, the park too; all five moon materials. To confirm: one road with a dramatic break or a map per world (Q122); the tutorial the first time plus a map button, or every time (Q124). Then mockups (Q122, Q124, Q125), and Q121 sounds.
 - **Open questions:** Q125, Q124, Q123, Q122 (11.0 feedback), Q121 (sci-fi sounds on the moon), Q120 (the moon on the old tablet), Q119 (to try), Q118 (live, liked), Q113 (parked).
