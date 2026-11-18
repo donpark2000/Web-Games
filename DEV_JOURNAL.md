@@ -188,6 +188,13 @@ time, each tried before publishing:
   (level 3), so its first meeting needs teaching (a line or a tutorial part, as the
   worlds' tutorials); (3) its showing up tells the player "this one needs it", a fair
   clue for children. **Agreed, leaning:** only those scenes, to confirm in the mockup.
+  **Mockup v2 published** (2026-11-18, version 2 of
+  https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h; see "Q130 mockup v2"): the game itself
+  with the blast ball in both worlds, only in the listed scenes, the 💥's clock (10 s; 3
+  passes), its first meeting taught, sized with the star tool (the moon r 1.8 m, the park
+  r 0.6 m: every listed deal won in 3 own balls judged a little off, 90 of 90). **To
+  try.** **To ask:** Star Light's candles and Star Palace are won with 1 own ball plus
+  the blast ball in every deal measured: too easy?
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -408,6 +415,13 @@ time, each tried before publishing:
   levels 6-10, release 11.0** (see "Q119 built"); for the developer to play.
 
 ## Proposed additions to the standards skill
+
+- **Tune a help against both sides** (2026-11-18, "Q130 mockup v2"): the blast ball was
+  sized as the smallest that made every listed scene winnable in 3 balls; measuring the
+  other side too showed it made two of them winnable in 1 ball plus the blast, in every
+  deal, at any size that kept the hardest one winnable. Generic: when sizing something
+  meant to make a task possible (a power-up, a hint, a retry), measure that it isn't
+  far more than needed as well as that it's enough.
 
 - **A search that plays perfectly overstates what people can do** (2026-11-18, "Q132
   built"): a tool searching for the best drop cleared a 4-structure moon scene in 3
@@ -24705,3 +24719,115 @@ Q125 (the moon's materials) and Q121 (sounds).
   list, to play), Q131 (built), Q130, Q129 (built), Q128 (built), Q127 (parked), Q126
   (built), Q125, Q124 and Q122 (replaced by Q129, Q128), Q123 (built), Q121, Q120, Q119,
   Q118, Q113 (parked).
+
+## 2026-11-18: Q130 mockup v2 (the blast ball in both worlds, sized with the star tool)
+
+- **Developer:** "go ahead with the blast ball mockup v2".
+- **What it is:** the game itself, not a page of its own (v1 was): 11.3's `topple.html`,
+  its CSS, the modules it imports and `data/topple/`, copied by scratch `copy-game.mjs`,
+  with the blast ball patched in by scratch `patch-v2.py` (each change must match exactly
+  as often as stated, or it stops), plus two new modules, `src/core/topple-blast.js` (the
+  rules, no DOM: the sizes, the 💥's clock, the scene list, where it floats; the Node
+  measure uses the same file) and `src/ui/topple-blast-fx.js` (the drawing, either
+  world's three.js scene). A panel on the setup screen goes straight to five listed
+  scenes, dealt from fixed seeds (Frosty Times' Ice Castle 3.5 seed 1001; Star Light's
+  candles 5.3 seed 1000 and Star Palace 5.5 seed 1001; Mining Site 9.5 seed 1001;
+  Launch Pad 10.5 seed 1000), with a box for the 💥 in every scene and a button to show
+  the teaching again. Published as version 2 of the same page,
+  [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h) (81 files; v1's
+  `mock.js` and `blast.js` taken away). Files in Claude's scratchpad, not the repo.
+- **The rules as built:**
+  - **Where:** only the listed scenes (`BLAST_SCENES`, Q132's list by structure: Ice
+    Castle, candles, Star Palace, Mining Site's and Launch Pad's challenges on every
+    difficulty; on Hardest also the three spread-out mixes, Solar Farm's challenges and
+    Mining Site's scene 3). Harder deals Normal's park scenes, so those count there too.
+  - **The 💥:** floats over part of the scene: on the moon over the second structure (as
+    v1); in the park over the scene's blocks in groups across (0.5 m gaps): the second
+    group, or the only one. "Under it": the moon, that structure's blocks; the park, the
+    blocks within 0.45 m across of its middle (Ice Castle: the top-middle bar; candles:
+    the middle 4; Star Palace: the top 5). **Won** by knocking a block under it, or a
+    ball passing within 0.5 m of it.
+  - **Its clock:** the park 10 s; the moon 3 passes, a pass being one sweep of the ring
+    across (the span + 2 × `TURN_PAST`: 7.35 m on Mining Site's challenge, about 22 s at
+    Normal's 1 m/s), counted by the distance the ring goes, so ⇄ costs nothing. A gold
+    ring round the 💥 drains with it (orange in its last 30%), the 💥 blinks for the last
+    3 s (the park) or the last pass (the moon), and fades over 0.6 s as it goes. A ball
+    on its way still counts: the park, thrown in the last 2.5 s; the moon, dropped
+    within its fall + 1 s.
+  - **The blast ball:** the next ball, free: red and glowing in the slingshot or under
+    the lander; an orange circle of its reach where it would land (the moon: round the
+    ring; the park: where the dots' path first touches, while dragging); `+💥` by the
+    balls; a toast "💥 Blast ball! Your next ball is free". The round (patched
+    `src/core/topple.js`): a blast ball held counts as a ball left; stars by your own
+    balls only; the card adds "N of your own balls + 💥 a free blast ball"; "⚡ Aced it!"
+    only when the first ball cleared it with no blast.
+  - **Its first meeting, taught** (DESIGN, the developer's rule of today): a card over
+    the scene before its clock starts, "💥 New: the blast ball! Knock over the blocks
+    under the 💥 before its ring runs out. Then your next ball is a blast ball: it's
+    free, and it knocks over everything near where it lands." Once a device.
+- **Sizes measured** (scratch `blast-sim2.mjs`, Q132's tool's search player: your ball 1,
+  the blast ball, then your own balls until cleared, each the best of about 30 + 4 tries;
+  and what one blast takes: the moon, dropped on each structure's middle, fresh; the
+  park, the best blast as the first ball). Timed first: one deal of each listed scene, 18
+  s for all 15.
+  - **First guess** (the moon r 2.7 m kick 5 m/s, the park r 0.9 m kick 4): the moon 1.52
+    whole structures a blast, 2 or more in 9 of 21; the park's best blast took 81% of a
+    scene, and Star Light's candles whole. Too strong, as the developer felt v1 was.
+  - **Sweep** (3 deals each, exact aim): the moon r 1.8 kick 4: 1.17 a blast, 1 or more in
+    60 of 63, 2 or more in 14; r 2.1 kick 4: 1.30, 2 or more in 20; r 2.4 kick 4: 1.54, in
+    29; every moon deal won in 3 own balls at all of them. The park r 0.5-0.7 kick 3: one
+    Ice Castle deal took 4 own balls (13 down after the first, the blast reached 1); r
+    0.6 kick 4 and bigger: 27 of 27 in 3.
+  - **Chosen: the moon r 1.8 kick 4, the park r 0.6 kick 4.** Judged a little off (as
+    Q132's list), 6 deals of each: **90 of 90 won in 3 own balls**; the moon's blast took
+    1 or more whole structures in 118 of 126 (94%), 2 or more in 25 (20%): the target
+    set in Q130 ("1 in about 9 of 10, 2 in about 1 of 5").
+  - **Found: two scenes become easy.** Star Light's candles and Star Palace were won in 1
+    own ball + the blast in 12 of 12 deals each (the first ball takes most: Star Palace
+    11 of 14; the blast clears the rest); Ice Castle in 3 in 10 of 12, 2 in 2. Smaller
+    park blasts (r 0.4 and 0.5 kick 4, r 0.5 kick 5; 3 deals, exact): Ice Castle back to
+    4 own balls in 2 of 6 at kick 4, while candles and Star Palace still mostly took 1. So
+    it isn't the size: a free ball mops up what the first left. **To ask.**
+- **Checked in the browser pane** (a scratch server, the pane hidden, so the game was
+  stepped by a test hook, `window.__blast`: step, throw at a block, drop at a spot):
+  - Ice Castle: the teaching card, then the 💥 over the top-middle bar, its ring
+    draining (screenshot); not won: still there at 9.5 s, gone at 10.0 s; won by a throw
+    at the bar (touched, 2.0 s in): the chip, the toast; the blast ball thrown, logged
+    "on its way" and "blast" (reached 1: the test aimed at a corner).
+  - Mining Site's challenge: offered over the trestle (blocks 2-5); 0.136 passes a
+    second; gone at 3.00 passes (about 22 s); won after 0.92 passes (the trestle's 4
+    down); the blast ball on the beacon reached its 2 blocks; own balls 1.
+  - Launch Pad's challenge: screenshots of the 💥 over the back gantry, and of the blast
+    ball under the lander with its reach round the ring.
+  - Candles: a throw at 9.8 s kept the 💥 past 10 s (10.4 s: not gone) and won it as it
+    knocked two candles; the blast ball took 4 more (2 to 6), an own ball the rest. Card:
+    "Teddy cleared it! 💎", "2 of your own balls + 💥 a free blast ball", 3 of 3 stars, no
+    Aced. (A first try at the candles missed: the test's throw grazed a candle's edge,
+    where the path's model and the physics differ, as the log's `offCm` records; the
+    test now picks the throw touching nearest a block's middle.)
+  - Star Palace: the bigger 💥 sign (0.8, from 0.62) over the top; the blast ball red in
+    the slingshot.
+  - A reload: the moon scene came back with its blast ball still held (`+💥`, no 💥).
+  - No console errors after the textures were copied (15 404s before: `data/topple/`).
+- **Not checked:** the app's viewer, a real touch screen, the old tablet, the sounds
+  (a chime as it's won, the crash of the blast) heard.
+- Local server: "mockup-scratch" in `.claude/launch.json` for the check, taken out after
+  (the file is as committed).
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published
+  (nothing in the game changed).
+- **Q130 mockup v2 published:** version 2 of
+  [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h), for the
+  developer to try (the scene buttons on its first screen).
+- **To ask:** (1) how it plays: the blast's size, the clock (10 s; 3 passes), where the
+  💥 floats, the teaching card; (2) Star Light's candles and Star Palace are won with 1
+  own ball + the blast in every deal measured: too easy? If so, a lever to measure: the
+  💥 only from the second ball on, or those two scenes reworked.
+- **Then:** build it in the game (the list written by the star tool, with a test that
+  fails when it's stale; tests for the rules; the debug log as in the mockup), Q125 (the
+  five moon levels' mockup), Q121 (sounds).
+- **Open questions:** Q134 and Q133 (published in 11.3: to try on a device), Q132 (the
+  list, to play), Q131 (built), Q130 (mockup v2 to try), Q129 (built), Q128 (built), Q127
+  (parked), Q126 (built), Q125, Q124 and Q122 (replaced by Q129, Q128), Q123 (built),
+  Q121, Q120, Q119, Q118, Q113 (parked).
