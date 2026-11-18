@@ -23934,3 +23934,14 @@ anything to show it (the dots are the developer's choice per How hard).
 - **Live: 11.0.** `block-game` = `main` plus journal entries and Q122-Q124 built (not published): worlds on the map, a tutorial for each world, the pad's show only in the park's tutorial.
 - **Next:** the developer to try it (it needs a publish to try on a phone or tablet: release **11.1** would be the number, fixes and changes); then Q125 (the moon's five materials, mockup first), Q126 (mock up turn options b, c, d), Q121 (sounds).
 - **Open questions:** Q127 (parked), Q126, Q125, Q124 and Q122 (built, to try), Q123 (built; the hint's line too?), Q121, Q120, Q119, Q118, Q113 (parked).
+
+## 2026-11-17: Release 11.1 published and live
+
+- **Developer:** "1) yes [the world names] the other 2 questions I will have to see in the game first. So please publish 11.1." World names Earth and The Moon kept; the gates' look and the hint's line to judge in the game.
+- **Published:** release 11.1 (`src/core/release.js`, `node tools/offline.js`: version ec7621772c7b, 196 files; RELEASES.md notes; `node tools/release.js`: ready); full suite 730 pass; `main` fast-forwarded to `block-game`, tag `v11.1` pushed, GitHub release made from `node tools/release.js notes`. github.io served ec7621772c7b about 20 s after the push; in the browser pane the live page had the new code at once (the tutorial hook, both gates on the map, 10 banners), no console errors. Local servers stopped (none left listening).
+
+**Status (start here next session)**
+- **Live: 11.1** (worlds on the map, a tutorial for each world, the pad's show only in the park's tutorial). `block-game` = `main` plus this entry.
+- **Developer to try 11.1** on the phone and tablet, and judge: are the gates dramatic enough (Q122); should the hint's line "Drag from 👆, then let go" go too (Q123); the tutorials by touch (Q124).
+- **Next:** Q125 (the moon's five materials: mockup first), Q126 (mock up the turn options b, c, d), Q121 (sounds).
+- **Open questions:** Q127 (parked), Q126, Q125, Q124, Q123 and Q122 (live in 11.1, to try), Q121, Q120, Q119, Q118, Q113 (parked).
