@@ -2482,6 +2482,11 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
   end for ⇄ (the tutorial)`. (11.1: one practice scene of the world's own, with the
   park's trees or the moon's base, steps that waited for a press, a drag, a turn; also
   from a 🎯 button on the map.)
+- **Anything new is taught the first time it's met** (developer, 2026-11-18, on the
+  blast ball's first scene: "any scene that introduces a new aspect of game play never
+  seen before should have a small tutorial or at least explanation"): a new control,
+  power-up, material or rule gets a small tutorial part or at least a line of
+  explanation the first time a player meets it, as a world's aiming does (above).
 - **Levels 2-5: eight structures each, dealt** (10.3; until then five in
   a fixed order; developer, 2026-11-12: "every time I play the game from
   the beginning I am presented with exactly the same set up"): scenes 1-4
