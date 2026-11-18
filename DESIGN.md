@@ -2358,7 +2358,13 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     when it fits (it does not, on a phone). `src/core/topple-road.js`.
   - **Opens scrolled to the scene last played**, your face on it in place of
     its number; after a scene is won the face walks to the next one when the
-    map is opened (from where it was last drawn). **The map shows what can be
+    map is opened (from where it was last drawn). **The scene you are on is
+    always in view** (Q134, developer, 2026-11-18: "your current scene should
+    always be visible when you open map"): a walk only when both ends fit
+    (at most 0.6 of the window's height apart, the view centred between them);
+    a longer way (a scene of another level picked on the map) is not walked,
+    the face put on its scene and the view centred there (`mapView`). Drawn
+    again for a new width, it is centred on that scene again. **The map shows what can be
     reached:** a scene won, and any up to the **furthest** (the one after the
     last won, or the place if that is further: `furthestScene`), is open;
     the rest show a lock ("Win scene N first"; a level not open: "Finish level
@@ -2425,8 +2431,9 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     Logged: `map: a world opening`, `map: the barrier opens`, `map: the new road rolls
     out`, and in `map: shown` the worlds open and the barrier.
   - Logged: `map: shown` (difficulty, level, scene, road height, circle),
-    `map: the face walks`, `map: a scene, straight into play`, `map: a scene shut`,
-    `map: a locked level`, `map: drawn again` (the width changed).
+    `map: the face walks`, `map: too far to walk, the face put on its scene`, `map: a
+    scene, straight into play`, `map: a scene shut`, `map: a locked level`, `map: drawn
+    again` (the width changed). `map: shown` and `map: drawn again` give the scroll.
 - **A world's tutorial** (Q124, developer, 2026-11-17: "a 'world launching' screen
   that is not part of game play or scoring but explains the aiming and firing
   controls for the world you are about to enter. A mini interactive tutorial"; the

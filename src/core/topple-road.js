@@ -65,3 +65,15 @@ export function openWorlds(isOpenLevel, shut = null) {
   }
   return Math.max(1, n);
 }
+// Where the map opens (Q134, developer, 2026-11-18: "your current scene should
+// always be visible when you open map"): `from` the face's y where it was last
+// drawn (null: it hasn't moved), `to` the y of the scene it is on now, `viewH`
+// the window's height. A short way (both fit, with room round them) is walked,
+// the view centred between the two; a longer one (another level picked on the
+// map, the moon to Earth) isn't: the face is put on its scene and the view
+// centred there. Returns { walk, centre } (centre: y on the road).
+export const WALK_FIT = 0.6;   // of the window's height: the farthest the face walks
+export function mapView(from, to, viewH) {
+  const walk = from != null && from !== to && Math.abs(to - from) <= viewH * WALK_FIT;
+  return { walk, centre: walk ? Math.round((from + to) / 2) : to };
+}

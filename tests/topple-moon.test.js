@@ -16,7 +16,8 @@ import { LEVELS, MAX_LEVEL, PARK_LEVELS, SCENES, isMoonLevel, createGame, sceneO
 import { playMoonScene } from './topple-moon-player.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const read = f => readFile(path.join(root, f), 'utf8');
+// (line ends as LF, whatever the checkout made them: some patterns span lines)
+const read = async f => (await readFile(path.join(root, f), 'utf8')).replace(/\r\n/g, '\n');
 
 test('moon: levels 6-10 are the moon base, after the park\'s 1-5; each deals 4 of 6 scenes in order and 1 of 2 challenges', () => {
   assert.equal(PARK_LEVELS, 5);

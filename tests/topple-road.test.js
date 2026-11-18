@@ -2,7 +2,7 @@
 // for any screen width. Pure sums; no browser.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { roadGeom, nodeAt, roadJoins, openWorlds, ROAD_MIN_CIRCLE, GATE_H, BARRIER_H } from '../src/core/topple-road.js';
+import { roadGeom, nodeAt, roadJoins, openWorlds, mapView, WALK_FIT, ROAD_MIN_CIRCLE, GATE_H, BARRIER_H } from '../src/core/topple-road.js';
 import { SCENES, MAX_LEVEL, WORLDS, worldLevels } from '../src/core/topple.js';
 
 const WIDTHS = [280, 320, 360, 400, 460];
@@ -94,4 +94,36 @@ test('road: the road joins scenes within a world and breaks between worlds', () 
   let breaks = 0;
   for (let i = 1; i < g.nodes.length; i++) if (!roadJoins(g.nodes[i - 1], g.nodes[i])) { breaks++; assert.deepEqual([g.nodes[i - 1].lv, g.nodes[i].lv], [5, 6], 'the break: Earth to the Moon'); }
   assert.equal(breaks, WORLDS.length - 1);
+});
+
+// Q134 (developer, 2026-11-18: "your current scene should always be visible when you open map"):
+// where the map opens, and when the face walks, on the real road at every width and window height.
+test('road: the map opens with the scene you are on in view; the face walks only a way that fits', () => {
+  const y = (g, lv, sc) => nodeAt(g, lv, sc).y - 1;   // the face's y, as the page puts it
+  let walks = 0, puts = 0, checked = 0;
+  for (const w of WIDTHS) for (const viewH of [350, 600, 812, 1000]) {
+    const g = roadGeom(w, WORLDS.length), inView = (c, at) => Math.abs(at - c) + g.size / 2 <= viewH / 2;
+    // not moved: centred on its scene
+    assert.deepEqual(mapView(null, y(g, 3, 2), viewH), { walk: false, centre: y(g, 3, 2) });
+    assert.deepEqual(mapView(y(g, 3, 2), y(g, 3, 2), viewH), { walk: false, centre: y(g, 3, 2) });
+    for (let i = 0; i < g.nodes.length; i++) for (let j = 0; j < g.nodes.length; j++) {
+      if (i === j) continue;
+      const a = g.nodes[i], b = g.nodes[j], v = mapView(a.y - 1, b.y - 1, viewH);
+      checked++;
+      const say = `w ${w} h ${viewH}: ${a.lv}-${a.sc} to ${b.lv}-${b.sc} (centre ${v.centre})`;
+      assert.ok(inView(v.centre, b.y - 1), `${say}: the scene you are on out of view`);
+      if (v.walk) { walks++; assert.ok(inView(v.centre, a.y - 1), `${say}: the walk starts out of view`); } else puts++;
+    }
+    // the next scene after a win (within a world, the next level's first too) is walked, on a window 600 px or taller
+    if (viewH >= 600) for (let i = 1; i < g.nodes.length; i++) {
+      const a = g.nodes[i - 1], b = g.nodes[i];
+      if (roadJoins(a, b)) assert.equal(mapView(a.y - 1, b.y - 1, viewH).walk, true, `w ${w} h ${viewH}: ${a.lv}-${a.sc} to the next not walked`);
+    }
+  }
+  // the case found in the browser: from the moon back to Earth's level 4 on a 700 px window is put, not walked off the screen
+  const g = roadGeom(460, 2), far = mapView(y(g, 7, 4), y(g, 4, 3), 700);
+  assert.deepEqual(far, { walk: false, centre: y(g, 4, 3) });
+  assert.ok(Math.abs(y(g, 7, 4) - y(g, 4, 3)) > 700 * WALK_FIT);
+  assert.ok(walks > 1000 && puts > 1000, `both kinds checked (${walks} walked, ${puts} put, of ${checked})`);
+  console.log(`map view: ${checked} moves checked, ${walks} walked, ${puts} put`);
 });

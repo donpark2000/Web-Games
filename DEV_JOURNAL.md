@@ -21,6 +21,8 @@ time, each tried before publishing:
   exact circumstances but once when I opened the map, I noticed my current level was
   off screen. Maybe I had scrolled it earlier and it remember 'last position'? I think
   your current scene should always be visible when you open map."
+  **Found and built (2026-11-18, not published):** the face's walk from a far place
+  scrolled to where it started; see "Q134 found and fixed".
 
 - **Q133. Topple!: the blocks left glow after a pause on the moon too** (2026-11-18,
   developer: "parts of targets still to be knocked over are not glowing in Moon world

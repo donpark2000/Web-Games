@@ -34,7 +34,7 @@ import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
 import { svg, pickerFace } from './faces.js';
 import { toppleMini } from './topplepics.js';
-import { roadGeom, nodeAt, roadJoins, openWorlds } from '../core/topple-road.js';
+import { roadGeom, nodeAt, roadJoins, openWorlds, mapView } from '../core/topple-road.js';
 import { log, startLog } from './debuglog.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
@@ -297,10 +297,14 @@ function renderMap(unlock = 0, opt = {}) {
   const at = hold ? (shownAt ?? here) : here;
   // (a scene past a barrier isn't drawn: the face waits on the road's last scene)
   const faceXY = p => { const n = nodeAt(geo, p.level, p.scene) ?? geo.nodes.at(-1); return { x: n.x, y: n.y - 1 }; };
-  const f0 = faceXY(prev && !hold ? prev : at), fs = Math.round(size * 0.82);
+  // (a walk only when both ends fit on the screen; a longer way: the face put on its scene, Q134)
+  const moved = !hold && !!prev && (prev.level !== here.level || prev.scene !== here.scene);
+  const view = mapView(moved ? faceXY(prev).y : null, faceXY(here).y, innerHeight);
+  const move = moved && view.walk;
+  const f0 = faceXY(move ? prev : at), fs = Math.round(size * 0.82);
   h += `<span class="rface" id="rface" style="width:${fs}px;height:${fs}px;left:${f0.x - fs / 2}px;top:${f0.y - fs / 2}px">${svg(setup.p1)}</span></div>`;
   road.innerHTML = h;
-  const move = !hold && !!prev && (prev.level !== here.level || prev.scene !== here.scene);
+  if (moved && !move) L('map: too far to walk, the face put on its scene', { from: prev, to: here, apart: Math.abs(faceXY(here).y - faceXY(prev).y), viewH: innerHeight });
   if (move) {
     const f1 = faceXY(here), el = $('rface'), quick = matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (quick) { el.style.left = `${f1.x - fs / 2}px`; el.style.top = `${f1.y - fs / 2}px`; } else {
@@ -311,7 +315,12 @@ function renderMap(unlock = 0, opt = {}) {
     L('map: the face walks', { from: prev, to: here, quick });
   }
   if (!hold) shownAt = here;
-  return { geo, here, prev, move };
+  return { geo, here, prev, move, centre: view.centre };
+}
+// The page scrolled so road y `y` is in the window's middle (Q134).
+function centreRoad(y) {
+  const rd = document.querySelector('#road .rd');
+  if (rd) scrollTo(0, Math.max(0, Math.round(rd.getBoundingClientRect().top + scrollY + y - innerHeight / 2)));
 }
 // A world's first level (for its gate).
 const levelForWorld = w => worldLevels(w)[0];
@@ -356,14 +365,12 @@ function showMap(unlock = 0) {
   stopWalk();
   setupView('map');
   if (unlock) walking = { to: unlock, timers: [], popped: false };
-  const { geo, here, prev, move } = renderMap(unlock);
+  const { geo, here, move, centre } = renderMap(unlock);
   $('mapToast').textContent = '';
-  // scrolled to the scene last played (to where the face was, when it is about to walk; to the barrier, when it is about to open)
-  const from = move ? prev : here, sceneEl = $(`n${from.level}_${from.scene}`);
-  if (walking && firstOfWorld(unlock) && unlock > 1) $('rbar')?.scrollIntoView?.({ block: 'center' }); else sceneEl?.scrollIntoView?.({ block: 'center' });
-  L('map: shown', { mode: game.mode, level: here.level, scene: here.scene, road: geo.H, size: geo.size, move, unlock, worldsOpen: geo.open, barrier: geo.barrier?.world ?? null });
+  // scrolled to the scene last played (Q134: between it and where the face was, when it walks; to the barrier, when it is about to open)
+  if (walking && firstOfWorld(unlock) && unlock > 1) $('rbar')?.scrollIntoView?.({ block: 'center' }); else centreRoad(centre);
+  L('map: shown', { mode: game.mode, level: here.level, scene: here.scene, road: geo.H, size: geo.size, move, centre, scrollY: Math.round(scrollY), viewH: innerHeight, unlock, worldsOpen: geo.open, barrier: geo.barrier?.world ?? null });
   if (unlock) playUnlock(unlock);
-  if (move) setTimeout(() => $('rface')?.scrollIntoView?.({ block: 'center', behavior: 'smooth' }), 50);
   resume.keep();
 }
 // The unlocking, step by step (on timers; all at once with reduced motion).
@@ -470,8 +477,9 @@ addEventListener('resize', () => {
   const w = $('road').clientWidth;
   if (Math.abs(w - roadW) < 2) return;
   roadW = w;
-  renderMap();
-  L('map: drawn again', { width: w });
+  // (the road's sizes change with its width: the scene you're on centred again, Q134)
+  centreRoad(renderMap().centre);
+  L('map: drawn again', { width: w, scrollY: Math.round(scrollY) });
 });
 
 /* ---------- the play screen ---------- */

@@ -12,7 +12,8 @@ import { GAME_PAGES } from '../src/core/resume.js';
 import { toppleMini } from '../src/ui/topplepics.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const read = f => readFile(path.join(root, f), 'utf8');
+// (line ends as LF, whatever the checkout made them: some patterns span lines)
+const read = async f => (await readFile(path.join(root, f), 'utf8')).replace(/\r\n/g, '\n');
 const page = await read('topple.html');
 const css = await read('css/topple.css');
 const js = await read('src/ui/topple.js');

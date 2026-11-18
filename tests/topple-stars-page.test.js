@@ -32,6 +32,12 @@ test('topple stars page: the map is a road of scenes with the difficulty to read
   // it opens at the scene last played; the face walks from where it was last drawn
   assert.match(js, /scrollIntoView\?\.\(\{ block: 'center' \}\)/);
   assert.match(js, /L\('map: the face walks'/);
+  // Q134: only a way that fits on the screen is walked, and the view is centred on mapView's centre
+  // (as the map opens and when it's drawn again for a new width); no scroll after the walk starts
+  assert.match(js, /const view = mapView\(moved \? faceXY\(prev\)\.y : null, faceXY\(here\)\.y, innerHeight\);\s*const move = moved && view\.walk;\s*const f0 = faceXY\(move \? prev : at\)/);
+  assert.match(js, /else centreRoad\(centre\);/);
+  assert.match(js, /centreRoad\(renderMap\(\)\.centre\);/);
+  assert.doesNotMatch(js, /\$\('rface'\)\?\.scrollIntoView/);
 });
 
 test('topple stars page: a scene tapped starts it (a won one again); the road is the way in', () => {
