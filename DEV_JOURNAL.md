@@ -18,6 +18,9 @@ time, each tried before publishing:
   while 👆 or Space is held; letting go drops. Proposed: the ring always shown; Space
   pressed drops at once; ↑ ↓ steer and ← → turn as now. **To ask:** how a finger drops
   on a touch screen once holding isn't aiming.
+  **Developer (2026-11-18):** "I see no problem with touch screen devices. You still use
+  the finger to aim (fore and aft)." Read as: **touch as now** (hold 👆, drag to steer,
+  let go to drop), only the ring always shown; **keys:** Space down drops.
 
 - **Q128. Topple!: the next world closed off on the map** (2026-11-18, developer,
   trying 11.1: "I don't think the map conveys the opening up of access to new worlds
@@ -87,6 +90,13 @@ time, each tried before publishing:
   stars." **Agreed:** extra balls won in play (power-ups); stars count only your own
   balls (balls used less extra balls won: 3 or fewer is 3 stars); par stays behind the
   scenes, to check every scene can be won in 3 of your own balls.
+  Claude then proposed a power-up floating above the structures, popped by a ball
+  passing through it (+1 ball, the ball carrying on), only in scenes that need it.
+  **Developer (2026-11-18):** "A power up is OK but if it costs a ball to get a ball it
+  is useless. So it has to give at least 2 balls or maybe a special ball that explodes
+  and can impact more than one target at once." **To choose:** +2 balls, or a blast
+  ball; mockup first. Also agreed: the taught list reset once so everyone sees the new
+  tutorials (Q129).
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
