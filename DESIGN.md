@@ -2406,6 +2406,11 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     just won as a scene tapped on the map does (new scenes, 3 hearts and the
     balls again; the game had gone on to the next scene or level, and this puts
     it back); also on a level's last scene. Logged: `try again for more stars`.
+    **Every scene should be winnable with 3 stars by a good player** (Q130, Q132):
+    checked by `node tools/topple-stars.js` (a search player for each world, its
+    throws judged a little off with `--miss`; the balls it needs are the scene's par,
+    never shown in the game). The scenes it can't win in 3 are listed in the journal
+    ("Q132 built"), each to get a fix (the blast ball, or an easier scene).
   - **Worlds** (Q122, developer, 2026-11-17: "a more dramatic separation, and within a
     'world' scenes should always be numbered from 1 to 5"; one road, not a map per
     world): **World 1 · Earth 🌍** (levels 1-5, the slingshot) and **World 2 · The

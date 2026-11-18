@@ -45,7 +45,12 @@ time, each tried before publishing:
   (aim at each structure, as the moon's steers to one). The tool lists the slots that
   can't be won in 3 balls (the "par" agreed in Q130, kept out of sight), and the
   developer plays only those. **To ask:** OK to build that tool before the review?
-  **Developer (2026-11-18): "sure - build a tool".**
+  **Developer (2026-11-18): "sure - build a tool".** **Built (2026-11-18):
+  `tools/topple-stars.js`**; see "Q132 built". Judged a little off, 61 of 750 scenes not
+  won in 3: the park's Ice Castle, Star Light's candles and Star Palace, Hardest's
+  spread-out mixes (levels 3-5); the moon's Mining Site and Launch Pad challenges, and
+  Solar Farm's on Hardest. **To do:** the developer plays a few to confirm, then the fix
+  for each (the blast ball, Q130, or easing the scene).
 
 - **Q131. Topple!: the moon's target light always on; Space drops at once** (2026-11-18,
   developer: "I'm wondering if the target light should always just be on. On a desktop
@@ -380,6 +385,12 @@ time, each tried before publishing:
   levels 6-10, release 11.0** (see "Q119 built"); for the developer to play.
 
 ## Proposed additions to the standards skill
+
+- **A search that plays perfectly overstates what people can do** (2026-11-18, "Q132
+  built"): a tool searching for the best drop cleared a 4-structure moon scene in 3
+  with one pinpoint drop that took two structures; judging each pick also a little off
+  needed 4, as the developer found by hand. Generic: when a tool checks that a task is
+  fair or possible for people, judge each move by how it does slightly off as well.
 
 - **Tests that read files as text must not depend on line endings** (2026-11-18, "Q134
   found and fixed"): two page tests matched `topple.js` with a `\n` inside the pattern;
@@ -24576,3 +24587,93 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Open questions:** Q134 and Q133 (published in 11.3: to try on a device), Q132, Q131
   (built), Q130, Q129 (built), Q128 (built), Q127 (parked), Q126 (built), Q125, Q124 and
   Q122 (replaced by Q129, Q128), Q123 (built), Q121, Q120, Q119, Q118, Q113 (parked).
+
+## 2026-11-18: Q132 built: the star-checking tool, and the scenes not won in 3
+
+- **Developer:** "go ahead with the tool first" (before the blast ball's mockup v2: the
+  tool says which scenes need it, whether the park does, and can measure the blast).
+- **Built: `tools/topple-stars.js`** (a tool, not the game; nothing kept in the repo). A
+  search player for each world: for each ball it tries about 30 throws (the park: an
+  even spread of `parkThrows`, the aim × lift grid of throws whose path first touches a
+  standing block it can see, as the tests' person player) or drops (the moon: each
+  standing block's middle and either end along the line, at its distance) on copies of
+  the scene as it stands (`setScene(parts, poses)`, as a scene picked up again), keeps
+  the one that knocks the most down, tries a little either way round it, and goes on
+  until cleared or 5 balls. The balls it took: the scene's **par**. `--miss` judges each
+  throw by the least it does a little off as well (the park: aim ±0.03 of 22°, lift ±2°;
+  the moon: ±15 cm along, ±20 cm across), the throw itself kept. Left out: the park's
+  Hardest movers (a good player times round them: the tests show a timed throw never
+  stopped); it waits for the blocks to be still (or 8 s) between balls. Jobs: 6 deals
+  (level seeds 1000-1005) of every level and scene, the park on Normal and Hardest
+  (Harder deals Normal's scenes), the moon on all three (only the lander's speed
+  differs); 15 at once (worker threads); a line a scene, then the report; `--out` keeps
+  every row as JSON.
+- **Timed first** (scratch `probe-time.mjs`): a park throw 26-130 ms, a moon drop about
+  100 ms; a whole run: 6.2 min exact, 21.8 min judged a little off.
+- **Exact aim overstates a player** (Mining Site's challenge, seed 1000, Normal): exact, 3
+  drops [6 10 14 of 14]: one drop at a pinpoint spot knocked two structures; judged a
+  little off, 4 [4 8 12 14], a structure a ball, as the developer found (Q130). So
+  **the list is the "a little off" one**; exact says what no one can do.
+- **A fault in the tool, found and fixed** (classified: the check, not the game): Tower
+  Wall (level 2 scene 5), seed 1002, judged a little off: "not cleared [15 17 17 17 17]"
+  while the other 4 deals took 1 ball. Probed (scratch `probe-wall.mjs`,
+  `probe-wall2.mjs`): after two balls one steel post stood at the back, leaning about
+  18°, and **no throw's path first touched it** (fallen blocks in front), so the player
+  threw its one fallback ball 3 times. Now with none, it tries every throw of the grid
+  towards the standing blocks. Test: that state, from the two throws, has over 30
+  throws and one of those tried clears it; **shown to fail** without the fix. Re-run of
+  the park both ways: Tower Wall 1 ball in every deal. (The moon's player is separate:
+  its results stand.)
+- **Results, judged a little off: 61 of 750 scenes not won in 3** (the park 29 of 300, the
+  moon 32 of 450; exact: 46, 22 and 24). Won in 3 / deals, each deal's balls:
+  - **Park (Earth), Normal and Harder:** Frosty Times' **Ice Castle** (the challenge, 17
+    blocks) 0/4 [4 4 4 4]; Star Light's **candles** (scenes 2 and 3, 8 blocks) 0/5, 4
+    each; Star Light's **Star Palace** (the challenge, 14 blocks) 0/4 [4 4 4 4].
+  - **Park, Hardest:** the same three (Ice Castle 0/4, candles 0/2, Star Palace 0/4),
+    and the spread-out scenes: Frosty Times' iceSpreadMix 2/4 (scenes 2, 4), Cactus
+    Canyon's canyonSpreadMix 2/3 (scene 4), Star Light's starSpreadMix 0/3 (scenes 2, 4).
+  - **Park, always won in 3:** levels 1 (the park) and 2 (the building site), and every
+    other scene of 3-5.
+  - **Moon, every difficulty:** Mining Site's challenges (tank+trestle+crates2x2+beacon
+    0/15, trestle+crates4+trestle+tank 0/3); Launch Pad's challenge
+    (beacon+gantry+antenna+gantry) 0/9. **Hardest only:** Solar Farm's challenges
+    (panels6+panels4+crates3 0/3, panels4+panels6+crates4 2/3: the faster lander);
+    Mining Site scene 3 (crates2x2+trestle+tank) 0/1.
+  - **Moon, always won in 3:** Landing Zone and Crater Rim, and every scene 1-4 but the
+    one above. (Q130's measure, the moon test player, had Solar Farm's challenges 0/20
+    on Normal: the search player wins them; that player aims less well.)
+  - Exact aim: mostly the same scenes, mostly 4 still (Ice Castle 1/4, Star Palace 1/4,
+    candles 0/7, Mining Site's challenges 2/6 on Normal, Launch Pad's 0/9), so most of
+    these need a 4th ball even for a perfect aim. One more there: a Frosty Times Ice
+    Wall deal (scene 4) took 4 exact but 2-3 judged a little off (the greedy pick
+    differs; it is not "par" exactly, only a good player's count).
+- **What it doesn't show:** whether a child finds the scenes it wins in 3 easy (it aims
+  well and knows the physics); scenes not dealt by seeds 1000-1005 (each structure
+  came up 1-5 times a slot); the movers (left out).
+- **Tests:** `tests/topple-stars-tool.test.js` (10): spread; the park player clears an
+  easy scene in 3 the same each run, also judged a little off; Tower Wall's post; too
+  few balls: not cleared, counted; a moon drop where the ring never goes isn't made, the
+  lander given left as it was; the jobs; the report (checked counts, a 4 and a "not
+  cleared" listed, a kind won in 3 not); options; a job's stars; the command end to end
+  with two workers and its file (temp folder, removed). **Shown to fail** (scratch
+  `mutate.sh`): the report counting 4 balls as 3 stars, a drop made where the ring
+  never got, the players keeping the worst throw: each caught by a named test. Full
+  suite: 744 pass, 0 fail before the Tower Wall test.
+- **Test output:** `C:\Users\dpark\Documents\Web-Games-testing\2026-11-18_star-check\`
+  (exact.txt/json, miss.txt/json: both worlds before the fix; park-exact, park-miss:
+  the park after it).
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool (`tools/topple-stars.js`, its
+  tests) and this journal; not published (nothing in the game changed).
+- **Q132 answered by the tool:** the scenes not won in 3 by a good player are above. **To
+  ask the developer:** play a few of them (Star Light's candles and Star Palace, Ice
+  Castle, a Mining Site or Launch Pad challenge) to confirm, then decide the fix for
+  each: the blast ball (Q130; the moon: gone after 3 passes; the park: a 10 s
+  countdown), or easing the scene.
+- **Next:** Q130 (the blast ball mockup v2: its size measured with this tool, "1 whole
+  structure in about 9 blasts of 10"), Q125 (the five moon levels' mockup), Q121 (sounds).
+- **Open questions:** Q134 and Q133 (published in 11.3: to try on a device), Q132 (the
+  list, to play), Q131 (built), Q130, Q129 (built), Q128 (built), Q127 (parked), Q126
+  (built), Q125, Q124 and Q122 (replaced by Q129, Q128), Q123 (built), Q121, Q120, Q119,
+  Q118, Q113 (parked).
