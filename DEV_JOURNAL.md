@@ -96,7 +96,9 @@ time, each tried before publishing:
   is useless. So it has to give at least 2 balls or maybe a special ball that explodes
   and can impact more than one target at once." **To choose:** +2 balls, or a blast
   ball; mockup first. Also agreed: the taught list reset once so everyone sees the new
-  tutorials (Q129).
+  tutorials (Q129). **Developer: "Blast ball, mockup first, then go ahead with 11.2."**
+  **Mockup v1 published** (2026-11-18, https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h;
+  see "Q130 mockup v1"). To try: the look, the rule for winning it, the blast's size.
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -24076,3 +24078,39 @@ anything to show it (the dots are the developer's choice per How hard).
   turn or mock it up), Q130 (free ball, power-up or par), Q123 (the hint's line).
 - **Then:** build what is agreed; Q125 (the moon's five materials, mockup first), Q121 (sounds).
 - **Open questions:** Q130, Q129, Q128, Q127 (parked), Q126, Q125, Q124, Q123, Q122, Q121, Q120, Q119, Q118, Q113 (parked).
+
+## 2026-11-18: Q130 mockup v1 (the blast ball)
+
+- **What it is:** a page on the game's own moon code (scenes, physics, drawing copied from
+  `src/` as they are), with what's new in `blast.js` and `mock.js` (scratch
+  `blast-mockup/`). Three challenge scenes (Mining Site and Launch Pad with 4 structures,
+  Solar Farm with 3). A glowing 💥 floats just over the scene's second structure;
+  **knocking that structure, or a ball touching the 💥, wins a blast ball**: the next
+  ball, red and glowing under the lander, an orange circle on the ground showing its
+  reach; it's free (5 own balls stay; the stars count only your own). Where it first
+  touches anything it kicks every block within 3.2 m outward and up and sets it tumbling
+  (speeds set directly, so heavy blocks go as far as light ones); a flash, a fireball and
+  sparks. Also 11.2's planned controls, to try: the ring always on, Space drops at once,
+  ⇄ / ← → turn with the ring keeping its speed.
+- **The power-up's rule changed while building it:** first "a ball passes through it
+  (it floats 0.9 m over a structure)". In the page a ball steered through it landed
+  past the 0.3 m crate tower (the ball travels on about 0.5 m from there to the tower's
+  top at 1 m/s): it cost a ball, the developer's "useless". Floating it over the
+  structure and counting the structure knocked as winning it keeps it free.
+- **The blast's size, measured** (scratch `blast-sim.mjs`: the challenge scenes of levels
+  7-10, 3 deals each, a blast ball dropped onto each structure, 40 blasts, structures with
+  every block down after 8 s): r 2.6 m kick 4 m/s 0.97 structures a blast (0 in 11 of 40);
+  r 3.0 kick 6: 1.50; r 3.5 kick 6: 2.05, but in the page one between all four structures
+  took all 14 blocks; **r 3.2 kick 6: 1.60 (2 or more in 20 of 40)**, used. The first try
+  kicked a block right under the blast straight up only (no sideways direction at
+  distance 0): it then gets a random one.
+- **Checked in the browser pane (scratch server, pane hidden, so the game stepped from a
+  test hook):** Mining Site's challenge: a ball at the 💥's structure knocked it (3 blocks)
+  and won the blast ball (toast, `+💥` beside the balls); a blast ball dropped by the
+  middle trestle reached 10 blocks and, with the first ball's, cleared all 14: the card
+  "Scene cleared! ★★★, 1 of your own ball + 1 💥 blast ball (free)" (that run at r 3.5).
+  The ring's speed sampled every 0.1 s through a ⇄ turn: the same throughout (1.17-1.18
+  m/s: 7 steps of 1/60 s in each sample), no jump. No console errors.
+- **Not checked:** the app's viewer, a real touch screen, the old tablet.
+- Local server: "mockup-scratch" in `.claude/launch.json` for the check, taken out after
+  (the file is as committed).
