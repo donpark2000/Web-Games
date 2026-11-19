@@ -25632,3 +25632,31 @@ Q125 (the moon's materials) and Q121 (sounds).
   this entry is the record)?
 - **Then:** Q125 (the moon's levels all look alike), Q121 (sci-fi sounds on the moon).
 - **Open questions:** Q136 and Q130 (built, to publish and try), as before otherwise.
+
+## 2026-11-19: Release 11.4 published and live
+
+- **Published** on the developer's word ("publish 11.4"): full suite 767 pass, 0 fail;
+  `node tools/release.js` ready; `main` fast-forwarded to `block-game` (6a682f8), tag
+  `v11.4` pushed, GitHub release made from `node tools/release.js notes`. The Pages build
+  took about 1.5 min; then github.io served release 11.4, version 9bc856d99c2c. The live
+  Topple! page in the browser pane showed its saved 11.3 for two loads (as at 11.3's
+  publish); once its new offline copy had installed, the log said `opened in the browser
+  {"release":"11.4","version":"9bc856d99c2c"}` and the blast ball's checking hook was
+  there. The one console 404 was Claude's own fetch of the new list file before the build
+  was done. Claude's local server stopped; no other `serve.js` running.
+- **Purged** (developer: "OK to send the blast build testing files to recycle bin"):
+  `Web-Games-testing\2026-11-19_blast-build\` (miss.txt/json, blast.txt/json) sent to the
+  Recycle Bin; "The blast ball built" is the record (the tool makes them again).
+
+**Status (start here next session)**
+- **Live: 11.4** (Q130 the blast ball, Q136 the touch keys). `block-game` = `main` plus
+  this journal entry.
+- **To try (developer):** the blast ball on a device, in a listed scene: Frosty Times'
+  Ice Castle (level 3's challenge), Star Light's candles or Star Palace; on the moon,
+  Solar Farm's, Mining Site's or Launch Pad's challenge. The first meeting shows a card.
+- **Next: Q125, the moon's levels all look alike** (design work: a mockup first), then
+  Q121 (sci-fi sounds on the moon).
+- **To review at a checkpoint:** the proposed skill additions (two new today: a page
+  stepped by hand keeps running; a listener taken off mid-event).
+- **Open questions:** Q136 and Q130 (published in 11.4: to try), Q134 and Q133 (11.3: to
+  try), as before otherwise.
