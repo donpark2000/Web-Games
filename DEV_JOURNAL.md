@@ -62,6 +62,9 @@ time, each tried before publishing:
   at the end structure's edge just after a turn the ball still moves the old way, 0.36
   m/s. Turning further out fixes it; a faster light in a turn doesn't. **To try** in a
   mockup.
+  **Mockup built** (2026-11-19, "Q137: the moon turn mockup"):
+  [Topple Moon Turn](https://claude.ai/artifact/PHXfautVD64vDURM1u9hJJ), 3 tests on
+  Crater Rim; the developer's answers to come in its `reports`.
 
 - **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
   developer: "when I open the map it would be nice to position it so my current scene
@@ -25316,6 +25319,86 @@ Q125 (the moon's materials) and Q121 (sounds).
   published page: [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h).
   Things to record per drop for Q137: the light's and the lander's speed, the ball's `vx`,
   how far past the end the light was, and whether it was just after a turn.
+- **Then: build the blast ball in the game** (Q130, decided: v2.3's sizing, the 💥 after
+  the 2nd ball in both worlds, the blast ball free for stars and shown as free; the two
+  record fixes in "Q130 mockup v2.3: the developer's reports"), with Q137's choice if it's
+  ready. Then Q125, Q121.
+- **To ask:** Q136 (cannon-es touch keys: fix in the build, then rerun the star tool?).
+- **Open questions:** Q137, Q136, Q130, as before otherwise.
+
+## 2026-11-19: Q137: the moon turn mockup (built, published)
+
+- **Developer:** "yes, build it".
+- **Built** (scratch `patch-turn.py` on a fresh copy of 11.3 made by `copy-game.mjs`; the
+  files in the scratchpad's `turn-mock/`, not the repo):
+  - **the core** (`topple-moon.js`, the mockup's copy): `TURN_PAST` becomes settable, and a
+    new `TURN_K` (`setTurnMock(past, k)`). `turnNow` marks the lander `boost` when k > 1;
+    `flyStep` keeps the light at k × speed while it's outside the structures and the
+    lander isn't yet at full speed the new way, then back to 1×. So **a ⇄ over the
+    structures never speeds the light up** (Q126 stays as it is there). The view widens
+    with the turn distance (`fitCamera` already used `TURN_PAST`), so the light stays on
+    screen at 3 m; the blocks look a little smaller.
+  - **the first screen:** "🌙 Moon turn · mockup 1 · tests", "Seeing this box means you
+    have the right version", what it's about, the 3 tests (all Crater Rim, level 8 scene
+    3, seed 1000: a tank at the left end, an arch, crates at the right end; Normal):
+    **1** the game as now (0.8 m, 1×), **2** turns 3 m out (1×), **3** 3 m out and the
+    light 2× in a turn. Under "More": any of 0.8 / 2 / 3 m × 1 / 2 / 3×, and two other
+    scenes (Mining Site, Launch Pad: structures at both ends), as free play.
+  - **during play:** a line at the top: "Test n of 3: Drop at the blocks at the far ends,
+    some just after a turn. Ball k of 5." (or "The light is past the end: wait for it (or
+    press ⇄)."), the settings, and **Tell Claude**.
+  - **the page's own record:** per drop: the light's and the lander's speed, the ball's
+    `vx`, which way the lander heads, how far past the nearest end the light was (−:
+    over the structures; within 1.5 m inside counts as "at the end"), time since the last
+    turn and which kind (an end, or ⇄/← →), whether the light was sped up, and the
+    blocks it knocked down (x, at an end or not). Also every turn, every time the light
+    was past an end (how long, how far), a restart of the scene, and the end (won,
+    stars).
+  - **the card** (after the scene, or Tell Claude): what the game saw, a line a ball
+    (e.g. "Ball 4: at the left end, 1.02 s after a turn; the ball moving 0.18 m/s ←
+    (nearly still), still the old way (the lander now heading →); 0 blocks down."),
+    questions: hitting the end blocks (Easy/OK/Hard/Didn't try), the wait at the ends
+    (Fine/A bit long/Too long), a ball that didn't roll (None/Once/More than once), the
+    light's speed in a turn, and (tests 2-3) compared with test 1 (Better/Same/Worse); a
+    text box; **Send to Claude** (the artifact's `db`, collection `reports`, one
+    document a run, `test<n>-<time>`); then Start test n+1, Play this test again, the
+    first screen, Close. Where nothing can be saved, the text to copy.
+  - the kept scene isn't picked up (the mockup always opens on its first screen), no stats
+    counter or offline copy; every step in the debug log (`test: ...`).
+- **Checked in node** (scratch `check-fly.mjs`, the patched `flyStep`, span ±2.5, Normal):
+
+| past | k | ball vx at the edge | 1 m in | still moment | turn to light back |
+|---|---|---|---|---|---|
+| 0.8 m | 1 (11.3) | −0.36 | 0.16 | (as before) | 0.8 s |
+| 2 m | 1 | 0.23 | 0.52 | 1.29 s | 2.0 s |
+| 3 m | 1 | 0.52 | 0.71 | 1.29 s | 3.0 s |
+| 0.8 m | 2 | −0.47 | 0.09 | 0.73 s | 0.4 s |
+| 3 m | 2 | 0.54 | 0.71 | 0.63 s | 1.5 s |
+| 3 m | 3 | 0.53 | 0.70 | 0.42 s | 1.0 s |
+
+  The edge values match "Q137: the turn measured"; "1 m in" at 2-3× is lower than there
+  (0.71 against 0.85-0.89), because the light slows to 1× as it comes back over the
+  structures (there it stayed fast until the lander was at full speed). ⇄ over the
+  structures at 3×: the light's top speed 1.0 m/s.
+- **Checked in the browser pane** (scratch server on 8124, taken out after; the hook
+  `window.__turn`): test 1 to its card: 5 drops recorded; ball 4, 1.0 s after the left
+  end's turn, moved 0.18 m/s the old way, as Q137 says; the light past the ends 1.6 s each
+  time. Test 3: the light at 2 m/s outside the structures (`fast: true`), back to 1 inside;
+  the light past an end 4.5 s each time (the node table's 3 m out + 1.5 s back); on screen
+  at 3 m out. The card: the compare question shown only in tests 2-3, Start test n+1 hidden
+  after test 3; Send with no db (local): the copy box. Play this test again, Tell Claude
+  ("You pressed Tell Claude during the scene"), Back to the first screen, and free play
+  (2 m, 3×, Launch Pad) all worked. No console errors after the stats and offline scripts
+  were taken out.
+- **Published:** [Topple Moon Turn](https://claude.ai/artifact/PHXfautVD64vDURM1u9hJJ),
+  with `db` (default rules: only the owner writes); read back: `reports` empty.
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Q137:** the developer plays the 3 tests of
+  [Topple Moon Turn](https://claude.ai/artifact/PHXfautVD64vDURM1u9hJJ), presses Send to
+  Claude after each, and types "done"; Claude reads collection `reports`
+  (`ArtifactData list`), records the results here, and asks which turn to build.
 - **Then: build the blast ball in the game** (Q130, decided: v2.3's sizing, the 💥 after
   the 2nd ball in both worlds, the blast ball free for stars and shown as free; the two
   record fixes in "Q130 mockup v2.3: the developer's reports"), with Q137's choice if it's
