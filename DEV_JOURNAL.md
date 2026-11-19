@@ -41,6 +41,17 @@ time, each tried before publishing:
   the ring looks as if it's moving. Also the lander's steering near or far gives the ball
   no speed that way. **Not confirmed:** the drop's log line has `vx`; the developer will
   play 11.3, watch for it, and send the log (`log.html`) if it happens, with the scene.
+  **Developer (2026-11-19):** "I think your diagnosis is correct. It was after a change in
+  direction. Is there a reason why target light speed and landers sideways speed should
+  be different?" **Why (Claude):** the ring isn't under the lander; it's where a ball let
+  go now lands, ahead of the lander by its speed × the fall (`ringX`). Flying straight,
+  both move at the same speed. A turn has to move that lead from one side of the lander
+  to the other; one of the two must change speed while it does. Until 11.2 the lander
+  turned at once and the ring raced across (up to 7.3 m/s); Q126 (the developer: "the
+  speed of the target light should not change") made the ring steady and the lander ease
+  round, so it's nearly still for a moment, and a ball dropped then lands on the ring
+  and stops. **To choose** (options in the 2026-11-19 entry "Q137: why the ring and the
+  lander differ").
 
 - **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
   developer: "when I open the map it would be nice to position it so my current scene
@@ -25219,3 +25230,22 @@ Q125 (the moon's materials) and Q121 (sounds).
   star tool?).
 - **Then:** Q125, Q121.
 - **Open questions:** Q137 (new), Q136, Q130, as before otherwise.
+
+## 2026-11-19: Q137: why the ring and the lander differ
+
+- **Developer:** the ball that didn't roll came "after a change in direction"; the
+  question: "Is there a reason why target light speed and landers sideways speed should
+  be different?" Answered under Q137 (the ring is the landing spot, ahead of the lander;
+  a turn moves that lead to the other side, so one of them has to change speed; Q126 chose
+  the ring steady).
+- **Options put to the developer:**
+  - **A. Keep it** (Claude's suggestion): the ring was right about where the ball lands;
+    a ball dropped from a nearly still lander falling straight down is what a real one
+    would do. Nothing to build.
+  - **B. A quicker turn:** the lander swings round faster (say 2-3 times), so the still
+    moment is shorter; the ring stays steady. A small change in `flyStep`; the lander's
+    turn looks sharper.
+  - **C. The ring speeds up a little in a turn** (between 11.2's racing and now's
+    steady): goes against Q126's "should not change".
+  - **D. A drop always gets a little roll** in the lander's new direction: the ball's
+    motion no longer matches the lander's (not real), and where it rolls to isn't shown.
