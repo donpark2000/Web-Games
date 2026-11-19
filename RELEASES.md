@@ -7,6 +7,24 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 11.4 (2026-11-19, version 9bc856d99c2c)
+
+Topple!: the blast ball, in the scenes where 3 stars were out of reach.
+
+- **The blast ball.** In the scenes that can't be won in 3 balls without it (Frosty
+  Times' Ice Castle, Star Light's candles and Star Palace, Hardest's spread-out scenes;
+  on the moon, Solar Farm's, Mining Site's and Launch Pad's challenges and one Mining
+  Site scene), a 💥 appears after your 2nd ball. Knock over the blocks under it before
+  its ring runs out (10 seconds on Earth, 3 passes of the lander on the moon), and your
+  next ball is a blast ball: free, and if it hits any block that's left, it knocks over
+  all of them. The first time you meet it, a card explains it.
+- **Shown as free.** A blast ball you've won shows as "+💥 free" beside your balls, and
+  the end card says, for example, "3 balls + 💥 free = 3 stars": stars count only your
+  own balls.
+- **Moon touches never lost.** After a very long time playing without reloading
+  (hundreds of scenes), the moon could stop noticing some of the ball's hits. Fixed.
+- Everything else is as in 11.3.
+
 ## 11.3 (2026-11-18, version 07596d6e2e54)
 
 Topple!: the moon's blocks glow when you pause, and the map shows where you are.
