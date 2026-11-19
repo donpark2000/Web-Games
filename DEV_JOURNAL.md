@@ -10,6 +10,22 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q138. Topple!: the map's break between worlds doesn't stand out** (2026-11-19,
+  developer, after replaying the barrier opening with `topple.walk(5, 6)`: "once it is open
+  it is less apparent in the map where one world ends and the other begins ... The colors
+  for the map background for Moon level 1 (landing zone) and Earth level 5 (star light) are
+  almost the same. And the label for World 2 - The Moon and 1 - Landing Zone are almost the
+  same ... It looks more like the map background is a subtle color gradient rather showing
+  up as pronounced sections of the map."). **Why (read and seen, 11.4 in the browser
+  pane):** (1) the colours: Star Light's band `#2A3A6A`, the moon's gate a gradient from
+  `#05070F` to `#2A3A6A` (made on purpose to fade from Star Light's night into space:
+  `css/topple.css` `.rgate.moon`), the moon's levels `#1B2236` and `#202941` taking turns
+  (`src/ui/topple.js` `LOOKS`): five dark navies, the moon's own five barely apart; (2) the
+  gate's sign (`.rgsign b`, 21 px) and a level's banner (`.rbanner`, 16 px) are the same
+  white pill, and Landing Zone's banner sits just above the gate's. **To propose:** a hard
+  edge and a look of its own for the gate, a sign unlike a level's, the moon's levels in
+  colours of their own (with Q125's looks).
+
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
   `i << 16 | j` from its bodies' ids (`cannon-es.js` `OverlapKeeper.getKey`), and the id
