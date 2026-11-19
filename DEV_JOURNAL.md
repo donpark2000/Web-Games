@@ -10,6 +10,24 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q135. Topple!: cannon-es stops reporting touches once its body ids are large**
+  (2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
+  `i << 16 | j` from its bodies' ids (`cannon-es.js` `OverlapKeeper.getKey`), and the id
+  counter (`Body.idCounter`) is global, counting every body a page or process ever makes.
+  Measured (scratch `idcounter-check.mjs`, one moon scene, one ball dropped beside a
+  block, `beginContact` counted): ids from 0, 1000 or 30000: 32 events, the ball's 5;
+  from 33000: 22, the ball's 5; from 66000 or 70000: 22, **the ball's 0**. What uses it:
+  the moon world (`topple-moon-world.js`: the first ball touch wakes every block; the hit
+  sounds), the blast ball's "goes off where it first touches" (mockup), and any tool run
+  long enough (the star tool's `--miss` runs; Q132's list may be off on the moon). The
+  game: the moon world lives for the page, so past ~33k bodies made in one page load
+  (hundreds of scenes; an installed app left open for days) some moon touches are lost,
+  past ~65k the ball's all are. **Proposed fix (in the blast ball's build):** each world
+  gets a key that can't overflow (its `bodyOverlapKeeper` and `shapeOverlapKeeper`
+  `getKey` replaced, numbers not bit shifts), with a test: a world made after the counter
+  is past 70000 still reports the ball's touches. Then the star tool run again, to see if
+  Q132's moon list changes. **To ask:** OK to fold this into the build?
+
 - **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
   developer: "when I open the map it would be nice to position it so my current scene
   is in view"). `showMap` already scrolls the scene last played (`n<level>_<scene>`)
@@ -210,6 +228,15 @@ time, each tried before publishing:
   way through game play." **v2.2:** the park's blast goes off near a block and reaches
   whole stacks; the 💥 shows after your 2nd ball (a choice in the mockup); see "Q130
   mockup v2.2".
+  **Developer (2026-11-18), on v2.2:** "timing is good. I like the blast ball option
+  appearing part way through the scene. But if it does not appear for the first ball, it
+  is only useful if it has enough power to hit remaining targets after it is earned. That
+  does not seem to be the case. This implies the power has to be dynamic and dependent on
+  when it appears in the game play and what is left to hit." Agreed; "go ahead with
+  v2.3". **v2.3 published** (version 6 of the same page): the blast's reach set where it
+  goes off by the blocks still standing: if it catches one, it reaches them all; the 💥
+  after your 2nd ball in both worlds by default (measured: the moon after the 1st was
+  then won in 2). See "Q130 mockup v2.3". **To try.**
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -430,6 +457,14 @@ time, each tried before publishing:
   levels 6-10, release 11.0** (see "Q119 built"); for the developer to play.
 
 ## Proposed additions to the standards skill
+
+- **Same case, different result: look for what the run has built up** (2026-11-18,
+  "Q130 mockup v2.3"): a measure gave 63 of 90 in a long run and 15 of 15 for the same
+  deals alone; run after the park's deals in one worker, the moon's blast never went off.
+  The cause: a library's global id counter, which had passed the size its contact keys can
+  hold. Generic: when a case passes alone and fails in a long run (no clock involved),
+  rerun it after the earlier work in the same process to find state that grows: a global
+  counter, a cache, a pool.
 
 - **Tune a help against both sides** (2026-11-18, "Q130 mockup v2"): the blast ball was
   sized as the smallest that made every listed scene winnable in 3 balls; measuring the
@@ -24948,3 +24983,82 @@ Q125 (the moon's materials) and Q121 (sounds).
   deals needing 4; after the 1st, 2 Mining Site deals); the blast's size now.
 - **Then:** build it in the game, Q125 (the five moon levels' mockup), Q121 (sounds).
 - **Open questions:** as in the status entry before last; Q130 (v2.2 to try).
+
+## 2026-11-18: Q130 mockup v2.3 (the blast sized for what's left)
+
+- **Developer, on v2.2:** "timing is good. I like the blast ball option appearing part
+  way through the scene. But if it does not appear for the first ball, it is only useful
+  if it has enough power to hit remaining targets after it is earned. That does not seem
+  to be the case. This implies the power has to be dynamic and dependent on when it
+  appears in the game play and what is left to hit. Does this make sense?" Yes: v2.2's
+  measure gave every listed scene in 3 only because its player's 3rd ball both won the 💥
+  and took a structure; a 3rd ball that only wins the 💥 leaves more than 0.6 m can reach.
+  Claude proposed the reach sized when it's earned, from what's left. **"yes, go ahead
+  with v2.3".** The session's files were copied from the last session's scratchpad (still
+  on disk); the live page matched them.
+- **First try, changed:** the smallest circle holding every standing block's middle, its
+  radius + a spare, from the circle's middle. Measured (one deal of each park scene, the
+  winning ball weak): Ice Castle's three blocks left got a 1.99 m reach and it still missed
+  one, because the park's blast goes off at the first block it passes near, not at the
+  circle's middle (often empty ground). So the reach is measured from **where it goes
+  off**.
+- **v2.3's rule** (`topple-blast.js`, `reachAt`, `BLAST.*.spare`, `.rMax`): measured
+  across the ground from where it goes off to the middles of the blocks still standing
+  (the park within 1.6 m up or down, the moon 3 m): if one is within the least reach
+  (the park 0.6 m, the moon 1.8 m), it reaches every block standing (the farthest +
+  0.15 m, the moon + 0.3 m), up to 4 m in the park and 6 m on the moon; if it catches
+  none, the least reach. The circle shown before you throw (the park) or drop (the moon)
+  is drawn at that size; the debug log's `blast` line: `standing`, `caught`, `r`,
+  `farthest`, `least`. The words on the first screen and the teaching card say it: "if
+  it hits any block that's left, it knocks over all of them". The moon's blast is now
+  measured across (a column, as the park's), not a ball.
+- **Measured** (scratch `blast-sim3.mjs`, 6 deals of every listed scene, both worlds;
+  `--weak`: the ball that wins the 💥 knocks nothing down, the worst a player who still
+  wins it can do):
+
+  | Way played | v2.2 (fixed reach) | v2.3 |
+  |---|---|---|
+  | the 💥 after the 2nd (park) / 1st (moon), the winning ball weak | 77 of 90 in 3 (park 9 in 4-5, moon 4 in 4) | **90 of 90** |
+  | the same, the best winning ball | not run | 90 of 90 |
+  | the same, weak, judged a little off | not run | 85 of 90; with the park's cap 4 m (was 3), **54 of 54** park, 36 of 36 moon |
+  | the 💥 after the 2nd in both worlds, weak | not run | 90 of 90 (judged a little off: 85 of 90 at the 3 m cap, the same 5 Ice Castle deals) |
+
+  The 5 short at a 3 m cap were all Ice Castle: its last two blocks knocked 3.68 m apart
+  (x -2.01 and 1.66); at 4 m the deal is won (reach 3.97). Every listed moon deal with
+  the 💥 after the 1st ball was won in **2** (36 of 36): easier than 3; after the 2nd,
+  every deal in both worlds in exactly 3. So **the mockup's default is now after your
+  2nd ball in both worlds**; the split (the park after the 2nd, the moon after the 1st)
+  stays a choice on the first screen.
+- **A false start in the measure (Q135):** the first run judged a little off gave 63 of
+  90, the moon's blast never going off in 33 of 36 deals; the same deals run alone gave
+  15 of 15 with it going off. Not the clock (`fixed-step.js` reads none in a test), not
+  load; run after the park's deals in one worker it failed again (61 drops with no blast):
+  cannon-es's global body ids had passed what its contact keys hold (see Q135). The sim
+  now resets the counter as it makes each world (each world is used alone); the failing
+  case then gave 15 of 15, and every measure above is from the fixed sim.
+- **Checked in the browser pane** (scratch server "mockup-scratch" in `.claude/launch.json`,
+  taken out after; the test hook): Star Light's candles: the left stack knocked, the 2nd
+  ball thrown wide on purpose, the 💥 shown after it (not after the 1st) over the middle
+  stacks, won by the 3rd ball, two stacks left 1.05 m apart; the blast ball at either
+  stack: `reached 4, standing 4, caught, r 1.28` (and 1.21), all 8 down, won in 3 own
+  balls. The blast ball thrown wide of everything: `caught false, r 0.6, reached 0`, 4
+  still standing. On the live moon scene: `reachAt` on a block: r 5.66 (all 8 standing);
+  on empty ground: 1.8. The moon with the default: "after ball 2" in the log. No console
+  errors; no file failed to load.
+- **Published:** version 6 of
+  [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h) (three files
+  changed: `topple.html`, `src/core/topple-blast.js`, `src/ui/topple.js`).
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Q130 mockup v2.3** (version 6 of the Topple Blast Ball page): the blast reaches every
+  block left once it catches one; the 💥 after your 2nd ball in both worlds. **To try**,
+  and **to ask:** (1) how it plays, and how a 4-6 m blast looks; (2) the moon's 💥 after
+  the 2nd ball (changed from the 1st: measured, the 1st made every moon deal 2 balls).
+- **Q135 (new):** cannon-es loses touches once its body ids pass ~33k; **to ask:** fix it
+  in the build, then rerun the star tool to check Q132's list.
+- **Then:** build the blast ball in the game, Q125 (the five moon levels' mockup), Q121
+  (sounds).
+- **Open questions:** Q135 (new), Q130 (v2.3 to try), Q134 and Q133 (in 11.3: to try on a
+  device), Q132 (the list; to recheck after Q135), Q127 and Q113 (parked), Q125, Q121,
+  Q120, Q119, Q118.
