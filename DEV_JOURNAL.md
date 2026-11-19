@@ -25,6 +25,10 @@ time, each tried before publishing:
   white pill, and Landing Zone's banner sits just above the gate's. **To propose:** a hard
   edge and a look of its own for the gate, a sign unlike a level's, the moon's levels in
   colours of their own (with Q125's looks).
+  **Developer (2026-11-19): "mockup first"; the colours: "try picking them now and show
+  them in the mockup".** **Mockup v1 published** (2026-11-19,
+  [Topple Map Worlds](https://claude.ai/artifact/6AzQ2vCDugSWbDk4CEmpzo)): see "Q138 mockup
+  v1". **To try.**
 
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
@@ -25772,3 +25776,46 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **To review at a checkpoint:** the proposed skill additions (as before).
 - **Open questions:** Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3: to try), Q125
   (mockup v1 to try), as before otherwise.
+
+## 2026-11-19: Q138 mockup v1 (the map's break between worlds)
+
+- **Developer:** "mockup first", and for the moon levels' colours "try picking them now
+  and show them in the mockup".
+- **What it is:** a page of its own (not the game): the game's own map drawn twice, side by
+  side, with the repo's `css/topple.css` and `src/core/topple-road.js` (its copy takes the
+  gate's height as a third argument), every level won and the face just at the moon:
+  "Now (11.4)" and "Proposed". Buttons scroll both to where the worlds meet, the moon's
+  levels, or World 1. Scratch folder `mapmock/` (`map.html`, `src/ui/map-mock.js`).
+- **Proposed:**
+  - **The World 2 strip a picture with hard edges:** 4 px white borders top and bottom;
+    black space with stars; Earth's curve (blue, its air glowing, two green lands) at its
+    foot, the moon's grey ground with craters curving down from its top; the rocket between.
+    190 px tall (150 now).
+  - **World signs as plaques, not pills:** "WORLD 2" small, spaced, over "🌕 The Moon" at
+    27 px, white on orange (`#F08A24`, the moon base's orange) with a white rim; Earth's
+    "WORLD 1 / 🌍 Earth" the same on green (`#2E8B57`). Level banners stay white pills.
+  - **The moon levels' colours (Claude's pick, matched to Q125's looks):** Landing Zone
+    slate `#4E586B`, Solar Farm teal `#1E5D66`, Crater Rim warm grey `#625649`, Mining Site
+    ochre `#7A5420`, Launch Pad rust `#73342A` (were `#1B2236` and `#202941` in turn); the
+    road's dots a little brighter on them (white .6, was .5). Star Light stays `#2A3A6A`.
+  - **The questions** (saved to the page's db, collection `reports`, or text to copy):
+    which shows the break (Proposed / Now / Neither); the moon colours (Keep / Change some /
+    Change all); the plaques (Keep / Change); a note.
+- **Checked** in the browser pane (a scratch server, taken out after): both maps drawn,
+  the strip's curves (first drawn nearly flat: the ellipses made narrower), the moon
+  colours, the buttons, Send (locally: the copy text), no page wider than the window, no
+  console errors. **Not checked:** the app's viewer, a phone.
+- **Published:** [Topple Map Worlds](https://claude.ai/artifact/6AzQ2vCDugSWbDk4CEmpzo),
+  version 1, with `db`; read back: `reports` empty.
+
+**Status (start here next session)**
+- **Live: 11.4.** `block-game` = `main` plus the journal.
+- **To try (developer), each with Send to Claude:** Q125 mockup v1
+  ([Topple Moon Levels](https://claude.ai/artifact/U1JnKoX4UL2s6U2B6h5ZUE)); Q138 mockup v1
+  ([Topple Map Worlds](https://claude.ai/artifact/6AzQ2vCDugSWbDk4CEmpzo)). Claude reads
+  each page's `reports` (`ArtifactData list`) and records the answers here.
+- **Then:** build Q125 and Q138 together (the colours follow the looks kept), the star
+  tool run on the new targets; then Q121 (sci-fi sounds on the moon).
+- **To ask:** a way to replay the barrier opening on the tablet (Q128)?
+- **Open questions:** Q138 and Q125 (mockups to try), Q136 and Q130 (11.4: to try), Q134
+  and Q133 (11.3: to try), as before otherwise.
