@@ -10,8 +10,8 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q135. Topple!: cannon-es stops reporting touches once its body ids are large**
-  (2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
+- **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
+  (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
   `i << 16 | j` from its bodies' ids (`cannon-es.js` `OverlapKeeper.getKey`), and the id
   counter (`Body.idCounter`) is global, counting every body a page or process ever makes.
   Measured (scratch `idcounter-check.mjs`, one moon scene, one ball dropped beside a
@@ -27,6 +27,20 @@ time, each tried before publishing:
   `getKey` replaced, numbers not bit shifts), with a test: a world made after the counter
   is past 70000 still reports the ball's touches. Then the star tool run again, to see if
   Q132's moon list changes. **To ask:** OK to fold this into the build?
+
+- **Q137. Topple! moon: a dropped ball that "just dropped and did not roll"**
+  (developer, 2026-11-18: "the momentum problem I said before has not been addressed";
+  2026-11-19: "I don't recall which scene. It was definitely moon world. The ball just
+  dropped and did not roll. Which is inconsistent with the ball behavior after it hits
+  something - it rolls."). **Looked at (the code only):** a drop gives the ball the
+  lander's speed along the line (`src/ui/topple.js` `moonWorld.dropBall(..., [f.vx, 0,
+  0])`), so it should land moving and roll. But after a turn the lander's speed is eased
+  round from one way to the other (`flyStep`: `f.vx += (f.ringV - f.vx) * dt / T`) while
+  the ring moves on at full speed at once (`turnNow` sets `ringV`); for a while the lander
+  is nearly still, so a ball dropped then falls straight and stops where it lands, while
+  the ring looks as if it's moving. Also the lander's steering near or far gives the ball
+  no speed that way. **Not confirmed:** the drop's log line has `vx`; the developer will
+  play 11.3, watch for it, and send the log (`log.html`) if it happens, with the scene.
 
 - **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
   developer: "when I open the map it would be nice to position it so my current scene
@@ -246,6 +260,9 @@ time, each tried before publishing:
   **Tried (2026-11-19):** 4 reports, all won with 3 stars; every answer "clear: Yes, size:
   About right, time: Enough"; the developer was confused by the stars (the blast ball
   didn't count as a ball). See "Q130 mockup v2.3: the developer's reports".
+  **Decided (developer, 2026-11-19):** "I like your suggestion": the blast ball stays free
+  (stars count your own balls) and play shows it: the tally and the end screen mark it as
+  free, e.g. "3 balls + 💥 free = 3 stars".
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -25038,11 +25055,11 @@ Q125 (the moon's materials) and Q121 (sounds).
   every deal in both worlds in exactly 3. So **the mockup's default is now after your
   2nd ball in both worlds**; the split (the park after the 2nd, the moon after the 1st)
   stays a choice on the first screen.
-- **A false start in the measure (Q135):** the first run judged a little off gave 63 of
+- **A false start in the measure (Q136):** the first run judged a little off gave 63 of
   90, the moon's blast never going off in 33 of 36 deals; the same deals run alone gave
   15 of 15 with it going off. Not the clock (`fixed-step.js` reads none in a test), not
   load; run after the park's deals in one worker it failed again (61 drops with no blast):
-  cannon-es's global body ids had passed what its contact keys hold (see Q135). The sim
+  cannon-es's global body ids had passed what its contact keys hold (see Q136). The sim
   now resets the counter as it makes each world (each world is used alone); the failing
   case then gave 15 of 15, and every measure above is from the fixed sim.
 - **Checked in the browser pane** (scratch server "mockup-scratch" in `.claude/launch.json`,
@@ -25064,12 +25081,12 @@ Q125 (the moon's materials) and Q121 (sounds).
   block left once it catches one; the 💥 after your 2nd ball in both worlds. **To try**,
   and **to ask:** (1) how it plays, and how a 4-6 m blast looks; (2) the moon's 💥 after
   the 2nd ball (changed from the 1st: measured, the 1st made every moon deal 2 balls).
-- **Q135 (new):** cannon-es loses touches once its body ids pass ~33k; **to ask:** fix it
+- **Q136 (new):** cannon-es loses touches once its body ids pass ~33k; **to ask:** fix it
   in the build, then rerun the star tool to check Q132's list.
 - **Then:** build the blast ball in the game, Q125 (the five moon levels' mockup), Q121
   (sounds).
-- **Open questions:** Q135 (new), Q130 (v2.3 to try), Q134 and Q133 (in 11.3: to try on a
-  device), Q132 (the list; to recheck after Q135), Q127 and Q113 (parked), Q125, Q121,
+- **Open questions:** Q136 (new), Q130 (v2.3 to try), Q134 and Q133 (in 11.3: to try on a
+  device), Q132 (the list; to recheck after Q136), Q127 and Q113 (parked), Q125, Q121,
   Q120, Q119, Q118.
 
 ## 2026-11-18: Q130 mockup v2.3: the tests built in (version 7)
@@ -25127,7 +25144,7 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Q130:** version 7 of the Topple Blast Ball page has the two tests built in; the
   developer plays them, presses Send to Claude, and types "done"; Claude reads collection
   `reports` (`ArtifactData list`) and records the results here.
-- **To ask:** the momentum problem the developer mentioned (what happens); Q135 (cannon-es
+- **To ask:** the momentum problem the developer mentioned (what happens); Q136 (cannon-es
   losing touches once its body ids pass ~33k: fix it in the blast ball's build, then rerun
   the star tool?); the moon's 💥 after the 2nd ball (changed in v2.3 from the 1st).
 - **Then:** build the blast ball in the game, Q125, Q121.
@@ -25172,9 +25189,33 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
 - **Q130:** the developer's tests of v2.3 (version 7) passed: clear, the size about right,
   the time enough, in both worlds. **To ask:** how the blast ball and the stars should
-  show (the developer was confused that it didn't count); the momentum problem; Q135
+  show (the developer was confused that it didn't count); the momentum problem; Q136
   (cannon-es losing touches once its body ids pass ~33k: fix it in the blast ball's
   build, then rerun the star tool?).
 - **Then:** build the blast ball in the game (with the two record fixes above, if the
   tests stay), Q125, Q121.
 - **Open questions:** as in the status entry before this one.
+
+## 2026-11-19: Q130 the stars shown as free (decided); Q137 the moon ball that didn't roll
+
+- **Q130, the developer:** "I like your suggestion": the blast ball doesn't count for
+  stars, and the tally and end screen show it as free. To build with the blast ball.
+- **Q137 (new): the "momentum problem"**, the developer: "It was definitely moon world.
+  The ball just dropped and did not roll." A likely cause from the code (not confirmed):
+  just after the lander turns, its speed eases through 0 while the ring already moves at
+  full speed, and a ball takes the lander's speed. The developer will play 11.3 and send
+  the log if it happens; the drop's log line has `vx` (near 0 would confirm it).
+- **Renumbered:** the cannon-es question is now **Q136** (it had been given Q135, which
+  the stars question of 2026-11-18 already had); every mention since its entry changed.
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Q130:** v2.3 passed the developer's tests; decided: the blast ball is free for stars
+  and shown as free. **Next: build the blast ball in the game** (with the record fixes in
+  "Q130 mockup v2.3: the developer's reports" if the tests stay).
+- **Q137:** the developer plays 11.3 on the moon, watching for a ball that drops without
+  rolling, and sends the log with the scene; then check the drop's `vx`.
+- **To ask:** Q136 (fix cannon-es's touch keys in the blast ball's build, then rerun the
+  star tool?).
+- **Then:** Q125, Q121.
+- **Open questions:** Q137 (new), Q136, Q130, as before otherwise.
