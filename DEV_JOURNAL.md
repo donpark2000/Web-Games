@@ -28,7 +28,9 @@ time, each tried before publishing:
   **Developer (2026-11-19): "mockup first"; the colours: "try picking them now and show
   them in the mockup".** **Mockup v1 published** (2026-11-19,
   [Topple Map Worlds](https://claude.ai/artifact/6AzQ2vCDugSWbDk4CEmpzo)): see "Q138 mockup
-  v1". **To try.**
+  v1". **Developer (2026-11-19): "the mockup looks great"** (no report sent; `reports`
+  empty). **Agreed: build it as proposed, with Q125's build** (developer: "Shall we fold
+  the map changes into that as well?"; Claude: yes).
 
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
