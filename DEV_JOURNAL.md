@@ -52,6 +52,16 @@ time, each tried before publishing:
   round, so it's nearly still for a moment, and a ball dropped then lands on the ring
   and stops. **To choose** (options in the 2026-11-19 entry "Q137: why the ring and the
   lander differ").
+  **Developer (2026-11-19):** "Not sure. When I said the target light should be constant
+  speed I did not realize its speed was decouple from the lander. What I saw was the
+  change direction control was useless because the target light started moving way to
+  fast. Part of the problem for the current behavior is that some targets at the far
+  right and far left can only be hit if the lander is going on one direction. If the
+  target is too close to where the direction changes, the ball seems not to have enough
+  lateral motion to topple them." **Measured** (see "Q137: the turn measured"): true;
+  at the end structure's edge just after a turn the ball still moves the old way, 0.36
+  m/s. Turning further out fixes it; a faster light in a turn doesn't. **To try** in a
+  mockup.
 
 - **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
   developer: "when I open the map it would be nice to position it so my current scene
@@ -25252,3 +25262,41 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Measured** (`flyStep` run in node, Normal's speed 1.0 m/s, a turn at t = 0): the fall
   takes 2.09 s, and the lander moves slower than 0.3 m/s from 0.90 s to 2.18 s after the
   turn: a still moment of about 1.3 s, each turn.
+
+## 2026-11-19: Q137: the turn measured (light speed, turn distance)
+
+- **Developer:** targets at the far ends "can only be hit if the lander is going on one
+  direction. If the target is too close to where the direction changes, the ball seems
+  not to have enough lateral motion to topple them." And on Q126: "I did not realize its
+  speed was decouple from the lander. What I saw was the change direction control was
+  useless because the target light started moving way to fast."
+- **Corrected (Claude):** option B of the entry before ("a quicker turn", the light
+  steady) can't be done. With the light at a steady speed, the lander's push is fixed by
+  the fall: (light speed − lander speed) / the fall time (2.09 s). To turn faster, the
+  light has to speed up during the turn.
+- **Measured** (scratch `turn-sim.mjs`: Normal's speed 1 m/s; the light in a turn moves at
+  k × speed until the lander is back to full speed, k = 1 being 11.3; it turns `past` m
+  beyond the last structure, 0.8 in 11.3 (`TURN_PAST`); the ball's sideways speed when the
+  light comes back over the end structure, + toward the structures):
+
+| light in a turn (k) | turn past | ball at the edge | 1 m in | still moment | light outside the structures |
+|---|---|---|---|---|---|
+| 1 (11.3) | 0.8 m (11.3) | −0.36 (the old way) | 0.16 | 1.29 s | 1.6 s |
+| 1 | 2 m | 0.23 | 0.52 | 1.29 s | 4.0 s |
+| 1 | 3 m | 0.52 | 0.70 | 1.29 s | 6.0 s |
+| 2 | 0.8 m | −0.47 | 0.05 | 0.63 s | 1.2 s |
+| 2 | 3 m | 0.54 | 0.85 | 0.63 s | 4.5 s |
+| 3 | 3 m | 0.52 | 0.89 | 0.42 s | 4.0 s |
+
+- **What it shows:** the ball's speed trails the light by about the fall (2 s), whatever
+  the light does. So **the end targets need the turn further out** (2-3 m, not 0.8): at
+  3 m the ball has half its speed at the edge and 70-90% a metre in. The cost is waiting:
+  the light spends 4-6 s outside the structures each end instead of 1.6 s. **A faster
+  light in the turn** shortens the still moment (1.3 s to 0.6 s at 2×) and the wait (6 s to
+  4.5 s at 3 m) but alone makes the ends slightly worse (it comes back sooner). Where it
+  speeds up matters: outside the structures (the ends' turns) nothing is under it to aim
+  at; over them (the ⇄ turns) a fast light is what made ⇄ useless before 11.2 (up to
+  7.3 m/s).
+- **Proposed:** a mockup of the moon with the two settings to switch (turn past 0.8 / 2 /
+  3 m; the light in a turn 1× / 2× / 3×, perhaps only outside the structures), so the
+  developer can feel the wait against the hits at the ends. **To ask.**
