@@ -237,6 +237,12 @@ time, each tried before publishing:
   goes off by the blocks still standing: if it catches one, it reaches them all; the 💥
   after your 2nd ball in both worlds by default (measured: the moon after the 1st was
   then won in 2). See "Q130 mockup v2.3". **To try.**
+  **Developer (2026-11-18), trying it:** "I never saw a blast ball appear"; they played
+  only "the first scene presented to me called Launch pad", saw no version on the page,
+  and found the chat's steps hidden while the mockup is open: "We need a better way."
+  **Version 7:** the steps, a guide line, a record kept by the page and a card of
+  questions built into the mockup, saved where Claude reads them; see "Q130 mockup v2.3:
+  the tests built in". **To try.**
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -25062,3 +25068,64 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Open questions:** Q135 (new), Q130 (v2.3 to try), Q134 and Q133 (in 11.3: to try on a
   device), Q132 (the list; to recheck after Q135), Q127 and Q113 (parked), Q125, Q121,
   Q120, Q119, Q118.
+
+## 2026-11-18: Q130 mockup v2.3: the tests built in (version 7)
+
+- **Developer, trying v2.3:** "I dont get it. I never saw a blast ball appear. And the
+  momentum problem I said before has not been addressed." Not found in the journal or the
+  session: **to ask** (it's now in the card's text box). Then: "It is very hard for me to
+  respond to questions that span sessions ... please provide context when back
+  referencing old sessions" (Claude's questions had named "v2.2" and a version heading
+  without saying where it was); they "only played the first scene presented to me called
+  Launch pad" and saw no version. Then: "This is too hard. As soon as I open up the
+  mockup, your whole screen of 'next steps' is hidden. We need a better way." Claude
+  proposed the steps, the record and the questions inside the mockup; **"Lets try".**
+- **Likely why no 💥 (not confirmed):** the game reopens the scene kept from the last
+  visit (`src/ui/resume.js`, the browser's per-visit storage, keyed by the site's version,
+  which the mockups share), so the mockup opened inside Launch Pad from an earlier version,
+  past its first screen; a scene picked up with its blast ball already won offers no 💥.
+  **Changed:** the mockup always opens on its first screen (a kept scene is cleared, and
+  logged).
+- **Built** (scratch `patch-tests.py`; `topple.html`, `src/ui/topple.js`):
+  - the first screen: "💥 Blast ball · mockup v2.3 · tests", "Seeing this box means you
+    have the right version", the two tests in a few lines each, **Start test 1** (Star
+    Light's candles, seed 1000) and **Start test 2** (Launch Pad's challenge, seed 1000);
+    the other scenes and settings folded under "More". A test sets the 💥 after your 2nd
+    ball; test 1 shows the teaching card again.
+  - during play, a line at the top: what to do next ("Throw your ball 2. The 💥 comes
+    after your 2nd."; "Wait until nothing moves"; "Knock over the blocks under the 💥 ...";
+    "Your next ball is the red blast ball ..."), and **Tell Claude** at any time.
+  - the page's own record of the run (each ball and the blocks down before it, the 💥
+    shown and after which ball, won or run out, the blast's reach and blocks reached, the
+    scene's end, stars; the device and screen size), saved as the scene ends.
+  - a card after the scene (or on Tell Claude): what the game saw in plain words, three
+    questions (clear what to do; the blast's size; the ring's time), a text box, **Send to
+    Claude**; then Start test 2, the first screen, or Close. Where nothing can be saved, the
+    card gives the text to copy into the chat.
+  - saved in the artifact's own database (capability `db`, default rules: only the owner
+    writes), collection `reports`, one document a run (`test<n>-<time>`); Claude reads it
+    with `ArtifactData`. Every step logged in the debug log (`test: ...`).
+- **Checked in the browser pane** (scratch server, taken out after; the test hook): the
+  page left inside a scene and reloaded opened on the first screen; test 1: the line at
+  each step as above, the teaching card, the 💥 after ball 2, won by ball 3, the blast 4 of
+  4, the card's summary "The 💥 appeared after your ball 2. / You won the blast ball. /
+  The blast knocked over 4 of the 4 blocks left. / You won the scene with 3 of your own
+  balls: 3 stars."; Send with no database (local): the copy box; Start test 2 from the
+  card: the moon, "Drop your ball 1"; Tell Claude after one drop: the card with "The 💥
+  did not appear." A bug found and fixed on the way: a won scene moves the game on to the
+  next scene before its card, so the card's check now uses the scene the card is for. No
+  console errors (a 404 for the server's bare root only).
+- **Published:** version 7 of
+  [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h), with `db`; read
+  back: `reports` empty.
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Q130:** version 7 of the Topple Blast Ball page has the two tests built in; the
+  developer plays them, presses Send to Claude, and types "done"; Claude reads collection
+  `reports` (`ArtifactData list`) and records the results here.
+- **To ask:** the momentum problem the developer mentioned (what happens); Q135 (cannon-es
+  losing touches once its body ids pass ~33k: fix it in the blast ball's build, then rerun
+  the star tool?); the moon's 💥 after the 2nd ball (changed in v2.3 from the 1st).
+- **Then:** build the blast ball in the game, Q125, Q121.
+- **Open questions:** as in the status entry before this one.
