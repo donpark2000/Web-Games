@@ -103,6 +103,16 @@
         <p class="tutsay" id="tutSay"></p>
         <button type="button" class="pill" id="tutSkip">Skip</button>
       </div>
+      <!-- the blast ball (Q130): what's just happened, and its first meeting taught
+           (DESIGN.md: anything new is taught the first time it's met) -->
+      <p class="blasttoast" id="blastToast" role="status" hidden></p>
+      <div class="over blastteach" id="blastTeach" hidden>
+        <div class="overcard" role="dialog" aria-labelledby="btTitle">
+          <p class="overtitle" id="btTitle">💥 New: the blast ball!</p>
+          <p class="oversub">Knock over the blocks under the <b>💥</b> before its ring runs out. Then your next ball is a <b>blast ball</b>: it’s free, and if it hits any block that’s left, it knocks over <b>all</b> of them.</p>
+          <button type="button" class="big" id="btGo">Got it ▸</button>
+        </div>
+      </div>
       <p class="hint" id="hint" aria-live="polite" hidden></p>
       <!-- a scene being set up (Q104): over the park, the last scene dimmed
            (or the park's colour for a new level), a spinner and the words -->
@@ -116,6 +126,8 @@
           <p class="oversub" id="overSub"></p>
           <!-- a scene won with the first ball: a badge (Q118) -->
           <p class="aced" id="overAced" hidden>⚡ Aced it!</p>
+          <!-- the blast ball was free (Q130): "3 balls + 💥 free = 3 stars" -->
+          <p class="overblast" id="overBlast" hidden></p>
           <div class="bigstars" id="overStars" hidden></div>
           <p class="overbest" id="overBest" hidden></p>
           <button type="button" class="big" id="nextBtn"></button>

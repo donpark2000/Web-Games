@@ -13,6 +13,7 @@ import * as CANNON from '../vendor/cannon-es/cannon-es.js';
 import { isDown, STEP } from './topple.js';
 import { MOON_G, MOON_BALL, MOON_MATS, reachOf, outOfReach } from './topple-moon.js';
 import { fixedStepper } from './fixed-step.js';
+import { safeContactKeys } from './cannon-keys.js';
 
 export const MOON_SUBSTEPS = 12;
 export const MOON_BALL_LIFE = 12;     // a dropped ball is taken away after this long (s)
@@ -22,7 +23,8 @@ export const STILL_V = 0.05;          // a block slower than this (m/s, and turn
 export const CALM_V = 0.3;            // ... and calm (the win's card)
 
 export function createMoonWorld({ onHit = () => {} } = {}) {
-  const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -MOON_G, 0) });
+  // (touch keys that can't overflow: the first ball touch wakes the blocks, Q136)
+  const world = safeContactKeys(new CANNON.World({ gravity: new CANNON.Vec3(0, -MOON_G, 0) }));
   world.broadphase = new CANNON.SAPBroadphase(world);
   world.allowSleep = true;
   world.solver.iterations = 14;

@@ -2409,8 +2409,44 @@ tried"). Built 2026-11-10 (journal, "Topple! built"); release 9.0.
     **Every scene should be winnable with 3 stars by a good player** (Q130, Q132):
     checked by `node tools/topple-stars.js` (a search player for each world, its
     throws judged a little off with `--miss`; the balls it needs are the scene's par,
-    never shown in the game). The scenes it can't win in 3 are listed in the journal
-    ("Q132 built"), each to get a fix (the blast ball, or an easier scene).
+    never shown in the game). The scenes it can't win in 3 get **the blast ball**
+    (below; developer, 2026-11-18: the blast ball, not easier scenes).
+  - **The blast ball** (Q130, release 11.4; mockups v1-v2.3, developer's tests of
+    v2.3: "clear: Yes, size: About right, time: Enough"): **only in the scenes
+    that can't be won in 3 balls without it**, by structure (every deal of it),
+    on the difficulties where that's so: `src/core/topple-blast-scenes.js`,
+    written by `node tools/topple-stars.js --list-from run.json` from a whole run
+    judged a little off (a test fails when the files the scenes are made from
+    change; run it again after a change to the physics or the balls too).
+    - **The 💥** shows once **2 of your own balls** are thrown and the scene is
+      still (or 5 s after the ball), over the part with the most blocks standing
+      (the moon: a structure; the park: a group across), with a chime.
+      **Knock over a block under it, or pass a ball through it**, before its ring
+      runs out: **the park 10 s; the moon 3 passes** of the lander (a pass: the
+      ring's sweep one way across; ⇄ costs nothing). The ring drains (orange in
+      its last 30%), the 💥 blinks for its last 3 s or last pass and fades as it
+      goes. A ball already on its way still counts. Won: "💥 You won a blast
+      ball! Your next ball is free".
+    - **The blast ball** is the next ball: **free** (the stars count only your
+      own balls; developer, 2026-11-19, as shown: "3 balls + 💥 free = 3 stars"
+      on the card, "+💥 free" after the balls left; no ⚡ Aced it! with its
+      help). Red and glowing, in the slingshot or under the lander and all the
+      way down, with an orange circle of its reach where it would go off. It
+      goes off where it first touches anything (the park: also as it passes
+      within 15 cm of a standing block) and kicks the blocks in its reach
+      outward and up. **Its reach is set by what's left** (v2.3, developer:
+      "the power has to be dynamic"): if it catches a block standing within its
+      least reach (the moon 1.8 m, the park 0.6 m), it reaches every block
+      standing (up to 6 m, 4 m); if not, only its least. A scene isn't lost
+      while a blast ball won is left.
+    - **Its first meeting is taught**, once a device: a card over the scene as
+      the 💥 first shows ("💥 New: the blast ball! ..." , Got it ▸); its clock
+      waits and no ball goes meanwhile. After that a line: "A 💥! Knock it down
+      before its ring runs out".
+    - Kept in the round, so a scene picked up again has the 💥 as it was.
+      Logged: `blast: offered here` / `not offered here`, `the 💥 shows`,
+      `taught`, `won`, `the 💥 gone, not won`, `blast ball: on its way`, `blast`
+      (where, the blocks standing it knocked, its reach).
   - **Worlds** (Q122, developer, 2026-11-17: "a more dramatic separation, and within a
     'world' scenes should always be numbered from 1 to 5"; one road, not a map per
     world): **World 1 · Earth 🌍** (levels 1-5, the slingshot) and **World 2 · The

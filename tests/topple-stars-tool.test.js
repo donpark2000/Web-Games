@@ -121,3 +121,66 @@ test('topple stars tool: the command plays its scenes (two at once), prints a li
     assert.deepEqual(await readdir(dir), ['r.json'], 'nothing else left');
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
+
+/* ---------- the blast ball (Q130): played with it; the list of scenes that offer it ---------- */
+
+test('topple stars tool: with the blast ball, Star Light\'s candles: 2 own balls, the 3rd wins the 💥, then the free blast ball; par counts own balls', () => {
+  const r = playJob({ world: 'park', level: 5, scene: 3, seed: 1000, mode: 'normal' }, { tries: 12, blast: true });
+  assert.equal(r.structure, 'candles');
+  assert.equal(r.power, 'won');
+  assert.deepEqual(r.kinds.slice(0, 4), ['own', 'own', 'own', 'blast'], `balls: ${r.kinds}`);
+  assert.equal(r.par, r.kinds.filter(k => k === 'own').length, 'par: own balls only');
+  assert.ok(r.par <= STAR_BALLS, `won in ${r.par} own [${r.downAt}]`);
+  // a scene that doesn't offer it isn't played
+  const s = playJob({ world: 'park', level: 1, scene: 1, seed: 1000, mode: 'normal' }, { blast: true });
+  assert.equal(s.skipped, true);
+  assert.match(report([r, s]).lines[0], /1 skipped, no blast ball there/);
+});
+
+test('topple stars tool: the list by structure: a deal not won in 3 lists it on that difficulty (the park\'s Normal on Harder too); sorted', async () => {
+  const { blastList } = await import('../tools/topple-stars.js');
+  const row = (world, level, structure, mode, par) => ({ world, level, structure, mode, par, seed: 1 });
+  const list = blastList([
+    row('moon', 9, 'a+b', 'hardest', 4), row('moon', 9, 'a+b', 'normal', 3), row('moon', 7, 'c', 'normal', null),
+    row('park', 5, 'candles', 'normal', 4), row('park', 5, 'candles', 'normal', 3), row('park', 3, 'iceSpreadMix', 'hardest', 4),
+    row('park', 2, 'steps', 'normal', 2), { ...row('park', 1, 'x', 'normal', null), skipped: true },
+  ]);
+  assert.deepEqual(list, [
+    { world: 'park', level: 3, stack: 'iceSpreadMix', modes: ['hardest'] },
+    { world: 'park', level: 5, stack: 'candles', modes: ['normal', 'harder'] },
+    { world: 'moon', level: 7, stack: 'c', modes: ['normal', 'harder', 'hardest'] },
+    { world: 'moon', level: 9, stack: 'a+b', modes: ['normal', 'harder', 'hardest'] },
+  ]);
+});
+
+test('topple stars tool: --list-from takes only a whole run judged a little off; writes the list with its fingerprint (temp folder)', async () => {
+  const { listable, listFrom, blastFingerprint, BLAST_SOURCES, BLAST_FILE } = await import('../tools/topple-stars.js');
+  const rows = [{ world: 'park', level: 5, structure: 'candles', mode: 'normal', par: 4 }];
+  assert.deepEqual(listable({ options: { miss: true }, rows }), []);
+  assert.deepEqual(listable({ options: { miss: true, world: 'both' }, rows }), []);
+  assert.equal(listable({ options: {}, rows }).length, 1, 'not --miss');
+  assert.equal(listable({ options: { miss: true, world: 'moon', levels: [9] }, rows }).length, 2, 'one world, some levels');
+  assert.equal(listable({ options: { miss: true, blast: true }, rows }).length, 1, 'a --blast run');
+  assert.equal(listable({ options: { miss: true }, rows: [] }).length, 1, 'no rows');
+  const repo = path.join(path.dirname(TOOL), '..');
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'topple-blast-list-'));
+  try {
+    const { mkdir, copyFile, writeFile } = await import('node:fs/promises');
+    for (const f of [...BLAST_SOURCES, BLAST_FILE]) await mkdir(path.join(dir, path.dirname(f)), { recursive: true });
+    for (const f of BLAST_SOURCES) await copyFile(path.join(repo, f), path.join(dir, f));
+    const run = path.join(dir, 'run.json');
+    await writeFile(run, JSON.stringify({ made: '2026-11-19T00:00:00.000Z', options: { miss: true, deals: 6, seed: 1000 }, rows }));
+    const list = await listFrom(run, dir);
+    assert.equal(list.length, 1);
+    const text = await readFile(path.join(dir, BLAST_FILE), 'utf8');
+    assert.match(text, /WRITTEN BY\s+\/\/ tools\/topple-stars\.js --list-from|WRITTEN BY tools\/topple-stars\.js --list-from/);
+    assert.ok(text.includes(`fingerprint: '${await blastFingerprint(repo)}'`), 'the sources\' fingerprint');
+    assert.ok(text.includes("{ world: 'park', level: 5, stack: 'candles', modes: ['normal', 'harder'] },"));
+    const mod = await import(`data:text/javascript,${encodeURIComponent(text)}`);
+    assert.deepEqual(mod.BLAST_SCENES, [{ world: 'park', level: 5, stack: 'candles', modes: ['normal', 'harder'] }]);
+    assert.equal(mod.BLAST_FROM.scenes, 1);
+    // a run that can't make it: refused, nothing written
+    await writeFile(run, JSON.stringify({ made: 'x', options: { world: 'park' }, rows }));
+    await assert.rejects(listFrom(run, dir), /can't make the list: not judged a little off \(--miss\); one world only \(park\)/);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});

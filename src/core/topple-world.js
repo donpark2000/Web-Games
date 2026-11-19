@@ -15,6 +15,7 @@ import {
 } from './topple.js';
 import { moverAt, moverFor, openShare, gaps, hardestScene, clashes, meetsThings } from './topple-movers.js';
 import { fixedStepper } from './fixed-step.js';
+import { safeContactKeys } from './cannon-keys.js';
 
 export const MAX_SUBSTEPS = 12;                      // MAX_FRAME_S (0.1 s) of steps a frame (8 until 10.6: Q99)
 export const BALL_LIFE = 10;                         // a thrown ball is taken away after this long (s), or once under the ground
@@ -132,7 +133,8 @@ const posOf = b => [b.position.x, b.position.y, b.position.z];
 // 'block' or 'ball', b the other's kind, v the speed along the knock (m/s);
 // the ball's own knocks come once, as a: 'ball', with its height `y`.
 export function createWorld({ onHit = () => {} } = {}) {
-  const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -GRAVITY, 0) });
+  // (touch keys that can't overflow however many bodies the page has made: Q136)
+  const world = safeContactKeys(new CANNON.World({ gravity: new CANNON.Vec3(0, -GRAVITY, 0) }));
   world.allowSleep = true;
   world.broadphase = new CANNON.SAPBroadphase(world);
   world.solver.iterations = 20;

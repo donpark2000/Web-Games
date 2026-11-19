@@ -1136,10 +1136,14 @@ export const CARD_MAX = 4;
 export const END_WAIT = 2;        // out of balls: over this long after the last throw, once still
 export const END_MAX = 7 * Math.sqrt(SCALE);   // ... or this long, still or not
 
+// `used`: your own balls thrown (the stars count these); `blasts`: blast balls won and
+// not used yet, `blastsUsed` those thrown (the blast ball, src/core/topple-blast.js:
+// free, journal Q130); `power`: the 💥's state, set by the page (null: not offered).
 export function newRound(total) {
-  return { total, used: 0, down: 0, t: 0, since: null, allDown: 0, result: null, card: false, cardT: 0, calmFor: 0 };
+  return { total, used: 0, blasts: 0, blastsUsed: 0, down: 0, t: 0, since: null, allDown: 0, result: null, card: false, cardT: 0, calmFor: 0 };
 }
-export const ballsLeft = r => BALLS - r.used;
+// (a blast ball won and not used yet is a ball left too)
+export const ballsLeft = r => BALLS - r.used + (r.blasts ?? 0);
 export function canThrow(r) {
   if (r.result) return { ok: false, why: 'scene-over' };
   if (ballsLeft(r) <= 0) return { ok: false, why: 'no-balls' };
@@ -1149,6 +1153,8 @@ export function canThrow(r) {
 export function useBall(r) {
   const c = canThrow(r);
   if (!c.ok) return c;
+  // a blast ball won is the next ball, free: not one of your own
+  if (r.blasts > 0) { r.blasts--; r.blastsUsed = (r.blastsUsed ?? 0) + 1; r.since = 0; return { ok: true, ball: r.used, blast: true }; }
   r.used++;
   r.since = 0;
   return { ok: true, ball: r.used };

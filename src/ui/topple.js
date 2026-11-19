@@ -20,7 +20,7 @@ import {
   padSpot, padPress, demoDrag, demoAt, DEMO_UPS, trunksIn, MAX_LEVEL, levelInfo, switchLevel, restartLevel, placeOf, isOpen, offScreen,
   starsForBalls, starsOf, starTotal, STARS_ALL, recordStars, playableScene, furthestScene, startAtScene,
   MODES, MODE_INFO, dotSeconds, glowWait, glowAt, glowsBy, isMoonLevel, PARK_LEVELS,
-  WORLDS, worldOf, worldLevels, levelInWorld, firstOfWorld,
+  WORLDS, worldOf, worldLevels, levelInWorld, firstOfWorld, BALL, GRAVITY,
 } from '../core/topple.js';
 import {
   TUTORIALS, startTutorial, tutorialPart, tutorialParts, tutorialSay, partCleared, nextPart, lastPart,
@@ -28,7 +28,7 @@ import {
 } from '../core/topple-tutorial.js';
 import {
   moonScene, newLander, flyStep, steerTo, turnNow, flyTo, dropPath, moonMode, showsRing, ringX,
-  LANDER_Y, DROP_BELOW, MOON_BALL, STEER_PX, STEER_M, STEER_KEY, STEER_TAP, MOON_FIRST,
+  LANDER_Y, DROP_BELOW, MOON_BALL, STEER_PX, STEER_M, STEER_KEY, STEER_TAP, MOON_FIRST, TURN_PAST, MOON_G,
 } from '../core/topple-moon.js';
 import { nameOf, endSound } from '../core/players.js';
 import { mergeSetup } from '../core/resume.js';
@@ -41,6 +41,11 @@ import { resumable } from './resume.js';
 import { drawWatch } from './drawwatch.js';
 import { MAX_FRAME_S } from '../core/fixed-step.js';
 import { moverFor, openShare, gaps, flakesOn, meetsThings } from '../core/topple-movers.js';
+import {
+  BLAST, POWER, blastAt, armBlast, gapTo, reachAt, offersBlast, moonPowerSpot, parkPowerSpot,
+  newPower, powerClock, powerFrac, powerDue, powerStep, stillFlying, freeWords,
+} from '../core/topple-blast.js';
+import { makeBlastFx } from './topple-blast-fx.js';
 
 // Hardest's thing that moves in the way (journal Q106; the mockup v1-v2
 // through window.TOPPLE_MOCKUP, 2026-11-14, now the game): in a level with
@@ -504,6 +509,134 @@ let moon3d = null, moonWorld = null;
 const mo = { on: false, scene: null, f: null, held: false, z0: 0, lit: -1, keys: { up: false, down: false } };
 const onMoon = () => mo.on && !!mo.scene;
 
+/* ---------- the blast ball (DESIGN.md "Topple!", The blast ball; journal Q130) ---------- */
+
+// Only in the scenes the star tool lists (offersBlast). The rules are
+// src/core/topple-blast.js's; the 💥's state is the round's (round.power: null where
+// it isn't offered), so a scene picked up again has it as it was. Here: when it shows,
+// its first meeting taught, its clock and drawing (src/ui/topple-blast-fx.js), the
+// blast ball in hand and on its way, and the log.
+const BLAST_TAUGHT_KEY = 'web-games-topple-blast-taught';
+let blastTaught = false;
+try { blastTaught = storage?.getItem(BLAST_TAUGHT_KEY) === '1'; } catch { /* blocked: taught this visit only */ }
+// world: the scene's; teach: its first meeting's card up (the clock waits, no ball);
+// ringWas: the moon's ring a frame ago (its passes counted by how far it goes);
+// passLen: a pass (m); arms: the blast balls armed in this scene
+const bl = { world: 'park', teach: false, ringWas: null, passLen: 1, fx: null, fxScene: null, arms: [] };
+const blastW = () => (bl.world === 'moon' ? moonWorld : world);
+const powerUp = p => !!p && p.shown && !p.won && !p.gone;
+// A scene set up or picked up again (not the practice): whether it offers the 💥, and
+// the 💥 back where it was if it was up.
+function blastSetup() {
+  for (const a of bl.arms) a.off();
+  bl.arms = [];
+  const moon = onMoon(), S = moon ? moon3d.three.scene : stage.three.scene;
+  if (bl.fx && bl.fxScene !== S) { bl.fx.dispose(); bl.fx = null; }
+  if (!bl.fx) { bl.fx = makeBlastFx(S); bl.fxScene = S; }
+  bl.fx.hidePower(); bl.fx.setHot(null); bl.fx.setReach(null); bl.fx.fly(null);
+  Object.assign(bl, { world: moon ? 'moon' : 'park', teach: false, ringWas: null });
+  $('blastTeach').hidden = true;
+  $('blastToast').hidden = true;
+  if (tut || !current || !round) return;
+  const lv = current.id.level ?? game.level, stack = current.layout.stack;
+  // (a round from before 11.4, or a new one: offered or not; a kept round says already)
+  if (round.power === undefined) round.power = offersBlast(lv, stack, playMode()) ? newPower() : null;
+  const p = round.power;
+  if (!p) { L('blast: not offered here', { level: lv, stack, mode: playMode() }); return; }
+  if (moon) bl.passLen = (mo.scene.span[1] - mo.scene.span[0]) + 2 * TURN_PAST;
+  if (powerUp(p)) bl.fx.showPower(p.at);
+  L('blast: offered here', {
+    world: bl.world, level: lv, stack, mode: playMode(), shows: `after your ball ${POWER.after}`, clock: moon ? `${POWER.passes} passes of ${r2(bl.passLen)} m` : `${POWER.parkS} s`,
+    ...(p.shown ? { shown: true, won: p.won, gone: p.gone, left: r2(powerClock(bl.world, p).left) } : {}), blasts: round.blasts ?? 0, blastsUsed: round.blastsUsed ?? 0,
+  });
+}
+// The 💥 shows (powerDue): over the part with the most blocks still standing.
+function blastShow() {
+  const W = blastW(), sp = bl.world === 'moon' ? moonPowerSpot(W, mo.scene.structures) : parkPowerSpot(W);
+  if (!sp) return;
+  Object.assign(round.power, { shown: true, at: sp.at.map(v => +v.toFixed(3)), under: sp.under, t: 0, passes: 0 });
+  bl.ringWas = null;
+  bl.fx.showPower(round.power.at); bl.fx.sparkle(round.power.at);
+  sound.play('chime', 0, { level: 0.6 });
+  // its first meeting taught, its clock waiting (DESIGN.md: anything new is taught the first time it's met)
+  if (!blastTaught) { bl.teach = true; $('blastTeach').hidden = false; } else blastToast('A 💥! Knock it down before its ring runs out');
+  L('blast: the 💥 shows', { world: bl.world, afterBall: round.used, standing: round.total - round.down, of: round.total, at: round.power.at.map(r2), under: sp.under, teach: bl.teach });
+}
+$('btGo').onclick = () => {
+  bl.teach = false; blastTaught = true;
+  try { storage?.setItem(BLAST_TAUGHT_KEY, '1'); } catch { /* blocked */ }
+  $('blastTeach').hidden = true;
+  L('blast: taught (Got it)');
+};
+let blastToastT = 0;
+function blastToast(s) { const el = $('blastToast'); el.textContent = s; el.hidden = false; clearTimeout(blastToastT); blastToastT = setTimeout(() => { el.hidden = true; }, 2600); }
+// A frame on (either world's tick): the 💥 due, its clock, won or gone, drawn.
+function blastTick(dt) {
+  if (!bl.fx || !round) return;
+  const moon = bl.world === 'moon', W = blastW(), p = round.power;
+  if (p && !tut && powerDue(round, W.still())) blastShow();
+  if (powerUp(p) && !bl.teach && !round.result) {
+    let moved = 0;
+    if (moon) { const rx = ringX(mo.f); if (bl.ringWas != null) moved = rx - bl.ringWas; bl.ringWas = rx; }
+    const balls = moon ? W.balls.map(b => b.body) : W.balls;
+    const touched = balls.some(b => Math.hypot(b.position.x - p.at[0], b.position.y - p.at[1], b.position.z - p.at[2]) < POWER.catchR + (b.shapes[0]?.radius ?? 0));
+    const knocked = p.under.some(i => W.blocks[i]?.down || W.blocks[i]?.broken);
+    const e = powerStep(round, bl.world, { dt, moved, passLen: bl.passLen, touched, knocked, flying: balls.length > 0 && stillFlying(bl.world, round.since) });
+    const clock = moon ? { passes: r2(p.passes) } : { s: r2(p.t) };
+    if (e === 'won') {
+      bl.fx.sparkle(p.at); bl.fx.hidePower();
+      sound.play('chime', 0, { level: 0.8 });
+      blastToast('💥 You won a blast ball! Your next ball is free');
+      renderTally();
+      L('blast: won', { how: touched ? 'touched' : 'knocked', ...clock, ball: round.used, down: round.down });
+    } else if (e === 'gone') {
+      bl.fx.gone();
+      L('blast: the 💥 gone, not won', { ...clock, ball: round.used, down: round.down });
+    }
+  }
+  bl.fx.tick(dt, { frac: p ? powerFrac(bl.world, p) : 1, warn: powerUp(p) && powerClock(bl.world, p).warn, g: moon ? MOON_G : GRAVITY });
+}
+// The blast ball in hand (red, glowing) and the circle of its reach where it would go
+// off: `ok` a ball can go now; the park's drag `d`; the moon's landing spot `p`.
+function blastHand(ok, d, p = null) {
+  if (!bl.fx || !round) return;
+  const next = ok && (round.blasts ?? 0) > 0;
+  if (bl.world === 'moon') {
+    const f = mo.f;
+    bl.fx.setHot(next ? [f.x, LANDER_Y - DROP_BELOW, f.z] : null, MOON_BALL.r * 1.12);
+    let q = p;
+    if (next && !q) { const a = moonAim(); q = [a.x, 0, a.z]; }
+    bl.fx.setReach(next && q ? [q[0], 0, q[2]] : null, next && q ? reachAt(moonWorld, [q[0], 0, q[2]], BLAST.moon).r : BLAST.moon.r);
+    return;
+  }
+  const aim = d && ok ? d.aim : 0, pw = d && ok ? d.power : 0, br = current?.parts?.ball?.r ?? BALL.r;
+  bl.fx.setHot(next ? [HAND.x - aim * 0.04, HAND.y - pw * 0.03, HAND.z + pw * 0.1] : null, br * 1.15);
+  // where it would go off: the first point of its path within the fuse of a standing block, else where it first touches
+  let at = null;
+  if (next && d && d.ok) {
+    const tr = world.trace(launchVel(d.power, d.aim, d.up).vec, 0), v = world.blocks[0]?.body.position.clone();
+    let go = tr.hits[0]?.at ?? null;
+    if (v) for (const q of tr.pts) { v.set(q[0], q[1], q[2]); if (world.blocks.some(r => !r.broken && !r.down && gapTo(r, v) - br <= BLAST.park.fuse)) { go = q; break; } }
+    if (go) at = [go[0], go[1], go[2]];
+  }
+  bl.fx.setReach(at && [at[0], 0, at[2]], at ? reachAt(world, at, BLAST.park).r : BLAST.park.r);
+}
+// A blast ball thrown or dropped (its cannon body): red and glowing all the way
+// (developer, on v2: not a normal ball once thrown), the blast where it goes off.
+function blastArm(body) {
+  const W = blastW(), cfg = BLAST[bl.world];
+  L('blast ball: on its way', { world: bl.world, least: cfg.r, kick: cfg.kick, ownBalls: round.used, blastsLeft: round.blasts ?? 0 });
+  bl.fx.fly(body, (body.shapes[0]?.radius ?? 0.1) * 1.15);
+  bl.arms.push(armBlast(W, body, cfg, at => {
+    bl.fx.fly(null);
+    const b = blastAt(W, at, cfg);
+    bl.fx.boom(at, b.r);
+    sound.play('crash', 0, { level: 1 });
+    // (knocked: the standing blocks it kicked; reached: those and the ones down already)
+    L('blast', { at: at.map(r2), knocked: b.knocked, standing: b.standing, reached: b.reached, caught: b.caught, r: r2(b.r), least: cfg.r, kick: cfg.kick });
+  }));
+}
+
 function showPlay() {
   $('setup').hidden = true;
   $('play').hidden = false;
@@ -767,6 +900,7 @@ async function makeTheScene(kept) {
     ...(kept ? { used: round.used, down: round.down } : {}),
   });
   busy = false;
+  blastSetup();
   resume.keep();
   return current;
 }
@@ -810,6 +944,7 @@ async function makeMoonScene(lv, kept, spec) {
     ...(kept ? { used: round.used, down: round.down } : {}),
   });
   busy = false;
+  blastSetup();
   resume.keep();
   return current;
 }
@@ -825,7 +960,8 @@ function moonDrop(how) {
   const f = mo.f, aimNow = moonAim();
   const r = useBall(round);
   if (tut) { round.used = 0; tut.balls = (tut.balls ?? 0) + 1; }   // the tutorial's balls are free (Q124), counted for the log
-  moonWorld.dropBall([f.x, LANDER_Y - DROP_BELOW, f.z], [f.vx, 0, 0]);
+  const dropped = moonWorld.dropBall([f.x, LANDER_Y - DROP_BELOW, f.z], [f.vx, 0, 0]);
+  if (r.blast) blastArm(dropped.body);
   thrownAt = performance.now();
   $('hint').hidden = true;
   sound.play('whoosh', 0, { level: 0.35, quiet: true });
@@ -869,6 +1005,7 @@ function moonTick(dt, draw) {
   // Earth"); aiming: the pad held, or the lander steered by ↑ ↓
   const { glow, glows } = glowStep(dt, still, mo.held || !!kz);
   noteSettled();
+  blastTick(dt);
   if (!draw) return;
   moon3d.tick(dt);
   moon3d.sync(moonWorld);
@@ -885,6 +1022,7 @@ function moonTick(dt, draw) {
   }
   if (lit !== mo.lit) { mo.lit = lit; if (lit >= 0) L('drop would hit block', { i: lit, mat: moonWorld.blocks[lit]?.mat }); }
   moon3d.setAim(p, lit);
+  blastHand(ok, null, p && [p[0], 0, p[2]]);
   moon3d.render();
 }
 
@@ -910,11 +1048,13 @@ function renderTally() {
   const r = round;
   $('s1Chip').innerHTML = svg(setup.p1, ended ? (ended.won ? 'winner' : 'sad') : 'normal');
   // the balls left, drawn as the level's ball (developer, 2026-11-12, Q80: no blocks-down count)
-  const left = ballsLeft(r);
+  const left = BALLS - r.used;   // (your own: a blast ball won shows beside them, free)
   // (the moon's ball drawn as the iron one: grey metal)
   $('balls').classList.toggle('iron', ['iron', 'moon'].includes(levelInfo(current?.id.level ?? game.level).ball));
-  $('balls').innerHTML = Array.from({ length: BALLS }, (_, i) => `<i class="${i < left ? '' : 'used'}"></i>`).join('');
-  $('balls').setAttribute('aria-label', `${left} ball${left === 1 ? '' : 's'} left`);
+  // a blast ball won: after them, marked free (developer, 2026-11-19: the stars count only your own)
+  const free = r.blasts > 0 ? `<b class="blastchip">+${r.blasts > 1 ? r.blasts : ''}💥 free</b>` : '';
+  $('balls').innerHTML = Array.from({ length: BALLS }, (_, i) => `<i class="${i < left ? '' : 'used'}"></i>`).join('') + free;
+  $('balls').setAttribute('aria-label', `${left} ball${left === 1 ? '' : 's'} left${free ? `, and ${r.blasts === 1 ? 'a blast ball' : `${r.blasts} blast balls`}, free` : ''}`);
   renderHud();
   // Start again any time in a scene (Q102: the level or the whole game too); not once it's over
   // (the game has moved on; the card has its own buttons)
@@ -948,7 +1088,7 @@ function renderHud() {
 const parkSize = () => { const b = $('park').getBoundingClientRect(); return Math.min(b.width, b.height); };
 const aimFor = (dx, dy) => (current ? frontDrag(dx, dy, parkSize(), current.layout.power) : null);
 const dragNow = () => (drag ? aimFor(drag.x - drag.x0, drag.y - drag.y0) : null);
-const ready = () => !!(round && !busy && canThrow(round).ok);
+const ready = () => !!(round && !busy && !bl.teach && canThrow(round).ok);
 
 // A throw starts only on the pad (or within PAD.reach of it); a press
 // anywhere else aims nothing: the pad pulses to show where to start, and the
@@ -1044,6 +1184,7 @@ function doThrow(d) {
   const { v, yaw, el, vec } = launchVel(d.power, d.aim, d.up);
   const aimed = world.trace(vec, 1);
   const body = world.throwBall(vec);
+  if (r.blast) blastArm(body);
   shot = { body, at: world.time, pred: aimed.hits.map(h => ({ kind: h.kind, at: h.at })), touches: [], last: null };
   thrownAt = performance.now();
   $('hint').hidden = true;
@@ -1150,12 +1291,14 @@ function tick(dt, draw = true) {
     L('glow: counting though not still', { gameS: r2(round.since), fx, moving: world.moving().slice(0, 6).map(b => ({ mat: b.mat, tall: b.tall, down: b.down, v: r2(b.body.velocity.length()), spin: r2(b.body.angularVelocity.length()), at: [b.body.position.x, b.body.position.y, b.body.position.z].map(r2) })) });
   }
   noteSettled();
+  blastTick(dt);
   if (!draw) return;
   stage.sync(world.blocks, world.balls);
   if (world.movers.length) stage.syncMovers(world.movers, world.moverT);
   const ok = ready();
   const d = dragNow() ?? (ok ? demoFrame() : null);
   stage.setSling(ok, d && ok ? d.aim : 0, d && ok ? d.power : 0);
+  blastHand(ok, d);
   // the dots as long as how hard says (Q96; Hardest Harder's for now, Q98)
   const secs = dotSeconds(playMode(), round.used);
   stage.setDots(d && ok && d.show && secs > 0 ? dotsFor(world.trace(launchVel(d.power, d.aim, d.up).vec, 0), secs) : null, 1);
@@ -1272,7 +1415,7 @@ function endScene(result) {
   // the pills over the park show the scene's end until the next one starts
   // (no hearts left, or all 5 jewels), not the game already moved on
   const shown = outcome === 'out' ? { ...game, hearts: 0, jewels: was.jewels } : lvDone ? { ...was, jewels: SCENES } : null;
-  ended = { outcome, words, won: result.won, level: was.level, scene: was.scene, shown, unlocked: game.reached > was.reached, stars, balls: round.used };
+  ended = { outcome, words, won: result.won, level: was.level, scene: was.scene, shown, unlocked: game.reached > was.reached, stars, balls: round.used, blasts: round.blastsUsed ?? 0 };
   // the blocks as the scene ended (the last may still be falling): a reload shows it as it was
   settled = { round: JSON.parse(JSON.stringify(round)), poses: (onMoon() ? moonWorld : world).poses() };
   // won: the win shown at once ("Cleared!", the jewel, the sound), the card once the blocks are calm (tick);
@@ -1316,7 +1459,12 @@ function showEnd() {
   $('newBtn').hidden = !!ended.tut && !!ended.last;
   $('overStars').hidden = $('overBest').hidden = !st;
   // the first ball cleared it all: a badge (developer, 2026-11-17)
-  $('overAced').hidden = !(st && ended.balls === 1);
+  // (aced: the first ball alone, no blast ball's help)
+  $('overAced').hidden = !(st && ended.balls === 1 && !ended.blasts);
+  // the blast ball was free (developer, 2026-11-19: "3 balls + 💥 free = 3 stars")
+  const free = st ? freeWords(ended.balls, ended.blasts) : null;
+  $('overBlast').hidden = !free;
+  if (free) $('overBlast').textContent = `${free} = ${st.stars} ${st.stars === 1 ? 'star' : 'stars'}`;
   // fewer than 3 stars in the best so far: the scene can be played again at once (Q118; a card kept
   // from before has no scene to go back to)
   $('againStars').hidden = !(st && ended.level && ended.scene && Math.max(st.best, st.stars) < 3);
@@ -1397,7 +1545,7 @@ function askAgain(from) {
   $('againGame').hidden = game.reached <= 1;
   drag = null;
   stopDemo();
-  L('start again?', { from, scene, level: game.level, reached: game.reached, used: round?.used ?? 0, down: round?.down ?? 0 });
+  L('start again?', { from, scene, level: game.level, reached: game.reached, used: round?.used ?? 0, down: round?.down ?? 0, ...(round?.power ? { power: { shown: round.power.shown, won: round.power.won, gone: round.power.gone }, blasts: round.blasts ?? 0, blastsUsed: round.blastsUsed ?? 0 } : {}) });
   $('ask').hidden = false;
   $('againNo').focus({ preventScroll: true });
 }
@@ -1560,5 +1708,19 @@ window.topple = {
     round.card = !won;
     endScene(round.result);
     return this.state();
+  },
+  // the blast ball (Q130): its state; its first meeting taught or not (set it, for checking); Got it pressed
+  blast: () => ({
+    power: round?.power ?? null, blasts: round?.blasts ?? 0, blastsUsed: round?.blastsUsed ?? 0, used: round?.used ?? 0, left: round ? ballsLeft(round) : 0,
+    teach: bl.teach, teachShown: !$('blastTeach').hidden, toast: $('blastToast').hidden ? '' : $('blastToast').textContent, powerDrawn: !!bl.fx?.powerShown,
+    chip: document.querySelector('#balls .blastchip')?.textContent ?? '', endLine: $('overBlast').hidden ? '' : $('overBlast').textContent, aced: !$('overAced').hidden, arms: bl.arms.length,
+  }),
+  blastTaught(on) { if (on !== undefined) { blastTaught = !!on; try { if (on) storage?.setItem(BLAST_TAUGHT_KEY, '1'); else storage?.removeItem(BLAST_TAUGHT_KEY); } catch { /* blocked */ } L('blast taught set (checking)', { on: !!on }); } return blastTaught; },
+  blastGotIt: () => $('btGo').onclick(),
+  // the throws whose path first touches park block i: [{ aim, up, off (m across from its middle) }], the most centred first
+  throwsAt(i) {
+    const out = [], body = world.blocks[i].body;
+    for (let up = 0; up <= 40; up += 4) for (let a = -1; a <= 1; a += 0.05) { const h = world.trace(launchVel(current.layout.power, a, up).vec, 0).hits[0]; if (h?.body === body) out.push({ aim: +a.toFixed(2), up, off: +Math.abs(h.at[0] - body.position.x).toFixed(2) }); }
+    return out.sort((u, v) => u.off - v.off);
   },
 };

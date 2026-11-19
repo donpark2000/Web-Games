@@ -351,4 +351,21 @@ body.tp-playing .site-foot { display: none; }
 #againStars .ic { vertical-align: -4px; }
 .overbest { margin: 0; text-align: center; font-size: 16px; font-weight: 700; color: var(--muted); }
 .overbest.new { color: var(--p1); font-weight: 800; }
+
+/* the blast ball (journal Q130; mockup v2.3's look): "+💥 free" after the balls
+   left, a line on the end card ("3 balls + 💥 free = 3 stars"), a toast under
+   the pills, and its first meeting's card over the park (the scene waits) */
+.balls .blastchip { align-self: center; padding: 1px 7px; border-radius: 999px; background: #FF5A1F; color: #FFFFFF; font-size: 13px; font-weight: 800; line-height: 18px; white-space: nowrap; box-shadow: 0 0 8px #FF8A2E; }
+.overblast { margin: 0; text-align: center; font-size: 16px; font-weight: 800; color: #B8431A; }
+.overblast[hidden] { display: none; }
+.blasttoast {
+  position: absolute; left: 50%; top: 100px; transform: translateX(-50%); z-index: 2; margin: 0; width: max-content; max-width: calc(100% - 32px); box-sizing: border-box;
+  background: rgba(40, 18, 8, .92); border: 2px solid #FF5A1F; color: #FFCF5A; border-radius: 12px; padding: 8px 14px;
+  font-size: 16px; font-weight: 800; line-height: 1.25; text-align: center; pointer-events: none;
+}
+.blasttoast[hidden] { display: none; }
+.over.blastteach { z-index: 5; background: rgba(40, 18, 8, .3); }
+.blastteach .oversub { margin: 0; }
+.blastteach .oversub b { color: #D8432A; }
+@media (max-width: 420px) { .balls .blastchip { font-size: 11px; padding: 0 5px; } }
 @media (prefers-reduced-motion: reduce) { .rn.cur .rc, .rn.shake, .bigstars .bs.on { animation: none; } .rc .lock.pop { display: none; } .aced { animation: none; } .rface.walk { transition: none; } }

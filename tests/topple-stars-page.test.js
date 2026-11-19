@@ -54,14 +54,16 @@ test('topple stars page: a scene won records its stars before the game moves on,
   const iOver = end.indexOf('sceneOver(game, result.won)');
   assert.ok(iStars > 0 && iOver > iStars, 'the stars are recorded after the scene moved on');
   assert.match(end, /result\.won \? recordStars/, 'a lost scene earns none');
-  assert.match(end, /ended = \{[^}]*stars, balls: round\.used \}/);
+  // (the blast balls used after them, Q130: the card says they were free)
+  assert.match(end, /ended = \{[^}]*stars, balls: round\.used, blasts: round\.blastsUsed \?\? 0 \}/);
   assert.match(page, /<div class="bigstars" id="overStars" hidden><\/div>\s*<p class="overbest" id="overBest" hidden><\/p>/);
   const show = js.match(/function showEnd\(\) \{[\s\S]*?\n\}/)?.[0] ?? '';
   assert.match(show, /ended\.won \? ended\.stars : null/);
   assert.match(show, /New! Your first stars here/);
   assert.match(show, /New best - \$\{st\.stars\} \$\{st\.stars === 1 \? 'star' : 'stars'\}!/, 'a better score says the new stars, not the old best');
   assert.doesNotMatch(show, /Your best was/, 'the old best beside the new stars read as a contradiction');
-  assert.match(show, /\$\('overAced'\)\.hidden = !\(st && ended\.balls === 1\);/, 'Aced it! only on a scene won with the first ball');
+  // (and not with a blast ball's help, Q130)
+  assert.match(show, /\$\('overAced'\)\.hidden = !\(st && ended\.balls === 1 && !ended\.blasts\);/, 'Aced it! only on a scene won with the first ball');
   assert.match(page, /<p class="aced" id="overAced" hidden>⚡ Aced it!<\/p>/);
   assert.match(css, /\.aced\[hidden\] \{ display: none; \}/, 'hidden really hides the badge');
   assert.match(css, /prefers-reduced-motion: reduce\) \{[^\n]*\.aced \{ animation: none; \}/, 'less motion: the badge is still');

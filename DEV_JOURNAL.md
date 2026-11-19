@@ -27,6 +27,10 @@ time, each tried before publishing:
   `getKey` replaced, numbers not bit shifts), with a test: a world made after the counter
   is past 70000 still reports the ball's touches. Then the star tool run again, to see if
   Q132's moon list changes. **To ask:** OK to fold this into the build?
+  **Developer (2026-11-19): "yes fold in the Q136 fix".** **Built, not published:**
+  `src/core/cannon-keys.js` (both keepers' keys and their unpacking), tested; the star
+  tool run again: Q132's park list the same, the moon's longer (Solar Farm's challenges
+  on Normal too, Mining Site's scene 3 on Normal and Harder). See "The blast ball built".
 
 - **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
   developer: "when I open the map it would be nice to position it so my current scene
@@ -249,6 +253,10 @@ time, each tried before publishing:
   **Decided (developer, 2026-11-19):** "I like your suggestion": the blast ball stays free
   (stars count your own balls) and play shows it: the tally and the end screen mark it as
   free, e.g. "3 balls + 💥 free = 3 stars".
+  **Built in the game (2026-11-19, not published):** as v2.3, shown as free, the list of
+  scenes written by the star tool (12 structures; the moon's on all three difficulties),
+  the 💥 shown 5 s after the ball at most even if something still moves. See "The blast
+  ball built". **To try** once published.
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -469,6 +477,21 @@ time, each tried before publishing:
   levels 6-10, release 11.0** (see "Q119 built"); for the developer to play.
 
 ## Proposed additions to the standards skill
+
+- **A page you step by hand keeps running between your steps** (2026-11-19, "The
+  blast ball built"): checking the moon's 💥 in a visible browser pane, its 3-pass
+  clock ran out in about 11 s of stepped time, not 17; the game's own frame loop had
+  been running in real time between each of the checking calls. Measured inside one
+  call, it was exact (0.879 passes in 5 s, 0.879 expected). Generic: when driving a
+  live page by hand, measure anything timed inside a single call (or stop its own
+  loop), not across calls.
+
+- **Don't take a listener off while its event is being sent** (2026-11-19, "The blast
+  ball built"): the blast ball's listener took itself off as it fired; cannon-es sends
+  an event by index over a fixed count of listeners, so the next one would be skipped
+  and the call would run past the list's end. Found reading the library before the
+  first run. Generic: a handler that unsubscribes itself, or others, mid-dispatch is
+  only safe where the library says so; otherwise mark it done and take it off later.
 
 - **Same case, different result: look for what the run has built up** (2026-11-18,
   "Q130 mockup v2.3"): a measure gave 63 of 90 in a long run and 15 of 15 for the same
@@ -25470,3 +25493,142 @@ Q125 (the moon's materials) and Q121 (sounds).
   record fixes in "Q130 mockup v2.3: the developer's reports"). Then Q125, Q121.
 - **To ask:** Q136 (cannon-es touch keys: fix in the build, then rerun the star tool?).
 - **Open questions:** Q136, Q130, as before otherwise (Q137 closed).
+
+## 2026-11-19: The blast ball built (Q130), and cannon-es's touch keys fixed (Q136)
+
+- **Developer:** "go, and yes fold in the Q136 fix". Not published.
+- **The mockup's files:** the scratchpad of the sessions that made it was gone; read back
+  from the published page (version 7 of
+  [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h)) and compared
+  with the repo: only `src/core/topple.js` (7 lines), `src/ui/topple.js` (358),
+  `topple.html` (122) differed, plus its two new modules. Built from those, the mockup's
+  panel, tests and card left out.
+- **Q136 fixed: `src/core/cannon-keys.js`** (`safeContactKeys(world)`): each world's two
+  overlap keepers key a pair as `i * 2^26 + j` (numbers, not `i << 16 | j`), with their
+  own `getDiff` unpacking the same way (cannon-es unpacks with bit masks inside the
+  module, so `getKey` alone can't be replaced). Both Topple worlds use it (the park's
+  blocks hear knocks by `collide`, which never used these keys; the blast ball and the
+  moon use `beginContact`). Tin Can Alley left as it is (no `beginContact`). Tests
+  (`tests/cannon-keys.test.js`, 4): a plain world past id 70000 loses the ball's touch (the
+  bug, so the test can see it come back); with the fix every touch at ids from 0, 33000,
+  70000 and 5,000,000, begin and end, the right two bodies; the keys' order and unpacking;
+  the moon world made after 70000 bodies hears the ball on a crate. **Shown to fail:**
+  the moon world without the fix, and the keys put back to `<< 16`.
+- **The rules: `src/core/topple-blast.js`** (no DOM): the mockup's sizes, reach (`reachAt`),
+  blast (`blastAt`), fuse (`gapTo`, `armBlast`), groups; and, moved out of the page so
+  they can be tested: where the 💥 floats (`moonPowerSpot`, `parkPowerSpot`), when it
+  shows (`powerDue`), its clock (`powerClock`, `powerStep`: won, gone, a ball on its way),
+  `freeWords`. The 💥's state is the round's (`round.power`), so a scene picked up again
+  has it as it was (the mockup kept it in the page).
+  - **The round** (`src/core/topple.js`): `blasts` (won, not used), `blastsUsed`; a blast
+    ball is a ball left, `useBall` takes it first and doesn't count it as your own; stars
+    by your own balls, as before.
+  - **The two record faults** of "Q130 mockup v2.3: the developer's reports": `blastAt`
+    now returns `knocked` (standing blocks it kicked) apart from `reached` (those and the
+    ones down already), and the log says both; Start again's log line now has the 💥's
+    state and the blast balls (a new scene logs `blast: offered here` afresh).
+  - **Found reading cannon-es before the first run:** the mockup's `armBlast` took its
+    listeners off when it fired, from inside the event; cannon-es sends an event by index
+    over a count fixed before the loop, so that would skip the next listener (the moon
+    world's own) and call past the end. Now it only marks itself done; the page takes its
+    listeners off as the next scene starts. Test: the moon world's own listener still
+    hears the ball on the crate the blast ball went off on.
+- **The page** (`src/ui/topple.js`, `topple.html`, `css/topple.css`;
+  `src/ui/topple-blast-fx.js` as in the mockup): offered where the list says, the 💥
+  after your 2nd ball, taught once a device (the card; the clock waits, no ball
+  meanwhile), "+💥 free" after the balls left (inside the row of balls: the tally's height
+  unchanged on a phone, 92 px either way), the card's "3 balls + 💥 free = 3 stars" (the
+  developer's decision of today), no ⚡ Aced it! with its help. Hooks for checking on
+  `window.topple`: `blast()`, `blastTaught()`, `blastGotIt()`, `throwsAt()`.
+- **Changed from the mockup, measured:** the 💥 waits for the scene to be still, or **5 s
+  after the ball** at most (`POWER.stillMaxS`). Checking Launch Pad's challenge in the
+  browser, a moon ball rolling slowly (0.18-0.24 m/s) kept the scene from being still
+  until 11 s after the 2nd drop; the glow has the same kind of cap for the same reason
+  (Q105).
+- **The star tool** (`tools/topple-stars.js`): `--blast` plays only the scenes that offer
+  it, with it (2 own balls; the next own ball going for the 💥, a drop or throw that wins
+  it picked first, judged a little off too; the free blast ball once it's won; then own
+  balls; the 💥's clock left out: a good player is in time; par counts own balls).
+  `--list-from run.json` writes `src/core/topple-blast-scenes.js` from a whole run judged
+  a little off (refused otherwise): by structure, every difficulty a deal of it wasn't won
+  in 3 on (the park's Normal on Harder too), with a fingerprint of `topple-levels.js` and
+  `topple-moon.js` (the files every scene is made from). A test fails when they change,
+  naming the commands. Dealing all 750 scenes to fingerprint them instead was too slow for
+  the suite (the park's deal checks each scene with the physics: over 2 minutes). Physics
+  or ball changes aren't caught by it: said in DESIGN.md and the file.
+- **Checked in the browser pane** (the game on localhost, Harder, stepped by the hooks):
+  - Star Light's candles (offered; level 5's other scenes not, as listed): 2 throws, the
+    💥 over the far candles (blocks 4-7), the teaching card (screenshot), its clock at 0
+    while the card was up; Got it, a throw at block 4 won it (1.65 s); "+💥 free", the
+    toast; the blast ball at the 2 left: `blast` knocked 2 of 2 standing; the card "Teddy
+    cleared it! 💎", "3 balls + 💥 free = 3 stars", 3 stars, no Aced (screenshot).
+  - Launch Pad's challenge (offered): the 💥 over the biggest structure (blocks 13-19),
+    0.879 passes in 5 s (0.879 expected at Harder's 1.35 m/s over 7.63 m), a drop at it
+    won it (1.61 passes), the blast ball under the lander with its reach round every block
+    left (screenshot); dropped: all 20 down with 3 own balls.
+  - A reload with the 💥 up (candles, 4.7 s into its 10): picked up with the 💥 drawn and
+    its clock carrying on; gone at 10.0 s, faded.
+  - A phone (375x812): the teaching card and the chip fit, no sideways scroll.
+  - No console errors. The big blast ball in the slingshot is the camera's nearness: the
+    normal ball there is the same size.
+  - Not checked: a real touch screen, the old tablet, the sounds heard (the chime and the
+    crash, as in the mockup).
+- **Tests:** `tests/topple-blast.test.js` (15): reach (least, caught, capped, column); the
+  kick (outward, up, harder near the middle, knocked vs reached); gaps; armed on the moon
+  (once, where it touched, other listeners still heard) and in the park (goes off within
+  the fuse, before touching); the round (free, a ball left, stars by own balls, not lost
+  while one's left); when the 💥 shows (after the 2nd, still or 5 s on); the park's clock
+  (blinks for the last 3 s, waits for a ball on its way, won, gone at 10 s); the moon's (3
+  passes by distance either way, blinks on the last, won by a ball through it); where it
+  floats; the words; the list (each structure dealt in its level, Harder with Normal);
+  **the list not stale**; the page's wiring. `tests/topple-stars-tool.test.js` (+3): the
+  candles played with it (own, own, own, blast: won in 3 own), a scene without it skipped;
+  the list by structure; `--list-from` (refusals; the file written in a temp folder and
+  imported). **Shown to fail** (scratch `mutate.mjs`, one break at a time, each caught by
+  a named test): `knocked` counting blocks already down; a blast ball counted as your own;
+  no 5 s cap; gone with a ball on its way; no fuse; a ball allowed while the card is up;
+  the tool's par counting the blast ball; the keys back to `<< 16`. 8 of 8 caught.
+- **The star tool run again after the Q136 fix** (judged a little off, every scene of
+  both worlds, 6 deals, 30.3 min; `Web-Games-testing\2026-11-19_blast-build\miss.txt`,
+  `miss.json`): **66 of 750 not won in 3** (Q132's run before the fix: 61).
+  - **The park: the same list as Q132's:** Ice Castle 0/4 on Normal and Hardest; candles
+    0/5 (Normal), 0/2 (Hardest); Star Palace 0/4 both; on Hardest iceSpreadMix 2/4,
+    canyonSpreadMix 2/3, starSpreadMix 0/3.
+  - **The moon: longer.** Mining Site's challenges and Launch Pad's as before on every
+    difficulty (tank+trestle+crates2x2+beacon now 0/15 with three deals not cleared in
+    4: [- 5 5 4 5] on Normal); **Solar Farm's challenges now on Normal too** (1/3, 2/3;
+    Q132: Hardest only); **Mining Site's crates2x2+trestle+tank on Normal and Harder**
+    (Q132: Hardest only), and on Harder its scene 4 too (2/3).
+  - **Classified:** Q136 at work, not noise. Q132's run was in 15 long-lived workers,
+    each making far more than 65k bodies, so the moon's first-touch wake and touches were
+    lost in most of its scenes; the game in play (small ids) always behaved as this run.
+    So the new list is the game's.
+- **The list written** (`node tools/topple-stars.js --list-from miss.json`): 12
+  structures. The park's 6 as in the mockup; the moon's 6 **on all three difficulties**.
+  The first write had Solar Farm's challenges on Normal and Hardest but not Harder, and
+  crates2x2+trestle+tank on Normal and Harder but not Hardest: the moon's difficulties
+  deal the same scenes, only the lander faster, so that was 6 deals' chance. Now a moon
+  structure listed on one is listed on all (in the tool, tested). **New against the
+  mockup:** Solar Farm's two challenges on Normal and Harder, and Mining Site's
+  crates2x2+trestle+tank (scenes 3-4) on Normal and Harder.
+- **Every listed deal played with the blast ball** (`--blast --miss`, 6.5 min;
+  `blast.txt`, `blast.json`): **92 of 92 won in 3 own balls, the 💥 won in all 92, none
+  in fewer than 3** (the 💥 comes after your 2nd ball, so the 3rd goes for it and the
+  blast ball finishes). By structure: Ice Castle 8/8, Star Palace 8/8, candles 7/7,
+  iceSpreadMix 4/4, canyonSpreadMix 5/5, starSpreadMix 3/3; Mining Site's three 12/12,
+  15/15, 3/3; Solar Farm's two 9/9, 9/9; Launch Pad's 9/9. So 3 stars are reachable in
+  every listed scene, and not free: it still takes your 3 balls.
+- **Full suite: 767 pass, 0 fail** (two older checks in `tests/topple-stars-page.test.js`
+  widened: the end's line now carries the blast balls, and no Aced with one).
+- **Not done:** publishing (release 11.4 proposed); the developer's play on a device.
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool, **the blast ball (Q130) and
+  the touch-key fix (Q136), built and tested, not published.**
+- **To ask:** publish as **release 11.4**? Then the developer plays it (a listed scene:
+  Frosty Times' Ice Castle, Star Light's candles or Star Palace, Solar Farm's or Mining
+  Site's or Launch Pad's challenge).
+- **To ask:** OK to purge `Web-Games-testing\2026-11-19_blast-build\` (the two runs;
+  this entry is the record)?
+- **Then:** Q125 (the moon's levels all look alike), Q121 (sci-fi sounds on the moon).
+- **Open questions:** Q136 and Q130 (built, to publish and try), as before otherwise.
