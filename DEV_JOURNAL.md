@@ -65,6 +65,9 @@ time, each tried before publishing:
   **Mockup built** (2026-11-19, "Q137: the moon turn mockup"):
   [Topple Moon Turn](https://claude.ai/artifact/PHXfautVD64vDURM1u9hJJ), 3 tests on
   Crater Rim; the developer's answers to come in its `reports`.
+  **Played** (2026-11-19, "Q137: the moon turn mockup: the developer's runs"): the ends
+  "OK" and the wait "Fine" in all three; 3 m out "Worse" than now, 3 m with the light 2×
+  "About the same". **To choose:** keep 11.3's turn, or another.
 
 - **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
   developer: "when I open the map it would be nice to position it so my current scene
@@ -25403,5 +25406,49 @@ Q125 (the moon's materials) and Q121 (sounds).
   the 2nd ball in both worlds, the blast ball free for stars and shown as free; the two
   record fixes in "Q130 mockup v2.3: the developer's reports"), with Q137's choice if it's
   ready. Then Q125, Q121.
+- **To ask:** Q136 (cannon-es touch keys: fix in the build, then rerun the star tool?).
+- **Open questions:** Q137, Q136, Q130, as before otherwise.
+
+## 2026-11-19: Q137: the moon turn mockup: the developer's runs
+
+- **Read** with `ArtifactData list` (collection `reports` of
+  [Topple Moon Turn](https://claude.ai/artifact/PHXfautVD64vDURM1u9hJJ), scratch
+  `read-reports.mjs`): 3 runs, one per test, the Claude desktop app, screen 1507x951,
+  Normal, Crater Rim (8 blocks), "Q137 moon turn mockup 1". Saving from the published page
+  worked. No text in any box.
+
+| Test | ends | wait | didn't roll | light | vs test 1 | result |
+|---|---|---|---|---|---|---|
+| 1: now (0.8 m, 1×) | OK | Fine | None | Fine | (n/a) | won, 5 balls, 1 star |
+| 2: 3 m, 1× | OK | Fine | More than once | Fine | **Worse** | not won, 3 of 8 down |
+| 3: 3 m, 2× | OK | Fine | None | Fine | About the same | won, 4 balls, 2 stars |
+
+- **What the record shows:**
+  - **Drops soon after a turn hit the end blocks anyway.** Test 1, balls 3 and 5, 0.75 and
+    0.63 s after the right end's turn, the ball still moving the old way (0.34, 0.41 m/s):
+    2 and 1 end blocks down. Test 3, balls 3 and 4, about 1.1 s after a turn by ← →, the
+    ball nearly still (−0.08, −0.05 m/s): 2 and 1 end blocks down. Test 2, ball 4, 1.3 s
+    after a turn by ← →, 0.04 m/s: 5 end blocks down.
+  - **Test 2's misses:** balls 2, 3 and 5 were all dropped as the light came back in at the
+    left end, 0.2-0.3 m outside the end structure, 2.7-3.0 s after the turn, the ball
+    moving 0.5 m/s the new way: all landed on the ground, none down. The "more than once"
+    didn't-roll answer isn't explained by the record (no drop in test 2 was nearly still
+    except ball 4, which knocked 5 down). Not asked.
+  - **The developer turns with ← → (the record's "key")** near the ends: 2 in test 1, 2 in
+    test 2, 2 in test 3. So the end turn's distance matters less in play than in the
+    measurements.
+  - **The light's waits past the ends** were as measured: 1.6 s (test 1), 6.0 s (test 2),
+    4.5 s (test 3); the developer called all three "Fine".
+- **Reading (Claude):** nothing here says the turn needs changing. The far ends were "OK"
+  as now, the still moment after a turn didn't stop end blocks going down, 3 m out made
+  it worse, and 3 m with 2× was no better. Suggestion: **keep 11.3's turn** (option A in
+  "Q137: why the ring and the lander differ") and close Q137. **To ask.**
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Q137:** played; Claude suggests keeping 11.3's turn and closing Q137. **To ask.**
+- **Next: build the blast ball in the game** (Q130, decided: v2.3's sizing, the 💥 after
+  the 2nd ball in both worlds, the blast ball free for stars and shown as free; the two
+  record fixes in "Q130 mockup v2.3: the developer's reports"). Then Q125, Q121.
 - **To ask:** Q136 (cannon-es touch keys: fix in the build, then rerun the star tool?).
 - **Open questions:** Q137, Q136, Q130, as before otherwise.
