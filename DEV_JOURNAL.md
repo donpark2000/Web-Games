@@ -25300,3 +25300,25 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Proposed:** a mockup of the moon with the two settings to switch (turn past 0.8 / 2 /
   3 m; the light in a turn 1× / 2× / 3×, perhaps only outside the structures), so the
   developer can feel the wait against the hits at the ends. **To ask.**
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Next: the Q137 moon turn mockup** (developer, 2026-11-19: "yes, build the mockup in a
+  fresh session"): the moon world with the turn's settings to switch, turn past the last
+  structure 0.8 (11.3) / 2 / 3 m and the light's speed in a turn 1× (11.3) / 2× / 3×
+  (perhaps only while outside the structures, so ⇄ over them stays as now), and the
+  numbers in "Q137: the turn measured". Built like the blast ball mockup: a copy of the
+  game in the scratchpad, patched, published as an artifact, with the tests built in (the
+  developer can't see the chat while a mockup is open): steps on its first screen, a
+  guide line in play, the page's own record, a card of questions and Send to Claude
+  saved to the artifact's `db`, read back with `ArtifactData`. That mockup's files, for
+  reference (scratch, may be gone): `C:\Users\dpark\AppData\Local\Temp\claude\9be408dbb3bec22b\241d5154-0d15-4d17-abfd-3ad11bfa3271\scratchpad\blast-v2\` and `C:\Users\dpark\AppData\Local\Temp\claude\9be408dbb3bec22b\241d5154-0d15-4d17-abfd-3ad11bfa3271\scratchpad\patch-tests.py`; the
+  published page: [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h).
+  Things to record per drop for Q137: the light's and the lander's speed, the ball's `vx`,
+  how far past the end the light was, and whether it was just after a turn.
+- **Then: build the blast ball in the game** (Q130, decided: v2.3's sizing, the 💥 after
+  the 2nd ball in both worlds, the blast ball free for stars and shown as free; the two
+  record fixes in "Q130 mockup v2.3: the developer's reports"), with Q137's choice if it's
+  ready. Then Q125, Q121.
+- **To ask:** Q136 (cannon-es touch keys: fix in the build, then rerun the star tool?).
+- **Open questions:** Q137, Q136, Q130, as before otherwise.
