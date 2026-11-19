@@ -379,6 +379,10 @@ time, each tried before publishing:
   the big rocket on its gantry, the flame trench, oxygen tanks that pop and fly. One
   mockup page with all five side by side. **To ask:** go ahead with that mockup after 11.2?
   **Developer (2026-11-18): "OK".**
+  **Mockup v1 published** (2026-11-19, [Topple Moon Levels](https://claude.ai/artifact/U1JnKoX4UL2s6U2B6h5ZUE)):
+  the game itself, each level its own scenery and target (fuel drums burst, glass panels
+  shatter, boulders roll, ore crystals glow and shatter, oxygen tanks pop and fly), the
+  questions built in; one level at a time, not side by side. See "The map's barrier opening can be replayed (Q128); Q125 mockup v1". **To try.**
 
 - **Q121. Topple!: sci-fi sounds on the moon** (2026-11-17, developer, after 11.0
   went live): "I know there are no normal transmissions of sound through air on the
@@ -25660,3 +25664,95 @@ Q125 (the moon's materials) and Q121 (sounds).
   stepped by hand keeps running; a listener taken off mid-event).
 - **Open questions:** Q136 and Q130 (published in 11.4: to try), Q134 and Q133 (11.3: to
   try), as before otherwise.
+
+## 2026-11-19: The map's barrier opening can be replayed (Q128); Q125 mockup v1 (the moon's levels)
+
+- **Developer:** "go ahead with the Q125 mockup", and asked whether the map's gate that
+  opens on reaching a new world (Q128) was built, and how to see it without starting over.
+- **Q128: built, live since 11.2** (`src/ui/topple.js` `playWorldOpen`: the barrier
+  shakes, opens, the moon's road rolls out, the face walks to Landing Zone scene 1). It
+  plays only once, as Earth's last scene is won, so a game past that never shows it again.
+  **Replayed on the live site** (11.4, the browser pane): `topple.walk(5, 6)` in the
+  browser's console, with the moon open, played it whole (screenshot: the gate "World 2 ·
+  The Moon", the new road, the face on Landing Zone); it only shows the map, nothing saved
+  changes. In a game where the moon isn't open yet it shows the barrier but doesn't open
+  it (the road stays shut). **To offer:** a way to see it on a tablet (no console), if wanted.
+- **Mockup v1 (Q125, "each level looks like its name"):** the game itself (11.4's
+  `topple.html` and the modules it imports, copied by scratch `copy-game.mjs`, the stats
+  counter and the offline app left out), changed in the copy only:
+  - **Each level's scenery** (new `src/ui/topple-moon-looks.js`; behind the blocks, no
+    physics). The old shared base (domes, habitat, mast, rocket pad, arrays, rover) now
+    only at Landing Zone.
+    - Landing Zone: two pads with chasing edge lights, a parked cargo lander, a lander
+      coming down and lifting off again (a 26 s loop, its flame, dust near the pad), a
+      control tower with a turning beacon, cargo crates, a rack of fuel drums, yellow guide
+      lines.
+    - Solar Farm: panels in rows to the skyline (about 800, instanced), a substation, a
+      cleaning robot driving along the front row.
+    - Crater Rim: the ground ends at z -15 and the crater's bowl falls away behind; its
+      far wall rises 5 m, lit by a low warm sun from the front right (long shadows); rocks
+      along the lip, boulders about, a survey dome, a flag, a tripod light. The ledges
+      drawn as rock (were plain grey boxes).
+    - Mining Site: darker (sun 1.3, was 2.4), three work lights with soft pools of light, an
+      orange drill derrick with its bit turning, a conveyor carrying ore lumps up to a
+      hopper, ore heaps with crystals in them, an ore cart on rails.
+    - Launch Pad: the big rocket (x2.8) on its gantry with a swing arm, steam puffing from
+      its side, the flame trench, the oxygen tank farm (spheres on legs), floodlights,
+      lightning masts.
+  - **Each level's own target** (`src/core/topple-moon.js` `MOON_MATS`, `MOCK_SWAP`;
+    physics in `topple-moon-world.js`; the knock sounds by material):
+    - Landing Zone, **fuel drums** (cylinders; `crates3` → `drums3`, `crates2x2` →
+      `drums4`): a ball at 1.6 m/s or more bursts one: gone, a vapour puff, red and yellow
+      bits, the blocks within 1 m pushed (up to 2.2 m/s).
+    - Solar Farm, **glass panels** (all panels): once down, the next knock (0.4 m/s) or
+      coming to rest shatters it (as the park's ice, Q83): glass shards.
+    - Crater Rim, **boulders** (spheres; `crates3` → `boulders`, `tank` → `boulder`,
+      `crates2x2` → `boulders`): down once rolled 0.6 m or dropped 0.25 m (not by tilt: a
+      boulder turns as it rolls); damped harder once down, so a scene isn't held up.
+    - Mining Site, **ore crystals** (pointed six-sided prisms, violet, teal, pink, glowing;
+      `tank`, `crates*` → `crystals`; scene 1 now a trestle and crystals): shatter as
+      glass does, shards in their colour.
+    - Launch Pad, **oxygen tanks** (`tank` → `o2tank`, `beacon` and `crates3` → `o2pair`;
+      scene 1 now a gantry and a tank): a ball at 1.2 m/s or more sets one venting: a kick
+      up and away, a spin, then 0.9 s of a 5 m/s² jet along it (a white jet, puffs).
+    - Logged: `mockup: burst | shatter | pop` (block, material, where, speed).
+  - **The tests built in** (as Q130's v7): the first screen's box "🌙 Moon levels · mockup
+    v1" with a button per level (its target named); during play a line at the foot (what
+    to look at, the targets, Next scene, Tell Claude); the card: what the game saw ("You
+    played Landing Zone, scenes 1, 2, and dropped 1 ball. The game saw: 3 burst."), "Does
+    it look like a landing zone? Yes / Partly / No", "The fuel drums: Keep / Keep, but
+    change / Drop them", a note, Send to Claude (the artifact's db, collection `reports`);
+    where nothing can be saved, text to copy into the chat. Opens on its first screen always.
+- **Checked:**
+  - Physics under Node (scratch `phys-check.mjs`, scene 1 of each level, seeds 1000 and
+    1001): nothing moves or breaks standing 2 s; a drop on the new target: drums 2 burst,
+    3 of 3 down; glass 2 shattered; crystals 2 shattered; the tank popped; boulders 0 to 2
+    of 2 down by where the ball hits (its top 1; 0.2 m to one side 1, to the other 2).
+  - In the browser pane (a scratch server, the game stepped by hand as the pane was
+    hidden): each level's look and its target's effect seen in a screenshot. Fixed on the
+    way: stray power lines (Solar Farm), faint glass, a flat crater (the far wall added),
+    crystals like cups (pointed), light pools like stains (soft edges), the puffs as solid
+    balls (soft sprites), Launch Pad crowded (moved back), the guide line over the level's
+    name (moved to the foot). The box, Next scene, the card, Send (locally: the copy text)
+    and Pick another level worked; no console errors on the last load. A first copy still
+    asked for `stats.js` and `offline.js` (404): the copy tool's strip didn't allow for the
+    repo's CRLF line ends; fixed in the tool and the page.
+- **Not checked:** the app's viewer, a phone or tablet, the old tablet's speed (about 800
+  instanced panels; more meshes in every level), the sounds by ear, whether every scene
+  can still be won in 3 (the star tool, Q132) with the new targets.
+- **Published:** [Topple Moon Levels](https://claude.ai/artifact/U1JnKoX4UL2s6U2B6h5ZUE),
+  version 1, 86 files with `db`; read back: `reports` empty. Files in Claude's scratchpad,
+  not the repo (the published page holds them). Local server stopped; `.claude/launch.json`
+  as committed.
+
+**Status (start here next session)**
+- **Live: 11.4.** `block-game` = `main` plus the journal.
+- **Q125:** mockup v1 published; the developer tries each level and presses Tell Claude;
+  Claude reads `reports` (`ArtifactData list`) and records the answers here. Then the build
+  (with the star tool run on the new targets).
+- **Q128:** to replay the barrier opening on the desktop: `topple.walk(5, 6)` in the
+  console. **To ask:** a way on the tablet too?
+- **Then:** Q121 (sci-fi sounds on the moon).
+- **To review at a checkpoint:** the proposed skill additions (as before).
+- **Open questions:** Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3: to try), Q125
+  (mockup v1 to try), as before otherwise.
