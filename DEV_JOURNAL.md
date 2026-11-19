@@ -243,6 +243,9 @@ time, each tried before publishing:
   **Version 7:** the steps, a guide line, a record kept by the page and a card of
   questions built into the mockup, saved where Claude reads them; see "Q130 mockup v2.3:
   the tests built in". **To try.**
+  **Tried (2026-11-19):** 4 reports, all won with 3 stars; every answer "clear: Yes, size:
+  About right, time: Enough"; the developer was confused by the stars (the blast ball
+  didn't count as a ball). See "Q130 mockup v2.3: the developer's reports".
 
 - **Q127. Topple!: the lander flying higher and lower (parked)** (2026-11-17,
   developer: "one more idea for possible use in future changes (harder levels or new
@@ -25128,4 +25131,50 @@ Q125 (the moon's materials) and Q121 (sounds).
   losing touches once its body ids pass ~33k: fix it in the blast ball's build, then rerun
   the star tool?); the moon's 💥 after the 2nd ball (changed in v2.3 from the 1st).
 - **Then:** build the blast ball in the game, Q125, Q121.
+- **Open questions:** as in the status entry before this one.
+
+## 2026-11-19: Q130 mockup v2.3: the developer's reports
+
+- **Read** with `ArtifactData list` (collection `reports` of
+  [Topple Blast Ball](https://claude.ai/artifact/McSTcmRbHsDo7V1ASu7d3h)): 4 runs, the
+  Claude desktop app on Windows (Electron 45), screen 1507x951, all "mockup v2.3 + tests".
+  The saving from inside the app worked (it was the one part not checked before).
+
+| Run | 💥 shown | won by | blast | end |
+|---|---|---|---|---|
+| test 1 (2026-11-19 02:06) | after ball 2, 2 of 8 down | (ran out at 15 s; see below) | reach 0.6 m, 2 of 2 left | won, 3 own balls + 1 blast, 3 stars |
+| test 2, moon (19:24) | after ball 2, 4 of 20 down | ball 3, 2.6 s after it | reach 4.13 m, 9 left | won, 3 + 1, 3 stars |
+| test 1 (19:26) | after ball 2, 4 of 8 | ball 3 | 0.6 m, 2 of 2 | won, 3 + 1, 3 stars |
+| test 1 (19:27) | after ball 2, 4 of 8 | ball 3 | 0.6 m, 2 of 2 | won, 3 + 1, 3 stars |
+
+- **Answers:** all four "Is it clear what to do? Yes", "The blast's size: About right",
+  "The ring's time: Enough". **So v2.3's sizing (Q130: the blast sized for what's left)
+  and the 💥 after the 2nd ball in both worlds work for the developer.**
+- **The developer's note** (the last run): "I'm confused on earning 3 stars. I used 2
+  balls before the blast ball appeared, and a 3rd to earn the blast ball. So when I threw
+  it, it was the 4rth ball, which usually earns 2 stars." That's the rule agreed on
+  2026-11-18 (see Q130 above: "stars count only your own balls"; extra balls won in play
+  don't count), but nothing in play says so. **To ask:** show it, e.g. the tally and the
+  end screen showing the blast ball as a free ball ("3 balls + 💥 free: 3 stars"), or
+  change the rule.
+- **The momentum problem** the developer mentioned on 2026-11-18: not in the text boxes.
+  **Still to ask.**
+- **Two faults in the page's record, not the game** (mockup only; fix when it's built in):
+  - test 2's card said "knocked over 16 of the 9 blocks left": `reached` counts every
+    block inside the reach, those already down too, while `standing` counts the standing
+    ones. The sentence should count standing blocks knocked over.
+  - the first run's record has "💥 ran out, not won" (ball 2), then balls 3 and 4, then
+    "won ... ball 3" and the end with 3 own balls: the balls went down from 4 to 3, which
+    fits the scene being started again (Start again), which the record doesn't note. The
+    record should log a restart and begin the run's notes again.
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Q130:** the developer's tests of v2.3 (version 7) passed: clear, the size about right,
+  the time enough, in both worlds. **To ask:** how the blast ball and the stars should
+  show (the developer was confused that it didn't count); the momentum problem; Q135
+  (cannon-es losing touches once its body ids pass ~33k: fix it in the blast ball's
+  build, then rerun the star tool?).
+- **Then:** build the blast ball in the game (with the two record fixes above, if the
+  tests stay), Q125, Q121.
 - **Open questions:** as in the status entry before this one.
