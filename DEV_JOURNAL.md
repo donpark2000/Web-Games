@@ -25249,3 +25249,6 @@ Q125 (the moon's materials) and Q121 (sounds).
     steady): goes against Q126's "should not change".
   - **D. A drop always gets a little roll** in the lander's new direction: the ball's
     motion no longer matches the lander's (not real), and where it rolls to isn't shown.
+- **Measured** (`flyStep` run in node, Normal's speed 1.0 m/s, a turn at t = 0): the fall
+  takes 2.09 s, and the lander moves slower than 0.3 m/s from 0.90 s to 2.18 s after the
+  turn: a still moment of about 1.3 s, each turn.
