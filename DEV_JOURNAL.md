@@ -25821,3 +25821,28 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **To ask:** a way to replay the barrier opening on the tablet (Q128)?
 - **Open questions:** Q138 and Q125 (mockups to try), Q136 and Q130 (11.4: to try), Q134
   and Q133 (11.3: to try), as before otherwise.
+
+## 2026-11-19: Q138 agreed; Q128 needs no tablet replay; the next session
+
+- **Developer:** "No need to replay gate on the tablet. And the mockup looks great."
+  (Topple Map Worlds; no report sent, `reports` empty on both mockup pages.) Then: "Shall
+  we fold the map changes into that as well?" (the moon levels' new look, Q125). **Yes**:
+  the map's colours are the moon levels' own, so they belong in one release.
+- **Q128:** the barrier opening stays as built; replaying it is the console's
+  `topple.walk(5, 6)` only, no button.
+
+**Status (start here next session)**
+- **Live: 11.4.** `block-game` = `main` plus the journal.
+- **Next: build Q125 and Q138 in one release (12.0? or 11.5: to propose when asking to
+  publish).** Q138 as its mockup (the World 2 strip with hard edges and the two curves,
+  190 px; plaques for both worlds' signs; the moon levels' colours). Q125 from its mockup
+  (Topple Moon Levels: each level's scenery and target), with whatever the developer's
+  Q125 report changes. **First:** read Q125's `reports`
+  (https://claude.ai/artifact/U1JnKoX4UL2s6U2B6h5ZUE); if empty, ask whether the developer
+  has tried it yet. The mockup's code is in the published page (Artifact `read` with
+  `path`), the scratchpad copy may be gone. In the build: tests for each new behaviour
+  (burst, shatter once down, roll, pop and its jet), the star tool (Q132) on the new
+  targets, the test player's win rate (at least 93%), the old tablet's speed (Q120).
+- **Then:** Q121 (sci-fi sounds on the moon).
+- **Open questions:** Q125 (mockup to try or build), Q138 (agreed, to build), Q136 and
+  Q130 (11.4: to try), Q134 and Q133 (11.3: to try), as before otherwise.
