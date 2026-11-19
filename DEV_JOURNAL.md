@@ -28,47 +28,6 @@ time, each tried before publishing:
   is past 70000 still reports the ball's touches. Then the star tool run again, to see if
   Q132's moon list changes. **To ask:** OK to fold this into the build?
 
-- **Q137. Topple! moon: a dropped ball that "just dropped and did not roll"**
-  (developer, 2026-11-18: "the momentum problem I said before has not been addressed";
-  2026-11-19: "I don't recall which scene. It was definitely moon world. The ball just
-  dropped and did not roll. Which is inconsistent with the ball behavior after it hits
-  something - it rolls."). **Looked at (the code only):** a drop gives the ball the
-  lander's speed along the line (`src/ui/topple.js` `moonWorld.dropBall(..., [f.vx, 0,
-  0])`), so it should land moving and roll. But after a turn the lander's speed is eased
-  round from one way to the other (`flyStep`: `f.vx += (f.ringV - f.vx) * dt / T`) while
-  the ring moves on at full speed at once (`turnNow` sets `ringV`); for a while the lander
-  is nearly still, so a ball dropped then falls straight and stops where it lands, while
-  the ring looks as if it's moving. Also the lander's steering near or far gives the ball
-  no speed that way. **Not confirmed:** the drop's log line has `vx`; the developer will
-  play 11.3, watch for it, and send the log (`log.html`) if it happens, with the scene.
-  **Developer (2026-11-19):** "I think your diagnosis is correct. It was after a change in
-  direction. Is there a reason why target light speed and landers sideways speed should
-  be different?" **Why (Claude):** the ring isn't under the lander; it's where a ball let
-  go now lands, ahead of the lander by its speed × the fall (`ringX`). Flying straight,
-  both move at the same speed. A turn has to move that lead from one side of the lander
-  to the other; one of the two must change speed while it does. Until 11.2 the lander
-  turned at once and the ring raced across (up to 7.3 m/s); Q126 (the developer: "the
-  speed of the target light should not change") made the ring steady and the lander ease
-  round, so it's nearly still for a moment, and a ball dropped then lands on the ring
-  and stops. **To choose** (options in the 2026-11-19 entry "Q137: why the ring and the
-  lander differ").
-  **Developer (2026-11-19):** "Not sure. When I said the target light should be constant
-  speed I did not realize its speed was decouple from the lander. What I saw was the
-  change direction control was useless because the target light started moving way to
-  fast. Part of the problem for the current behavior is that some targets at the far
-  right and far left can only be hit if the lander is going on one direction. If the
-  target is too close to where the direction changes, the ball seems not to have enough
-  lateral motion to topple them." **Measured** (see "Q137: the turn measured"): true;
-  at the end structure's edge just after a turn the ball still moves the old way, 0.36
-  m/s. Turning further out fixes it; a faster light in a turn doesn't. **To try** in a
-  mockup.
-  **Mockup built** (2026-11-19, "Q137: the moon turn mockup"):
-  [Topple Moon Turn](https://claude.ai/artifact/PHXfautVD64vDURM1u9hJJ), 3 tests on
-  Crater Rim; the developer's answers to come in its `reports`.
-  **Played** (2026-11-19, "Q137: the moon turn mockup: the developer's runs"): the ends
-  "OK" and the wait "Fine" in all three; 3 m out "Worse" than now, 3 m with the light 2×
-  "About the same". **To choose:** keep 11.3's turn, or another.
-
 - **Q134. Topple!: the map opens with the current scene in view** (2026-11-18,
   developer: "when I open the map it would be nice to position it so my current scene
   is in view"). `showMap` already scrolls the scene last played (`n<level>_<scene>`)
@@ -698,6 +657,51 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q137. Topple! moon: a dropped ball that "just dropped and did not roll"**
+  (developer, 2026-11-18: "the momentum problem I said before has not been addressed";
+  2026-11-19: "I don't recall which scene. It was definitely moon world. The ball just
+  dropped and did not roll. Which is inconsistent with the ball behavior after it hits
+  something - it rolls."). **Looked at (the code only):** a drop gives the ball the
+  lander's speed along the line (`src/ui/topple.js` `moonWorld.dropBall(..., [f.vx, 0,
+  0])`), so it should land moving and roll. But after a turn the lander's speed is eased
+  round from one way to the other (`flyStep`: `f.vx += (f.ringV - f.vx) * dt / T`) while
+  the ring moves on at full speed at once (`turnNow` sets `ringV`); for a while the lander
+  is nearly still, so a ball dropped then falls straight and stops where it lands, while
+  the ring looks as if it's moving. Also the lander's steering near or far gives the ball
+  no speed that way. **Not confirmed:** the drop's log line has `vx`; the developer will
+  play 11.3, watch for it, and send the log (`log.html`) if it happens, with the scene.
+  **Developer (2026-11-19):** "I think your diagnosis is correct. It was after a change in
+  direction. Is there a reason why target light speed and landers sideways speed should
+  be different?" **Why (Claude):** the ring isn't under the lander; it's where a ball let
+  go now lands, ahead of the lander by its speed × the fall (`ringX`). Flying straight,
+  both move at the same speed. A turn has to move that lead from one side of the lander
+  to the other; one of the two must change speed while it does. Until 11.2 the lander
+  turned at once and the ring raced across (up to 7.3 m/s); Q126 (the developer: "the
+  speed of the target light should not change") made the ring steady and the lander ease
+  round, so it's nearly still for a moment, and a ball dropped then lands on the ring
+  and stops. **To choose** (options in the 2026-11-19 entry "Q137: why the ring and the
+  lander differ").
+  **Developer (2026-11-19):** "Not sure. When I said the target light should be constant
+  speed I did not realize its speed was decouple from the lander. What I saw was the
+  change direction control was useless because the target light started moving way to
+  fast. Part of the problem for the current behavior is that some targets at the far
+  right and far left can only be hit if the lander is going on one direction. If the
+  target is too close to where the direction changes, the ball seems not to have enough
+  lateral motion to topple them." **Measured** (see "Q137: the turn measured"): true;
+  at the end structure's edge just after a turn the ball still moves the old way, 0.36
+  m/s. Turning further out fixes it; a faster light in a turn doesn't. **To try** in a
+  mockup.
+  **Mockup built** (2026-11-19, "Q137: the moon turn mockup"):
+  [Topple Moon Turn](https://claude.ai/artifact/PHXfautVD64vDURM1u9hJJ), 3 tests on
+  Crater Rim; the developer's answers to come in its `reports`.
+  **Played** (2026-11-19, "Q137: the moon turn mockup: the developer's runs"): the ends
+  "OK" and the wait "Fine" in all three; 3 m out "Worse" than now, 3 m with the light 2×
+  "About the same". **To choose:** keep 11.3's turn, or another.
+  **Resolved 2026-11-19:** 11.3's turn kept (developer: "yes, keep it and close Q137").
+  The mockup's 3 tests (entry "Q137: the moon turn mockup: the developer's runs"):
+  the far ends "OK" as now, drops soon after a turn still knocked end blocks down,
+  3 m out "Worse", 3 m with the light 2× "About the same". Nothing to build.
 
 - **Q135. Topple!: stars earned on levels played before don't show** (2026-11-18,
   developer: "I notice that the stars I earned on previous levels I have played do not
@@ -25452,3 +25456,17 @@ Q125 (the moon's materials) and Q121 (sounds).
   record fixes in "Q130 mockup v2.3: the developer's reports"). Then Q125, Q121.
 - **To ask:** Q136 (cannon-es touch keys: fix in the build, then rerun the star tool?).
 - **Open questions:** Q137, Q136, Q130, as before otherwise.
+
+## 2026-11-19: Q137 closed: the moon's turn stays as in 11.3
+
+- **Developer:** "yes, keep it and close Q137". Moved to Resolved; nothing changes in the
+  game. The mockup ([Topple Moon Turn](https://claude.ai/artifact/PHXfautVD64vDURM1u9hJJ))
+  and its files in the scratchpad are no longer needed.
+
+**Status (start here next session)**
+- **Live: 11.3.** `block-game` = `main` plus the star tool and the journal; not published.
+- **Next: build the blast ball in the game** (Q130, decided: v2.3's sizing, the 💥 after
+  the 2nd ball in both worlds, the blast ball free for stars and shown as free; the two
+  record fixes in "Q130 mockup v2.3: the developer's reports"). Then Q125, Q121.
+- **To ask:** Q136 (cannon-es touch keys: fix in the build, then rerun the star tool?).
+- **Open questions:** Q136, Q130, as before otherwise (Q137 closed).
