@@ -142,12 +142,19 @@ export function today(d = new Date()) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// Another app with its own sw.js (the Topple Lab, tools/topple-lab.js)
+// passes `list`, its files (from `root`, its own folder), and `swBase`,
+// the sw.js it's made from (LF line ends): its sw.js is that one with its
+// list, and nothing else.
+const noBlock = sw => { const a = sw.indexOf(START), b = sw.indexOf(END); return a < 0 || b < a ? sw : sw.slice(0, a) + sw.slice(b + END.length); };
+
 // What's out of date in `root`'s sw.js: [] when it's current.
-export async function check(root) {
-  const files = await siteFiles(root);
+export async function check(root, { list = siteFiles, swBase = null } = {}) {
+  const files = await list(root);
   const version = await siteVersion(root, files);
-  const sw = await readFile(path.join(root, 'sw.js'), 'utf8');
+  const sw = (await readText(path.join(root, 'sw.js'))) ?? '';
   const problems = [];
+  if (swBase !== null && noBlock(sw) !== noBlock(swBase)) problems.push(sw ? "sw.js isn't the one it's made from" : 'no sw.js');
   const listed = [...(sw.match(/const FILES = \[([\s\S]*?)\];/)?.[1] ?? '').matchAll(/'([^']+)'/g)].map(m => m[1]);
   const missing = files.filter(f => !listed.includes(f)), extra = listed.filter(f => !files.includes(f));
   if (missing.length) problems.push(`not saved for offline: ${missing.join(', ')}`);
@@ -172,16 +179,17 @@ export async function check(root) {
 
 // Brings `root`'s sw.js and VERSION_FILE up to date; `day` (YYYY-MM-DD) is
 // the day for a new version. What it did, for the console.
-export async function update(root, day) {
-  const files = await siteFiles(root);
+export async function update(root, day, { list = siteFiles, swBase = null } = {}) {
+  const files = await list(root);
   const version = await siteVersion(root, files);
   const file = path.join(root, 'sw.js');
-  const before = await readFile(file, 'utf8');
+  const before = swBase === null ? await readFile(file, 'utf8') : (await readText(file)) ?? '';
   const made = madeDay(before, version, day);
   const release = await readRelease(root);
-  const after = withList(before, version, files, made, release, await fileHashes(root, files));
+  const after = withList(swBase ?? before, version, files, made, release, await fileHashes(root, files));
   const changed = [];
-  if (after !== before) { await writeFile(file, after); changed.push('sw.js'); }
+  // (compared without line ends: a Windows checkout's CRLF isn't a change)
+  if (after.replace(/\r\n/g, '\n') !== before.replace(/\r\n/g, '\n')) { await writeFile(file, after); changed.push('sw.js'); }
   const vfile = path.join(root, VERSION_FILE);
   const had = await readText(vfile);
   if (had !== versionModule(version, made)) { await mkdir(path.dirname(vfile), { recursive: true }); await writeFile(vfile, versionModule(version, made)); changed.push(VERSION_FILE); }
@@ -190,5 +198,10 @@ export async function update(root, day) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
-  console.log(await update(path.join(path.dirname(fileURLToPath(import.meta.url)), '..'), today()));
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  console.log(await update(root, today()));
+  // The Topple Lab (DESIGN.md "Topple Lab") is made from the site's files
+  // too, so it's brought up to date with them (run apart: it imports this).
+  const { execFileSync } = await import('node:child_process');
+  execFileSync(process.execPath, [path.join(root, 'tools/topple-lab.js'), 'update'], { stdio: 'inherit' });
 }

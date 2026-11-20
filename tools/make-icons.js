@@ -58,25 +58,34 @@ export async function findBrowser() {
   throw new Error('no Edge or Chrome found: set BROWSER to its path');
 }
 
+// The Topple Lab's icon (DESIGN.md "Topple Lab"): the same bear on lab
+// purple, so the two installed apps are told apart at a glance.
+export function labIconSvg() {
+  return iconSvg().replace('fill="#F7B928"', 'fill="#7E57C2"').replace('fill="#FFD25E"', 'fill="#B39DDB"');
+}
+
+//   node tools/make-icons.js       -> icons/ (the main site's)
+//   node tools/make-icons.js lab   -> topple-lab/icons/ (the lab's)
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const dir = path.join(root, 'icons');
+  const lab = process.argv[2] === 'lab';
+  const dir = path.join(root, lab ? 'topple-lab/icons' : 'icons');
   await mkdir(dir, { recursive: true });
-  const icon = iconSvg();
+  const icon = lab ? labIconSvg() : iconSvg();
   await writeFile(path.join(dir, 'icon.svg'), icon);
-  console.log('icons/icon.svg');
+  console.log(`${lab ? 'topple-lab/' : ''}icons/icon.svg`);
   const browser = await findBrowser();
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'icons-'));
   try {
     const page = path.join(tmp, 'icon.html');
-    await writeFile(page, '<!doctype html><style>html,body{margin:0;overflow:hidden;background:#F7B928}svg{display:block;width:100vw;height:100vh}</style>' + icon);
+    await writeFile(page, `<!doctype html><style>html,body{margin:0;overflow:hidden;background:${lab ? '#7E57C2' : '#F7B928'}}svg{display:block;width:100vw;height:100vh}</style>` + icon);
     for (const { file, size } of PNGS) {
       const out = path.join(dir, file);
       execFileSync(browser, ['--headless', '--disable-gpu', '--hide-scrollbars', `--user-data-dir=${path.join(tmp, 'profile')}`,
         `--window-size=${SHOT},${SHOT}`, `--force-device-scale-factor=${size / SHOT}`, `--screenshot=${out}`, pathToFileURL(page).href], { stdio: 'ignore' });
       const got = pngSize(await readFile(out));
       if (got.width !== size || got.height !== size) throw new Error(`${file}: ${got.width}x${got.height}, not ${size}x${size}`);
-      console.log(`icons/${file} ${size}x${size}`);
+      console.log(`${lab ? 'topple-lab/' : ''}icons/${file} ${size}x${size}`);
     }
   } finally {
     await rm(tmp, { recursive: true, force: true });

@@ -51,6 +51,11 @@ this is the short version:
   `RELEASES.md` with the site's version, and `node tools/release.js` must
   say ready. After the merge: tag `vX.Y` on `main`, push the tag, and make
   the GitHub release with `node tools/release.js notes`.
+- Topple Lab work (DESIGN.md "Topple Lab") never edits a main-site
+  file: copy it into the lab first (`node tools/topple-lab.js copy
+  <file>`) and change the copy. Before each lab commit,
+  `node tools/topple-lab.js check` must say "main-site files changed
+  since main: none".
 - Once a publish is live on github.io, stop the localhost servers
   (`tools/serve.js`, the developer's and Claude's) and say so; they
   aren't needed any more and leftovers clash on ports.

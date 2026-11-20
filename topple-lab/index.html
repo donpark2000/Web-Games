@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Topple Lab</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#E4F1EE">
+<meta name="apple-mobile-web-app-title" content="Topple Lab">
+<link rel="stylesheet" href="../css/site.css">
+<style>
+  .labnote { margin: 0; font-size: 17px; line-height: 1.4; }
+  .labtry { margin: 0; padding-left: 22px; font-size: 17px; line-height: 1.5; }
+  .home .games { grid-template-columns: minmax(220px, 300px); justify-content: center; }
+  .labstop { font-size: 20px; text-align: center; }
+</style>
+<!-- the import map: made by tools/topple-lab.js (node tools/offline.js) -->
+<script type="importmap">
+{
+  "imports": {
+    "./src/": "../src/",
+    "./src/core/release.js": "./src/core/release.js",
+    "../src/core/release.js": "./src/core/release.js",
+    "./src/core/version.js": "./src/core/version.js",
+    "../src/core/version.js": "./src/core/version.js",
+    "./src/ui/topple-sets.js": "./src/ui/topple-sets.js",
+    "../src/ui/topple-sets.js": "./src/ui/topple-sets.js"
+  }
+}
+</script>
+</head>
+<body>
+<!-- The Topple Lab's home page (DESIGN.md "Topple Lab"): its own, not made
+     from the main site's. Its own address and installed app, not on the
+     main site's home page. -->
+<main class="home">
+  <h1>Topple Lab 🧪</h1>
+  <p class="labnote">A copy of Topple! for trying new looks and sounds. Its games, stars and settings are its own: Topple! on Let’s Play! isn’t touched.</p>
+  <div class="games">
+    <a class="game" id="tpLink" href="topple.html">
+      <span class="pic shot" aria-hidden="true"><img src="../icons/home/topple.webp" alt="" width="150" height="150"></span>
+      Topple! (lab)
+    </a>
+  </div>
+  <section aria-labelledby="tryTitle">
+    <h2 id="tryTitle">Being tried</h2>
+    <ul class="labtry" id="labTry">
+      <li>Nothing yet: it plays as Topple! does.</li>
+    </ul>
+  </section>
+</main>
+<footer class="site-foot">© 2026 Donald Parker · Free software under the GPL-3.0 · <a href="https://github.com/donpark2000/Web-Games" target="_blank" rel="noopener">Source code</a><a class="app-version" id="appVersion" href="log.html" hidden></a></footer>
+<script type="module" src="lab/start.js" data-load="../src/ui/offline.js"></script>
+</body>
+</html>

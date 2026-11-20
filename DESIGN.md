@@ -1793,6 +1793,57 @@ release number goes in front of it on the version line.
   break in a release's text). `npm test` checks the number's form and that `RELEASES.md`'s
   newest is it.
 
+## Topple Lab
+
+A copy of Topple! for trying bigger changes apart from the live game
+(developer, 2026-11-20, journal Q139: a more realistic look, the moon's
+sounds), without "any risk of accidentally corrupting the current game".
+
+- **Its own address and installed app**, not on the home page:
+  `…/Web-Games/topple-lab/`. Named **"Topple Lab"**, with the bear on lab
+  purple for its icon (`node tools/make-icons.js lab`). Its home page
+  (`topple-lab/index.html`, its own) has a button to its Topple!, a
+  "Being tried" list and the version line, which opens **its own log
+  page**. Release numbers of its own, 0.x
+  (`topple-lab/src/core/release.js`). No visit counter.
+- **It runs the main site's code, except the files it has its own copy
+  of.** Its pages are made from the main site's by `tools/topple-lab.js`
+  (`topple.html`, `log.html`: the main site's styles and scripts from
+  `../`, the lab's name, manifest and icons), so a fix to Topple! reaches
+  the lab too. Each lab page's **import map** sends the main site's
+  imports of a copied file to the lab's copy, and a copy's own imports
+  back to the main site's files (one three.js). **A main-site file is
+  changed for the lab only by copying it first:** `node tools/topple-lab.js
+  copy src/ui/…` copies it to `topple-lab/src/ui/…` (scripts and styles
+  only), where it's changed. Its first copy: `topple-sets.js`, its
+  pictures one folder up (`../data/topple/`).
+  `node tools/topple-lab.js check` lists the main-site files that differ
+  from `main` (git): none while working on the lab.
+- **Its saves are its own.** The main site's code keeps the game, the
+  tutorials seen, the sound and drawing settings and the log under names
+  like `web-games-topple-game`; the lab and the main site share
+  `donpark2000.github.io`'s storage. Every lab page starts with
+  `topple-lab/lab/start.js`, which swaps the page's two stores
+  (localStorage, sessionStorage) for a view that puts
+  `web-games-topple-lab-` in front of every name, before any other code
+  runs: the lab's game is `web-games-topple-lab-web-games-topple-game`,
+  and it never reads, writes or clears a main-site name. **If a browser
+  won't let the stores be swapped, the lab doesn't start** and says so.
+  (Code that reached the store another way, through a frame, would get
+  the real one; the main site's code doesn't.)
+- **Its own offline files.** `topple-lab/sw.js` is the main site's
+  sw.js with the lab's cache names (`topple-lab-…`, not `lets-play-…`),
+  made by the tool, so each app's clean-up of old copies touches only
+  its own. It saves the lab's files and the main-site files Topple!
+  uses (scripts, styles, Topple!'s pictures): 184 files, 8.6 MB, a
+  download of its own the first time (it keeps nothing from the main
+  site's cache), then only what changed. The main site never lists,
+  links or loads anything of the lab.
+- **`node tools/offline.js` brings both up to date**, the main site and
+  then the lab (its pages, sw.js, file list and version), since the lab
+  is made from the main site's files; the tests fail while either is
+  out of date.
+
 ## Coming back to a game
 
 **At most one game in progress, kept only for a reload or a trip to

@@ -34,6 +34,8 @@ time, each tried before publishing:
   copies first); its saves under `web-games-topple-lab-…`, none of Topple!'s names; its
   offline caches under their own prefix, not `lets-play-`, and each app's clean-up of old
   copies touches only its own (both apps share `donpark2000.github.io`'s storage).
+  **Lab set up (2026-11-20, "Topple Lab set up"), not published:** to decide how a lab-only
+  publish is numbered; then changes 1-5 and the sounds, in the lab.
 
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
@@ -26129,5 +26131,86 @@ Q125 (the moon's materials) and Q121 (sounds).
   download only its changed files (the debug log's "saved for offline … install").
 - **Test files:** `Web-Games-testing\2026-11-20_realism\` (the tone screenshots and
   sheets): recorded above; keep for the lab's comparisons, purge after.
+- **Open questions:** Q139 (the lab), Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3:
+  to try), Q121, as before otherwise.
+
+## 2026-11-20: Topple Lab set up (Q139), not published
+
+- **Developer: "set up topple lab".** Built as DESIGN.md "Topple Lab" now says, on
+  `block-game`. No main-site file changed: the main site's version stays `5580bd654944`
+  (11.6), and `node tools/topple-lab.js check` says "main-site files changed since main:
+  none". Changed outside the site: `tools/offline.js` (it runs the lab's update too, and takes
+  another app's file list and sw.js), `tools/make-icons.js` (`lab`), the tests.
+- **How the lab runs the main site's code with only its own copies changed:** each lab page
+  has an import map. `"../src/ui/topple-sets.js": "./src/ui/topple-sets.js"` sends the main
+  site's imports of a copied file to the lab's copy; `"./src/": "../src/"` sends a copy's
+  own imports back to the main site (so there's one three.js); and an exact entry per copy
+  (`"./src/ui/topple-sets.js": "./src/ui/topple-sets.js"`) keeps one copy's imports of
+  another in the lab. The lab's `src/core/version.js` and `release.js` are copies too, so
+  the main site's `offline.js` shows the lab's version. Import maps: Chrome 89, Safari 16.4;
+  the developer's devices (iPhone 16, the 2019 Galaxy Tab A on Chrome) have them.
+- **Why the stores are swapped, not the names changed in copied files:** the main site's
+  code that the lab runs keeps 8 or more things under main-site names (the game, tutorials
+  seen, blast taught, sound, the drawing level, the log, the resume, the reload flag).
+  Copying every file that names one would copy most of Topple!. One swap of
+  `window.localStorage` and `sessionStorage`, before any other code runs, covers them all,
+  and fails closed (no swap, no start). In Chrome the stores are own properties of the
+  window that can be redefined (`Object.getOwnPropertyDescriptor(Window.prototype,
+  'localStorage')` is undefined); not checked on Safari (the lab then says it won't start,
+  so it's safe either way).
+- **Tests (16, `tests/topple-lab.test.js`):** the lab up to date; what it saves for
+  offline; the main site never saves, links or loads it; a lab page made from a main page
+  (and a page with a script written in it refused); the import map, run through a small
+  resolver as the browser applies it; `copy` verbatim, the main file untouched, refused
+  twice, for a non-main file or a page; a hand-edited lab page, a changed main page, main
+  sw.js or lab file reported; the stores (lab names only, the main site's `forgetOld` run on
+  each side clears only its own side's); no main-site name or clean-up prefix overlaps
+  `web-games-topple-lab-` (checked 15 or more names); a window whose stores can't be swapped
+  doesn't start; the lab's sw.js with a fake cache: keeps nothing from `lets-play-`,
+  activates without clearing it, plays offline, keeps its own unchanged files, and the main
+  site's next version doesn't clear the lab's. The sw test harness moved from
+  `tests/offline.test.js` into `tests/sw-harness.js` for both.
+- **Each guard shown failing when broken** (a scratch script, each break in a temp copy of
+  the repo): setItem without the prefix (3 tests failed), clear() clearing all (2), no check
+  that the swap took (3), loading when not kept apart (2), lab caches named `lets-play-lab-`
+  (3), the main home linking the lab (1), the main site clearing by `web-games-` (4), a lab
+  page keeping stats.js (2), copies not mapped (3). 9 of 9 caught. Full suite: **794
+  passed** (778 + 16).
+- **In the browser pane, on 127.0.0.1** (cache-first, as the live site): the main home
+  first (its cache `lets-play-5580bd654944`), then marker values under four main-site
+  names (`web-games-topple-game`, `-topple-taught-2`, `-sound`, `-3d-drawing`). The lab
+  home: its own registration (scope `/topple-lab/`), cache `topple-lab-f1d2483cac9d`,
+  controlled by `topple-lab/sw.js`, "Version 0.1 · Nov 20, 2026 · f1d248", and it reloaded
+  itself once for its new version, as the main home does. The lab's Topple! at level 4:
+  Cactus Canyon drawn with its photos from `/data/topple/`; loaded
+  `/topple-lab/src/ui/topple-sets.js`, the lab's `version.js` and `release.js`, one
+  `three.module.min.js` (the main site's), no stats.js; no console errors. Read from the
+  main site's page after: **all four markers unchanged**; the lab's under
+  `web-games-topple-lab-…`, including **its own drawing level** (the pane stepped down to
+  "light": in the main site's name, that would have changed the live game's). The lab's
+  log page shows the lab's lines only ("[lab] saves kept apart …"). **Server stopped:** the
+  lab's Topple! opened and drew level 4 with its photos (a fetch to the server failed).
+  Cleaned up after: the markers and the lab's saves removed, the lab's registration and
+  cache deleted. Not checked: Safari, a phone, the installed lab app.
+- **Size:** 184 files, 0.13 MB of the lab's own, 8.48 MB of the main site's (Topple!'s
+  pictures 5.7 MB): a device with both apps keeps both copies.
+- **Also fixed:** `node tools/offline.js` rewrote `sw.js` on every run on this Windows
+  checkout (CRLF in the file, LF in what it writes), though nothing had changed (git showed
+  no difference); it now compares without line ends.
+- **Mistake:** a one-off edit of `tools/make-icons.js` through an inline shell command
+  broke on the quoting (the memory note says helper scripts go in files); the file was
+  restored from git and the change made with the editor.
+
+**Status (start here next session)**
+- **Live: 11.6.** `block-game` = `main` plus the journal and the Topple Lab (not published).
+- **To decide (developer):** how a lab-only publish is numbered. Proposed: the lab has its
+  own numbers (0.1 now), a lab-only publish tags `lab-v0.1` and leaves the main site's
+  release (11.6) and version as they are; `tools/release.js` and `RELEASES.md` learn a lab
+  section. Then publish 0.1 so the lab can be installed on the tablet.
+- **Next in the lab:** change 1 (tone mapping with the lights retuned) with the look tool
+  from the git stash ("Q139 look tool (for Topple Lab)"), which goes into a lab copy of
+  `src/ui/topple.js`; then 2-5 and the moon's sounds (Q121).
+- **Test files:** `Web-Games-testing\2026-11-20_realism\` (the tone screenshots): keep for
+  the lab's comparisons, purge after.
 - **Open questions:** Q139 (the lab), Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3:
   to try), Q121, as before otherwise.
