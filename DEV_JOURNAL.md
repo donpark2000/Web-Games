@@ -26093,3 +26093,31 @@ Q125 (the moon's materials) and Q121 (sounds).
   the flat even light on the ground, and no contact shadows.
 - **Proposed:** 11.6 = change 6 only; changes 1 and 2 move to the Topple Lab, where the
   lights can be retuned with them. **To ask.**
+
+## 2026-11-20: Release 11.6 published and live (change 6 only)
+
+- **Developer: "yes, publish 11.6 with change 6, then start the lab"** (changes 1 and 2 move
+  to the Topple Lab). The look tool (`src/ui/look3d.js` and the `topple.look` hook) kept
+  out of the release in a git stash, "Q139 look tool (for Topple Lab)".
+- **Published:** commit ca1e8f8 on `block-game`, `main` fast-forwarded, tag `v11.6` pushed,
+  GitHub release "11.6" (https://github.com/donpark2000/Web-Games/releases/tag/v11.6).
+  Pages deployed in 36 s. 778 tests passed; `node tools/release.js`: ready.
+- **Live, in the browser pane** (which had 11.5 saved): the home page showed 11.5 first,
+  then "Version 11.6 · Nov 20, 2026 · 5580bd"; the 11.6 install's record: fetched 201,
+  kept 0, from none (11.5's cache has no record, as expected: the one full download);
+  11.5's cache removed. Read only: no game played on the live site.
+- Claude's local server stopped; no other `serve.js` running.
+
+**Status (start here next session)**
+- **Live: 11.6** (smaller updates). `block-game` = `main` plus the journal.
+- **Next: the Topple Lab (Q139)**: a copy of Topple! in `topple-lab/`, installable as its
+  own app with its own offline files; then changes 1-2 (tone mapping with the lights
+  retuned, real HDR light), 3-5 (the park and the moon in photo surfaces, Poly Haven models
+  for the props, 1K surfaces up close) and the moon's sounds (Q121). The look tool is in
+  the git stash.
+- **To try (developer):** 11.6 needs nothing tried; the next release after it should
+  download only its changed files (the debug log's "saved for offline … install").
+- **Test files:** `Web-Games-testing\2026-11-20_realism\` (the tone screenshots and
+  sheets): recorded above; keep for the lab's comparisons, purge after.
+- **Open questions:** Q139 (the lab), Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3:
+  to try), Q121, as before otherwise.
