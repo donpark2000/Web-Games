@@ -25971,3 +25971,36 @@ Q125 (the moon's materials) and Q121 (sounds).
   won in 3.**
 - **Release 11.5 ready:** `node tools/offline.js` (version 24c9f2341ff7, 201 files),
   `RELEASES.md`, `node tools/release.js` ready; **full suite 774 pass, 0 fail**.
+
+## 2026-11-19: Release 11.5 published and live
+
+- **Published** on the developer's word ("build Q125 and Q138 and publish"): commit d50eb05
+  on `block-game`, `main` fast-forwarded to it, tag `v11.5` pushed, GitHub release "11.5"
+  made from `node tools/release.js notes`
+  (https://github.com/donpark2000/Web-Games/releases/tag/v11.5). github.io served version
+  24c9f2341ff7, release 11.5, about 30 s after the push.
+- **The live page in the browser pane:** its saved 11.4 for the first loads (as at earlier
+  publishes), then 11.5: `LEVEL_TARGETS` for levels 6-10, boulders at density 4, the looks
+  module, Landing Zone 6.1 dealt `drums3`; the map's World 2 strip 190 px with its plaque
+  (screenshot); no console errors.
+- **A side effect to know:** before the new copy loaded, Claude called the checking hook
+  `topple.level(6, 1)` on the live page, which saves: the pane's own game for github.io
+  (Normal) now has the moon open and Earth's levels shown locked. Only the browser pane's
+  storage, not the developer's devices; Start over on the setup screen clears it. Lesson
+  (project): on the live site, read only; play through the hooks on localhost.
+- Claude's local server stopped; no other `serve.js` running.
+- **Test files:** `Web-Games-testing\2026-11-19_moon-targets\` (stars.txt/run.json,
+  stars2.txt/run2.json, blast.txt/json, blast2.txt/json, Crater Rim's trial runs, notes.md):
+  recorded above; **to purge with the developer's OK.**
+
+**Status (start here next session)**
+- **Live: 11.5** (Q125 each moon level's look and target, Q138 the map's worlds).
+  `block-game` = `main` plus the journal.
+- **To try (developer), on a device:** 11.5's moon levels (each look and target, the
+  sounds, Crater Rim's lighter boulders) and the map; then say what to keep or change.
+- **To ask:** OK to purge `Web-Games-testing\2026-11-19_moon-targets\`?
+- **Then:** Q121 (sci-fi sounds on the moon); Q120 (the moon on the old tablet: more to draw
+  now, still not hooked to the step-down).
+- **To review at a checkpoint:** the proposed skill additions (as before).
+- **Open questions:** Q125 and Q138 (11.5: to try), Q136 and Q130 (11.4: to try), Q134 and
+  Q133 (11.3: to try), Q120, Q121, as before otherwise.
