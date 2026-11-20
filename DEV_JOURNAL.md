@@ -26233,9 +26233,11 @@ errors. No localhost servers were running.
 
 **Status (start here next session)**
 - **Live: 11.6 and Topple Lab 0.1** (`…/Web-Games/topple-lab/`). `block-game` = `main`.
-- **To try (developer):** install the lab on the tablet: it installs as "Topple Lab" with
-  the purple bear, plays offline, and the live Topple!'s game is unchanged. Not checked yet
-  on Safari, a phone or an installed lab app.
+- **Installed (developer, 2026-11-20):** the lab plays on the developer's iPhone and is
+  installed from Safari (Share, Add to Home Screen): "it is all set up and ready to go".
+  (On the phone, "Add to Home Screen" was first looked for on the page; it's in Safari's
+  Share menu, as for Let's Play!.) Not yet checked: the live Topple!'s game unchanged
+  after playing the lab, on a real device.
 - **Next in the lab:** change 1 (tone mapping with the lights retuned) with the look tool
   from the git stash ("Q139 look tool (for Topple Lab)"), which goes into a lab copy of
   `src/ui/topple.js`; then 2-5 and the moon's sounds (Q121).
