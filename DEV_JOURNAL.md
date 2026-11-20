@@ -26221,12 +26221,21 @@ lab numbers", over a new site release 11.7 that only adds the lab). Built:
   `node tools/release.js` still says v11.6 is already a release (no site release in this
   publish); `node tools/offline.js` left the site at 11.6, version 5580bd654944.
 
+**Lab 0.1 published (later the same day; developer: "Publish lab 0.1").** `block-game`
+fast-forwarded into `main` (2335815) and pushed; tag `lab-v0.1`; GitHub pre-release
+"Topple Lab 0.1" (11.6 still shown as Latest). Pages built 2335815. On github.io:
+`topple-lab/src/core/version.js` says f1d2483cac9d, the site's still 5580bd654944. In the
+browser pane: the lab home's version line "Version 0.1 · Nov 20, 2026 · f1d248"; the lab's
+offline copy installed (`topple-lab-f1d2483cac9d`, 185 entries) next to the site's
+(`lets-play-5580bd654944`); `topple.html` then ran under the lab's sw.js, loaded the lab's
+`version.js`, `release.js` and `topple-sets.js`, one three.js, no stats.js, no console
+errors. No localhost servers were running.
+
 **Status (start here next session)**
-- **Live: 11.6.** `block-game` = `main` plus the journal and the Topple Lab (not published).
-- **Next: publish lab 0.1** (developer's OK), so the lab can be installed on the tablet:
-  `node tools/release.js lab` says ready; merge to `main`; tag `lab-v0.1`; GitHub
-  pre-release from `node tools/release.js lab notes`. Then check it on the tablet: it
-  installs as "Topple Lab", plays offline, and the live Topple!'s game is unchanged.
+- **Live: 11.6 and Topple Lab 0.1** (`…/Web-Games/topple-lab/`). `block-game` = `main`.
+- **To try (developer):** install the lab on the tablet: it installs as "Topple Lab" with
+  the purple bear, plays offline, and the live Topple!'s game is unchanged. Not checked yet
+  on Safari, a phone or an installed lab app.
 - **Next in the lab:** change 1 (tone mapping with the lights retuned) with the look tool
   from the git stash ("Q139 look tool (for Topple Lab)"), which goes into a lab copy of
   `src/ui/topple.js`; then 2-5 and the moon's sounds (Q121).
