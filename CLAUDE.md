@@ -51,6 +51,11 @@ this is the short version:
   `RELEASES.md` with the site's version, and `node tools/release.js` must
   say ready. After the merge: tag `vX.Y` on `main`, push the tag, and make
   the GitHub release with `node tools/release.js notes`.
+- A publish that changes only the Topple Lab is a lab release (0.x) in
+  the same way: `topple-lab/src/core/release.js`, notes under
+  `RELEASES.md`'s "# Topple Lab", `node tools/release.js lab` must say
+  ready; tag `lab-vX.Y`, and a GitHub pre-release from
+  `node tools/release.js lab notes`. The site's release stays as it was.
 - Topple Lab work (DESIGN.md "Topple Lab") never edits a main-site
   file: copy it into the lab first (`node tools/topple-lab.js copy
   <file>`) and change the copy. Before each lab commit,

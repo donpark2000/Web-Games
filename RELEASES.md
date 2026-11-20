@@ -7,6 +7,8 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+The Topple Lab's releases are at the end, under "Topple Lab".
+
 ## 11.6 (2026-11-20, version 5580bd654944)
 
 Smaller updates: a new release downloads only the files that changed.
@@ -1091,3 +1093,21 @@ The first numbered release: everything on the site so far.
 - **Give up** in Follow Me and Find the Stars (it asks first), and Find
   the Stars ends when no square is left.
 - The home page's version line starts with the release number.
+
+# Topple Lab
+
+The Topple Lab (DESIGN.md "Topple Lab"), a copy of Topple! for trying
+bigger changes apart from the live game, at `…/Web-Games/topple-lab/`.
+Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
+is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
+lab leaves the site's release as it was.
+
+## 0.1 (2026-11-20, version f1d2483cac9d)
+
+The Topple Lab's first release: Topple! as it is in 11.6, in an app of its own.
+
+- **Its own address and app**, "Topple Lab", with the bear on purple, at
+  `…/Web-Games/topple-lab/`. It isn't on the Let's Play! home page.
+- **Kept apart from Topple!:** its game, settings, log and offline copy are its own, so
+  playing it changes nothing in the live game.
+- **Nothing being tried yet:** it plays as Topple! does.

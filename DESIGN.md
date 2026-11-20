@@ -1804,8 +1804,15 @@ sounds), without "any risk of accidentally corrupting the current game".
   purple for its icon (`node tools/make-icons.js lab`). Its home page
   (`topple-lab/index.html`, its own) has a button to its Topple!, a
   "Being tried" list and the version line, which opens **its own log
-  page**. Release numbers of its own, 0.x
-  (`topple-lab/src/core/release.js`). No visit counter.
+  page**. No visit counter.
+- **Release numbers of its own** (developer, 2026-11-20: "Own lab
+  numbers"): 0.1, 0.2 ... in `topple-lab/src/core/release.js`, notes under
+  `RELEASES.md`'s "# Topple Lab" heading, each a git tag `lab-vX.Y` on
+  `main` and a GitHub pre-release (so the site's stays the latest). A
+  publish that changes only the lab is a lab release and leaves the
+  site's release and version as they were; `node tools/release.js lab`
+  checks it (`lab notes` gives its notes), as "Releases" says for the
+  site's.
 - **It runs the main site's code, except the files it has its own copy
   of.** Its pages are made from the main site's by `tools/topple-lab.js`
   (`topple.html`, `log.html`: the main site's styles and scripts from

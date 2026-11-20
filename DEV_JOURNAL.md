@@ -34,8 +34,11 @@ time, each tried before publishing:
   copies first); its saves under `web-games-topple-lab-…`, none of Topple!'s names; its
   offline caches under their own prefix, not `lets-play-`, and each app's clean-up of old
   copies touches only its own (both apps share `donpark2000.github.io`'s storage).
-  **Lab set up (2026-11-20, "Topple Lab set up"), not published:** to decide how a lab-only
-  publish is numbered; then changes 1-5 and the sounds, in the lab.
+  **Lab set up (2026-11-20, "Topple Lab set up"), not published.** Numbering decided
+  (developer, 2026-11-20: "Own lab numbers"): the lab's releases are 0.x, tagged
+  `lab-vX.Y`, and a lab-only publish leaves the site's release as it was
+  (`node tools/release.js lab`). Next: publish lab 0.1; then changes 1-5 and the sounds, in
+  the lab.
 
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
@@ -26201,12 +26204,29 @@ Q125 (the moon's materials) and Q121 (sounds).
   broke on the quoting (the memory note says helper scripts go in files); the file was
   restored from git and the change made with the editor.
 
+**Lab releases (later the same day).** The developer chose the lab's own numbers ("Own
+lab numbers", over a new site release 11.7 that only adds the lab). Built:
+- `RELEASES.md` has a `# Topple Lab` heading after the site's releases; the lab's notes go
+  under it, `## 0.1 (2026-11-20, version f1d2483cac9d)` first. `parseReleases(md, { lab })`
+  reads one part or the other.
+- `node tools/release.js lab` checks a lab release as the site's is checked, against the
+  lab's number (`topple-lab/src/core/release.js`), its notes, the lab's version
+  (`tools/topple-lab.js` check) and `lab-vX.Y` tags only; `node tools/release.js lab notes`
+  gives its notes. A lab release is a GitHub pre-release, so the site's newest release
+  stays the one GitHub shows as latest.
+- **Evidence:** 3 new tests (each part read on its own, the exact heading only; the lab's
+  check against its own tags, notes and version, and the site's not counting the lab's
+  tags; the repo's lab number is the newest lab notes). `node tools/release.js lab` said
+  "Topple Lab release 0.1 is ready: version f1d2483cac9d; tag lab-v0.1 not made yet";
+  `node tools/release.js` still says v11.6 is already a release (no site release in this
+  publish); `node tools/offline.js` left the site at 11.6, version 5580bd654944.
+
 **Status (start here next session)**
 - **Live: 11.6.** `block-game` = `main` plus the journal and the Topple Lab (not published).
-- **To decide (developer):** how a lab-only publish is numbered. Proposed: the lab has its
-  own numbers (0.1 now), a lab-only publish tags `lab-v0.1` and leaves the main site's
-  release (11.6) and version as they are; `tools/release.js` and `RELEASES.md` learn a lab
-  section. Then publish 0.1 so the lab can be installed on the tablet.
+- **Next: publish lab 0.1** (developer's OK), so the lab can be installed on the tablet:
+  `node tools/release.js lab` says ready; merge to `main`; tag `lab-v0.1`; GitHub
+  pre-release from `node tools/release.js lab notes`. Then check it on the tablet: it
+  installs as "Topple Lab", plays offline, and the live Topple!'s game is unchanged.
 - **Next in the lab:** change 1 (tone mapping with the lights retuned) with the look tool
   from the git stash ("Q139 look tool (for Topple Lab)"), which goes into a lab copy of
   `src/ui/topple.js`; then 2-5 and the moon's sounds (Q121).

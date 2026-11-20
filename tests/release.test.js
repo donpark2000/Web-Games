@@ -6,8 +6,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseReleases, problems, isRelease, after, unwrap, NOTES_FILE } from '../tools/release.js';
+import { parseReleases, problems, isRelease, after, unwrap, NOTES_FILE, LAB_HEADING } from '../tools/release.js';
 import { RELEASE } from '../src/core/release.js';
+import { RELEASE as LAB_RELEASE } from '../topple-lab/src/core/release.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const V = 'f4c8e57d3a6d', W = '720f7406cc4a';
@@ -70,4 +71,42 @@ test('release: notes for GitHub: one line per paragraph or list item', () => {
   assert.equal(unwrap(notes), 'The first release.\n\n- **One** thing, wrapped.\n- Two.\n* Three more.\n1. Four lines.\n\n## A heading\nAfter it.');
   assert.equal(unwrap('a\r\nb'), 'a b', 'Windows line ends');
   assert.equal(unwrap(''), '');
+});
+
+// The Topple Lab (DESIGN.md "Topple Lab") has release numbers, notes
+// (under "# Topple Lab") and tags (lab-vX.Y) of its own; a lab release
+// leaves the site's release as it was.
+const L = 'f1d2483cac9d';
+const BOTH = `${MD}\r\n${LAB_HEADING}\r\n\r\nThe lab.\r\n\r\n## 0.2 (2026-11-22, version ${V})\r\n\r\n- Tone mapping.\r\n\r\n## 0.1 (2026-11-20, version ${L})\r\n\r\n- First.\r\n`;
+
+test('release: the lab’s releases are the ones under "# Topple Lab", the site’s the ones before', () => {
+  assert.deepEqual(parseReleases(BOTH).map(x => x.release), ['1.1', '1.0'], 'the site’s');
+  assert.equal(parseReleases(BOTH)[1].notes, '- Everything.', 'the site’s last notes stop at the lab’s heading');
+  assert.deepEqual(parseReleases(BOTH, { lab: true }).map(x => [x.release, x.version, x.notes]), [['0.2', V, '- Tone mapping.'], ['0.1', L, '- First.']]);
+  assert.deepEqual(parseReleases(MD, { lab: true }), [], 'no lab heading: no lab releases');
+  assert.deepEqual(parseReleases(BOTH.replace(LAB_HEADING, '# Topple Lab notes'), { lab: true }), [], 'only the exact heading');
+});
+
+test('release: a lab release is checked against the lab’s number, notes and tags only', () => {
+  const ok = { release: '0.2', releases: parseReleases(BOTH, { lab: true }), version: V, tags: ['v1.0', 'v1.1', 'lab-v0.1'], lab: true };
+  assert.deepEqual(problems(ok), []);
+  assert.deepEqual(problems({ ...ok, tags: ['v0.2', 'v1.1', 'lab-v0.1'] }), [], 'the site’s tags don’t count for the lab');
+  assert.deepEqual(problems({ release: '1.1', releases: parseReleases(BOTH), version: W, tags: ['v1.0', 'lab-v1.1', 'lab-v2.0'] }), [], 'nor the lab’s for the site');
+  const one = (change, re) => {
+    const p = problems({ ...ok, ...change });
+    assert.equal(p.length, 1, `${JSON.stringify(change)}: ${p.join(' | ')}`);
+    assert.match(p[0], re);
+  };
+  one({ tags: ['lab-v0.1', 'lab-v0.2'] }, /^lab-v0\.2 is already a release/);
+  one({ tags: ['lab-v0.3'] }, /0\.2 doesn't come after the last release, 0\.3/);
+  one({ version: L }, /^RELEASES\.md \(# Topple Lab\): 0\.2 says version f4c8e57d3a6d, the lab's is f1d2483cac9d/);
+  one({ releases: [] }, /^RELEASES\.md \(# Topple Lab\): no releases/);
+  assert.ok(problems({ ...ok, release: '0.3' }).some(x => /the newest release is 0\.2, topple-lab\/src\/core\/release\.js says 0\.3/.test(x)));
+});
+
+test('release: the lab’s number is x.y and is the newest under "# Topple Lab"', async () => {
+  assert.ok(isRelease(LAB_RELEASE), LAB_RELEASE);
+  const releases = parseReleases(await readFile(path.join(root, NOTES_FILE), 'utf8'), { lab: true });
+  assert.equal(releases[0]?.release, LAB_RELEASE, `${NOTES_FILE}'s newest lab release is not topple-lab/src/core/release.js's ${LAB_RELEASE}`);
+  assert.ok(releases.every(r => r.release && r.notes), 'a lab release with a bad heading or no notes');
 });
