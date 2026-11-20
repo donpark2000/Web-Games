@@ -26049,3 +26049,47 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **To review at a checkpoint:** the proposed skill additions (as before).
 - **Open questions:** Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3: to try), Q121,
   as before otherwise.
+
+## 2026-11-20: A more realistic look: the plan; change 6 built; tone mapping tried (Q139)
+
+- **What's there** (read from the code): three.js r160 and cannon-es, copied into
+  `src/vendor/`. Four renderers (Topple!'s Earth `topple-scene.js` and moon
+  `topple-moon.js`, Tin Can Alley `tin-can-alley-stall.js`, Five Dice 3D `tray3d.js`), all
+  without tone mapping, one sun with PCF soft shadows (2048), a hemisphere light. Levels 2-4:
+  13 Poly Haven surface sets at 512 px and three 360° skies (4096×2048, Poly Haven's
+  tonemapped JPGs, not HDR) as backdrop and reflections (PMREM), 5.7 MB. The park, the
+  night (level 3's photo darkened), the moon and every prop drawn in code. The offline app:
+  201 files, 9.5 MB, all downloaded again at every release (`cache.addAll` of every file
+  with `cache: 'reload'`).
+- **Change 6 built (commit 9fde975):** `tools/offline.js` writes each file's hash
+  (`HASHES`, 12 hex digits of its served contents, not `src/core/version.js`'s) into sw.js
+  and `check` reports a stale or extra hash; sw.js's install copies from the newest older
+  cache that has a record (`offline-record.json`: hashes, kept, fetched, from) every file
+  whose hash is the same, fetches the rest, and deletes its own cache if anything fails; the
+  version reply carries `install` (kept, fetched, from), which the page logs under "saved
+  for offline". Tests (fake cache): a changed and a new file fetched, three kept, the kept
+  files served with no connection; a cache from before 11.6 (no record) and a recorded file
+  missing from its cache both fetched; a failed install leaves v1 untouched and no v2 cache;
+  a hand-edited hash and a removed file reported (each shown failing on broken input). **In
+  the browser pane on 127.0.0.1** (cache-first, as the live site): first install fetched
+  201, kept 0; one comment added to `css/nim.css` and the tool run: the next install
+  fetched 2 (`css/nim.css`, `src/core/version.js`) and kept 199, from `24c9f2341ff7`; the
+  server's log showed only those two requests after sw.js; the kept 1.6 MB sky photo the
+  same size (1,632,075 bytes); the log line "saved for offline … install: kept 199,
+  fetched 2". The comment removed afterwards. **Note:** the first 11.6 install on each device
+  still downloads everything once (11.5's cache has no record).
+- **Change 1 tried, not built:** a checking hook `topple.look({ tone, exposure })`
+  (`src/ui/look3d.js`, not committed) and a scratch script driving headless Edge (as
+  `tools/home-pics.js` does) took each level at 1280×800 with no tone mapping, ACES and AgX
+  at several exposures. Files: `Web-Games-testing\2026-11-20_realism\tone\` and the sheets
+  `tone-sheet.jpg`, `tone-sheet2.jpg`, `tone-before-after.jpg`. Seen: **AgX** (1 and 1.4)
+  olive-grey and dull everywhere; **ACES 1** washes the park's lawn pale; **ACES 0.75**:
+  the desert a little warmer and deeper, the building site a little richer, the snow and the
+  moon about the same, **the park paler and flatter, and the night's glowing blocks lose
+  their glow** (pastel: bright colours are squeezed). So tone mapping on its own is a wash;
+  it pays only with the lights retuned for it (and real HDR light, change 2), level by level.
+  **Claude's earlier claim** that the missing tone mapping was "the biggest single reason
+  for the cartoon feel" was overstated: what reads as cartoon is the drawn props and park,
+  the flat even light on the ground, and no contact shadows.
+- **Proposed:** 11.6 = change 6 only; changes 1 and 2 move to the Topple Lab, where the
+  lights can be retuned with them. **To ask.**
