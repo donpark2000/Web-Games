@@ -27,7 +27,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'f1d2483cac9d';
+const VERSION = '8d3f2e6af3b1';
 const MADE = '2026-11-20';
 const RELEASE = '0.1';
 const FILES = [
@@ -213,7 +213,9 @@ const FILES = [
   'manifest.webmanifest',
   'src/core/release.js',
   'src/core/version.js',
+  'src/ui/look3d.js',
   'src/ui/topple-sets.js',
+  'src/ui/topple.js',
   'topple.html',
 ];
 const HASHES = {
@@ -391,15 +393,17 @@ const HASHES = {
   'icons/icon-192.png': '42f2c87ad180',
   'icons/icon-512.png': '557113230560',
   'icons/icon.svg': 'c1d6df4e0698',
-  'index.html': 'f33e9f5f760d',
+  'index.html': '4cb6b19f7a34',
   'lab/begin.js': 'cfba1bdae267',
   'lab/start.js': '57140b92aad6',
   'lab/storage.js': '0d2efcf2f431',
-  'log.html': '5d2472c31bc3',
+  'log.html': 'fdb29a1e99e8',
   'manifest.webmanifest': '0f45c52de022',
   'src/core/release.js': '992f2640a02b',
+  'src/ui/look3d.js': '6e362b7ebc83',
   'src/ui/topple-sets.js': '80057faa02b8',
-  'topple.html': '90bde1b032fd',
+  'src/ui/topple.js': '7eebd1c95fb2',
+  'topple.html': '4df23ddb64c6',
 };
 // ---- end ----
 
