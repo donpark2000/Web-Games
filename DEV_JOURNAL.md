@@ -26246,3 +26246,37 @@ errors. No localhost servers were running.
   the lab's comparisons, purge after.
 - **Open questions:** Q139 (the lab), Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3:
   to try), Q121, as before otherwise.
+
+## 2026-11-20: Lab change 1 tried (tone mapping, lights retuned); the site untouched
+
+- **Two streams, named every time** (developer: "Now that we have 2 streams, please take
+  care in confirming which you are about to change"): the start-of-session summary listed
+  site 11.3/11.4 things to try beside the lab's next step, which read as if experiments
+  were going on the site. From now on every version and change is labelled **site** (11.x)
+  or **lab** (0.x). This work is **lab only**; the site stays at 11.6.
+- **In the lab (commit 2322e23):** `node tools/topple-lab.js copy src/ui/topple.js` (its
+  first copy of the game's page code), then the look tool from the stash put into the lab's
+  copies: the `topple.look` hook in `topple-lab/src/ui/topple.js` and
+  `topple-lab/src/ui/look3d.js` (new, lab only). `look3d.js` now also scales the lights as
+  each level set them (`lights: { hemi, sun, fill, point, env }`, multipliers) and can keep
+  what glows by itself out of the tone mapping (`glowRaw`: emissive materials and additive
+  halos). The stash is still there; drop it once this is built. `topple-lab.js check`:
+  "main-site files changed since main: none". Full suite: 0 failed (7 min).
+- **Pictures** (a scratch script, headless Edge at 1280×800, `?drawing=0` so nothing is
+  stepped down, the lab's `topple.level(n)` then `topple.look(...)`, about 7 s a level):
+  `Web-Games-testing\2026-11-20_realism\lab1\`, sheets `sheet-park.jpg` (levels 1-5),
+  `sheet-moon.jpg` (6-10), `close-234.jpg`. Looks: none (today's); **A** ACES 0.8, hemi
+  ×0.55, sun ×1.3, fill ×0.6; **B** ACES 0.9, hemi ×0.4, sun ×1.5, fill ×0.4; **C** ACES 1,
+  hemi ×0.3, sun ×1.4, fill ×0.3, env ×1.3; A-C with glowRaw.
+- **Seen:** the photo levels (2 building site, 3 Frosty Times, 4 Cactus Canyon) a little
+  richer with **A**: firmer shadows; the wheelbarrow, ice arch and rocks sit in the ground
+  better. B and C close to A, a little harsher. **The park (1)** paler in all three: its
+  lawn is a flat drawn colour, which ACES squeezes; it needs its own surface (change 3)
+  before tone mapping pays there. **The night (5):** with glowRaw the glowing blocks keep
+  their glow (the earlier try without it lost it); the snow a deeper blue. **The moon
+  (6-10):** about the same; shadows a little blacker (fair for the moon). So change 1 on its
+  own is **a modest gain on levels 2-5, neutral on the moon, a loss on the park**, as the
+  first try suggested; the bigger gains are changes 2-5.
+- **Proposed (to ask):** lab 0.2 = look A on levels 2-10 (glow kept), the park as it is
+  until change 3; and a switch on the lab's home page (today's look / the new) so the
+  developer can compare on the phone and tablet.
