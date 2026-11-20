@@ -24,7 +24,16 @@ time, each tried before publishing:
   own app with its own offline files (agreed over a new repo, which would share
   `donpark2000.github.io`'s storage all the same); the moon's sounds (Q121) in the lab.
   **"yes, start with 11.6 then the lab":** 11.6 = changes 6, 1 and 2 on the site; then the
-  lab with 3-5 and the sounds.
+  lab with 3-5 and the sounds. After tone mapping tried as a wash, **"yes, publish 11.6
+  with change 6, then start the lab"**: 11.6 = change 6 only (live); 1 and 2 to the lab.
+  **Lab setup, developer 2026-11-20:** (a) "Separate web site and separate downloadable
+  PWA": not on the home page, reached by its own address (`…/Web-Games/topple-lab/`), its
+  own install. (b) Copy only the files the lab changes (the rest imported from `../src/`):
+  "up to you … as long as there is no risk of accidentally corrupting the current game".
+  Guards to build with it, each with a test: the lab never edits a main-site file (it
+  copies first); its saves under `web-games-topple-lab-…`, none of Topple!'s names; its
+  offline caches under their own prefix, not `lets-play-`, and each app's clean-up of old
+  copies touches only its own (both apps share `donpark2000.github.io`'s storage).
 
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
@@ -26114,7 +26123,8 @@ Q125 (the moon's materials) and Q121 (sounds).
   own app with its own offline files; then changes 1-2 (tone mapping with the lights
   retuned, real HDR light), 3-5 (the park and the moon in photo surfaces, Poly Haven models
   for the props, 1K surfaces up close) and the moon's sounds (Q121). The look tool is in
-  the git stash.
+  the git stash. The developer's setup choices are in Q139: its own address and install,
+  not on the home page; copy only the files it changes; the guards listed there.
 - **To try (developer):** 11.6 needs nothing tried; the next release after it should
   download only its changed files (the debug log's "saved for offline … install").
 - **Test files:** `Web-Games-testing\2026-11-20_realism\` (the tone screenshots and
