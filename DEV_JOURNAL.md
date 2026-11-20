@@ -10,29 +10,6 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q138. Topple!: the map's break between worlds doesn't stand out** (2026-11-19,
-  developer, after replaying the barrier opening with `topple.walk(5, 6)`: "once it is open
-  it is less apparent in the map where one world ends and the other begins ... The colors
-  for the map background for Moon level 1 (landing zone) and Earth level 5 (star light) are
-  almost the same. And the label for World 2 - The Moon and 1 - Landing Zone are almost the
-  same ... It looks more like the map background is a subtle color gradient rather showing
-  up as pronounced sections of the map."). **Why (read and seen, 11.4 in the browser
-  pane):** (1) the colours: Star Light's band `#2A3A6A`, the moon's gate a gradient from
-  `#05070F` to `#2A3A6A` (made on purpose to fade from Star Light's night into space:
-  `css/topple.css` `.rgate.moon`), the moon's levels `#1B2236` and `#202941` taking turns
-  (`src/ui/topple.js` `LOOKS`): five dark navies, the moon's own five barely apart; (2) the
-  gate's sign (`.rgsign b`, 21 px) and a level's banner (`.rbanner`, 16 px) are the same
-  white pill, and Landing Zone's banner sits just above the gate's. **To propose:** a hard
-  edge and a look of its own for the gate, a sign unlike a level's, the moon's levels in
-  colours of their own (with Q125's looks).
-  **Developer (2026-11-19): "mockup first"; the colours: "try picking them now and show
-  them in the mockup".** **Mockup v1 published** (2026-11-19,
-  [Topple Map Worlds](https://claude.ai/artifact/6AzQ2vCDugSWbDk4CEmpzo)): see "Q138 mockup
-  v1". **Developer (2026-11-19): "the mockup looks great"** (no report sent; `reports`
-  empty). **Agreed: build it as proposed, with Q125's build** (developer: "Shall we fold
-  the map changes into that as well?"; Claude: yes). **Built, release 11.5** (2026-11-19):
-  see "Q125 and Q138 built (release 11.5)". **To try in 11.5.**
-
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
   `i << 16 | j` from its bodies' ids (`cannon-es.js` `OverlapKeeper.getKey`), and the id
@@ -376,41 +353,6 @@ time, each tried before publishing:
   aiming tutorial' before beginning the first scene of any world (including the first 5
   levels we built)." **Built, not published** (see "Q122-Q124 built").
 
-- **Q125. Topple!: the moon's levels all look alike** (2026-11-17, developer: "I don't
-  see the same sort of variation we had in the first world. Some scenes had boxes,
-  some had barrels, some had building supplies, some had ice blocks, some had glowing
-  blocks ... every level had something different."). True: levels 6-10 share crates,
-  panels, posts and beams, none with a behaviour of its own (the park's: ice slides
-  and shatters, barrels burst, glow blocks shatter in colour). Claude's ideas, to
-  choose from: fuel drums that burst in a puff of vapour (Landing Zone); glass solar
-  panels that shatter (Solar Farm); boulders that roll slowly in the low gravity
-  (Crater Rim); ore crystals that glow and shatter (Mining Site); oxygen tanks that
-  pop and fly (Launch Pad). Probably a mockup first. **Developer: "all sound good. It
-  creates interesting changes between scenes while still preserving the aiming and
-  landscapes of the 'world'"** (2026-11-17): **all five, one per moon level.**
-  **Developer (2026-11-18):** "As far as moon levels go, they are all pretty similar and
-  not a whole lot seems to suggest the name of the level. Unlike world one where the
-  name of every level clearly fits with the scenery and the objects that are targets,
-  the moon world seems much less so." True: every level has the same base behind it
-  with a few extras, and the same crates, panels, posts and beams. Claude's proposal:
-  widen Q125 from "a material each" to **"each level looks like its name"**: what's
-  behind, the ground and light, and targets that belong there. Landing Zone: landing
-  pads with lights, a parked lander, cargo crates and fuel drums. Solar Farm: fields of
-  panels to the skyline, glass panel stands that shatter. Crater Rim: the crater's bowl
-  falling away in front, long shadows, boulders on ledges. Mining Site: a drill rig,
-  conveyor, ore heaps under work lights, ore crystals that glow and shatter. Launch Pad:
-  the big rocket on its gantry, the flame trench, oxygen tanks that pop and fly. One
-  mockup page with all five side by side. **To ask:** go ahead with that mockup after 11.2?
-  **Developer (2026-11-18): "OK".**
-  **Mockup v1 published** (2026-11-19, [Topple Moon Levels](https://claude.ai/artifact/U1JnKoX4UL2s6U2B6h5ZUE)):
-  the game itself, each level its own scenery and target (fuel drums burst, glass panels
-  shatter, boulders roll, ore crystals glow and shatter, oxygen tanks pop and fly), the
-  questions built in; one level at a time, not side by side. See "The map's barrier opening can be replayed (Q128); Q125 mockup v1".
-  **Built as the mockup has it, release 11.5** (2026-11-19, developer: "build Q125 and Q138
-  and publish"; no report sent from the mockup): see "Q125 and Q138 built (release 11.5)".
-  **To try in 11.5** (each level's look and target; the boulders made lighter than the
-  mockup's, so a drop on top sends them rolling).
-
 - **Q121. Topple!: sci-fi sounds on the moon** (2026-11-17, developer, after 11.0
   went live): "I know there are no normal transmissions of sound through air on the
   moon, but every sci fi space movie has ignored that forever. You hear rockets,
@@ -711,6 +653,68 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q138. Topple!: the map's break between worlds doesn't stand out** (2026-11-19,
+  developer, after replaying the barrier opening with `topple.walk(5, 6)`: "once it is open
+  it is less apparent in the map where one world ends and the other begins ... The colors
+  for the map background for Moon level 1 (landing zone) and Earth level 5 (star light) are
+  almost the same. And the label for World 2 - The Moon and 1 - Landing Zone are almost the
+  same ... It looks more like the map background is a subtle color gradient rather showing
+  up as pronounced sections of the map."). **Why (read and seen, 11.4 in the browser
+  pane):** (1) the colours: Star Light's band `#2A3A6A`, the moon's gate a gradient from
+  `#05070F` to `#2A3A6A` (made on purpose to fade from Star Light's night into space:
+  `css/topple.css` `.rgate.moon`), the moon's levels `#1B2236` and `#202941` taking turns
+  (`src/ui/topple.js` `LOOKS`): five dark navies, the moon's own five barely apart; (2) the
+  gate's sign (`.rgsign b`, 21 px) and a level's banner (`.rbanner`, 16 px) are the same
+  white pill, and Landing Zone's banner sits just above the gate's. **To propose:** a hard
+  edge and a look of its own for the gate, a sign unlike a level's, the moon's levels in
+  colours of their own (with Q125's looks).
+  **Developer (2026-11-19): "mockup first"; the colours: "try picking them now and show
+  them in the mockup".** **Mockup v1 published** (2026-11-19,
+  [Topple Map Worlds](https://claude.ai/artifact/6AzQ2vCDugSWbDk4CEmpzo)): see "Q138 mockup
+  v1". **Developer (2026-11-19): "the mockup looks great"** (no report sent; `reports`
+  empty). **Agreed: build it as proposed, with Q125's build** (developer: "Shall we fold
+  the map changes into that as well?"; Claude: yes). **Built, release 11.5** (2026-11-19):
+  see "Q125 and Q138 built (release 11.5)".
+  **Closed (2026-11-20), the developer on the tablet, the whole moon world:** "New levels and
+  scenes are much more interesting and the map looks good. I like the exploding oxygen
+  tanks - nice touch."
+
+- **Q125. Topple!: the moon's levels all look alike** (2026-11-17, developer: "I don't
+  see the same sort of variation we had in the first world. Some scenes had boxes,
+  some had barrels, some had building supplies, some had ice blocks, some had glowing
+  blocks ... every level had something different."). True: levels 6-10 share crates,
+  panels, posts and beams, none with a behaviour of its own (the park's: ice slides
+  and shatters, barrels burst, glow blocks shatter in colour). Claude's ideas, to
+  choose from: fuel drums that burst in a puff of vapour (Landing Zone); glass solar
+  panels that shatter (Solar Farm); boulders that roll slowly in the low gravity
+  (Crater Rim); ore crystals that glow and shatter (Mining Site); oxygen tanks that
+  pop and fly (Launch Pad). Probably a mockup first. **Developer: "all sound good. It
+  creates interesting changes between scenes while still preserving the aiming and
+  landscapes of the 'world'"** (2026-11-17): **all five, one per moon level.**
+  **Developer (2026-11-18):** "As far as moon levels go, they are all pretty similar and
+  not a whole lot seems to suggest the name of the level. Unlike world one where the
+  name of every level clearly fits with the scenery and the objects that are targets,
+  the moon world seems much less so." True: every level has the same base behind it
+  with a few extras, and the same crates, panels, posts and beams. Claude's proposal:
+  widen Q125 from "a material each" to **"each level looks like its name"**: what's
+  behind, the ground and light, and targets that belong there. Landing Zone: landing
+  pads with lights, a parked lander, cargo crates and fuel drums. Solar Farm: fields of
+  panels to the skyline, glass panel stands that shatter. Crater Rim: the crater's bowl
+  falling away in front, long shadows, boulders on ledges. Mining Site: a drill rig,
+  conveyor, ore heaps under work lights, ore crystals that glow and shatter. Launch Pad:
+  the big rocket on its gantry, the flame trench, oxygen tanks that pop and fly. One
+  mockup page with all five side by side. **To ask:** go ahead with that mockup after 11.2?
+  **Developer (2026-11-18): "OK".**
+  **Mockup v1 published** (2026-11-19, [Topple Moon Levels](https://claude.ai/artifact/U1JnKoX4UL2s6U2B6h5ZUE)):
+  the game itself, each level its own scenery and target (fuel drums burst, glass panels
+  shatter, boulders roll, ore crystals glow and shatter, oxygen tanks pop and fly), the
+  questions built in; one level at a time, not side by side. See "The map's barrier opening can be replayed (Q128); Q125 mockup v1".
+  **Built as the mockup has it, release 11.5** (2026-11-19, developer: "build Q125 and Q138
+  and publish"; no report sent from the mockup): see "Q125 and Q138 built (release 11.5)".
+  **Closed (2026-11-20), the developer on the tablet, the whole moon world:** "New levels and
+  scenes are much more interesting and the map looks good. I like the exploding oxygen
+  tanks - nice touch."
 
 - **Q137. Topple! moon: a dropped ball that "just dropped and did not roll"**
   (developer, 2026-11-18: "the momentum problem I said before has not been addressed";
@@ -26004,3 +26008,23 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **To review at a checkpoint:** the proposed skill additions (as before).
 - **Open questions:** Q125 and Q138 (11.5: to try), Q136 and Q130 (11.4: to try), Q134 and
   Q133 (11.3: to try), Q120, Q121, as before otherwise.
+
+## 2026-11-20: 11.5 on the tablet; Q125 and Q138 closed; test files purged
+
+- **The developer played the whole moon world in 11.5 on their tablet** (the evening of
+  2026-11-19): "New levels and scenes are much more interesting and the map looks good. I
+  like the exploding oxygen tanks - nice touch." **Q125 and Q138 closed** (moved to
+  Resolved with that).
+- **Purged** (developer: "Yes - send the testing files to recycle"):
+  `Web-Games-testing\2026-11-19_moon-targets\` sent to the Recycle Bin; its results are in
+  "Q125 and Q138 built (release 11.5)". `Web-Games-testing\2026-11-17_review\` is still
+  there (not asked about this time).
+
+**Status (start here next session)**
+- **Live: 11.5.** `block-game` = `main` plus the journal.
+- **To ask:** which tablet the moon was played on, and whether it ran smoothly (Q120: the
+  moon on the old 2019 tablet, more to draw since 11.5, still not hooked to the step-down).
+- **Next:** Q121 (sci-fi sounds on the moon); Q120 as the answer above says.
+- **To review at a checkpoint:** the proposed skill additions (as before).
+- **Open questions:** Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3: to try), Q120,
+  Q121, as before otherwise.
