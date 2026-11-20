@@ -12,7 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
-import { siteFiles, siteVersion, withList, check, madeDay, today, update, versionModule, VERSION_FILE, RELEASE_FILE, readRelease } from '../tools/offline.js';
+import { siteFiles, siteVersion, withList, check, madeDay, today, update, versionModule, VERSION_FILE, RELEASE_FILE, readRelease, fileHashes, listedHashes } from '../tools/offline.js';
 import { versionLabel, dayLabel, reloadFor } from '../src/core/appversion.js';
 import { iconSvg, pngSize, PNGS } from '../tools/make-icons.js';
 
@@ -65,15 +65,32 @@ test('offline: a current list passes; a changed, added or removed file is report
 
   await writeFile(path.join(dir, 'css/a.css'), 'p { color: blue }\n');
   const changed = (await check(dir)).problems;
-  assert.equal(changed.length, 2, changed.join('\n'));
+  assert.equal(changed.length, 3, changed.join('\n'));
   assert.match(changed[0], /^version [0-9a-f]{12}, the files make [0-9a-f]{12}$/);
-  assert.match(changed[1], /^src\/core\/version\.js doesn't say version [0-9a-f]{12} \(2026-10-11\)$/);
+  assert.equal(changed[1], 'hashes out of date: css/a.css', 'only the changed file');
+  assert.match(changed[2], /^src\/core\/version\.js doesn't say version [0-9a-f]{12} \(2026-10-11\)$/);
 
   await writeFile(path.join(dir, 'src/y.js'), '');
   assert.ok((await check(dir)).problems.some(p => p === 'not saved for offline: src/y.js'));
 
   await rm(path.join(dir, 'index.html'));
   assert.ok((await check(dir)).problems.some(p => p === 'listed but not in the site: index.html'));
+  assert.ok((await check(dir)).problems.some(p => p === 'hashes for files not in the site: index.html'));
+});
+
+// Q139 (11.6): each file's hash, for keeping unchanged files at a release.
+test('offline: sw.js has each file\'s hash (not the version file\'s); a hand-edited hash is reported', async t => {
+  const dir = await tinySite(t);
+  const sw = await readFile(path.join(dir, 'sw.js'), 'utf8');
+  const hashes = listedHashes(sw);
+  assert.deepEqual(Object.keys(hashes), ['css/a.css', 'index.html', 'src/x.js']);
+  assert.deepEqual(hashes, await fileHashes(dir, await siteFiles(dir)));
+  for (const h of Object.values(hashes)) assert.match(h, /^[0-9a-f]{12}$/);
+  await writeFile(path.join(dir, 'sw.js'), sw.replace(`'src/x.js': '${hashes['src/x.js']}'`, "'src/x.js': '000000000000'"));
+  assert.deepEqual((await check(dir)).problems, ['hashes out of date: src/x.js']);
+  // Windows line ends: the same hash.
+  await writeFile(path.join(dir, 'css/a.css'), 'p { color: red }\r\n');
+  assert.equal((await fileHashes(dir, ['css/a.css']))['css/a.css'], hashes['css/a.css']);
 });
 
 test('offline: src/core/version.js says the version and its day; stale or missing is reported', async t => {
@@ -175,7 +192,7 @@ const SITE = 'https://donpark2000.github.io/Web-Games/';
 // Runs sw.js for `host` with FILES and VERSION set, a fake cache store and
 // a fake network: `net.down` makes every fetch fail; `net.missing` files
 // answer 404. Returns the handlers and what they did.
-function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.html', 'src/a.js'], version = 'v2', made = '2026-10-11', release = '', store = new Map() } = {}) {
+function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.html', 'src/a.js'], version = 'v2', made = '2026-10-11', release = '', store = new Map(), hashes = {} } = {}) {
   const scope = `https://${host}/Web-Games/`;
   const net = { down: false, missing: [], calls: [] };
   const fetch = async r => {
@@ -200,6 +217,7 @@ function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.htm
           for (const [u, res] of got) m.set(u, res);
         },
         async match(u) { return m.get(u)?.clone(); },
+        async put(u, res) { m.set(u, res); },
       };
     },
     async keys() { return [...store.keys()]; },
@@ -212,7 +230,7 @@ function runSw({ host = 'donpark2000.github.io', files = ['index.html', 'nim.htm
     skipWaiting: async () => { did.skipWaiting++; },
     clients: { claim: async () => { did.claim++; } },
   };
-  vm.runInNewContext(withList(swSource, version, files, made, release), { self, caches, fetch, Request, Response, URL });
+  vm.runInNewContext(withList(swSource, version, files, made, release, hashes), { self, caches, fetch, Request, Response, URL });
   const wait = type => { const e = { waitUntil(p) { e.p = p; } }; handlers[type](e); return e.p; };
   // A fetch event: the response, or null if sw.js leaves it to the browser.
   const get = async (url, method = 'GET') => {
@@ -227,7 +245,7 @@ test('offline sw: install saves every file fresh from the site, then takes over'
   const sw = runSw();
   await sw.install();
   const saved = sw.store.get('lets-play-v2');
-  assert.deepEqual([...saved.keys()], [`${SITE}index.html`, `${SITE}nim.html`, `${SITE}src/a.js`]);
+  assert.deepEqual([...saved.keys()], [`${SITE}index.html`, `${SITE}nim.html`, `${SITE}src/a.js`, `${SITE}offline-record.json`]);
   assert.ok(sw.net.calls.every(c => c.cache === 'reload'), JSON.stringify(sw.net.calls));
   assert.equal(sw.did.skipWaiting, 1);
 });
@@ -236,7 +254,7 @@ test('offline sw: if one file fails, the install fails and saves nothing', async
   const sw = runSw();
   sw.net.missing = ['src/a.js'];
   await assert.rejects(sw.install(), /a\.js: 404/);
-  assert.equal(sw.store.get('lets-play-v2').size, 0);
+  assert.equal(sw.store.has('lets-play-v2'), false);
   assert.equal(sw.did.skipWaiting, 0);
 });
 
@@ -281,13 +299,65 @@ test('offline sw: on localhost the network comes first; the saved copy when the 
   await assert.rejects(sw.get(`${local}other.html`), /Failed to fetch/);
 });
 
-test('offline sw: tells a page its version', () => {
-  const sw = runSw({ files: ['a.html', 'b.html'], version: 'abc', made: '2026-10-12', release: '1.0' });
+test('offline sw: tells a page its version, and what its install did', async () => {
+  const sw = runSw({ files: ['a.html', 'b.html'], version: 'abc', made: '2026-10-12', release: '1.0', hashes: { 'a.html': '111', 'b.html': '222' } });
   const posted = [];
-  sw.handlers.message({ data: 'version', source: { postMessage: m => posted.push(m) } });
-  sw.handlers.message({ data: 'something else', source: { postMessage: m => posted.push(m) } });
+  const ask = async data => { const e = { data, source: { postMessage: m => posted.push(m) }, waitUntil(p) { e.p = p; } }; sw.handlers.message(e); await e.p; };
+  await ask('version');   // not installed yet: no record
+  await ask('something else');
+  await sw.install();
+  await ask('version');
   // (made inside the vm, so compared as JSON: its objects have their own prototype)
-  assert.deepEqual(JSON.parse(JSON.stringify(posted)), [{ release: '1.0', version: 'abc', made: '2026-10-12', files: 2, freshFirst: false }]);
+  const base = { release: '1.0', version: 'abc', made: '2026-10-12', files: 2, freshFirst: false };
+  assert.deepEqual(JSON.parse(JSON.stringify(posted)), [{ ...base, install: null }, { ...base, install: { kept: 0, fetched: 2, from: null } }]);
+});
+
+// Q139 (11.6): a release downloads only the files that changed.
+test('offline sw: a new version keeps the saved files whose hash is the same, and fetches the rest', async () => {
+  const files = ['index.html', 'nim.html', 'src/a.js', 'data/big.jpg'];
+  const store = new Map();
+  const v1 = runSw({ files, version: 'v1', store, hashes: { 'index.html': 'i1', 'nim.html': 'n1', 'src/a.js': 'a1', 'data/big.jpg': 'b1' } });
+  await v1.install();
+  assert.equal(v1.net.calls.length, 4);
+  const v2 = runSw({ files: [...files, 'src/new.js'], version: 'v2', store, hashes: { 'index.html': 'i2', 'nim.html': 'n1', 'src/a.js': 'a1', 'data/big.jpg': 'b1', 'src/new.js': 'x1' } });
+  await v2.install();
+  assert.deepEqual(v2.net.calls.map(c => c.url), [`${SITE}index.html`, `${SITE}src/new.js`], 'only the changed and the new file downloaded');
+  assert.ok(v2.net.calls.every(c => c.cache === 'reload'));
+  const saved = store.get('lets-play-v2');
+  for (const f of [...files, 'src/new.js']) assert.equal(await (await saved.get(`${SITE}${f}`)).clone().text(), `net:/Web-Games/${f}`, f);
+  const rec = JSON.parse(await saved.get(`${SITE}offline-record.json`).clone().text());
+  assert.deepEqual({ kept: rec.kept, fetched: rec.fetched, from: rec.from }, { kept: 3, fetched: 2, from: 'v1' });
+  // Played with no connection: every file there.
+  await v2.activate();
+  v2.net.down = true;
+  assert.equal(await (await v2.get(`${SITE}data/big.jpg`)).text(), 'net:/Web-Games/data/big.jpg');
+  assert.deepEqual([...store.keys()], ['lets-play-v2']);
+});
+
+test('offline sw: a cache from before 11.6 (no hashes), or a hash with no saved file, means a fresh download', async () => {
+  const files = ['index.html', 'nim.html'], hashes = { 'index.html': 'i1', 'nim.html': 'n1' };
+  const store = new Map([['lets-play-old', new Map([[`${SITE}index.html`, new Response('old')], [`${SITE}nim.html`, new Response('old')]])]]);
+  const sw = runSw({ files, version: 'v2', store, hashes });
+  await sw.install();
+  assert.equal(sw.net.calls.length, 2, 'nothing kept from a cache with no record');
+  // A record says the file was saved, but it isn't there: fetched.
+  store.get('lets-play-v2').delete(`${SITE}nim.html`);
+  const v3 = runSw({ files, version: 'v3', store, hashes });
+  await v3.install();
+  assert.deepEqual(v3.net.calls.map(c => c.url), [`${SITE}nim.html`]);
+});
+
+test('offline sw: a failed install removes its cache and leaves the old version as it was', async () => {
+  const files = ['index.html', 'nim.html'];
+  const store = new Map();
+  const v1 = runSw({ files, version: 'v1', store, hashes: { 'index.html': 'i1', 'nim.html': 'n1' } });
+  await v1.install();
+  const v2 = runSw({ files, version: 'v2', store, hashes: { 'index.html': 'i1', 'nim.html': 'n2' } });
+  v2.net.missing = ['nim.html'];
+  await assert.rejects(v2.install(), /nim\.html: 404/);
+  assert.deepEqual([...store.keys()], ['lets-play-v1'], 'the half-made cache is gone');
+  assert.equal(store.get('lets-play-v1').size, 3, "v1's two files and its record untouched");
+  assert.equal(v2.did.skipWaiting, 0);
 });
 
 /* ---------- the manifest, icons and pages ---------- */

@@ -10,6 +10,22 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q139. Topple!: a more realistic look; a Topple Lab apart** (2026-11-20, developer:
+  "our games so far look much more like low budget cartoons", asking for a plan with CC0
+  assets, under about 30 MB added, still offline). What's there: three.js r160, no tone
+  mapping; levels 2-4 already in Poly Haven photo surfaces (512 px) and 360° skies, but
+  the skies are the tonemapped JPGs (no real HDR light); the park, the moon and the props
+  drawn in code. sw.js downloads every file again at each release (9.5 MB today). Plan
+  (see "A more realistic look: the plan"): (1) tone mapping and the lights retuned, 0 MB;
+  (2) real HDR light, a 1K HDRI per photo sky, ~6-8 MB; (3) the park and the moon in photo
+  surfaces; (4) Poly Haven models for the props; (5) 1K surfaces up close; (6) a release
+  downloads only the files that changed, 0 MB. **Developer:** the drastic steps apart from
+  the live games: **Topple Lab**, a copy of Topple! in `topple-lab/`, installable as its
+  own app with its own offline files (agreed over a new repo, which would share
+  `donpark2000.github.io`'s storage all the same); the moon's sounds (Q121) in the lab.
+  **"yes, start with 11.6 then the lab":** 11.6 = changes 6, 1 and 2 on the site; then the
+  lab with 3-5 and the sounds.
+
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
   `i << 16 | j` from its bodies' ids (`cannon-es.js` `OverlapKeeper.getKey`), and the id

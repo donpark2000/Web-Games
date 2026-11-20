@@ -56,37 +56,62 @@ export async function siteFiles(root) {
   return [...new Set([...top, ...deeper, VERSION_FILE])].sort();
 }
 
-// A short version made from the files' names and contents (not
-// VERSION_FILE's, which holds the version). Text files
-// count with plain (LF) line ends, so a Windows checkout (CRLF) makes the
-// same version as the files GitHub serves.
+// A file's contents as GitHub serves them: text files with plain (LF)
+// line ends, so a Windows checkout (CRLF) makes the same version and
+// hashes as the files GitHub serves.
 const TEXT = /\.(html|webmanifest|css|js|svg|json)$/;
+async function served(root, f) {
+  const data = await readFile(path.join(root, f));
+  return TEXT.test(f) ? data.toString('utf8').replace(/\r\n/g, '\n') : data;
+}
+
+// A short version made from the files' names and contents (not
+// VERSION_FILE's, which holds the version).
 export async function siteVersion(root, files) {
   const h = createHash('sha256');
   for (const f of files) {
     if (f === VERSION_FILE) continue;
     h.update(f + '\0');
-    const data = await readFile(path.join(root, f));
-    h.update(TEXT.test(f) ? data.toString('utf8').replace(/\r\n/g, '\n') : data);
+    h.update(await served(root, f));
     h.update('\0');
   }
   return h.digest('hex').slice(0, 12);
 }
 
+// Each file's own hash ({ file: 12 hex digits }), not VERSION_FILE's (new
+// with every version). A new version's sw.js keeps a saved file whose hash
+// is the same, so a release downloads only the files that changed (Q139,
+// release 11.6).
+export async function fileHashes(root, files) {
+  const out = {};
+  for (const f of files) {
+    if (f === VERSION_FILE) continue;
+    out[f] = createHash('sha256').update(await served(root, f)).digest('hex').slice(0, 12);
+  }
+  return out;
+}
+
 const START = '// ---- made by tools/offline.js (don\'t edit by hand) ----';
 const END = '// ---- end ----';
 
-export function generated(version, files, made, release = '') {
+export function generated(version, files, made, release = '', hashes = {}) {
   if (!/^\d{4}-\d\d-\d\d$/.test(made ?? '')) throw new Error(`sw.js: the version's day must be YYYY-MM-DD: ${made}`);
-  return `${START}\nconst VERSION = '${version}';\nconst MADE = '${made}';\nconst RELEASE = '${release}';\nconst FILES = [\n${files.map(f => `  '${f}',`).join('\n')}\n];\n${END}`;
+  const h = Object.keys(hashes).sort().map(f => `  '${f}': '${hashes[f]}',`);
+  return `${START}\nconst VERSION = '${version}';\nconst MADE = '${made}';\nconst RELEASE = '${release}';\nconst FILES = [\n${files.map(f => `  '${f}',`).join('\n')}\n];\nconst HASHES = {${h.length ? `\n${h.join('\n')}\n` : ''}};\n${END}`;
 }
 
-// sw.js with its list, version, the version's day and the release number
-// brought up to date.
-export function withList(sw, version, files, made, release = '') {
+// sw.js with its list, each file's hash, the version, the version's day
+// and the release number brought up to date.
+export function withList(sw, version, files, made, release = '', hashes = {}) {
   const a = sw.indexOf(START), b = sw.indexOf(END);
   if (a < 0 || b < a) throw new Error('sw.js: the made-by-tools/offline.js lines are missing');
-  return sw.slice(0, a) + generated(version, files, made, release) + sw.slice(b + END.length);
+  return sw.slice(0, a) + generated(version, files, made, release, hashes) + sw.slice(b + END.length);
+}
+
+// The hashes listed in a sw.js ({ file: hash }).
+export function listedHashes(sw) {
+  const body = sw.match(/const HASHES = \{([\s\S]*?)\};/)?.[1] ?? '';
+  return Object.fromEntries([...body.matchAll(/'([^']+)': '([0-9a-f]+)'/g)].map(m => [m[1], m[2]]));
 }
 
 // A text file with plain (LF) line ends, or null if there's none.
@@ -129,6 +154,11 @@ export async function check(root) {
   if (extra.length) problems.push(`listed but not in the site: ${extra.join(', ')}`);
   const has = sw.match(/const VERSION = '([^']*)';/)?.[1];
   if (has !== version) problems.push(`version ${has}, the files make ${version}`);
+  const hashes = await fileHashes(root, files), listedH = listedHashes(sw);
+  const wrong = Object.keys(hashes).filter(f => listedH[f] !== hashes[f]);
+  if (wrong.length) problems.push(`hashes out of date: ${wrong.join(', ')}`);
+  const extraH = Object.keys(listedH).filter(f => !(f in hashes));
+  if (extraH.length) problems.push(`hashes for files not in the site: ${extraH.join(', ')}`);
   const made = sw.match(/const MADE = '(\d{4}-\d\d-\d\d)';/)?.[1];
   if (!made) problems.push('no day for the version (MADE)');
   const release = await readRelease(root);
@@ -149,7 +179,7 @@ export async function update(root, day) {
   const before = await readFile(file, 'utf8');
   const made = madeDay(before, version, day);
   const release = await readRelease(root);
-  const after = withList(before, version, files, made, release);
+  const after = withList(before, version, files, made, release, await fileHashes(root, files));
   const changed = [];
   if (after !== before) { await writeFile(file, after); changed.push('sw.js'); }
   const vfile = path.join(root, VERSION_FILE);

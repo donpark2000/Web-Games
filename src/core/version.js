@@ -3,4 +3,4 @@
 // Pages show their own files' version from this, so it's right however
 // the page was loaded (a hard reload skips sw.js).
 export const VERSION = '24c9f2341ff7';
-export const MADE = '2026-11-19';
+export const MADE = '2026-11-20';
