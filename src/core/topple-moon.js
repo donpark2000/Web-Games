@@ -100,7 +100,23 @@ export const MOON_MATS = {
   beam: { density: 7, friction: 0.5, bounce: 0.05 },
   ore: { density: 14, friction: 0.6, bounce: 0.05 },
   tank: { density: 8, friction: 0.5, bounce: 0.05 },
+  // Q125: each level's own target (shape: 'cyl' a drum on end, 'hex' a six-sided
+  // prism, 'ball' a boulder; else a box). burst: a ball this fast (m/s) bursts it, pushing
+  // what's near; shatter: once down, its next knock breaks it (as the park's ice, Q83);
+  // roll: down once rolled ROLL_M away or dropped ROLL_DROP; pop: a ball this fast sets
+  // it venting, flying off on its own jet.
+  drum: { density: 9, shape: 'cyl', burst: 1.6 },
+  glass: { density: 20, shatter: true },
+  // (light, pumice-like: at the mockup's 12 a lone big boulder on a ledge took a drop near its
+  // middle and hardly moved, and Crater Rim's scenes 4-5 couldn't always be won in 3 even with
+  // the blast ball; at 4 the star tool won all 90 of the level's scenes in 3)
+  boulder: { density: 4, shape: 'ball', roll: true },
+  crystal: { density: 14, shape: 'hex', shatter: true },
+  oxygen: { density: 8, shape: 'cyl', pop: 1.2 },
 };
+export const ROLL_M = 0.6, ROLL_DROP = 0.25;
+export const BURST_R = 1.0, BURST_KICK = 2.2;   // a drum's burst: what it pushes (m), how hard (m/s at its middle)
+export const POP_THRUST = 5.0, POP_S = 0.9;    // an oxygen tank's jet: m/s² along it, for this long
 const E = 0.003;   // a hair between stacked blocks
 const B = (mat, w, h, d, x, y0, z = 0) => ({ mat, w, h, d, x, y: y0 + E + h / 2, z });
 const top = b => b.y + b.h / 2;
@@ -141,6 +157,26 @@ export const MOON_STRUCTURES = {
   },
   // a beacon: a tall post with a crate on it
   beacon: () => { const p = B('post', 0.26, 1.5, 0.26, 0, 0); return [p, B('crate', 0.36, 0.36, 0.36, 0, top(p))]; },
+  // Q125: Landing Zone's fuel drums: two on the ground, one across them
+  drums3: () => [B('drum', 0.4, 0.55, 0.4, -0.22, 0), B('drum', 0.4, 0.55, 0.4, 0.22, 0), B('drum', 0.4, 0.55, 0.4, 0, 0.55 + E)],
+  drums4: () => [B('drum', 0.38, 0.5, 0.38, -0.21, 0), B('drum', 0.38, 0.5, 0.38, 0.21, 0), B('drum', 0.38, 0.5, 0.38, -0.21, 0.5 + E), B('drum', 0.38, 0.5, 0.38, 0.21, 0.5 + E)],
+  // Crater Rim's boulders: resting where a nudge sets them rolling
+  boulders: () => [B('boulder', 0.6, 0.6, 0.6, -0.33, 0), B('boulder', 0.5, 0.5, 0.5, 0.36, 0)],
+  boulder: () => [B('boulder', 0.8, 0.8, 0.8, 0, 0)],
+  // Mining Site's ore crystals: a cluster of glowing prisms
+  crystals: () => [B('crystal', 0.26, 0.75, 0.26, -0.24, 0), B('crystal', 0.3, 1.0, 0.3, 0.04, 0), B('crystal', 0.24, 0.6, 0.24, 0.3, 0)],
+  // Launch Pad's oxygen tanks: one tall, or two and one on top
+  o2tank: () => [B('oxygen', 0.42, 1.2, 0.42, 0, 0)],
+  o2pair: () => [B('oxygen', 0.36, 0.8, 0.36, -0.22, 0), B('oxygen', 0.36, 0.8, 0.36, 0.22, 0), B('oxygen', 0.34, 0.6, 0.34, 0, 0.8 + E)],
+};
+// Q125: each level's own targets in place of some of its blocks (structure → structure,
+// and a material swapped throughout).
+export const LEVEL_TARGETS = {
+  6: { names: { crates3: 'drums3', crates2x2: 'drums4' } },
+  7: { mats: { panel: 'glass' } },
+  8: { names: { crates3: 'boulders', tank: 'boulder', crates2x2: 'boulders' } },
+  9: { names: { tank: 'crystals', crates2x2: 'crystals', crates3: 'crystals', crates4: 'crystals' } },
+  10: { names: { tank: 'o2tank', beacon: 'o2pair', crates3: 'o2pair' } },
 };
 
 // A rock ledge to stand a structure on (crater rim): a box, not knocked about.
@@ -208,7 +244,7 @@ export const MOON_LEVELS = [
   {
     n: 9,   // Mining Site
     pool: [
-      [S('trestle', 0, 'm')],
+      [S('trestle', -0.9, 'm'), S('crystals', 1.3, 'n')],   // (Q125: the crystals from the first scene)
       [S('trestle', -1.4, 'f'), S('crates3', 1.4, 'n')],
       [S('tank', -1.8, 'n'), S('trestle', 0.8, 'm')],
       [S('trestle', -1.6, 'n'), S('trestle', 1.6, 'f')],
@@ -223,7 +259,7 @@ export const MOON_LEVELS = [
   {
     n: 10,   // Launch Pad
     pool: [
-      [S('gantry', 0, 'm')],
+      [S('gantry', -0.9, 'm'), S('o2tank', 1.2, 'n')],   // (Q125: an oxygen tank from the first scene)
       [S('beacon', -1.4, 'n'), S('gantry', 1.4, 'f')],
       [S('gantry', -1.6, 'f'), S('tank', 1.6, 'm')],
       [S('beacon', -2.2, 'f'), S('gantry', 0, 'n'), S('beacon', 2.2, 'm')],
@@ -264,11 +300,13 @@ export function moonScene(seed, n, i) {
   const r = rng((seed ^ Math.imul(n * 8 + i, 0x2C9277B5)) >>> 0);
   const flip = d.flip ? -1 : 1;
   const structures = [], ledges = [];
-  for (const s of plan) {
+  const swap = LEVEL_TARGETS[n] ?? {};
+  for (const s0 of plan) {
+    const s = { ...s0, name: swap.names?.[s0.name] ?? s0.name };
     const x = Math.round((flip * s.x + (r() - 0.5) * 0.3) * 100) / 100, z = Math.round((ZS[s.at] + (r() - 0.5) * 0.2) * 100) / 100;
     const base = s.ledge ? LEDGE.h : 0;
     if (s.ledge) ledges.push({ x, z, ...LEDGE });
-    const blocks = MOON_STRUCTURES[s.name]().map(b => ({ ...b, x: x + b.x, y: b.y + base, z: z + b.z }));
+    const blocks = MOON_STRUCTURES[s.name]().map(b => ({ ...b, mat: swap.mats?.[b.mat] ?? b.mat, x: x + b.x, y: b.y + base, z: z + b.z }));
     structures.push({ name: s.name, x, z, ledge: s.ledge, blocks });
   }
   const all = structures.flatMap(s => s.blocks);

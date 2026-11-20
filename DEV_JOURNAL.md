@@ -30,7 +30,8 @@ time, each tried before publishing:
   [Topple Map Worlds](https://claude.ai/artifact/6AzQ2vCDugSWbDk4CEmpzo)): see "Q138 mockup
   v1". **Developer (2026-11-19): "the mockup looks great"** (no report sent; `reports`
   empty). **Agreed: build it as proposed, with Q125's build** (developer: "Shall we fold
-  the map changes into that as well?"; Claude: yes).
+  the map changes into that as well?"; Claude: yes). **Built, release 11.5** (2026-11-19):
+  see "Q125 and Q138 built (release 11.5)". **To try in 11.5.**
 
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
@@ -404,7 +405,11 @@ time, each tried before publishing:
   **Mockup v1 published** (2026-11-19, [Topple Moon Levels](https://claude.ai/artifact/U1JnKoX4UL2s6U2B6h5ZUE)):
   the game itself, each level its own scenery and target (fuel drums burst, glass panels
   shatter, boulders roll, ore crystals glow and shatter, oxygen tanks pop and fly), the
-  questions built in; one level at a time, not side by side. See "The map's barrier opening can be replayed (Q128); Q125 mockup v1". **To try.**
+  questions built in; one level at a time, not side by side. See "The map's barrier opening can be replayed (Q128); Q125 mockup v1".
+  **Built as the mockup has it, release 11.5** (2026-11-19, developer: "build Q125 and Q138
+  and publish"; no report sent from the mockup): see "Q125 and Q138 built (release 11.5)".
+  **To try in 11.5** (each level's look and target; the boulders made lighter than the
+  mockup's, so a drop on top sends them rolling).
 
 - **Q121. Topple!: sci-fi sounds on the moon** (2026-11-17, developer, after 11.0
   went live): "I know there are no normal transmissions of sound through air on the
@@ -25846,3 +25851,123 @@ Q125 (the moon's materials) and Q121 (sounds).
 - **Then:** Q121 (sci-fi sounds on the moon).
 - **Open questions:** Q125 (mockup to try or build), Q138 (agreed, to build), Q136 and
   Q130 (11.4: to try), Q134 and Q133 (11.3: to try), as before otherwise.
+
+## 2026-11-19: Q125 and Q138 built (release 11.5)
+
+- **Developer:** "build Q125 and Q138 and publish. I will be gone for a few hours
+  (probably not back until tomorrow)." Q125's mockup `reports` were still empty, so it is
+  built as the mockup has it (the developer's go-ahead to build and publish taken as
+  accepting the mockup); anything to change comes from playing 11.5.
+- **The release number: 11.5, not 12.0** (the status entry had "12.0? or 11.5"): DESIGN.md
+  "Releases" keeps x.0 for a new game; this changes the levels of a world already there.
+- **Where the code came from:** the scratchpad copies were gone (a new session), so the
+  mockups' files were read back from the published pages (Artifact `read` with `paths`)
+  and compared with the repo: Q125's mockup changed `src/core/topple-moon.js`,
+  `topple-moon-world.js`, `src/ui/topple-moon.js`, `src/ui/topple.js` (16 lines) and added
+  `src/ui/topple-moon-looks.js` and `topple-mock.js` (the mockup's box and card); every
+  other file the same as the repo's.
+- **Taken over from the mockup, changed for the game:**
+  - `MOCK_SWAP` → `LEVEL_TARGETS` (the same swaps: some structures, or a material, per
+    level); the mockup's comments say Q125.
+  - **The spins a burst or a pop gives were `Math.random()`**: now a seeded random per
+    scene (`spinR`, from the scene's seed, level and number), so the tests, the test
+    player and the star tool see the same run each time. (The drawing's bits and puffs
+    stay random: drawing only.)
+  - `src/ui/topple.js`: each target's knock (`MOON_KNOCK`), and `moonEvents` (a burst,
+    a shatter, a pop: its sound and a log line `moon: burst | shatter | pop`), called
+    each moon frame. Left out: the mockup's first-screen box, the line over play, the
+    card, `window.__mockSeen`, and "always the first screen" (a kept scene is picked up
+    again as before).
+- **Q138, from its mockup:** `GATE_H` 190 (was 150); `.rgate` hard white edges (Earth's
+  only on top: it's the road's foot); the moon's gate the mockup's picture (Earth's
+  curve at the foot, the moon's ground at the top, space and stars between, the rocket
+  moved up to 46 px); the open worlds' signs a plaque (`.wplaque`, `WORLD N` over the
+  sign and name; orange for the moon, green for Earth), the shut barrier's sign as
+  before; the moon levels' colours in `LOOKS` (slate, teal, warm grey, ochre, rust; the
+  road's dots white .6).
+- **Tests** (`tests/topple-moon.test.js`, +6, and its page test; `tests/topple-page.test.js`
+  +1; one older check each in the moon and tutorial tests updated: a boulder on the
+  ground isn't "upright", it's round; the world's sign is a plaque):
+  - each level's target in its first scene on every deal (20 seeds), never another
+    level's; a ball from the lander falls fast enough to burst a drum or set a tank
+    venting even onto a gantry (2.7 m): the slowest fall 1.84 m/s straight down (over 1.6
+    and 1.2; the lander's speed along adds to it);
+  - a drum: a hard ball bursts it (gone, out of the world, no ring or glow on it), the
+    drums under it in turn; a crate 0.5 m away pushed, one 1.3 m away not; a resumed
+    scene keeps it gone; a ball at 0.8 m/s only knocks it;
+  - glass and crystals: shattered by the end only if down, never while standing; left
+    alone, nothing shatters;
+  - a boulder: turned over in place still up; moved 0.5 m up, 0.7 m down; a ball at the
+    lander's speed rolls it away and it comes to rest within 12 s;
+  - an oxygen tank: one pop, venting 0.9 s, then down; a slow ball nothing;
+  - a burst or a pop plays out the same twice;
+  - the map: every level's colour found, the moon's five different, none Star Light's,
+    Landing Zone's far enough from it (RGB distance over 40); the plaque, its colours,
+    the hard edges, the picture's two curves; the page wiring (the looks module, the
+    knocks, the events logged, nothing of the mockup left).
+  - **Shown to fail:** the burst threshold at 99 m/s (2 tests failed); glass shattering
+    while standing (the glass test failed). **That second break was first missed:** the
+    check looked for a block broken while not down, but breaking a block marks it down
+    at once, so it could never fire. Rewritten to judge each shatter by the block's state
+    before its step (a knock's) or in it (one coming to rest); then caught.
+  - Probes (scratch `probe.mjs`, `probe2.mjs`): a drop dead on a lone boulder from above
+    only nudges it (0.0 to 0.55 m by how far off its middle); with the lander's speed
+    (1 m/s along) it rolls 0.8-1.2 m: down. The burst's push at a crate's middle: 0.61
+    m/s at 0.5 m, 0.39 at 0.6, 0.17 at 0.7 (1 m and over nothing).
+- **The test player's win rate** (the moon test's loop, 200 scenes; scratch
+  `winrate.mjs`, both versions in one run, 11.4 from a temporary worktree of HEAD):
+  **11.5: 194 of 200 (97.0%); 11.4: 191 of 200 (95.5%).** The new targets haven't made
+  the moon harder for it. Not won in 11.5: Crater Rim 8.3, 8.4, 8.5 (three, a boulder or
+  two left), Solar Farm 7.5 and Mining Site 9.5 (one block left each).
+- **Checked in the browser pane** (localhost, the game's hooks; `topple.level(n, 1)`, the
+  lander steered to the target's distance, let go over its middle):
+  - Landing Zone: the pads, tower, landers, drums (screenshot); a drop on the top drum:
+    `burst` #2 at 3.1 m/s, #1 at 3.4, red and yellow bits, "Cleared!" (screenshot).
+  - Solar Farm: 4 shatters, the card with 3 stars and Aced (screenshot).
+  - Crater Rim: the crater's far wall, rocks, flag, the boulders on a ledge (screenshot);
+    a drop dead on top: no boulder down (moved 0.21 and 0.37 m), as the probes said (at
+    the mockup's density 12; made lighter after the star run, below).
+  - Mining Site: a crystal shattered in its colour (screenshot).
+  - Launch Pad: the tank popped at 3.0 m/s and flew off on its jet (screenshot).
+  - **A first drop missed a drum:** let go the moment the ring touched the drum's box,
+    the ball grazed past and only rolled into it at 0.93 m/s (contacts logged: the
+    ground first at 3.62 m/s). The ring and the lit block go by each block's box, and a
+    drum or a boulder is round inside it, so a ball at the very edge can be lit and still
+    miss. Small (the box's corners), and a player aims at the middle; noted, not changed.
+  - The map (desktop and 375x812): the World 2 strip 190 px with Earth and the moon's
+    ground, the orange plaque, Earth's green one, the bands' colours as set; no sideways
+    scroll. No console errors.
+  - **Not checked:** a real touch screen, the app's viewer, the sounds by ear, **the old
+    tablet's speed** (Q120: the moon isn't hooked to the step-down, and these looks add
+    meshes, about 800 instanced panels in Solar Farm).
+- **The star tool on the new targets** (judged a little off, every scene of both worlds,
+  6 deals, 26.6 min; `Web-Games-testing\2026-11-19_moon-targets\stars.txt`, `run.json`):
+  **65 of 750 not won in 3** (11.4's run: 66). The park's list as before. The moon:
+  Solar Farm's challenges, Mining Site's (now crystals) and Launch Pad's (now oxygen tanks)
+  as before; Mining Site's scenes 3-4 off the list (crystals in place of crates and the
+  tank); **new: Landing Zone's scene 4 on Harder (4 of 5 deals), Crater Rim's scenes 4
+  and 5 on Normal** (1 of 2, 0 of 3).
+- **The blast list written from it** (14 structures, was 12), then **every listed deal
+  played with the blast ball** (`blast.txt`, 8.0 min): **115 of 119 won in 3; not: Crater
+  Rim 8.4 (1/2) and 8.5 (0/3) on Normal.** 11.4's were 92 of 92. Traced (`--verbose`, 8.5
+  seed 1000): the 💥 over the lone big boulder (0.8 m, on a ledge); the 3rd ball, going for
+  it, knocked nothing ("💥 not won"), so no blast ball came; the 4th won it and cleared
+  the scene. **Classified:** the boulder's weight, not the "down" rule. Tried on Crater
+  Rim alone (90 scenes, 1.3 min each, plus its 24 blast scenes): rolled 0.45 m counts down
+  (was 0.6): 87 of 90, the same two scenes; density 6 (was 12): 89 of 90, 23 of 24; **density
+  4: 90 of 90, 24 of 24** (all in 3 without the blast ball). Kept 4 and the 0.6 m rule.
+  In the page, the drop dead on Crater Rim's first scene that had moved the boulders 0.21
+  and 0.37 m now sends both off the ledge (1.75, 1.54 m): cleared (screenshot). Moon tests
+  pass; the test player 195 of 200 (97.5%, was 194 at density 12).
+- **The blast list test fixed:** it matched the listed moon structures against the plain
+  pool names; now as each level deals them (its targets in place). It failed before the
+  fix (`drums3+antenna+drums3: dealt in that level`), passes after.
+- **The star tool again, boulders at density 4** (26.2 min; `stars2.txt`, `run2.json`):
+  **61 of 750 not won in 3** (11.4: 66; the first run here: 65). Crater Rim off the list;
+  the rest as the first run. **The blast list written from it: 12 structures** (11.4's 12:
+  Landing Zone's scene 4 in, on every difficulty, as a moon structure listed on one is;
+  Mining Site's crates2x2+trestle+tank out; the others renamed for their targets).
+  **Every listed deal played with the blast ball** (`blast2.txt`, 6.2 min): **95 of 95
+  won in 3.**
+- **Release 11.5 ready:** `node tools/offline.js` (version 24c9f2341ff7, 201 files),
+  `RELEASES.md`, `node tools/release.js` ready; **full suite 774 pass, 0 fail**.

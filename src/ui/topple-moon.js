@@ -8,7 +8,8 @@
 // them. Canvas textures only: no image files.
 
 import * as THREE from '../vendor/three/three.module.min.js';
-import { LANDER_Y, DROP_BELOW, MOON_BALL, Z_START, ZS, TURN_PAST } from '../core/topple-moon.js';
+import { LANDER_Y, DROP_BELOW, MOON_BALL, Z_START, ZS, TURN_PAST, MOON_MATS, MOON_G, POP_S } from '../core/topple-moon.js';
+import { levelLook } from './topple-moon-looks.js';
 
 const Z_NEAR_LINE = ZS.n + 0.3;   // the nearest structures' front
 
@@ -58,6 +59,41 @@ const tankTex = () => canvasTex(128, 256, (g, w, h) => {
   g.fillStyle = '#f08a24'; g.fillRect(0, h * 0.18, w, h * 0.08); g.fillRect(0, h * 0.74, w, h * 0.08);
   g.fillStyle = '#3a4250'; g.font = 'bold 40px sans-serif'; g.textAlign = 'center'; g.fillText('H₂', w / 2, h * 0.55);
 });
+// Q125: the new targets' looks
+const drumTex = () => canvasTex(128, 128, (g, w, h) => {
+  g.fillStyle = '#c8322b'; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#9e231e'; for (const y of [0.12, 0.88]) g.fillRect(0, h * y - 4, w, 8);
+  g.fillStyle = '#ffcf33'; g.fillRect(0, h * 0.36, w, h * 0.28);
+  g.fillStyle = '#2b2b2b'; g.font = 'bold 26px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('FUEL', w / 2, h / 2 + 1);
+});
+const o2Tex = (big = false) => canvasTex(128, 128, (g, w, h) => {
+  g.fillStyle = '#f4f7fb'; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#2f7fe0'; g.fillRect(0, h * 0.14, w, h * 0.1); g.fillRect(0, h * 0.78, w, h * 0.1);
+  g.fillStyle = '#1d5fb8'; g.font = `bold ${big ? 30 : 38}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('O₂', w / 2, h / 2 + 2);
+});
+const glassTex = () => canvasTex(128, 128, (g, w, h) => {
+  g.fillStyle = 'rgba(150,220,255,0.8)'; g.fillRect(0, 0, w, h);
+  g.strokeStyle = 'rgba(230,248,255,0.9)'; g.lineWidth = 2;
+  for (let x = 21; x < w; x += 21) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
+  for (let y = 21; y < h; y += 21) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+  g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.moveTo(10, 0); g.lineTo(40, 0); g.lineTo(0, 50); g.lineTo(0, 20); g.fill();
+  g.strokeStyle = '#e8edf3'; g.lineWidth = 7; g.strokeRect(3, 3, w - 6, h - 6);
+});
+const CRYSTAL = ['#a970ff', '#3fe0d0', '#ff6fb5'];
+// a crystal: a six-sided prism with a pointed tip (flat facets catch the light)
+const crystalGeo = (r, h) => { const tip = h * 0.28; return new THREE.LatheGeometry([[0, -h / 2], [r, -h / 2], [r * 1.05, h / 2 - tip], [0, h / 2]].map(([x, y]) => new THREE.Vector2(x, y)), 6); };
+const crystalMat = i => new THREE.MeshStandardMaterial({ color: CRYSTAL[i % 3], emissive: CRYSTAL[i % 3], emissiveIntensity: 0.7, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.92, flatShading: true });
+// a boulder's lumps: each vertex pushed in or out a little (r: a seeded random)
+function lumpy(geo, r) {
+  const pos = geo.attributes.position, seen = new Map();
+  for (let i = 0; i < pos.count; i++) {
+    const k = `${pos.getX(i).toFixed(3)},${pos.getY(i).toFixed(3)},${pos.getZ(i).toFixed(3)}`;
+    if (!seen.has(k)) seen.set(k, 0.82 + r() * 0.3);
+    const f = seen.get(k); pos.setXYZ(i, pos.getX(i) * f, pos.getY(i) * f, pos.getZ(i) * f);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
 const earthTex = () => canvasTex(256, 128, (g, w, h) => {
   const r = rand(5);
   g.fillStyle = '#2b66c9'; g.fillRect(0, 0, w, h);
@@ -111,7 +147,8 @@ function moonBase(S, level) {
     for (let i = 0; i < 3; i++) { const f = add(new THREE.BoxGeometry(0.05, 0.7, 0.5), orange, 0, 0.45, 0, g); f.rotation.y = i * Math.PI * 2 / 3; f.translateZ(0.5); }
     return g;
   };
-  // the base, in every level
+  // the base: Landing Zone only (Q125: each level its own look; until then every level)
+  const S0 = S, BG = new THREE.Group(); BG.visible = level === 6; S0.add(BG); S = BG;
   dome(5.2, -16.5, 2.5); dome(9.4, -14.8, 1.4); dome(1.6, -14.2, 1.3, true);
   tube(7.0, -16.0, 8.4, -15.2); tube(2.8, -14.6, 3.2, -15.6);
   const hab = add(new THREE.CylinderGeometry(0.75, 0.75, 3.4, 24), white, -1.9, 0.85, -14.8); hab.rotation.z = Math.PI / 2;
@@ -143,31 +180,9 @@ function moonBase(S, level) {
   const wheels = [];
   for (const wx of [-0.38, 0, 0.38]) for (const wz of [-0.34, 0.34]) { const w = add(new THREE.CylinderGeometry(0.16, 0.16, 0.12, 14), dark, wx, 0.16, wz, rover); w.rotation.x = Math.PI / 2; wheels.push(w); }
   const rv = { x: -7, v: 0.55 };
-  // each level's own
-  if (level === 7) { arrays(-12, -9.5, 5, 3); arrays(5, -9.8, 5, 3); }
-  if (level === 8) {
-    // the far rim of a big crater: a ridge of rock along the skyline, behind the base
-    // (at 10.5-12 m it hid the base behind grey lumps)
-    const rr = rand(8);
-    for (let i = 0; i < 30; i++) { const b = add(new THREE.DodecahedronGeometry(2 + rr() * 2.5, 1), rock, -34 + i * 2.4, -0.6, -24 - rr() * 3); b.scale.y = 0.35 + rr() * 0.25; b.rotation.set(rr(), rr() * 3, 0); }
-  }
-  if (level === 9) {
-    const oreM = new THREE.MeshStandardMaterial({ map: oreTex(), roughness: 0.9 });
-    for (const [x, z, r] of [[-8, -10, 1.4], [7.5, -10.5, 1.1], [10, -12, 1.6]]) { const h = add(new THREE.ConeGeometry(r, r * 1.1, 12), oreM, x, r * 0.55, z); h.rotation.y = x; }
-    // a drill rig with its bit turning
-    const dx = 6.5, dz = -12.5;
-    for (const [ox, oz] of [[-1, -1], [1, -1], [0, 1]]) { const leg = add(new THREE.CylinderGeometry(0.06, 0.06, 4.2, 6), orange, dx + ox * 0.5, 2.0, dz + oz * 0.5); leg.rotation.set(oz * 0.12, 0, -ox * 0.12); }
-    const bit = add(new THREE.CylinderGeometry(0.14, 0.02, 1.4, 8), grey, dx, 0.7, dz); spin.push([bit, 3]);
-    blink.push(add(new THREE.SphereGeometry(0.1, 10, 8), red, dx, 4.2, dz, S, false));
-  }
-  if (level === 10) {
-    // the big rocket on its tower
-    const big = rocket(9, -13, 2.6);
-    void big;
-    for (let y = 0.6; y < 9.5; y += 1.2) add(new THREE.BoxGeometry(1.2, 0.08, 1.2), grey, 11.2, y, -13);
-    for (const [ox, oz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) add(new THREE.CylinderGeometry(0.06, 0.06, 9.6, 6), grey, 11.2 + ox * 0.55, 4.8, -13 + oz * 0.55);
-    blink.push(add(new THREE.SphereGeometry(0.14, 10, 8), red, 11.2, 9.8, -13, S, false));
-  }
+  S = S0;
+  // each level's own look (Q125: topple-moon-looks.js)
+  const look = levelLook(THREE, S, level, { canvasTex, rand, mats: { white, grey, dark, orange, lit, red }, drumTex, o2Tex, solarTex, oreTex, moonTex, crystalMat, lumpy, crystalGeo });
   return {
     update(t, dt) {
       for (const [o, s] of spin) o.rotation.y += s * dt;
@@ -176,7 +191,9 @@ function moonBase(S, level) {
       rv.x += rv.v * dt; if (rv.x > 7.5 || rv.x < -8) rv.v = -rv.v;
       rover.position.x = rv.x; rover.rotation.y = rv.v > 0 ? 0 : Math.PI;
       for (const w of wheels) w.rotation.y -= rv.v * dt / 0.16;
+      look.update(t, dt);
     },
+    look,
   };
 }
 
@@ -189,6 +206,11 @@ function blockMats() {
     beam: new THREE.MeshStandardMaterial({ color: '#d9a43a', roughness: 0.5, metalness: 0.4 }),
     ore: new THREE.MeshStandardMaterial({ map: oreTex(), roughness: 0.9 }),
     tank: new THREE.MeshStandardMaterial({ map: tankTex(), roughness: 0.4, metalness: 0.1 }),
+    drum: new THREE.MeshStandardMaterial({ map: drumTex(), roughness: 0.45, metalness: 0.3 }),
+    oxygen: new THREE.MeshStandardMaterial({ map: o2Tex(), roughness: 0.35, metalness: 0.15 }),
+    glass: new THREE.MeshStandardMaterial({ map: glassTex(), transparent: true, roughness: 0.05, metalness: 0.3, emissive: '#2a6c9c', emissiveIntensity: 0.35, side: THREE.DoubleSide }),
+    boulder: new THREE.MeshStandardMaterial({ color: '#8f8a82', roughness: 1, flatShading: true }),
+    crystal: crystalMat(0),
   };
 }
 
@@ -208,6 +230,7 @@ export function makeMoon3d(canvas) {
   // block's own shape a little bigger over it, added light, shown only while it glows.
   const glowMat = new THREE.MeshBasicMaterial({ color: '#FFF1C4', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
   let glowing = false;
+  let ledgeTex = null;
 
   // The view from in front of the base and above, fitted to the scene: across, where the ring
   // can go (the span and TURN_PAST each side) and a margin, at the nearest line (it's widest
@@ -230,7 +253,7 @@ export function makeMoon3d(canvas) {
     level = n;
     S = new THREE.Scene();
     S.background = new THREE.Color('#04050a');
-    S.add(new THREE.HemisphereLight(0x9aa8c8, 0x222226, 0.45));
+    const hemiLight = new THREE.HemisphereLight(0x9aa8c8, 0x222226, 0.45); S.add(hemiLight);
     const sun = new THREE.DirectionalLight(0xffffff, 2.4); sun.position.set(6, 9, 5); sun.target.position.set(0, 0, -5);
     sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
     Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 8, bottom: -8, near: 0.5, far: 30 }); sun.shadow.bias = -0.0005;
@@ -251,6 +274,10 @@ export function makeMoon3d(canvas) {
     earth.rotation.z = 0.41;   // its tilt
     S.add(earth);
     base = n === 'bare' ? null : moonBase(S, n);
+    const L = base?.look?.light;
+    if (L) { sun.position.set(...L.sun); if (L.color) sun.color.set(L.color); if (L.intensity) sun.intensity = L.intensity; hemiLight.intensity = L.hemi ?? 0.45; }
+    if (base?.look?.ground) { ground.geometry.dispose(); ground.geometry = new THREE.PlaneGeometry(80, base.look.ground.depth); ground.position.z = base.look.ground.z; }
+    fx.length = 0;
     // the lander (mockup v1-v6)
     lander = new THREE.Group();
     const foil = new THREE.MeshStandardMaterial({ color: '#d4a63a', metalness: 0.6, roughness: 0.35 });
@@ -283,16 +310,27 @@ export function makeMoon3d(canvas) {
     for (const m of [...blocks, ...ledges]) { S.remove(m); m.geometry.dispose(); if (m.material !== mats.crate) m.material.dispose?.(); }
     for (const b of balls) S.remove(b);
     balls = [];
+    for (const f of fx) { S.remove(f.m); f.m.material.dispose(); }
+    fx.length = 0; seenList = null;
+    let blocksMade = 0;
+    ledgeTex ??= moonTex();
     blocks = scene.blocks.map(b => {
-      const mat = (mats[b.mat] ?? mats.crate).clone();   // its own, so it can light up alone
-      const m = new THREE.Mesh(new THREE.BoxGeometry(b.w, b.h, b.d), mat);
+      const mat = (b.mat === 'crystal' ? crystalMat(b.i ?? blocksMade) : (mats[b.mat] ?? mats.crate)).clone();   // its own, so it can light up alone
+      blocksMade++;
+      const shape = MOON_MATS[b.mat]?.shape;
+      const geo = shape === 'cyl' ? new THREE.CylinderGeometry(b.w / 2, b.w / 2, b.h, 24)
+        : shape === 'hex' ? crystalGeo(b.w / 2, b.h)
+          : shape === 'ball' ? lumpy(new THREE.IcosahedronGeometry(b.w / 2 * 1.04, 1), rand(7 + blocksMade))
+            : new THREE.BoxGeometry(b.w, b.h, b.d);
+      const m = new THREE.Mesh(geo, mat);
+      m.userData.em = [mat.emissive.getHex(), mat.emissiveIntensity];
       m.castShadow = m.receiveShadow = true; m.position.set(b.x, b.y, b.z); S.add(m);
       const over = new THREE.Mesh(m.geometry, glowMat);
       over.scale.setScalar(1.03); over.visible = false; over.renderOrder = 2; m.add(over); m.userData.glow = over;
       return m;
     });
     glowing = false;
-    const rockM = new THREE.MeshStandardMaterial({ color: '#86868a', roughness: 1, flatShading: true });
+    const rockM = new THREE.MeshStandardMaterial({ map: ledgeTex, color: '#b8b4ac', roughness: 1, flatShading: true });   // (Q125: rock, not a plain box)
     ledges = (scene.ledges ?? []).map(l => { const m = new THREE.Mesh(new THREE.BoxGeometry(l.w, l.h, l.d, 3, 2, 3), rockM); m.position.set(l.x, l.h / 2, l.z); m.castShadow = m.receiveShadow = true; S.add(m); return m; });
     span = scene.span ?? span;
     fitCamera();
@@ -303,9 +341,74 @@ export function makeMoon3d(canvas) {
     return { blocks: blocks.length, ledges: ledges.length };
   }
 
+  // Q125: what bursts, shatters and vents, drawn. Bits fly under the moon's gravity
+  // and fade; puffs grow and fade. (No lights added: a new light makes every material recompile.)
+  const fx = [];   // { m, v, spin, life, t, grow, fade0, ground }
+  let seenList = null, seen = 0;
+  const blocksH = r => r.he.y * 2;
+  const bitGeo = new THREE.BoxGeometry(0.1, 0.025, 0.08), shardGeo = new THREE.BufferGeometry();
+  shardGeo.setAttribute('position', new THREE.Float32BufferAttribute([0, 0.07, 0, -0.05, -0.04, 0, 0.06, -0.03, 0.01], 3)); shardGeo.computeVertexNormals();
+  // a puff: a soft round cloud (a sprite with a fading edge), tinted
+  const puffTex = canvasTex(64, 64, (g, w, h) => { const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.45, 'rgba(255,255,255,0.75)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
+  function puff(at, r0, r1, color, op, life) {
+    const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffTex, color, transparent: true, opacity: op, depthWrite: false }));
+    r0 *= 2; r1 *= 2;
+    m.position.copy(at); m.scale.setScalar(r0); S.add(m);
+    fx.push({ m, v: new THREE.Vector3(0, 0.15, 0), spin: null, life, t: 0, grow: [r0, r1], op, g: 0 });
+  }
+  function bits(at, n, geo, matOf, speed, up, life) {
+    for (let i = 0; i < n; i++) {
+      const m = new THREE.Mesh(geo, matOf(i)); m.position.copy(at); m.rotation.set(Math.random() * 6, Math.random() * 6, 0); S.add(m);
+      const a = Math.random() * Math.PI * 2, s = speed * (0.4 + Math.random() * 0.8);
+      fx.push({ m, v: new THREE.Vector3(Math.cos(a) * s, up * (0.5 + Math.random()), Math.sin(a) * s), spin: new THREE.Vector3(Math.random() * 12, Math.random() * 12, Math.random() * 12), life: life * (0.7 + Math.random() * 0.5), t: 0, op: 1, g: MOON_G, ground: true });
+    }
+  }
+  function effect(e, W) {
+    const at = new THREE.Vector3(...e.at);
+    if (e.what === 'burst') {
+      puff(at, 0.3, 1.7, '#e6ebf0', 0.65, 1.1);
+      puff(at, 0.15, 0.8, '#ffb347', 0.9, 0.3);
+      bits(at, 14, bitGeo, () => new THREE.MeshStandardMaterial({ color: Math.random() < 0.6 ? '#c8322b' : '#ffcf33', roughness: 0.5, transparent: true }), 2.6, 2.4, 2.6);
+    } else if (e.what === 'shatter' && e.mat === 'glass') {
+      bits(at, 24, shardGeo, () => new THREE.MeshStandardMaterial({ color: '#a8dcff', emissive: '#3a7fb8', emissiveIntensity: 0.3, roughness: 0.05, metalness: 0.4, transparent: true, side: THREE.DoubleSide }), 1.4, 1.6, 2.0);
+    } else if (e.what === 'shatter') {
+      const c = CRYSTAL[(blocks[e.i]?.material.color.getHex() === 0x3fe0d0) ? 1 : (blocks[e.i]?.material.color.getHex() === 0xff6fb5 ? 2 : 0)];
+      puff(at, 0.2, 1.1, c, 0.55, 0.45);
+      bits(at, 20, shardGeo, () => new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.9, roughness: 0.1, transparent: true, side: THREE.DoubleSide }), 1.6, 1.8, 2.2);
+    } else if (e.what === 'pop') {
+      puff(at, 0.2, 1.2, '#f4f8fc', 0.7, 0.8);
+    }
+    void W;
+  }
+  function fxTick(dt) {
+    for (let i = fx.length - 1; i >= 0; i--) {
+      const f = fx[i]; f.t += dt;
+      const u = Math.min(1, f.t / f.life);
+      if (f.g) f.v.y -= f.g * dt;
+      f.m.position.addScaledVector(f.v, dt);
+      if (f.ground && f.m.position.y < 0.03) { f.m.position.y = 0.03; f.v.set(f.v.x * 0.3, 0, f.v.z * 0.3); if (f.spin) f.spin.multiplyScalar(0.2); }
+      if (f.spin) { f.m.rotation.x += f.spin.x * dt; f.m.rotation.y += f.spin.y * dt; f.m.rotation.z += f.spin.z * dt; }
+      if (f.grow) f.m.scale.setScalar(f.grow[0] + (f.grow[1] - f.grow[0]) * (1 - (1 - u) * (1 - u)));
+      f.m.material.opacity = f.op * (f.grow ? 1 - u : Math.min(1, (1 - u) * 3));
+      if (u >= 1) { S.remove(f.m); f.m.material.dispose(); fx.splice(i, 1); }
+    }
+  }
+
   // The blocks and balls where the physics has them (W: createMoonWorld's).
   function sync(W) {
-    W.blocks.forEach((r, i) => { const m = blocks[i]; if (!m) return; m.position.copy(r.body.position); m.quaternion.copy(r.body.quaternion); });
+    W.blocks.forEach((r, i) => {
+      const m = blocks[i]; if (!m) return;
+      m.visible = !r.broken;
+      m.position.copy(r.body.position); m.quaternion.copy(r.body.quaternion);
+      // an oxygen tank venting: a jet out of its foot, puffs left behind
+      if (r.venting) {
+        if (!m.userData.jet) { const j = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.7, 12), new THREE.MeshBasicMaterial({ color: '#e9f6ff', transparent: true, opacity: 0.85, depthWrite: false })); j.position.y = -(blocksH(r) / 2 + 0.33); m.add(j); m.userData.jet = j; }
+        m.userData.jet.visible = true; m.userData.jet.scale.set(1, 0.7 + Math.random() * 0.6, 1);
+        if (Math.random() < 0.5) { const foot = new THREE.Vector3(0, -blocksH(r) / 2 - 0.4, 0).applyQuaternion(m.quaternion).add(m.position); puff(foot, 0.15, 0.6, '#eef4fa', 0.5, 0.7); }
+      } else if (m.userData.jet) m.userData.jet.visible = false;
+    });
+    if (W.events !== seenList) { seenList = W.events; seen = 0; }
+    for (; seen < W.events.length; seen++) effect(W.events[seen], W);
     while (balls.length < W.balls.length) { const m = new THREE.Mesh(ballGeo, ballMat); m.castShadow = true; S.add(m); balls.push(m); }
     while (balls.length > W.balls.length) S.remove(balls.pop());
     W.balls.forEach((b, i) => { balls[i].position.copy(b.body.position); balls[i].quaternion.copy(b.body.quaternion); });
@@ -330,8 +433,8 @@ export function makeMoon3d(canvas) {
     if (p) ring.position.set(p[0], p[1] + 0.02, p[2]);
     blocks.forEach((m, i) => {
       const on = i === lit;
-      m.material.emissive.set(on ? '#ff9a2e' : '#000000');
-      m.material.emissiveIntensity = on ? 0.45 + 0.25 * Math.sin(t * 10) : 0;
+      m.material.emissive.set(on ? '#ff9a2e' : m.userData.em[0]);
+      m.material.emissiveIntensity = on ? 0.45 + 0.25 * Math.sin(t * 10) : m.userData.em[1];
     });
   }
 
@@ -348,6 +451,7 @@ export function makeMoon3d(canvas) {
   function tick(dt) {
     t += dt;
     base?.update(t, dt);
+    fxTick(dt);
     if (earth) earth.rotation.y += dt * 0.02;
     nextStar -= dt;
     if (nextStar <= 0 && S) {
@@ -377,6 +481,7 @@ export function makeMoon3d(canvas) {
     // a point in the world to where it is on the canvas: [0-1 across, 0-1 down]
     project(p) { const v = new THREE.Vector3(...p).project(camera); return [(v.x + 1) / 2, (1 - v.y) / 2]; },
     shootingStars: () => shooting.length,
+    fxLive: () => fx.length,
     earthAt: () => earth && [earth.position.x, earth.position.y, earth.rotation.y].map(v => Math.round(v * 100) / 100),
     three: { renderer, camera, get scene() { return S; } },
   };

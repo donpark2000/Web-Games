@@ -16,7 +16,7 @@ import {
 } from '../src/core/topple-blast.js';
 import { BLAST_FROM } from '../src/core/topple-blast-scenes.js';
 import { newRound, useBall, ballsLeft, canThrow, update, starsForBalls, BALLS, LEVELS, READY_AFTER, END_WAIT, rng } from '../src/core/topple.js';
-import { MOON_LEVELS, moonScene, fallTime } from '../src/core/topple-moon.js';
+import { MOON_LEVELS, LEVEL_TARGETS, moonScene, fallTime } from '../src/core/topple-moon.js';
 import { createMoonWorld } from '../src/core/topple-moon-world.js';
 import { createWorld } from '../src/core/topple-world.js';
 import { blastFingerprint, BLAST_REDO } from '../tools/topple-stars.js';
@@ -243,7 +243,8 @@ test('blast: the words for the free ball: "3 balls + 💥 free" (developer, 2026
 
 test('blast: the list of scenes that offer it: by structure, each one dealt in its level, on known difficulties', () => {
   assert.ok(BLAST_SCENES.length > 0);
-  const moonPlans = n => { const l = MOON_LEVELS.find(x => x.n === n); return [...l.pool, ...l.challenges].map(p => p.map(x => x.name).join('+')); };
+  // (each structure as the level deals it: its own targets in place, Q125)
+  const moonPlans = n => { const l = MOON_LEVELS.find(x => x.n === n), sw = LEVEL_TARGETS[n]?.names ?? {}; return [...l.pool, ...l.challenges].map(p => p.map(x => sw[x.name] ?? x.name).join('+')); };
   for (const e of BLAST_SCENES) {
     const where = `${e.world} ${e.level} ${e.stack}`;
     const l = LEVELS[e.level - 1];

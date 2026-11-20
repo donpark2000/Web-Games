@@ -402,6 +402,29 @@ test('topple page: Star Light: the night sky, glowing blocks and ball, coloured 
   assert.match(await read('css/topple.css'), /\.road \{ display: flex; justify-content: center; \}/);
 });
 
+// Q138 (11.5): where one world ends and the next begins stands out on the map.
+test('topple page: the map\'s worlds stand apart (Q138): the gate a picture with hard edges, a plaque for its sign, each moon level its own colour', () => {
+  // each level's band colour, from the map's LOOKS
+  const tint = lv => js.match(new RegExp(`\\n  ${lv}: \\{ pic: [^\\n]*tint: '(#[0-9A-F]{6})'`))?.[1];
+  const tints = Array.from({ length: 10 }, (_, k) => tint(k + 1));
+  assert.ok(tints.every(Boolean), `every level's colour found: ${tints}`);
+  const moon = tints.slice(5);
+  assert.equal(new Set(moon).size, 5, `the moon's five levels each their own: ${moon}`);
+  assert.ok(!moon.includes(tints[4]), 'none the same as Star Light\'s');
+  // far enough from Star Light's (the last of Earth's) that the step between worlds shows: RGB distance
+  const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const dist = (a, b) => Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i]));
+  assert.ok(dist(tints[5], tints[4]) > 40, `Landing Zone ${tints[5]} vs Star Light ${tints[4]}: ${dist(tints[5], tints[4]).toFixed(0)}`);
+  // the world's sign a plaque, not the level banner's white pill
+  assert.match(js, /<span class="wplaque \$\{w\.id\}" role="img" aria-label="World \$\{w\.n\}: \$\{w\.name\}"><span class="wnum">WORLD \$\{w\.n\}<\/span><span class="wname">\$\{w\.sign\} \$\{w\.name\}<\/span><\/span>/);
+  assert.match(css, /\.wplaque\.moon \{ background: #F08A24;/);
+  assert.match(css, /\.wplaque\.park \{ background: #2E8B57;/);
+  // hard edges; the moon's gate Earth at its foot, the moon's ground at its top
+  assert.match(css, /\.rgate \{[^}]*border-top: 4px solid #F4F6F9; border-bottom: 4px solid #F4F6F9; \}/);
+  assert.match(css, /radial-gradient\(62% 58px at 50% 0, #BFC3CA/);
+  assert.match(css, /radial-gradient\(60% 56px at 50% 100%, #2F6FD0/);
+});
+
 test('topple page: the blocks left glow (Q101): counted while waiting, the standing blocks lit, each glow logged', () => {
   // one step for both worlds (Q133): the park's still counts its shards and spray; a drag or the pad's show is aiming
   assert.match(js, /glowIdle = glowWait\(glowIdle, round, still, aiming, dt\);/);

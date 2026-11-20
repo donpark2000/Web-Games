@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import {
   MOON_LEVELS, MOON_STRUCTURES, MOON_MODES, moonScene, moonDeal, isMoon, newLander, flyStep, ringX, turnNow, flyTo, steerTo, fallTime,
   dropPath, reachOf, outOfReach, showsRing, Z_NEAR, Z_FAR, TURN_PAST, MIN_RUN, LANDER_Y, DROP_BELOW, MOON_BALL,
+  MOON_MATS, LEVEL_TARGETS, ROLL_M, BURST_R, POP_S,
 } from '../src/core/topple-moon.js';
 import { createMoonWorld } from '../src/core/topple-moon-world.js';
 import {
@@ -60,7 +61,8 @@ test('moon: a scene is the same for its seed; every block stands upright on the 
       assert.ok(b.z - b.d / 2 > Z_FAR - 0.5 && b.z + b.d / 2 < Z_NEAR + 0.5, `${n}.${i}: near enough to fly over`);
       const bottom = b.y - b.h / 2;
       const ledge = s.ledges.find(l => Math.abs(b.x - l.x) < l.w / 2 && Math.abs(b.z - l.z) < l.d / 2);
-      if (bottom < (ledge ? ledge.h : 0) + 0.01) assert.ok(b.h > b.w || b.h > b.d, `${n}.${i}: a ${b.mat} on the ground is upright (can tip)`);
+      // (a boulder is round: it rolls rather than tips, Q125)
+      if (bottom < (ledge ? ledge.h : 0) + 0.01 && !MOON_MATS[b.mat].roll) assert.ok(b.h > b.w || b.h > b.d, `${n}.${i}: a ${b.mat} on the ground is upright (can tip)`);
     }
     // the 5th scene is the biggest of its level's (the challenge)
   }
@@ -154,6 +156,146 @@ test('moon physics: every scene stands still and asleep for 5 s; a ball dropped 
   const { fell } = W3.step(1 / 60);
   assert.ok(fell.includes(r) && r.away === 'away', 'out of reach: down');
   assert.equal(MOON_BALL.r, 0.2);
+});
+
+// Q125: each moon level's own target. A small scene of one structure at the middle
+// distance, a ball let go just over a block at a speed, the world run for `secs`.
+const targetScene = (name, seed = 1) => ({ level: 0, scene: 0, seed, ledges: [], span: [-2.5, 2.5], blocks: MOON_STRUCTURES[name]().map(b => ({ ...b, z: b.z - 5 })) });
+function hitTarget(name, { block = null, v = 3, vx = 0, dx = 0, secs = 8, seed = 1 } = {}) {
+  const s = targetScene(name, seed), W = createMoonWorld();
+  W.setScene(s);
+  const b = s.blocks[block ?? s.blocks.reduce((k, x, i) => (x.y > s.blocks[k].y ? i : k), 0)];
+  W.dropBall([b.x + dx, b.y + b.h / 2 + MOON_BALL.r + 0.02, b.z], [vx, -v, 0]);
+  const seen = [];   // each step: which blocks are down, broken, venting
+  let down = 0;
+  for (let k = 0; k < secs * 60; k++) {
+    ({ down } = W.step(1 / 60));
+    seen.push(W.blocks.map(r => ({ down: r.down, broken: !!r.broken, venting: !!r.venting })));
+  }
+  return { s, W, down, seen, events: W.events };
+}
+
+test('moon targets (Q125): each level has its own, from its first scene on every deal', () => {
+  const want = { 6: 'drum', 7: 'glass', 8: 'boulder', 9: 'crystal', 10: 'oxygen' };
+  let scenes = 0;
+  for (const [n, mat] of Object.entries(want)) {
+    assert.ok(LEVEL_TARGETS[n], `level ${n} has targets`);
+    for (let seed = 1; seed <= 20; seed++) {
+      const first = moonScene(seed, +n, 1);
+      assert.ok(first.blocks.some(b => b.mat === mat), `${n}.1 seed ${seed}: has its ${mat}`);
+      for (let i = 1; i <= SCENES; i++) {
+        const sc = moonScene(seed, +n, i);
+        scenes++;
+        // another level's target never turns up here
+        for (const b of sc.blocks) assert.ok(!Object.values(want).includes(b.mat) || b.mat === mat, `${n}.${i}: no ${b.mat}`);
+      }
+    }
+  }
+  assert.equal(scenes, 5 * 20 * SCENES);
+  // a ball from the lander falls fast enough to burst a drum or set a tank venting, even onto the tallest structure (a gantry, 2.7 m)
+  const fall = Math.sqrt(2 * 1.62 * (LANDER_Y - DROP_BELOW - 2.7));
+  assert.ok(fall > MOON_MATS.drum.burst && fall > MOON_MATS.oxygen.pop, `the slowest fall onto a block: ${fall.toFixed(2)} m/s`);
+});
+
+test('moon targets: a fuel drum bursts when a ball hits it hard, pushing what\'s near; a slow ball only knocks it', () => {
+  const { W, events } = hitTarget('drums3', { v: 3 });
+  const burst = events.filter(e => e.what === 'burst');
+  assert.ok(burst.length >= 1, `burst: ${burst.length}`);
+  assert.equal(burst[0].i, 2, 'the drum hit (on top) bursts first');
+  const r = W.blocks[2];
+  assert.ok(r.broken && r.down, 'gone and down');
+  assert.ok(!W.world.bodies.includes(r.body), 'taken out of the world');
+  assert.equal(W.boxes()[2], null, 'no ring or glow on it');
+  // (the drums under it, hit by the ball falling on, burst in turn)
+  assert.ok(burst.length >= 2, `a chain: ${burst.map(e => e.i)}`);
+  // the burst pushes what's within BURST_R (harder the nearer): a crate 0.5 m away (not touched
+  // by the ball) is pushed; one 1.3 m away isn't
+  const crate0 = targetScene('crates3').blocks[0];
+  const near = { ...targetScene('drums3'), blocks: [targetScene('drums3').blocks[0], { ...crate0, x: 0.5 }, { ...crate0, x: -1.3 }] };
+  const Wn = createMoonWorld(); Wn.setScene(near);
+  Wn.dropBall([near.blocks[0].x, near.blocks[0].y + near.blocks[0].h / 2 + MOON_BALL.r + 0.02, near.blocks[0].z], [0, -3, 0]);
+  for (let k = 0; k < 240; k++) Wn.step(1 / 60);
+  const moved = r => Math.hypot(r.body.position.x - r.x0, r.body.position.z - r.z0);
+  assert.ok(Wn.blocks[0].broken, 'the drum burst');
+  assert.ok(moved(Wn.blocks[1]) > 0.1, `the crate 0.5 m away pushed ${moved(Wn.blocks[1]).toFixed(2)} m`);
+  assert.ok(moved(Wn.blocks[2]) < 0.01, `the crate 1.3 m away not pushed (${moved(Wn.blocks[2]).toFixed(3)} m)`);
+  // a scene picked up again (its poses kept): the burst drum stays gone
+  const poses = W.poses(), W2 = createMoonWorld();
+  W2.setScene(targetScene('drums3'), poses);
+  assert.ok(W2.blocks[2].broken && !W2.world.bodies.includes(W2.blocks[2].body), 'still gone after a resume');
+  // slow: no burst
+  const slow = hitTarget('drums3', { v: 0.8, secs: 3 });
+  assert.equal(slow.events.filter(e => e.what === 'burst').length, 0, 'a ball at 0.8 m/s doesn\'t burst a drum');
+  assert.ok(BURST_R > 0);
+});
+
+test('moon targets: glass and crystals shatter only once down; one left standing never does', () => {
+  for (const name of ['panels3', 'crystals']) {
+    const sc = name === 'panels3' ? (() => { const s = targetScene('panels3'); s.blocks.forEach(b => { b.mat = 'glass'; }); return s; })() : targetScene(name);
+    const W = createMoonWorld();
+    W.setScene(sc);
+    const b = sc.blocks.reduce((a, x) => (x.y + x.h / 2 > a.y + a.h / 2 ? x : a));
+    // a glancing ball at the top's edge, so it tips over
+    W.dropBall([b.x - b.w / 2, b.y + b.h / 2 + MOON_BALL.r + 0.02, b.z], [0.5, -3, 0]);
+    // (a knock's shatter, v > 0, is judged with the block's state before the step; one coming
+    // to rest down, v 0, is judged in the step it went down)
+    const brokenStanding = [];
+    for (let k = 0; k < 10 * 60; k++) {
+      const wasDown = W.blocks.map(r => r.down), n0 = W.events.length;
+      W.step(1 / 60);
+      for (const e of W.events.slice(n0)) if (e.what === 'shatter' && (e.v > 0 ? !wasDown[e.i] : !W.blocks[e.i].down)) brokenStanding.push(e.i);
+    }
+    const shattered = W.events.filter(e => e.what === 'shatter');
+    assert.ok(shattered.length >= 1, `${name}: shattered ${shattered.length}`);
+    assert.deepEqual(brokenStanding, [], `${name}: none broke while standing`);
+    // by the end, every one down is in pieces, every one standing whole
+    for (const r of W.blocks) assert.equal(!!r.broken, r.down, `${name} block ${r.i}: ${r.down ? 'down, so shattered' : 'standing, so whole'}`);
+  }
+  // left alone, standing glass is never touched
+  const W = createMoonWorld(), g = targetScene('panels3'); g.blocks.forEach(b => { b.mat = 'glass'; });
+  W.setScene(g);
+  for (let k = 0; k < 300; k++) W.step(1 / 60);
+  assert.equal(W.events.length, 0, 'nothing shatters by itself');
+});
+
+test('moon targets: a boulder is down once rolled 0.6 m or dropped, not by how it\'s turned', () => {
+  const W = createMoonWorld(), s = targetScene('boulder');
+  W.setScene(s);
+  const r = W.blocks[0];
+  // turned right over where it stands: still up (it's round)
+  r.body.quaternion.setFromEuler(Math.PI / 2, 0, 0.7);
+  W.step(1 / 60);
+  assert.equal(r.down, false, 'turned, not moved: up');
+  r.body.position.set(r.x0 + ROLL_M - 0.1, r.y0, r.z0); r.body.velocity.set(0, 0, 0);
+  W.step(1 / 60);
+  assert.equal(r.down, false, `rolled ${ROLL_M - 0.1} m: up`);
+  r.body.position.set(r.x0 + ROLL_M + 0.1, r.y0, r.z0);
+  W.step(1 / 60);
+  assert.equal(r.down, true, `rolled ${ROLL_M + 0.1} m: down`);
+  // a ball dropped from the lander sets it rolling away, and it slows to a stop (the scene isn't held up)
+  const hit = hitTarget('boulder', { vx: 1, secs: 12 });   // (at the lander's speed on Normal)
+  assert.equal(hit.down, 1, 'rolled away');
+  assert.ok(hit.W.calm(), 'come to rest within 12 s');
+});
+
+test('moon targets: an oxygen tank hit hard vents, flying off on its own jet for a moment; a slow ball only knocks it', () => {
+  const { W, events, seen } = hitTarget('o2tank', { v: 3, secs: 10 });
+  const pop = events.filter(e => e.what === 'pop');
+  assert.equal(pop.length, 1, 'one pop');
+  const venting = seen.filter(f => f[0].venting).length / 60;
+  assert.ok(venting > POP_S - 0.1 && venting <= POP_S + 0.05, `vented ${venting.toFixed(2)} s`);
+  assert.ok(!W.blocks[0].venting && W.blocks[0].down, 'the jet done, the tank down');
+  const slow = hitTarget('o2tank', { v: 0.8, secs: 3 });
+  assert.equal(slow.events.length, 0, 'a ball at 0.8 m/s doesn\'t set it venting');
+});
+
+test('moon targets: a burst or a pop plays out the same each time (seeded with the scene)', () => {
+  for (const name of ['drums3', 'o2pair']) {
+    const a = hitTarget(name, { secs: 4 }).W.poses(), b = hitTarget(name, { secs: 4 }).W.poses();
+    assert.deepEqual(a, b, `${name}: the same both times`);
+    const c = hitTarget(name, { secs: 4, seed: 2 }).W.poses();
+    assert.equal(c.length, a.length);
+  }
 });
 
 // Q133 (11.3): the blocks left glow on the moon as in the park. A real drop in the moon's
@@ -258,4 +400,15 @@ test('moon page: its own canvas, the turn button by the pad, the keys, the lit b
   assert.match(draw, /nextStar = 8 \+ Math\.random\(\) \* 14;/, 'the odd shooting star');
   assert.match(draw, /earth\.rotation\.y \+= dt \* 0\.02;/, 'the Earth turning slowly');
   assert.match(draw, /earth\.position\.set\(-30 \+ e\.az \* 60, 10 \+ e\.el \* 12, -48\);/, 'the Earth where the scene puts it');
+  // Q125 (11.5): each level's look and target: its scenery, a burst, shatter or pop heard, drawn and logged
+  const looks = await read('src/ui/topple-moon-looks.js');
+  assert.match(draw, /import \{ levelLook \} from '\.\/topple-moon-looks\.js';/);
+  assert.match(draw, /const look = levelLook\(THREE, S, level, /);
+  for (const n of [6, 7, 8, 9, 10]) assert.match(looks, new RegExp(`level === ${n}`), `level ${n}'s own look`);
+  assert.match(js, /const MOON_KNOCK = \{ panel: 'ring', glass: 'iceknock', crystal: 'chime', boulder: 'crunch', drum: 'barrel' \};/);
+  assert.match(js, /moonEvents\(moonWorld\);/, 'the targets\' events heard every frame');
+  assert.match(js, /L\(`moon: \$\{e\.what\}`, \{ block: e\.i, mat: e\.mat, at: e\.at\.map\(r2\), v: r2\(e\.v\), t: r2\(round\.t\) \}\);/, 'each logged');
+  assert.match(draw, /m\.visible = !r\.broken;/, 'one burst or shattered: gone');
+  for (const m of ['drum', 'oxygen', 'glass', 'boulder', 'crystal']) assert.match(draw, new RegExp(`\\n    ${m}: `), `${m}'s look`);
+  assert.doesNotMatch(js + draw + looks, /mockup:|__mockSeen|topple-mock/, 'nothing of the mockup left');
 });

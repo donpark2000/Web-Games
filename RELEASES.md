@@ -7,6 +7,25 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 11.5 (2026-11-19, version 24c9f2341ff7)
+
+Topple!: each moon level looks like its name and has its own target, and the map shows where the moon begins.
+
+- **Each moon level its own place.** Landing Zone has landing pads with chasing lights and
+  a lander coming down and taking off. Solar Farm has rows of panels to the skyline.
+  Crater Rim stands on the edge of a crater lit by a low sun. Mining Site is dark, under
+  work lights, with a drill and a conveyor. Launch Pad has the big rocket on its gantry
+  and a farm of oxygen tanks.
+- **Each moon level its own target.** Fuel drums burst when a ball hits them (Landing
+  Zone). Glass panels shatter once they're down (Solar Farm). Boulders roll away (Crater
+  Rim). Glowing ore crystals shatter in their colours (Mining Site). Oxygen tanks fly off
+  on their own jet (Launch Pad). Each has its own sounds.
+- **The map: where the moon begins stands out.** The strip between Earth and the moon is
+  a picture of its own, with Earth below and the moon's ground above, and each world's
+  name is on a plaque, not a white label like a level's. Each moon level has its own
+  colour on the map: slate, teal, warm grey, ochre and rust.
+- Everything else is as in 11.4.
+
 ## 11.4 (2026-11-19, version 9bc856d99c2c)
 
 Topple!: the blast ball, in the scenes where 3 stars were out of reach.

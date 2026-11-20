@@ -239,7 +239,9 @@ test('topple page: the tutorial as a world\'s first level is entered, in parts w
 test('topple page: the map\'s worlds: a gate each, the road broken between, levels numbered within (Q122)', () => {
   assert.match(js, /if \(roadJoins\(a, b\)\) h \+= `<line\$\{rolls\(b\.lv\) \? ' class="fadein"' : ''\} /);
   assert.match(js, /for \(const g of geo\.gates\) \{/);
-  assert.match(js, /<b>World \$\{w\.n\} · \$\{w\.name\}<\/b>/);
+  // (Q138, 11.5: the world's sign a plaque; the shut barrier's still "World N · name")
+  assert.match(js, /<span class="wnum">WORLD \$\{w\.n\}<\/span><span class="wname">\$\{w\.sign\} \$\{w\.name\}<\/span>/);
+  assert.match(js, /<b>World \$\{w\.n\} · \$\{w\.name\} \$\{w\.sign\}<\/b>/);
   assert.match(js, /<b>\$\{levelTag\(b\.lv\)\}<\/b>/);
   assert.match(css, /\n\.rgate\.moon \{/);
   assert.match(css, /\n\.rgate\.park \{/);

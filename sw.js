@@ -20,9 +20,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '9bc856d99c2c';
+const VERSION = '24c9f2341ff7';
 const MADE = '2026-11-19';
-const RELEASE = '11.4';
+const RELEASE = '11.5';
 const FILES = [
   'bridges.html',
   'colour-sudoku.html',
@@ -210,6 +210,7 @@ const FILES = [
   'src/ui/tin-can-alley-stall.js',
   'src/ui/tin-can-alley.js',
   'src/ui/topple-blast-fx.js',
+  'src/ui/topple-moon-looks.js',
   'src/ui/topple-moon.js',
   'src/ui/topple-scene.js',
   'src/ui/topple-sets.js',

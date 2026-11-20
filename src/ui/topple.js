@@ -213,12 +213,14 @@ const LOOKS = {
   3: { pic: () => '❄️', tint: '#E0EDF7', ink: 'rgba(30,52,69,.38)' },
   4: { pic: () => '🌵', tint: '#F0D9BC', ink: 'rgba(30,52,69,.38)' },
   5: { pic: () => '🌙', tint: '#2A3A6A', ink: 'rgba(255,255,255,.55)' },
-  // the moon base (Q119): space-dark bands, a sign of each place
-  6: { pic: () => '🛬', tint: '#1B2236', ink: 'rgba(255,255,255,.5)' },
-  7: { pic: () => '🔆', tint: '#202941', ink: 'rgba(255,255,255,.5)' },
-  8: { pic: () => '🌑', tint: '#1B2236', ink: 'rgba(255,255,255,.5)' },
-  9: { pic: () => '⛏️', tint: '#202941', ink: 'rgba(255,255,255,.5)' },
-  10: { pic: () => '🚀', tint: '#1B2236', ink: 'rgba(255,255,255,.5)' },
+  // the moon base (Q119), each level its own colour, matched to its look (Q138, 11.5, with
+  // Q125's: until then two dark navies in turn, hard to tell from Star Light's): Landing Zone
+  // slate, Solar Farm teal, Crater Rim warm grey, Mining Site ochre, Launch Pad rust
+  6: { pic: () => '🛬', tint: '#4E586B', ink: 'rgba(255,255,255,.6)' },
+  7: { pic: () => '🔆', tint: '#1E5D66', ink: 'rgba(255,255,255,.6)' },
+  8: { pic: () => '🌑', tint: '#625649', ink: 'rgba(255,255,255,.6)' },
+  9: { pic: () => '⛏️', tint: '#7A5420', ink: 'rgba(255,255,255,.6)' },
+  10: { pic: () => '🚀', tint: '#73342A', ink: 'rgba(255,255,255,.6)' },
 };
 // The setup screen's view: 'faces' (the picks) or 'map'.
 function setupView(v) {
@@ -269,11 +271,12 @@ function renderMap(unlock = 0, opt = {}) {
     if (roadJoins(a, b)) h += `<line${rolls(b.lv) ? ' class="fadein"' : ''} x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${LOOKS[b.lv].ink}"/>`;
   }
   h += '</svg>';
-  // each open world's gate (Q122): its sign and "World N · its name" (11.1: its tutorial's button too, Q124)
+  // each open world's gate (Q122): its sign, a plaque "WORLD N / its name" (Q138, 11.5: until then a
+  // white pill like a level's banner)
   for (const g of geo.gates) {
     const w = WORLDS.find(x => x.id === g.world);
     h += `<div class="rgate ${w.id}${rolls(levelForWorld(w)) ? ' fadein' : ''}" style="top:${g.top}px;height:${g.bottom - g.top}px">`
-      + `<div class="rgsign" style="top:${g.y - g.top}px"><span class="rgpic" aria-hidden="true">${w.sign}</span><b>World ${w.n} · ${w.name}</b></div></div>`;
+      + `<div class="rgsign" style="top:${g.y - g.top}px"><span class="wplaque ${w.id}" role="img" aria-label="World ${w.n}: ${w.name}"><span class="wnum">WORLD ${w.n}</span><span class="wname">${w.sign} ${w.name}</span></span></div></div>`;
   }
   // the next world, closed off (Q128): its barrier across the road's top, the world in the sky behind it, no levels
   if (geo.barrier) {
@@ -977,12 +980,28 @@ function moonTurn(how, dir = 0) {
   if (turned) L('lander: turn', { how, at: r2(f.x), heading: f.dir > 0 ? 'right' : 'left' });
   return turned;
 }
-// The moon's sounds: a block knocked (a metal clonk), the ball into the dust (a soft thud).
+// The moon's sounds: a block knocked (a metal clonk; each level's target its own knock,
+// Q125: glass, a crystal's chime, a boulder's crunch, a drum's hollow thunk), the ball
+// into the dust (a soft thud).
 let moonKnock = 0;
+const MOON_KNOCK = { panel: 'ring', glass: 'iceknock', crystal: 'chime', boulder: 'crunch', drum: 'barrel' };
 function moonHit({ a, b, v, mat }) {
   const now = performance.now();
-  if ((a === 'block' || b === 'block') && v > 0.4 && now - moonKnock > 40) { moonKnock = now; sound.play(mat === 'panel' ? 'ring' : 'clonk', 0, { level: Math.min(1, v / 4), quiet: true }); }
+  if ((a === 'block' || b === 'block') && v > 0.4 && now - moonKnock > 40) { moonKnock = now; sound.play(MOON_KNOCK[mat] ?? 'clonk', 0, { level: Math.min(1, v / 4), quiet: true }); }
   else if (a === 'ball' && b === 'ground' && v > 1) sound.play('thud', 0, { level: Math.min(1, v / 5), quiet: true });
+}
+// What the moon's targets did (Q125: a drum burst, glass or a crystal shattered, a tank
+// set venting): its sound and a log line. `seen`: the world's events heard so far.
+const moonSeen = { list: null, n: 0 };
+function moonEvents(W) {
+  if (W.events !== moonSeen.list) { moonSeen.list = W.events; moonSeen.n = 0; }
+  for (; moonSeen.n < W.events.length; moonSeen.n++) {
+    const e = W.events[moonSeen.n];
+    sound.play({ burst: 'barrel', shatter: 'shatter', pop: 'poof' }[e.what] ?? 'clonk', 0, { level: 0.9 });
+    if (e.what === 'burst') sound.play('poof', 0.05, { level: 1 });
+    if (e.what === 'pop') sound.play('whoosh', 0.08, { level: 1 });
+    L(`moon: ${e.what}`, { block: e.i, mat: e.mat, at: e.at.map(r2), v: r2(e.v), t: r2(round.t) });
+  }
 }
 // A moon frame: the lander on, the physics, the round's rules (as the park's), the drawing.
 function moonTick(dt, draw) {
@@ -993,6 +1012,7 @@ function moonTick(dt, draw) {
   const kz = (mo.keys.down ? 1 : 0) - (mo.keys.up ? 1 : 0);
   if (kz) steerTo(f, f.zT + kz * STEER_KEY * dt);
   const { down, fell, dropped } = moonWorld.step(dt, () => performance.now());
+  moonEvents(moonWorld);
   perf.physMs += performance.now() - t0; perf.dropped += dropped; perf.frames++;
   for (const b of fell) L(b.away ? 'block down: out of reach' : 'block down', { mat: b.mat, i: b.i, t: r2(round.t), at: [b.body.position.x, b.body.position.y, b.body.position.z].map(r2) });
   const still = moonWorld.still(), calm = moonWorld.calm();

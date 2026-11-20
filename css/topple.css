@@ -269,22 +269,36 @@ body.tp-playing .site-foot { display: none; }
 .rbanner.shut { opacity: .65; }
 /* each world's gate under its first level (Q122: "a more dramatic separation"): its sign big,
    "World N · its name", its tutorial's button (Q124); the road breaks across it */
-.rgate { position: absolute; left: 0; right: 0; overflow: hidden; }
-.rgate.park { background: linear-gradient(#CFE6F4, #A8D8A0 70%, #7FBF6E); }
-/* Earth's last level (Star Light's night) into space: darker up the gate, stars, a rocket on its way */
+/* (Q138, 11.5: hard white edges, so a world's start stands out from its levels' bands) */
+.rgate { position: absolute; left: 0; right: 0; overflow: hidden; box-sizing: border-box; border-top: 4px solid #F4F6F9; border-bottom: 4px solid #F4F6F9; }
+.rgate.park { background: linear-gradient(#CFE6F4, #A8D8A0 70%, #7FBF6E); border-bottom: 0; }
+/* Earth to the moon (Q138, 11.5; until then a fade from Star Light's night): a picture of its own,
+   Earth's curve at its foot (leaving, its air glowing, two lands), the moon's grey ground with
+   craters at its top (arriving), black space and stars between, a rocket on its way */
 .rgate.moon {
   background:
-    radial-gradient(1.5px 1.5px at 12% 22%, #FFFFFF 99%, transparent), radial-gradient(1px 1px at 30% 64%, #FFFFFF 99%, transparent),
-    radial-gradient(1.5px 1.5px at 48% 14%, #FFFFFF 99%, transparent), radial-gradient(1px 1px at 66% 40%, #FFFFFF 99%, transparent),
-    radial-gradient(2px 2px at 84% 18%, #FFFFFF 99%, transparent), radial-gradient(1px 1px at 90% 70%, #FFFFFF 99%, transparent),
-    radial-gradient(1px 1px at 6% 80%, #FFFFFF 99%, transparent), radial-gradient(1.5px 1.5px at 74% 86%, #FFFFFF 99%, transparent),
-    linear-gradient(#05070F, #0E1430 55%, #2A3A6A);
+    radial-gradient(1.5px 1.5px at 12% 34%, #FFFFFF 99%, transparent), radial-gradient(1px 1px at 30% 62%, #FFFFFF 99%, transparent),
+    radial-gradient(1.5px 1.5px at 86% 40%, #FFFFFF 99%, transparent), radial-gradient(1px 1px at 70% 58%, #FFFFFF 99%, transparent),
+    radial-gradient(2px 2px at 20% 48%, #FFFFFF 99%, transparent), radial-gradient(1px 1px at 92% 66%, #FFFFFF 99%, transparent),
+    radial-gradient(1px 1px at 6% 60%, #FFFFFF 99%, transparent), radial-gradient(1.5px 1.5px at 60% 30%, #FFFFFF 99%, transparent),
+    radial-gradient(14px 6px at 30% 9px, #8E939C 98%, transparent), radial-gradient(10px 4px at 66% 14px, #8E939C 98%, transparent),
+    radial-gradient(8px 3px at 48% 5px, #8E939C 98%, transparent),
+    radial-gradient(62% 58px at 50% 0, #BFC3CA 96%, #DCDFE4 98%, transparent 100%),
+    radial-gradient(60% 56px at 50% 100%, #2F6FD0 0 70%, #4FA0E8 88%, rgba(120, 190, 255, .55) 94%, transparent 100%),
+    radial-gradient(22% 22px at 36% 100%, #4F9A4A 98%, transparent), radial-gradient(14% 14px at 64% 100%, #4F9A4A 98%, transparent),
+    #03040A;
 }
-.rgate.moon::after { content: "🚀"; position: absolute; right: 12%; bottom: 14px; font-size: 30px; transform: rotate(-45deg); animation: tprocket 3.2s ease-in-out infinite; }
+.rgate.moon::after { content: "🚀"; position: absolute; right: 10%; bottom: 46px; font-size: 30px; transform: rotate(-45deg); animation: tprocket 3.2s ease-in-out infinite; }
 @keyframes tprocket { 50% { transform: rotate(-45deg) translate(0, -10px); } }
 .rgsign { position: absolute; left: 50%; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 6px; text-align: center; white-space: nowrap; }
 .rgsign b { font-size: 21px; font-weight: 800; background: var(--card); border-radius: 999px; padding: 6px 16px; box-shadow: 0 3px 0 var(--line); }
 .rgpic { font-size: 40px; line-height: 1; filter: drop-shadow(0 2px 0 #1E344533); }
+/* a world's sign (Q138, 11.5): a plaque in the world's colour, not a white pill like a level's banner */
+.wplaque { display: grid; justify-items: center; padding: 7px 22px 9px; border-radius: 14px; color: #FFFFFF; text-align: center; }
+.wplaque.moon { background: #F08A24; box-shadow: 0 0 0 3px #FFFFFF, 0 5px 0 3px #9A5410; }
+.wplaque.park { background: #2E8B57; box-shadow: 0 0 0 3px #FFFFFF, 0 5px 0 3px #1C5E39; }
+.wnum { font-size: 12px; font-weight: 800; letter-spacing: .2em; opacity: .92; }
+.wname { font-size: 27px; font-weight: 800; line-height: 1.15; }
 .rgsign small { font-size: 14px; font-weight: 800; color: #FFFFFF; background: rgba(18, 30, 42, .7); border-radius: 999px; padding: 3px 10px; }
 @media (prefers-reduced-motion: reduce) { .rgate.moon::after { animation: none; } }
 /* the next world closed off (Q128: "a teaser is OK but don't show the levels"): a barrier across the

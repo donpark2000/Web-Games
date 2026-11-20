@@ -4,7 +4,7 @@ The agreed direction for Web Games. This file records **decisions**; the
 reasoning, evidence, and anything still open live in
 [`DEV_JOURNAL.md`](DEV_JOURNAL.md).
 
-*Status (2026-11-18, latest): **Topple! 11.3: the moon's blocks left glow after a pause, as the park's; the map always opens with your scene in view** (Q133, Q134; see "Topple!", The blocks left glow, The map). Earlier the same day: **Topple! 11.2: the moon's ring keeps its speed through a turn and is always on, Space drops; each world's tutorial in three bare parts as its first level is entered; the next world closed off on the map behind a barrier that opens when the world before is won; no hint's line** (developer, trying 11.1; release 11.2; see "Topple!", The moon, A world's tutorial, The map, Worlds). Earlier (2026-11-17): **Topple!: worlds on the map and a tutorial for each world** (developer, after 11.0: a gate for each world on the road, the road broken between them, levels numbered 1-5 within a world; each world's aiming taught in a practice scene before its first scene, and again from its gate; the pad's show at every park scene removed; on `block-game`, not yet published; see "Topple!", The map, Worlds, and A world's tutorial). Earlier: **Topple!: a second world, the moon base, levels 6-10** (a lander drops the ball: hold to aim, drag to steer, let go to drop, ⇄ to turn; release 11.0; see "Topple!", The moon). Earlier the same day: **Topple!: a scene won with fewer than 3 stars has Try again for more stars on its card** (developer, trying 10.25; for release 10.26; see "Topple!", The map, Stars). Earlier (2026-11-16): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
+*Status (2026-11-19, latest): **Topple! 11.5: each moon level looks like its name and has its own target (fuel drums that burst, glass panels and ore crystals that shatter once down, boulders that roll, oxygen tanks that fly off venting); on the map each world's start stands out (a picture with hard edges, a plaque for its sign) and each moon level has its own colour** (Q125, Q138; developer: built from the mockups "Topple Moon Levels" and "Topple Map Worlds"; see "Topple!", The moon). Earlier (2026-11-18): **Topple! 11.3: the moon's blocks left glow after a pause, as the park's; the map always opens with your scene in view** (Q133, Q134; see "Topple!", The blocks left glow, The map). Earlier the same day: **Topple! 11.2: the moon's ring keeps its speed through a turn and is always on, Space drops; each world's tutorial in three bare parts as its first level is entered; the next world closed off on the map behind a barrier that opens when the world before is won; no hint's line** (developer, trying 11.1; release 11.2; see "Topple!", The moon, A world's tutorial, The map, Worlds). Earlier (2026-11-17): **Topple!: worlds on the map and a tutorial for each world** (developer, after 11.0: a gate for each world on the road, the road broken between them, levels numbered 1-5 within a world; each world's aiming taught in a practice scene before its first scene, and again from its gate; the pad's show at every park scene removed; on `block-game`, not yet published; see "Topple!", The map, Worlds, and A world's tutorial). Earlier: **Topple!: a second world, the moon base, levels 6-10** (a lander drops the ball: hold to aim, drag to steer, let go to drop, ⇄ to turn; release 11.0; see "Topple!", The moon). Earlier the same day: **Topple!: a scene won with fewer than 3 stars has Try again for more stars on its card** (developer, trying 10.25; for release 10.26; see "Topple!", The map, Stars). Earlier (2026-11-16): **Topple!: the map is a scrolling road of its 25 scenes with the stars under each, the difficulty back on the setup screen and shown on the map to read only** (developer, after trying 10.24; for release 10.25; see "Topple!", The map, Q117). Earlier: **Topple!: Frosty Times' machine now stands in view, lobbing its three snowman heads** (on `block-game`, not yet published; the developer saw heads floating by with no machine). Earlier: **Topple!: the Hardest movers that looked like big balls changed: Cactus Canyon's tumbleweed is a tumbling cowboy hat, Frosty Times' snowball a rolling snowman's head with a top hat** (developer, after the tablet; on `block-game`, not yet published). Earlier: **Topple!: the things not to hit are dropped** (developer, after the tablet: a hit costing a heart "seems too much", the ring "looks like an obstacle ... can hide targets", then "maybe not ... I'm ok to drop them": nothing of them is left, scenes 2 and 4 of Hardest are the spread-out structures alone; on `block-game`, not yet published; see "Topple!", Things not to hit: dropped). Earlier: **Topple! Hardest in Star Light: a paper lantern
 swinging on its chain, a sled sliding by on the snow, a star falling at a
 slant (a ball can pass between its points), each once in scenes 1, 3, 5; 2
 and 4 spread out, with a telescope not to hit** (on `block-game`, for
@@ -3013,21 +3013,66 @@ private; the toy house with bounce shots rejected). Release 11.0.
   steers to a block's distance and lets go as the ring crosses it, aiming at a
   block's edge after a miss; at least 93% of 200 scenes won (each difficulty,
   and with drops 15 cm off), level 6's first scenes always.
-- **The look:** the mockups' base (domes, greenhouse, habitat, mast, landing
-  pad and rocket, solar arrays, a rover), each level's own extras (more
-  arrays; the crater's rim on the skyline; ore heaps and a drill; the big
-  rocket on its tower). **The Earth** in a slightly different place and turn
-  each scene, turning slowly; **the odd shooting star**, one every 8-22 s
-  (developer, 2026-11-17). The view from in front and above, fitted to each
-  scene's run.
-- **The map:** levels 6-10 continue the road in dark bands (🛬 🔆 🌑 ⛏️ 🚀), past
-  the Moon's gate, numbered 1-5 (see The map, Worlds); shut, "Finish Earth to fly to
-  the moon" (11.2: behind its barrier, none of its levels shown: see The map). Its
-  tutorial: How to drop (see A world's tutorial).
+- **Each level looks like its name** (Q125, 11.5; developer, 2026-11-18: "the moon
+  world seems much less so" than Earth's; mockup v1, Topple Moon Levels;
+  `src/ui/topple-moon-looks.js`, scenery only, behind the blocks):
+  - Landing Zone: the base (domes, greenhouse, habitat, mast, rocket, arrays, a
+    rover: until 11.5 in every level), two pads with chasing edge lights, a parked
+    cargo lander, a lander coming down and lifting off again, a control tower with
+    a turning beacon, cargo, fuel drums, guide lines.
+  - Solar Farm: rows of panels to the skyline, a substation, a cleaning robot.
+  - Crater Rim: the ground ends at the rim, the crater's bowl and its far wall
+    behind, lit by a low warm sun (long shadows); rocks, boulders, a survey dome, a
+    flag. The ledges drawn as rock.
+  - Mining Site: darker, three work lights, a drill derrick, a conveyor carrying ore
+    to a hopper, ore heaps with crystals, an ore cart on rails.
+  - Launch Pad: the big rocket on its gantry venting steam, the flame trench, the
+    oxygen tank farm, floodlights, lightning masts.
+  **The Earth** in a slightly different place and turn each scene, turning slowly;
+  **the odd shooting star**, one every 8-22 s (developer, 2026-11-17). The view from
+  in front and above, fitted to each scene's run.
+- **Each level its own target** (Q125, 11.5; `LEVEL_TARGETS` in
+  `src/core/topple-moon.js`: some of a level's structures, or a material, swapped
+  for its own; physics in `topple-moon-world.js`), in its first scene on every deal:
+  - Landing Zone, **fuel drums** (in place of crate towers): a ball at 1.6 m/s or
+    more bursts one: gone, a puff and bits, the blocks within 1 m pushed (up to
+    2.2 m/s at its middle, less further out). A drop from the lander always comes
+    faster, so a direct hit bursts it, and the one under it often bursts in turn.
+  - Solar Farm, **glass panels** (all its panels): once down, the next knock (0.4
+    m/s) or coming to rest shatters it (as the park's ice); one standing never.
+  - Crater Rim, **boulders** (in place of crate towers and tanks): down once rolled
+    0.6 m or dropped 0.25 m (not by how it's turned: it's round); damped harder once
+    down, so a scene isn't held up while one rolls on. Light (density 4, the mockup's
+    12): heavier, a drop near a lone big boulder's middle hardly moved it, and Crater
+    Rim's scenes 4-5 couldn't always be won in 3 even with the blast ball.
+  - Mining Site, **ore crystals** (glowing pointed prisms, in place of tanks and
+    crates; scene 1 a trestle and crystals): shatter as glass does.
+  - Launch Pad, **oxygen tanks** (in place of tanks and beacons; scene 1 a gantry
+    and a tank): a ball at 1.2 m/s or more sets one venting: a kick up and away, a
+    spin, then 0.9 s of a 5 m/s² jet along it.
+  The spins a burst or a pop gives are seeded with the scene, so a run plays out the
+  same each time (the tests, the star tool). A block burst or shattered is gone (kept
+  so when a scene is picked up again). Each target its own knock: glass, a crystal's
+  chime, a boulder's crunch, a drum's thunk; a burst, a shatter and a pop their own
+  sounds.
+- **The map:** levels 6-10 continue the road past the Moon's gate, numbered 1-5 (see
+  The map, Worlds), **each in its own colour, matched to its look** (Q138, 11.5;
+  until then two dark navies in turn, hard to tell from Star Light's): Landing Zone
+  slate `#4E586B`, Solar Farm teal `#1E5D66`, Crater Rim warm grey `#625649`, Mining
+  Site ochre `#7A5420`, Launch Pad rust `#73342A`, the road's dots white .6. **Each
+  world's gate stands out** (Q138, 11.5; mockup v1, Topple Map Worlds; developer: "the
+  mockup looks great"): 190 px (was 150) with hard white edges; the moon's a picture
+  of its own, Earth's curve at its foot (its air glowing, two lands), the moon's grey
+  ground with craters at its top, black space and stars between, a rocket; **its sign
+  a plaque**, "WORLD 2" small over "🌕 The Moon", white on orange (Earth's "WORLD 1 /
+  🌍 Earth" on green), not the white pill a level's banner is. Shut, "Finish Earth to
+  fly to the moon" (11.2: behind its barrier, none of its levels shown: see The map).
+  Its tutorial: How to drop (see A world's tutorial).
 - Logged: `moon scene` (structures, span, the Earth, speed), `lander: steer`,
   `lander: turn`, `lander turns at the end`, `drop would hit block`, `drop`
   (where, the ring, what it's heading for), `drop refused`, `block down`,
-  `key`.
+  `key`; `moon: burst`, `moon: shatter`, `moon: pop` (block, material, where,
+  speed: Q125).
 
 ## Later
 

@@ -9,7 +9,9 @@
 import { SCENES, WORLDS, worldOf, worldLevels } from './topple.js';
 
 export const ROAD_MIN_CIRCLE = 46;   // px: a scene's circle is never smaller (a finger)
-export const GATE_H = 150;           // px: a world's gate, under its first level
+// px: a world's gate, under its first level (Q138, 11.5: 190, was 150; the moon's a picture
+// of its own, Earth's curve at its foot and the moon's ground at its top, so it stands out)
+export const GATE_H = 190;
 export const BARRIER_H = 230;        // px: the next world's barrier at the road's top (its teaser behind it)
 
 // For a road `w` px wide, the first `open` worlds shown (the next one as its
