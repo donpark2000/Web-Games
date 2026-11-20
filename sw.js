@@ -25,9 +25,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '24c9f2341ff7';
+const VERSION = '5580bd654944';
 const MADE = '2026-11-20';
-const RELEASE = '11.5';
+const RELEASE = '11.6';
 const FILES = [
   'bridges.html',
   'colour-sudoku.html',
@@ -346,7 +346,7 @@ const HASHES = {
   'src/core/net.js': '01f93e039e36',
   'src/core/nim.js': 'c948ce20355e',
   'src/core/players.js': 'cdcbde55ab4c',
-  'src/core/release.js': 'de5d953859a0',
+  'src/core/release.js': 'ed112c190f5a',
   'src/core/resume.js': 'f8feda70fba3',
   'src/core/reversi.js': '5c1eff2f7729',
   'src/core/rock-paper-scissors.js': '102269302158',

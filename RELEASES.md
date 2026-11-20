@@ -7,6 +7,16 @@ and a [GitHub release](https://github.com/donpark2000/Web-Games/releases)
 with these notes. The version in each heading is the site's own
 fingerprint, the last part of the home page's version line.
 
+## 11.6 (2026-11-20, version 5580bd654944)
+
+Smaller updates: a new release downloads only the files that changed.
+
+- **Smaller updates.** Until now every release downloaded the whole site again (about
+  9.5 MB) on each phone and tablet. From now on only the files that changed are
+  downloaded; the rest are kept from the copy already saved. This first update to 11.6
+  still downloads everything once.
+- The games themselves are as in 11.5.
+
 ## 11.5 (2026-11-19, version 24c9f2341ff7)
 
 Topple!: each moon level looks like its name and has its own target, and the map shows where the moon begins.
