@@ -27,7 +27,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '8d3f2e6af3b1';
+const VERSION = '0b5e9d6ad802';
 const MADE = '2026-11-20';
 const RELEASE = '0.1';
 const FILES = [
@@ -201,6 +201,11 @@ const FILES = [
   '../src/vendor/three/LICENSE',
   '../src/vendor/three/RoundedBoxGeometry.js',
   '../src/vendor/three/three.module.min.js',
+  'data/park/grass005_col.jpg',
+  'data/park/grass005_nor.jpg',
+  'data/park/grass005_rough.jpg',
+  'data/park/leaf.png',
+  'data/park/sky_je_gray_park.jpg',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
@@ -214,6 +219,7 @@ const FILES = [
   'src/core/release.js',
   'src/core/version.js',
   'src/ui/look3d.js',
+  'src/ui/topple-scene.js',
   'src/ui/topple-sets.js',
   'src/ui/topple.js',
   'topple.html',
@@ -389,21 +395,27 @@ const HASHES = {
   '../src/vendor/three/LICENSE': 'a70d6dc2d2a6',
   '../src/vendor/three/RoundedBoxGeometry.js': '04040241176e',
   '../src/vendor/three/three.module.min.js': '3e690ac7d180',
+  'data/park/grass005_col.jpg': 'a921bf38229f',
+  'data/park/grass005_nor.jpg': '9290c222d788',
+  'data/park/grass005_rough.jpg': '09f5354328fe',
+  'data/park/leaf.png': '4c9194446f7b',
+  'data/park/sky_je_gray_park.jpg': '62b165acde67',
   'icons/apple-touch-icon.png': '48a7d266734d',
   'icons/icon-192.png': '42f2c87ad180',
   'icons/icon-512.png': '557113230560',
   'icons/icon.svg': 'c1d6df4e0698',
-  'index.html': '4cb6b19f7a34',
+  'index.html': '10cefe40205a',
   'lab/begin.js': 'cfba1bdae267',
   'lab/start.js': '57140b92aad6',
   'lab/storage.js': '0d2efcf2f431',
-  'log.html': 'fdb29a1e99e8',
+  'log.html': '6c4ec94acdb4',
   'manifest.webmanifest': '0f45c52de022',
   'src/core/release.js': '992f2640a02b',
   'src/ui/look3d.js': '6e362b7ebc83',
-  'src/ui/topple-sets.js': '80057faa02b8',
+  'src/ui/topple-scene.js': 'e93d5bc27269',
+  'src/ui/topple-sets.js': '7fce4ab0c5e6',
   'src/ui/topple.js': '7eebd1c95fb2',
-  'topple.html': '4df23ddb64c6',
+  'topple.html': '80bc0f67dfb5',
 };
 // ---- end ----
 

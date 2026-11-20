@@ -60,10 +60,11 @@ export const SETTINGS = {
 
 const loader = new THREE.TextureLoader();
 const images = new Map();   // file -> Promise<Texture> (the one image each)
-function loadTex(file) {
+function loadTex(file, dir = PHOTO_DIR) {
   // a load that failed is forgotten, so the next scene tries again (review TOP-3)
-  if (!images.has(file)) images.set(file, new Promise((ok, fail) => loader.load(PHOTO_DIR + file, ok, undefined, () => { images.delete(file); fail(new Error(`${file} not loaded`)); })));
-  return images.get(file);
+  const key = dir + file;
+  if (!images.has(key)) images.set(key, new Promise((ok, fail) => loader.load(key, ok, undefined, () => { images.delete(key); fail(new Error(`${file} not loaded`)); })));
+  return images.get(key);
 }
 // A copy of a loaded texture: colour (sRGB) or data, on uv `channel`, repeated.
 function variant(t, { colour = false, channel = 0, repeat = null } = {}) {
@@ -78,7 +79,7 @@ function variant(t, { colour = false, channel = 0, repeat = null } = {}) {
 async function loadSurface(key) {
   const s = SURFACES[key], a = s.asset;
   const files = [`${a}_col.jpg`, `${a}_nor.jpg`, ...(s.arm ? [`${a}_arm.jpg`] : s.rough ? [`${a}_rough.jpg`] : [])];
-  const [col, nor, third] = await Promise.all(files.map(loadTex));
+  const [col, nor, third] = await Promise.all(files.map(f => loadTex(f)));
   return { col, nor, arm: s.arm ? third : null, rough: s.rough ? third : null };
 }
 // A material in a surface's photos: on uv `channel` (1: the blocks' metres,
@@ -412,6 +413,50 @@ export async function makeSetting(n, ctx) {
   out.ms = Math.round(performance.now() - t0);
   out.files = images.size;
   return out;
+}
+
+/* ---------- the park in photos (Topple Lab 0.2, Q139) ---------- */
+
+// The lab's own photos (topple-lab/data/park/; sources: its CREDITS.md):
+// the park's sky, a 360° photo of a park (Poly Haven's je_gray_park), and
+// its lawn (ambientCG's Grass005: colour, normal, roughness).
+export const PARK_DIR = 'data/park/';
+export const PARK = { sky: 'sky_je_gray_park.jpg', lawn: 'grass005', lawnSize: 1.5, R: 34 };
+
+// The park's photos for topple-scene.js: { group (the lawn, fading at its
+// edge into the photo's own field, with faint mowing stripes 1 m apart, so
+// they still show how far away things are), background, environment, fog,
+// horizon, files, ms }. Rejects if a photo doesn't load (the park is drawn
+// as before then).
+export async function parkPhotos(renderer) {
+  const t0 = performance.now();
+  const [skyTex, col, nor, rough, leaf] = await Promise.all([PARK.sky, `${PARK.lawn}_col.jpg`, `${PARK.lawn}_nor.jpg`, `${PARK.lawn}_rough.jpg`, 'leaf.png'].map(f => loadTex(f, PARK_DIR)));
+  const bark = await loadSurface('bark');   // the main site's (level 3's pine), one folder up
+  // the scene's tree and bushes keep their shapes (the physics' balls), in
+  // real leaves (one leaf from Poly Haven's island_tree_01, its sheet's black
+  // made see-through) and real bark (knotted_pine_bark)
+  leaf.colorSpace = THREE.SRGBColorSpace; leaf.anisotropy = 4;
+  const leafMat = new THREE.MeshStandardMaterial({ map: leaf, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.75 });
+  const leafGeo = new THREE.PlaneGeometry(0.5, 1);
+  const barkMat = photoMat(bark, { repeat: [0.5, 1.5], extra: { metalness: 0 } });
+  const bg = skyTex.clone();
+  bg.mapping = THREE.EquirectangularReflectionMapping; bg.colorSpace = THREE.SRGBColorSpace; bg.needsUpdate = true;
+  const pm = new THREE.PMREMGenerator(renderer), env = pm.fromEquirectangular(bg).texture; pm.dispose();
+  const horizon = horizonColour(skyTex.image);
+  const group = new THREE.Group();
+  const { R, lawnSize } = PARK, n = 2 * R / lawnSize;
+  const lawn = mesh(new THREE.CircleGeometry(R, 64), photoMat({ col, nor, rough }, { repeat: [n, n], extra: { alphaMap: fadeTex(), transparent: true, metalness: 0 } }), [0, 0, -6], { cast: false });
+  lawn.rotation.x = -Math.PI / 2; lawn.renderOrder = -1; group.add(lawn);
+  // the mowing stripes: light and dark bands across, 1 m each, laid over the lawn
+  const stripes = canvasTex(4, 64, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(255,255,230,.05)'; g.fillRect(0, 0, w, h / 2); g.fillStyle = 'rgba(0,30,0,.04)'; g.fillRect(0, h / 2, w, h / 2); }, [1, R]);
+  const sm = mesh(new THREE.CircleGeometry(R, 64), new THREE.MeshStandardMaterial({ map: stripes, alphaMap: fadeTex(), transparent: true, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, depthWrite: false }), [0, 0.002, -6], { cast: false });
+  sm.rotation.x = -Math.PI / 2; group.add(sm);
+  return {
+    group, background: bg, environment: env, fog: new THREE.Fog(horizon, 60, 250), horizon,
+    // the leaves' tints over the photo (light: the photo has its own green), the bush's a little yellower
+    leaves: { geo: leafGeo, mat: leafMat, density: 1.8, tree: ['#F2F6EA', '#E2EAD6', '#FFFFFF'], bush: ['#F4F4E2', '#E6ECD2', '#FFFFF4'] }, barkMat,
+    files: 8, ms: Math.round(performance.now() - t0),
+  };
 }
 
 // The photo's horizon colour (for the haze): a band across its middle, averaged.

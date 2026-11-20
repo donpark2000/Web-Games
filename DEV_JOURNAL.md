@@ -26280,3 +26280,65 @@ errors. No localhost servers were running.
 - **Proposed (to ask):** lab 0.2 = look A on levels 2-10 (glow kept), the park as it is
   until change 3; and a switch on the lab's home page (today's look / the new) so the
   developer can compare on the phone and tablet.
+
+## 2026-11-20: The lab's park in photos (lab 0.2, not published); the site untouched
+
+- **Developer, on the change-1 sheets:** "The changes are very subtle ... pretty much
+  unnoticeable. Am I missing something?" Not missed: tone mapping changes how light becomes
+  screen colour, not what things are made of. Claude said so plainly, and proposed dropping
+  change 1 as a release of its own and going to what shows: the park (level 1) first.
+  **Developer: "yes, redo the park for lab 0.2"**, after asking why models when photos
+  would do. Claude's answer: the camera never moves, so photos do most of it (as levels
+  2-4's 360° skies already do): (1) the far trees in a 360° park photo, (2) photo
+  cut-out trees in the middle distance, (3) 3D only up close, plus a photo lawn.
+  **Developer: "yes, go ahead with the park in that order."**
+- **Measured, correcting Claude:** Poly Haven's tree models are **66-215 MB** each at 1K
+  (island_tree_01 66 MB, tree_small_02 101, jacaranda_tree 215), not "several MB". Its
+  ground surfaces are forest floor and dry grass, no mown lawn; **ambientCG** (CC0 too) has
+  lawns (Grass005, 006, 008). Picks shown to the developer as sheets (16 skies, 6 Poly Haven
+  grounds, 8 ambientCG lawns, 12 trees and shrubs).
+- **Downloaded** (developer: "Yes, download them"; Poly Haven files MD5-checked, all
+  matched; ambientCG and jsDelivr give none) into `Web-Games-testing\2026-11-20_park\`:
+  je_gray_park tonemapped JPG (48.4 MB, 8192×4096), island_tree_01 1K glTF (66 MB, 12
+  files), ambientCG Grass005 1K-JPG zip (10.4 MB), three r160's GLTFLoader.js (0.11 MB;
+  not used in the end).
+- **Found in building: the near tree and the bushes are part of play.** In the physics the
+  tree is a trunk cylinder and leaf balls, and the bush is balls (`src/core/topple.js`
+  sceneParts); a ball bounces off them. A flat cut-out wouldn't match those shapes (a ball
+  bouncing off leaves not drawn). So instead of cut-outs (step 2) and 3D models (step 3):
+  **the tree and bushes keep their shapes, dressed in real leaves and bark.** The leaf: one
+  leaf cut from island_tree_01's leaf sheet (its black made see-through), 96×192 PNG, 26 KB;
+  the bark: the main site's `knotted_pine_bark` (level 3's pine), no new file. The mid
+  distance needs nothing: the photo's own trees are there.
+- **Built, lab only** (`node tools/topple-lab.js copy src/ui/topple-scene.js`; changes in
+  the lab's `topple-scene.js` and `topple-sets.js`): `parkPhotos()` loads the park's sky
+  (also its reflections and a haze from its horizon colour, as levels 2-4), the lawn (a 34 m
+  disc fading into the photo's field, one copy of the photo per 1.5 m, faint mowing stripes
+  1 m apart over it so they still show distance), the leaf and the bark. The drawn lawn and
+  far trees stay for when the photos can't load (then the park is drawn as before and tried
+  again next scene, as levels 2-4). The tree's trunk and branches and the slingshot in bark;
+  the leaves on the photo leaf, 1.8 times as many (its see-through edges cover less), over a
+  darker core. Logged: the "setting" line has `park: { photos: 8, ms }`, or the error.
+  Lab files: `topple-lab/data/park/` (sky 2.18 MB, lawn 0.25 MB, leaf 0.03 MB; 2.45 MB) with
+  its `CREDITS.md`. The lab's home page "Being tried" says what's in it.
+- **A bug of Claude's, found by its pictures:** `loadTex(file, dir)` got a folder argument
+  for the lab's photos, and `loadSurface` called `files.map(loadTex)`, which passes each
+  file's index as `dir`: the bark (and levels 2-4's surfaces) asked for
+  `0knotted_pine_bark_col.jpg`. The park fell back to drawn, as designed, and the log said
+  why ("knotted_pine_bark_col.jpg not loaded"); a fetch of the same file from the page gave
+  200. Fixed (`files.map(f => loadTex(f))`), with a test that fails on the old line.
+- **Pictures** (headless Edge, `Web-Games-testing\2026-11-20_park\shots\`, sheet
+  `park-scenes.jpg`: the five park scenes, today's look and look A): the park's sky all
+  round, a photo lawn, a bark trunk; with look A (tone mapping) the lawn a little greener and
+  the shadows firmer. Level 4 still in its photos (checked after the fix).
+- **Tests** (`tests/topple-lab-park.test.js`, 4): the photos the code names are there, the
+  right size, credited, 2.45 MB of 3 MB at most, saved for offline; a missing one, a wrong
+  size and one not credited each reported (on a temp copy); the loader never given a list's
+  index; the main site's Topple! code never names the lab's park. The loader test shown
+  failing with the old line put back. Full suite: 801 tests, 800 passed; the one failure
+  "the lab up to date" because the lab's home page was edited while it ran; after
+  `node tools/offline.js` the lab's tests (21, with parse) pass. `topple-lab.js check`:
+  "main-site files changed since main: none".
+- **Not decided:** tone mapping (look A) for the park and the other levels in lab 0.2; the
+  toy blocks and the red-and-white ball stay as toys (the park's look); the near tree's
+  leaves are mostly above the view.
