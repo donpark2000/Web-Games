@@ -367,11 +367,6 @@ time, each tried before publishing:
   bigger crashes as structures come down. The developer may want to supply recorded
   sounds (memory: they find them; note source and licence, CC0).
 
-- **Q120. Topple!: the moon on the old tablet** (2026-11-17, Claude, building 11.0). The moon
-  base draws at full quality (shadows, pixel ratio up to 2); the park's step-down on a
-  slow device (drawWatch, Q99) isn't hooked to it. To check on the 2019 tablet; hook it
-  up if it's slow.
-
 - **Q113. Frosty Times: ice blocks that "slid out of range"** (2026-11-15,
   developer, phone and tablet, Hardest: "two instances of ice blocks in
   frosty world that slid out of range"). Not found yet. **Parked (developer, 2026-11-16: "It was my tablet and landscape. Don't worry about it for now. If I see it happen again I'll save the log")**. The rule since 10.7
@@ -653,6 +648,14 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q120. Topple!: the moon on the old tablet** (2026-11-17, Claude, building 11.0). The moon
+  base draws at full quality (shadows, pixel ratio up to 2); the park's step-down on a
+  slow device (drawWatch, Q99) isn't hooked to it. To check on the 2019 tablet; hook it
+  up if it's slow.
+  **Closed (2026-11-20): the developer played the whole moon world in 11.5 (the most to
+  draw yet) on the old tablet: "It was the old tablet, ran fine".** No step-down needed for
+  the moon; drawWatch stays the park's only.
 
 - **Q138. Topple!: the map's break between worlds doesn't stand out** (2026-11-19,
   developer, after replaying the barrier opening with `topple.walk(5, 6)`: "once it is open
@@ -26017,14 +26020,16 @@ Q125 (the moon's materials) and Q121 (sounds).
   Resolved with that).
 - **Purged** (developer: "Yes - send the testing files to recycle"):
   `Web-Games-testing\2026-11-19_moon-targets\` sent to the Recycle Bin; its results are in
-  "Q125 and Q138 built (release 11.5)". `Web-Games-testing\2026-11-17_review\` is still
-  there (not asked about this time).
+  "Q125 and Q138 built (release 11.5)".
 
 **Status (start here next session)**
 - **Live: 11.5.** `block-game` = `main` plus the journal.
-- **To ask:** which tablet the moon was played on, and whether it ran smoothly (Q120: the
-  moon on the old 2019 tablet, more to draw since 11.5, still not hooked to the step-down).
-- **Next:** Q121 (sci-fi sounds on the moon); Q120 as the answer above says.
+- **Q120 closed** (the developer: "It was the old tablet, ran fine"): the moon in 11.5 on
+  the 2019 tablet needs no step-down.
+- **Purged** (developer: "recycle the review folder too"): `Web-Games-testing\2026-11-17_review\`
+  sent to the Recycle Bin; its findings are in "Code review of release 10.22 (read-only)".
+  `Web-Games-testing` is now empty.
+- **Next:** Q121 (sci-fi sounds on the moon).
 - **To review at a checkpoint:** the proposed skill additions (as before).
-- **Open questions:** Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3: to try), Q120,
-  Q121, as before otherwise.
+- **Open questions:** Q136 and Q130 (11.4: to try), Q134 and Q133 (11.3: to try), Q121,
+  as before otherwise.
