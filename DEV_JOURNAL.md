@@ -26342,3 +26342,39 @@ errors. No localhost servers were running.
 - **Not decided:** tone mapping (look A) for the park and the other levels in lab 0.2; the
   toy blocks and the red-and-white ball stay as toys (the park's look); the near tree's
   leaves are mostly above the view.
+
+**Lab 0.2 published (later the same day; developer: "Publish lab 0.2", without tone
+mapping as proposed).** `topple-lab/src/core/release.js` 0.2, notes under `RELEASES.md`'s
+"# Topple Lab", `node tools/release.js lab`: "Topple Lab release 0.2 is ready: version
+1d56b8ec0346"; `node tools/release.js` still says v11.6 is already a release (no site
+release in this publish); `topple-lab.js check`: "main-site files changed since main:
+none". Full suite: **801 passed**. `block-game` (979d024) fast-forwarded into `main` and
+pushed; tag `lab-v0.2`; GitHub pre-release "Topple Lab 0.2"
+(https://github.com/donpark2000/Web-Games/releases/tag/lab-v0.2), 11.6 still shown as
+Latest. Pages built 979d024. On github.io: the lab's `version.js` 1d56b8ec0346, the site's
+still 5580bd654944; the sky photo served (2,180,934 bytes). In the browser pane: the lab
+home "Version 0.2 · Nov 20, 2026 · 1d56b8" and its "Being tried" line; the lab's Topple! at
+level 1 logged `setting {"level":1,"photos":true,"park":{"photos":8,"ms":488}}`, reflections
+on, the park drawn in its photos (screenshot), no shader errors. Its offline copy:
+`topple-lab-1d56b8ec0346`, 192 files, **install fetched 192, kept 0, from none**: no older
+lab copy was found to keep files from. Whether the pane still had lab 0.1's copy isn't
+known (its storage may have been cleared since), so this neither shows nor rules out that
+the lab's updates fetch only changed files; the developer's iPhone, which has 0.1
+installed, will show it in the lab's log ("saved for offline … install"). No localhost
+servers running.
+
+**Status (start here next session)**
+- **Live: site 11.6** (unchanged) **and Topple Lab 0.2** (the park in photos). `block-game`
+  = `main` plus this entry.
+- **To try (developer), in the lab app:** the park (level 1) on the iPhone and the tablet:
+  does it look real enough, and still feel like Topple!; the bush and tree near up; the
+  lawn's mowing stripes. The lab's log, "saved for offline … install": kept should be most
+  of the 192 files if the update from 0.1 worked.
+- **Next in the lab, once the park is judged:** the same for levels 2-4's drawn props (Q139
+  changes 3-5), and the moon (photo surfaces); tone mapping (look A) where it helps; the
+  moon's sounds (Q121).
+- **Test files:** `Web-Games-testing\2026-11-20_realism\` (tone pictures) and
+  `\2026-11-20_park\` (the downloads, 125 MB, and the park pictures): recorded above; keep
+  for comparisons until the park is judged, then purge.
+- **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 and Q133
+  (site 11.3: to try), Q121, as before otherwise.
