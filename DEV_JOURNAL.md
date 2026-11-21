@@ -26549,3 +26549,16 @@ of 193).
 - `node tools/offline.js`: the lab's version 04606587ad45, 193 files; `topple-lab.js
   check`: "main-site files changed since main: none". Full suite: **808 passed** (805 +
   3). **To ask:** publish C as lab 0.4.
+- **Developer, before publishing:** "Should every new version loaded on a device clear the
+  log automatically? And why not use a photo for a bush instead of drawing thousands of
+  leaves?" Claude's answers: (1) not clear it: the update and the first minutes after it
+  are logged across the switch, and a bug seen just before an update would be lost; the
+  log is capped (`LOG_MAX` 3000 lines) and has a Clear button. Instead, proposed: each
+  page's heading line (`=== date page ===`) to name the release and version, and log.html
+  to mark where each version starts. (`src/core/log.js` and `log.html` are main-site
+  files: a site change, or a lab copy.) (2) A flat photo of a bush would fight the game:
+  the ball sinks into the bush (it's soft) and would be drawn wholly in front of or behind
+  a flat card; each deal's bush is a different size and shape; a photo's light is baked
+  in. Proposed instead: a photo surface of real leaves (a hedge, CC0) on the bush's own
+  round shape, with leaves only round its edge for a ragged outline: real leaves, a few
+  hundred instead of 5,000. Needs a download (to ask). Lab 0.4 waits for these answers.
