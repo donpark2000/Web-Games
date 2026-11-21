@@ -26656,3 +26656,37 @@ of 193).
   the ball bounces; its light and shadow are baked in. Flat photo cards suit things far off
   (the park's far trees are in its sky photo). Offered: a try of photo cards (two or three
   crossed) if the developer wants to see it, with a cut-out bush photo to find first.
+
+## 2026-11-21: The app's name and version in the log's page headings (site 11.7, lab 0.4; not published)
+
+- **Developer: "Keep C, go on"** (to the version line).
+- **Built** (site files, so after the lab's last commit): `APP` in each app's
+  `release.js` ("Let's Play!", "Topple Lab": their manifests' names); `versionLabel` puts
+  it first instead of "Version" ("Let's Play! 11.6 · Nov 21, 2026 · a73ff6"); `pageTitle`
+  in `src/core/log.js` and `src/ui/debuglog.js`: each page's heading in the log ends with
+  that line; `offline.js` shows it on the home page. `debuglog.js` and `offline.js` read
+  `release.js` whole (`import * as`), so an app whose `release.js` had no `APP` would still
+  load (the lab's pages run the site's code).
+- **Seen in the browser pane** (localhost): the site's home page "Let's Play! 11.6 · Nov
+  21, 2026 · a73ff6", the lab's "Topple Lab 0.3 · Nov 21, 2026 · 1ac118"; headings "===
+  2026-11-21 13:27:38 index.html, 1024x768 · Let's Play! 11.6 · Nov 21, 2026 · a73ff6
+  ===" in the site's log and "=== … log.html, 1024x768 · Topple Lab 0.3 · … ===" in the
+  lab's. No console errors.
+- **Correction (Claude):** this session Claude told the developer the site and the lab
+  share one log on a device. **They don't:** the lab's `lab/start.js` puts
+  `web-games-topple-lab-` in front of every saved name (DESIGN.md "Topple Lab", "Its
+  saves are its own"), the log included: the browser holds `web-games-log` (the site's)
+  and `web-games-topple-lab-web-games-log` (the lab's), each shown by its own app's log
+  page (seen in the browser pane's storage). Claude had read the shared code
+  (`debuglog.js`'s key) and not the lab's swap. The version line in the headings is still
+  what the developer asked for (the log's version matching the home page's), and the app's
+  name says at once which app a saved log came from.
+- **Tests:** a page heading with and without a version line (`log.test.js`); the line with
+  the app's name, with a next version, without a release or day (`offline.test.js`); each
+  app's `APP` its manifest's name and the two different (`release.test.js`). **Each shown
+  failing** (scratch `mutate-version.mjs`, 6 breaks: the lab's name not its manifest's,
+  both apps one name, name and release apart, 7 characters of the version, the heading's
+  separator gone, a separator with no line): **6 of 6 caught**. Full suite: **810 passed**.
+- `node tools/offline.js`: site version a73ff650e8c4 (201 files), lab 1ac118dc5613 (193).
+  **To ask:** publish as **site 11.7** (the version line) and **lab 0.4** (bush look C and
+  the version line) together.

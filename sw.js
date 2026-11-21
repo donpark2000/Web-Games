@@ -25,8 +25,8 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '5580bd654944';
-const MADE = '2026-11-20';
+const VERSION = 'a73ff650e8c4';
+const MADE = '2026-11-21';
 const RELEASE = '11.6';
 const FILES = [
   'bridges.html',
@@ -325,7 +325,7 @@ const HASHES = {
   'reversi.html': 'd913100f1ed9',
   'rock-paper-scissors.html': 'd82026a974bd',
   'snakes-ladders.html': '8a9bc4136647',
-  'src/core/appversion.js': '96c37eeaf764',
+  'src/core/appversion.js': '211d3812aa01',
   'src/core/bridges.js': '78eafe5fadc2',
   'src/core/cannon-keys.js': 'e29b0c477b0c',
   'src/core/colour-sudoku.js': '1f84d2058df2',
@@ -341,12 +341,12 @@ const HASHES = {
   'src/core/follow-me.js': 'b1303cc91da0',
   'src/core/hidden-faces.js': 'fdc6231fabda',
   'src/core/laser-lab.js': '21f6611784d5',
-  'src/core/log.js': '58f4132dcf06',
+  'src/core/log.js': '8fac2f6e04d3',
   'src/core/matching.js': 'b95ececf7528',
   'src/core/net.js': '01f93e039e36',
   'src/core/nim.js': 'c948ce20355e',
   'src/core/players.js': 'cdcbde55ab4c',
-  'src/core/release.js': 'ed112c190f5a',
+  'src/core/release.js': 'ccc2499f3965',
   'src/core/resume.js': 'f8feda70fba3',
   'src/core/reversi.js': '5c1eff2f7729',
   'src/core/rock-paper-scissors.js': '102269302158',
@@ -377,7 +377,7 @@ const HASHES = {
   'src/ui/count-to-9.js': 'c93a411fca3b',
   'src/ui/csboard.js': '8f672dccad22',
   'src/ui/dbboard.js': '090c25e54492',
-  'src/ui/debuglog.js': '2ea34e5d5620',
+  'src/ui/debuglog.js': '463c83411559',
   'src/ui/dots-boxes.js': 'a5b195ae9121',
   'src/ui/drawcuts.js': 'efb5cae3a003',
   'src/ui/drawwatch.js': '8635f60a4ace',
@@ -399,7 +399,7 @@ const HASHES = {
   'src/ui/nim.js': 'c655030c3c10',
   'src/ui/nozoom.js': '94f6360b227a',
   'src/ui/numbercard.js': '026669d0b46e',
-  'src/ui/offline.js': '5ef815450d2b',
+  'src/ui/offline.js': '2d8a29ff1520',
   'src/ui/resume.js': 'cee2906a3304',
   'src/ui/reversi.js': '266c55319149',
   'src/ui/rock-paper-scissors.js': '0f28fffd2432',

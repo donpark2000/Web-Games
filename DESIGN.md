@@ -1763,6 +1763,15 @@ work in the car too (developer, 2026-10-10; journal, Q13).
   showed "Not saved for offline yet"). When a new version takes over
   while the page is open: "(new version next time: …)". **Tapping it
   opens the log page** (see "Structure").
+- **The app's name starts it, and the log has the same line** (developer,
+  2026-11-21: "it makes sense to me that the version info on the home
+  page matches the version in the logs"; each app keeps its own numbers):
+  "Let's Play! 11.7 · Nov 21, 2026 · a73ff6" on the site, "Topple Lab
+  0.4 · …" in the lab (`APP` in each app's `release.js`, its installed
+  name, checked against its manifest by a test). Each page's heading in
+  the log ends with it: "=== 2026-11-21 13:27:38 index.html, 1024x768 ·
+  Let's Play! 11.7 · … ===" (`pageTitle` in `src/core/log.js`), so a
+  saved log says which version wrote each page's lines.
 
 ## Releases
 

@@ -27,7 +27,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '04606587ad45';
+const VERSION = '1ac118dc5613';
 const MADE = '2026-11-21';
 const RELEASE = '0.3';
 const FILES = [
@@ -291,7 +291,7 @@ const HASHES = {
   '../data/topple/wooden_barrel_col.jpg': '6ec9f54487cb',
   '../data/topple/wooden_barrel_nor.jpg': '2ba85af76141',
   '../icons/home/topple.webp': '9779f778c732',
-  '../src/core/appversion.js': '96c37eeaf764',
+  '../src/core/appversion.js': '211d3812aa01',
   '../src/core/bridges.js': '78eafe5fadc2',
   '../src/core/cannon-keys.js': 'e29b0c477b0c',
   '../src/core/colour-sudoku.js': '1f84d2058df2',
@@ -307,12 +307,12 @@ const HASHES = {
   '../src/core/follow-me.js': 'b1303cc91da0',
   '../src/core/hidden-faces.js': 'fdc6231fabda',
   '../src/core/laser-lab.js': '21f6611784d5',
-  '../src/core/log.js': '58f4132dcf06',
+  '../src/core/log.js': '8fac2f6e04d3',
   '../src/core/matching.js': 'b95ececf7528',
   '../src/core/net.js': '01f93e039e36',
   '../src/core/nim.js': 'c948ce20355e',
   '../src/core/players.js': 'cdcbde55ab4c',
-  '../src/core/release.js': 'ed112c190f5a',
+  '../src/core/release.js': 'ccc2499f3965',
   '../src/core/resume.js': 'f8feda70fba3',
   '../src/core/reversi.js': '5c1eff2f7729',
   '../src/core/rock-paper-scissors.js': '102269302158',
@@ -335,7 +335,7 @@ const HASHES = {
   '../src/core/topple-tutorial.js': '44b11d757502',
   '../src/core/topple-world.js': '603c54b29e54',
   '../src/core/topple.js': '37c8c4c09d61',
-  '../src/core/version.js': 'd63a4e90d8cd',
+  '../src/core/version.js': '55dc5965fa7b',
   '../src/ui/brboard.js': 'fb62b2682c7a',
   '../src/ui/bridges.js': '7385bf9ea2df',
   '../src/ui/cardback.js': 'c80f6be3a1b8',
@@ -344,7 +344,7 @@ const HASHES = {
   '../src/ui/count-to-9.js': 'c93a411fca3b',
   '../src/ui/csboard.js': '8f672dccad22',
   '../src/ui/dbboard.js': '090c25e54492',
-  '../src/ui/debuglog.js': '2ea34e5d5620',
+  '../src/ui/debuglog.js': '463c83411559',
   '../src/ui/dots-boxes.js': 'a5b195ae9121',
   '../src/ui/drawcuts.js': 'efb5cae3a003',
   '../src/ui/drawwatch.js': '8635f60a4ace',
@@ -366,7 +366,7 @@ const HASHES = {
   '../src/ui/nim.js': 'c655030c3c10',
   '../src/ui/nozoom.js': '94f6360b227a',
   '../src/ui/numbercard.js': '026669d0b46e',
-  '../src/ui/offline.js': '5ef815450d2b',
+  '../src/ui/offline.js': '2d8a29ff1520',
   '../src/ui/resume.js': 'cee2906a3304',
   '../src/ui/reversi.js': '266c55319149',
   '../src/ui/rock-paper-scissors.js': '0f28fffd2432',
@@ -412,7 +412,7 @@ const HASHES = {
   'log.html': '600764928699',
   'manifest.webmanifest': '0f45c52de022',
   'src/core/park-ground.js': '99b1f1554881',
-  'src/core/release.js': '0c39bd04fe1a',
+  'src/core/release.js': '37be3b056b38',
   'src/ui/look3d.js': '6e362b7ebc83',
   'src/ui/topple-scene.js': '7b8ddd5624d8',
   'src/ui/topple-sets.js': '22c24362657f',

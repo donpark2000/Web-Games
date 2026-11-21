@@ -4,3 +4,6 @@
 // lab's sw.js. The lab's pages read this one (their import map), not the
 // main site's.
 export const RELEASE = '0.3';
+// The lab's name, as installed (manifest.webmanifest), at the start of its
+// version line on its home page and in the log (shared with the site's).
+export const APP = 'Topple Lab';

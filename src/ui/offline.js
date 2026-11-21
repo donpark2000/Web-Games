@@ -21,7 +21,8 @@ import { log } from './debuglog.js';
 import { net } from './net.js';
 import { versionLabel, reloadFor } from '../core/appversion.js';
 import { VERSION, MADE } from '../core/version.js';
-import { RELEASE } from '../core/release.js';
+import * as REL from '../core/release.js';
+const { RELEASE } = REL;
 
 const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 log.add('offline', installed ? 'opened as the installed app' : 'opened in the browser', { online: navigator.onLine, release: RELEASE, version: VERSION, made: MADE });
@@ -29,7 +30,7 @@ log.add('offline', installed ? 'opened as the installed app' : 'opened in the br
 const line = document.getElementById('appVersion');   // the home page only
 function show(next = null) {
   if (!line) return;
-  line.textContent = versionLabel({ release: RELEASE, version: VERSION, made: MADE }, next);
+  line.textContent = versionLabel({ app: REL.APP, release: RELEASE, version: VERSION, made: MADE }, next);
   line.hidden = false;
 }
 show();

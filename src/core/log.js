@@ -11,6 +11,14 @@
 export const LOG_KEY = 'web-games-log';
 export const LOG_MAX = 3000;   // lines kept on the device: about the last 15 games or more
 
+// A page's heading in the log: the page, the screen's size and the app's
+// version line as its home page shows it (src/core/appversion.js
+// versionLabel), so the lines of the site and the Topple Lab, which share
+// the log, say which app and version wrote them (developer, 2026-11-21).
+export function pageTitle(page, width, height, line = '') {
+  return `${page}, ${width}x${height}${line ? ` · ${line}` : ''}`;
+}
+
 export function createLog({ max = 2000, now = () => Date.now(), storage = null, key = LOG_KEY } = {}) {
   const start = now();
   let lines = load(storage, key).slice(-max);

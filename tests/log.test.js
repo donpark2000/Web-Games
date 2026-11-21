@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createLog, formatReport, LOG_KEY } from '../src/core/log.js';
+import { createLog, formatReport, pageTitle, LOG_KEY } from '../src/core/log.js';
 
 const clock = () => { let t = 1000; const now = () => t; now.advance = ms => { t += ms; }; return now; };
 
@@ -11,6 +11,17 @@ test('log: lines carry time since start, area, message and data', () => {
   assert.equal(log.add('ttt', 'move', { square: 4 }), '+1.500s [ttt] move {"square":4}');
   assert.equal(log.add('page', 'loaded'), '+1.500s [page] loaded');
   assert.equal(log.lines().length, 2);
+});
+
+// 2026-11-21 (developer): the site and the Topple Lab share the log, so each
+// page's heading carries its app's version line, as its home page shows it.
+test('log: a page heading names the page, the screen and the version line', () => {
+  const line = 'Topple Lab 0.4 · Nov 21, 2026 · 046065';
+  assert.equal(pageTitle('topple.html', 1280, 800, line), 'topple.html, 1280x800 · Topple Lab 0.4 · Nov 21, 2026 · 046065');
+  assert.equal(pageTitle('index.html', 393, 852), 'index.html, 393x852', 'no version line: as before');
+  const log = createLog({ now: clock() });
+  log.begin(pageTitle('topple.html', 1280, 800, line));
+  assert.match(log.lines()[0], /^=== [\d-]+ [\d:]+ topple\.html, 1280x800 · Topple Lab 0\.4 · Nov 21, 2026 · 046065 ===$/);
 });
 
 test('log: keeps only the newest lines and says how many were dropped', () => {

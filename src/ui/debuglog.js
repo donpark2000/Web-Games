@@ -3,7 +3,11 @@
 // shown, saved or cleared on log.html, which nothing links to (developer,
 // 2026-10-07: no panel on the game screens; reached by its address only).
 
-import { createLog, LOG_KEY, LOG_MAX } from '../core/log.js';
+import { createLog, pageTitle, LOG_KEY, LOG_MAX } from '../core/log.js';
+import { versionLabel } from '../core/appversion.js';
+import { VERSION, MADE } from '../core/version.js';
+// (all of it: an app whose release.js has no APP yet still loads)
+import * as REL from '../core/release.js';
 
 const SAVE_MS = 500;   // the lines are written this long after the last one
 
@@ -12,8 +16,10 @@ let storage = null;
 try { storage = window.localStorage; } catch { /* blocked: the log stays in memory */ }
 
 export const log = createLog({ max: LOG_MAX, storage, key: LOG_KEY });
+// This page's version line, as its app's home page shows it.
+export const VERSION_LINE = versionLabel({ app: REL.APP, release: REL.RELEASE, version: VERSION, made: MADE });
 // The page's heading, before anything the page logs while it loads.
-log.begin(`${location.pathname.split('/').pop() || 'index.html'}, ${innerWidth}x${innerHeight}`);
+log.begin(pageTitle(location.pathname.split('/').pop() || 'index.html', innerWidth, innerHeight, VERSION_LINE));
 
 // Call once per page: uncaught errors logged, and the lines written to the
 // device shortly after each one and when the page is left.

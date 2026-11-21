@@ -110,3 +110,14 @@ test('release: the lab’s number is x.y and is the newest under "# Topple Lab"'
   assert.equal(releases[0]?.release, LAB_RELEASE, `${NOTES_FILE}'s newest lab release is not topple-lab/src/core/release.js's ${LAB_RELEASE}`);
   assert.ok(releases.every(r => r.release && r.notes), 'a lab release with a bad heading or no notes');
 });
+
+// Each app's name (APP: the start of its version line, on its home page and in
+// the log they share) is its installed name (2026-11-21).
+test('release: each app’s name is its manifest’s', async () => {
+  const { APP } = await import('../src/core/release.js');
+  const { APP: LAB_APP } = await import('../topple-lab/src/core/release.js');
+  const name = async f => JSON.parse(await readFile(path.join(root, f), 'utf8')).name;
+  assert.equal(APP, await name('manifest.webmanifest'));
+  assert.equal(LAB_APP, await name('topple-lab/manifest.webmanifest'));
+  assert.notEqual(APP, LAB_APP, 'the two apps tell apart in the log');
+});

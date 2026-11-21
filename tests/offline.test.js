@@ -154,6 +154,11 @@ test("offline: the home page's version line", () => {
   assert.equal(versionLabel(v1, v1), 'Version Oct 11, 2026 · 19e2c0', 'the same version is no news');
   assert.equal(versionLabel(v1, v2), 'Version Oct 11, 2026 · 19e2c0 (new version next time: Oct 12, 2026 · a1b2c3)');
   assert.equal(versionLabel({ version: 'abcdef123456' }), 'Version abcdef', 'an older sw.js has no day');
+  // with the app's name (2026-11-21: the log's heading carries the same line)
+  const s = { app: "Let's Play!", release: '11.7', version: '5580bd654944', made: '2026-11-21' };
+  assert.equal(versionLabel(s), "Let's Play! 11.7 · Nov 21, 2026 · 5580bd");
+  assert.equal(versionLabel(s, { release: '11.8', version: 'a1b2c3d4e5f6', made: '2026-11-22' }), "Let's Play! 11.7 · Nov 21, 2026 · 5580bd (new version next time: 11.8 · Nov 22, 2026 · a1b2c3)");
+  assert.equal(versionLabel({ app: 'Topple Lab', version: '046065870000' }), 'Topple Lab · 046065', 'no release or day: the name and version');
   assert.equal(dayLabel('2026-01-05'), 'Jan 5, 2026');
   assert.equal(dayLabel('2026-13-05'), '2026-13-05', 'not a day: as it is');
   assert.equal(dayLabel(undefined), '');

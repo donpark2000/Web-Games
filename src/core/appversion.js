@@ -40,8 +40,12 @@ export function reloadFor({ home, own, running, reloadedFor = null }) {
   return { reload: true, why: 'a new version is running' };
 }
 
+// own.app, the app's name (src/core/release.js APP), starts it instead of
+// "Version": 'Topple Lab 0.3 · Nov 21, 2026 · 046065' (developer,
+// 2026-11-21: the site and the lab share one log, and the log's line is the
+// home page's).
 export function versionLabel(own, next = null) {
-  let s = `Version ${short(own)}`;
+  let s = own.app ? [[own.app, own.release].filter(Boolean).join(' '), dayLabel(own.made), String(own.version).slice(0, 6)].filter(Boolean).join(' · ') : `Version ${short(own)}`;
   if (next && next.version !== own.version) s += ` (new version next time: ${short(next)})`;
   return s;
 }
