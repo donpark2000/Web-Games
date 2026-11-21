@@ -1102,6 +1102,16 @@ Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
 
+## 0.2 (2026-11-20, version 1d56b8ec0346)
+
+The park (level 1) in photos, to compare with Topple! 11.6's drawn park.
+
+- **A real park all round**: a 360° photo of a park (Poly Haven's JE Gray Park) for the sky and the trees beyond, which replaces the drawn trees far off.
+- **A photo lawn** (ambientCG's Grass 005), with faint mowing stripes 1 m apart that still show how far away things are, fading into the photo's own field.
+- **Real leaves and bark** on the scene's tree and bushes, in the same shapes as before (the ball bounces off them as it did), and a bark slingshot.
+- The toy blocks and the red-and-white ball as they were; levels 2-10 as in Topple! 11.6.
+- 2.45 MB of photos added to the lab (sources and licence, all CC0: `topple-lab/data/park/CREDITS.md`). If they can't load, the park is drawn as before.
+
 ## 0.1 (2026-11-20, version f1d2483cac9d)
 
 The Topple Lab's first release: Topple! as it is in 11.6, in an app of its own.
