@@ -41,8 +41,9 @@ time, each tried before publishing:
   the lab. **Lab 0.1 and 0.2 published** (0.2: the park in photos). **2026-11-21:**
   developer on 0.2's park: far trees and sky good, the lawn and stripes "does not look like
   grass at all"; the photo's own field as the ground built in the lab and shown in
-  pictures (see "Lab 0.2's park judged" and "The park on the photo's own field"); not
-  published. **To ask:** which sun (the park's own or the photo's).
+  pictures (see "Lab 0.2's park judged" and "The park on the photo's own field").
+  Developer: "Yes, today's sun" (the park's own, over the photo's low one): **lab 0.3
+  published**. Next: the bush, then levels 2-4's props.
 
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
@@ -26457,3 +26458,38 @@ servers running.
 - **Also found:** the sheet script's use of the browser's `--screenshot` flag saved
   nothing this time (no file, no message, old and new headless); a sheet made through
   DevTools instead (scratch `sheet2.mjs`).
+
+**Lab 0.3 published (later the same day; developer: "Yes, today's sun").** The park's
+own sun kept (the default already). `topple-lab/src/core/release.js` 0.3, notes under
+`RELEASES.md`'s "# Topple Lab", the lab home's "Being tried" line updated;
+`node tools/release.js lab`: "Topple Lab release 0.3 is ready: version e303206ca947";
+`node tools/release.js` still says v11.6 is already a release (no site release);
+`topple-lab.js check`: "main-site files changed since main: none". Full suite: **805
+passed**. `block-game` fast-forwarded into `main` (ff0b21a) and pushed; tag `lab-v0.3`;
+GitHub pre-release "Topple Lab 0.3"
+(https://github.com/donpark2000/Web-Games/releases/tag/lab-v0.3), 11.6 still Latest.
+Pages built ff0b21a. On github.io: the lab's `version.js` e303206ca947, the site's still
+5580bd654944, `park-ground.js` served. In the browser pane: the lab home "Version 0.3 ·
+Nov 21, 2026 · e30320"; its cache `topple-lab-e303206ca947` (the only one); the lab's
+Topple! at level 1 logged `setting {"level":1,"photos":true,"park":{"photos":8,"ms":369,
+"ground":"photo","sun":"game"}}`, the park on the photo's field (screenshot), no console
+errors. Its offline copy: install fetched 193, kept 0, from none: the pane again had no
+older lab copy, so whether an update fetches only changed files is still for the
+developer's iPhone log to show. No localhost servers running.
+
+**Status (start here next session)**
+- **Live: site 11.6** (unchanged) **and Topple Lab 0.3** (the park on its photo's own
+  field, the park's own sun). `block-game` = `main` plus this entry.
+- **To try (developer), in the lab app:** the park on the iPhone and the 2019 tablet: does
+  the ground look like grass now; is it still smooth on the tablet (one more 4096×2048
+  picture on its graphics card); the lab's log line "saved for offline … install": kept
+  should be most of the 193 files if updating from 0.2 fetched only what changed.
+- **Next in the lab:** the bush (darker and greener than the photo's grass: the one thing
+  in the park that still looks drawn, besides the toys); then levels 2-4's drawn props
+  (Q139 changes 3-5), the moon (photo surfaces), tone mapping where it helps, the moon's
+  sounds (Q121).
+- **Test files:** `Web-Games-testing\2026-11-20_realism\`, `\2026-11-20_park\` and
+  `\2026-11-21_ground\`: recorded above; keep for comparisons until 0.3's park is judged on
+  a device, then purge.
+- **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 and Q133
+  (site 11.3: to try), Q121, as before otherwise.
