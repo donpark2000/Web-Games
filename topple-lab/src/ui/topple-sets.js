@@ -15,6 +15,7 @@ import * as THREE from '../vendor/three/three.module.min.js';
 import { rng } from '../core/topple.js';
 import { crossing, perched } from '../core/topple-animals.js';
 import { equirect, moonSpot, MOON, cloudAt } from '../core/topple-sky.js';
+import { photoDir, groundPoint } from '../core/park-ground.js';   // (the lab's own)
 
 // The Topple Lab's copy (DESIGN.md "Topple Lab"): its pages are in
 // topple-lab/, so the main site's pictures are one folder up.
@@ -421,12 +422,50 @@ export async function makeSetting(n, ctx) {
 // the park's sky, a 360° photo of a park (Poly Haven's je_gray_park), and
 // its lawn (ambientCG's Grass005: colour, normal, roughness).
 export const PARK_DIR = 'data/park/';
-export const PARK = { sky: 'sky_je_gray_park.jpg', lawn: 'grass005', lawnSize: 1.5, R: 34 };
+export const PARK = {
+  sky: 'sky_je_gray_park.jpg', lawn: 'grass005', lawnSize: 1.5, R: 34,
+  // the photo's own field as the ground (2026-11-21): the photo laid flat as
+  // if taken camH m over the ground, out to groundR m; its sun where the photo
+  // shows it (its middle at 0.600 across, 0.403 down: 36° round from +x
+  // towards +z, 17.5° up)
+  camH: 1.7, groundR: 120, sunAt: [0.600, 0.403],
+};
+// The 360° photo as the ground and sky (as three.js's GroundedSkybox add-on
+// does): a sphere around the photo's camera, camH m over the ground, its
+// lower half pressed flat onto the ground (y = 0) out to R m. Each point
+// takes the photo's colour in its direction from the sphere's middle, so the
+// ground is the photo's own field wherever the game's camera is. Drawn
+// first, behind everything (no depth written); placed under the camera by
+// place(x, z).
+export function photoGround(tex, h = PARK.camH, R = PARK.groundR) {
+  const geo = new THREE.SphereGeometry(1, 192, 96), p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) p.setXYZ(i, ...groundPoint([p.getX(i), p.getY(i), p.getZ(i)], h, R));
+  geo.computeBoundingSphere();
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { map: { value: tex } },
+    vertexShader: `varying vec3 vDir;
+      void main() { vDir = mat3(modelMatrix) * position; gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform sampler2D map; varying vec3 vDir;
+      void main() {
+        vec3 d = normalize(vDir);
+        vec2 uv = vec2(atan(d.z, d.x) * 0.1591549 + 0.5, asin(clamp(d.y, -1.0, 1.0)) * 0.3183099 + 0.5);
+        gl_FragColor = texture2D(map, uv);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`,
+    side: THREE.BackSide, depthWrite: false,
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.renderOrder = -2; m.frustumCulled = false;
+  m.userData.place = (x, z) => m.position.set(x, h, z);
+  return m;
+}
 
-// The park's photos for topple-scene.js: { group (the lawn, fading at its
-// edge into the photo's own field, with faint mowing stripes 1 m apart, so
-// they still show how far away things are), background, environment, fog,
-// horizon, files, ms }. Rejects if a photo doesn't load (the park is drawn
+// The park's photos for topple-scene.js: { group (the ground: the photo's own
+// field (photoGround) with the shadows over it; or lab 0.2's lawn, a photo lawn
+// fading into the photo's field, with faint mowing stripes), background,
+// environment, fog, horizon, mode (which ground and sun), place (under the
+// camera), sun (null: the park's own), files, ms }. Rejects if a photo doesn't load (the park is drawn
 // as before then).
 export async function parkPhotos(renderer) {
   const t0 = performance.now();
@@ -451,8 +490,29 @@ export async function parkPhotos(renderer) {
   const stripes = canvasTex(4, 64, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(255,255,230,.05)'; g.fillRect(0, 0, w, h / 2); g.fillStyle = 'rgba(0,30,0,.04)'; g.fillRect(0, h / 2, w, h / 2); }, [1, R]);
   const sm = mesh(new THREE.CircleGeometry(R, 64), new THREE.MeshStandardMaterial({ map: stripes, alphaMap: fadeTex(), transparent: true, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, depthWrite: false }), [0, 0.002, -6], { cast: false });
   sm.rotation.x = -Math.PI / 2; group.add(sm);
+  // the photo's own field as the ground (2026-11-21), and over it a see-through
+  // layer that shows only the shadows
+  const gtex = skyTex.clone(); gtex.colorSpace = THREE.SRGBColorSpace; gtex.anisotropy = renderer.capabilities.getMaxAnisotropy(); gtex.needsUpdate = true;
+  const ground = photoGround(gtex);
+  const shade = mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: 0.38, depthWrite: false }), [0, 0.003, -10], { cast: false });
+  shade.rotation.x = -Math.PI / 2;
+  group.add(ground, shade);
+  // which ground: 'photo' (the photo's field) or 'lawn' (lab 0.2's), and
+  // which sun: 'photo' (where the photo's is) or 'game' (the park's own);
+  // the scene's next build takes it up (the photo's sun: long shadows, 17.5° up;
+  // the park's own: short, the ball's shadow under it)
+  const mode = { ground: 'photo', sun: 'game' };
+  const setMode = (o = {}) => {
+    Object.assign(mode, o);
+    const photo = mode.ground === 'photo';
+    ground.visible = shade.visible = photo; lawn.visible = sm.visible = !photo;
+    return { ...mode };
+  };
+  setMode();
   return {
     group, background: bg, environment: env, fog: new THREE.Fog(horizon, 60, 250), horizon,
+    mode: setMode, place: (x, z) => ground.userData.place(x, z),
+    get sun() { return mode.sun === 'photo' ? photoDir(...PARK.sunAt).map(v => v * 5.3) : null; },   // (5.3: the park's own sun's distance)
     // the leaves' tints over the photo (light: the photo has its own green), the bush's a little yellower
     leaves: { geo: leafGeo, mat: leafMat, density: 1.8, tree: ['#F2F6EA', '#E2EAD6', '#FFFFFF'], bush: ['#F4F4E2', '#E6ECD2', '#FFFFF4'] }, barkMat,
     files: 8, ms: Math.round(performance.now() - t0),

@@ -38,7 +38,11 @@ time, each tried before publishing:
   (developer, 2026-11-20: "Own lab numbers"): the lab's releases are 0.x, tagged
   `lab-vX.Y`, and a lab-only publish leaves the site's release as it was
   (`node tools/release.js lab`). Next: publish lab 0.1; then changes 1-5 and the sounds, in
-  the lab.
+  the lab. **Lab 0.1 and 0.2 published** (0.2: the park in photos). **2026-11-21:**
+  developer on 0.2's park: far trees and sky good, the lawn and stripes "does not look like
+  grass at all"; the photo's own field as the ground built in the lab and shown in
+  pictures (see "Lab 0.2's park judged" and "The park on the photo's own field"); not
+  published. **To ask:** which sun (the park's own or the photo's).
 
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
@@ -26396,7 +26400,60 @@ servers running.
 - **The photo has its own ground:** the bottom half of `sky_je_gray_park.jpg` is that
   field, photographed. Since the camera never moves, it can be laid flat as the ground
   (as three.js's `GroundedSkybox` add-on does, which isn't in our copy of three.js: a few
-  lines of our own, the photo's sphere flattened onto a ground at the photo camera's height), so the near grass is the same real field the far trees
-  stand in, with no seam, and 0 MB added. Limits: softer close up (the photo is 4096 px
-  round: about 1 cm a pixel at 5 m), the tripod's smear straight down (out of view), and
-  the blocks' shadows need a see-through shadow layer over it.
+  lines of our own, the photo's sphere flattened onto a ground at the photo camera's
+  height), so the near grass is the same real field the far trees stand in, with no seam,
+  and 0 MB added. Limits: softer close up (the photo is 4096 px round: about 1 cm a pixel
+  at 5 m), the tripod's smear straight down (out of view), and the blocks' shadows need a
+  see-through shadow layer over it.
+- **Developer: "Yes, pictures first."**
+
+## 2026-11-21: The park on the photo's own field (lab only, not published; the site untouched)
+
+- **Built, in the lab's copies only** (`topple-lab/src/ui/topple-sets.js`,
+  `topple-scene.js`, `topple.js`; new `topple-lab/src/core/park-ground.js`, lab only):
+  `photoGround()`: a sphere round the photo's camera, its lower half pressed flat onto the
+  ground (y = 0) out to 120 m, the photo's camera taken as 1.7 m up (`PARK.camH`); its
+  shader colours each point from the photo in that point's direction from the sphere's
+  middle (the same formula as the night skyline's shader already uses), so the ground is
+  the photo's field wherever the camera stands. Placed under the camera at each
+  `setCamera`, drawn first, no depth written, no fog. Over it a see-through layer
+  (`ShadowMaterial`, 0.38) that shows only the shadows. Lab 0.2's lawn and stripes kept,
+  hidden, for comparing: `topple.park({ ground: 'photo'|'lawn', sun: 'photo'|'game' })` in
+  the console, then `topple.level(1, i)` to rebuild. Default: photo ground, the park's own
+  sun. Logged: the "setting" line's `park` has `ground` and `sun`
+  (`{"photos":8,"ms":857,"ground":"photo","sun":"game"}`). 0 MB added (the sky photo is
+  the ground); one more 4096×2048 texture on the graphics card (to watch on the tablet).
+- **The photo's sun**, measured by eye on the photo at 2000 px wide (its middle at
+  1200, 403): 0.600 across, 0.403 down: 36° round from +x towards +z (to the right of and
+  behind the park's camera, which looks to -z), 17.5° up. The park's own sun is 55° up,
+  62° round.
+- **Pictures** (scratch `groundshots.mjs`, headless Edge 1280×800, `?drawing=0`, all five
+  park scenes × lawn / photo ground with the park's sun / photo ground with the photo's
+  sun): `Web-Games-testing\2026-11-21_ground\try1\`, sheet `sheet-ground.jpg`; the
+  default once more, `try2\P3_final.jpg`. Seen: **the photo ground reads as a real
+  field** (worn patches, clover, yellow-green), meeting the far trees with no seam; the
+  far trees and sky land in the same place as with lab 0.2's lawn (the shader's
+  directions match three.js's background: no shift between the columns). **The photo's
+  sun:** long late-afternoon shadows (the tree's far across the field), realistic, but
+  the ball's shadow lands well off to the left of the ball, away from it. **The park's
+  sun:** short shadows under things, as today. Still drawn-looking: the bush (darker and
+  greener than the photo's grass), the toy blocks and ball (toys, by design). A man
+  sitting on a bench far off at the right is in the photo. No console errors, no shader
+  errors.
+- **Tests** (`tests/topple-lab-ground.test.js`, 4): photo points as directions as three.js
+  lays out a 360° photo (5 known points, 420 unit lengths); the ground's shader reads the
+  photo the same way (its numbers parsed from the lab's `topple-sets.js`, 210 points
+  back to where they came from); below the horizon flat on the ground and never past the
+  edge, the horizon and sky at the edge, not infinitely far (y = 0 and -0 included; 2,904
+  directions); the photo's sun as measured. `tests/topple-lab-park.test.js`'s pattern for
+  `PARK` now allows it over several lines. **Each shown failing** (scratch
+  `mutate-ground.mjs`, each break made and undone in place): ground past its edge, photo
+  mirrored, the horizon band not flattened, the shader turned a quarter, the shader
+  squeezed, the sun moved: **6 of 6 caught**. (A first try at "not flattened" broke
+  nothing real: below 0.014 down the ground point is past 120 m anyway, so the edge
+  takes it either way.) `node tools/offline.js`: the lab's version b4f29b85e75f, 193 files;
+  its pages' import maps list `park-ground.js`. `topple-lab.js check`: "main-site files
+  changed since main: none". Full suite: **805 passed** (801 + 4).
+- **Also found:** the sheet script's use of the browser's `--screenshot` flag saved
+  nothing this time (no file, no message, old and new headless); a sheet made through
+  DevTools instead (scratch `sheet2.mjs`).

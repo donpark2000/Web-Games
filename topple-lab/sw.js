@@ -27,8 +27,8 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '1d56b8ec0346';
-const MADE = '2026-11-20';
+const VERSION = 'b4f29b85e75f';
+const MADE = '2026-11-21';
 const RELEASE = '0.2';
 const FILES = [
   '../css/bridges.css',
@@ -216,6 +216,7 @@ const FILES = [
   'lab/storage.js',
   'log.html',
   'manifest.webmanifest',
+  'src/core/park-ground.js',
   'src/core/release.js',
   'src/core/version.js',
   'src/ui/look3d.js',
@@ -404,18 +405,19 @@ const HASHES = {
   'icons/icon-192.png': '42f2c87ad180',
   'icons/icon-512.png': '557113230560',
   'icons/icon.svg': 'c1d6df4e0698',
-  'index.html': '10cefe40205a',
+  'index.html': 'b4275e436c7b',
   'lab/begin.js': 'cfba1bdae267',
   'lab/start.js': '57140b92aad6',
   'lab/storage.js': '0d2efcf2f431',
-  'log.html': '6c4ec94acdb4',
+  'log.html': '600764928699',
   'manifest.webmanifest': '0f45c52de022',
+  'src/core/park-ground.js': 'ef5af2a0f73b',
   'src/core/release.js': '5c295404682c',
   'src/ui/look3d.js': '6e362b7ebc83',
-  'src/ui/topple-scene.js': 'e93d5bc27269',
-  'src/ui/topple-sets.js': '7fce4ab0c5e6',
-  'src/ui/topple.js': '7eebd1c95fb2',
-  'topple.html': '80bc0f67dfb5',
+  'src/ui/topple-scene.js': '904984614b00',
+  'src/ui/topple-sets.js': '948911d87fed',
+  'src/ui/topple.js': '9b4c9e0335fd',
+  'topple.html': '31340bf7e209',
 };
 // ---- end ----
 

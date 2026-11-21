@@ -18,7 +18,7 @@ const MAX_BYTES = 3 * 1024 * 1024;   // the park's photos all together (about 2.
 // The photos the lab's topple-sets.js names for the park: [file, width, height].
 function parkPhotos(src) {
   const dir = src.match(/export const PARK_DIR = '([^']+)';/)?.[1];
-  const park = src.match(/export const PARK = \{ sky: '([^']+)', lawn: '([^']+)'/);
+  const park = src.match(/export const PARK = \{\s*sky: '([^']+)', lawn: '([^']+)'/);
   assert.ok(dir && park, 'PARK_DIR and PARK not found in the lab\'s topple-sets.js');
   assert.match(src, /'leaf\.png'\]\.map\(f => loadTex\(f, PARK_DIR\)\)/, 'the leaf no longer loaded as before: update this test');
   const [, sky, lawn] = park;

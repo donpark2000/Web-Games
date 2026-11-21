@@ -1660,6 +1660,8 @@ window.topple = {
     L('look set (checking)', { ...l, drawings: set });
     return set[0] ?? null;
   },
+  // the park's ground and sun (lab, 2026-11-21), e.g. park({ ground: 'lawn', sun: 'game' }); then level(1, i) to rebuild
+  park(o) { const m = stage?.parkMode(o) ?? null; L('park mode (checking)', m); return m; },
   step(sec, dt = 1 / 60) { for (let i = 0, n = Math.round(sec / dt); i < n; i++) tick(dt, i === n - 1); return this.state(); },
   throw(aim = 0, up = 20) { return doThrow({ power: current.layout.power, aim, up }); },
   // a drag on the park, as a finger would (px from where it starts)

@@ -289,7 +289,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     const { min, max } = parts.bounds;
     const c = new THREE.Vector3((min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2);
     const R = Math.max(max[0] - min[0], max[2] - min[2], max[1] - min[1]) * 0.75 + 0.5 + 1.2 * SCALE;
-    const sd = set?.sun ?? [1.4, 4.2, 2.6];
+    const sd = set?.sun ?? pk?.sun ?? [1.4, 4.2, 2.6];   // (the lab's park: the photo's sun)
     sun.position.set(c.x + sd[0] * SCALE, sd[1] * SCALE + 1, c.z + sd[2] * SCALE); sun.target.position.copy(c);
     Object.assign(sun.shadow.camera, { left: -R, right: R, top: R, bottom: -R, near: 0.5, far: 12 * SCALE + 6 });
     sun.shadow.camera.updateProjectionMatrix();
@@ -919,6 +919,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     // The camera ({ pos, look, fov }).
     setCamera(c) {
       camera.position.set(...c.pos); look.set(...c.look); camera.lookAt(look);
+      parkPhoto?.place(c.pos[0], c.pos[2]);   // the photo's ground centred under the camera
       if (c.fov && Math.abs(c.fov - camera.fov) > 1e-3) { camera.fov = c.fov; camera.updateProjectionMatrix(); }
     },
     // The canvas' size in CSS px; returns its aspect.
@@ -944,7 +945,8 @@ export function makePark3d(canvas, { antialias = true } = {}) {
         try {
           parkPhoto = await parkPhotos(renderer);
           parkGroup.add(parkPhoto.group); drawnLawn.visible = false; parkGroup.remove(farGroup);
-          park = { photos: parkPhoto.files, ms: parkPhoto.ms };
+          parkPhoto.place(camera.position.x, camera.position.z);
+          park = { photos: parkPhoto.files, ms: parkPhoto.ms, ...parkPhoto.mode() };
         } catch (e) { parkPhoto = undefined; error = String(e.message ?? e); /* the park drawn as before; tried again next scene */ }
       }
       if (set) scene.remove(set.group);
@@ -1006,6 +1008,8 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     get level() { return level; },
     // level n is drawn in its own photos, or needs none (false: they failed to load; review TOP-3)
     // (the lab's park: once its photos are loaded; tried again each scene until then, as levels 2-4)
+    // the lab's park: which ground and sun (topple-sets.js parkPhotos mode), for comparing
+    parkMode(o) { return parkPhoto?.mode(o) ?? null; },
     hasSetting(n) { return n <= 1 ? !!parkPhoto : sets.get(n) != null; },
     // ms to draw a frame, averaged over n (the log).
     timeDraw(n = 10) {
