@@ -481,6 +481,14 @@ time, each tried before publishing:
 
 ## Proposed additions to the standards skill
 
+- **Before saying where data is kept, read every layer between the code and the store**
+  (2026-11-21, "The app's name and version in the log's page headings"): Claude told the
+  developer the site and the Topple Lab share one log, from the log code's storage key;
+  the lab's start script swaps the page's storage for a prefixed view, so each has its
+  own. Found only when checking the browser's storage. Generic: a claim about where
+  something is stored or shared needs the wrappers, proxies and start-up code checked
+  too, or the store itself looked at.
+
 - **A page you step by hand keeps running between your steps** (2026-11-19, "The
   blast ball built"): checking the moon's 💥 in a visible browser pane, its 3-pass
   clock ran out in about 11 s of stepped time, not 17; the game's own frame loop had
@@ -26690,3 +26698,44 @@ of 193).
 - `node tools/offline.js`: site version a73ff650e8c4 (201 files), lab 1ac118dc5613 (193).
   **To ask:** publish as **site 11.7** (the version line) and **lab 0.4** (bush look C and
   the version line) together.
+
+## 2026-11-21: Site 11.7 and Topple Lab 0.4 published
+
+- **Developer: "Publish both".** Numbers set (`src/core/release.js` 11.7,
+  `topple-lab/src/core/release.js` 0.4), `node tools/offline.js` (site 8faca195760c, 201
+  files; lab 0035e2e64b6c, 193), notes in `RELEASES.md`; `node tools/release.js` and
+  `release.js lab`: both ready; suite **810 passed**. `main` fast-forwarded to `block-game`
+  (b3fe1a9) and pushed; tags `v11.7` and `lab-v0.4` pushed; GitHub releases "11.7"
+  (latest) and "Topple Lab 0.4" (pre-release).
+- **Live** (GitHub Pages, checked a minute after the push): the site's `version.js`
+  8faca195760c and the lab's 0035e2e64b6c; in the browser pane the home page "Let's Play!
+  11.7 · Nov 21, 2026 · 8faca1" and the lab's "Topple Lab 0.4 · Nov 21, 2026 · 0035e2"
+  (the lab's home page loaded once more for its new version, as 3.11 does).
+- **Servers:** no `tools/serve.js` running (the app had stopped Claude's preview server).
+  The picture script's headless Edge had left 27 processes running (`edge.kill()` stops
+  only the browser's first process, not its children): stopped, and their profile
+  folders removed. To fix in the script next time: stop Edge through DevTools
+  (`Browser.close`) before killing it.
+
+**Status (start here next session)**
+- **Live: site 11.7 and Topple Lab 0.4** (bush look C; both apps' version lines name the
+  app, and each page's log heading ends with that line). `block-game` = `main` plus this
+  entry.
+- **To try (developer):** the lab's bush (look C) on the iPhone and the 2019 tablet: does
+  it read as a real bush, and is the tablet still smooth (C draws about 5,000 leaves,
+  9,000-13,500 triangles, against 0.3's 2,500-3,300)? The version line on both home pages
+  and in a saved log. Still to hear from 0.3: the tablet, and the "kept" figure in the
+  lab log's "saved for offline … install" line.
+- **Next in the lab:** levels 2-4's drawn props (Q139 changes 3-5), the moon (photo
+  surfaces), tone mapping where it helps, the moon's sounds (Q121). Photo cards for the
+  bush only if the developer asks (needs a CC0 cut-out bush photo).
+- **Picture scripts** (scratchpad, lost between sessions): `bushshots.mjs` (headless Edge
+  through DevTools at 1280×800: `node bushshots.mjs <out> <looks> <scenes>`, each scene ×
+  each `topple.park({ bush })` look in one page load, writes `s<scene>_<look>.png` and
+  `shots.json` with leaves and tris) and `sheet.ps1` (a sheet: rows of scenes, columns of
+  looks, cropped and labelled). Rebuild from this if needed.
+- **Test files:** `Web-Games-testing\2026-11-20_realism\`, `\2026-11-20_park\`,
+  `\2026-11-21_ground\`, `\2026-11-21_bush\`, `\2026-11-21_photo-bush\` (the shrub
+  downloads and pictures): recorded; ask to purge once the park is judged on the tablet.
+- **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 and Q133
+  (site 11.3: to try), Q121, as before otherwise.
