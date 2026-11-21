@@ -9,6 +9,18 @@ fingerprint, the last part of the home page's version line.
 
 The Topple Lab's releases are at the end, under "Topple Lab".
 
+## 11.7 (2026-11-21, version 8faca195760c)
+
+The version line names the app, and the log has the same line.
+
+- **The app's name on the version line.** The home page's line under the footer now
+  starts with the app's name: "Let's Play! 11.7 · Nov 21, 2026 · 8faca1" (it said
+  "Version 11.6 · …"). The Topple Lab's says "Topple Lab 0.4 · …".
+- **The log says which version wrote it.** Each page's heading in the log ends with the
+  same line as the home page, so a saved log shows the app and version of every page's
+  lines.
+- The games themselves are as in 11.6.
+
 ## 11.6 (2026-11-20, version 5580bd654944)
 
 Smaller updates: a new release downloads only the files that changed.
@@ -1101,6 +1113,14 @@ bigger changes apart from the live game, at `…/Web-Games/topple-lab/`.
 Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
+
+## 0.4 (2026-11-21, version 0035e2e64b6c)
+
+A bush that looks more like a real shrub, and the version line names the lab.
+
+- **The bush**: many smaller leaves in two layers, lighter on top where the sun reaches, a rougher, lumpier outline, a dark shaded middle instead of a smooth ball showing through, and a soft shade on the ground under it. The ball bounces off it as before.
+- **"Topple Lab 0.4 · …" on the version line**, and the same line at each page's heading in the lab's log (as in Topple! 11.7).
+- Nothing new to download. Levels 2-10 as in Topple! 11.7.
 
 ## 0.3 (2026-11-21, version e303206ca947)
 

@@ -27,9 +27,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '1ac118dc5613';
+const VERSION = '0035e2e64b6c';
 const MADE = '2026-11-21';
-const RELEASE = '0.3';
+const RELEASE = '0.4';
 const FILES = [
   '../css/bridges.css',
   '../css/cards.css',
@@ -312,7 +312,7 @@ const HASHES = {
   '../src/core/net.js': '01f93e039e36',
   '../src/core/nim.js': 'c948ce20355e',
   '../src/core/players.js': 'cdcbde55ab4c',
-  '../src/core/release.js': 'ccc2499f3965',
+  '../src/core/release.js': 'e360673103f4',
   '../src/core/resume.js': 'f8feda70fba3',
   '../src/core/reversi.js': '5c1eff2f7729',
   '../src/core/rock-paper-scissors.js': '102269302158',
@@ -335,7 +335,7 @@ const HASHES = {
   '../src/core/topple-tutorial.js': '44b11d757502',
   '../src/core/topple-world.js': '603c54b29e54',
   '../src/core/topple.js': '37c8c4c09d61',
-  '../src/core/version.js': '55dc5965fa7b',
+  '../src/core/version.js': '0fed60de1143',
   '../src/ui/brboard.js': 'fb62b2682c7a',
   '../src/ui/bridges.js': '7385bf9ea2df',
   '../src/ui/cardback.js': 'c80f6be3a1b8',
@@ -412,7 +412,7 @@ const HASHES = {
   'log.html': '600764928699',
   'manifest.webmanifest': '0f45c52de022',
   'src/core/park-ground.js': '99b1f1554881',
-  'src/core/release.js': '37be3b056b38',
+  'src/core/release.js': 'cf1b971eec4f',
   'src/ui/look3d.js': '6e362b7ebc83',
   'src/ui/topple-scene.js': '7b8ddd5624d8',
   'src/ui/topple-sets.js': '22c24362657f',
