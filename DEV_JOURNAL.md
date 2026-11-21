@@ -26378,3 +26378,25 @@ servers running.
   for comparisons until the park is judged, then purge.
 - **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 and Q133
   (site 11.3: to try), Q121, as before otherwise.
+
+## 2026-11-21: Lab 0.2's park judged by the developer (lab only; the site untouched)
+
+- **Developer, on lab 0.2's park:** "The trees in the distance and the sky look good. The
+  grass and the mowing strips not so much - it does not look like grass at all and the
+  stipes are unrealistic looking. The tree trunk in the foreground looks OK (I guess its
+  leaves and branches are off the top of the screen). The bush is ok-ish. Still does not
+  look very real. Game play is fine." (The lab's offline log line not reported yet.)
+- **Why the lawn reads as fake (Claude, looking at `shots\L1_none.jpg` beside the photo):**
+  (1) the stripes are a drawn light/dark band pattern 1 m apart, evenly spaced and full
+  strength to the horizon, which no real lawn has; (2) the lawn photo (Grass005) is one
+  1.5 m square repeated, so up close it is a pattern, not a field; (3) it isn't the grass
+  in the 360° photo: that field is a real, unmown, patchy one (yellow-green, worn spots,
+  clover), so the near lawn and the far field don't match where they meet; (4) the photo's
+  sun is low (about 17° up, the shadows long), the game's sun is not where it is.
+- **The photo has its own ground:** the bottom half of `sky_je_gray_park.jpg` is that
+  field, photographed. Since the camera never moves, it can be laid flat as the ground
+  (as three.js's `GroundedSkybox` add-on does, which isn't in our copy of three.js: a few
+  lines of our own, the photo's sphere flattened onto a ground at the photo camera's height), so the near grass is the same real field the far trees
+  stand in, with no seam, and 0 MB added. Limits: softer close up (the photo is 4096 px
+  round: about 1 cm a pixel at 5 m), the tripod's smear straight down (out of view), and
+  the blocks' shadows need a see-through shadow layer over it.
