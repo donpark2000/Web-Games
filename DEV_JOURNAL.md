@@ -26562,3 +26562,39 @@ of 193).
   in. Proposed instead: a photo surface of real leaves (a hedge, CC0) on the bush's own
   round shape, with leaves only round its edge for a ragged outline: real leaves, a few
   hundred instead of 5,000. Needs a download (to ask). Lab 0.4 waits for these answers.
+- **Developer: "yes - try a photo."** And on the log: "why not just use a line that spits
+  out the same version number that appears on the home page (and your internal number if
+  needed)?" Agreed: that is the proposal, made plain: at each page's start in the log, a
+  line with the home page's version line as it reads there ("Version 0.3 · Nov 21, 2026 ·
+  e30320", which already has the internal version's first 6 characters). Which stream
+  (site 11.7, or a lab copy first) not decided yet. **Developer: "Should I start a new
+  session before you do this work?"** Yes (this session long).
+
+**Status (start here next session)**
+- **Live: site 11.6 and Topple Lab 0.3** (the park on its photo's own field; the iPhone:
+  "Grass looks great on my phone now"). `block-game` is ahead of `main` (not published):
+  **bush look C** in the lab, the lab's park starting with it (see "The lab's bush
+  looks"); 808 tests pass.
+- **Next (lab): a photo bush**, to compare with C before lab 0.4 is published. Plan: a CC0
+  photo surface of real leaves (a hedge, e.g. ambientCG's Hedge materials) on the bush's
+  own round shape (its core balls, so the ball still sinks into it), with drawn leaves
+  only round its edge for a ragged outline: a few hundred leaves instead of ~5,000 (the
+  2019 tablet). Lab copy about 0.3 MB at 512 px, credited in
+  `topple-lab/data/park/CREDITS.md`. The developer said yes to trying a photo; **before
+  downloading, name the files, source and sizes and get the developer's OK** (as for the
+  park's photos). Pictures first: 0.3 / C / the photo bush, all in one run of the picture
+  script (scenes are dealt afresh each run), plus a close-up.
+- **Then:** publish lab 0.4 with the bush chosen; the log's version line (above: ask
+  site or lab first); levels 2-4's drawn props (Q139 changes 3-5).
+- **Picture scripts** are in the scratchpad (lost between sessions):
+  `groundshots.mjs` (the lab at 1280×800 headless Edge, each scene × each
+  `topple.park(...)` mode; logs the "setting" and "scene" lines incl. `leaves`) and
+  `sheet2.mjs` (a sheet through DevTools, `CROP=x,y,w,h` for close-ups; the browser's
+  `--screenshot` flag saved nothing here). Rebuild from this description if needed.
+- **To hear (developer):** the 2019 tablet with lab 0.3; the "kept" figure in the lab
+  log's "saved for offline … install" line for 0.3.
+- **Test files:** `Web-Games-testing\2026-11-20_realism\`, `\2026-11-20_park\`,
+  `\2026-11-21_ground\`, `\2026-11-21_bush\`: recorded; keep until the park is judged on
+  the tablet, then ask to purge.
+- **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 and Q133
+  (site 11.3: to try), Q121, as before otherwise.
