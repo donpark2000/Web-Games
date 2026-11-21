@@ -3,4 +3,4 @@
 // hand when the lab is published; tools/offline.js copies it into the
 // lab's sw.js. The lab's pages read this one (their import map), not the
 // main site's.
-export const RELEASE = '0.2';
+export const RELEASE = '0.3';

@@ -27,9 +27,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'b4f29b85e75f';
+const VERSION = 'e303206ca947';
 const MADE = '2026-11-21';
-const RELEASE = '0.2';
+const RELEASE = '0.3';
 const FILES = [
   '../css/bridges.css',
   '../css/cards.css',
@@ -405,14 +405,14 @@ const HASHES = {
   'icons/icon-192.png': '42f2c87ad180',
   'icons/icon-512.png': '557113230560',
   'icons/icon.svg': 'c1d6df4e0698',
-  'index.html': 'b4275e436c7b',
+  'index.html': '9c8e632193ff',
   'lab/begin.js': 'cfba1bdae267',
   'lab/start.js': '57140b92aad6',
   'lab/storage.js': '0d2efcf2f431',
   'log.html': '600764928699',
   'manifest.webmanifest': '0f45c52de022',
   'src/core/park-ground.js': 'ef5af2a0f73b',
-  'src/core/release.js': '5c295404682c',
+  'src/core/release.js': '0c39bd04fe1a',
   'src/ui/look3d.js': '6e362b7ebc83',
   'src/ui/topple-scene.js': '904984614b00',
   'src/ui/topple-sets.js': '948911d87fed',

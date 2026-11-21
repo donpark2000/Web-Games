@@ -1102,6 +1102,14 @@ Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
 
+## 0.3 (2026-11-21, version e303206ca947)
+
+The park's ground is now the real field from its 360° photo, instead of 0.2's lawn.
+
+- **The photo's own field as the ground**: the bottom half of the park photo laid flat under the camera, so the grass in front of you is the same real field the far trees stand in, with no seam. The lawn and its mowing stripes are gone.
+- **Shadows on it** as before, from the same sun as Topple!'s park (short shadows; the ball's under the ball).
+- Nothing new to download (the ground is the sky photo already in 0.2). The tree, bushes, toy blocks and ball as in 0.2; levels 2-10 as in Topple! 11.6.
+
 ## 0.2 (2026-11-20, version 1d56b8ec0346)
 
 The park (level 1) in photos, to compare with Topple! 11.6's drawn park.
