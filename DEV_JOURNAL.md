@@ -26493,3 +26493,8 @@ developer's iPhone log to show. No localhost servers running.
   a device, then purge.
 - **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 and Q133
   (site 11.3: to try), Q121, as before otherwise.
+
+**Lab 0.3 on the iPhone (developer, later the same day):** "Grass looks great on my phone
+now." The photo's field as the ground is judged a success on a real device. Still to
+hear: the 2019 tablet (smooth?), and the lab's "saved for offline … install" line (kept
+of 193).
