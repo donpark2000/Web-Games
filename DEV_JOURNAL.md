@@ -26598,3 +26598,61 @@ of 193).
   the tablet, then ask to purge.
 - **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 and Q133
   (site 11.3: to try), Q121, as before otherwise.
+
+## 2026-11-21: The photo bush tried (lab only, not published; the site untouched)
+
+- **The log's version line (developer, this session):** the log is one per device, shared
+  by the site and the lab (both run the main site's `src/ui/debuglog.js`, key
+  `web-games-log`, and share `donpark2000.github.io`'s storage); each page's heading names
+  the page only. Asked "Do you disagree?" with the version on the home page matching the
+  log's, Claude agreed, with two ways: each app its own numbers, or one shared series.
+  **Developer: "I like the first idea"**: each app keeps its own numbers (site 11.x, lab
+  0.x), and the home page and the log both name the app ("Topple Lab 0.3 · …", "Let's
+  Play! 11.6 · …"). To do in this session, after the bush (the lab's check, "main-site
+  files changed since main: none", can't guard lab commits once site files change), as
+  site 11.7 with lab 0.4.
+- **No hedge photo to be had:** ambientCG's and Poly Haven's catalogues (their APIs,
+  searched for hedge, bush, shrub, foliage, ivy, leaves) have no CC0 hedge or bush
+  surface, only fallen leaves on the ground and leaf sets. They do have **shrub models**
+  (Poly Haven, CC0, real leaves photographed): shrub_03 (4 sprigs, ~2,000 triangles each,
+  1.6 MB at 1K) and shrub_04 (one sprig, ~27,000 triangles, 1.9 MB). **Developer: "yes,
+  download both"**: downloaded with their 1K alpha masks (the glTF's own JPG has none; 79
+  and 43 KB), all MD5-checked against Poly Haven's API, into
+  `Web-Games-testing\2026-11-21_photo-bush\download\`.
+- **Built, lab only, to try:** `topple-lab/src/core/gltf-lite.js` (reads those glTF files'
+  triangles, no three.js loader needed); `sprigSpots()` in `park-ground.js` (sprigs spread
+  evenly over each ball of the bush, pointing out and up, none out of the bush's inside,
+  capped over its top); `sprigBush()` in the lab's `topple-scene.js` (one instanced mesh a
+  sprig model, tinted as the leaves); looks `S3`/`S3b` in `BUSH_LOOKS`; the "scene" log
+  line now has `tris` (triangles in the props). shrub_03's pictures cut to 512 px (140 KB).
+- **Tried in the browser pane, then pictures** (`try2\sheet-bush.jpg`: scenes 3, 5, 6, 7,
+  all four looks in one run of the picture script; the scenes with a bush):
+  - shrub_04 dropped early: 15 copies were **410,000 triangles** (one copy 27,000; one copy
+    as the whole bush is a flat spray, not a bush).
+  - shrub_03 loose (S3): real leaves and reads as a real plant up close, but airy: the
+    sprigs must spread well past the bush the ball bounces off to hide its dark core, and
+    then they **cover the blocks**; still the black core shows low down. **80,000-99,000
+    triangles** a bush.
+  - shrub_03 inside the bush's shape (S3b): mostly the black core with a few sprigs;
+    **112,000-134,000 triangles**.
+  - Look C on the same scenes: dense, the bush's own shape, **9,300-13,500 triangles**;
+    0.3: 2,500-3,300.
+- **Found:** the shrub models are wild, loose plants (a sprig 25-40 cm tall with a dozen
+  leaves); a dense garden bush from them needs many copies, and each copy's triangles
+  (2,000) are 1,000 of C's leaves. **Claude's recommendation: keep C** (it looks the most
+  like a real bush, fits the bush's real shape, at a tenth of the triangles), take the
+  shrub code back out, and publish C as lab 0.4. **To ask the developer.**
+- **Developer: "I'm OK with taking the shrub trial out"**: taken out (the lab's code as
+  committed with look C; `gltf-lite.js` and the shrub files gone; the lab's version back to
+  04606587ad45, 193 files; `topple-lab.js check`: none). The downloads stay in the test
+  folder until purged. And: "I am still unclear as to why a couple of photos would not be
+  better than something constructed with thousands of objects". Claude's answer: (1) the
+  leaves aren't thousands of objects to the graphics chip: one leaf shape drawn 5,000 times
+  in one go (one draw call, ~10,000 triangles; the far trees already draw 10,111 leaves the
+  same way, and a scene is ~40,000 triangles); the shrub failed by being ten times that,
+  not by being many; (2) a flat photo of a bush: none to be had cut out (CC0); the ball goes
+  into the bush, and a flat picture can't show it partway in; each scene's bush is its own
+  size and shape (the physics' balls), so one photo would be stretched and not match where
+  the ball bounces; its light and shadow are baked in. Flat photo cards suit things far off
+  (the park's far trees are in its sky photo). Offered: a try of photo cards (two or three
+  crossed) if the developer wants to see it, with a cut-out bush photo to find first.
