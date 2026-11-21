@@ -17,6 +17,7 @@ import { CABLE_TOP, DROP_FROM, ZIP_Y, SNOWMAN, MACHINE, MUZZLE_Y, HAT, machineAt
 const cableTop = m => (m.move === 'drop' ? DROP_FROM + 3 : CABLE_TOP);
 import { makeSetting, birds, parkPhotos } from './topple-sets.js';
 import { applyCuts } from './drawcuts.js';
+import { leafLayers, lumps } from '../core/park-ground.js';   // (the lab's own)
 
 // Whether this device can draw 3D: a WebGL canvas can be made.
 export function webglOk() {
@@ -92,36 +93,64 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   function leafy(balls, pal, y0, y1, L, shadow = true, look = null) {
     const leafGeo = look?.geo ?? leafGeoDrawn, leafMat = look?.mat ?? leafMatDrawn;
     const g = new THREE.Group(), rand = rng(1 + Math.round(Math.abs(balls[0].at[0] * 7919 + balls[0].at[2] * 104729 + balls.length)));
+    // (the lab's bush looks, 2026-11-21: `look` may also give size (leaves
+    // that many times L), ragged (0-1: leaves further in and out, a rougher
+    // outline), inner (a second layer of leaves inside, darker, so a gap
+    // shows leaves, not the core), core (its colour) and coreEnv (its
+    // reflections; 0: a matt shade), bright (the tints that many times
+    // brighter), contact (a soft shade on the ground under it, 0-1), lumps (its
+    // outline in and out by up to that much of a ball's radius, in lumps),
+    // topLight (leaves facing up that much lighter, as the sun and sky light
+    // a bush's top))
+    const Lk = L * (look?.size ?? 1), topLight = look?.topLight ?? 0;
+    const lump = lumps(rand, look?.lumps ?? 0);   // (the same each time for the same balls)
     // (the photo leaves' core: a shade, the photo leaf's green darkened; their tints are near white)
-    const coreColour = look ? '#5C7A3C' : pal[0];
-    const core = coreMats[coreColour] ??= new THREE.MeshStandardMaterial({ color: new THREE.Color(coreColour).lerp(DARK, look ? 0.85 : 0.6), roughness: 1 });
+    const coreColour = look ? look.core ?? '#5C7A3C' : pal[0], coreEnv = look?.coreEnv ?? 1;
+    const core = coreMats[coreColour + coreEnv] ??= new THREE.MeshStandardMaterial({ color: new THREE.Color(coreColour).lerp(DARK, look ? (look.core ? 0 : 0.85) : 0.6), roughness: 1, envMapIntensity: coreEnv });   // (a look's own core colour as it is)
     for (const b of balls) {
       const m = new THREE.Mesh(new THREE.SphereGeometry(b.r * CORE, 14, 10), core);
       m.position.set(...b.at); m.castShadow = shadow; m.receiveShadow = true; g.add(m);
     }
     const inOther = (p, self) => balls.some(o => o !== self && Math.hypot(p[0] - o.at[0], p[1] - o.at[1], p[2] - o.at[2]) < o.r * 0.86);
     const spots = [];
-    for (const b of balls) {
-      const n = Math.round((look?.density ?? 1) * 4 * Math.PI * b.r * b.r / (L * L * 0.5));
+    for (const [from, spread, shade, size] of leafLayers(look ?? {})) for (const b of balls) {
+      const n = Math.round((look?.density ?? 1) * 4 * Math.PI * (b.r * size) ** 2 / (Lk * Lk * 0.5));
       for (let i = 0; i < n; i++) {
         const u = rand() * 2 - 1, a = rand() * Math.PI * 2, s = Math.sqrt(1 - u * u), d = [s * Math.cos(a), u, s * Math.sin(a)];
-        const k = b.r * (0.93 + 0.14 * rand()), p = [b.at[0] + d[0] * k, b.at[1] + d[1] * k, b.at[2] + d[2] * k];
+        const k = b.r * (from + spread * rand() + lump(d)), p = [b.at[0] + d[0] * k, b.at[1] + d[1] * k, b.at[2] + d[2] * k];
         if (p[1] < 0.02 || inOther(p, b)) continue;
-        spots.push([p, d]);
+        spots.push([p, d, shade]);
       }
     }
     const leaves = new THREE.InstancedMesh(leafGeo, leafMat, spots.length);
-    const cols = pal.map(c => new THREE.Color(c));
-    spots.forEach(([p, d], i) => {
+    const cols = pal.map(c => new THREE.Color(c).multiplyScalar(look?.bright ?? 1));
+    spots.forEach(([p, d, shade], i) => {
       tmp.position.set(...p); tmp.lookAt(dir.set(...p).add(new THREE.Vector3(...d)));
       tmp.rotateZ(rand() * Math.PI * 2); tmp.rotateX((rand() - 0.5) * 1.1);
-      tmp.scale.setScalar(L * (0.8 + 0.5 * rand())); tmp.updateMatrix(); leaves.setMatrixAt(i, tmp.matrix);
-      leaves.setColorAt(i, col.copy(cols[Math.floor(rand() * 3)]).offsetHSL(0, 0, (rand() - 0.5) * 0.06)
-        .lerp(DARK, Math.max(0, Math.min(0.4, 0.4 * (y1 - p[1]) / (y1 - y0)))));
+      tmp.scale.setScalar(Lk * (0.8 + 0.5 * rand())); tmp.updateMatrix(); leaves.setMatrixAt(i, tmp.matrix);
+      leaves.setColorAt(i, col.copy(cols[Math.floor(rand() * 3)]).offsetHSL(0, 0, (rand() - 0.5) * 0.06).multiplyScalar(1 + topLight * Math.max(0, d[1]))
+        .lerp(DARK, Math.max(shade, Math.min(0.4, 0.4 * (y1 - p[1]) / (y1 - y0)))));
     });
     leaves.castShadow = shadow; leaves.receiveShadow = true; g.add(leaves);
+    if (look?.contact) g.add(contactShade(balls, look.contact));
     g.userData.leaves = spots.length;
     return g;
+  }
+  // A soft shade on the ground under a bush (the lab's bush looks): darkest
+  // under its middle, fading out a little past its edge; `a` how dark at most.
+  let contactTex = null;
+  const contactMats = {};
+  function contactShade(balls, a) {
+    contactTex ??= canvasTex(128, 128, (g, w, h) => {
+      const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+      gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.55, 'rgba(0,0,0,.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    });
+    const xs = balls.flatMap(b => [b.at[0] - b.r, b.at[0] + b.r]), zs = balls.flatMap(b => [b.at[2] - b.r, b.at[2] + b.r]);
+    const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), contactMats[a] ??= new THREE.MeshBasicMaterial({ map: contactTex, transparent: true, opacity: a, depthWrite: false, fog: false }));
+    m.rotation.x = -Math.PI / 2; m.position.set((x0 + x1) / 2, 0.006, (z0 + z1) / 2); m.scale.set((x1 - x0) * 1.25, (z1 - z0) * 1.4, 1);
+    return m;
   }
   // (a tree's clump drawn as a little bush: clumpBalls, in src/core/topple.js)
   const BUSH_GREENS = ['#3F8A46', '#4C9A50', '#5AA85C'], LEAF_GREENS = ['#4F9A55', '#5DAA5E', '#3E8446'];
@@ -265,7 +294,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       let m;
       if (p.part === 'bush') {
         const ys = p.balls.map(b => b.at[1] + b.r);
-        m = leafy(p.balls, pk?.leaves.bush ?? BUSH_GREENS, 0, Math.max(...ys), LEAF, true, pk?.leaves); scene.add(m);
+        m = leafy(p.balls, pk?.bushLeaves?.tints ?? pk?.leaves.bush ?? BUSH_GREENS, 0, Math.max(...ys), LEAF, true, pk?.bushLeaves ?? pk?.leaves); scene.add(m);
       } else if (p.part === 'tree') { m = tree(p, pk); scene.add(m); } else if (p.part === 'board') m = box(p, [boardMat, boardMat, frameMat, frameMat, frameMat, frameMat], false);
       else if (p.part === 'pole' || p.part === 'arm') m = box(p, postMat);   // the backboard's pole and arm
       else { m = set?.thing(p) ?? new THREE.Group(); scene.add(m); }   // levels 2-4's things

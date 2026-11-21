@@ -26498,3 +26498,54 @@ developer's iPhone log to show. No localhost servers running.
 now." The photo's field as the ground is judged a success on a real device. Still to
 hear: the 2019 tablet (smooth?), and the lab's "saved for offline … install" line (kept
 of 193).
+- **The log (developer):** "I see several entries for that. one said 193 and the rest said
+  192." Those are the lines' file counts (193: lab 0.3; 192: 0.2, one line a start); the
+  "kept" figure in the 193 line wasn't read, so whether the update from 0.2 fetched only
+  changed files is still open (small: to read when convenient). Tablet not tried yet.
+  **Developer: "lets proceed with the bush".**
+
+## 2026-11-21: The lab's bush looks (lab only, not published; the site untouched)
+
+- **What made 0.3's bush look drawn** (Claude, on `2026-11-21_ground\try1\P2_photo.jpg`):
+  (1) the smooth core ball showed through the gaps, teal, with a sheen; (2) big glossy
+  leaves (island_tree_01's), all alike; (3) bluer and darker than the yellow-green field;
+  (4) a smooth outline, no shade where it meets the ground.
+- **Built, lab only** (no download; `topple-lab/src/ui/topple-scene.js` `leafy()`,
+  `topple-sets.js`, `topple-lab/src/core/park-ground.js`): `leafy()` takes more from its
+  `look`: `size` (leaves that many times L), `ragged`, `inner` (a second, shaded layer of
+  leaves inside: `leafLayers()`), `core` and `coreEnv` (the core's own colour, matt),
+  `bright`, `topLight` (leaves facing up lighter), `lumps` (the outline in and out in 5
+  waves: `lumps()`), `contact` (a soft shade on the ground under the bush). Without them
+  it draws as before (the same random numbers in the same order; tested). `BUSH_LOOKS` in
+  the lab's `topple-sets.js`: **A** (inner layer, ragged, matt, yellower, contact shade),
+  **B** (A with leaves 0.6 times as big), **C** (B lighter, lit from above, lumpy, its
+  middle near black). `topple.park({ bush: '0.3'|'A'|'B'|'C' })`; the park starts with
+  **C**. A leaf without its shine (`leafMatt`) for these.
+- **Rounds of pictures** (`Web-Games-testing\2026-11-21_bush\`): try1 (0.3, A, B): A
+  still showed the core; **B the first to read as a real shrub** (the small leaves); try2
+  (B, C): C lighter on top and lumpier, the core still showing low down. **Found:** the
+  core's colour was always blended 85% towards a medium green (`DARK`, #24502A), so
+  asking for a darker one did nothing; a look's own core now used as given. try3 (0.3, B,
+  C, all five scenes in one run): sheet `sheet-bush.jpg`, close-up `close-bush.jpg`
+  (scenes 1 and 3, 0.3 beside C): **C shows no ball, the gaps read as shade, lighter on
+  top, rougher edge.** Still a fairly even dome.
+- **Leaves drawn** (the "scene" log line's `leaves`, the same bush in one run): 0.3
+  **1,483**; B 5,394; C 5,265 (another deal: C 5,384 and 4,585). About 3.5 times as many
+  leaves: the thing to watch on the 2019 tablet (the drawing level steps down from the
+  measured frame rate).
+- **Found, about the pictures:** scenes are dealt afresh each run of the picture script
+  (scene 1 was a tree in one run, a bush in the next), so looks are compared only within
+  one run. And `topple.park({})` keeps the last look: the starting look checked on a
+  fresh page (`try4`: `{"bush":"C"}`, leaves 5,384 and 4,585).
+- **Tests** (`tests/topple-lab-ground.test.js`, 3 more, 7 in all): no look asked for =
+  lab 0.3's one layer; ragged and inner as described; lumps within their size, the same
+  for a seed, different for another, and none asked for draws no random numbers (so 0.3's
+  leaves land as before); the park starts with C, which `BUSH_LOOKS` has. **Each shown
+  failing** (scratch `mutate-ground.mjs`, now 12 breaks): 0.3's layer moved, the inner
+  layer outwards, no lumps still drawing a number, lumps twice too big, lumps ignoring the
+  seed, the start look changed, and the 6 ground breaks: **12 of 12 caught**. (A first
+  "lumps alike" break, the waves' phase set to 0, wasn't one: each seed still turns its
+  waves differently.)
+- `node tools/offline.js`: the lab's version 04606587ad45, 193 files; `topple-lab.js
+  check`: "main-site files changed since main: none". Full suite: **808 passed** (805 +
+  3). **To ask:** publish C as lab 0.4.

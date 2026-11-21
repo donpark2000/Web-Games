@@ -77,3 +77,44 @@ test("lab ground: the photo's sun, as measured (to the right and behind the park
   assert.ok(near(deg(Math.atan2(z, x)), 36, 0.05), `round ${deg(Math.atan2(z, x)).toFixed(2)}°`);
   assert.ok(x > 0 && z > 0, 'not to the right and behind (the camera looks to -z)');
 });
+
+// The lab's bush looks (2026-11-21): the leaf layers and lumps (park-ground.js).
+import { leafLayers, lumps } from '../topple-lab/src/core/park-ground.js';
+import { rng } from '../src/core/topple.js';
+
+test("lab bush: with no look asked for, one layer of leaves as in lab 0.3; ragged and inner as described", () => {
+  assert.deepEqual(leafLayers(), [[0.93, 0.14, 0, 1]], 'lab 0.3\'s bush changed');
+  assert.deepEqual(leafLayers({}), [[0.93, 0.14, 0, 1]]);
+  const [outer, inner, more] = leafLayers({ ragged: 1, inner: true });
+  assert.ok(near(outer[0], 0.81) && near(outer[0] + outer[1], 1.25), `ragged 1: ${outer[0]}-${outer[0] + outer[1]} of the radius`);
+  // (a ragged outer layer reaches in among the inner one: the inner is further in on average)
+  assert.ok(inner && inner[0] + inner[1] / 2 < outer[0] + outer[1] / 2 - 0.2, 'the inner layer not well inside the outer');
+  assert.ok(inner[2] > 0 && outer[2] === 0, 'the inner layer not shaded, or the outer shaded');
+  assert.equal(more, undefined, 'more than two layers');
+});
+
+test('lab bush: lumps within their size, the same for the same seed; none asked for draws no random numbers', () => {
+  let calls = 0; const counted = () => { calls++; return 0.5; };
+  const flat = lumps(counted, 0);
+  assert.equal(flat([0, 1, 0]), 0);
+  assert.equal(calls, 0, 'lumps(…, 0) used the random numbers: the leaves would land differently');
+  const amp = 0.2, a = lumps(rng(5), amp), b = lumps(rng(5), amp), c = lumps(rng(6), amp);
+  let lo = Infinity, hi = -Infinity, same = 0, differ = 0, n = 0;
+  for (let i = 0; i < 2000; i++, n++) {
+    const r = rng(1000 + i), u = r() * 2 - 1, t = r() * Math.PI * 2, s = Math.sqrt(1 - u * u), d = [s * Math.cos(t), u, s * Math.sin(t)];
+    const v = a(d); lo = Math.min(lo, v); hi = Math.max(hi, v);
+    if (v === b(d)) same++;
+    if (Math.abs(v - c(d)) > 1e-9) differ++;
+  }
+  assert.equal(n, 2000);
+  assert.ok(lo >= -amp && hi <= amp, `lumps ${lo.toFixed(3)} to ${hi.toFixed(3)}, past ±${amp}`);
+  assert.ok(hi - lo > amp * 0.5, `hardly any lumps: ${lo.toFixed(3)} to ${hi.toFixed(3)}`);
+  assert.equal(same, n, 'not the same for the same seed');
+  assert.ok(differ > n * 0.9, `another seed gave the same lumps at ${n - differ} of ${n}`);
+});
+
+test("lab bush: the lab's park starts with look C, which BUSH_LOOKS has", async () => {
+  const src = await sets();
+  assert.match(src, /const mode = \{ ground: 'photo', sun: 'game', bush: 'C' \};/, 'the park\'s start no longer as agreed: update this test');
+  assert.match(src, /\n {2}C: \{ inner: true,/, 'BUSH_LOOKS has no C');
+});

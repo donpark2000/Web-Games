@@ -461,6 +461,20 @@ export function photoGround(tex, h = PARK.camH, R = PARK.groundR) {
   return m;
 }
 
+// The lab's bush looks, to compare (2026-11-21; topple.park({ bush: 'A' })):
+// leafy()'s options in topple-scene.js (size, ragged, inner, core, coreEnv,
+// bright, contact), the tints, and matt (the leaf without its shine).
+// '0.3': as lab 0.3 (none of them).
+export const BUSH_LOOKS = {
+  // the gaps show shaded leaves, not a ball; a rougher outline; yellower and
+  // lighter, matt; a shade on the ground under it
+  A: { inner: true, ragged: 0.5, coreEnv: 0, matt: true, bright: 1.2, contact: 0.45, tints: ['#FFF4C4', '#EEF0B8', '#FFFCD8'] },
+  // A with leaves 0.6 times as big (2.8 times as many)
+  B: { inner: true, ragged: 0.5, coreEnv: 0, matt: true, bright: 1.2, contact: 0.45, tints: ['#FFF4C4', '#EEF0B8', '#FFFCD8'], size: 0.6 },
+  // B lighter, lit from above, lumpy, its middle darker
+  C: { inner: true, ragged: 0.6, coreEnv: 0, core: '#18240F', matt: true, bright: 1.45, topLight: 0.35, lumps: 0.2, contact: 0.45, tints: ['#FFF4C4', '#EEF0B8', '#FFFCD8'], size: 0.6 },
+};
+
 // The park's photos for topple-scene.js: { group (the ground: the photo's own
 // field (photoGround) with the shadows over it; or lab 0.2's lawn, a photo lawn
 // fading into the photo's field, with faint mowing stripes), background,
@@ -477,6 +491,10 @@ export async function parkPhotos(renderer) {
   leaf.colorSpace = THREE.SRGBColorSpace; leaf.anisotropy = 4;
   const leafMat = new THREE.MeshStandardMaterial({ map: leaf, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.75 });
   const leafGeo = new THREE.PlaneGeometry(0.5, 1);
+  // the leaves' tints over the photo (light: the photo has its own green), the bush's a little yellower
+  const leaves = { geo: leafGeo, mat: leafMat, density: 1.8, tree: ['#F2F6EA', '#E2EAD6', '#FFFFFF'], bush: ['#F4F4E2', '#E6ECD2', '#FFFFF4'] };
+  // the same leaf without its shine (the bush looks' `matt`)
+  const leafMatt = new THREE.MeshStandardMaterial({ map: leaf, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1, envMapIntensity: 0.6 });
   const barkMat = photoMat(bark, { repeat: [0.5, 1.5], extra: { metalness: 0 } });
   const bg = skyTex.clone();
   bg.mapping = THREE.EquirectangularReflectionMapping; bg.colorSpace = THREE.SRGBColorSpace; bg.needsUpdate = true;
@@ -501,7 +519,7 @@ export async function parkPhotos(renderer) {
   // which sun: 'photo' (where the photo's is) or 'game' (the park's own);
   // the scene's next build takes it up (the photo's sun: long shadows, 17.5° up;
   // the park's own: short, the ball's shadow under it)
-  const mode = { ground: 'photo', sun: 'game' };
+  const mode = { ground: 'photo', sun: 'game', bush: 'C' };
   const setMode = (o = {}) => {
     Object.assign(mode, o);
     const photo = mode.ground === 'photo';
@@ -512,9 +530,10 @@ export async function parkPhotos(renderer) {
   return {
     group, background: bg, environment: env, fog: new THREE.Fog(horizon, 60, 250), horizon,
     mode: setMode, place: (x, z) => ground.userData.place(x, z),
+    // the bush's look (BUSH_LOOKS), null: 0.3's (the tree's leaves)
+    get bushLeaves() { const b = BUSH_LOOKS[mode.bush]; return b ? { ...leaves, ...b, mat: b.matt ? leafMatt : leafMat } : null; },
     get sun() { return mode.sun === 'photo' ? photoDir(...PARK.sunAt).map(v => v * 5.3) : null; },   // (5.3: the park's own sun's distance)
-    // the leaves' tints over the photo (light: the photo has its own green), the bush's a little yellower
-    leaves: { geo: leafGeo, mat: leafMat, density: 1.8, tree: ['#F2F6EA', '#E2EAD6', '#FFFFFF'], bush: ['#F4F4E2', '#E6ECD2', '#FFFFF4'] }, barkMat,
+    leaves, barkMat,
     files: 8, ms: Math.round(performance.now() - t0),
   };
 }

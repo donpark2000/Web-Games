@@ -27,7 +27,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = 'e303206ca947';
+const VERSION = '04606587ad45';
 const MADE = '2026-11-21';
 const RELEASE = '0.3';
 const FILES = [
@@ -411,11 +411,11 @@ const HASHES = {
   'lab/storage.js': '0d2efcf2f431',
   'log.html': '600764928699',
   'manifest.webmanifest': '0f45c52de022',
-  'src/core/park-ground.js': 'ef5af2a0f73b',
+  'src/core/park-ground.js': '99b1f1554881',
   'src/core/release.js': '0c39bd04fe1a',
   'src/ui/look3d.js': '6e362b7ebc83',
-  'src/ui/topple-scene.js': '904984614b00',
-  'src/ui/topple-sets.js': '948911d87fed',
+  'src/ui/topple-scene.js': '7b8ddd5624d8',
+  'src/ui/topple-sets.js': '22c24362657f',
   'src/ui/topple.js': '9b4c9e0335fd',
   'topple.html': '31340bf7e209',
 };
