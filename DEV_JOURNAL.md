@@ -10,6 +10,15 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q141. Topple! (the site): steel, brick and the iron ball are near black in the light drawing**
+  (2026-11-22, found building the lab's moon). On a slow device the 3D games step down to a light
+  drawing (Q99), which takes the surfaces' metal maps away (`src/ui/drawcuts.js`) and leaves the
+  materials all metal (metalness 1), with no sky left to reflect: level 2's posts, slabs and
+  bricks and levels 2-4's ball go dark. Seen with `topple.html?drawing=light` (site 11.7) beside
+  the lab (fixed there only, `plainMetal`, lab 0.10). It's what the 2019 tablet shows if it's at
+  "light" (its log says: "drawing"). **Fix for the site:** the same few lines where the cuts are
+  made; a site release (11.8). **To ask:** do it?
+
 - **Q139. Topple!: a more realistic look; a Topple Lab apart** (2026-11-20, developer:
   "our games so far look much more like low budget cartoons", asking for a plan with CC0
   assets, under about 30 MB added, still offline). What's there: three.js r160, no tone
@@ -43,7 +52,10 @@ time, each tried before publishing:
   grass at all"; the photo's own field as the ground built in the lab and shown in
   pictures (see "Lab 0.2's park judged" and "The park on the photo's own field").
   Developer: "Yes, today's sun" (the park's own, over the photo's low one): **lab 0.3
-  published**. Next: the bush, then levels 2-4's props.
+  published**. The bush: 0.4 (judged good on the tablet). **2026-11-22: levels 2-10 in one
+  unattended session** (developer: "just publish it when you are done"; "Yes to both" to the
+  downloads and the publishing): **lab 0.6 (level 2), 0.7 (3), 0.8 (4), 0.9 (5), 0.10 (the moon)
+  published**. To try on the tablet and the iPhone; then the moon's sounds (Q121).
 
 - **Q136. Topple!: cannon-es stops reporting touches once its body ids are large**
   (numbered Q135 until 2026-11-19, a number already taken by the stars question; 2026-11-18, found measuring Q130 mockup v2.3). cannon-es keys each touching pair as
@@ -470,6 +482,12 @@ time, each tried before publishing:
   levels 6-10, release 11.0** (see "Q119 built"); for the developer to play.
 
 ## Proposed additions to the standards skill
+
+- **Check the reduced modes of a visual change, not only the full one** (2026-11-22, "The lab's
+  moon"): four lab releases went out with photographed models near black in the light drawing
+  that slow devices get; every picture had been taken in the full drawing. One address
+  parameter (`?drawing=light`) showed it. Would it help elsewhere? Any app with a low-power, dark,
+  high-contrast, offline or no-JavaScript mode.
 
 - **Check a setting as the platform reads it, not as it's written** (2026-11-22, "Q140: the
   lab and the site share one app id"): a test required the lab manifest's `"id": "./"` as
@@ -27149,3 +27167,35 @@ passed; live 20 s after the push (62d710a7aeda); site still 11.7.
   caught.
 - **Not done:** the moon's sounds (Q121); the greenhouse's round bushes, the rover, the flag as
   drawn. All the lab's own photos and models: 6.0 MB.
+
+## 2026-11-22: Topple Lab 0.10 published and live: every level has its new look
+
+- **Lab 0.10:** `main` = 17a0be0, tag `lab-v0.10`, a GitHub pre-release; **827 tests passed**;
+  `release.js lab` ready; main-site files changed: none. Live 30 s after the push (440789cab873);
+  site still 11.7 (8faca195760c), v11.7 still Latest. Five lab releases in one session, unattended
+  (0.6-0.10), under the developer's "Yes to both".
+- **Checked live** in the browser pane on github.io: the version line "Topple Lab 0.10 · Nov 22,
+  2026 · 440789"; levels 2-6 and 8 opened one after another, each logged with its photos (level 2's
+  models 900, 400 and 500 triangles; the moon's "10 photos, 4 models, 146 ms"), no console
+  errors; offline: 265 files, all fetched (no older lab copy in the pane, so this says nothing
+  of an update's "kept").
+- **Pictures:** `Web-Games-testing\2026-11-22_levels\before-after-levels-2-5.jpg` and
+  `before-after-moon-6-10.jpg` (the same scenes, lab 0.5 and 0.10).
+- **No localhost servers running** (the picture script stops its own).
+
+**Status (start here next session)**
+- **Live: site 11.7 and Topple Lab 0.10** (levels 1-10 all in their new look). `block-game` =
+  `main` plus this entry.
+- **To try (developer), in the lab app on the 2019 tablet and the iPhone:** each level's look, and is
+  it smooth, the moon above all (up to 60% more work a frame on this PC; now steps down by
+  itself on a slow device: the lab log's "drawing lighter" line says so). Anything that looks
+  wrong can go back by itself: each level is a release of its own (0.6 level 2, 0.7 level 3, 0.8
+  level 4, 0.9 level 5, 0.10 the moon).
+- **To ask:** Q141 (the site's light drawing); levels 3 and 5 without their mountains: kept?
+- **Next in the lab:** whatever the developer's trial finds; the moon's sounds (Q121).
+- **Test files:** `Web-Games-testing\2026-11-22_levels\` (the downloads, 70 MB and unzipped more; the
+  pictures): recorded; keep until the levels are judged, then ask to purge. Picture scripts
+  (`shots.mjs`, `sheet.mjs`, `decimate.mjs`, `img.mjs`, `night.mjs`, `craters.mjs`, `publish.mjs`)
+  are in the scratchpad (lost between sessions), described in this day's entries.
+- **Open questions:** Q141 (new), Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 (site
+  11.3: to try), Q121, as before otherwise.
