@@ -26877,3 +26877,26 @@ of 193).
   (photo surfaces); its sounds (Q121). Picture scripts: see 2026-11-21's status.
 - **Open questions:** Q140 (lab 0.5: to try), Q139 (the lab), Q136 and Q130 (site 11.4: to
   try), Q134 (site 11.3: to try), Q121, as before otherwise.
+
+## 2026-11-22: Q140: lab 0.5 on the tablet: still "already installed" (the nested address)
+
+- **Developer, on the 2019 tablet:** "I reinstalled Lets Play. When I go to install Topple lab
+  (version 0.5) it says it is already installed." So the id was a fault, but not the only
+  one. The version line said 0.5, and the page's manifest comes from the same saved copy, so
+  an old manifest is unlikely (not ruled out: Chrome's own copy wasn't looked at).
+- **Read (web.dev, "Building multiple PWAs on the same domain"):** with one app's folder
+  inside another's, every page of the inner is also the outer's; with the outer installed
+  the browser won't offer the inner. Its ways round: install the inner one **first**, or
+  make a shortcut by hand; side-by-side folders are better, separate origins best.
+- **Read (Chromium, `WebApkValidator.java`, `queryFirstWebApkPackage`):** Chrome on Android
+  looks for an installed app by asking Android which app can open the address; Let's Play!'s
+  scope (`/Web-Games/`) covers `/Web-Games/topple-lab/`. No app id in what was read. The
+  code that shows "already installed" wasn't read: that it uses this lookup is inferred.
+- **To try (developer):** uninstall Let's Play!, install the lab first, then Let's Play!: the
+  lab's folder doesn't cover Let's Play!'s address, so both should go in.
+- **If that fails, or installing in order is too fiddly:** the lab at an address of its own
+  beside Let's Play!'s (a repo of its own, `donpark2000.github.io/<name>/`), bigger work;
+  decided against on 2026-11-20 (Q139), for a reason that didn't include this. The same
+  storage either way.
+- **Open questions:** Q140 (the order, to try), Q139 (the lab), Q136 and Q130 (site 11.4: to
+  try), Q134 (site 11.3: to try), Q121, as before otherwise.
