@@ -23,6 +23,12 @@ time, each tried before publishing:
   the lab's pages as part of it and offer only a shortcut. **To ask:** what the icon looks
   like; whether the menu said "Install app" or "Add to Home screen / Create shortcut";
   whether it opens with Chrome's address bar; whether Let's Play! is installed there.
+  **Developer (2026-11-22):** Let's Play! is installed on that tablet; the icon is labelled
+  Topple Lab, "a grey background with the letter G in the middle" and a small Chrome circle
+  at the bottom right. So a shortcut, not an app, and with no icon of ours. **Found: both
+  apps have the same identity** (see "Q140: the lab and the site share one app id"). **To
+  ask:** OK to take the lab's `id` line out (its id becomes its own address) and publish as
+  lab 0.5, then remove the G shortcut and install again?
 
 - **Q139. Topple!: a more realistic look; a Topple Lab apart** (2026-11-20, developer:
   "our games so far look much more like low budget cartoons", asking for a plan with CC0
@@ -26785,3 +26791,29 @@ of 193).
   **To ask:** leave it random, or deal at least one (or two) bushes a game?
   (It would be a change to the main game's deal, so the site too, not only the lab.)
 - **The icon:** new Q140.
+
+## 2026-11-22: Q140: the lab and the site share one app id
+
+- **Measured** (scratch `appid.mjs`: headless Edge 159, DevTools `Page.getAppId` and
+  `getAppManifest`, the live site): the site and the lab both have the app id
+  `https://donpark2000.github.io/`. Both manifests say `"id": "./"`, and an id is read from
+  the start address's origin, not from the manifest's folder (MDN, the manifest's `id`).
+  Both manifests parse with no errors and 4 icons, and Edge lists nothing against installing
+  either. The lab's was copied from the site's fields; no test compares the two ids.
+- **What it means (MDN, "id"):** one id is one app; a browser that has it installed takes a
+  second manifest with that id as an update of it, even from another address. So with
+  Let's Play! installed, the lab isn't a new app to Chrome; and it's a possible way for the
+  lab to change the installed Let's Play! (its name, icon, start page), against Q139's "no
+  risk of accidentally corrupting the current game". **Not seen:** Let's Play! changed by it.
+- **Fits, not proved:** Chrome giving a shortcut on the tablet. That it does so because of
+  the id was not seen on an Android device; Chrome's code for it couldn't be read (the
+  fetch was rate limited). The G is probably drawn by Chrome from the address (github.io),
+  from memory, not checked.
+- **Fix measured** (scratch `idserve.mjs`, the lab's manifest served at
+  `/Web-Games/topple-lab/`): as now, the id is the origin; with no `id` line, or with
+  `"/Web-Games/topple-lab/"`, it's `.../Web-Games/topple-lab/`. No `id` line is the simpler.
+- **Leave the site's id as it is:** changing it would make installed copies of Let's Play!
+  a different app. **To build with the fix:** a test that works out both ids and fails when
+  they're the same; shown to fail on today's files first.
+- **May not be enough:** the lab's address is inside Let's Play!'s scope (`/Web-Games/`),
+  the earlier guess, which the fix doesn't change. The tablet will tell.
