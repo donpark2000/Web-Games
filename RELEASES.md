@@ -1114,6 +1114,17 @@ Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
 
+## 0.8 (2026-11-22, version 9a05081e957d)
+
+Cactus Canyon (level 4) on its own desert.
+
+- **The ground**: the sand and rock of the level's own 360° photo, laid flat under you, instead of a repeated sand tile.
+- **The boulders**: three photographed ones from the same desert the photo was taken in (Namaqualand; Poly Haven), instead of the ones that looked like wood.
+- **The cactus**: ribs with shaded grooves, a weathered skin, tufts of spines; the same shape to the ball.
+- **The scrub**: small dry photo leaves, grey-green, with twigs, instead of big drawn leaves over a smooth ball.
+- **Hardest's mine cart, its rocks and rails** in photos of old wood, rusty iron and stone.
+- 0.6 MB added (sources and licence, all CC0: `topple-lab/data/models/CREDITS.md`). The play is as before; levels 5-10 as in Topple! 11.7.
+
 ## 0.7 (2026-11-22, version 78421cf9b8a5)
 
 Frosty Times (level 3) on a real snowy field.

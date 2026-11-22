@@ -19,6 +19,7 @@ import { photoDir, groundPoint, groundRings } from '../core/park-ground.js';   /
 import { loadModels, copies, contacts } from './topple-models.js';   // (the lab's own)
 import { triplanar, smooth } from './topple-tri.js';   // (the lab's own)
 import { fir } from './topple-fir.js';   // (the lab's own)
+import { saguaro } from './topple-cactus.js';   // (the lab's own)
 
 // The Topple Lab's copy (DESIGN.md "Topple Lab"): its pages are in
 // topple-lab/, so the main site's pictures are one folder up.
@@ -60,7 +61,7 @@ export const SETTINGS = {
     mats: { steel: 'steel', concrete: 'concrete', brick: 'brick', wood: 'planks' }, sling: 'planks', sun: [1.4, 4.2, 2.6], hemi: 0.7 },
   3: { name: 'snow', sky: 'snowy_field', skyDir: LEVELS_DIR, ground: 'photo', photo: { camH: 1.6, R: 120, shade: 0.34, shadeColour: '#1E2C4A' }, surfaces: ['cleanSnow', 'boulder', 'bark', 'planks', 'steel', 'paint'], ice: 'ice004',
     mats: { ice: 'ice', wood: 'planks' }, sling: 'planks', sun: [1.5, 3.6, 2.1], hemi: 0.8 },
-  4: { name: 'desert', sky: 'goegap', ground: 'sand', surfaces: ['sand', 'barrel', 'timber', 'rock', 'planks', 'steel'],
+  4: { name: 'desert', sky: 'goegap', ground: 'photo', photo: { camH: 1.6, R: 120, shade: 0.46, shadeColour: '#1A0E04' }, models: ['boulderA', 'boulderB', 'boulderC'], leaf: true, surfaces: ['barrel', 'timber', 'planks', 'steel', 'boulder'],
     mats: { wood: 'timber', barrel: 'barrel' }, sling: 'planks', sun: [1.6, 4.4, 2.4], hemi: 0.75 },
   // Star Light (developer, 2026-11-12, Q87: "Night time with a moon and
   // stars in the sky. Similar vista to the winter level but low light"):
@@ -218,6 +219,7 @@ export async function makeSetting(n, ctx) {
   await Promise.all(S.surfaces.map(async k => { maps[k] = await loadSurface(k); }));
   const models = await loadModels(S.models ?? []);
   const skyTex = await loadTex(`sky_${S.sky}.jpg`, S.skyDir);
+  const leafTex = S.leaf ? await loadTex('leaf.png', PARK_DIR) : null;
   const iceMaps = S.ice ? await Promise.all(['col', 'nor'].map(k => loadTex(`${S.ice}_${k}.jpg`, LEVELS_DIR))) : null;
   // the sky: the photo all round (at night, made dark: nightSky); it lights the shiny parts too
   let bg, night = null;
@@ -251,6 +253,15 @@ export async function makeSetting(n, ctx) {
     out.decorateBall = m => m.add(halo('#FFE6A0', 0.07 * 3.2, 0.35));
   } else out.ballMat = photoMat(maps.steel, { repeat: [0.3, 0.3], extra: { color: '#6A6F76', metalness: 0.7, envMapIntensity: 1.1 } });
   // what a Hardest mover is drawn in (topple-scene.js; the lab: the photos)
+  if (S.name === 'desert') {
+    out.moverMats = {
+      cartSide: photoMat(maps.timber, { repeat: [1, 0.35], extra: { color: '#B79A80', metalness: 0 } }),
+      cartIron: photoMat(maps.steel, { repeat: [0.4, 0.4], extra: { color: '#6E6A66', metalness: 0.8 } }),
+      rock: triplanar(maps.boulder.col, maps.boulder.nor, 0.7, { color: '#B8A894' }),
+      tie: photoMat(maps.timber, { repeat: [0.2, 1], extra: { color: '#8A7360', metalness: 0 } }),
+      rail: photoMat(maps.steel, { repeat: [6, 0.1], extra: { color: '#8C8078', metalness: 0.8 } }),
+    };
+  }
   if (S.name === 'snow') {
     out.moverMats = {
       snow: photoMat(maps.cleanSnow, { repeat: [1.6, 1], extra: { color: '#FFFCF6', metalness: 0 } }),
@@ -377,10 +388,19 @@ export async function makeSetting(n, ctx) {
     scrub(p) {
       // desert scrub: level 1's leafy bush in sagebrush's grey-greens, smaller leaves
       const ys = p.balls.map(b => b.at[1] + b.r);
+      // (the lab: small dry photo leaves, grey-green and straw, through which its shaded inside shows)
+      if (leafTex) {
+        const look = { ...SCRUB, geo: scrubLeaf(), mat: scrubMat(leafTex) };
+        const g = ctx.leafy(p.balls, look.tints, 0, Math.max(...ys), ctx.LEAF, true, look);
+        g.add(twigs(p.balls));
+        return g;
+      }
       return ctx.leafy(p.balls, ['#8C9A6E', '#9DAA7E', '#77865C'], 0, Math.max(...ys), ctx.LEAF * 0.75);
     },
     cactus(p) {
       // a saguaro: a ribbed trunk with a rounded top, two arms bending up
+      // (the lab: deeper ribs, a weathered skin, spines: topple-cactus.js)
+      if (leafTex) return saguaro(p);
       const g = new THREE.Group(), [x, , z] = p.at, mat = std({ map: cactusTex(), color: '#FFFFFF', roughness: 0.7 });
       g.add(mesh(ribbed(p.r, p.h), mat, [x, 0, z]));
       for (const a of p.arms) {
@@ -421,13 +441,12 @@ export async function makeSetting(n, ctx) {
   } else if (S.name === 'desert') {
     // boulders off to the sides (the photo's rock formations beyond), and a rattlesnake on the move
     // (first drawn smooth and tinted orange, they looked like tomatoes: rougher, the photo's own colour, more of it)
-    const rock = photoMat(maps.rock, { repeat: [3.5, 3.5], extra: { color: '#E8D6C2', metalness: 0 } });
-    for (const [rx, rz, s, seed] of [[-7.5, -12, 1.6, 3], [8.5, -14, 2.2, 5], [5, -21, 2.8, 7], [-12, -19, 3.2, 9], [-4.5, -9.5, 0.7, 11]]) {
-      const geo = boulderGeo(seed);
-      const m = mesh(geo, rock, [rx, s * 0.25, rz]);
-      m.scale.setScalar(s); m.rotation.y = seed;
-      group.add(m);
-    }
+    // (the lab: photographed boulders of the same desert, Namaqualand, where the photo was taken)
+    const A = [{ x: -8.2, z: -12.6, y: -0.3, yaw: 2.5, s: 0.8 }, { x: 11.5, z: -15.5, y: -0.2, yaw: 2.2, s: 1.15 }];
+    const B = [{ x: 8.6, z: -13.2, y: -0.15, yaw: 0.9, s: 0.8 }, { x: -11.8, z: -16.5, y: -0.2, yaw: 3.6, s: 1.2 }];
+    const Cc = [{ x: -6.2, z: -11.4, y: -0.06, yaw: 0.4, s: 0.9 }, { x: 6.4, z: -12.2, y: -0.08, yaw: 2.6, s: 1.1 }, { x: -4.9, z: -13.6, y: -0.05, yaw: 4.4, s: 0.55 }, { x: 10.2, z: -11.6, y: -0.05, yaw: 5.4, s: 0.6 }];
+    for (const [model, at] of [[models.boulderA, A], [models.boulderB, B], [models.boulderC, Cc]]) group.add(copies(model, at, { cast: false }));
+    group.add(contacts([...A.map(a => ({ x: a.x - 0.25 * a.s, z: a.z - 0.1, w: 3.2 * a.s, d: 3.6 * a.s, yaw: a.yaw })), ...B.map(a => ({ x: a.x - 0.25 * a.s, z: a.z - 0.1, w: 3.4 * a.s, d: 3.2 * a.s, yaw: a.yaw })), ...Cc.map(a => ({ x: a.x - 0.1, z: a.z, w: 1.8 * a.s, d: 1.1 * a.s, yaw: a.yaw }))], 0.6));
     decor.push(snake(group));
   } else if (S.name === 'night') {
     // young pines at the edge of the snow (as level 3's), the moon, a cloud
@@ -577,6 +596,30 @@ export const BUSH_LOOKS = {
   // B lighter, lit from above, lumpy, its middle darker
   C: { inner: true, ragged: 0.6, coreEnv: 0, core: '#18240F', matt: true, bright: 1.45, topLight: 0.35, lumps: 0.2, contact: 0.45, tints: ['#FFF4C4', '#EEF0B8', '#FFFCD8'], size: 0.6 },
 };
+
+// Level 4's scrub (the lab, 2026-11-22): the park bush's look, drier: smaller
+// leaves in grey-greens and straw, a rough outline, a brown shade inside.
+const SCRUB = { inner: true, ragged: 0.9, coreEnv: 0, core: '#2E3020', bright: 1.3, topLight: 0.35, lumps: 0.3, contact: 0.5, density: 1.6, size: 0.5, tints: ['#D9D2AE', '#B9BC98', '#CFC08C'] };
+let scrubGeo = null, scrubM = null;
+const scrubLeaf = () => scrubGeo ??= new THREE.PlaneGeometry(0.34, 1);
+// (the park's leaf, its green mostly taken out: a dry desert bush's)
+const scrubMat = t => scrubM ??= new THREE.MeshStandardMaterial({
+  map: canvasTex(t.image.width, t.image.height, (g, w, h) => { g.clearRect(0, 0, w, h); g.filter = 'saturate(0.28) sepia(0.18) brightness(1.6)'; g.drawImage(t.image, 0, 0); }),
+  alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1, envMapIntensity: 0.5,
+});
+// Bare twigs out of a bush, a little past its leaves.
+const twigGeo = new THREE.CylinderGeometry(0.25, 1, 1, 4, 1, true).translate(0, 0.5, 0), twigMat = std({ color: '#7A6A50', roughness: 1 });
+function twigs(balls) {
+  const r = rng(1 + Math.round(Math.abs(balls[0].at[0] * 5000))), n = 34 * balls.length, im = new THREE.InstancedMesh(twigGeo, twigMat, n), o = new THREE.Object3D(), up = new THREE.Vector3(0, 1, 0), d = new THREE.Vector3();
+  for (let i = 0; i < n; i++) {
+    const b = balls[i % balls.length];
+    d.set(r() * 2 - 1, r() * 1.1 + 0.05, r() * 2 - 1).normalize();
+    o.position.set(b.at[0] + d.x * b.r * 0.2, Math.max(0.01, b.at[1] + d.y * b.r * 0.2), b.at[2] + d.z * b.r * 0.2);
+    o.quaternion.setFromUnitVectors(up, d); o.scale.set(0.006, b.r * (0.75 + 0.5 * r()), 0.006); o.updateMatrix(); im.setMatrixAt(i, o.matrix);
+  }
+  im.castShadow = true; im.receiveShadow = true; im.computeBoundingSphere();
+  return im;
+}
 
 // What hides things under the ground (a rock half buried): the photo's ground
 // is drawn behind everything, so a plane 2 cm down fills the depth only.

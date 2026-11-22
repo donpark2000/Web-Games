@@ -10,6 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LAB, labFiles } from '../tools/topple-lab.js';
 import { reach, firBranches } from '../topple-lab/src/core/fir.js';
+import { RIBS, rib, ribR } from '../topple-lab/src/core/cactus.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = 'data/levels';
@@ -81,6 +82,15 @@ test('lab fir: its branches reach a little past the tiers, narrowing to a point 
   assert.ok(n > 40);
   assert.equal(reach(TIERS, 9), 0);
   assert.ok(reach(TIERS, 0.9) > 0.5, 'under the lowest tier');
+});
+
+test("lab cactus: its ribs stay within a tenth of the physics' stem, in and out, all alike", () => {
+  let most = 0, least = 9, n = 0;
+  for (let a = 0; a < 2 * Math.PI; a += 0.005, n++) { const k = ribR(a); most = Math.max(most, k); least = Math.min(least, k); assert.ok(Math.abs(k - ribR(a + 2 * Math.PI / RIBS)) < 1e-6, `rib at ${a.toFixed(2)} not as the next`); }
+  assert.ok(n > 1000);
+  assert.ok(most <= 1.1 && most > 1.05, `ridges at ${most.toFixed(3)} of the stem's radius`);
+  assert.ok(least >= 0.85 && least < 0.95, `grooves at ${least.toFixed(3)}`);
+  assert.ok(Math.abs(rib(0) - 1) < 1e-9 && rib(Math.PI / RIBS) < 1e-9, 'a ridge at 0, a groove half a rib on');
 });
 
 test('lab fir: the same branches for the same seed, all on the trunk and within reach, a bounded number', () => {

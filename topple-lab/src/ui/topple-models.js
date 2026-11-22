@@ -13,6 +13,9 @@ export const MODELS = {
   barrier: 'concrete_road_barrier',
   cement: 'cement_bag',
   barrelBlue: 'barrel_03',
+  boulderA: 'namaqualand_boulder_03',
+  boulderB: 'namaqualand_boulder_04',
+  boulderC: 'namaqualand_boulder_05',
 };
 
 const loader = new THREE.TextureLoader();

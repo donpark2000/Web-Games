@@ -16,5 +16,5 @@ occlusion, roughness, metalness).
 |---|---|---|---|---|
 | `sky_snowy_field.jpg` | Snowy Field (360° photo) | level 3: the sky, the trees beyond and the snow underfoot | Andreas Mischok | https://polyhaven.com/a/snowy_field |
 | `snow010a_col.jpg`, `snow010a_nor.jpg`, `snow010a_arm.jpg` | Snow 010 A | level 3: the snowmen | ambientCG | https://ambientcg.com/view?id=Snow010A |
-| `rock_boulder_dry_col.jpg`, `rock_boulder_dry_nor.jpg`, `rock_boulder_dry_arm.jpg` | Rock Boulder Dry | level 3: the rock | Dimitrios Savva, Rico Cilliers | https://polyhaven.com/a/rock_boulder_dry |
+| `rock_boulder_dry_col.jpg`, `rock_boulder_dry_nor.jpg`, `rock_boulder_dry_arm.jpg` | Rock Boulder Dry | level 3: the rock; level 4: the rocks in Hardest's mine cart | Dimitrios Savva, Rico Cilliers | https://polyhaven.com/a/rock_boulder_dry |
 | `ice004_col.jpg`, `ice004_nor.jpg` | Ice 004 | level 3: the cracks in the ice blocks | ambientCG | https://ambientcg.com/view?id=Ice004 |

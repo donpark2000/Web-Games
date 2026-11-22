@@ -582,11 +582,11 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   const HAT_FELTS = [['#A06B45', '#8A5A3B'], ['#D9B77A', '#C4A064'], ['#8E9096', '#777A80']].map(([c, b]) => ({ crown: new THREE.MeshStandardMaterial({ color: c, roughness: 0.9 }), brim: new THREE.MeshStandardMaterial({ color: b, roughness: 0.9 }) }));
   const hatBand = new THREE.MeshStandardMaterial({ color: '#3E2A1C', roughness: 0.8 });
   const BRIM_CURL = 0.1;   // how far the hat's brim curls up at its two sides (m); it ends 0.1 m above the flat brim
-  const cartIron = new THREE.MeshStandardMaterial({ color: '#4A4E54', roughness: 0.6, metalness: 0.5 });
-  const cartRust = new THREE.MeshStandardMaterial({ color: '#8A4B2A', roughness: 0.8, metalness: 0.2 });
-  const rockMat = new THREE.MeshStandardMaterial({ color: '#8C8579', roughness: 0.95, flatShading: true });
-  const railMat = new THREE.MeshStandardMaterial({ color: '#5B5750', roughness: 0.5, metalness: 0.6 });
-  const tieMat = new THREE.MeshStandardMaterial({ color: '#6E4E2E', roughness: 0.95 });
+  const cartIronPlain = new THREE.MeshStandardMaterial({ color: '#4A4E54', roughness: 0.6, metalness: 0.5 });
+  const cartRustPlain = new THREE.MeshStandardMaterial({ color: '#8A4B2A', roughness: 0.8, metalness: 0.2 });
+  const rockPlain = new THREE.MeshStandardMaterial({ color: '#8C8579', roughness: 0.95, flatShading: true });
+  const railPlain = new THREE.MeshStandardMaterial({ color: '#5B5750', roughness: 0.5, metalness: 0.6 });
+  const tiePlain = new THREE.MeshStandardMaterial({ color: '#6E4E2E', roughness: 0.95 });
   const vultureMat = new THREE.MeshStandardMaterial({ color: '#3A2F2B', roughness: 0.9 });
   const vultureLight = new THREE.MeshStandardMaterial({ color: '#E9E2D4', roughness: 0.9 });
   const skinMat = new THREE.MeshStandardMaterial({ color: '#D9786A', roughness: 0.8 });
@@ -607,6 +607,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   }
   function cart(g, m) {
     // drawn at 1.3 x 0.75 x 0.7 and scaled up to the physics' box (1.5 times)
+    const mm = set?.moverMats ?? {}, cartRust = mm.cartSide ?? cartRustPlain, cartIron = mm.cartIron ?? cartIronPlain, rockMat = mm.rock ?? rockPlain, railMat = mm.cartIron ?? railPlain;   // (the lab: in photos)
     const k = m.load.w / 1.3, w = 1.3, h = 0.75, d = 0.7, y0 = -h / 2, bodyH = 0.3, by = y0 + 0.22 + bodyH / 2, rand = rng(23);
     g.add(part(w * 0.9, 0.04, d * 0.85, cartRust, 0, y0 + 0.22, 0));
     for (const sz of [-1, 1]) g.add(part(w * 0.92, bodyH, 0.04, cartRust, 0, by, sz * d * 0.42));
@@ -799,8 +800,8 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     if (m.look === 'cart') {
       // the rails across its way (a little past both ends), on sleepers
       const len = 2 * (m.span + 1.5), rails = new THREE.Group();
-      for (const sz of [-1, 1]) rails.add(part(len, 0.05, 0.05, railMat, 0, 0.025, sz * m.load.d * 0.42));
-      for (let x = -len / 2 + 0.2; x < len / 2; x += 0.45) rails.add(part(0.12, 0.03, m.load.d, tieMat, x, 0.015, 0));
+      for (const sz of [-1, 1]) rails.add(part(len, 0.05, 0.05, set?.moverMats?.rail ?? railPlain, 0, 0.025, sz * m.load.d * 0.42));
+      for (let x = -len / 2 + 0.2; x < len / 2; x += 0.45) rails.add(part(0.12, 0.03, m.load.d, set?.moverMats?.tie ?? tiePlain, x, 0.015, 0));
       rails.position.set(m.x0, 0, m.z); rails.traverse(o => { if (o.isMesh) o.receiveShadow = true; });
       scene.add(rails); moverStatic.push(rails);
     }

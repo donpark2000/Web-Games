@@ -27063,3 +27063,26 @@ v11.7 still Latest.
 - **Tests** (`tests/topple-lab-levels.test.js`, 4): the photos there, sized, credited, offline,
   none stray; a missing, an uncredited and a stray one reported; the firs' branches within
   the tiers' reach, the same for a seed, a bounded number.
+
+**Lab 0.7 published and live**: `main` = bd83c01, tag `lab-v0.7`, a GitHub pre-release; 820 tests
+passed; live 30 s after the push (78421cf9b8a5); site still 11.7. (Two slips on the way, both
+caught by the tests before anything was published: a test's pattern too loose, and a fix to
+it that didn't take.)
+
+## 2026-11-22: The lab's level 4 (lab 0.8)
+
+- **The ground:** the goegap photo's own sand and rock, laid flat (its camera taken as 1.6 m up).
+  The photo is of Namaqualand, and Poly Haven's Namaqualand boulders are the same stone: they
+  sit in it without a seam. Nothing of the old sand tile or "wood" boulders left.
+- **The cactus** (`core/cactus.js`, `ui/topple-cactus.js`): 13 ribs within a tenth of the physics'
+  stem, grooves darker in the corners' colours, a drawn skin, tufts of spines as one instanced
+  mesh. **The scrub:** `leafy()` with the park's leaf, its green mostly taken out. Three tries:
+  the park's leaf as it is (too green for the desert), a light middle (a smooth ball showed),
+  a dark one (like camouflage); kept: a mid-dark middle, more leaves, bare twigs.
+- **Hardest's cart, rocks and rails** in photos. Left as drawn: the hats, the vulture, the snake.
+- **Frames:** 19,820 triangles and 65 draw calls in 0.5 → 28,852-54,556 and 48-109; 68,822 at
+  most (Hardest, scene 5): the one place a little over the park's old 63,000. The cactus's
+  first version alone was 20,000 (cut to a third).
+- **Pictures:** three rounds, all five scenes, Hardest, a phone's screen (`L4\try1`, `try2`, `final`).
+- **Tests:** the cactus's ribs (within a tenth, all alike); the models' and photos' checks cover
+  the three boulders.

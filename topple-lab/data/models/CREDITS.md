@@ -14,4 +14,7 @@ roughness, metalness).
 |---|---|---|---|---|---|
 | `concrete_road_barrier*` | Concrete Road Barrier | 900 (60,928) | level 2: the barriers round the yard | Amal Kumar | https://polyhaven.com/a/concrete_road_barrier |
 | `cement_bag*` | Cement Bag | 400 (844) | level 2: the bags on pallets | PierreB3D | https://polyhaven.com/a/cement_bag |
+| `namaqualand_boulder_03*` | Namaqualand Boulder 03 | 1,400 (64,826) | level 4: boulders | Jenelle van Heerden, Dario Barresi | https://polyhaven.com/a/namaqualand_boulder_03 |
+| `namaqualand_boulder_04*` | Namaqualand Boulder 04 | 1,400 (59,066) | level 4: boulders | Jenelle van Heerden | https://polyhaven.com/a/namaqualand_boulder_04 |
+| `namaqualand_boulder_05*` | Namaqualand Boulder 05 | 900 (89,618) | level 4: flat rocks | Jenelle van Heerden, Dario Barresi | https://polyhaven.com/a/namaqualand_boulder_05 |
 | `barrel_03*` | Barrel 03 | 500 (1,473) | level 2: the blue drums | Serhii Khromov | https://polyhaven.com/a/barrel_03 |
