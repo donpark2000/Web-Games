@@ -82,16 +82,6 @@ time, each tried before publishing:
   scrolled to where it started; see "Q134 found and fixed". **Published: release 11.3**
   (2026-11-18); to try on the installed app.
 
-- **Q133. Topple!: the blocks left glow after a pause on the moon too** (2026-11-18,
-  developer: "parts of targets still to be knocked over are not glowing in Moon world
-  after a pause like they do in Earth. I would like that same feature."). True: the
-  park's glow (Q101: `waitingOn`, `glowAt`, `GLOW_WAIT` 4 s, 2 pulses, the stage's
-  glow meshes) was never hooked to the moon's drawing. To do: the same rule and timing
-  on the moon, the standing blocks lit in the moon's own way, logged as the park's.
-  **Developer (2026-11-18): "Q133 and Q134 and publish."** **Built and published: release
-  11.3** (the park's look, not a moon look of its own: the developer asked for "that
-  same feature"); see "Q133 built". To try on a device.
-
 - **Q132. Topple!: can every scene of both worlds be won with 3 stars?** (2026-11-18,
   developer: "After I play the blast ball on a real device I might [want] to review all
   previous scenes of all levels in both worlds to see if any others are impossible to
@@ -691,6 +681,18 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q133. Topple!: the blocks left glow after a pause on the moon too** (2026-11-18,
+  developer: "parts of targets still to be knocked over are not glowing in Moon world
+  after a pause like they do in Earth. I would like that same feature."). True: the
+  park's glow (Q101: `waitingOn`, `glowAt`, `GLOW_WAIT` 4 s, 2 pulses, the stage's
+  glow meshes) was never hooked to the moon's drawing. To do: the same rule and timing
+  on the moon, the standing blocks lit in the moon's own way, logged as the park's.
+  **Developer (2026-11-18): "Q133 and Q134 and publish."** **Built and published: release
+  11.3** (the park's look, not a moon look of its own: the developer asked for "that
+  same feature"); see "Q133 built".
+  **Closed (2026-11-21): the developer, playing the live site: "the glow of leftover
+  blocks in Moon world works. We can close that."**
 
 - **Q120. Topple!: the moon on the old tablet** (2026-11-17, Claude, building 11.0). The moon
   base draws at full quality (shadows, pixel ratio up to 2); the park's step-down on a
@@ -26739,3 +26741,13 @@ of 193).
   downloads and pictures): recorded; ask to purge once the park is judged on the tablet.
 - **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 and Q133
   (site 11.3: to try), Q121, as before otherwise.
+
+## 2026-11-21: Q133 closed; lab 0.4 on the tablet tonight
+
+- **Q133 closed** (the moon's leftover blocks glow after a pause, site 11.3): the
+  developer, on the live site: "the glow of leftover blocks in Moon world works. We can
+  close that." Moved to Resolved.
+- **Developer:** will try Topple Lab 0.4 on the 2019 tablet tonight, for the bush's look
+  (look C) and how smoothly it runs.
+- **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 (site 11.3:
+  to try), Q121, as before otherwise.
