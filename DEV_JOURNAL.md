@@ -10,6 +10,21 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q143. Topple!: the moon's shooting stars are almost never on the screen** (2026-11-22, developer:
+  "At one point I suggested a shooting star in the sky ... once and a while. Like maybe once per
+  scene for moon level and posssibly star light. If it is there I did not notice ... Is it
+  there?"). It's in the moon's code since 11.0 (site and lab alike: one every 8-22 s, 0.9 s, a thin
+  line), started 30-55 m up at z -70, **above what the view shows** (its top there is 22-24 m
+  sideways, 28-30 upright; never checked on the screen when built: the test only counts them).
+  **Measured** (scratch `star.js`, 4,000 stars by the game's own sums through its camera, level 6
+  and 8): any of it ever on the canvas in 0.6-1.3% (1280×800), 0.6-0.8% (780×340), 2.9-5.8%
+  (1024×768), 16-20% upright (800×1280, 393×760). So about one in 20-40 minutes sideways, one in
+  a minute and a half upright. **Star Light (level 5) has none** (Hardest's falling star there is a
+  thing in the way). **Proposed (lab):** about one a scene, on the moon and Star Light, placed by
+  the view (in the sky it shows, clear of the level's name and the hearts), a brighter streak
+  with a fading tail, its time varied; logged; a test that it's on the screen at the sizes above.
+  **To ask:** build it in the lab?
+
 - **Q142. Topple Lab: the moon's first scene sluggish for a few seconds on the tablet** (2026-11-22,
   developer, lab 0.10, moon level 1: phone and tablet "look fine and play well"; the tablet
   "sluggish for a few seconds at the beginning of the first scene and then everything is OK",
