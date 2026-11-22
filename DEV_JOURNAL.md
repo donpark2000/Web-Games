@@ -27248,3 +27248,31 @@ passed; live 20 s after the push (62d710a7aeda); site still 11.7.
 - **Test** (`tests/topple-lab-moon.test.js`): the real watch fed slow frames: the park slow first, the
   moon slow first, both going to the lightest, a device that keeps up never changed. **7
   deliberate breaks** (this and 11.8's fix): all caught. Full suite: **829 passed**; both release checks ready.
+
+## 2026-11-22: Site 11.8 and Topple Lab 0.11 published and live
+
+- **Developer: "Publish both".** `main` = 59dfb53; tags `v11.8` and `lab-v0.11`; GitHub releases (11.8
+  Latest, the lab's a pre-release); both checks ready, 829 tests passed on that commit. Both live 20 s
+  after the push: site 7acb374e8e70, lab 2f5c786d0641.
+- **Checked live** in the browser pane: "Let's Play! 11.8 · Nov 22, 2026 · 7acb37" and "Topple Lab 0.11
+  · Nov 22, 2026 · 2f5c78"; the site's level 2 in the light drawing (`?drawing=light`): 29
+  photographed materials, the most metal of them 0.2 (it was 1); the lab's log "drawing ... world:
+  park" and "moon: drawn as the park: light"; no console errors.
+- **The lab's update keeps what hasn't changed, seen at last** (asked of the developer's devices
+  since lab 0.3): 0.10 → 0.11 in the pane: **kept 256, fetched 10**, from 440789cab873.
+- **Developer on lab 0.10's moon level 1:** "Both look fine and play well" (phone and tablet).
+- **No localhost servers running** (Claude's scripts stop their own).
+
+**Status (start here next session)**
+- **Live: site 11.8 and Topple Lab 0.11.** `block-game` = `main` plus this entry.
+- **To try (developer):** lab levels 2-5 and the moon's levels 2-5 (looks and smoothness); the moon's
+  start on the tablet after a park level (Q142); the site's level 2 on the tablet (Q141, if it
+  draws lighter there: the log's "drawing" line says).
+- **To ask:** levels 3 and 5 without their mountains: kept? The light drawing remembered across
+  releases too (now: each release measures again)? The proposed skill lesson ("Check the reduced
+  modes of a visual change"): add, watch or drop?
+- **Next in the lab:** what the trial finds; the moon's sounds (Q121).
+- **Test files:** `Web-Games-testing\2026-11-22_levels\`: recorded; ask to purge once the levels are
+  judged.
+- **Open questions:** Q141 and Q142 (live: to try), Q139 (the lab), Q136 and Q130 (site 11.4: to
+  try), Q134 (site 11.3: to try), Q121, as before otherwise.
