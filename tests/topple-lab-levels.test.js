@@ -24,6 +24,9 @@ async function named(labRoot) {
   for (const m of src.matchAll(/^ {2}\w+: \{ asset: '(\w+)', size: [\d.]+, (arm|rough): true, dir: LEVELS_DIR \},$/gm)) out.push(`${m[1]}_col.jpg`, `${m[1]}_nor.jpg`, `${m[1]}_${m[2]}.jpg`);
   for (const m of src.matchAll(/sky: '(\w+)', skyDir: LEVELS_DIR/g)) out.push(`sky_${m[1]}.jpg`);
   for (const m of src.matchAll(/\], ice: '(\w+)',/g)) out.push(`${m[1]}_col.jpg`, `${m[1]}_nor.jpg`);
+  for (const m of src.matchAll(/matte: '(\w+)', night: true/g)) out.push(`${m[1]}.jpg`);
+  for (const m of src.matchAll(/loadTex\('(\w+)\.jpg', LEVELS_DIR\)/g)) out.push(`${m[1]}.jpg`);
+  for (const m of src.matchAll(/skyline: '(\w+)',/g)) out.push(`${m[1]}.json`);
   return [...new Set(out)];
 }
 function jpegSize(buf) {
@@ -40,9 +43,17 @@ async function problems(labRoot) {
   const credits = await readFile(path.join(labRoot, DIR, 'CREDITS.md'), 'utf8').catch(() => '');
   for (const f of files) {
     if (!credits.includes(`\`${f}\``)) out.push(`${f}: not credited`);
+    if (f.endsWith('.json')) {
+      // a night sky's skyline: 2048 rows, all between its highest and lowest
+      try {
+        const { H, top, low, rows } = JSON.parse(await readFile(path.join(labRoot, DIR, f), 'utf8'));
+        if (rows.length !== 2048 || !(top > 0 && top < low && low < 1) || rows.some(r => r < Math.floor(top * H) || r > Math.ceil(low * H))) out.push(`${f}: not a skyline`);
+      } catch (e) { out.push(`${f}: ${e.code === 'ENOENT' ? 'missing' : e.message}`); }
+      continue;
+    }
     try {
       const [w, h] = jpegSize(await readFile(path.join(labRoot, DIR, f)));
-      if (f.startsWith('sky_') ? w !== 4096 || h !== 2048 : w !== h || ![256, 512].includes(w)) out.push(`${f}: ${w}x${h}`);
+      if (f.startsWith('matte_') ? w !== 4096 || h > 512 : f.startsWith('sky_') ? w !== 4096 || h !== 2048 : w !== h || ![256, 512].includes(w)) out.push(`${f}: ${w}x${h}`);
     } catch (e) { out.push(`${f}: ${e.code === 'ENOENT' ? 'missing' : e.message}`); }
   }
   for (const f of await readdir(path.join(labRoot, DIR))) if (f !== 'CREDITS.md' && !files.includes(f)) out.push(`${f}: named by no level`);
@@ -52,7 +63,7 @@ async function problems(labRoot) {
 test("lab levels: its photos are there, a fit size, credited and saved for offline; no others", async () => {
   const labRoot = path.join(root, LAB), { out, checked } = await problems(labRoot);
   assert.deepEqual(out, []);
-  assert.ok(checked >= 9, `only ${checked} photos checked`);
+  assert.ok(checked >= 13, `only ${checked} photos checked`);
   const saved = await labFiles(labRoot);
   for (const f of await named(labRoot)) assert.ok(saved.includes(`${DIR}/${f}`), `${f} not saved for offline`);
 });

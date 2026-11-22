@@ -27086,3 +27086,27 @@ it that didn't take.)
 - **Pictures:** three rounds, all five scenes, Hardest, a phone's screen (`L4\try1`, `try2`, `final`).
 - **Tests:** the cactus's ribs (within a tenth, all alike); the models' and photos' checks cover
   the three boulders.
+
+**Lab 0.8 published and live**: `main` = 400c302, tag `lab-v0.8`, a GitHub pre-release; 821 tests
+passed; live 20 s after the push (9a05081e957d); site still 11.7.
+
+## 2026-11-22: The lab's level 5 (lab 0.9)
+
+- **The night is made once, by a script** (scratch `night.mjs`, 5.5 s), not on the device at each
+  opening: the snowy field's sky (blue well over red, softly, so twigs stay) swapped for a
+  night's, 7,416 stars (most faint, few bright, some warm or blue) and a faint Milky Way; the
+  land's light and dark in blues, as Topple!'s. 0.57 MB, 4096×2048 (Topple!'s is made at
+  2048×1024, its skyline in steps and its stars blotches). The photo's sun half is out of the
+  view; its clouds low down are taken as sky.
+- **Found: the moon's halo was cut in blocks** by the skyline's mask (a row a column: all
+  under a tree's top twig is land). A picture of what is sky (`matte_snowy_night.jpg`, 4096×297,
+  150 KB) does it twig by twig; the skyline's rows still choose the moon's place.
+- **The photo's ground takes no light**, so the glow on the snow was gone: a pool of each
+  block's colour under it (added light, fainter the higher the block and the more of them).
+  Ten blocks' halos over each other went white: each fainter the more there are (0.42 / √(n/4)).
+- **The moon:** NASA's LRO colour map (SVS 4720), the near side straight on, 256 px, 21 KB.
+- **Frames:** 13,568 triangles and 78 draw calls in 0.5 → 46,140-58,212 and 66-162 (Hardest).
+- **Pictures:** two rounds, Hardest (lantern, sled, star), a phone's screen (`L5\try1`, `try2`). Left
+  as drawn: the owl and its tree, the sled, the lantern, the glowing ball.
+- **Tests:** the photos' check takes in the night's files (the skyline 2,048 rows within its bounds).
+  `nightSky` is gone from the lab's copy (the main site's is untouched).

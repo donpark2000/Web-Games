@@ -65,9 +65,11 @@ export const SETTINGS = {
     mats: { wood: 'timber', barrel: 'barrel' }, sling: 'planks', sun: [1.6, 4.4, 2.4], hemi: 0.75 },
   // Star Light (developer, 2026-11-12, Q87: "Night time with a moon and
   // stars in the sky. Similar vista to the winter level but low light"):
-  // level 3's photo at night (its sky swapped for stars, its land moonlit:
-  // nightSky()), the moon for the sun; `lights` the scene's own at night.
-  5: { name: 'night', sky: 'lago_disola', night: true, ground: 'snow', surfaces: ['snow', 'bark', 'planks', 'steel', 'concrete'],
+  // the moon for the sun; `lights` the scene's own at night.
+  // (the lab, 2026-11-22: level 3's snowy field at night, made once by a script
+  // (its sky, stars and Milky Way; its land moonlit; its skyline in a file), and
+  // its snow underfoot)
+  5: { name: 'night', sky: 'snowy_night', skyDir: LEVELS_DIR, skyline: 'skyline_snowy_night', matte: 'matte_snowy_night', night: true, ground: 'photo', photo: { camH: 1.6, R: 120, shade: 0.5, shadeColour: '#02040C' }, surfaces: ['cleanSnow', 'boulder', 'bark', 'planks', 'steel'],
     mats: { glow: 'glow' }, sling: 'planks', sun: [1.8, 4.4, 1.6], hemi: 0.45,
     lights: { hemi: ['#7C90C8', '#1C2236'], sun: ['#B8C8FF', 0.55], fill: ['#8496D8', 0.12] } },
 };
@@ -220,10 +222,14 @@ export async function makeSetting(n, ctx) {
   const models = await loadModels(S.models ?? []);
   const skyTex = await loadTex(`sky_${S.sky}.jpg`, S.skyDir);
   const leafTex = S.leaf ? await loadTex('leaf.png', PARK_DIR) : null;
+  const skyline = S.skyline ? await fetch(`${LEVELS_DIR}${S.skyline}.json`).then(r => { if (!r.ok) throw new Error(`${S.skyline}.json not loaded`); return r.json(); }) : null;
+  const matteTex = S.matte ? await loadTex(`${S.matte}.jpg`, LEVELS_DIR) : null;
+  const moonTex = S.night ? await loadTex('moon_disc.jpg', LEVELS_DIR) : null;
   const iceMaps = S.ice ? await Promise.all(['col', 'nor'].map(k => loadTex(`${S.ice}_${k}.jpg`, LEVELS_DIR))) : null;
-  // the sky: the photo all round (at night, made dark: nightSky); it lights the shiny parts too
+  // the sky: the photo all round (at night, made so beforehand); it lights the shiny parts too
   let bg, night = null;
-  if (S.night) { night = nightSky(skyTex.image); bg = night.tex; } else bg = skyTex.clone();
+  bg = skyTex.clone();
+  if (S.night) night = { rows: skyline.rows, H: skyline.H, matte: matteTex, top: skyline.top, low: skyline.low, moon: moonTex, ms: 0, skyline: [0, 0.25, 0.5, 0.75].map(f => Math.round(1000 * skyline.rows[Math.floor(f * skyline.rows.length)] / skyline.H) / 1000) };
   bg.mapping = THREE.EquirectangularReflectionMapping; bg.colorSpace = THREE.SRGBColorSpace; bg.needsUpdate = true;
   const pm = new THREE.PMREMGenerator(ctx.renderer), env = pm.fromEquirectangular(bg).texture; pm.dispose();
   const horizon = S.night ? '#141C33' : horizonColour(skyTex.image);
@@ -291,7 +297,37 @@ export async function makeSetting(n, ctx) {
       const mid = k => (Math.min(...bs.map(b => b[k])) + Math.max(...bs.map(b => b[k]))) / 2;
       glowLight.position.set(mid('x'), Math.min(1.2, mid('y')), Math.max(...bs.map(b => b.z + b.d / 2)) + 0.4);
     };
-    out.glowNow = () => { const on = lit.filter(m => m.visible).length; glowLight.intensity = lit.length ? 7 * on / lit.length : 0; return on; };
+    // (the lab: the photo's snow takes no light, so each glowing block has a pool of
+    // its colour on the snow under it, fainter the higher it is)
+    const pools = [];
+    const poolMat = c => new THREE.MeshBasicMaterial({ map: poolTex(), color: c || '#FFFFFF', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+    const poolGeo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
+    const placedWas = out.placed;
+    out.placed = (meshes, parts) => {
+      placedWas(meshes, parts);
+      // many blocks' halos over each other went white: each fainter the more there are
+      const n = parts.blocks.filter(b => b.mat === 'glow').length;
+      for (const m of meshes) for (const q of m.children) if (q.isSprite) q.material.opacity = 0.42 / Math.sqrt(Math.max(1, n / 4));
+      for (const p of pools) { group.remove(p.m); p.m.material.dispose(); }
+      pools.length = 0;
+      if (!S.photo) return;
+      meshes.forEach((m, i) => {
+        const b = parts.blocks[i];
+        if (b?.mat !== 'glow') return;
+        const q = new THREE.Mesh(poolGeo, poolMat(b.c)); q.renderOrder = 1; group.add(q);
+        pools.push({ m: q, of: m, size: 1.5 + 1.6 * Math.max(b.w, b.d) });
+      });
+    };
+    out.glowNow = () => {
+      const on = lit.filter(m => m.visible).length; glowLight.intensity = lit.length ? 7 * on / lit.length : 0;
+      const each = 1 / Math.sqrt(Math.max(1, pools.length / 4));
+      for (const p of pools) {
+        const k = p.of.visible ? Math.max(0, 1 - p.of.position.y / 2.6) : 0;
+        p.m.visible = k > 0.02;
+        if (p.m.visible) { const s = p.size * (1 + 0.5 * p.of.position.y); p.m.position.set(p.of.position.x, 0.012, p.of.position.z); p.m.scale.set(s, 1, s); p.m.material.opacity = 0.42 * k * each; }
+      }
+      return on;
+    };
   }
 
   /* ---------- the ground ---------- */
@@ -454,7 +490,8 @@ export async function makeSetting(n, ctx) {
     // frightened'"), and the owl on a bare tree at the view's side
     for (const [px, pz, s] of [[-8, -15, 1.3], [-10.5, -18, 1.6], [9.5, -19, 1.4], [12, -22, 1.8]]) {
       const tiers = [[1.4, 0.8], [2.2, 0.62], [2.9, 0.45], [3.4, 0.3]].map(([y, r]) => ({ r: r * s, at: [px, y * s, pz] }));
-      group.add(builders.pine({ at: [px, 0, pz], r: 0.12 * s, h: 3.9 * s, tiers }));
+      group.add(builders.pine({ at: [px, 0, pz], r: 0.12 * s, h: 3.9 * s, tiers, seed: Math.round(50 - px), cast: false, density: 0.8 }));
+      group.add(contacts([{ x: px, z: pz, w: 2.2 * s, d: 1.8 * s }], 0.5));
     }
     decor.push(sky(group, ctx.camera, night, ctx.covers ?? (() => [])));
     decor.push(owl(group, photoMat(maps.bark, { repeat: [0.4, 2], extra: { color: '#8D8A96' } }), ctx.sound ?? (() => {})));
@@ -706,56 +743,6 @@ function horizonColour(img) {
 
 /* ---------- the night (Star Light) ---------- */
 
-// Level 3's photo at night, as a canvas (2048 x 1024, equirectangular): the
-// sky found column by column (blue: its blue well over its red; the snowy
-// peaks, the forest and the clouds' white aren't), from 0.3 of the way
-// down (above that it's all sky: the sun is there) to the horizon; above
-// that skyline a night sky with stars, below it the land in moonlight
-// (its brightness, in blues). { tex, ms, skyline: the rows (0-1), a sample }.
-export function nightSky(img, W = 2048, H = 1024) {
-  const t0 = performance.now();
-  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-  const g = cv.getContext('2d', { willReadFrequently: true });
-  g.drawImage(img, 0, 0, W, H);
-  const im = g.getImageData(0, 0, W, H), d = im.data;
-  const sky = i => d[i + 2] - d[i] > 22 && d[i + 2] > 110;
-  const top = Math.round(0.3 * H), low = Math.round(0.52 * H), line = new Int32Array(W);
-  for (let x = 0; x < W; x++) {
-    let y = top, run = 0;
-    for (; y < low; y++) { if (sky((y * W + x) * 4)) run = 0; else if (++run >= 4) { y -= 3; break; } }
-    line[x] = Math.min(y, low);
-  }
-  // a stray column (a gap between trees) evened out by its neighbours
-  const sm = Int32Array.from(line, (v, x) => { const a = [-2, -1, 0, 1, 2].map(k => line[(x + k + W) % W]).sort((p, q) => p - q); return a[2]; });
-  const r = rng(77);
-  for (let x = 0; x < W; x++) {
-    const s = sm[x];
-    for (let y = 0; y < H; y++) {
-      const i = (y * W + x) * 4;
-      if (y < s) {
-        // the sky: deep blue overhead, a little lighter low down
-        const k = y / s, f = k * k;
-        d[i] = 5 + 14 * f; d[i + 1] = 9 + 24 * f; d[i + 2] = 26 + 46 * f;
-      } else {
-        // the land, moonlit (feathered over 2 rows into the sky's colour)
-        const l = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2], k = Math.min(1, (y - s + 1) / 3);
-        d[i] = d[i] * (1 - k) * 0.1 + k * l * 0.3; d[i + 1] = d[i + 1] * (1 - k) * 0.1 + k * l * 0.36; d[i + 2] = d[i + 2] * (1 - k) * 0.2 + k * l * 0.52;
-      }
-    }
-  }
-  g.putImageData(im, 0, 0);
-  // stars, over the sky only; fewer high up (rows there are squeezed on the sphere)
-  for (let n = 0; n < 2600; n++) {
-    const x = r() * W, y = Math.pow(r(), 0.7) * H * 0.5;
-    if (y > sm[Math.floor(x)] - 3 || r() > Math.sin(Math.PI * y / H) * 1.1) continue;
-    const b = r(), s = b > 0.97 ? 1.6 : b > 0.85 ? 1.1 : 0.7;
-    g.fillStyle = `rgba(${b > 0.9 ? '255,240,220' : b < 0.15 ? '200,215,255' : '255,255,255'},${0.35 + 0.65 * r()})`;
-    g.beginPath(); g.arc(x, y, s, 0, Math.PI * 2); g.fill();
-  }
-  const tex = new THREE.CanvasTexture(cv);
-  return { tex, ms: Math.round(performance.now() - t0), rows: sm, H, skyline: [0, 0.25, 0.5, 0.75].map(f => Math.round(1000 * sm[Math.floor(f * W)] / H) / 1000) };
-}
-
 // A soft round glow, added onto what glows (a block, the ball): a sprite
 // `size` m across, its colour, see-through `a` at its middle; light added.
 const haloTex = (() => { let t = null; return () => t ??= canvasTex(128, 128, (g, w, h) => {
@@ -768,6 +755,12 @@ function halo(colour, size, a) {
   s.scale.set(size, size, 1); s.renderOrder = 2;
   return s;
 }
+// A pool of light on the ground: bright in its middle, fading out.
+const poolTex = (() => { let t = null; return () => t ??= canvasTex(128, 128, (g, w, h) => {
+  const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,255,255,.5)'); gr.addColorStop(0.65, 'rgba(255,255,255,.12)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+}); })();
 // Glowing blocks: a material a colour (made once each), lit from inside: the
 // colour glowing, brighter at the edges (frosted), a little see-through.
 function glowMats() {
@@ -790,7 +783,7 @@ function glowMats() {
 // The moon and a cloud that drifts across past it (src/core/topple-sky.js).
 // Both are behind the photo's land: a sphere 150 m round the camera writes
 // depth (no colour) wherever the photo is land (its skyline, from
-// nightSky()), and the moon and cloud are drawn beyond it, so the
+// its file), and the moon and cloud are drawn beyond it, so the
 // mountains hide them as they would (developer, 2026-11-12: they showed
 // "between the mountains in the back and the trees"). The moon goes where
 // the view shows the most sky (moonSpot), worked out again whenever the
@@ -803,11 +796,14 @@ function sky(group, camera, night, covers) {
   for (let x = 0; x < W; x++) line[x] = night.rows[x] / night.H;
   const lineTex = new THREE.DataTexture(line, W, 1, THREE.RedFormat, THREE.FloatType);
   lineTex.wrapS = THREE.RepeatWrapping; lineTex.magFilter = lineTex.minFilter = THREE.NearestFilter; lineTex.needsUpdate = true;
+  const matte = night.matte ? night.matte.clone() : null;
+  if (matte) { matte.wrapS = THREE.RepeatWrapping; matte.colorSpace = THREE.NoColorSpace; matte.generateMipmaps = false; matte.minFilter = THREE.LinearFilter; matte.needsUpdate = true; }
   const mask = new THREE.Mesh(new THREE.SphereGeometry(MASK_R, 48, 24), new THREE.ShaderMaterial({
-    uniforms: { line: { value: lineTex } },
+    // (the lab: between the skyline's highest and lowest rows, a picture of what is sky, twig by twig)
+    uniforms: { line: { value: lineTex }, matte: { value: matte }, top: { value: night.top ?? 1 }, low: { value: night.low ?? 1 } },
     vertexShader: 'varying vec3 vW; void main() { vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
     // as three.js maps the background (equirectUv): land where the row is below the skyline
-    fragmentShader: 'uniform sampler2D line; varying vec3 vW; void main() { vec3 d = normalize(vW - cameraPosition); float u = atan(d.z, d.x) * 0.1591549 + 0.5; float v = asin(clamp(d.y, -1.0, 1.0)) * 0.3183099 + 0.5; if (1.0 - v < texture2D(line, vec2(u, 0.5)).r) discard; gl_FragColor = vec4(0.0); }',
+    fragmentShader: 'uniform sampler2D line, matte; uniform float top, low; varying vec3 vW; void main() { vec3 d = normalize(vW - cameraPosition); float u = atan(d.z, d.x) * 0.1591549 + 0.5; float v = asin(clamp(d.y, -1.0, 1.0)) * 0.3183099 + 0.5; float r = 1.0 - v; if (low < 1.0) { if (r < top) discard; if (r < low && texture2D(matte, vec2(u, 1.0 - (r - top) / (low - top))).r > 0.5) discard; } else if (r < texture2D(line, vec2(u, 0.5)).r) discard; gl_FragColor = vec4(0.0); }',
     side: THREE.BackSide, colorWrite: false, depthWrite: true,
   }));
   mask.frustumCulled = false; mask.renderOrder = -1; group.add(mask);
@@ -819,7 +815,12 @@ function sky(group, camera, night, covers) {
     g.fillStyle = gr; g.fillRect(0, 0, w, h);
     g.fillStyle = '#FFF6DE'; g.beginPath(); g.arc(w / 2, h / 2, w * 0.2, 0, Math.PI * 2); g.fill();
     const r = rng(9);
-    for (let i = 0; i < 9; i++) { g.fillStyle = `rgba(190,180,160,${0.25 + 0.25 * r()})`; const a = r() * 6.3, q = r() * w * 0.14; g.beginPath(); g.arc(w / 2 + Math.cos(a) * q, h / 2 + Math.sin(a) * q, 4 + r() * 12, 0, Math.PI * 2); g.fill(); }
+    // (the lab: the real moon's near side, NASA's map of it, a little warm)
+    if (night.moon) {
+      g.save(); g.beginPath(); g.arc(w / 2, h / 2, w * 0.2, 0, Math.PI * 2); g.clip();
+      g.drawImage(night.moon.image, w * 0.3, h * 0.3, w * 0.4, h * 0.4);
+      g.globalCompositeOperation = 'multiply'; g.fillStyle = '#FFF3DA'; g.fillRect(0, 0, w, h); g.restore();
+    } else for (let i = 0; i < 9; i++) { g.fillStyle = `rgba(190,180,160,${0.25 + 0.25 * r()})`; const a = r() * 6.3, q = r() * w * 0.14; g.beginPath(); g.arc(w / 2 + Math.cos(a) * q, h / 2 + Math.sin(a) * q, 4 + r() * 12, 0, Math.PI * 2); g.fill(); }
   });
   const sprite = (tex, op) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: op, depthWrite: false, fog: false })); group.add(s); return s; };
   const moon = sprite(moonTex, 1), cloud = sprite(cloudTex(), 1);

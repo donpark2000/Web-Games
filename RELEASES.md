@@ -1114,6 +1114,16 @@ Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
 
+## 0.9 (2026-11-22, version 62d710a7aeda)
+
+Star Light (level 5): the snowy field at night.
+
+- **The night**: level 3's snowy field by moonlight, its sky a night of sharp stars with a faint Milky Way; the trees' twigs against it are real (the skyline was cut in steps before). The snow underfoot is the photo's.
+- **The moon** is the real one (NASA's map of it), seen between the twigs when it's low.
+- **The glowing blocks light the snow** under them in their own colours, less the higher they are; many blocks' glow no longer turns white.
+- The firs and the rock as in Frosty Times.
+- 0.8 MB added (sources and licence: `topple-lab/data/levels/CREDITS.md`; the moon NASA's). The level no longer makes its night from the photo as it opens. The play is as before; levels 6-10 as in Topple! 11.7.
+
 ## 0.8 (2026-11-22, version 9a05081e957d)
 
 Cactus Canyon (level 4) on its own desert.

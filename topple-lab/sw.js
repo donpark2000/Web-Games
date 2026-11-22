@@ -27,9 +27,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '9a05081e957d';
+const VERSION = '62d710a7aeda';
 const MADE = '2026-11-22';
-const RELEASE = '0.8';
+const RELEASE = '0.9';
 const FILES = [
   '../css/bridges.css',
   '../css/cards.css',
@@ -203,10 +203,14 @@ const FILES = [
   '../src/vendor/three/three.module.min.js',
   'data/levels/ice004_col.jpg',
   'data/levels/ice004_nor.jpg',
+  'data/levels/matte_snowy_night.jpg',
+  'data/levels/moon_disc.jpg',
   'data/levels/rock_boulder_dry_arm.jpg',
   'data/levels/rock_boulder_dry_col.jpg',
   'data/levels/rock_boulder_dry_nor.jpg',
   'data/levels/sky_snowy_field.jpg',
+  'data/levels/sky_snowy_night.jpg',
+  'data/levels/skyline_snowy_night.json',
   'data/levels/snow010a_arm.jpg',
   'data/levels/snow010a_col.jpg',
   'data/levels/snow010a_nor.jpg',
@@ -438,10 +442,14 @@ const HASHES = {
   '../src/vendor/three/three.module.min.js': '3e690ac7d180',
   'data/levels/ice004_col.jpg': 'e9fbc0be4c0d',
   'data/levels/ice004_nor.jpg': '43b8c0de1d2b',
+  'data/levels/matte_snowy_night.jpg': 'ae2005f55e70',
+  'data/levels/moon_disc.jpg': '3f006848c05c',
   'data/levels/rock_boulder_dry_arm.jpg': '1e9ff9c11312',
   'data/levels/rock_boulder_dry_col.jpg': 'ac269c49a41b',
   'data/levels/rock_boulder_dry_nor.jpg': 'b7026d2aed22',
   'data/levels/sky_snowy_field.jpg': 'd1bc0a1f8d05',
+  'data/levels/sky_snowy_night.jpg': 'f4fcace9f8ab',
+  'data/levels/skyline_snowy_night.json': '96248d55786e',
   'data/levels/snow010a_arm.jpg': '4a758a1488cc',
   'data/levels/snow010a_col.jpg': '0008aa11991a',
   'data/levels/snow010a_nor.jpg': '54df5433b4c4',
@@ -478,7 +486,7 @@ const HASHES = {
   'icons/icon-192.png': '42f2c87ad180',
   'icons/icon-512.png': '557113230560',
   'icons/icon.svg': 'c1d6df4e0698',
-  'index.html': '6037ea16455d',
+  'index.html': 'bf424f6f7c37',
   'lab/begin.js': 'cfba1bdae267',
   'lab/start.js': '57140b92aad6',
   'lab/storage.js': '0d2efcf2f431',
@@ -488,13 +496,13 @@ const HASHES = {
   'src/core/fir.js': '364da6bcf6df',
   'src/core/model-data.js': 'a1a5d3f67b88',
   'src/core/park-ground.js': '2dbed4a23af9',
-  'src/core/release.js': '77fb76ca8233',
+  'src/core/release.js': 'c14332795be7',
   'src/ui/look3d.js': '6e362b7ebc83',
   'src/ui/topple-cactus.js': '09368f16ab91',
   'src/ui/topple-fir.js': 'bdff150d2178',
   'src/ui/topple-models.js': 'db4c4b536743',
   'src/ui/topple-scene.js': 'c26d905342fe',
-  'src/ui/topple-sets.js': 'cda0bf6651b9',
+  'src/ui/topple-sets.js': '4ae6a69c6c41',
   'src/ui/topple-tri.js': '80712dbe8e61',
   'src/ui/topple.js': '9b4c9e0335fd',
   'topple.html': '510359f584ae',
