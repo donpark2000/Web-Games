@@ -10,6 +10,20 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q140. Topple Lab: the wrong icon once installed on the 2019 Galaxy Tab A** (2026-11-22,
+  developer: "the icon is not right. Something about google chrome. No the purple teddy
+  that appears on my phone."). Not the files: the lab's manifest has the site's fields, its
+  icons (192, 512, SVG) are the purple bear and are served live (all 200, right types); the
+  iPhone takes `apple-touch-icon.png` instead, so it doesn't test the manifest's. Not known
+  yet: what the icon shows (Chrome's own logo, or the bear with a small Chrome badge), and
+  which menu item was used. Read (MDN, "Making PWAs installable"): Chrome adds a
+  browser-badged shortcut instead of an app where Google Mobile Services is absent; its
+  other reasons aren't covered. **Guess, not tested:** Let's Play!, if installed on that
+  tablet, has the scope `/Web-Games/`, which holds `/Web-Games/topple-lab/`; Chrome may take
+  the lab's pages as part of it and offer only a shortcut. **To ask:** what the icon looks
+  like; whether the menu said "Install app" or "Add to Home screen / Create shortcut";
+  whether it opens with Chrome's address bar; whether Let's Play! is installed there.
+
 - **Q139. Topple!: a more realistic look; a Topple Lab apart** (2026-11-20, developer:
   "our games so far look much more like low budget cartoons", asking for a plan with CC0
   assets, under about 30 MB added, still offline). What's there: three.js r160, no tone
@@ -26751,3 +26765,22 @@ of 193).
   (look C) and how smoothly it runs.
 - **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 (site 11.3:
   to try), Q121, as before otherwise.
+
+## 2026-11-22: Lab 0.4 on the tablet: good; bushes by difficulty; the icon (Q140)
+
+- **Developer, the lab's park level on the 2019 Galaxy Tab A:** "Look is good and gameplay
+  is good." Bush look C passes on the tablet, look and smoothness (lab 0.4; no log sent, so
+  no frame times).
+- **"not too many bushes in harder level. More in normal and hardest. Maybe thats just
+  random":** random. Level 1's scenes 1-4 each get a bush or a tree by the game's seed
+  (`levelPlan`), scene 5 both; the difficulty isn't an input (`sceneChoice`,
+  `makeLayout`), and each difficulty is a game with a seed of its own. The lab's drawing
+  (`topple-sets.js`, `topple-scene.js`, `park-ground.js`) doesn't read it either.
+  **Dealt** (20,000 seeds): 0-4 bushes in scenes 1-4 in 6.3%, 25.3%, 36.9%, 25.4%, 6.2% of
+  games. **Built** (`makeScene`, 40 seeds, the same ones for each difficulty, 200 scenes
+  each): 127 bushes on Normal, Harder and Hardest alike, scene by scene (26 19 26 16 40).
+  Shows: the same seed gives the same count on all three. Doesn't show: what the
+  developer's own three games were dealt. So about 1 game in 3 has 0 or 1 bush in scenes 1-4.
+  **To ask:** leave it random, or deal at least one (or two) bushes a game?
+  (It would be a change to the main game's deal, so the site too, not only the lab.)
+- **The icon:** new Q140.
