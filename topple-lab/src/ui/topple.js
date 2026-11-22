@@ -39,6 +39,7 @@ import { log, startLog } from './debuglog.js';
 import { sound } from './sound.js';
 import { resumable } from './resume.js';
 import { drawWatch } from './drawwatch.js';
+import { sharedDrawing } from '../core/shared-drawing.js';   // (the lab's own)
 import { MAX_FRAME_S } from '../core/fixed-step.js';
 import { moverFor, openShare, gaps, flakesOn, meetsThings } from '../core/topple-movers.js';
 import {
@@ -504,12 +505,13 @@ let pad = null;         // the drag pad: { x, y, r } px in the park
 let demo = null;        // the pad's show as a scene starts: { t } s, until a finger touches
 const perf = { frames: 0, physMs: 0, dropped: 0, at: 0 };
 let drawing = null;        // the drawing's level, watched (src/ui/drawwatch.js)
+let allDrawings = null;    // (the lab) both worlds' drawings, drawn at that level
 let glowIdle = 0, glowsSaid = 0, glowPeak = 0;   // the wait for the next ball, and its glows logged (Q101)
 let thrownAt = 0;          // performance.now() of the latest throw (the glow's log: real time since it)
 // The moon base (levels 6-10, Q119): its drawing and physics (made the first
 // time a moon scene starts), and the scene under way: { scene, f: the lander,
 // held (the pad: steering), z0 (where it was steered from), lit, keys }.
-let moon3d = null, moonWorld = null, moonDrawing = null;
+let moon3d = null, moonWorld = null;
 const mo = { on: false, scene: null, f: null, held: false, z0: 0, lit: -1, keys: { up: false, down: false } };
 const onMoon = () => mo.on && !!mo.scene;
 
@@ -715,7 +717,10 @@ function makeStage() {
   world = physics.createWorld({ onHit });
   // a block knocked off the screen as it's held counts as down (Q103: the aim may reach past an upright view's side)
   world.unseen = unseenNow;
-  drawing = drawWatch('topple', stage, L);   // lighter on a slow device (Q99)
+  // lighter on a slow device (Q99); the lab: one level for both worlds (Q142), so what either
+  // showed the device needs, every level of both starts with (the log says which world showed it)
+  allDrawings = sharedDrawing(() => [stage, moon3d]);
+  drawing = drawWatch('topple', allDrawings, (msg, data) => L(msg, { ...data, world: mo.on ? 'moon' : 'park' }));
   L('3D started', { webgl: stage.webgl, three: 'r160', cannon: '0.20.0', pixelRatio: Math.min(devicePixelRatio || 1, 2), farLeaves: stage.farLeaves, farTrunkInLeavesM: trunksIn().far });
   new ResizeObserver(fit).observe($('park'));
   for (const cv of [canvas, $('cm')]) {
@@ -733,8 +738,9 @@ function makeMoonStage() {
   moon3d = moonDraw.makeMoon3d($('cm'));
   moonWorld = moonPhysics.createMoonWorld({ onHit: moonHit });
   L('moon: 3D started', { pixelRatio: Math.min(devicePixelRatio || 1, 2) });
-  // (the lab: its photos make it heavier to draw, so it's watched, as the park is, and drawn lighter on a slow device)
-  moonDrawing = drawWatch('topple-moon', moon3d, L);
+  // (the lab: its photos make it heavier to draw, so it's watched, as the park is, and drawn lighter on a
+  // slow device: from its first scene, if the park showed the device needs it)
+  L('moon: drawn as the park', { level: drawing?.level, cut: allDrawings.catchUp(moon3d) });
 }
 // Which canvas shows: the moon's for a moon scene, else the park's; the turn button with the moon's.
 function showWorld(moonOn) {
@@ -945,7 +951,7 @@ async function makeMoonScene(lv, kept, spec) {
   $('hint').hidden = true;
   renderTut();
   perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
-  moonDrawing?.restart();
+  drawing?.restart();
   glowIdle = 0; glowsSaid = 0;
   renderTally();
   L(kept ? 'moon scene picked up again' : tut ? 'tutorial: a part' : 'moon scene', {
@@ -1051,7 +1057,7 @@ function moonTick(dt, draw) {
   moon3d.setAim(p, lit);
   blastHand(ok, null, p && [p[0], 0, p[2]]);
   moon3d.render();
-  moonDrawing?.frame(performance.now());
+  drawing?.frame(performance.now());
 }
 
 // The thing that moves in the way, for the scene drawn (Q106): the one its

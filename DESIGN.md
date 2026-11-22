@@ -1890,9 +1890,12 @@ sounds), without "any risk of accidentally corrupting the current game".
   stands: `src/core/moon-ground.js`), panelled metal and rock laid from
   three sides (each block's own copy of a material keeps its shader:
   `copyMaterial`), NASA's Earth. Its photos load before the first moon
-  scene; without them it's drawn as Topple!'s. Its frames are watched for
-  themselves (`drawWatch('topple-moon')`) and it steps down as the park's
-  does. In the light drawings nothing is left all metal (`plainMetal`:
+  scene; without them it's drawn as Topple!'s. **One lighter drawing for
+  both worlds** (developer, 2026-11-22: "retain the need for lighter drawing
+  on the same device at all levels and worlds"; Q142, lab 0.11): one watch,
+  whichever world is shown, its cuts made to both worlds' drawings and to
+  one made later (`src/core/shared-drawing.js`); kept for the release, as
+  Topple!'s. In the light drawings nothing is left all metal (`plainMetal`:
   Topple!'s steel and brick go dark there).
 - **`node tools/offline.js` brings both up to date**, the main site and
   then the lab (its pages, sw.js, file list and version), since the lab

@@ -1121,9 +1121,13 @@ Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
 
-## 0.11 (2026-11-22, version 8dbacf009a61)
+## 0.11 (2026-11-22, version 2f5c786d0641)
 
-The same fix as Topple! 11.8, which the lab shares (the light drawing's dark steel and brick). The lab's own levels had it already; nothing else changes.
+A slow device's lighter drawing is for every level of both worlds.
+
+- **One lighter drawing for the park's levels and the moon**: what either shows the device needs, every level of both worlds starts with, instead of each world finding out for itself over its first few seconds (the moon's sluggish start on the tablet, Q142). As before, a new release measures again.
+- The log says which world showed it.
+- With Topple! 11.8's fix, which the lab shares (the light drawing's dark steel and brick); the lab's levels had it already.
 
 ## 0.10 (2026-11-22, version 440789cab873)
 

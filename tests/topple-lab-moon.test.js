@@ -13,6 +13,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { LAB, labFiles } from '../tools/topple-lab.js';
 import { groundHeight } from '../topple-lab/src/core/moon-ground.js';
 import { moonScene, TURN_PAST } from '../src/core/topple-moon.js';
+import { sharedDrawing } from '../topple-lab/src/core/shared-drawing.js';
+import { drawWatch } from '../src/ui/drawwatch.js';
+import { LEVELS } from '../src/core/drawing.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = f => readFile(path.join(root, f), 'utf8').then(s => s.replace(/\r\n/g, '\n'));
@@ -146,12 +149,51 @@ test('lab: in the light drawing nothing is left all metal with nothing to reflec
   } finally { await rm(tmp, { recursive: true, force: true }); }
 });
 
+// Frames `ms` apart to a watch for `secs`, from time t; returns the time after.
+function frames(w, t, secs, ms) { for (const end = t + secs * 1000; t < end; t += ms) w.frame(t); return t; }
+const fakeDrawing = () => ({ got: [], setDrawing(c) { this.got.push(c); return c.shadows ? ['shadows'] : []; } });
+
+test('lab: the lighter drawing a device needs is for both worlds: shown by either, kept for a world drawn later (Q142)', () => {
+  // the park slow: the park drawn lighter, and the moon from its start
+  let park = fakeDrawing(), moon = null;
+  const said = [], all = sharedDrawing(() => [park, moon]);
+  let w = drawWatch('topple', all, (m, d) => said.push([m, d]));
+  assert.deepEqual(park.got, [{}], 'as drawn at first');
+  let t = frames(w, 0, 6, 100);
+  assert.equal(w.level, LEVELS[1].name);
+  assert.deepEqual(park.got.at(-1), LEVELS[1].cuts);
+  moon = fakeDrawing();
+  all.catchUp(moon);
+  assert.deepEqual(moon.got, [LEVELS[1].cuts], 'the moon starts as light as the park');
+  // still too slow, on the moon: both go to the lightest, and it's said once with what changed
+  w.restart();
+  t = frames(w, t + 5000, 6, 100);
+  assert.equal(w.level, LEVELS[2].name);
+  assert.deepEqual([park.got.at(-1), moon.got.at(-1)], [LEVELS[2].cuts, LEVELS[2].cuts]);
+  assert.deepEqual(said.filter(([m]) => m === 'drawing lighter').map(([, d]) => [d.from, d.to, d.cut]), [['as drawn', 'light', ['shadows']], ['light', 'lightest', ['shadows']]]);
+  // the moon slow first (the park not): the park is drawn lighter too
+  park = fakeDrawing(); moon = fakeDrawing();
+  const both = sharedDrawing(() => [park, moon]);
+  w = drawWatch('topple', both, () => {});
+  frames(w, 0, 6, 80);
+  assert.deepEqual([park.got.at(-1), moon.got.at(-1)], [LEVELS[1].cuts, LEVELS[1].cuts]);
+  // a device that keeps up: never changed
+  park = fakeDrawing(); moon = fakeDrawing();
+  w = drawWatch('topple', sharedDrawing(() => [park, moon]), () => {});
+  frames(w, 0, 20, 17);
+  assert.equal(w.level, LEVELS[0].name);
+  assert.deepEqual([park.got, moon.got], [[{}], [{}]]);
+});
+
 test('lab moon: the page waits for the photos, logs them, and watches its frames (drawn lighter on a slow device); drawn plain without them', async () => {
   const js = await read(`${LAB}/src/ui/topple.js`), moon = await read(`${LAB}/src/ui/topple-moon.js`);
   assert.match(js, /const got = await moon3d\.photos\(\);\n  if \(got\) L\('moon photos', got\);\n  const look/);
-  assert.match(js, /moonDrawing = drawWatch\('topple-moon', moon3d, L\);/);
-  assert.match(js, /moon3d\.render\(\);\n  moonDrawing\?\.frame\(performance\.now\(\)\);/);
-  assert.match(js, /moonDrawing\?\.restart\(\);/);
+  // one watch for both worlds (Q142)
+  assert.match(js, /allDrawings = sharedDrawing\(\(\) => \[stage, moon3d\]\);\n  drawing = drawWatch\('topple', allDrawings, /);
+  assert.equal(js.match(/drawWatch\(/g)?.length, 1, 'one watch');
+  assert.match(js, /moon3d\.render\(\);\n  drawing\?\.frame\(performance\.now\(\)\);/);
+  assert.equal(js.match(/drawing\?\.restart\(\);/g)?.length, 2, 'a park scene and a moon scene each warm up again');
+  assert.match(js, /allDrawings\.catchUp\(moon3d\)/, 'the moon, made later, at the level so far');
   assert.match(moon, /\}, e => \(\{ error: String\(e\.message \?\? e\) \}\)\);/, 'a photo that cannot load is no error to the game');
   assert.match(moon, /setDrawing\(c\) \{ cuts = \{ \.\.\.c \}; return cut\(\); \},/);
   // every block its own copy, its shader kept; the physics' shapes (the lit block and the glow) as before

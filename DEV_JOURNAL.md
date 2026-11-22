@@ -21,7 +21,8 @@ time, each tried before publishing:
   log's "drawing lighter" line about 5 s after "moon scene" would show it. It's kept for the
   release, so a second visit should start smooth; each new release measures again. **Proposed
   (lab):** the moon starts at the drawing level the device already needed in the park's levels;
-  the log's line says which world. **To ask.**
+  the log's line says which world. **Developer:** "retain the need for lighter drawing on the same
+  device at all levels and worlds": **built (lab 0.11, not published)**, one level for both worlds.
 
 - **Q141. Topple! (the site): steel, brick and the iron ball are near black in the light drawing**
   (2026-11-22, found building the lab's moon). On a slow device the 3D games step down to a light
@@ -27228,3 +27229,22 @@ passed; live 20 s after the push (62d710a7aeda); site still 11.7.
   very dark brown on the sides in shade, rather than black all over.
 - **The lab shares the file**, so its version changes too: lab 0.11 with it (nothing else in it).
 - **Not known:** whether the 2019 tablet is at "light" at all (its log's "drawing" line says).
+
+## 2026-11-22: Q142: one lighter drawing for both worlds (lab 0.11; built, not published)
+
+- **Developer: "Fix dark blocks and retain the need for lighter drawing on the same device at all
+  levels and worlds."** The dark blocks: 11.8, as built above.
+- **Built, lab only:** one watch for both worlds (`src/core/shared-drawing.js`): the frames of
+  whichever is shown; its cuts to both drawings, and to the moon's as it's made. 0.10's watch
+  of the moon alone is gone. The log's "drawing" lines name the world; "moon: drawn as the
+  park" says what the moon started with. The site's moon has no lighter drawing and isn't
+  changed (it draws plain surfaces).
+- **Kept for the release**, as before (Q99: a new release measures again, so a device slow once
+  isn't drawn lighter for good): the first scene after an update can still be slow for about
+  5 s, in whichever world is opened first. **To ask if it bothers.**
+- **Simulated** (this PC, the canvas 6400×4000, park level 2 then the moon): the park stepped
+  down at 5 s (13 → 25 frames a second) and again; **the moon then 27-29 frames a second from
+  its first second** (lab 0.10: 13 for 5 s, a 0.9 s hitch, then 23).
+- **Test** (`tests/topple-lab-moon.test.js`): the real watch fed slow frames: the park slow first, the
+  moon slow first, both going to the lightest, a device that keeps up never changed. **7
+  deliberate breaks** (this and 11.8's fix): all caught. Full suite: **829 passed**; both release checks ready.

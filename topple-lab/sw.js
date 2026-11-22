@@ -27,7 +27,7 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '8dbacf009a61';
+const VERSION = '2f5c786d0641';
 const MADE = '2026-11-22';
 const RELEASE = '0.11';
 const FILES = [
@@ -283,6 +283,7 @@ const FILES = [
   'src/core/moon-ground.js',
   'src/core/park-ground.js',
   'src/core/release.js',
+  'src/core/shared-drawing.js',
   'src/core/version.js',
   'src/ui/look3d.js',
   'src/ui/topple-cactus.js',
@@ -538,11 +539,11 @@ const HASHES = {
   'icons/icon-192.png': '42f2c87ad180',
   'icons/icon-512.png': '557113230560',
   'icons/icon.svg': 'c1d6df4e0698',
-  'index.html': '46967bedbbf2',
+  'index.html': '9abc8191b1cf',
   'lab/begin.js': 'cfba1bdae267',
   'lab/start.js': '57140b92aad6',
   'lab/storage.js': '0d2efcf2f431',
-  'log.html': '23a953bef40a',
+  'log.html': '86d4d29fc1f6',
   'manifest.webmanifest': 'f39db4520956',
   'src/core/cactus.js': '5733b0b5e7bb',
   'src/core/fir.js': '364da6bcf6df',
@@ -550,6 +551,7 @@ const HASHES = {
   'src/core/moon-ground.js': 'c389cc1470e7',
   'src/core/park-ground.js': '2dbed4a23af9',
   'src/core/release.js': '99fcdb28f7f4',
+  'src/core/shared-drawing.js': 'f6dea654bcb1',
   'src/ui/look3d.js': '6e362b7ebc83',
   'src/ui/topple-cactus.js': '09368f16ab91',
   'src/ui/topple-fir.js': 'bdff150d2178',
@@ -560,8 +562,8 @@ const HASHES = {
   'src/ui/topple-scene.js': '72200b4beacc',
   'src/ui/topple-sets.js': '4ae6a69c6c41',
   'src/ui/topple-tri.js': 'd33a7f9d4596',
-  'src/ui/topple.js': '677fabee8c99',
-  'topple.html': '007f38ad5749',
+  'src/ui/topple.js': '363b32502dfb',
+  'topple.html': 'ce01975995c2',
 };
 // ---- end ----
 
