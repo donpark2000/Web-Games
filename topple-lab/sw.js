@@ -27,9 +27,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '123e595e5f43';
+const VERSION = '78421cf9b8a5';
 const MADE = '2026-11-22';
-const RELEASE = '0.6';
+const RELEASE = '0.7';
 const FILES = [
   '../css/bridges.css',
   '../css/cards.css',
@@ -201,6 +201,15 @@ const FILES = [
   '../src/vendor/three/LICENSE',
   '../src/vendor/three/RoundedBoxGeometry.js',
   '../src/vendor/three/three.module.min.js',
+  'data/levels/ice004_col.jpg',
+  'data/levels/ice004_nor.jpg',
+  'data/levels/rock_boulder_dry_arm.jpg',
+  'data/levels/rock_boulder_dry_col.jpg',
+  'data/levels/rock_boulder_dry_nor.jpg',
+  'data/levels/sky_snowy_field.jpg',
+  'data/levels/snow010a_arm.jpg',
+  'data/levels/snow010a_col.jpg',
+  'data/levels/snow010a_nor.jpg',
   'data/models/barrel_03.json',
   'data/models/barrel_03_arm.jpg',
   'data/models/barrel_03_col.jpg',
@@ -228,14 +237,17 @@ const FILES = [
   'lab/storage.js',
   'log.html',
   'manifest.webmanifest',
+  'src/core/fir.js',
   'src/core/model-data.js',
   'src/core/park-ground.js',
   'src/core/release.js',
   'src/core/version.js',
   'src/ui/look3d.js',
+  'src/ui/topple-fir.js',
   'src/ui/topple-models.js',
   'src/ui/topple-scene.js',
   'src/ui/topple-sets.js',
+  'src/ui/topple-tri.js',
   'src/ui/topple.js',
   'topple.html',
 ];
@@ -410,6 +422,15 @@ const HASHES = {
   '../src/vendor/three/LICENSE': 'a70d6dc2d2a6',
   '../src/vendor/three/RoundedBoxGeometry.js': '04040241176e',
   '../src/vendor/three/three.module.min.js': '3e690ac7d180',
+  'data/levels/ice004_col.jpg': 'e9fbc0be4c0d',
+  'data/levels/ice004_nor.jpg': '43b8c0de1d2b',
+  'data/levels/rock_boulder_dry_arm.jpg': '1e9ff9c11312',
+  'data/levels/rock_boulder_dry_col.jpg': 'ac269c49a41b',
+  'data/levels/rock_boulder_dry_nor.jpg': 'b7026d2aed22',
+  'data/levels/sky_snowy_field.jpg': 'd1bc0a1f8d05',
+  'data/levels/snow010a_arm.jpg': '4a758a1488cc',
+  'data/levels/snow010a_col.jpg': '0008aa11991a',
+  'data/levels/snow010a_nor.jpg': '54df5433b4c4',
   'data/models/barrel_03.json': '0fcc0221f3c1',
   'data/models/barrel_03_arm.jpg': 'e1f8131c4606',
   'data/models/barrel_03_col.jpg': 'fa97b5644888',
@@ -431,21 +452,24 @@ const HASHES = {
   'icons/icon-192.png': '42f2c87ad180',
   'icons/icon-512.png': '557113230560',
   'icons/icon.svg': 'c1d6df4e0698',
-  'index.html': '29f0b52955e6',
+  'index.html': 'df007ca682cb',
   'lab/begin.js': 'cfba1bdae267',
   'lab/start.js': '57140b92aad6',
   'lab/storage.js': '0d2efcf2f431',
-  'log.html': 'fbd5ef74ba55',
+  'log.html': 'b0927a6a4a07',
   'manifest.webmanifest': 'f39db4520956',
+  'src/core/fir.js': '364da6bcf6df',
   'src/core/model-data.js': 'a1a5d3f67b88',
   'src/core/park-ground.js': '2dbed4a23af9',
-  'src/core/release.js': '0a526b49e2de',
+  'src/core/release.js': '3a0ae6bfd15a',
   'src/ui/look3d.js': '6e362b7ebc83',
+  'src/ui/topple-fir.js': 'bdff150d2178',
   'src/ui/topple-models.js': 'bf1883409efe',
-  'src/ui/topple-scene.js': '8bd334fc00b8',
-  'src/ui/topple-sets.js': '3428f926c05f',
+  'src/ui/topple-scene.js': '36ee063a7801',
+  'src/ui/topple-sets.js': '1847bee326e9',
+  'src/ui/topple-tri.js': '80712dbe8e61',
   'src/ui/topple.js': '9b4c9e0335fd',
-  'topple.html': '10473a0da589',
+  'topple.html': '413092a00056',
 };
 // ---- end ----
 

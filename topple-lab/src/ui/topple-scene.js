@@ -496,11 +496,16 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   const bladeMat = new THREE.MeshStandardMaterial({ color: '#C9CED3', roughness: 0.3, metalness: 0.8 });
   const flakeMat = new THREE.MeshStandardMaterial({ color: '#A9DDF7', emissive: '#3C86BA', emissiveIntensity: 0.35, roughness: 0.2, metalness: 0.15 });
   const flakeEdge = new THREE.MeshStandardMaterial({ color: '#2B6A9A', roughness: 0.4 });
-  const machineMat = new THREE.MeshStandardMaterial({ color: '#2F7BD0', roughness: 0.55, metalness: 0.3, side: THREE.DoubleSide });
+  const machinePlain = new THREE.MeshStandardMaterial({ color: '#2F7BD0', roughness: 0.55, metalness: 0.3, side: THREE.DoubleSide });
   const ball = (r, mat, x, y, z, seg = 24) => { const o = new THREE.Mesh(new THREE.SphereGeometry(r, seg, Math.round(seg * 2 / 3)), mat); o.position.set(x, y, z); return o; };
+  // (the lab: packed snow in its photo, where the setting has it)
+  const snowball3 = (r, x, y, z) => {
+    if (!set?.moverMats?.snow) return ball(r, snowMat, x, y, z, 28);
+    const o = new THREE.Mesh(set.packed(r, Math.round(r * 1000)), set.moverMats.snow); o.position.set(x, y, z); return o;
+  };
   function snowman(g, m) {
     const [b, md, hd] = m.load.shapes, h = m.load.h;
-    for (const sh of [b, md, hd]) g.add(ball(sh.r, snowMat, ...sh.at));
+    for (const sh of [b, md, hd]) g.add(snowball3(sh.r, ...sh.at));
     // coal eyes and buttons, a carrot nose, all facing you (+z)
     const [hx, hy, hz] = hd.at, fr = hd.r;
     for (const sx of [-1, 1]) g.add(ball(0.035, coalMat, hx + sx * 0.09, hy + 0.06, hz + fr * 0.92, 8));
@@ -530,7 +535,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   // turning as it rolls (the look keeps its name 'snowball'; the physics has the head's sphere only)
   function snowball(g, m) {
     const r = m.load.w / 2;
-    g.add(ball(r, snowMat, 0, 0, 0, 28));
+    g.add(snowball3(r, 0, 0, 0));
     for (const sx of [-1, 1]) g.add(ball(r * 0.12, coalMat, sx * r * 0.34, r * 0.2, r * 0.93, 8));
     const nose = new THREE.Mesh(new THREE.ConeGeometry(r * 0.15, r * 0.8, 10), carrotMat); nose.rotation.x = Math.PI / 2; nose.position.set(0, -r * 0.02, r + r * 0.28); g.add(nose);
     for (let k = -2; k <= 2; k++) { const a = k * 0.3; g.add(ball(r * 0.06, coalMat, Math.sin(a) * r * 0.5, -r * 0.3 - Math.cos(a) * r * 0.16 + r * 0.16, r * 0.86, 6)); }
@@ -552,7 +557,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   }
   // The snowball machine: a blue box on skids, a hopper of snow on top, a chute up to the right (its muzzle where the snowballs start)
   function machine(m) {
-    const g = new THREE.Group(), [x, , z] = machineAt(m), { w, h, d } = MACHINE;
+    const g = new THREE.Group(), [x, , z] = machineAt(m), { w, h, d } = MACHINE, machineMat = set?.moverMats?.machine ?? machinePlain;
     g.add(part(w, h * 0.7, d, machineMat, 0, h * 0.35 + 0.08, 0));
     for (const sz of [-1, 1]) g.add(part(w + 0.2, 0.06, 0.08, coalMat, 0, 0.03, sz * d * 0.4));
     const hop = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.42, w * 0.28, h * 0.3, 16), machineMat); hop.position.set(-0.08, h * 0.85 + 0.08, 0); g.add(hop);

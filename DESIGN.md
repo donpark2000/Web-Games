@@ -1873,7 +1873,11 @@ sounds), without "any risk of accidentally corrupting the current game".
   levels ... and just publish it when you are done"; journal "Topple Lab,
   levels 2-10"): looks only, the play and the physics' shapes as in
   Topple!. A level whose 360° photo has flat open ground takes it for its
-  ground (`photoGround`, `SETTINGS.photo`: levels 1 and 2). Photographed
+  ground (`photoGround`, `SETTINGS.photo`: levels 1-3; level 3 in a new
+  photo, a snowy field, the mountains' having no flat snow close up); a
+  plane filling only the depth hides what is under it. Firs of needle sprays
+  round the physics' tiers (`src/core/fir.js`, `src/ui/topple-fir.js`), stone
+  in a photo from three sides (`src/ui/topple-tri.js`). Photographed
   models for the scenery (`topple-lab/src/ui/topple-models.js`,
   `data/models/`): Poly Haven's, cut down to at most 1,500 triangles each,
   a small JSON and three pictures; with a soft shade under what stands

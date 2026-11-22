@@ -27032,3 +27032,34 @@ of 193).
   uncredited one and a corner that isn't there each reported (on a copy); read back as
   made; the ground's rings flat to the edge; all the lab's own photos under 12 MB.
 - **The log:** the "setting" line has `lab: { ground, models }` (each model's triangles).
+
+**Lab 0.6 published and live** (developer's standing OK of 2026-11-22): `main` = 7211189, tag
+`lab-v0.6`, a GitHub pre-release; 816 tests passed; `release.js lab` ready; main-site files
+changed: none. Live 30 s after the push (version 123e595e5f43); site still 11.7 (8faca195760c),
+v11.7 still Latest.
+
+## 2026-11-22: The lab's level 3 (lab 0.7)
+
+- **The photo:** Snowy Field and Snowy Park tried side by side (`L3\try2`, same scenes). Both
+  read as real. Snowy Field kept: sunny, so the game's shadows fit; its snow is greyer than
+  the ice, so the blocks stand out (on Snowy Park's white snow they blended in). Made 1.16 times
+  as bright. 1.0 MB. **The mountains are gone** from level 3 (said to the developer before
+  starting). The sun moved to where the photo's is (right, behind).
+- **The firs:** the twig pictures downloaded are single needles in pieces, not a branch, so
+  not used: a spray drawn needle by needle at the start (512×320), on a bent card, 60-400 to
+  a tree, its normals leaning up. Snow 0.6-0.75 looked flocked; **0.34** reads as a snowy fir.
+- **Found: the photo's ground hides nothing** (it's drawn behind everything, no depth), so
+  the rock's lower half showed: a ball on a field. A plane 2 cm down that fills only the depth
+  (`buried()`) puts it under the ground; for any level on a photo's ground.
+- **The rock's first bumps** (from the colour's light and dark, by screen derivatives) came out
+  as blocks of pixels up close; the photo's normal map from three sides instead. The shape
+  the same as before, finer (4,500 triangles) and smooth.
+- **The ice:** the photo at 0.6 looked mouldy; at 0.3 / 0.45, half its width, cracks in clear ice.
+- **Frames:** 8,138 triangles and 52 draw calls in 0.5 → 36,052 and 48 (scene 1), 53,328 and
+  79 (scene 5 with a fir), 63,100 at most on Hardest. Under the park's old 63,000.
+- **Pictures:** four rounds, all scenes' kinds, Hardest (snowman, rolling heads, snowflake), a
+  phone's screen (`L3\try3`). Left as drawn: the snowball machine's shape, the snowflake, the
+  bunny, the hats.
+- **Tests** (`tests/topple-lab-levels.test.js`, 4): the photos there, sized, credited, offline,
+  none stray; a missing, an uncredited and a stray one reported; the firs' branches within
+  the tiers' reach, the same for a seed, a bounded number.

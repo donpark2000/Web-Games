@@ -17,10 +17,14 @@ import { crossing, perched } from '../core/topple-animals.js';
 import { equirect, moonSpot, MOON, cloudAt } from '../core/topple-sky.js';
 import { photoDir, groundPoint, groundRings } from '../core/park-ground.js';   // (the lab's own)
 import { loadModels, copies, contacts } from './topple-models.js';   // (the lab's own)
+import { triplanar, smooth } from './topple-tri.js';   // (the lab's own)
+import { fir } from './topple-fir.js';   // (the lab's own)
 
 // The Topple Lab's copy (DESIGN.md "Topple Lab"): its pages are in
 // topple-lab/, so the main site's pictures are one folder up.
 export const PHOTO_DIR = '../data/topple/';
+// The lab's own photos for levels 2-5 (2026-11-22; sources: its CREDITS.md).
+export const LEVELS_DIR = 'data/levels/';
 
 // Each surface: its files and how many metres one copy covers (Poly
 // Haven's sizes). arm: ambient occlusion, roughness and metalness in one
@@ -39,6 +43,9 @@ export const SURFACES = {
   barrel: { asset: 'wooden_barrel', size: 1.29, arm: true },
   timber: { asset: 'weathered_brown_planks', size: 1.8, arm: true },
   rock: { asset: 'cliff_side', size: 1.83, arm: true },
+  // (the lab's own)
+  cleanSnow: { asset: 'snow010a', size: 1.5, arm: true, dir: LEVELS_DIR },
+  boulder: { asset: 'rock_boulder_dry', size: 1.8, arm: true, dir: LEVELS_DIR },
 };
 
 // Each level: its sky photo, ground, which surface each block material
@@ -51,8 +58,8 @@ export const SETTINGS = {
   2: { name: 'site', sky: 'construction_yard', ground: 'photo', photo: { camH: 1.7, R: 120, shade: 0.42 }, models: ['barrier', 'cement', 'barrelBlue'],
     surfaces: ['steel', 'concrete', 'brick', 'planks', 'paint', 'galv'],
     mats: { steel: 'steel', concrete: 'concrete', brick: 'brick', wood: 'planks' }, sling: 'planks', sun: [1.4, 4.2, 2.6], hemi: 0.7 },
-  3: { name: 'snow', sky: 'lago_disola', ground: 'snow', surfaces: ['snow', 'bark', 'planks', 'steel', 'concrete'],
-    mats: { ice: 'ice', wood: 'planks' }, sling: 'planks', sun: [-1.2, 4.2, 2.6], hemi: 0.8 },
+  3: { name: 'snow', sky: 'snowy_field', skyDir: LEVELS_DIR, ground: 'photo', photo: { camH: 1.6, R: 120, shade: 0.34, shadeColour: '#1E2C4A' }, surfaces: ['cleanSnow', 'boulder', 'bark', 'planks', 'steel', 'paint'], ice: 'ice004',
+    mats: { ice: 'ice', wood: 'planks' }, sling: 'planks', sun: [1.5, 3.6, 2.1], hemi: 0.8 },
   4: { name: 'desert', sky: 'goegap', ground: 'sand', surfaces: ['sand', 'barrel', 'timber', 'rock', 'planks', 'steel'],
     mats: { wood: 'timber', barrel: 'barrel' }, sling: 'planks', sun: [1.6, 4.4, 2.4], hemi: 0.75 },
   // Star Light (developer, 2026-11-12, Q87: "Night time with a moon and
@@ -85,7 +92,7 @@ function variant(t, { colour = false, channel = 0, repeat = null } = {}) {
 async function loadSurface(key) {
   const s = SURFACES[key], a = s.asset;
   const files = [`${a}_col.jpg`, `${a}_nor.jpg`, ...(s.arm ? [`${a}_arm.jpg`] : s.rough ? [`${a}_rough.jpg`] : [])];
-  const [col, nor, third] = await Promise.all(files.map(f => loadTex(f)));
+  const [col, nor, third] = await Promise.all(files.map(f => loadTex(f, s.dir)));
   return { col, nor, arm: s.arm ? third : null, rough: s.rough ? third : null };
 }
 // A material in a surface's photos: on uv `channel` (1: the blocks' metres,
@@ -159,8 +166,8 @@ export function heapShape(rx, rz, H, seed) {
 // A boulder (unit size: about 2 across, 1.2 tall, its middle at 0): a
 // lumpy ball with a few flat cuts, as weathered rock breaks (level 4's
 // first, smooth and tinted, looked like tomatoes), flattened.
-function boulderGeo(seed) {
-  const geo = new THREE.IcosahedronGeometry(1, 4), q = geo.attributes.position, r = rng(seed);
+function boulderGeo(seed, detail = 4) {
+  const geo = new THREE.IcosahedronGeometry(1, detail), q = geo.attributes.position, r = rng(seed);
   const bumps = Array.from({ length: 9 }, () => [r() * 2 - 1, r() * 0.8 - 0.1, r() * 2 - 1, (r() - 0.35) * 0.5, 2 + r() * 6]);
   const cuts = Array.from({ length: 4 }, () => { const n = new THREE.Vector3(r() - 0.5, r() * 0.6, r() - 0.5).normalize(); return { n, d: 0.7 + r() * 0.2 }; });
   for (let i = 0; i < q.count; i++) {
@@ -210,7 +217,8 @@ export async function makeSetting(n, ctx) {
   const maps = {};
   await Promise.all(S.surfaces.map(async k => { maps[k] = await loadSurface(k); }));
   const models = await loadModels(S.models ?? []);
-  const skyTex = await loadTex(`sky_${S.sky}.jpg`);
+  const skyTex = await loadTex(`sky_${S.sky}.jpg`, S.skyDir);
+  const iceMaps = S.ice ? await Promise.all(['col', 'nor'].map(k => loadTex(`${S.ice}_${k}.jpg`, LEVELS_DIR))) : null;
   // the sky: the photo all round (at night, made dark: nightSky); it lights the shiny parts too
   let bg, night = null;
   if (S.night) { night = nightSky(skyTex.image); bg = night.tex; } else bg = skyTex.clone();
@@ -226,7 +234,7 @@ export async function makeSetting(n, ctx) {
   // block materials: a photo surface on uv1 (worldUV), ice, or glowing (one a colour)
   const blockMats = {};
   for (const [mat, sk] of Object.entries(S.mats)) {
-    if (sk === 'ice') blockMats.ice = iceMat();
+    if (sk === 'ice') blockMats.ice = iceMat(iceMaps);
     else if (sk === 'barrel') blockMats.barrel = barrelMats(maps.barrel, maps.timber);
     else if (sk === 'glow') blockMats.glow = glowMats();
     else blockMats[mat] = photoMat(maps[sk], { channel: 1, extra: sk === 'steel' ? { envMapIntensity: 1.2 } : {} });
@@ -243,6 +251,13 @@ export async function makeSetting(n, ctx) {
     out.decorateBall = m => m.add(halo('#FFE6A0', 0.07 * 3.2, 0.35));
   } else out.ballMat = photoMat(maps.steel, { repeat: [0.3, 0.3], extra: { color: '#6A6F76', metalness: 0.7, envMapIntensity: 1.1 } });
   // what a Hardest mover is drawn in (topple-scene.js; the lab: the photos)
+  if (S.name === 'snow') {
+    out.moverMats = {
+      snow: photoMat(maps.cleanSnow, { repeat: [1.6, 1], extra: { color: '#FFFCF6', metalness: 0 } }),
+      machine: Object.assign(photoMat(maps.paint, { repeat: [1, 0.6], extra: { color: '#2F6FB8', metalness: 0.4, side: THREE.DoubleSide } }), { map: null }),
+    };
+    out.packed = packed;
+  }
   if (S.name === 'site') {
     out.moverMats = {
       girder: Object.assign(photoMat(maps.paint, { repeat: [2, 0.25], extra: { color: '#D8601F', metalness: 0.35 } }), { map: null }),   // (its own orange, the photo's wear)
@@ -274,9 +289,9 @@ export async function makeSetting(n, ctx) {
     // see-through layer that shows only the shadows
     const gtex = bg.clone(); gtex.mapping = THREE.UVMapping; gtex.colorSpace = THREE.SRGBColorSpace; gtex.anisotropy = ctx.renderer.capabilities.getMaxAnisotropy(); gtex.needsUpdate = true;
     const ground = photoGround(gtex, S.photo.camH, S.photo.R);
-    const shade = mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: S.photo.shade, depthWrite: false }), [0, 0.003, -10], { cast: false });
+    const shade = mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: S.photo.shade, color: S.photo.shadeColour ?? '#000000', depthWrite: false }), [0, 0.003, -10], { cast: false });
     shade.rotation.x = -Math.PI / 2;
-    group.add(ground, shade);
+    group.add(ground, shade, buried());
     out.place = (x, z) => ground.userData.place(x, z);
   } else {
     // snow or sand all round, fading at its edge into the photo's own land
@@ -335,13 +350,17 @@ export async function makeSetting(n, ctx) {
       // grey stone; the cliff photo came out rusty brown, like wood). Its snow
       // went (developer, 2026-11-12: the snow on top didn't look like snow:
       // "I suggest we just make it a rock").
-      const m = mesh(boulderGeo(p.seed), photoMat(maps.concrete, { repeat: [1.2, 1.2], extra: { color: '#A3A8AE', metalness: 0 } }));
+      // (the lab: the same shape, finer and smooth, in a boulder's photo from three sides)
+      const m = maps.boulder ? mesh(smooth(boulderGeo(p.seed, 14)), triplanar(maps.boulder.col, maps.boulder.nor, 1.1, { color: '#7E8288', roughness: 0.92 }))
+        : mesh(boulderGeo(p.seed), photoMat(maps.concrete, { repeat: [1.2, 1.2], extra: { color: '#A3A8AE', metalness: 0 } }));
       m.scale.set(p.rx / 0.95, p.H / 0.6, p.rz / 0.95);
       m.position.set(...p.at); m.rotation.y = p.yaw;
       return m;
     },
     pine(p) {
       // a pine: a barked trunk and four tiers of drooping, snow-topped branches
+      // (the lab: a fir, its sprays of needles round the physics' tiers: topple-fir.js)
+      if (maps.cleanSnow) return fir({ tiers: p.tiers, h: p.h, r: p.r }, photoMat(maps.bark, { repeat: [0.4, 2], extra: { metalness: 0 } }), { snow: p.snow ?? 0.34, seed: p.seed ?? 3, cast: p.cast ?? true, density: p.density ?? 1 });
       const g = new THREE.Group(), [x, , z] = p.at;
       g.add(mesh(new THREE.CylinderGeometry(p.r * 0.5, p.r, p.h, 12), photoMat(maps.bark, { repeat: [0.4, 2] }), [x, p.h / 2, z]));
       const needles = std({ map: needleTex(), color: '#FFFFFF', roughness: 0.9 });
@@ -382,9 +401,10 @@ export async function makeSetting(n, ctx) {
     decor.push(rat(group));
   } else if (S.name === 'snow') {
     // a snowman off to the right, and young pines at the edge of the snow
-    const snow = photoMat(maps.snow, { repeat: [0.7, 0.7], extra: { color: '#FAFCFE', metalness: 0 } });
+    const snow = photoMat(maps.cleanSnow ?? maps.snow, { repeat: [1.6, 1], extra: { color: '#FFFCF6', metalness: 0 } });
     const sm = new THREE.Group(), coal = std({ color: '#1C1C1E', roughness: 0.6 });
-    [[0.42, 0.38], [0.3, 0.98], [0.21, 1.42]].forEach(([r, y]) => sm.add(mesh(new THREE.SphereGeometry(r, 24, 16), snow, [0, y, 0])));
+    [[0.42, 0.38], [0.3, 0.98], [0.21, 1.42]].forEach(([r, y], k) => sm.add(mesh(packed(r, 40 + k), snow, [0, y, 0])));   // (the lab: packed snow, not smooth balls)
+    group.add(contacts([{ x: 4.2, z: -10.5, w: 1.5, d: 1.2 }], 0.35));
     for (const s of [-1, 1]) sm.add(mesh(new THREE.SphereGeometry(0.025, 8, 6), coal, [s * 0.07, 1.48, 0.19]));
     for (const y of [0.9, 1.04, 1.18]) sm.add(mesh(new THREE.SphereGeometry(0.03, 8, 6), coal, [0, y, 0.29]));
     const nose = mesh(new THREE.ConeGeometry(0.035, 0.2, 10), std({ color: '#E8742A' }), [0, 1.42, 0.29]); nose.rotation.x = Math.PI / 2; sm.add(nose);
@@ -395,7 +415,8 @@ export async function makeSetting(n, ctx) {
     decor.push(bunny(group));
     for (const [px, pz, s] of [[-8, -15, 1.3], [-10.5, -18, 1.6], [9.5, -17, 1.4], [12, -21, 1.8]]) {
       const tiers = [[1.4, 0.8], [2.2, 0.62], [2.9, 0.45], [3.4, 0.3]].map(([y, r]) => ({ r: r * s, at: [px, y * s, pz] }));
-      group.add(builders.pine({ at: [px, 0, pz], r: 0.12 * s, h: 3.9 * s, tiers }));
+      group.add(builders.pine({ at: [px, 0, pz], r: 0.12 * s, h: 3.9 * s, tiers, seed: Math.round(50 - px), cast: false, density: 0.8 }));
+      group.add(contacts([{ x: px, z: pz, w: 2.2 * s, d: 1.8 * s }], 0.35));
     }
   } else if (S.name === 'desert') {
     // boulders off to the sides (the photo's rock formations beyond), and a rattlesnake on the move
@@ -556,6 +577,14 @@ export const BUSH_LOOKS = {
   // B lighter, lit from above, lumpy, its middle darker
   C: { inner: true, ragged: 0.6, coreEnv: 0, core: '#18240F', matt: true, bright: 1.45, topLight: 0.35, lumps: 0.2, contact: 0.45, tints: ['#FFF4C4', '#EEF0B8', '#FFFCD8'], size: 0.6 },
 };
+
+// What hides things under the ground (a rock half buried): the photo's ground
+// is drawn behind everything, so a plane 2 cm down fills the depth only.
+function buried() {
+  const m = mesh(new THREE.PlaneGeometry(90, 90), new THREE.MeshBasicMaterial({ colorWrite: false }), [0, -0.02, -10], { cast: false, receive: false });
+  m.rotation.x = -Math.PI / 2; m.renderOrder = -1.5;
+  return m;
+}
 
 // The park's photos for topple-scene.js: { group (the ground: the photo's own
 // field (photoGround) with the shadows over it; or lab 0.2's lawn, a photo lawn
@@ -895,11 +924,17 @@ function owl(group, bark, sound) {
 
 // Ice: pale, see-through a little, glossy (the snowy sky in it), frosted at
 // the edges, a few cracks inside.
-function iceMat() {
+function iceMat(maps = null) {
+  // (the lab: `maps` a photo of cracked ice, [colour, normal])
   const map = canvasTex(256, 256, (g, w, h) => {
     const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#DDF3FF'); gr.addColorStop(0.5, '#BFE6FA'); gr.addColorStop(1, '#D4EEFB');
     g.fillStyle = gr; g.fillRect(0, 0, w, h);
     const r = rng(41);
+    if (maps) {
+      // the photo's cracks and cloudy facets over it, lit up and blue as clear ice
+      g.save(); g.globalAlpha = 0.3; g.globalCompositeOperation = 'multiply'; g.filter = 'brightness(1.7) contrast(0.8)'; g.drawImage(maps[0].image, 40, 120, 240, 240, 0, 0, w, h); g.restore();
+      g.save(); g.globalAlpha = 0.45; g.globalCompositeOperation = 'screen'; g.filter = 'contrast(1.9) brightness(0.62)'; g.drawImage(maps[0].image, 40, 120, 240, 240, 0, 0, w, h); g.restore();
+    }
     g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1.2;
     for (let i = 0; i < 7; i++) { g.beginPath(); let x = r() * w, y = r() * h; g.moveTo(x, y); for (let k = 0; k < 5; k++) { x += (r() - 0.5) * 70; y += (r() - 0.5) * 70; g.lineTo(x, y); } g.stroke(); }
     g.fillStyle = 'rgba(255,255,255,.18)'; for (let i = 0; i < 260; i++) g.fillRect(r() * w, r() * h, 2, 2);
@@ -908,7 +943,19 @@ function iceMat() {
     g.save(); g.rotate(-Math.PI / 2); g.translate(-h, 0); g.fillRect(0, 0, h, 22); g.restore();
     g.save(); g.translate(w, 0); g.rotate(Math.PI / 2); g.fillRect(0, 0, h, 22); g.restore();
   });
-  return new THREE.MeshStandardMaterial({ map, transparent: true, opacity: 0.82, roughness: 0.08, metalness: 0.05, envMapIntensity: 1.6 });
+  return new THREE.MeshStandardMaterial({ map, transparent: true, opacity: 0.82, roughness: 0.08, metalness: 0.05, envMapIntensity: 1.6, ...(maps ? { normalMap: variant(maps[1]), normalScale: new THREE.Vector2(0.5, 0.5), opacity: 0.88 } : {}) });
+}
+// Packed snow: a ball r across its middle, its surface patted into shallow lumps.
+function packed(r, seed) {
+  const geo = new THREE.SphereGeometry(r, 32, 22), p = geo.attributes.position, q = rng(seed);
+  const w = Array.from({ length: 7 }, () => [q() * 2 - 1, q() * 2 - 1, q() * 2 - 1, 3 + q() * 5, q() * 6.3]);
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i) / r, y = p.getY(i) / r, z = p.getZ(i) / r;
+    const k = 1 + 0.012 * w.reduce((t, [a, b, c, f, ph]) => t + Math.sin(f * (a * x + b * y + c * z) + ph), 0);
+    p.setXYZ(i, x * r * k, y * r * k, z * r * k);
+  }
+  geo.computeVertexNormals();
+  return geo;
 }
 // A barrel: its staves and hoops round the side, its lid in plain boards.
 function barrelMats(barrel, timber) {

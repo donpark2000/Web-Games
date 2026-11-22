@@ -1114,6 +1114,16 @@ Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
 
+## 0.7 (2026-11-22, version 78421cf9b8a5)
+
+Frosty Times (level 3) on a real snowy field.
+
+- **The snow and the view**: a 360° photo of a snowy field (Poly Haven's Snowy Field) for the sky, the trees beyond and the snow underfoot, instead of the mountains over a repeated, twiggy snow tile (the mountain photo has no flat snow close up).
+- **The firs**: sprays of needles with snow lying on them, on a barked trunk, round the same tiers the ball bounces off, instead of green cones.
+- **The rock** in a boulder's photo from three sides, its shape as before but smooth; **the ice** with a real ice photo's cracks; **the snowmen** (Hardest's too) of packed snow.
+- Things half buried are cut off at the ground by the photo's ground too.
+- 1.3 MB added (sources and licence, all CC0: `topple-lab/data/levels/CREDITS.md`). The play is as before; levels 4-10 as in Topple! 11.7.
+
 ## 0.6 (2026-11-22, version 123e595e5f43)
 
 The building site (level 2) more like a real yard.
