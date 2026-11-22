@@ -10,6 +10,19 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
+- **Q142. Topple Lab: the moon's first scene sluggish for a few seconds on the tablet** (2026-11-22,
+  developer, lab 0.10, moon level 1: phone and tablet "look fine and play well"; the tablet
+  "sluggish for a few seconds at the beginning of the first scene and then everything is OK",
+  wondering about downloads in the background). **Measured** (scratch `first.js`, this PC): nothing is
+  fetched after the moon scene starts (its photos are waited for, its shaders made before it
+  shows). With the canvas made far too big for the PC (6400×4000), the same pattern: 13 frames a
+  second for 5 s, a 0.9 s hitch, then 23: **the step down to the light drawing** (new on the moon in
+  0.10): 1.5 s not counted, 3 s judged, then it switches. Fits; **not proved on the tablet**: the lab
+  log's "drawing lighter" line about 5 s after "moon scene" would show it. It's kept for the
+  release, so a second visit should start smooth; each new release measures again. **Proposed
+  (lab):** the moon starts at the drawing level the device already needed in the park's levels;
+  the log's line says which world. **To ask.**
+
 - **Q141. Topple! (the site): steel, brick and the iron ball are near black in the light drawing**
   (2026-11-22, found building the lab's moon). On a slow device the 3D games step down to a light
   drawing (Q99), which takes the surfaces' metal maps away (`src/ui/drawcuts.js`) and leaves the
