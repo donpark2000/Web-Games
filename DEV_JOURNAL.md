@@ -26807,6 +26807,7 @@ of 193).
   developer's own three games were dealt. So about 1 game in 3 has 0 or 1 bush in scenes 1-4.
   **To ask:** leave it random, or deal at least one (or two) bushes a game?
   (It would be a change to the main game's deal, so the site too, not only the lab.)
+  **Developer (2026-11-22): left random** ("No thats fine").
 - **The icon:** new Q140.
 
 ## 2026-11-22: Q140: the lab and the site share one app id
@@ -26928,3 +26929,27 @@ of 193).
   (photo surfaces); its sounds (Q121). Picture scripts: see 2026-11-21's status.
 - **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 (site 11.3: to
   try), Q121, as before otherwise.
+
+## 2026-11-22: The lab's future; test files purged; the next session
+
+- **The lab's future (developer):** "Long term I don't expect [the Topple Lab] to live on its
+  own - it will just replace the 'lets play' version." So the install order on Android is
+  for now only, and the lab gets no address of its own. In DESIGN.md "Topple Lab".
+- **GitHub's 0.5 pre-release text** (install order the wrong way round): left ("no need").
+- **Bushes:** left random.
+- **Purged** (the developer's OK; Recycle Bin, seen there): `2026-11-20_realism` (69 files),
+  `2026-11-20_park` (40), `2026-11-21_ground` (18), `2026-11-21_bush` (34),
+  `2026-11-21_photo-bush` (58). `Web-Games-testing` is empty.
+
+**Status (start here next session)**
+- **Live: site 11.7 and Topple Lab 0.5.** `block-game` = `main` plus notes only (journal,
+  DESIGN.md, RELEASES.md 0.5's install order).
+- **Next in the lab:** level 2's drawn props (the building site) made more realistic, then
+  levels 3-4's (Q139 changes 3-5); the moon (photo surfaces); its sounds (Q121). Picture
+  scripts: see 2026-11-21's status ("Site 11.7 and Topple Lab 0.4 published").
+- **To try (developer), none blocking:** Q130 and Q136 (site 11.4: the blast ball, touches
+  after long play), Q134 (site 11.3: the map opening with your scene in view); the version
+  line on both home pages and in a saved log; from lab 0.3, the "kept" figure in the lab
+  log's "saved for offline ... install" line.
+- **Open questions:** Q139 (the lab), Q136, Q130, Q134, Q121, as before otherwise. Nothing
+  waiting on an answer.

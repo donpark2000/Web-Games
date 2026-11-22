@@ -1825,8 +1825,9 @@ sounds), without "any risk of accidentally corrupting the current game".
   tablet, 2026-11-22): the lab's address is inside Let's Play!'s, so
   with Let's Play! installed Chrome calls the lab "already installed".
   To put the lab on later: uninstall Let's Play! (keeping its data),
-  install the lab, then Let's Play! again. An address of its own (a repo
-  of its own) would end this; not needed while one person uses the lab.
+  install the lab, then Let's Play! again. For now only: no address of
+  its own for the lab, since **in the end it replaces Let's Play!'s
+  Topple!** rather than living on (developer, 2026-11-22).
 - **Release numbers of its own** (developer, 2026-11-20: "Own lab
   numbers"): 0.1, 0.2 ... in `topple-lab/src/core/release.js`, notes under
   `RELEASES.md`'s "# Topple Lab" heading, each a git tag `lab-vX.Y` on
