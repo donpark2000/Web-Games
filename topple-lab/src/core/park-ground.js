@@ -23,6 +23,16 @@ export function groundPoint([x, y, z], h, R) {
   return [x * t, y * t, z * t];
 }
 
+// The ground's sphere as few triangles as it needs (2026-11-22: the colour
+// goes by each point's direction, so the flat part needs no more than its
+// rim, and the wall and sky a few rings): the rings' heights as angles up from
+// straight down (-90°) to straight up, with the ground's edge and the horizon
+// among them. Returns [elevation, ...] in radians.
+export function groundRings(h, R) {
+  const edge = -Math.asin(h / R);
+  return [-Math.PI / 2, edge, edge / 2, 0, ...[6, 14, 26, 42, 60, 78, 90].map(d => d * Math.PI / 180)];
+}
+
 // The bush's leaves (the lab's bush looks, 2026-11-21): the layers leafy()
 // puts leaves in, each [from, spread, shade, size]: leaves from..from+spread
 // of a ball's radius out, darkened by shade, counted as for a sphere size

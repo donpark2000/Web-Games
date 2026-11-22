@@ -1114,6 +1114,16 @@ Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
 
+## 0.6 (2026-11-22, version 123e595e5f43)
+
+The building site (level 2) more like a real yard.
+
+- **The ground**: the yard's own worn concrete, from the level's 360° photo laid flat (as the park's field), instead of a repeated tile with ruled lines.
+- **The scenery**: photographed concrete barriers, oil drums and bags of cement on pallets (Poly Haven, CC0), cones with scuffs and grey bands, work lamps with real faces, in place of the plain pipes and cones.
+- **Hardest's crane loads**: bricks and pallet in photos; girders with worn paint.
+- The ground of levels 1 and 2 is drawn with far fewer triangles (the park: 63,000 triangles a frame before, 28,000 now).
+- 0.3 MB added (sources and licence: `topple-lab/data/models/CREDITS.md`). The play is as before; levels 3-10 as in Topple! 11.7.
+
 ## 0.5 (2026-11-22, version 09e0082a2626)
 
 The lab installs as an app of its own, beside Let's Play!.

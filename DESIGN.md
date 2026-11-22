@@ -1869,6 +1869,16 @@ sounds), without "any risk of accidentally corrupting the current game".
   download of its own the first time (it keeps nothing from the main
   site's cache), then only what changed. The main site never lists,
   links or loads anything of the lab.
+- **Looks, level by level** (developer, 2026-11-22: "do all the rest of the
+  levels ... and just publish it when you are done"; journal "Topple Lab,
+  levels 2-10"): looks only, the play and the physics' shapes as in
+  Topple!. A level whose 360° photo has flat open ground takes it for its
+  ground (`photoGround`, `SETTINGS.photo`: levels 1 and 2). Photographed
+  models for the scenery (`topple-lab/src/ui/topple-models.js`,
+  `data/models/`): Poly Haven's, cut down to at most 1,500 triangles each,
+  a small JSON and three pictures; with a soft shade under what stands
+  outside the sun's shadow. All CC0 (NASA's public domain where said), all
+  the lab's own photos and models together under 12 MB (tested).
 - **`node tools/offline.js` brings both up to date**, the main site and
   then the lab (its pages, sw.js, file list and version), since the lab
   is made from the main site's files; the tests fail while either is

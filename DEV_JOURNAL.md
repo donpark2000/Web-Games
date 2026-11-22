@@ -27001,3 +27001,34 @@ of 193).
 - **Live: site 11.7 and Topple Lab 0.5.** `block-game` = `main` plus notes only.
 - **Next:** the developer's answers above, then level 2 (lab 0.6).
 - **Open questions:** Q139 (the lab), Q136, Q130, Q134, Q121, as before otherwise.
+
+## 2026-11-22: The lab's level 2 (lab 0.6)
+
+- **Developer: "Yes to both"** (the downloads; publishing lab releases as they're finished).
+  **Downloaded** exactly the list: 69.5 MB into `Web-Games-testing\2026-11-22_levels\download`;
+  77 Poly Haven files MD5-checked, all matched (ambientCG and NASA give none).
+- **Tools (scratch):** `decimate.mjs` cuts a glTF model down (quadric edge collapse onto the
+  model's own corners, so each keeps its UV and normal; a UV seam collapses only along
+  itself; no triangle turned over), 0.2-6 s each: 60,928 triangles to 900 (the barrier), 89,618 to
+  900, 64,826 to 1,400 (boulders). Output 8-25 KB of JSON. `img.mjs` makes pictures smaller in
+  headless Edge's canvas.
+- **Built, lab only:** `SETTINGS[2].photo` (the photo's own concrete laid flat, as the park's;
+  the shadows over it at 0.42); `topple-lab/src/core/model-data.js` and
+  `src/ui/topple-models.js` (models, copies as one instanced mesh, soft shades on the ground
+  under what's out of the sun's shadow); barriers, drums, cement bags on pallets, scuffed
+  cones; work lamps' faces; Hardest's loads in photos (`moverMats`). The old pad, pipes and
+  brick pallet are gone.
+- **Found: the park's photo ground was a sphere of 37,000 triangles**, most of the park's
+  63,000. The colour goes by direction, so the flat part needs only its rim: 11 rings of 96
+  (`groundRings`), the same picture: **the park 62,952 → 28,392 triangles**, level 2 115,966
+  (first try) → 65,672 (50,730 in 0.5). The park is judged smooth on the tablet at 63,000.
+- **Rounds:** try1 (the barriers over the yard's kerb, 142 draw calls, the scenery casting
+  shadows nobody sees), try2 (fewer, instanced: 99 calls; the girders dark brown, like wood:
+  orange times the photo's green), final. All five scenes, a phone's screen (393×760), Hardest.
+- **Claude's view:** the ground and scenery now read as one real place. Left as drawn: the
+  wheelbarrow (its tray and gravel already fine), the hook blocks.
+- **Tests** (`tests/topple-lab-models.test.js`, 5): models there, adding up, credited, saved for
+  offline, at most 1,500 triangles; a missing picture, a wrong triangle count, an
+  uncredited one and a corner that isn't there each reported (on a copy); read back as
+  made; the ground's rings flat to the edge; all the lab's own photos under 12 MB.
+- **The log:** the "setting" line has `lab: { ground, models }` (each model's triangles).

@@ -15,7 +15,8 @@ import * as THREE from '../vendor/three/three.module.min.js';
 import { rng } from '../core/topple.js';
 import { crossing, perched } from '../core/topple-animals.js';
 import { equirect, moonSpot, MOON, cloudAt } from '../core/topple-sky.js';
-import { photoDir, groundPoint } from '../core/park-ground.js';   // (the lab's own)
+import { photoDir, groundPoint, groundRings } from '../core/park-ground.js';   // (the lab's own)
+import { loadModels, copies, contacts } from './topple-models.js';   // (the lab's own)
 
 // The Topple Lab's copy (DESIGN.md "Topple Lab"): its pages are in
 // topple-lab/, so the main site's pictures are one folder up.
@@ -44,7 +45,11 @@ export const SURFACES = {
 // wears, the sun (from the structure, × SCALE as level 1's), and what else
 // is drawn. fog: the haze far off, the colour of the photo's horizon.
 export const SETTINGS = {
-  2: { name: 'site', sky: 'construction_yard', ground: 'pad', surfaces: ['steel', 'concrete', 'brick', 'planks', 'pad', 'paint', 'galv'],
+  // (the lab, 2026-11-22: `photo`: the photo's own ground, as the park's: its
+  // camera camH m up, the ground out to R m, the shadows over it at `shade`;
+  // `models`: the photographed models its scenery uses)
+  2: { name: 'site', sky: 'construction_yard', ground: 'photo', photo: { camH: 1.7, R: 120, shade: 0.42 }, models: ['barrier', 'cement', 'barrelBlue'],
+    surfaces: ['steel', 'concrete', 'brick', 'planks', 'paint', 'galv'],
     mats: { steel: 'steel', concrete: 'concrete', brick: 'brick', wood: 'planks' }, sling: 'planks', sun: [1.4, 4.2, 2.6], hemi: 0.7 },
   3: { name: 'snow', sky: 'lago_disola', ground: 'snow', surfaces: ['snow', 'bark', 'planks', 'steel', 'concrete'],
     mats: { ice: 'ice', wood: 'planks' }, sling: 'planks', sun: [-1.2, 4.2, 2.6], hemi: 0.8 },
@@ -124,6 +129,15 @@ const rodTo = (a, b, r, mat, seg = 10) => {
   m.position.copy(A).add(B).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.normalize());
   return m;
 };
+// A work lamp's face: a tube across a dimpled reflector, behind glass.
+const lampTex = () => canvasTex(128, 96, (g, w, h) => {
+  const gr = g.createRadialGradient(w / 2, h / 2, 4, w / 2, h / 2, w * 0.6);
+  gr.addColorStop(0, '#F4F2E6'); gr.addColorStop(0.35, '#B9BBB8'); gr.addColorStop(1, '#6E7478');
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  for (let y = 4; y < h; y += 8) for (let x = 4 + (y % 16 ? 4 : 0); x < w; x += 8) { g.fillStyle = (x + y) % 3 ? 'rgba(255,255,255,.2)' : 'rgba(0,0,0,.14)'; g.beginPath(); g.arc(x, y, 2.6, 0, 7); g.fill(); }
+  g.fillStyle = '#E9E6D4'; g.fillRect(14, h / 2 - 5, w - 28, 10); g.fillStyle = '#8A8C8C'; g.fillRect(8, h / 2 - 7, 8, 14); g.fillRect(w - 16, h / 2 - 7, 8, 14);
+  g.fillStyle = 'rgba(255,255,255,.28)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(46, 0); g.lineTo(0, 62); g.fill();
+});
 // A radial fade for a ground disc's edge (opaque inside 0.6 of its radius).
 const fadeTex = () => canvasTex(256, 256, (g, w, h) => {
   const gr = g.createRadialGradient(w / 2, h / 2, w * 0.3, w / 2, h / 2, w / 2);
@@ -195,6 +209,7 @@ export async function makeSetting(n, ctx) {
   const t0 = performance.now();
   const maps = {};
   await Promise.all(S.surfaces.map(async k => { maps[k] = await loadSurface(k); }));
+  const models = await loadModels(S.models ?? []);
   const skyTex = await loadTex(`sky_${S.sky}.jpg`);
   // the sky: the photo all round (at night, made dark: nightSky); it lights the shiny parts too
   let bg, night = null;
@@ -227,6 +242,15 @@ export async function makeSetting(n, ctx) {
     out.ballRing = false;
     out.decorateBall = m => m.add(halo('#FFE6A0', 0.07 * 3.2, 0.35));
   } else out.ballMat = photoMat(maps.steel, { repeat: [0.3, 0.3], extra: { color: '#6A6F76', metalness: 0.7, envMapIntensity: 1.1 } });
+  // what a Hardest mover is drawn in (topple-scene.js; the lab: the photos)
+  if (S.name === 'site') {
+    out.moverMats = {
+      girder: Object.assign(photoMat(maps.paint, { repeat: [2, 0.25], extra: { color: '#D8601F', metalness: 0.35 } }), { map: null }),   // (its own orange, the photo's wear)
+      brickSide: photoMat(maps.brick, { repeat: [0.45, 0.3], extra: { metalness: 0 } }),
+      brickTop: photoMat(maps.brick, { repeat: [0.45, 0.3], extra: { metalness: 0 } }),
+      pallet: photoMat(maps.planks, { repeat: [1, 0.2], extra: { metalness: 0 } }),
+    };
+  }
   out.slingMat = photoMat(maps.planks, { repeat: [0.15, 0.6], extra: { color: '#C9A27A' } });
   // glowing blocks: a halo each, and a light among them that dims as they break
   if (blockMats.glow) {
@@ -245,13 +269,15 @@ export async function makeSetting(n, ctx) {
   }
 
   /* ---------- the ground ---------- */
-  if (S.ground === 'pad') {
-    // the building site's poured pad (mockup v7), opaque, its 1 m joints on top; the photo's yard beyond
-    const pad = mesh(new THREE.PlaneGeometry(16, 26), photoMat(maps.pad, { repeat: [16 / 2.12, 26 / 2.12], extra: { polygonOffset: true, polygonOffsetFactor: -2, metalness: 0 } }), [0, 0.002, -7], { cast: false });
-    pad.rotation.x = -Math.PI / 2; group.add(pad);
-    const joints = canvasTex(512, 512, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(60,55,50,.55)'; for (let i = 0; i < 4; i++) { g.fillRect(i * 128, 0, 3, h); g.fillRect(0, i * 128, w, 3); } }, [16 / 4, 26 / 4]);
-    const jm = mesh(new THREE.PlaneGeometry(16, 26), new THREE.MeshStandardMaterial({ map: joints, transparent: true, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, depthWrite: false }), [0, 0.003, -7], { cast: false });
-    jm.rotation.x = -Math.PI / 2; group.add(jm);
+  if (S.photo) {
+    // (the lab) the photo's own ground, laid flat (photoGround), and over it a
+    // see-through layer that shows only the shadows
+    const gtex = bg.clone(); gtex.mapping = THREE.UVMapping; gtex.colorSpace = THREE.SRGBColorSpace; gtex.anisotropy = ctx.renderer.capabilities.getMaxAnisotropy(); gtex.needsUpdate = true;
+    const ground = photoGround(gtex, S.photo.camH, S.photo.R);
+    const shade = mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: S.photo.shade, depthWrite: false }), [0, 0.003, -10], { cast: false });
+    shade.rotation.x = -Math.PI / 2;
+    group.add(ground, shade);
+    out.place = (x, z) => ground.userData.place(x, z);
   } else {
     // snow or sand all round, fading at its edge into the photo's own land
     const R = 34, sk = SURFACES[S.ground];
@@ -293,10 +319,13 @@ export async function makeSetting(n, ctx) {
       g.add(mesh(new THREE.BoxGeometry(0.5, 0.28, 0.5), photoMat(maps.concrete ?? maps.steel, { repeat: [0.2, 0.1] }), [0, 0.14, 0]));
       g.add(mesh(new THREE.CylinderGeometry(0.06, 0.07, h, 14), photoMat(maps.galv, { repeat: [0.15, 1.3], extra: { metalness: 0.8, envMapIntensity: 1.2 } }), [0, h / 2, 0]));
       g.add(mesh(new THREE.BoxGeometry(1.0, 0.1, 0.12), greyMetal, [0, h, 0]));
-      const bulb = std({ color: '#FFF6D0', emissive: '#FFE9A0', emissiveIntensity: 0.6 });
+      // (the lab: each lamp a ribbed case, a rim, its glass over a reflector and tube)
+      const bulb = std({ map: lampTex(), roughness: 0.15, metalness: 0.1, envMapIntensity: 1.4 }), dark = std({ color: '#2A2E31', roughness: 0.55, metalness: 0.4 }), rim = std({ color: '#C9A021', roughness: 0.5, metalness: 0.2 });
       for (const dx of [-0.32, 0.32]) {
-        g.add(mesh(new THREE.BoxGeometry(0.36, 0.3, 0.16), std({ color: '#2E3438', roughness: 0.6 }), [dx, h + 0.2, 0]));
-        g.add(mesh(new THREE.BoxGeometry(0.3, 0.24, 0.02), bulb, [dx, h + 0.2, 0.09], { cast: false }));
+        g.add(mesh(new THREE.BoxGeometry(0.36, 0.3, 0.12), dark, [dx, h + 0.2, 0]));
+        for (let k = -3; k <= 3; k++) g.add(mesh(new THREE.BoxGeometry(0.012, 0.26, 0.05), dark, [dx + k * 0.045, h + 0.2, -0.08]));
+        g.add(mesh(new THREE.BoxGeometry(0.3, 0.24, 0.02), bulb, [dx, h + 0.2, 0.065], { cast: false }));
+        for (const [w2, h2, x2, y2] of [[0.38, 0.035, 0, 0.14], [0.38, 0.035, 0, -0.14], [0.035, 0.3, 0.175, 0], [0.035, 0.3, -0.175, 0]]) g.add(mesh(new THREE.BoxGeometry(w2, h2, 0.04), rim, [dx + x2, h + 0.2 + y2, 0.075]));
       }
       g.position.set(...p.at);
       return g;
@@ -349,16 +378,7 @@ export async function makeSetting(n, ctx) {
   /* ---------- decor, out of play ---------- */
   const decor = [];
   if (S.name === 'site') {
-    // cones, pipes and a pallet of bricks by the yard's edge (mockup v1), well out of reach
-    const cone = std({ color: '#F06A28', roughness: 0.6 }), white = std({ color: '#FFFFFF' });
-    for (const [cx, cz] of [[-4.6, -16.5], [-3.2, -16.2], [3.6, -15.8], [5.1, -16.4], [-7.5, -15], [9.5, -15.4]]) {
-      group.add(mesh(new THREE.ConeGeometry(0.2, 0.55, 18), cone, [cx, 0.3, cz]), mesh(new THREE.CylinderGeometry(0.115, 0.14, 0.09, 18), white, [cx, 0.31, cz]), mesh(new THREE.BoxGeometry(0.42, 0.04, 0.42), cone, [cx, 0.02, cz]));
-    }
-    const pipe = photoMat(maps.paint, { repeat: [1, 2], extra: { color: '#7FA6D8', metalness: 0.5 } });
-    [[-0.5, 0.25], [0, 0.25], [0.5, 0.25], [-0.25, 0.68], [0.25, 0.68], [0, 1.11]].forEach(([dx, y]) => { const m = mesh(new THREE.CylinderGeometry(0.25, 0.25, 4, 18), pipe, [-9 + dx, y, -17.5]); m.rotation.x = Math.PI / 2; group.add(m); });
-    group.add(mesh(new THREE.BoxGeometry(1.1, 0.14, 1.1), photoMat(maps.planks, { repeat: [1, 1] }), [6.5, 0.07, -16.8]));
-    const pal = new THREE.BoxGeometry(1.0, 0.8, 1.0); worldUV(pal, 1, 0.8, 1, 3, 99);
-    group.add(mesh(pal, photoMat(maps.brick, { channel: 1 }), [6.5, 0.54, -16.8]));
+    siteDecor(group, maps, models);
     decor.push(rat(group));
   } else if (S.name === 'snow') {
     // a snowman off to the right, and young pines at the edge of the snow
@@ -413,7 +433,62 @@ export async function makeSetting(n, ctx) {
   out.fxLive = () => fx.live;
   out.ms = Math.round(performance.now() - t0);
   out.files = images.size;
+  // (the lab, for the log: what is new in it)
+  out.lab = { ground: S.photo ? 'photo' : 'surface', ...(S.models ? { models: Object.fromEntries(S.models.map(k => [k, models[k].tris])) } : {}) };
   return out;
+}
+
+/* ---------- the building site's scenery (the lab, 2026-11-22) ---------- */
+
+// Round the yard's edge, well out of reach: concrete barriers, oil drums and
+// bags of cement on pallets (photographed models), a pallet of bricks, cones.
+function siteDecor(group, maps, models) {
+  // the barriers: along the yard's far edge, one knocked askew
+  group.add(copies(models.barrier, [
+    { x: -9.2, z: -13.4, yaw: 0.32 }, { x: -7.4, z: -13.9, yaw: 0.1 + Math.PI }, { x: -5.6, z: -14.0, yaw: -0.03 },
+    { x: 8.2, z: -13.4, yaw: -0.36 }, { x: 10.0, z: -12.6, yaw: -0.5 + Math.PI },
+  ], { cast: false }));
+  // two pallets of cement bags (laid flat, crossed each layer)
+  const bags = [], wood = photoMat(maps.planks, { repeat: [1, 0.3], extra: { metalness: 0 } });
+  const pallet = (x, z, yaw) => {
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = yaw;
+    for (let k = 0; k < 6; k++) g.add(mesh(new THREE.BoxGeometry(1.2, 0.022, 0.12), wood, [0, 0.133, -0.4 + k * 0.16]));
+    for (const dx of [-0.54, 0, 0.54]) { g.add(mesh(new THREE.BoxGeometry(0.1, 0.1, 0.92), wood, [dx, 0.072, 0])); g.add(mesh(new THREE.BoxGeometry(0.1, 0.022, 0.92), wood, [dx, 0.011, 0])); }
+    group.add(g);
+  };
+  const r = rng(61);
+  for (const [px, pz, yaw, layers] of [[-3.1, -14.6, 0.2, 4], [3.0, -14.9, -0.25, 3]]) {
+    pallet(px, pz, yaw);
+    for (let k = 0; k < layers; k++) for (const s of [-0.3, 0.3]) {
+      const turn = yaw + (k % 2 ? 0 : 0) + (r() - 0.5) * 0.12;
+      bags.push({ x: px + Math.cos(yaw) * s * 1.02, z: pz - Math.sin(yaw) * s * 1.02, y: 0.145 + k * 0.165, yaw: turn, s: [1.16, 1, 1.16] });
+    }
+  }
+  group.add(copies(models.cement, bags, { cast: false }));
+  // oil drums, one on its side
+  group.add(copies(models.barrelBlue, [
+    { x: -11.2, z: -12.6, yaw: 0.4 }, { x: -10.6, z: -12.9, yaw: 2.2 }, { x: -10.9, z: -12.2, yaw: 4.0 },
+    { x: -5.0, y: 0.31, z: -12.9, yaw: 0.5, roll: Math.PI / 2 },
+  ], { cast: false }));
+  // cones: a moulded base, a tapering body with two grey bands, scuffed
+  const scuffed = (base, marks) => canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = base; g.fillRect(0, 0, w, h);
+    const q = rng(7);
+    for (let i = 0; i < 150; i++) { g.fillStyle = `rgba(${marks},${0.04 + q() * 0.16})`; g.fillRect(q() * w, q() * h, 1 + q() * 14, 1 + q() * 2); }
+  });
+  const orange = std({ map: scuffed('#D9541C', '60,40,30'), roughness: 0.55 }), band = std({ map: scuffed('#C9CBC8', '70,60,50'), roughness: 0.35 }), black = std({ map: scuffed('#26262A', '150,140,130'), roughness: 0.8 });
+  const frustum = (r0, r1, h) => new THREE.CylinderGeometry(r1, r0, h, 20, 1, true);
+  const at = h => 0.155 - 0.125 * h / 0.7;   // the cone's radius at height h
+  const cones = [[-4.2, -13.5], [-1.6, -15.2], [1.2, -15.6], [4.6, -13.9], [6.9, -13.3], [-8.2, -12.6]].map(([x, z]) => ({ x, z, yaw: x }));
+  const parts = [[new THREE.BoxGeometry(0.4, 0.035, 0.4).translate(0, 0.0175, 0), black], [new THREE.CylinderGeometry(0.16, 0.185, 0.03, 20).translate(0, 0.05, 0), orange],
+    ...[[0.05, 0.26, orange], [0.26, 0.38, band], [0.38, 0.47, orange], [0.47, 0.56, band], [0.56, 0.72, orange]].map(([h0, h1, m]) => [frustum(at(h0), at(h1), h1 - h0).translate(0, (h0 + h1) / 2, 0), m])];
+  for (const [geo, mat] of parts) group.add(copies({ geo, mat }, cones, { cast: false }));
+  // the shade they stand in (the sun's shadows cover only what's in play)
+  group.add(contacts([
+    ...[[-9.2, -13.4, 0.32], [-7.4, -13.9, 0.1], [-5.6, -14.0, -0.03], [8.2, -13.4, -0.36], [10.0, -12.6, -0.5]].map(([x, z, yaw]) => ({ x: x - 0.1, z: z - 0.1, w: 2.1, d: 1.2, yaw })),
+    ...[[-3.1, -14.6, 0.2], [3.0, -14.9, -0.25]].map(([x, z, yaw]) => ({ x, z, w: 1.8, d: 1.6, yaw })),
+    { x: -10.9, z: -12.6, w: 2.2, d: 1.8 }, { x: -5.0, z: -12.9, w: 1.4, d: 1.0, yaw: 0.5 }, ...cones.map(c => ({ x: c.x - 0.05, z: c.z - 0.03, w: 0.7, d: 0.6 })),
+  ]));
 }
 
 /* ---------- the park in photos (Topple Lab 0.2, Q139) ---------- */
@@ -438,8 +513,15 @@ export const PARK = {
 // first, behind everything (no depth written); placed under the camera by
 // place(x, z).
 export function photoGround(tex, h = PARK.camH, R = PARK.groundR) {
-  const geo = new THREE.SphereGeometry(1, 192, 96), p = geo.attributes.position;
-  for (let i = 0; i < p.count; i++) p.setXYZ(i, ...groundPoint([p.getX(i), p.getY(i), p.getZ(i)], h, R));
+  // (few triangles: groundRings; until 2026-11-22 a sphere of 37,000)
+  const rings = groundRings(h, R), n = 96, pts = [], idx = [];
+  for (const el of rings) for (let k = 0; k <= n; k++) {
+    const az = k / n * 2 * Math.PI;
+    pts.push(...groundPoint([Math.cos(el) * Math.cos(az), Math.sin(el), Math.cos(el) * Math.sin(az)], h, R));
+  }
+  for (let j = 0; j < rings.length - 1; j++) for (let k = 0; k < n; k++) { const a = j * (n + 1) + k, b = a + n + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)); geo.setIndex(idx);
   geo.computeBoundingSphere();
   const mat = new THREE.ShaderMaterial({
     uniforms: { map: { value: tex } },
@@ -453,7 +535,7 @@ export function photoGround(tex, h = PARK.camH, R = PARK.groundR) {
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
-    side: THREE.BackSide, depthWrite: false,
+    side: THREE.DoubleSide, depthWrite: false,
   });
   const m = new THREE.Mesh(geo, mat);
   m.renderOrder = -2; m.frustumCulled = false;

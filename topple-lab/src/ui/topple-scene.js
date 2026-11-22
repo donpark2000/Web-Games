@@ -395,7 +395,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
   let moverMeshes = [];
   const chainMat = new THREE.MeshStandardMaterial({ color: '#3A3D40', roughness: 0.5, metalness: 0.6 });
   const hookMat = new THREE.MeshStandardMaterial({ color: '#E8B22A', roughness: 0.5, metalness: 0.3 });
-  const girderMat = new THREE.MeshStandardMaterial({ color: '#E0641F', roughness: 0.5, metalness: 0.35 });
+  const girderPlain = new THREE.MeshStandardMaterial({ color: '#E0641F', roughness: 0.5, metalness: 0.35 });
   const brickTex = (rows, cols) => canvasTex(256, 256, (g, w, h) => {
     g.fillStyle = '#C9C1B4'; g.fillRect(0, 0, w, h);           // mortar
     const bh = h / rows, bw = w / cols;
@@ -408,13 +408,14 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     g.fillStyle = '#2C6FD6';
     for (const sx of [0.27, 0.73]) g.fillRect(w * sx - 7, 0, 14, h);
   });
+  const strapMat = new THREE.MeshStandardMaterial({ color: '#2C62B8', roughness: 0.45 });
   const brickSide = new THREE.MeshStandardMaterial({ map: brickTex(6, 4), roughness: 0.85 });
   const brickTop = new THREE.MeshStandardMaterial({ map: brickTex(4, 4), roughness: 0.85 });
-  const palletMat = new THREE.MeshStandardMaterial({ color: '#B98A55', roughness: 0.9 });
+  const palletPlain = new THREE.MeshStandardMaterial({ color: '#B98A55', roughness: 0.9 });
   const part = (w, h, d, mat, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); o.position.set(x, y, z); return o; };
   function girders(g, { w, h, d }) {
     // each I-beam: two flanges and a web; two deep, three high, filling the box
-    const bh = h / 3, fd = d / 2 - 0.02, ft = 0.035;
+    const bh = h / 3, fd = d / 2 - 0.02, ft = 0.035, girderMat = set?.moverMats?.girder ?? girderPlain;   // (the lab: in its photo)
     for (let row = 0; row < 3; row++) for (const sz of [-1, 1]) {
       const y = -h / 2 + bh * (row + 0.5), z = sz * d / 4;
       g.add(part(w, ft, fd, girderMat, 0, y - bh / 2 + ft / 2 + 0.005, z));
@@ -423,14 +424,16 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     }
   }
   function bricks(g, { w, h, d }) {
-    const ph = 0.12;
+    const ph = 0.12, mm = set?.moverMats, palletMat = mm?.pallet ?? palletPlain;   // (the lab: in their photos)
     // the pallet: a deck, three runners under it
     g.add(part(w, 0.03, d, palletMat, 0, -h / 2 + ph - 0.015, 0));
     for (const sx of [-0.42, 0, 0.42]) g.add(part(0.09, ph - 0.03, d, palletMat, sx * w, -h / 2 + (ph - 0.03) / 2, 0));
     // the stack, a little in from the pallet's edges
     const sh = h - ph;
-    g.add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.96, sh, d * 0.94), [brickSide, brickSide, brickTop, palletMat, brickSide, brickSide]));
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.96, sh, d * 0.94), mm?.brickSide ? [mm.brickSide, mm.brickSide, mm.brickTop, palletMat, mm.brickSide, mm.brickSide] : [brickSide, brickSide, brickTop, palletMat, brickSide, brickSide]));
     g.children.at(-1).position.y = -h / 2 + ph + sh / 2;
+    // (the lab: the blue straps round the photo's bricks)
+    if (mm?.brickSide) for (const sx of [-0.23, 0.23]) g.add(part(0.05, sh + 0.012, d * 0.94 + 0.012, strapMat, sx * w, -h / 2 + ph + sh / 2, 0));
   }
   // The park's (Q106, session 2): a tyre on a rope up to a branch out of
   // sight (the swing's pivot, CABLE_TOP); a black bucket seat on two chains
@@ -949,6 +952,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     setCamera(c) {
       camera.position.set(...c.pos); look.set(...c.look); camera.lookAt(look);
       parkPhoto?.place(c.pos[0], c.pos[2]);   // the photo's ground centred under the camera
+      set?.place?.(c.pos[0], c.pos[2]);   // (the lab: levels 2-5's too)
       if (c.fov && Math.abs(c.fov - camera.fov) > 1e-3) { camera.fov = c.fov; camera.updateProjectionMatrix(); }
     },
     // The canvas' size in CSS px; returns its aspect.
@@ -982,7 +986,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       set = n > 1 ? sets.get(n) ?? null : null;
       level = n;
       parkGroup.visible = !set;
-      if (set) scene.add(set.group);
+      if (set) { scene.add(set.group); set.place?.(camera.position.x, camera.position.z); }
       scene.background = set ? set.background : parkPhoto?.background ?? parkSky;
       scene.environment = set ? set.environment : parkPhoto?.environment ?? null;
       scene.fog = set ? set.fog : parkPhoto?.fog ?? null;
@@ -1000,7 +1004,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       ballMeshes.clear();
       for (const m of slingParts) m.material = set ? set.slingMat : parkPhoto?.barkMat ?? m.userData.wood;   // (the lab's park: a branch, in its bark)
       applyCuts(three, cuts);   // the setting's sky light and surfaces too
-      return { level: n, photos: !!set || (n <= 1 && !!parkPhoto), ...(park ? { park } : {}), ms:Math.round(performance.now() - t0), ...(set?.nightMs !== undefined ? { nightMs: set.nightMs, skyline: set.skyline } : {}), ...(error ? { error } : {}) };
+      return { level: n, photos: !!set || (n <= 1 && !!parkPhoto), ...(park ? { park } : {}), ...(set?.lab ? { lab: set.lab } : {}), ms:Math.round(performance.now() - t0), ...(set?.nightMs !== undefined ? { nightMs: set.nightMs, skyline: set.skyline } : {}), ...(error ? { error } : {}) };
     },
     // A block broke (ice shattered, a barrel burst): its pieces fly.
     burst(b, at, q, v) { set?.burst(b, at, q, v); },
