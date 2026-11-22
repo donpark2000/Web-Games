@@ -23,7 +23,7 @@ time, each tried before publishing:
   thing in the way). **Proposed (lab):** about one a scene, on the moon and Star Light, placed by
   the view (in the sky it shows, clear of the level's name and the hearts), a brighter streak
   with a fading tail, its time varied; logged; a test that it's on the screen at the sizes above.
-  **To ask:** build it in the lab?
+  **Developer: "Yes, next session".** To build in the lab (0.12).
 
 - **Q142. Topple Lab: the moon's first scene sluggish for a few seconds on the tablet** (2026-11-22,
   developer, lab 0.10, moon level 1: phone and tablet "look fine and play well"; the tablet
@@ -27291,3 +27291,17 @@ passed; live 20 s after the push (62d710a7aeda); site still 11.7.
   judged.
 - **Open questions:** Q141 and Q142 (live: to try), Q139 (the lab), Q136 and Q130 (site 11.4: to
   try), Q134 (site 11.3: to try), Q121, as before otherwise.
+
+**Status (start here next session)**
+- **Live: site 11.8 and Topple Lab 0.11.** `block-game` = `main` plus journal entries.
+- **Next, lab 0.12 (agreed, "Yes, next session"): shooting stars that are on the screen** (Q143):
+  about one a scene, on the moon and Star Light, with what the developer's trial finds. A lab
+  copy's change only (`topple-lab/src/ui/topple-moon.js`, `topple-sets.js`); the site not asked for.
+- **The developer is trying tonight (2026-11-22)**, on the tablet: lab levels 2-5 and the moon (looks,
+  smoothness); the moon's start after a park level (Q142); the site's level 2 (Q141).
+- **To ask:** levels 3 and 5 without their mountains: kept? The light drawing remembered across
+  releases? The proposed skill lesson ("Check the reduced modes of a visual change"): add, watch
+  or drop? Purge `Web-Games-testing\2026-11-22_levels\` once the levels are judged?
+- **After that:** the moon's sounds (Q121).
+- **Open questions:** Q143 (agreed), Q141 and Q142 (live: to try), Q139 (the lab), Q136 and Q130 (site
+  11.4: to try), Q134 (site 11.3: to try), Q121, as before otherwise.
