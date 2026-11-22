@@ -10,31 +10,6 @@ Raised 2026-10-15 by the developer after the publish of de21c8c ("Maybe
 we tried to do too many different things at once"), to take one at a
 time, each tried before publishing:
 
-- **Q140. Topple Lab: the wrong icon once installed on the 2019 Galaxy Tab A** (2026-11-22,
-  developer: "the icon is not right. Something about google chrome. No the purple teddy
-  that appears on my phone."). Not the files: the lab's manifest has the site's fields, its
-  icons (192, 512, SVG) are the purple bear and are served live (all 200, right types); the
-  iPhone takes `apple-touch-icon.png` instead, so it doesn't test the manifest's. Not known
-  yet: what the icon shows (Chrome's own logo, or the bear with a small Chrome badge), and
-  which menu item was used. Read (MDN, "Making PWAs installable"): Chrome adds a
-  browser-badged shortcut instead of an app where Google Mobile Services is absent; its
-  other reasons aren't covered. **Guess, not tested:** Let's Play!, if installed on that
-  tablet, has the scope `/Web-Games/`, which holds `/Web-Games/topple-lab/`; Chrome may take
-  the lab's pages as part of it and offer only a shortcut. **To ask:** what the icon looks
-  like; whether the menu said "Install app" or "Add to Home screen / Create shortcut";
-  whether it opens with Chrome's address bar; whether Let's Play! is installed there.
-  **Developer (2026-11-22):** Let's Play! is installed on that tablet; the icon is labelled
-  Topple Lab, "a grey background with the letter G in the middle" and a small Chrome circle
-  at the bottom right. So a shortcut, not an app, and with no icon of ours. **Found: both
-  apps have the same identity** (see "Q140: the lab and the site share one app id"). **To
-  ask:** OK to take the lab's `id` line out (its id becomes its own address) and publish as
-  lab 0.5, then remove the G shortcut and install again?
-  **Developer (2026-11-22), reinstalling 0.4:** Chrome said it was "already installed, asking
-  me if I wanted to change it"; on a yes, the Let's Play! icon opens Topple Lab. So the
-  identity is the cause, and the installed Let's Play! was changed by the lab.
-  **Published: lab 0.5** (2026-11-22; no `id` in the lab's manifest; see "Q140: lab 0.5");
-  to try on the tablet.
-
 - **Q139. Topple!: a more realistic look; a Topple Lab apart** (2026-11-20, developer:
   "our games so far look much more like low budget cartoons", asking for a plan with CC0
   assets, under about 30 MB added, still offline). What's there: three.js r160, no tone
@@ -713,6 +688,36 @@ tints".)
 on 2026-10-08; see "Sound sampler v1; face names agreed".)
 
 ## Resolved
+
+- **Q140. Topple Lab: the wrong icon once installed on the 2019 Galaxy Tab A** (2026-11-22,
+  developer: "the icon is not right. Something about google chrome. No the purple teddy
+  that appears on my phone."). Not the files: the lab's manifest has the site's fields, its
+  icons (192, 512, SVG) are the purple bear and are served live (all 200, right types); the
+  iPhone takes `apple-touch-icon.png` instead, so it doesn't test the manifest's. Not known
+  yet: what the icon shows (Chrome's own logo, or the bear with a small Chrome badge), and
+  which menu item was used. Read (MDN, "Making PWAs installable"): Chrome adds a
+  browser-badged shortcut instead of an app where Google Mobile Services is absent; its
+  other reasons aren't covered. **Guess, not tested:** Let's Play!, if installed on that
+  tablet, has the scope `/Web-Games/`, which holds `/Web-Games/topple-lab/`; Chrome may take
+  the lab's pages as part of it and offer only a shortcut. **To ask:** what the icon looks
+  like; whether the menu said "Install app" or "Add to Home screen / Create shortcut";
+  whether it opens with Chrome's address bar; whether Let's Play! is installed there.
+  **Developer (2026-11-22):** Let's Play! is installed on that tablet; the icon is labelled
+  Topple Lab, "a grey background with the letter G in the middle" and a small Chrome circle
+  at the bottom right. So a shortcut, not an app, and with no icon of ours. **Found: both
+  apps have the same identity** (see "Q140: the lab and the site share one app id"). **To
+  ask:** OK to take the lab's `id` line out (its id becomes its own address) and publish as
+  lab 0.5, then remove the G shortcut and install again?
+  **Developer (2026-11-22), reinstalling 0.4:** Chrome said it was "already installed, asking
+  me if I wanted to change it"; on a yes, the Let's Play! icon opens Topple Lab. So the
+  identity is the cause, and the installed Let's Play! was changed by the lab.
+  **Published: lab 0.5** (2026-11-22; no `id` in the lab's manifest; see "Q140: lab 0.5");
+  to try on the tablet.
+  **Closed (2026-11-22):** Let's Play! uninstalled, the lab installed first, then Let's Play!:
+  developer: "That worked. I have both installed with the right icons and they both open the
+  right site." **Two causes:** the shared id (fixed, lab 0.5) and the lab's address inside
+  Let's Play!'s (not changed: install the lab first; DESIGN.md "Topple Lab"). Not tested:
+  whether the order alone would have done it with 0.4.
 
 - **Q133. Topple!: the blocks left glow after a pause on the moon too** (2026-11-18,
   developer: "parts of targets still to be knocked over are not glowing in Moon world
@@ -26900,3 +26905,26 @@ of 193).
   storage either way.
 - **Open questions:** Q140 (the order, to try), Q139 (the lab), Q136 and Q130 (site 11.4: to
   try), Q134 (site 11.3: to try), Q121, as before otherwise.
+
+## 2026-11-22: Q140 closed: both apps installed on the tablet
+
+- **Developer, the 2019 tablet** (Let's Play! uninstalled, lab 0.5 installed, then Let's
+  Play!): "That worked. I have both installed with the right icons and they both open the
+  right site." Q140 moved to Resolved. **Shows:** the order gets round the nested address,
+  as web.dev said. **Doesn't show:** what Chrome does when it next updates either app, or
+  that the lab can be reinstalled later without Let's Play! being uninstalled first (from
+  the "already installed" seen with 0.5: no).
+- **The order written down:** DESIGN.md "Topple Lab"; `RELEASES.md` 0.5, whose note had the
+  wrong order (Let's Play! first). The GitHub pre-release's text still has it: to ask.
+
+**Status (start here next session)**
+- **Live: site 11.7 and Topple Lab 0.5.** `block-game` = `main` plus notes only (journal,
+  DESIGN.md, RELEASES.md 0.5's install order).
+- **To ask again:** bushes left random, or at least one or two a game (site and lab)? OK to
+  purge the five folders in `Web-Games-testing` (`2026-11-20_realism`, `2026-11-20_park`,
+  `2026-11-21_ground`, `2026-11-21_bush`, `2026-11-21_photo-bush`), the park having passed
+  on the tablet? OK to correct the install order in the GitHub 0.5 pre-release?
+- **Next in the lab:** levels 2-4's drawn props (Q139 changes 3-5), from level 2; the moon
+  (photo surfaces); its sounds (Q121). Picture scripts: see 2026-11-21's status.
+- **Open questions:** Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 (site 11.3: to
+  try), Q121, as before otherwise.

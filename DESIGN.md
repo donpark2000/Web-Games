@@ -1821,6 +1821,12 @@ sounds), without "any risk of accidentally corrupting the current game".
   **no `id`**, so it's its own address; Let's Play!'s stays `"./"`
   (`https://donpark2000.github.io/`): changing it would make installed
   copies another app. A test works out both and fails if they match.
+- **On Android, install the lab before Let's Play!** (developer's
+  tablet, 2026-11-22): the lab's address is inside Let's Play!'s, so
+  with Let's Play! installed Chrome calls the lab "already installed".
+  To put the lab on later: uninstall Let's Play! (keeping its data),
+  install the lab, then Let's Play! again. An address of its own (a repo
+  of its own) would end this; not needed while one person uses the lab.
 - **Release numbers of its own** (developer, 2026-11-20: "Own lab
   numbers"): 0.1, 0.2 ... in `topple-lab/src/core/release.js`, notes under
   `RELEASES.md`'s "# Topple Lab" heading, each a git tag `lab-vX.Y` on

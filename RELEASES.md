@@ -1119,7 +1119,7 @@ lab leaves the site's release as it was.
 The lab installs as an app of its own, beside Let's Play!.
 
 - **Its own identity**: until now the lab had the same app identity as Let's Play!, so on a device with Let's Play! installed, Android's Chrome took the lab for a change to it (a shortcut with the letter G, or Let's Play!'s icon opening the lab). Let's Play! itself isn't changed.
-- **If that happened on your device**: uninstall both icons, then install Let's Play! from its own page and the lab from the lab's.
+- **If that happened on your device**: uninstall both icons, then install the lab from its own page first, and Let's Play! from its own after it (on Android, in that order).
 - Nothing new to download. The games as in 0.4.
 
 ## 0.4 (2026-11-21, version 0035e2e64b6c)
