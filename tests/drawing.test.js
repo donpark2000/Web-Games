@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import * as THREE from '../src/vendor/three/three.module.min.js';
 import { LEVELS, SLOW_MS, WARM_S, WINDOW_S, GAP_MS, watcher, keptLevel, keepLevel, KEY } from '../src/core/drawing.js';
 import { checkRuns, GROUPS } from '../src/core/speedtest.js';
-import { applyCuts } from '../src/ui/drawcuts.js';
+import { applyCuts, PLAIN_METAL } from '../src/ui/drawcuts.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = f => readFile(path.join(root, f), 'utf8');
@@ -139,6 +139,28 @@ test('drawing: the light cuts made to a scene: pixels, Basic shadows (shaders re
   assert.deepEqual(applyCuts(f.three, LEVELS[2].cuts), ['shadows']);
   assert.equal(f.three.renderer.shadowMap.enabled, false);
   assert.ok(f.plain.version > v2);
+});
+
+test("drawing: a surface whose metal map is taken away isn't left all metal (Q141: near black, with no sky to reflect)", () => {
+  const f = fakeThree(), map = () => new THREE.Texture();
+  const mk = o => { const m = new THREE.MeshStandardMaterial(o); f.three.scene.add(new THREE.Mesh(new THREE.BoxGeometry(), m)); return m; };
+  const steel = mk({ metalness: 1, metalnessMap: map() }), ball = mk({ metalness: 0.7, metalnessMap: map() }), snow = mk({ metalness: 0, metalnessMap: map() });
+  const rail = mk({ metalness: 0.6 }), bumpy = mk({ metalness: 0.5, normalMap: map() });
+  applyCuts(f.three, LEVELS[1].cuts);
+  assert.deepEqual([steel, ball].map(m => [m.metalnessMap, m.metalness]), [[null, PLAIN_METAL], [null, PLAIN_METAL]]);
+  assert.ok(PLAIN_METAL > 0 && PLAIN_METAL <= 0.3, `${PLAIN_METAL} still too dark with nothing to reflect`);
+  assert.equal(snow.metalness, 0, 'one not metal left so');
+  assert.equal(rail.metalness, 0.6, 'a plain metal colour, with no map, left as made');
+  assert.equal(bumpy.metalness, 0.5, 'one that had no metal map left as made');
+  // again: not changed further; and the same in the lightest
+  assert.deepEqual(applyCuts(f.three, LEVELS[1].cuts), []);
+  applyCuts(f.three, LEVELS[2].cuts);
+  assert.equal(steel.metalness, PLAIN_METAL);
+  // as drawn: the metal and its map kept
+  const g = fakeThree(), kept = new THREE.MeshStandardMaterial({ metalness: 1, metalnessMap: map() });
+  g.three.scene.add(new THREE.Mesh(new THREE.BoxGeometry(), kept));
+  applyCuts(g.three, LEVELS[0].cuts);
+  assert.equal(kept.metalness, 1); assert.ok(kept.metalnessMap);
 });
 
 test('drawing: as drawn changes nothing', () => {

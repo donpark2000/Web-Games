@@ -2142,7 +2142,8 @@ not known, "I'll just wait until I hear a complaint"). **Five Dice 3D built** 20
   "is not that bad"): Tin Can Alley and Topple! watch their frames while
   they play. Three levels (`src/core/drawing.js`): **as drawn**; **light**
   (0.75 pixels, Basic shadows (one read a pixel instead of 16-17), no
-  reflections, plain surfaces, the park's far trees hidden); **lightest**
+  reflections, plain surfaces (one whose metal map is taken away is left
+  little metal, not all: 11.8), the park's far trees hidden); **lightest**
   (light with no shadows). Antialiasing and the photo skies stay (the
   speed test found they cost nothing measurable). After 1.5 s of play
   (and after each scene or round starts, or a level changes), the

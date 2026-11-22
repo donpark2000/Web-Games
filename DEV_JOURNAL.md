@@ -27199,3 +27199,19 @@ passed; live 20 s after the push (62d710a7aeda); site still 11.7.
   are in the scratchpad (lost between sessions), described in this day's entries.
 - **Open questions:** Q141 (new), Q139 (the lab), Q136 and Q130 (site 11.4: to try), Q134 (site
   11.3: to try), Q121, as before otherwise.
+
+## 2026-11-22: Q141: the light drawing's dark steel and brick (site 11.8 and lab 0.11; built, not published)
+
+- **Developer: "Yes, fix it"** (the site's dark blocks on slow devices, as 11.8).
+- **Built** where the cuts are made (`src/ui/drawcuts.js`, shared by Topple!, the lab, Tin Can
+  Alley and the speed test): a surface whose metal map is taken away is left 0.2 metal
+  (`PLAIN_METAL`) if it was more. Not changed: one not metal, a plain metal colour that never
+  had a map (rails, wheels; Tin Can Alley has no metal maps at all), the full drawing.
+- **Test** (`tests/drawing.test.js`, 1 more): run before the fix it failed (10 passed, 1 failed), after
+  it 11 passed.
+- **Pictures** (`Web-Games-testing\2026-11-22_levels\q141\`, the site, light and lightest, before and
+  after, five scenes): level 2's posts, slab and bricks, level 3's trunk, level 4's timber and the
+  ball in 2-4 lighter; level 5 the same. **Correcting "nearly black"** (Claude, earlier today):
+  very dark brown on the sides in shade, rather than black all over.
+- **The lab shares the file**, so its version changes too: lab 0.11 with it (nothing else in it).
+- **Not known:** whether the 2019 tablet is at "light" at all (its log's "drawing" line says).

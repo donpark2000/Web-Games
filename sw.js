@@ -25,9 +25,9 @@
 // after that get the new files, and the home page loads again for them.
 
 // ---- made by tools/offline.js (don't edit by hand) ----
-const VERSION = '8faca195760c';
-const MADE = '2026-11-21';
-const RELEASE = '11.7';
+const VERSION = '7acb374e8e70';
+const MADE = '2026-11-22';
+const RELEASE = '11.8';
 const FILES = [
   'bridges.html',
   'colour-sudoku.html',
@@ -346,7 +346,7 @@ const HASHES = {
   'src/core/net.js': '01f93e039e36',
   'src/core/nim.js': 'c948ce20355e',
   'src/core/players.js': 'cdcbde55ab4c',
-  'src/core/release.js': 'e360673103f4',
+  'src/core/release.js': '8300cbcdbfc8',
   'src/core/resume.js': 'f8feda70fba3',
   'src/core/reversi.js': '5c1eff2f7729',
   'src/core/rock-paper-scissors.js': '102269302158',
@@ -379,7 +379,7 @@ const HASHES = {
   'src/ui/dbboard.js': '090c25e54492',
   'src/ui/debuglog.js': '463c83411559',
   'src/ui/dots-boxes.js': 'a5b195ae9121',
-  'src/ui/drawcuts.js': 'efb5cae3a003',
+  'src/ui/drawcuts.js': '68d57b1c1803',
   'src/ui/drawwatch.js': '8635f60a4ace',
   'src/ui/faces.js': '2bbbb90f0067',
   'src/ui/fit.js': '217d454b3852',

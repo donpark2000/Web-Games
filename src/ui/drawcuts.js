@@ -6,6 +6,9 @@
 
 import * as THREE from '../vendor/three/three.module.min.js';
 
+// How metal a surface is once its metal map is taken away.
+export const PLAIN_METAL = 0.2;
+
 // Returns what it changed (for the log), [] if nothing.
 export function applyCuts({ renderer, scene, sun }, cut) {
   const did = [];
@@ -30,6 +33,9 @@ export function applyCuts({ renderer, scene, sun }, cut) {
     for (const m of [o.material].flat()) {
       if (!m) continue;
       if (cut.surfaces === 'plain' && m.isMeshStandardMaterial && (m.normalMap || m.roughnessMap || m.aoMap || m.metalnessMap)) {
+        // (its metal map said which parts are metal: without it, and with no sky to
+        // reflect, the whole surface would be, near black: Q141)
+        if (m.metalnessMap && m.metalness > PLAIN_METAL) m.metalness = PLAIN_METAL;
         m.normalMap = m.roughnessMap = m.aoMap = m.metalnessMap = null;
         m.needsUpdate = true;
         plain++;

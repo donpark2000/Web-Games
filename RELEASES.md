@@ -9,6 +9,13 @@ fingerprint, the last part of the home page's version line.
 
 The Topple Lab's releases are at the end, under "Topple Lab".
 
+## 11.8 (2026-11-22, version 7acb374e8e70)
+
+Topple! on a slow device: steel, brick and the iron ball keep their colour.
+
+- **The light drawing** (what a slow device steps down to): level 2's steel posts, slabs and bricks, the tree trunks and level 4's timber, and the iron ball in levels 2-4 were very dark there, the whole surface taken for metal with nothing to reflect. They now look as they do in the full drawing, without the shine (Q141).
+- Nothing changes on a device that draws everything.
+
 ## 11.7 (2026-11-21, version 8faca195760c)
 
 The version line names the app, and the log has the same line.
@@ -1113,6 +1120,10 @@ bigger changes apart from the live game, at `…/Web-Games/topple-lab/`.
 Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
+
+## 0.11 (2026-11-22, version 8dbacf009a61)
+
+The same fix as Topple! 11.8, which the lab shares (the light drawing's dark steel and brick). The lab's own levels had it already; nothing else changes.
 
 ## 0.10 (2026-11-22, version 440789cab873)
 
