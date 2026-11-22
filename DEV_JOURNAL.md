@@ -26770,7 +26770,8 @@ of 193).
 
 - **Developer, the lab's park level on the 2019 Galaxy Tab A:** "Look is good and gameplay
   is good." Bush look C passes on the tablet, look and smoothness (lab 0.4; no log sent, so
-  no frame times).
+  no frame times). Said again later the same day, naming the lawn too: "The grass and bushes
+  look good and the game play is fine", so lab 0.3's photo lawn passes on the tablet as well.
 - **"not too many bushes in harder level. More in normal and hardest. Maybe thats just
   random":** random. Level 1's scenes 1-4 each get a bush or a tree by the game's seed
   (`levelPlan`), scene 5 both; the difficulty isn't an input (`sceneChoice`,
