@@ -2,7 +2,6 @@
   "name": "Topple Lab",
   "short_name": "Topple Lab",
   "description": "A copy of Topple! for trying new looks and sounds. Its games are its own. Plays with no connection once installed.",
-  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

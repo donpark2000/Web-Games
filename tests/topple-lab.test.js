@@ -91,6 +91,35 @@ test('lab: a lab page made from the main site\'s: styles from the main site unle
   assert.throws(() => labPage('<!doctype html>\n<head></head><body></body>', { from: 'y.html', title: 'Y', copied: [] }), /no scripts/);
 });
 
+// An installed app's identity, worked out as a browser does (the manifest
+// spec's "id"): from the start address's origin, NOT the manifest's folder;
+// none, or another origin's, and it's the start address.
+function appId(manifest, at) {
+  const start = new URL(manifest.start_url, at);
+  let id = start;
+  if (manifest.id) {
+    const u = new URL(manifest.id, start.origin);
+    if (u.origin === start.origin) id = u;
+  }
+  return id.href.replace(/#.*$/, '');
+}
+
+test("lab: its installed app isn't the main site's (Q140: one id, so Chrome took the lab for an update of Let's Play!)", async () => {
+  const site = 'https://donpark2000.github.io/Web-Games/';
+  const main = JSON.parse(await read('manifest.webmanifest'));
+  const lab = JSON.parse(await read(`${LAB}/manifest.webmanifest`));
+  const mainAt = `${site}manifest.webmanifest`, labAt = `${site}${LAB}/manifest.webmanifest`;
+  assert.equal(appId(lab, labAt), `${site}${LAB}/`, "the lab's id isn't its own address");
+  assert.notEqual(appId(lab, labAt), appId(main, mainAt), 'one id for both: a browser takes them for the same app');
+  // the main site's never changes: an installed Let's Play! would be another app
+  assert.equal(appId(main, mainAt), 'https://donpark2000.github.io/', "Let's Play!'s id changed");
+  // the working out: what went wrong, and the other ways an id is read
+  assert.equal(appId({ ...lab, id: './' }, labAt), appId(main, mainAt), 'lab 0.1-0.4, as Edge read it');
+  assert.equal(appId({ start_url: './', id: `/Web-Games/${LAB}/` }, labAt), `${site}${LAB}/`);
+  assert.equal(appId({ start_url: './#x', id: '' }, labAt), `${site}${LAB}/`);
+  assert.equal(appId({ start_url: './', id: 'https://example.com/a' }, labAt), `${site}${LAB}/`);
+});
+
 test("lab: every lab page loads only the lab's start, links the lab's manifest and icons; its home page has the version line", async () => {
   const pages = (await readdir(labRoot)).filter(f => f.endsWith('.html'));
   assert.deepEqual(pages.sort(), ['index.html', ...Object.keys(PAGES)].sort());
@@ -361,7 +390,7 @@ test('lab: its manifest names it "Topple Lab", its own app; its icon is the bear
   const m = JSON.parse(await read(`${LAB}/manifest.webmanifest`));
   assert.equal(m.name, 'Topple Lab');
   assert.equal(m.short_name, 'Topple Lab');
-  assert.deepEqual([m.id, m.start_url, m.scope], ['./', './', './'], "its own app (the lab's folder)");
+  assert.deepEqual([m.id, m.start_url, m.scope], [undefined, './', './'], "its own app: the lab's folder, and no id (Q140: './' is the whole site)");
   assert.equal(await read(`${LAB}/icons/icon.svg`), labIconSvg(), 'run  node tools/make-icons.js lab');
   assert.notEqual(labIconSvg(), iconSvg());
   for (const { file, size } of PNGS) assert.deepEqual(pngSize(await readFile(path.join(labRoot, 'icons', file))), { width: size, height: size }, file);

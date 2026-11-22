@@ -29,6 +29,10 @@ time, each tried before publishing:
   apps have the same identity** (see "Q140: the lab and the site share one app id"). **To
   ask:** OK to take the lab's `id` line out (its id becomes its own address) and publish as
   lab 0.5, then remove the G shortcut and install again?
+  **Developer (2026-11-22), reinstalling 0.4:** Chrome said it was "already installed, asking
+  me if I wanted to change it"; on a yes, the Let's Play! icon opens Topple Lab. So the
+  identity is the cause, and the installed Let's Play! was changed by the lab.
+  **Built, not published: lab 0.5** (no `id` in the lab's manifest; see "Q140: lab 0.5").
 
 - **Q139. Topple!: a more realistic look; a Topple Lab apart** (2026-11-20, developer:
   "our games so far look much more like low budget cartoons", asking for a plan with CC0
@@ -490,6 +494,13 @@ time, each tried before publishing:
   levels 6-10, release 11.0** (see "Q119 built"); for the developer to play.
 
 ## Proposed additions to the standards skill
+
+- **Check a setting as the platform reads it, not as it's written** (2026-11-22, "Q140: the
+  lab and the site share one app id"): a test required the lab manifest's `"id": "./"` as
+  "the lab's folder", but a browser reads an id from the site's origin, so two apps had one
+  identity and one overwrote the other on a tablet. Asking the browser for its answer
+  (DevTools `Page.getAppId`) showed it at once. Would it help elsewhere? Any config whose
+  meaning another program works out (paths, ids, scopes).
 
 - **Before saying where data is kept, read every layer between the code and the store**
   (2026-11-21, "The app's name and version in the log's page headings"): Claude told the
@@ -26799,7 +26810,8 @@ of 193).
   `https://donpark2000.github.io/`. Both manifests say `"id": "./"`, and an id is read from
   the start address's origin, not from the manifest's folder (MDN, the manifest's `id`).
   Both manifests parse with no errors and 4 icons, and Edge lists nothing against installing
-  either. The lab's was copied from the site's fields; no test compares the two ids.
+  either. The lab's was copied from the site's fields; no test compares the two ids (one
+  test required the lab's `"./"` as "its own app (the lab's folder)": the same wrong belief).
 - **What it means (MDN, "id"):** one id is one app; a browser that has it installed takes a
   second manifest with that id as an update of it, even from another address. So with
   Let's Play! installed, the lab isn't a new app to Chrome; and it's a possible way for the
@@ -26817,3 +26829,26 @@ of 193).
   they're the same; shown to fail on today's files first.
 - **May not be enough:** the lab's address is inside Let's Play!'s scope (`/Web-Games/`),
   the earlier guess, which the fix doesn't change. The tablet will tell.
+
+## 2026-11-22: Q140: lab 0.5 (the lab's own identity; built, not published)
+
+- **The developer, on the tablet** (lab 0.4, the G shortcut removed, installed again from
+  Chrome): it said "already installed, asking me if I wanted to change it. I said yes, and
+  now I have the Let's Play icon on my desktop but when I open it, it opens Topple Lab".
+  **Shows:** Chrome takes the two for one app, and the lab's manifest changed the installed
+  Let's Play!'s start page: the thing the lab's guards (its own storage names, caches and
+  files) were to rule out. They keep the lab off the main site's files and saves; the
+  one test of its identity checked the manifest's text, `"./"`, not the id a browser makes
+  of it (found when it failed on the fix; now it requires no `id`). **Doesn't show:** any saved game touched (the stores'
+  names were apart throughout).
+- **Built:** the `id` line out of `topple-lab/manifest.webmanifest`; the site's untouched.
+  **Test** (`tests/topple-lab.test.js`): both ids worked out as a browser does, the lab's is
+  its own address and not the site's, the site's is pinned. Run before the fix it failed
+  with the origin in place of the lab's address, as Edge measured.
+- **The log:** nothing added; a page can't read its own app id.
+- **On the tablet after publishing:** the changed app keeps the old id, so the fix can't put
+  it right: uninstall it (leaving "also delete data" unticked, if asked), then install
+  Let's Play! from `/Web-Games/` and the lab from `/Web-Games/topple-lab/`. Not known: if
+  the lab then installs as an app, since its address is inside Let's Play!'s scope.
+- **Open questions:** Q140 (to try once 0.5 is live), Q139 (the lab), Q136 and Q130 (site
+  11.4: to try), Q134 (site 11.3: to try), Q121, as before otherwise.

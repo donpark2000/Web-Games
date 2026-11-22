@@ -1114,6 +1114,14 @@ Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
 
+## 0.5 (2026-11-22, version 09e0082a2626)
+
+The lab installs as an app of its own, beside Let's Play!.
+
+- **Its own identity**: until now the lab had the same app identity as Let's Play!, so on a device with Let's Play! installed, Android's Chrome took the lab for a change to it (a shortcut with the letter G, or Let's Play!'s icon opening the lab). Let's Play! itself isn't changed.
+- **If that happened on your device**: uninstall both icons, then install Let's Play! from its own page and the lab from the lab's.
+- Nothing new to download. The games as in 0.4.
+
 ## 0.4 (2026-11-21, version 0035e2e64b6c)
 
 A bush that looks more like a real shrub, and the version line names the lab.

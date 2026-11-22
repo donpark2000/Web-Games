@@ -1814,6 +1814,13 @@ sounds), without "any risk of accidentally corrupting the current game".
   (`topple-lab/index.html`, its own) has a button to its Topple!, a
   "Being tried" list and the version line, which opens **its own log
   page**. No visit counter.
+- **An app identity of its own** (journal Q140, lab 0.5): a manifest's
+  `id` is read from the site's origin, not from the manifest's folder,
+  so `"id": "./"` in both gave one app, and Chrome on Android took the
+  lab for an update of the installed Let's Play!. The lab's manifest has
+  **no `id`**, so it's its own address; Let's Play!'s stays `"./"`
+  (`https://donpark2000.github.io/`): changing it would make installed
+  copies another app. A test works out both and fails if they match.
 - **Release numbers of its own** (developer, 2026-11-20: "Own lab
   numbers"): 0.1, 0.2 ... in `topple-lab/src/core/release.js`, notes under
   `RELEASES.md`'s "# Topple Lab" heading, each a git tag `lab-vX.Y` on
