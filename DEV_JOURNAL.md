@@ -26953,3 +26953,51 @@ of 193).
   log's "saved for offline ... install" line.
 - **Open questions:** Q139 (the lab), Q136, Q130, Q134, Q121, as before otherwise. Nothing
   waiting on an answer.
+
+## 2026-11-22: Topple Lab, levels 2-10: the plan and the downloads to OK (nothing built or downloaded)
+
+- **Developer:** can Claude do "all the rest of the levels without me being involved in
+  starting new sessions all the time, and just publish it when you are done?" ("I think there
+  are enough 'lessons learned' from doing 'The Park'"). Claude: yes, in the lab, in one
+  session; first one list of downloads to OK, and the OK to publish lab releases as they're
+  done. **Developer: "Yes, prepare it"** (the list; the publishing not yet said).
+- **Pictures of every level as lab 0.5 draws it** (scratch `shots.mjs`: headless Edge through
+  DevTools, 1280×800, `Math.random` seeded so every run deals the same scenes, triangles and
+  draw calls counted at WebGL's calls, shadow pass included; 11 scenes in 47 s), in
+  `Web-Games-testing\2026-11-22_levels\before\`. Triangles, draw calls: level 1 62,952, 47;
+  2 50,730, 87; 3 8,138, 52; 4 19,820, 65; 5 13,568, 78; moon 6 33,336, 355; 7 42,676, 58; 8 11,578,
+  116; 9 7,326, 175; 10 8,594, 104. (The park is judged smooth on the tablet, so its
+  63,000 triangles are a level known to run there.)
+- **What reads as drawn** (Claude, on the pictures): 2: the ground (a repeated tile with
+  ruled lines) over a photo that has its own concrete; cones and pipes. 3: the snow (a 2 m
+  photo with twigs in it, repeated, grey), the cone pines, the faceted rock. 4: the sand
+  (repeated), the boulders ("wood": the cliff photo stretched), the scrub's drawn leaves over
+  a smooth core. 5: as 3, and the skyline cut in steps, big blotchy stars, a drawn moon. Moon: the
+  ground (drawn craters, a seam where the texture repeats), flat-coloured shapes, a drawn
+  Earth, faceted rocks.
+- **Found:** the photos of 2 (`construction_yard`) and 4 (`goegap`) have flat open ground all
+  round, so the park's way (`photoGround`) fits both with **nothing to download**. 3 and 5's
+  (`lago_disola`) has a rocky shore and a road close up: no. Level 3's rock in play is a sphere's
+  cap in the physics, the pine a trunk and four balls, the scrub balls: shapes kept, their
+  surfaces changed (as the park's bush).
+- **Plan, a release each:** 0.6 level 2, 0.7 level 3, 0.8 level 4, 0.9 level 5, 0.10 the moon
+  (6-10). Looks only; the play, the physics' shapes and the main site's files unchanged; the
+  moon's sounds (Q121) wait. Triangles no more than about the park's. Models cut down to about
+  1,000 triangles by a scratch tool before they're kept. Anything that won't look right
+  stays as it is and is written down. Before and after pictures of each.
+- **The downloads (about 70 MB into the test folder; about 8 MB of it, made smaller, kept in
+  the lab):** Poly Haven (CC0): Cement Bag 1.4, Barrel 03 0.6, Concrete Road Barrier 3.6 (2); Snowy
+  Field 4.3 and Snowy Park 01 4.9 (360° photos, one kept), Fir Sapling's twig pictures 0.8, Rock
+  Boulder Dry 2.3 (3, 5, moon); Namaqualand Boulder 03, 04, 05 11.6 (4); Moon 01 2.3, Moon Meteor 02
+  2.1, Moon Rock 02, 03, 04, 06, 07 7.0, Barrel 01 0.7, Blue Metal Plate 1.0 (moon). ambientCG
+  (CC0): Snow010A 6.3, Ice004 5.5 (3); Solar Panel 003 4.7, Foil 002 7.0, Metal Plates 004 2.9
+  (moon). NASA (public domain, credit asked for, not CC0): the Moon (LRO colour map 1K) 0.1
+  (5), the Earth with clouds (SVS 3615) 0.5 (moon). Sizes in MB, from the sources' APIs.
+- **To ask:** OK to download these; OK to publish lab releases as they're finished; and level 3 and
+  5's background would change from the mountains to a snowy field with trees if that looks
+  better (the mountain photo has no snow close up).
+
+**Status (start here next session)**
+- **Live: site 11.7 and Topple Lab 0.5.** `block-game` = `main` plus notes only.
+- **Next:** the developer's answers above, then level 2 (lab 0.6).
+- **Open questions:** Q139 (the lab), Q136, Q130, Q134, Q121, as before otherwise.
