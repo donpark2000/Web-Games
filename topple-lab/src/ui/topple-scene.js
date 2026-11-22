@@ -16,6 +16,7 @@ import { CABLE_TOP, DROP_FROM, ZIP_Y, SNOWMAN, MACHINE, MUZZLE_Y, HAT, machineAt
 // higher, over the load hauled up out of sight.
 const cableTop = m => (m.move === 'drop' ? DROP_FROM + 3 : CABLE_TOP);
 import { makeSetting, birds, parkPhotos } from './topple-sets.js';
+import { plainMetal } from './topple-models.js';   // (the lab's own)
 import { applyCuts } from './drawcuts.js';
 import { leafLayers, lumps } from '../core/park-ground.js';   // (the lab's own)
 
@@ -323,6 +324,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     Object.assign(sun.shadow.camera, { left: -R, right: R, top: R, bottom: -R, near: 0.5, far: 12 * SCALE + 6 });
     sun.shadow.camera.updateProjectionMatrix();
     applyCuts(three, cuts);   // the new blocks' and things' surfaces too
+    if (cuts.surfaces === 'plain') plainMetal(scene);
     return { leaves, ms: Math.round(performance.now() - t0) };
   }
 
@@ -1010,6 +1012,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
       ballMeshes.clear();
       for (const m of slingParts) m.material = set ? set.slingMat : parkPhoto?.barkMat ?? m.userData.wood;   // (the lab's park: a branch, in its bark)
       applyCuts(three, cuts);   // the setting's sky light and surfaces too
+      if (cuts.surfaces === 'plain') plainMetal(scene);
       return { level: n, photos: !!set || (n <= 1 && !!parkPhoto), ...(park ? { park } : {}), ...(set?.lab ? { lab: set.lab } : {}), ms:Math.round(performance.now() - t0), ...(set?.nightMs !== undefined ? { nightMs: set.nightMs, skyline: set.skyline } : {}), ...(error ? { error } : {}) };
     },
     // A block broke (ice shattered, a barrel burst): its pieces fly.
@@ -1067,7 +1070,7 @@ export function makePark3d(canvas, { antialias = true } = {}) {
     viewEdges,
     // The drawing lighter on a slow device (src/core/drawing.js, Q99): the
     // cuts now and on every scene and setting to come; what changed now.
-    setDrawing(c) { cuts = { ...c }; return applyCuts(three, cuts); },
+    setDrawing(c) { cuts = { ...c }; const did = applyCuts(three, cuts); if (cuts.surfaces === 'plain') plainMetal(scene); return did; },
     // For the speed test (log.html, Q99): the three.js parts it changes,
     // and letting go of the canvas' GPU memory once it's done with.
     three: { renderer, scene, camera, sun },

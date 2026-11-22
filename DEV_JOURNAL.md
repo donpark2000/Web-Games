@@ -27110,3 +27110,42 @@ passed; live 20 s after the push (9a05081e957d); site still 11.7.
   as drawn: the owl and its tree, the sled, the lantern, the glowing ball.
 - **Tests:** the photos' check takes in the night's files (the skyline 2,048 rows within its bounds).
   `nightSky` is gone from the lab's copy (the main site's is untouched).
+
+**Lab 0.9 published and live**: `main` = b1b5c0a, tag `lab-v0.9`, a GitHub pre-release; 821 tests
+passed; live 20 s after the push (62d710a7aeda); site still 11.7.
+
+## 2026-11-22: The lab's moon (lab 0.10)
+
+- **The lab's copies** of `topple-moon.js` and `topple-moon-looks.js` (made with the tool), with
+  `topple-moon-photos.js` and `core/moon-ground.js` of its own. `ph` (the photos) or null: every
+  change has the old drawing beside it, used when the photos can't load (tried: the pictures
+  blocked, the moon as Topple!'s, 33,336 triangles as before).
+- **The ground:** moon_01 (3.1 m a copy) over a 48 m map of 1,500 craters made by a script
+  (`craters.mjs`: slopes and lightness; nothing over 0.6 m in play), hills past 22 m (46 m at
+  Solar Farm). moon_meteor_02, MetalPlates004, two of the five moon rocks, Cement's and others'
+  larger pictures downloaded and **not used**.
+- **First try: brown and dark, and 71,896-302,156 triangles** (700-triangle rocks, 70 of them and
+  26 a heap). Now grey, rocks of 200 triangles: **32,580-72,364** (0.5: 7,326-42,676).
+- **Found: three.js's `clone()` drops a material's shader changes**, and copies `userData`
+  through JSON (pictures and all). Each moon block has its own copy of its material (to light
+  up alone), so: `copyMaterial`, and the uniforms kept off `userData`.
+- **Found in the light drawing** (`?drawing=light`, what a slow device gets): **the lab's models
+  (0.6-0.9) were near black**: `drawcuts.js` takes the metal map away and leaves metalness 1,
+  with no sky to reflect. Fixed (no metal in them). **Topple!'s own steel, brick and iron ball
+  are dark there too, on the site** (seen: `light\L2_1_site.jpg` beside the lab's): fixed in the
+  lab only (`plainMetal`), where the cuts are made. **To ask: fix it on the site too?** (It's
+  what the 2019 tablet shows, if it steps down there.)
+- **The moon was never drawn lighter on a slow device** (only the park's drawing is watched).
+  The lab's now is, measured for itself (`drawWatch('topple-moon')`).
+- **Time a frame, measured on this PC** (scratch `time.js`: the median of 50 frames, each read
+  back so it's finished, 1174×784, Intel UHD 750, the same scenes; site 11.7 → lab): 2:1 9.4 → 6.9
+  ms, 2:5 12.0 → 8.1, 3:5 12.3 → 9.0, 4:5 8.2 → 8.2, 5:5 12.9 → 11.1; moon 6:1 11.3 → 14.1, 7:1 5.8 →
+  9.4, 8:1 9.1 → 8.6, 9:1 11.5 → 13.9, 10:1 8.9 → 9.7. **Shows:** levels 2-5 are no slower to draw
+  than the live game's, mostly quicker (the ground takes one read a pixel, no light); the moon
+  is up to 60% slower. **Doesn't show:** the tablet (its chip is different and far slower).
+- **Tests** (`tests/topple-lab-moon.test.js`, 6): pictures, flat ground in 80 dealt scenes, a
+  copy keeps its shader (and the shader's changes land), nothing all metal, the page's waiting
+  and watching. **13 deliberate breaks** in the lab's new code (scratch `mutate.mjs`): all
+  caught.
+- **Not done:** the moon's sounds (Q121); the greenhouse's round bushes, the rover, the flag as
+  drawn. All the lab's own photos and models: 6.0 MB.

@@ -8,11 +8,15 @@ import * as THREE from '../vendor/three/three.module.min.js';
 // A standard material in `map` (a colour texture, repeating) and `nor` (its
 // normal map, OpenGL), one copy `size` m across; bump: how deep the normal
 // map looks; opts: the material's own (colour, roughness ...).
+const laid = new WeakMap();   // texture -> its repeating copy
+function tex(t, colour) {
+  if (!laid.has(t)) { const v = t.clone(); v.wrapS = v.wrapT = THREE.RepeatWrapping; v.colorSpace = colour ? THREE.SRGBColorSpace : THREE.NoColorSpace; v.anisotropy = 4; v.needsUpdate = true; laid.set(t, v); }
+  return laid.get(t);
+}
 export function triplanar(map, nor, size, { bump = 1, ...opts } = {}) {
-  const tex = (t, colour) => { const v = t.clone(); v.wrapS = v.wrapT = THREE.RepeatWrapping; v.colorSpace = colour ? THREE.SRGBColorSpace : THREE.NoColorSpace; v.anisotropy = 4; v.needsUpdate = true; return v; };
   const m = new THREE.MeshStandardMaterial({ roughness: 0.95, metalness: 0, ...opts });
   const u = { triMap: { value: tex(map, true) }, triNor: { value: tex(nor) }, triScale: { value: 1 / size }, triBump: { value: bump } };
-  m.userData.tri = u;
+  m.tri = u;   // (not in userData: three.js copies that through JSON, pictures and all)
   m.onBeforeCompile = s => {
     Object.assign(s.uniforms, u);
     s.vertexShader = s.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vTriP; varying vec3 vTriN; varying mat3 vTriM;')
@@ -34,12 +38,22 @@ export function triplanar(map, nor, size, { bump = 1, ...opts } = {}) {
         diffuseColor.rgb *= texture2D(triMap, triP.zy).rgb * triB.x + texture2D(triMap, triP.xz).rgb * triB.y + texture2D(triMap, triP.xy).rgb * triB.z;`)
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
         {
+          #ifndef TRI_PLAIN
           vec2 tx = (texture2D(triNor, triP.zy).xy * 2.0 - 1.0) * triB.x, ty = (texture2D(triNor, triP.xz).xy * 2.0 - 1.0) * triB.y, tz = (texture2D(triNor, triP.xy).xy * 2.0 - 1.0) * triB.z;
           vec3 d = vec3(0.0, tx.y, tx.x) + vec3(ty.x, 0.0, ty.y) + vec3(tz.x, tz.y, 0.0);
           normal = normalize(normal + vTriM * d * triBump);
+          #endif
         }`);
   };
   return m;
+}
+
+// A copy of a material that keeps what it does to the shader (three.js's own
+// copy doesn't).
+export function copyMaterial(m) {
+  const c = m.clone();
+  if (m.tri) { c.tri = m.tri; c.onBeforeCompile = m.onBeforeCompile; }
+  return c;
 }
 
 // A geometry's normals made smooth across corners in the same place (an

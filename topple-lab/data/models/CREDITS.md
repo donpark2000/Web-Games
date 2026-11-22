@@ -17,4 +17,8 @@ roughness, metalness).
 | `namaqualand_boulder_03*` | Namaqualand Boulder 03 | 1,400 (64,826) | level 4: boulders | Jenelle van Heerden, Dario Barresi | https://polyhaven.com/a/namaqualand_boulder_03 |
 | `namaqualand_boulder_04*` | Namaqualand Boulder 04 | 1,400 (59,066) | level 4: boulders | Jenelle van Heerden | https://polyhaven.com/a/namaqualand_boulder_04 |
 | `namaqualand_boulder_05*` | Namaqualand Boulder 05 | 900 (89,618) | level 4: flat rocks | Jenelle van Heerden, Dario Barresi | https://polyhaven.com/a/namaqualand_boulder_05 |
+| `moon_rock_02*` | Moon Rock 02 | 200 (3,304) | the moon: rocks | Rico Cilliers, Greg Zaal, Jenelle van Heerden | https://polyhaven.com/a/moon_rock_02 |
+| `moon_rock_04*` | Moon Rock 04 | 200 (7,636) | the moon: rocks | Greg Zaal, Rico Cilliers, Jenelle van Heerden | https://polyhaven.com/a/moon_rock_04 |
+| `moon_rock_06*` | Moon Rock 06 | 200 (6,920) | the moon: rocks, ore | Greg Zaal, Jenelle van Heerden, Rico Cilliers | https://polyhaven.com/a/moon_rock_06 |
+| `Barrel_01*` | Barrel 01 | 559 (2,682) | the moon: fuel drums | Jorge Camacho | https://polyhaven.com/a/Barrel_01 |
 | `barrel_03*` | Barrel 03 | 500 (1,473) | level 2: the blue drums | Serhii Khromov | https://polyhaven.com/a/barrel_03 |

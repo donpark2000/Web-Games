@@ -1871,7 +1871,7 @@ sounds), without "any risk of accidentally corrupting the current game".
   links or loads anything of the lab.
 - **Looks, level by level** (developer, 2026-11-22: "do all the rest of the
   levels ... and just publish it when you are done"; journal "Topple Lab,
-  levels 2-10"): looks only, the play and the physics' shapes as in
+  levels 2-10"; releases 0.6-0.10): looks only, the play and the physics' shapes as in
   Topple!. A level whose 360° photo has flat open ground takes it for its
   ground (`photoGround`, `SETTINGS.photo`: levels 1-5; level 3 in a new
   photo, a snowy field, the mountains' having no flat snow close up; a
@@ -1885,6 +1885,15 @@ sounds), without "any risk of accidentally corrupting the current game".
   a small JSON and three pictures; with a soft shade under what stands
   outside the sun's shadow. All CC0 (NASA's public domain where said), all
   the lab's own photos and models together under 12 MB (tested).
+- **The lab's moon** (`src/ui/topple-moon-photos.js`, lab 0.10): a photo of
+  dust over a map of craters, hills past 22 m (flat wherever anything
+  stands: `src/core/moon-ground.js`), panelled metal and rock laid from
+  three sides (each block's own copy of a material keeps its shader:
+  `copyMaterial`), NASA's Earth. Its photos load before the first moon
+  scene; without them it's drawn as Topple!'s. Its frames are watched for
+  themselves (`drawWatch('topple-moon')`) and it steps down as the park's
+  does. In the light drawings nothing is left all metal (`plainMetal`:
+  Topple!'s steel and brick go dark there).
 - **`node tools/offline.js` brings both up to date**, the main site and
   then the lab (its pages, sw.js, file list and version), since the lab
   is made from the main site's files; the tests fail while either is

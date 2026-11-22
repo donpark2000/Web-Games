@@ -16,6 +16,10 @@ export const MODELS = {
   boulderA: 'namaqualand_boulder_03',
   boulderB: 'namaqualand_boulder_04',
   boulderC: 'namaqualand_boulder_05',
+  moonRockA: 'moon_rock_02',
+  moonRockB: 'moon_rock_04',
+  moonRockC: 'moon_rock_06',
+  drum: 'Barrel_01',
 };
 
 const loader = new THREE.TextureLoader();
@@ -39,7 +43,10 @@ async function make(name) {
   geo.setAttribute('uv', new THREE.BufferAttribute(d.uv, 2));
   geo.setIndex(new THREE.BufferAttribute(d.index, 1));
   geo.computeBoundingSphere();
-  const mat = new THREE.MeshStandardMaterial({ map: col, normalMap: nor, aoMap: arm, roughnessMap: arm, metalnessMap: arm, roughness: 1, metalness: 1 });
+  // (no metal: none of them is bare metal, and the light drawing takes the maps away
+  // (src/ui/drawcuts.js), which left a model all metal, with nothing to reflect: dark;
+  // lab 0.6-0.9)
+  const mat = new THREE.MeshStandardMaterial({ map: col, normalMap: nor, aoMap: arm, roughnessMap: arm, roughness: 1, metalness: 0 });
   return { geo, mat, size: d.size, tris: d.index.length / 3 };
 }
 // The model `name`, loaded (the same one each time; a load that failed is
@@ -49,6 +56,15 @@ export function loadModel(name) {
   return made.get(name);
 }
 export const loadModels = async names => Object.fromEntries(await Promise.all(names.map(async n => [n, await loadModel(n)])));
+
+// The light drawing takes the surfaces' maps away (src/ui/drawcuts.js), and
+// what the metal map had picked out is then all metal, with no sky to reflect:
+// near black. Where that happened, little metal instead; how many it changed.
+export function plainMetal(scene) {
+  let n = 0;
+  scene?.traverse(o => { for (const m of [o.material].flat()) if (m?.isMeshStandardMaterial && m.metalness > 0.5 && !m.metalnessMap && !m.envMap) { m.metalness = 0.2; n++; } });
+  return n;
+}
 
 // A soft shade on the ground under things out of the sun's shadow (the shadows
 // cover only what's in play): at: [{ x, z, w, d, yaw }], one mesh.

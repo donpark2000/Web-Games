@@ -1114,6 +1114,19 @@ Its releases have numbers of their own, 0.1, 0.2 ..., newest first. Each
 is a git tag `lab-vX.Y` and a GitHub pre-release; a release of only the
 lab leaves the site's release as it was.
 
+## 0.10 (2026-11-22, version 440789cab873)
+
+The moon (levels 6-10) in photos: all ten levels now have their new look.
+
+- **The ground**: a photo of moon dust over a map of craters, with real hills on the skyline, instead of drawn craters in a repeated square; photographed moon rocks.
+- **The base, rockets and machines** in panelled, worn metal; solar panels with real cells; crates and tanks scuffed and dusty; the fuel drums photographed ones. Each block keeps its colours and shape.
+- **The lander** in crinkled gold foil, its feet outwards, with struts, thrusters and a glass dome that reflects; flames and steam that look like light and gas.
+- **The Earth** is NASA's, lit by the sun, with a thin blue air; many more stars, most of them faint.
+- **Crater Rim**'s far wall has ridges and gullies; **Mining Site**'s heaps are rubble; its crystals glassier.
+- **The moon is drawn lighter on a slow device**, as the park's levels already were (it never was before), measured for itself.
+- **Fixed, levels 2-4 (lab 0.6-0.9) on a slow device**: the photographed models were near black in the light drawing; and steel and brick blocks, dark there in Topple! too, keep their colour.
+- 1.0 MB added (sources and licence: `topple-lab/data/moon/CREDITS.md`; the Earth NASA's). The play is as before. The moon's sounds are still Topple!'s.
+
 ## 0.9 (2026-11-22, version 62d710a7aeda)
 
 Star Light (level 5): the snowy field at night.

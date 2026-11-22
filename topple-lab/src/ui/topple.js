@@ -509,7 +509,7 @@ let thrownAt = 0;          // performance.now() of the latest throw (the glow's 
 // The moon base (levels 6-10, Q119): its drawing and physics (made the first
 // time a moon scene starts), and the scene under way: { scene, f: the lander,
 // held (the pad: steering), z0 (where it was steered from), lit, keys }.
-let moon3d = null, moonWorld = null;
+let moon3d = null, moonWorld = null, moonDrawing = null;
 const mo = { on: false, scene: null, f: null, held: false, z0: 0, lit: -1, keys: { up: false, down: false } };
 const onMoon = () => mo.on && !!mo.scene;
 
@@ -733,6 +733,8 @@ function makeMoonStage() {
   moon3d = moonDraw.makeMoon3d($('cm'));
   moonWorld = moonPhysics.createMoonWorld({ onHit: moonHit });
   L('moon: 3D started', { pixelRatio: Math.min(devicePixelRatio || 1, 2) });
+  // (the lab: its photos make it heavier to draw, so it's watched, as the park is, and drawn lighter on a slow device)
+  moonDrawing = drawWatch('topple-moon', moon3d, L);
 }
 // Which canvas shows: the moon's for a moon scene, else the park's; the turn button with the moon's.
 function showWorld(moonOn) {
@@ -916,6 +918,9 @@ async function makeTheScene(kept) {
 async function makeMoonScene(lv, kept, spec) {
   makeMoonStage();
   showWorld(true);
+  // (the lab: its photos, the first time; drawn plain if they can't be loaded)
+  const got = await moon3d.photos();
+  if (got) L('moon photos', got);
   const look = spec.part ? 'bare' : lv;
   if (moon3d.level !== look) { const t0 = performance.now(); moon3d.setLevel(look); L('setting', { level: look, name: spec.part ? 'the tutorial: no base' : levelInfo(lv).name, moon: true, ms: Math.round(performance.now() - t0) }); }
   const t0 = performance.now();
@@ -940,6 +945,7 @@ async function makeMoonScene(lv, kept, spec) {
   $('hint').hidden = true;
   renderTut();
   perf.frames = 0; perf.physMs = 0; perf.dropped = 0; perf.at = performance.now();
+  moonDrawing?.restart();
   glowIdle = 0; glowsSaid = 0;
   renderTally();
   L(kept ? 'moon scene picked up again' : tut ? 'tutorial: a part' : 'moon scene', {
@@ -1045,6 +1051,7 @@ function moonTick(dt, draw) {
   moon3d.setAim(p, lit);
   blastHand(ok, null, p && [p[0], 0, p[2]]);
   moon3d.render();
+  moonDrawing?.frame(performance.now());
 }
 
 // The thing that moves in the way, for the scene drawn (Q106): the one its
