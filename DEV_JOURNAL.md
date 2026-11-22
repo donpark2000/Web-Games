@@ -32,7 +32,8 @@ time, each tried before publishing:
   **Developer (2026-11-22), reinstalling 0.4:** Chrome said it was "already installed, asking
   me if I wanted to change it"; on a yes, the Let's Play! icon opens Topple Lab. So the
   identity is the cause, and the installed Let's Play! was changed by the lab.
-  **Built, not published: lab 0.5** (no `id` in the lab's manifest; see "Q140: lab 0.5").
+  **Published: lab 0.5** (2026-11-22; no `id` in the lab's manifest; see "Q140: lab 0.5");
+  to try on the tablet.
 
 - **Q139. Topple!: a more realistic look; a Topple Lab apart** (2026-11-20, developer:
   "our games so far look much more like low budget cartoons", asking for a plan with CC0
@@ -26852,3 +26853,27 @@ of 193).
   the lab then installs as an app, since its address is inside Let's Play!'s scope.
 - **Open questions:** Q140 (to try once 0.5 is live), Q139 (the lab), Q136 and Q130 (site
   11.4: to try), Q134 (site 11.3: to try), Q121, as before otherwise.
+
+## 2026-11-22: Topple Lab 0.5 published and live
+
+- **Developer: "Publish lab 0.5".** `main` = e0be06a, tag `lab-v0.5`, a GitHub pre-release;
+  811 tests passed, `release.js lab` ready, main-site files changed: none. Site still 11.7.
+- **Live, measured** (headless Edge, `Page.getAppId`): the site
+  `https://donpark2000.github.io/` (as before), the lab
+  `https://donpark2000.github.io/Web-Games/topple-lab/`; nothing listed against installing
+  either. Before: one id for both.
+- **No localhost servers running** (looked for `serve.js` and listening ports).
+
+**Status (start here next session)**
+- **Live: site 11.7 and Topple Lab 0.5.** `block-game` = `main` plus this entry.
+- **Developer is trying:** both apps installed afresh on the 2019 Galaxy Tab A (Let's Play!
+  uninstalled first), the lab once its version line says 0.5. If Chrome still won't install
+  the lab as an app, the next suspect is its address inside Let's Play!'s scope.
+- **To ask again:** bushes left random, or at least one or two a game (site and lab)? OK to
+  purge the five folders in `Web-Games-testing` (`2026-11-20_realism`, `2026-11-20_park`,
+  `2026-11-21_ground`, `2026-11-21_bush`, `2026-11-21_photo-bush`), the park having passed
+  on the tablet?
+- **Next in the lab:** levels 2-4's drawn props (Q139 changes 3-5), from level 2; the moon
+  (photo surfaces); its sounds (Q121). Picture scripts: see 2026-11-21's status.
+- **Open questions:** Q140 (lab 0.5: to try), Q139 (the lab), Q136 and Q130 (site 11.4: to
+  try), Q134 (site 11.3: to try), Q121, as before otherwise.
