@@ -11,8 +11,11 @@ being asked (the developer's first message may just be "start"):
    next session)" entry** (or the latest entry, until there is one); read
    older entries only when a task needs them.
 3. Check `git status` and that the branch matches GitHub (`git fetch`).
-4. Reply with a short summary: where things stand, the next step, and
-   anything needed from the developer. Then wait for the go-ahead.
+4. Reply with a short summary: where things stand, why we're doing the
+   current work (a line or two; the developer works across days with no
+   easy way to look back at past sessions), any rules that changed since
+   the last session, the next step, and anything needed from the
+   developer. Then wait for the go-ahead.
 5. Name the session in the sidebar as `<Mon D> · <topic>` (e.g. "Oct 4 ·
    Web games kickoff"), once the developer's go-ahead makes the topic
    clear, so sessions can be told apart. Rename it if the work changes a
